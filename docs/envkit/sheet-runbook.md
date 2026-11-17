@@ -38,7 +38,9 @@ reference of one it does: `"turn": {"from": "<view>", "to": "<what it is seen fr
 cut (the rail yard's rear, whose corner view showed another building than its front, user 2026-11-13)). The model
 tends to draw a turned rear with the gable on the left whichever corner it is asked for; work out which side that puts
 the detailed wall on, and where it is the wrong one, cut with `"mirror": true` (the reference flipped left to right
-first, its box in the flipped picture). Mirror only a reference without lettering. Before generating a building's
+first, its box in the flipped picture). Mirror only a reference without lettering. A rear that is to be the front's
+plain mirror image takes `"drawn": true` beside its mirrored cut and is never redrawn: the redraw of a flipped front
+draws the block the front's way round again (Aurora Warrens, user 2026-11-15). Before generating a building's
 pieces, check that each side wall is the same material in every piece that shows it, that the dock doors match, and
 that nothing large (a trailer, a skip) stands in front of the doors: the generator fuses it into the wall.
 
@@ -391,6 +393,48 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   Smooth the door with `slats` as well: `{"part": ..., "box": ..., "radius": 0.08, "slats": 0.12}` takes the pattern
   off and draws a joint every 0.12 m up the model. Keep lettering out of the boxes (one under it, one over it and one
   either side), and read the boxes off the texture rather than by eye. A pitch under four texels is refused.
+- **A roller or bay door is one flat colour, its slats lost** (the Ghost Riders garage: a flat dark blue with a few
+  stray flecks; user, 2026-11-15: "garage and bay doors seem to have problems on a lot of the meshy models, can we
+  add reusable checks and repairs for that?"). `game` and `tiles` look for it on every model: each upright panel the
+  size of a door that the picture draws in one flat colour, starting near the ground, is an entry of `blankPanels`
+  in the report and a note (`convert.blank_panels`) that gives the `smooth` entry which draws it again as slats.
+  Look at the panel with `view --eye`; where it is a door, copy the entry into the game set, pull its box in to the
+  door's own edges (clear of the jambs, a strip light over it, bollards in front), add a `colour` where the
+  generator's shade is wrong, and build again: a panel whose middle lies in a `smooth` box with `slats` is told no
+  more. A painted steel plate and the inner face of a wall read the same and are left: a note is a place to look.
+  Slats drawn finer than the texels (the moiré above) are not found by this check; the repair is the same.
+- **Flames, a fire or a torch came back as a solid, still mesh** (the Ghost Riders burn barrel; user, 2026-11-15:
+  "we should remove the flames from the barrel and add that as a vfx"). Take the flames off with a `clear` box
+  from just above what burns and state the fire: `"fire": [{"part": ..., "at": [x, y, z], "width": metres}]`, on
+  the finished model, at the fire's foot. The game then draws the stock medium flame's own flames there
+  (`convert.fire_lines`), scaled to the width, by day and by night. A placeable only; a fire further than 0.3
+  metres from the model is refused. A fire that should light the ground takes a `light` in an orange row of
+  `lightcolor.2da` (31) at its foot, and what it burns down to is a bed of embers (the next row). A model
+  with a fire is compiled by `convert.compile_placeable`: a twin without the fire passes the usual read-back check,
+  and the model itself is decompiled again and must hold its fire and every face. A script puts the fire out and
+  lights it again by the model's animations (`docs/envkit/lights.md`, A fire), so the prop is placed not static and
+  `check lights` stands it among the lit props. A model with a fire takes no `lit` parts: one script for both
+  left the flame burning (client, 2026-11-16), and such a set is refused. What should glow on it is its bed of
+  embers; a lamp on it is another prop. See the flames in `check props` by day and by night.
+- **Embers are one flat glowing colour** (the Ghost Riders barrels: a block built under the charred wood in the
+  colour of one glowing texel and lit; user, 2026-11-16: "the embers in the barrel don't look like embers"). A
+  built member is one colour all over, and a lit box only brightens what the picture already draws. State the bed
+  instead: `"embers": [{"part": ..., "at": [x, y, z], "radius": metres}]`, the middle of its rim on the finished
+  model. It is a low mound of its own (`convert.ember_beds`) with a picture of its own, `<name>_e`: dark lumps of
+  charcoal under ash with the fire in the gaps between them (`convert.ember_picture`), shown as bright by night as
+  by day and left glowing when a script puts the fire out. A placeable only; a bed stated away from the model is
+  refused, and so is one over 0.6 m in radius, whose lumps would be too large to read as coals. A prop with a fire
+  or a bed of embers says whether it casts a light, as a lit one does (`light`: a row for a fire, null for embers). See it from above in `check props` by day and by night: `view` does not draw it.
+- **A floor marking or pad came back as a wedge**, thick at the back and thin at the front (the Ghost Riders parking
+  pad, drawn from a slant: half a metre thick at its back at its true width). Scale it by `height` until its
+  footprint is right (`view` gives the bounds), then `"level": 0.03` lays its top flat at that thickness, what
+  stands proud of the top (wheel stops) left as proud (`convert.levelled`), and `"underfoot": true` gives its
+  placeable no block to walk into. Boxes are measured on the model as levelled (`measuredAt` states `level`).
+- **A placeable on legs cannot be walked under** (a gantry crane, a canopy on posts: its collision is one block on
+  its whole footprint; user, 2026-11-15: "the crane placeable should NOT block walking underneath it"). State
+  `"walkUnder": true`: the placeable gets a block for each part of it that stands under head height, told apart
+  where 0.6 m of clear ground lies between (`convert.standing`), and the report's `walkBlocks` says how many. Only
+  the `.pwk` changes. Every prop that spans something is asked this when its set is written.
 - **A raised floor a character should walk on is closed** (a loading bay, a dock apron). A broad flat floor up to
   0.75 m high is walked at its own height (`tile.DECK`, `DECK_AREA`); a higher one, or one under 9 m², is closed.
   `walk.png` shows which. A floor up to 1.5 m high (`tile.PLATFORM`), a loading platform, is walked on where stairs

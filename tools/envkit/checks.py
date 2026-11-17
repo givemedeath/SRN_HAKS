@@ -74,7 +74,7 @@ def row_of_props(models, sizes, wanted, *, x=12.0, y=40.0):
     for model in wanted:
         require(model in models, 'No such model in the game set: ' + model)
         size = sizes[model]; x += size[0] / 2
-        props.append({'model': model, 'position': [x, y], 'static': not models[model].get('lit'), 'light': models[model].get('placeable', {}).get('light')})  # a lit prop is reached by script
+        props.append({'model': model, 'position': [x, y], 'static': not convert.scripted(models[model]), 'light': models[model].get('placeable', {}).get('light')})  # a lit prop is reached by script
         distance = max(3.5, max(size[0], size[2] + models[model].get('lift', 0.0)) * 1.5); view = {'distance': distance, 'height': 1.0}
         shots += [{'label': model + '-front', 'stand': [x, y - size[1] / 2 - 1.2], 'pitch': 76, **view},
                   {'label': model + '-back', 'stand': [x, y + size[1] / 2 + 1.2], 'facing': 270, 'pitch': 76, **view},
@@ -112,8 +112,9 @@ def props(game, repo, base, name, models_path, built, wanted, *, night=False):
 
 
 def lit_props(models):
-    """The lit props of a game set, in the order the lights check stands and tags them."""
-    return [model for model, stated in models.items() if stated.get('lit') and stated.get('placeable')]
+    """The lit props of a game set, in the order the lights check stands and tags them: those with lit parts, and those
+    with a fire, which a script puts out as it does a lamp."""
+    return [model for model, stated in models.items() if convert.scripted(stated) and stated.get('placeable')]
 
 
 def rows_of_lights(models, sizes, tags, halos):
@@ -136,7 +137,8 @@ def rows_of_lights(models, sizes, tags, halos):
             props.append({'model': model, 'position': [x, y], 'static': False, 'light': models[model].get('placeable', {}).get('light')})
             people.append({'position': [x + size[0] / 2 + 0.8, y - size[1] / 2 - 0.3], 'facing': 270.0})
             x += size[0] / 2 + 3.5
-    swap = lambda on: ''.join(convert.lights_script(model, tags[model], on, halo=model in halos, light=bool(models[model].get('placeable', {}).get('light'))) for model in lit)
+    swap = lambda on: ''.join(convert.lights_script(model, tags[model], on, halo=model in halos, light=bool(models[model].get('placeable', {}).get('light')),
+                                                     fire=bool(models[model].get('fire')), glow=bool(models[model].get('lit'))) for model in lit)
     view = lambda index: {'stand': [28.0, 62.0 - 16.0 * index - 9.0], 'distance': 24.0, 'pitch': 62, 'height': 1.0}
     shots = []
     for stage_name, run in (('lit', None), ('out', swap(False)), ('on-again', swap(True))):

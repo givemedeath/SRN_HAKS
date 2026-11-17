@@ -1,5 +1,6 @@
 """A generated model reaches the game upright, to scale, facing front, with unit normals and node-sized meshes."""
 import json
+import re
 import struct
 import tempfile
 import unittest
@@ -785,6 +786,273 @@ class FixtureTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'shot label'):
                 fixture.enter_script([{'label': label, 'stand': [30, 38]}])
 
+
+class GhostRidersTests(unittest.TestCase):
+    """What the Ghost Riders sheet added (2026-11-15): a fire the game draws, a wedge laid flat, a blank door found."""
+
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory(); self.addCleanup(self.folder.cleanup); self.root = Path(self.folder.name)
+
+    def test_a_fire_is_an_emitter_at_its_foot_sized_by_its_width(self):
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); faces = np.array([[0, 1, 2], [0, 2, 3]])
+        normals, uvs = np.tile([0.0, -1.0, 0.0], (4, 1)), np.zeros((4, 2))
+        text = convert.model_text('ek_x', vertices, normals, uvs, faces, fire=[{'at': [0.5, 0, 1.0], 'width': 0.5}, {'part': 'second', 'at': [0, 0, 1], 'width': 1.0}])
+        self.assertIn('node emitter ek_x_f0\n  parent ek_x\n  position 0.50000 0.00000 1.00000\n', text); self.assertIn('node emitter ek_x_f1', text)
+        self.assertIn('  texture fxpa_flame00\n', text); self.assertIn('  blend Lighten\n', text); self.assertIn('  xgrid 4\n', text)
+        self.assertIn('  sizeStart 1.0\n', text); self.assertIn('  sizeStart 2.0\n', text)  # each by its own width
+        # After the geometry, the animations a script puts the fires out and lights them by, as the stock flame has them.
+        anims = text.split('endmodelgeom ek_x\n')[1]; self.assertTrue(anims.endswith('doneanim off ek_x\ndonemodel ek_x\n'))
+        self.assertEqual(re.findall(r'(?m)^newanim (\w+) ek_x$', anims), ['on', 'off2on', 'on2off', 'off'])
+        self.assertIn('newanim on2off ek_x\n  length 0.0333333\n  transtime 0\n  animroot ek_x\n  node dummy ek_x\n    parent NULL\n  endnode\n'
+                      '  node emitter ek_x_f0\n    parent ek_x\n    birthratekey 2\n      0 10\n      0.0333333 0\n    endlist\n  endnode\n  node emitter ek_x_f1\n', anims)
+        self.assertEqual(len(re.findall(r'(?m)^node emitter ', text)), 2)  # the animations' nodes are indented: a fire is counted once
+        self.assertTrue(convert.lights_script('ek_x', 'oFire', on=False, fire=True).endswith('AssignCommand(oFire,PlayAnimation(ANIMATION_PLACEABLE_DEACTIVATE));'))
+        self.assertTrue(convert.lights_script('ek_x', 'oFire', on=True, fire=True).endswith('AssignCommand(oFire,PlayAnimation(ANIMATION_PLACEABLE_ACTIVATE));'))
+        self.assertNotIn('PlayAnimation', convert.lights_script('ek_x', 'oFire', on=False))
+        self.assertNotIn('emitter', convert.model_text('ek_x', vertices, normals, uvs, faces)); self.assertNotIn('newanim', convert.model_text('ek_x', vertices, normals, uvs, faces))
+        for wrong in ({'at': [0, 0, 1]}, {'at': [0, 0], 'width': 0.5}, {'at': [0, 0, 1], 'width': 0.01}, {'at': [0, 0, 1], 'width': 9}, {'at': [0, 0, 1], 'width': 0.5, 'tall': 1}):
+            with self.assertRaisesRegex(ValueError, 'A fire is'):
+                convert.fire_values(wrong)
+
+    def test_a_fire_is_stated_on_a_placeable_as_it_stands_and_burns_at_the_model(self):
+        placed = {'label': 'X', 'sound': 28, 'light': None}
+        good = {'source': 'meshy/x', 'height': 1.5, 'measuredAt': 1.5, 'fire': [{'at': [0, 0, 0.9], 'width': 0.45}], 'placeable': placed}
+        path = self.root / 'set.json'; write = lambda model: path.write_text(json.dumps({'models': {'ek_x': model}}), encoding='utf-8')
+        write(good); self.assertEqual(convert.load_models(path)['ek_x']['fire'][0]['width'], 0.45)
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        for change, said in (({'placeable': None}, 'fire is a list'), ({'tiles': group}, 'fire is a list'), ({'fire': []}, 'fire is a list'),
+                             ({'lit': [{'box': [[0, 0, 0.5], [1, 1, 1]]}], 'placeable': {**placed, 'light': None}}, 'A model with a fire has no lit parts'),
+                             ({'fire': [{'at': [0, 0, 0.9]}]}, 'A fire is'), ({'measuredAt': None}, 'says how it stood'),
+                             ({'placeable': {'label': 'X', 'sound': 28}}, 'says whether it lights what stands round it')):  # a fire is asked as a lamp is
+            model = {key: value for key, value in {**good, **change}.items() if value is not None}
+            write(model)
+            with self.assertRaisesRegex(ValueError, said):
+                convert.load_models(path)
+        from unittest import mock
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); faces = np.array([[0, 1, 2], [0, 2, 3]])
+        made = {'glass': None, 'vertices': vertices, 'normals': np.tile([0.0, -1.0, 0.0], (4, 1)), 'uvs': np.zeros((4, 2)), 'faces': faces, 'scale': 1.0,
+                'angles': (0.0, 0.0, 0.0), 'repaired': 0, 'turned': 0, 'facesTurned': 0, 'illumination': None, 'card': None, 'colour': None, 'flat': None,
+                'plain': None, 'turn': 0.0, 'wire': None, 'behind': None}
+        with tempfile.TemporaryDirectory() as scratch, mock.patch.object(convert, 'shape', return_value=made), mock.patch.object(convert, 'skin', return_value=[]):
+            convert_it = lambda **said: convert.placeable('ek_x', 'model.glb', {}, Path(scratch), None, height=1.0, **said)
+            with self.assertRaisesRegex(ValueError, r'A fire of ek_x burns 0\.5\d metres from the model, in the air'):
+                convert_it(fire=[{'at': [0.5, 0, 1.5], 'width': 0.4}])
+            with self.assertRaisesRegex(ValueError, r'A bed of embers of ek_x lies 1\.\d+ metres from the model, in the air'):  # as a fire is held to the model
+                convert_it(embers=[{'at': [0.5, 0, 2.5], 'radius': 0.2}])
+            told = convert_it(fire=[{'at': [0.5, 0, 1.0], 'width': 0.4}])
+            self.assertEqual(told['fires'], 1); self.assertIn('node emitter ek_x_f0', (Path(scratch) / 'ek_x.mdl').read_text())
+            self.assertIn('ek_x_wg', (Path(scratch) / 'ek_x.pwk').read_text())  # a thing stood on the ground is walked round
+            with self.assertRaisesRegex(ValueError, 'laid underfoot and stands 1.00 metres high'):  # a thing walked across is under the knee
+                convert_it(underfoot=True)
+            made['vertices'] = vertices * [1.0, 1.0, 0.3]
+            convert_it(underfoot=True)
+            walk = (Path(scratch) / 'ek_x.pwk').read_text()  # one laid underfoot is walked across, and still used from beside it
+            self.assertNotIn('ek_x_wg', walk); self.assertIn('ek_x_pwk_use01', walk)
+        # A group draws no fire: a model with one is no part of a group, where it would stand cold.
+        yard = {'source': 'meshy/y', 'height': 5.0, 'measuredAt': 5.0, 'tiles': {**group, 'parts': [{'model': 'ek_x', 'at': [0, 0, 0]}]}}
+        path.write_text(json.dumps({'models': {'ek_x': good, 'ek_y': yard}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'A part of ek_y has a fire'):
+            convert.load_models(path)
+
+    def test_a_bed_of_embers_is_a_mound_with_a_picture_of_its_own_that_glows(self):
+        beds = convert.ember_beds([{'at': [0, 0, 0.8], 'radius': 0.3}, {'part': 'second', 'at': [2, 0, 0.5], 'radius': 0.1}])
+        points, faces = beds['vertices'], beds['faces']; each = 1 + convert.EMBER_SIDES * convert.EMBER_RINGS
+        self.assertEqual(len(points), 2 * each); self.assertEqual(len(faces), 2 * convert.EMBER_SIDES * (2 * convert.EMBER_RINGS - 1))
+        across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue((across[:, 2] > 0).all())  # every face is seen from above
+        first = points[:each]; rim = first[-convert.EMBER_SIDES:]
+        np.testing.assert_allclose(np.linalg.norm(rim[:, :2], axis=1), 0.3); np.testing.assert_allclose(rim[:, 2], 0.8)  # the rim lies level where it was stated
+        self.assertAlmostEqual(float(first[0, 2]), 0.8 + 0.3 * convert.EMBER_RISE); self.assertGreater(float(np.ptp(first[1:1 + convert.EMBER_SIDES, 2])), 0.005)  # a mound of lumps, no plate
+        self.assertTrue((beds['uvs'] >= 0).all() and (beds['uvs'] <= 1).all())
+        np.testing.assert_array_equal(convert.ember_beds([{'at': [0, 0, 0.8], 'radius': 0.3}])['vertices'], first)  # built again, the same bed
+        # Its picture: mostly dark lumps, the fire between them, and no one colour over it all.
+        picture = np.asarray(convert.ember_picture(64), float) / 255; bright = picture.max(-1)
+        self.assertEqual(picture.shape, (64, 64, 3)); self.assertGreater(float((bright < 0.3).mean()), 0.25); self.assertGreater(float((bright > 0.8).mean()), 0.05)
+        hot = picture[bright > 0.8]; self.assertTrue((hot[:, 0] > hot[:, 2] + 0.3).all())  # what is bright is fire, not ash
+        np.testing.assert_array_equal(np.asarray(convert.ember_picture(64)), (picture * 255).round().astype(np.uint8))
+        # In the model it is a node that takes no light and shows its own picture.
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); normals, uvs, quad = np.tile([0.0, -1.0, 0.0], (4, 1)), np.zeros((4, 2)), np.array([[0, 1, 2], [0, 2, 3]])
+        text = convert.model_text('ek_x', vertices, normals, uvs, quad, embers=beds)
+        self.assertIn(f'node trimesh ek_x_e0\n  parent ek_x\n  ambient 0 0 0\n  diffuse 0 0 0\n  specular 0 0 0\n  shininess 1\n  bitmap ek_x_e\n  render 1\n  shadow 0\n  verts {2 * each}\n', text)
+        self.assertNotIn('ek_x_e', convert.model_text('ek_x', vertices, normals, uvs, quad)); self.assertIn('_e', convert.MAP_SUFFIXES)
+        # The files: the picture and a material that puts it in the glow slot.
+        made = {'illumination': None, 'card': None, 'embers': beds}
+        with tempfile.TemporaryDirectory() as scratch:
+            from unittest import mock
+            with mock.patch.object(convert, 'textures', return_value=[]), mock.patch.object(convert, '_compress', side_effect=lambda image, path, *more, **said: path) as packed:
+                files = convert.skin('ek_x', {}, Path(scratch), None, made)
+            self.assertEqual([path.name for path in files], ['ek_x_e.dds']); self.assertEqual(packed.call_args.args[0].size, (convert.EMBER_PICTURE,) * 2)
+            self.assertEqual((Path(scratch) / 'ek_x_e.mtr').read_text().splitlines()[2:], ['texture0 ek_x_e', 'texture1 null', 'texture2 null', 'texture3 null', 'texture4 null', 'texture5 ek_x_e'])
+        # Stated on a placeable, on the finished model; a group draws none.
+        placed = {'label': 'X', 'sound': 28, 'light': None}; good = {'source': 'meshy/x', 'height': 1.0, 'measuredAt': 1.0, 'embers': [{'at': [0, 0, 0.8], 'radius': 0.3}], 'placeable': placed}
+        path = self.root / 'set.json'; write = lambda models: path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        write({'ek_x': good}); self.assertEqual(convert.load_models(path)['ek_x']['embers'][0]['radius'], 0.3)
+        self.assertIn('embers', convert.RETOUCHING); self.assertIn('embers', convert.MEASURED)
+        # A prop a script reaches is placed not static, and its blueprint made so: one with lit parts, and one with a fire.
+        self.assertEqual([convert.scripted(one) for one in (good, {**good, 'fire': [{'at': [0, 0, 0.9], 'width': 0.4}]}, {**good, 'lit': [{'box': [[0, 0, 0], [1, 1, 1]]}]})], [False, True, True])
+        self.assertIsNone(convert.place({'vertices': np.zeros((3, 3)), 'normals': np.zeros((3, 3)), 'placed': object()}, [1, 2, 0])['placed'])  # a map of where it stood is not carried along
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        for change, said in (({'embers': [{'at': [0, 0, 0.8]}]}, 'A bed of embers is'), ({'embers': [{'at': [0, 0, 0.8], 'radius': 0.7}]}, 'its lumps grow with it'),
+                             ({'placeable': {'label': 'X', 'sound': 28}}, 'says whether it lights what stands round it'),
+                             ({'placeable': None}, 'for a placeable only'), ({'measuredAt': None}, 'says how it stood')):
+            write({'ek_x': {key: value for key, value in {**good, **change}.items() if value is not None}})
+            with self.assertRaisesRegex(ValueError, said):
+                convert.load_models(path)
+        write({'ek_x': good, 'ek_y': {'source': 'meshy/y', 'height': 5.0, 'measuredAt': 5.0, 'tiles': {**group, 'parts': [{'model': 'ek_x', 'at': [0, 0, 0]}]}}})
+        with self.assertRaisesRegex(ValueError, 'A part of ek_y has a bed of embers'):
+            convert.load_models(path)
+        # A fire barrel with no lit parts: the script swaps no picture of it.
+        self.assertEqual(convert.lights_script('ek_x', 'oFire', on=False, light=True, fire=True, glow=False),
+                         'SetPlaceableIllumination(oFire,FALSE);RecomputeStaticLighting(GetArea(oFire));AssignCommand(oFire,PlayAnimation(ANIMATION_PLACEABLE_DEACTIVATE));')
+
+    def test_a_model_with_a_fire_is_compiled_whole_and_its_meshes_checked_without_it(self):
+        from unittest import mock
+        from tools.armorkit import export, toolchain
+        plain = 'newmodel ek_x\nbeginmodelgeom ek_x\nnode trimesh ek_x_m\n  faces 2\n    0 1 2 1 0 1 2 1\n    0 2 3 1 0 2 3 1\nendnode\n'
+        end = 'endmodelgeom ek_x\n' + '\n'.join(convert.fire_anim_lines('ek_x', 1)) + '\ndonemodel ek_x\n'; bare = 'endmodelgeom ek_x\ndonemodel ek_x\n'; fire = '\n'.join(convert.fire_lines('ek_x', 0, {'at': [0, 0, 1], 'width': 0.5})) + '\n'
+        source = self.root / 'source' / 'ek_x.mdl'; source.parent.mkdir(); output = self.root / 'compiled'; twins, back = [], {}
+
+        def run(said, **_):
+            if said[1] == 'compile':
+                Path(said[-1]).write_bytes(b'\0\0\0\0binary')
+            else:
+                Path(said[-1]).write_text(back['text'], encoding='cp1252')
+            return mock.Mock(returncode=0, stdout='', stderr='')
+        with mock.patch.object(export, 'compile_models', side_effect=lambda paths, folder: twins.append(Path(paths[0]).read_text(encoding='cp1252')) or ['checked']), \
+                mock.patch.object(toolchain, 'cleanmodels', return_value={'path': 'cleanmodels'}), mock.patch.object(convert.subprocess, 'run', side_effect=run) as ran:
+            source.write_text(plain + bare, encoding='cp1252', newline='\n')
+            self.assertEqual(convert.compile_placeable(source, output), ['checked']); self.assertFalse(ran.called)  # no fire: the usual compile
+            source.write_text(plain + fire + end, encoding='cp1252', newline='\n'); back['text'] = plain + fire + end
+            self.assertEqual(convert.compile_placeable(source, output), [output / 'ek_x.mdl'])
+            self.assertEqual(twins[-1], plain + bare)  # the twin that is read back has its meshes, no emitter and no animation of one
+            back['text'] = plain + fire + bare  # a compile that lost the animations
+            with self.assertRaisesRegex(ValueError, 'without all of the animations'):
+                convert.compile_placeable(source, output)
+            back['text'] = plain + end.replace('newanim', '  newanim')  # a compile that lost the fire (a decompiled model's lines are indented)
+            with self.assertRaisesRegex(ValueError, 'a model of 0 fires and 2 faces, not its 1 fires and 2 faces'):
+                convert.compile_placeable(source, output)
+            back['text'] = plain.replace('faces 2', 'faces 1') + fire + end  # or a face
+            with self.assertRaisesRegex(ValueError, 'a model of 1 fires and 1 faces, not its 1 fires and 2 faces'):
+                convert.compile_placeable(source, output)
+
+    def test_a_floor_marking_that_came_back_a_wedge_is_laid_flat(self):
+        """The Ghost Riders parking pad: thick at its back, thin at its front, with wheel stops standing on it."""
+        slope = lambda x, y: 0.35 + 0.25 * y  # the wedge's top, 0.1 at the front and 0.6 at the back
+        top = [[x, y, slope(x, y)] for x, y in ((-1, -1), (1, -1), (1, 1), (-1, 1))]; under = [[x, y, 0.0] for x, y, _ in top]
+        stop = [[x, y, slope(x, y) + 0.05] for x, y in ((-0.5, 0.7), (0.5, 0.7), (0.5, 0.9), (-0.5, 0.9))]
+        points = np.array(top + under + stop, float)
+        faces = np.array([[0, 1, 2], [0, 2, 3], [4, 6, 5], [4, 7, 6], [0, 4, 5], [0, 5, 1], [8, 9, 10], [8, 10, 11]])
+        flat, normals = convert.levelled(points, faces, 0.03)
+        np.testing.assert_allclose(flat[:4, 2], 0.03, atol=1e-6); np.testing.assert_allclose(flat[4:8, 2], 0.0, atol=1e-9)
+        np.testing.assert_allclose(flat[8:, 2], 0.08, atol=1e-6)  # what stood proud of the top still does, by as much
+        np.testing.assert_allclose(flat[:, :2], points[:, :2]); np.testing.assert_allclose(normals[8:], [[0, 0, 1]] * 4, atol=1e-6)
+        np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0, atol=1e-6)
+        for thickness in (0, -0.1, convert.LEVEL_MOST + 0.1):
+            with self.assertRaisesRegex(ValueError, 'levelled floor marking'):
+                convert.levelled(points, faces, thickness)
+        with self.assertRaisesRegex(ValueError, 'no face looking up'):
+            convert.levelled(points, faces[2:4], 0.03)
+        path = self.root / 'set.json'; pad = {'source': 'meshy/x', 'height': 0.6, 'level': 0.03, 'underfoot': True, 'placeable': {'label': 'X', 'sound': 28}}
+        path.write_text(json.dumps({'models': {'ek_x': pad}}), encoding='utf-8'); self.assertEqual(convert.load_models(path)['ek_x']['level'], 0.03)
+        for change in ({'level': 0}, {'level': 1.0}, {'level': 0.03, 'lift': 1.0}):
+            path.write_text(json.dumps({'models': {'ek_x': {**pad, **change}}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'level is the thickness'):
+                convert.load_models(path)
+        # Boxes are measured on the model as levelled: a set that states any says so.
+        path.write_text(json.dumps({'models': {'ek_x': {**pad, 'measuredAt': 0.6, 'paint': [{'box': [[0, 0, 0], [1, 1, 0.1]], 'colour': [1, 2, 3]}]}}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'measure them again'):
+            convert.load_models(path)
+
+    def test_a_door_sized_panel_drawn_in_one_flat_colour_is_found_with_its_repair(self):
+        """The Ghost Riders garage's roller door came back a flat dark blue with its slats lost (user, 2026-11-15)."""
+        from PIL import Image
+        vertices = np.array([[-2, 0, 0], [2, 0, 0], [2, 0, 3], [-2, 0, 3]], float); faces = np.array([[0, 2, 1], [0, 3, 2]])  # a wall 4 by 3 metres facing front
+        uvs = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], float); size = 256
+        wall = np.random.default_rng(0).uniform(0.3, 0.7, (size, size)); door = wall.copy()
+        door[:int(size * 0.8), int(size * 0.2):int(size * 0.8)] = 0.2  # rows run up the wall: 2.4 metres wide and tall, from the ground
+        picture = lambda values: Image.fromarray((np.repeat(values[..., None], 3, -1) * 255).round().astype(np.uint8))
+        self.assertEqual(convert.blank_panels(vertices, uvs, faces, picture(wall), size=size), [])  # a weathered wall is no blank panel
+        found = convert.blank_panels(vertices, uvs, faces, picture(door), size=size)
+        self.assertEqual(len(found), 1); one = found[0]; self.assertEqual(one['side'], 0); self.assertEqual(one['colour'], [51, 51, 51])
+        np.testing.assert_allclose(one['box'], [[-1.2, -0.05, 0.0], [1.2, 0.05, 2.4]], atol=0.21); self.assertAlmostEqual(one['m2'], 5.8, delta=1.0)
+        self.assertEqual(one['repair'], {'part': 'roller door', 'box': one['box'], 'radius': convert.BLANK_RADIUS, 'slats': convert.BLANK_SLATS})
+        note, = convert.blank_notes('ek_x', found); self.assertIn('"slats": 0.12', note); self.assertIn('ek_x: a panel of', note)
+        hatch = wall.copy(); hatch[:int(size * 0.3), int(size * 0.4):int(size * 0.6)] = 0.2  # too small to be a door
+        high = wall.copy(); high[int(size * 0.5):, int(size * 0.2):int(size * 0.8)] = 0.2  # a blank sign board up the wall, not a door
+        self.assertEqual(convert.blank_panels(vertices, uvs, faces, picture(hatch), size=size), [])
+        self.assertEqual(convert.blank_panels(vertices, uvs, faces, picture(high), size=size), [])
+        # The repair is a `smooth` entry `retouch` takes as it is, and a door so mended is told no more.
+        mended, _, _ = convert.retouch(picture(door), vertices, uvs, faces, smooth=[one['repair']], size=size)
+        self.assertLess(np.asarray(mended, float)[:int(size * 0.8), int(size * 0.2):int(size * 0.8)].std(), 30)
+        self.assertGreater(np.asarray(mended, float)[10:int(size * 0.7), int(size * 0.3):int(size * 0.7)].std(), 1.0)  # joints are drawn
+        made = {'vertices': vertices, 'uvs': uvs, 'faces': faces, 'colour': picture(door)}
+        self.assertEqual(len(convert.shipped_blank_panels(made, {})), 1)
+        self.assertEqual(convert.shipped_blank_panels(made, {}, [one['repair']]), [])
+        self.assertEqual(len(convert.shipped_blank_panels(made, {}, [{**one['repair'], 'box': [[5, 5, 0], [6, 6, 1]]}])), 1)  # a repair elsewhere mends nothing here
+        self.assertEqual(convert.shipped_blank_panels({**made, 'colour': None}, {}), [])  # no picture to read
+        # The map of places the lit parts were found by serves where it is the size read at, and is not made again.
+        from unittest import mock
+        from . import glow
+        with mock.patch.object(convert, 'BLANK_SIZE', size):
+            ready = glow.position_map(vertices, uvs, faces, size, facing=True); small = glow.position_map(vertices, uvs, faces, size // 2, facing=True)
+            with mock.patch.object(glow, 'position_map', wraps=glow.position_map) as mapped:
+                self.assertEqual(convert.shipped_blank_panels({**made, 'placed': ready}, {}), found); self.assertEqual(mapped.call_count, 0)
+                self.assertEqual(convert.shipped_blank_panels({**made, 'placed': small}, {}), found); self.assertEqual(mapped.call_count, 1)  # a map of another size is not read by
+                self.assertEqual(convert.shipped_blank_panels({**made, 'placed': None}, {}), found); self.assertEqual(mapped.call_count, 2)
+                # A tile group's models are read one by one, those with a panel told, and each map let go when it is read by.
+                door_model, wall_model = {**made, 'placed': ready}, {**made, 'colour': picture(wall), 'placed': ready}
+                self.assertEqual(convert.blank_panels_of({'ek_a': (door_model, {}), 'ek_b': (wall_model, {}), 'ek_c': ({**made, 'placed': ready}, {})},
+                                                         {'ek_a': {}, 'ek_b': {}, 'ek_c': {'smooth': [one['repair']]}}), {'ek_a': found})
+                self.assertIsNone(door_model['placed']); self.assertIsNone(wall_model['placed']); self.assertEqual(mapped.call_count, 2)
+        # A thin door drawn blank on both faces is one door, told once.
+        slab = np.vstack([vertices, vertices[::-1] + [0.0, -0.1, 0.0]]); both = np.array([[0, 2, 1], [0, 3, 2], [4, 6, 5], [4, 7, 6]])
+        halves = np.array([[0, 0], [0.5, 0], [0.5, 1], [0, 1], [0.5, 1], [1, 1], [1, 0], [0.5, 0]], float)
+        found = convert.blank_panels(slab, halves, both, picture(np.concatenate([door[:, ::2], door[:, ::2]], axis=1)), size=size)
+        self.assertEqual(len(found), 1)
+
+
+class WalkUnderTests(unittest.TestCase):
+    """A placeable on legs is walked under between them (user, 2026-11-15: the gantry crane shut the track it spans)."""
+
+    @staticmethod
+    def boxes(*spans):
+        points, faces = [], []
+        for (x0, y0, z0), (x1, y1, z1) in spans:
+            first = len(points); points += [[x, y, z] for z in (z0, z1) for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+            faces += [[first + a, first + b, first + c] for a, b, c in ((0, 2, 1), (0, 3, 2), (4, 5, 6), (4, 6, 7), (0, 1, 5), (0, 5, 4), (1, 2, 6), (1, 6, 5),
+                                                                     (2, 3, 7), (2, 7, 6), (3, 0, 4), (3, 4, 7))]
+        return np.array(points, float), np.array(faces)
+
+    def test_each_part_that_stands_under_head_height_is_a_block_of_its_own(self):
+        vertices, faces = self.boxes(((-5, -1, 0), (-4, 1, 6)), ((4, -1, 0), (5, 1, 6)), ((-5, -1, 5.5), (5, 1, 6)))  # two legs and the beam they carry
+        parts = convert.standing(vertices, faces); self.assertEqual(len(parts), 2)
+        self.assertEqual(sorted(round(float(part[:, 0].mean())) for part in parts), [-4, 4])  # a leg each: -4.5 and 4.5
+        self.assertTrue(all(part[:, 2].max() < convert.OVERHEAD for part in parts))
+        one = convert.walk_text('ek_x', vertices); two = convert.walk_text('ek_x', vertices, blocks=parts)
+        self.assertIn('  verts 8\n', one); self.assertIn('  faces 10\n', one)  # one block on the whole footprint
+        self.assertIn('  verts 16\n', two); self.assertIn('  faces 20\n', two); self.assertEqual(two.count('node trimesh'), 1)
+        xs = [float(line.split()[0]) for line in two.split('  faces')[0].splitlines() if line.startswith('    ')]
+        self.assertTrue(all(abs(x) >= 3.9 for x in xs))  # nothing stands between the legs
+        self.assertEqual(one, convert.walk_text('ek_x', vertices, blocks=[vertices]))
+        # Legs nearer than a character is wide are one block; a thing hung clear of the ground has no parts.
+        self.assertEqual(len(convert.standing(*self.boxes(((-0.5, -1, 0), (-0.1, 1, 3)), ((0.1, -1, 0), (0.5, 1, 3))))), 1)
+        # Ground the gap wide and more stays open wherever the model lies on the cells it is read by (found in review).
+        for shift in (0.0, 0.07, 0.15, 0.31, 0.44, 0.59):
+            posts = self.boxes(((-0.5 + shift, -1, 0), (-0.4 + shift, 1, 3)), ((0.4 + shift, -1 + shift, 0), (0.5 + shift, 1 + shift, 3)))  # 0.8 m apart
+            self.assertEqual(len(convert.standing(*posts)), 2, shift)
+            corner = self.boxes(((shift, shift, 0), (shift + 1, shift + 1, 3)), ((shift + 1.5, shift + 1.5, 0), (shift + 2.5, shift + 2.5, 3)))  # 0.71 m, corner to corner
+            self.assertEqual(len(convert.standing(*corner)), 2, shift)
+        with self.assertRaisesRegex(ValueError, 'Nothing of the model stands under head height'):
+            convert.standing(*self.boxes(((-1, -1, 3), (1, 1, 4))))
+
+    def test_walk_under_is_stated_on_a_placeable_that_is_no_group_and_not_underfoot(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            path = Path(scratch) / 'set.json'; crane = {'source': 'meshy/x', 'height': 12.0, 'walkUnder': True, 'placeable': {'label': 'X', 'sound': 28}}
+            path.write_text(json.dumps({'models': {'ek_x': crane}}), encoding='utf-8'); self.assertIs(convert.load_models(path)['ek_x']['walkUnder'], True)
+            for change in ({'walkUnder': False}, {'placeable': None}, {'underfoot': True}):
+                path.write_text(json.dumps({'models': {'ek_x': {key: value for key, value in {**crane, **change}.items() if value is not None}}}), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, 'walkUnder is true'):
+                    convert.load_models(path)
 
 if __name__ == '__main__':
     unittest.main()

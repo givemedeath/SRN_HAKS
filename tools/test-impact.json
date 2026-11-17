@@ -4,6 +4,7 @@
     "tools/armorkit/__init__.py": [],
     "tools/armorkit/__main__.py": [
       "tools/armorkit/bake.py",
+      "tools/armorkit/bodies.py",
       "tools/armorkit/brief.py",
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
@@ -34,6 +35,14 @@
       "tools/headkit/__init__.py",
       "tools/headkit/gltf.py",
       "tools/robes/mesh_ops.py"
+    ],
+    "tools/armorkit/bodies.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/poses.py",
+      "tools/armorkit/registry.py"
     ],
     "tools/armorkit/bodyskin.py": [
       "tools/armorkit/export.py",
@@ -101,6 +110,7 @@
     ],
     "tools/armorkit/publish.py": [
       "PROVENANCE.md",
+      "docs/armorkit/parts-copies.json",
       "docs/armorkit/parts-handoff.json",
       "docs/armorkit/parts-registry.json",
       "hakbuilder.json",
@@ -167,6 +177,14 @@
       "tools/armorkit/split.py",
       "tools/armorkit/test_bodyskin.py",
       "tools/armorkit/test_split.py"
+    ],
+    "tools/armorkit/test_bodies.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/bodies.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/poses.py",
+      "tools/armorkit/registry.py"
     ],
     "tools/armorkit/test_bodyskin.py": [
       "tools/armorkit/bodyskin.py",
@@ -237,6 +255,7 @@
     ],
     "tools/armorkit/test_publish.py": [
       "PROVENANCE.md",
+      "docs/armorkit/parts-copies.json",
       "hakbuilder.json",
       "tools/armorkit/examples/registry.json",
       "tools/armorkit/export.py",
@@ -353,8 +372,6 @@
     "tools/envkit/__init__.py": [],
     "tools/envkit/__main__.py": [
       "docs/additions/catalog.json",
-      "tools/armorkit/__init__.py",
-      "tools/armorkit/export.py",
       "tools/envkit/additions.py",
       "tools/envkit/checks.py",
       "tools/envkit/convert.py",
@@ -396,6 +413,9 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/convert.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/toolchain.py",
       "tools/envkit/glow.py",
       "tools/envkit/placeables.py"
     ],
@@ -446,6 +466,9 @@
       "tools/envkit/prop_fixture.py"
     ],
     "tools/envkit/test_convert.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/toolchain.py",
       "tools/envkit/convert.py",
       "tools/envkit/glow.py",
       "tools/envkit/prop_fixture.py"
@@ -5454,6 +5477,10 @@
       "tools/itemkit/__init__.py",
       "tools/itemkit/publish.py"
     ],
+    "tools/test_hak_copies.py": [
+      "tools/SrnHaks.Common.psm1",
+      "tools/SrnTools.psm1"
+    ],
     "tools/test_impact.py": [
       "tools/ci-scope.json",
       "tools/ci-test-durations.json",
@@ -5674,6 +5701,7 @@
   },
   "tests": [
     "tools/armorkit/test_bake.py",
+    "tools/armorkit/test_bodies.py",
     "tools/armorkit/test_bodyskin.py",
     "tools/armorkit/test_brief.py",
     "tools/armorkit/test_cli.py",
@@ -5974,6 +6002,7 @@
     "tools/test_ci_scope.py",
     "tools/test_clean_checkout.py",
     "tools/test_combat_release_manifest.py",
+    "tools/test_hak_copies.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"
   ]

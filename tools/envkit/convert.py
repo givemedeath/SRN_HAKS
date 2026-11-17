@@ -22,7 +22,7 @@ TO_GAME = np.array([[-1.0, 0, 0], [0, 0, 1.0], [0, 1.0, 0]])  # a rotation: glTF
 NODE_VERTICES = 60000  # a compiled mesh node indexes its vertices with 16 bits
 NAME_LENGTH = 14  # a resref is 16 characters and the maps add a two-character suffix
 TILE_NAME_LENGTH = 12  # a tile group's models add four: _t and the tile's row and column
-MAP_SUFFIXES = ('_n', '_s', '_r', '_i', '_o', '_h', '_g')  # a model's other pictures: relief, shine, roughness, glow, lights out, halo, glass
+MAP_SUFFIXES = ('_n', '_s', '_r', '_i', '_o', '_h', '_g', '_e')  # a model's other pictures: relief, shine, roughness, glow, lights out, halo, glass, embers
 NON_WALK = 7
 RETOUCH = 2048  # pixels: the finest map of places a colour picture is retouched by
 SLAT_GROOVE, SLAT_SHADE = 0.15, 0.3  # of a slat's pitch, each side of the joint, that darkens towards it; how much darker the joint is
@@ -35,7 +35,7 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
-MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'wheels', 'fill', 'built', 'move', 'glass')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'wheels', 'fill', 'built', 'move', 'glass', 'embers')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 FILL_NEAR, FILL_WELD, FILL_MOST = 0.1, 0.002, 64  # metres from a stated point to a hole's rim; how near two corners are one place; a hole's most corners
 STEP_RISE, RAIL_HEIGHT, POST_EVERY = 0.19, 0.95, 1.2  # metres: a built stair's most rise a step, its handrail's height over the nosings, posts at most this far apart
 STAIR_STEEPEST = 1.2  # a built stair flight's most rise over its run (about 50 degrees): steeper, it is a ladder
@@ -43,11 +43,30 @@ TREAD, STRINGER, RAIL, POST = (0.04,), (0.05, 0.22), (0.045, 0.045), (0.045, 0.0
 GLASS_COLOUR, GLASS_STRENGTH, GLASS_FLAT, GLASS_MOST, GLASS_PICTURE = (150, 170, 185), 0.25, 0.02, 8, 64  # a pane's colour and how much of it is added to what stands behind; metres its corners may stand off its plane; its most corners; its picture's width
 LIGHT_NEAR = 0.3  # metres a placeable's cast light may stand from the model: the game draws a flare where it stands
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
-PLACING = ('lift', 'turn', 'signTilt', 'length')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted and stretched
-RETOUCHING = ('turn', 'length', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'wheels', 'fill', 'built', 'move', 'glass')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+PLACING = ('lift', 'turn', 'signTilt', 'length', 'level')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted, stretched and levelled
+RETOUCHING = ('turn', 'length', 'level', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'wheels', 'fill', 'built', 'move', 'glass', 'embers')  # what of a game set `shape` takes to turn, clear, close and retouch a model
 WHEEL_BACK = 0.68  # metres from a car's middle to the back of each wheel: a wheelset's backs stand 1.360 m apart on standard gauge (track.GAUGE)
 WHEEL_BLEND = 0.15  # metres over which a truck drawn in to gauge eases back to the car round it
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
+LEVEL_MOST = 0.3  # metres: the thickest a levelled floor marking is left
+WALK_CELLS = 4  # cells to the gap that parts are told apart by (`standing`)
+WALK_GAP = 0.6  # metres of clear ground that part two legs of a model walked under (`standing`): narrower, and no character passes between
+UNDERFOOT_MOST = 0.45 # metres: the knee (`tile.KNEE`), the highest a placeable laid underfoot stands, as a part laid underfoot in a group
+# A bed of embers (`ember_beds`): its picture's pixels and lumps, the sides and rings of its mound, the share of its
+# radius the mound rises, and the seed its lumps are scattered from, so a model built again is the same.
+EMBER_PICTURE, EMBER_COALS, EMBER_SIDES, EMBER_RINGS, EMBER_RISE, EMBER_SEED = 256, 45, 16, 3, 0.2, 7
+# The radius of a bed, metres: its picture is laid once over it, so its lumps grow with it (9 cm across in the Ghost
+# Riders barrel's 0.29, 18 at the most here); a wider fire's embers are not made yet.
+EMBER_RADIUS = (0.05, 0.6)
+FIRE_BIRTHRATE, FIRE_ANIM = 10, 0.0333333  # particles a second a fire is born with; seconds each of its on and off animations lasts, the stock flame's
+FIRE_WIDTH = (0.1, 3.0)  # metres across a fire the game draws: a candle's to a bonfire's
+# A panel the size of a door drawn in one flat colour (`blank_panels`): the cell its picture is read by, metres; the most
+# the brightness may vary within a cell, as a share of the cell's own brightness (a dark door's flecks are faint), and
+# between the cells of one panel (0-1); the least a panel measures each way; the share of its rectangle it fills; how
+# far above the model's foot its sill may stand; the depth of one wall plane.
+BLANK_CELL, BLANK_WITHIN, BLANK_BETWEEN, BLANK_LEAST, BLANK_FILL, BLANK_SILL, BLANK_PLANE = 0.2, 0.05, 0.05, 1.8, 0.8, 1.2, 0.15
+BLANK_SIZE = 1024  # pixels across the map of the model's places a blank panel is looked for on
+BLANK_SLATS, BLANK_RADIUS = 0.12, 0.08  # the repair a blank panel's note proposes: a roller door's slat pitch and the smoothing's reach, metres
 
 
 def _accessor(document, binary, index):
@@ -392,6 +411,58 @@ def glass_picture(panes):
     return image.resize((GLASS_PICTURE, GLASS_PICTURE), Image.NEAREST)
 
 
+def ember_beds(parts):
+    """Beds of embers for a model: [{at, radius}] gives {vertices, normals, uvs, faces}, a low mound for each, `radius`
+    across at `at` (the middle of its rim, metres on the finished model) and EMBER_RISE of that higher in the middle,
+    its lumps a little up and down. They are nodes of their own that show `name`_e (`ember_picture`) as bright by
+    night as by day (`model_text`). A generator makes the charred wood of a fire barrel and nothing under it, and a
+    block of one glowing colour built there looked like a lid, not like embers (user, 2026-11-16)."""
+    rng = np.random.default_rng(EMBER_SEED); points, uvs, faces = [], [], []
+    for part in parts:
+        at, radius = np.asarray(part['at'], float), float(part['radius']); first = len(points); rise = radius * EMBER_RISE
+        points.append(at + [0, 0, rise]); uvs.append([0.5, 0.5])
+        for ring in range(1, EMBER_RINGS + 1):
+            share = ring / EMBER_RINGS
+            for step in range(EMBER_SIDES):
+                angle = 2 * np.pi * (step + ring / 2) / EMBER_SIDES; across = np.array([np.cos(angle), np.sin(angle)]) * share
+                lump = rng.uniform(-0.3, 0.3) * rise if ring < EMBER_RINGS else 0.0  # the rim lies level against what holds the bed
+                points.append(at + [*(across * radius), rise * (1 - share ** 2) + lump]); uvs.append((0.5 + across * 0.48).tolist())
+        at_ring = lambda ring, step: first + 1 + (ring - 1) * EMBER_SIDES + step % EMBER_SIDES
+        for step in range(EMBER_SIDES):
+            faces.append([first, at_ring(1, step), at_ring(1, step + 1)])
+            for ring in range(1, EMBER_RINGS):  # each ring is turned half a step on from the one inside it
+                faces += [[at_ring(ring, step), at_ring(ring + 1, step), at_ring(ring, step + 1)], [at_ring(ring, step + 1), at_ring(ring + 1, step), at_ring(ring + 1, step + 1)]]
+    return {'vertices': np.asarray(points, float), 'normals': np.tile([0.0, 0.0, 1.0], (len(points), 1)), 'uvs': np.asarray(uvs, float), 'faces': np.asarray(faces)}
+
+
+def _soft(rng, size, step):
+    """Smooth noise from 0 to 1, `size` pixels square: random values `step` pixels apart, drawn up."""
+    from PIL import Image
+    small = Image.fromarray((rng.uniform(0, 1, (max(2, size // step),) * 2) * 255).astype(np.uint8))
+    return np.asarray(small.resize((size, size), Image.BICUBIC), float) / 255
+
+
+def ember_picture(size=None, coals=None):
+    """The picture a model's beds of embers show (`ember_beds`): lumps of charcoal seen from above, dark on their
+    crowns under grey ash, the fire showing in the gaps between them and through their thin edges."""
+    from PIL import Image
+    size, coals = size or EMBER_PICTURE, coals or EMBER_COALS; rng = np.random.default_rng(EMBER_SEED)
+    at = rng.uniform(0, 1, (coals, 2)); spent = rng.uniform(0, 1, coals); y, x = np.mgrid[0:size, 0:size]
+    place = np.stack([(x + 0.5) / size, (y + 0.5) / size], -1) + (np.stack([_soft(rng, size, 16), _soft(rng, size, 16)], -1) - 0.5) * 0.08  # no lump is straight-sided
+    away = np.linalg.norm(place[:, :, None, :] - at[None, None], axis=-1); order = np.argsort(away, axis=-1)[..., :2]
+    first, second = (np.take_along_axis(away, order[..., n:n + 1], -1)[..., 0] for n in (0, 1)); lump = order[..., 0]
+    inside = np.clip((second - first) * np.sqrt(coals) * 1.6, 0, 1)  # 0 in the gap between two lumps, 1 on a lump's crown
+    fine = rng.uniform(0, 1, (size, size)); broad = _soft(rng, size, 24); patch = _soft(rng, size, 6)
+    gap = np.exp(-(inside / 0.16) ** 2); rim = np.exp(-(inside / 0.45) ** 2) * 0.55 * (1 - spent[lump] * 0.7)
+    crack = (patch > 0.62) * (1 - spent[lump]) * 0.5 * inside
+    heat = np.clip((gap + rim + crack) * (0.45 + 0.75 * broad) + (fine - 0.5) * 0.08, 0, 1)
+    stops = np.array([0.0, 0.22, 0.5, 0.78, 1.0]); ramp = np.array([[0.04, 0.035, 0.035], [0.30, 0.04, 0.02], [0.80, 0.18, 0.03], [1.0, 0.50, 0.08], [1.0, 0.86, 0.45]])
+    colour = np.stack([np.interp(heat, stops, ramp[:, channel]) for channel in range(3)], -1)
+    crust = (np.clip((inside - 0.35) / 0.4, 0, 1) * np.clip(spent[lump] * 1.3 - 0.25 + (patch - 0.5) * 0.9, 0, 1) * (1 - heat) ** 2)[..., None]  # ash on the cool crowns
+    ash = (0.34 + 0.22 * fine)[..., None] * np.array([1.0, 0.97, 0.94])
+    return Image.fromarray((np.clip(colour * (1 - crust) + ash * crust, 0, 1) * 255).round().astype(np.uint8))
+
+
 def filled(vertices, normals, uvs, faces, parts):
     """`faces` with each hole of `parts` ([{at: a point in metres on the finished model}]) filled: the ring of open
     edges (each the edge of one face only, corners within FILL_WELD taken as one place) that passes nearest `at`,
@@ -663,6 +734,236 @@ def stretched(points, normals, length):
     return points * factor, normals / np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12)
 
 
+def levelled(points, faces, thickness):
+    """(points, normals): a floor marking laid flat, `thickness` metres thick. A generator given a pad seen from a
+    slant made a wedge of it: the Ghost Riders parking pad came back seven times as thick at its back as at its
+    front, half a metre at its true width (2026-11-15). The plane of its top is found from the faces that look up
+    (those standing proud of it, wheel stops and raised paint, left out of the fit), and every point is lowered by
+    the plane's height there less `thickness`; nothing goes under the ground, so the sides and the underside close
+    onto it. What stood proud of the top still does, by as much. The normals are made again from the faces, which
+    are wound right by now."""
+    require(0 < thickness <= LEVEL_MOST, f'A levelled floor marking is left over 0 and at most {LEVEL_MOST} metres thick')
+    corners = points[faces]; out = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+    area = np.linalg.norm(out, axis=1); up = out[:, 2] / np.maximum(area, 1e-12) > 0.9
+    require(bool(up.any()), 'A model with no face looking up has no top to level')
+    # Places spread evenly over what looks up, so a large face counts for its size however few faces the top is made of.
+    places = scatter(points, faces[up], spacing=max(float(np.ptp(points[:, :2], axis=0).max()) / 80, 1e-4)); keep = np.ones(len(places), bool)
+    for _ in range(4):  # the top is most of what looks up: what stands off the fitted plane is left out and the plane fitted again
+        plane = np.linalg.lstsq(np.column_stack([places[keep, :2], np.ones(int(keep.sum()))]), places[keep, 2], rcond=None)[0]
+        off = places[:, 2] - (places[:, :2] @ plane[:2] + plane[2])
+        keep = np.abs(off) <= max(float(np.median(np.abs(off))) * 3, 1e-4)
+        require(int(keep.sum()) >= 3, 'The top of the model is no plane: nothing to level it by')
+    flat = points.copy(); flat[:, 2] = np.maximum(points[:, 2] - (points[:, :2] @ plane[:2] + plane[2]) + thickness, 0.0)
+    corners = flat[faces]; out = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]); normals = np.zeros_like(flat)
+    for corner in range(3):
+        np.add.at(normals, faces[:, corner], out)
+    length = np.linalg.norm(normals, axis=1, keepdims=True)
+    return flat, np.where(length > 1e-12, normals / np.maximum(length, 1e-12), [0.0, 0.0, 1.0])
+
+
+def blank_panels(vertices, uvs, faces, colour, *, size=None, placed=None):
+    """Panels the size of a door that the model's picture draws in one flat colour: [{side, box, m2, colour, repair}].
+
+    A generator often draws a roller or bay door as a featureless panel, its slats lost (the Ghost Riders garage's
+    door, a flat dark blue with a few stray flecks; user, 2026-11-15: "garage and bay doors seem to have problems on
+    a lot of the meshy models, can we add reusable checks and repairs for that?"). Each upright wall plane is read in
+    cells BLANK_CELL across: a cell is blank where its brightness varies by no more than BLANK_WITHIN of itself, and blank
+    cells that touch are one panel where they fill a rectangle BLANK_LEAST each way, agree with each other within
+    BLANK_BETWEEN and start within BLANK_SILL of the model's foot. `box` is the panel on the finished model, a little
+    deeper than its plane, and `repair` the `smooth` entry that draws it again as a roller door's slats (`retouch`).
+    A panel so found is a place to look, not a fault: a painted steel plate reads the same. One drawn with slats
+    finer than its texels is not found here: it reads as a moiré, which the same repair mends (the Saeder-Krupp
+    yard's dock doors). `colour` is the picture as it ships, so a door mended is found no more. `placed` is the
+    model's position map with facing at `size` (`glow.position_map`), for a caller that has one."""
+    from PIL import Image
+    from . import glow
+
+    def patches(grid):
+        """The patches of touching true cells, each as its (column slice, row slice) and its cells within them."""
+        left = grid.copy()
+        for start in zip(*np.nonzero(grid)):
+            if not left[start]:
+                continue
+            left[start] = False; stack, cells = [start], []
+            while stack:
+                a, b = stack.pop(); cells.append((a, b))
+                for c, d in ((a + 1, b), (a - 1, b), (a, b + 1), (a, b - 1)):
+                    if 0 <= c < grid.shape[0] and 0 <= d < grid.shape[1] and left[c, d]:
+                        left[c, d] = False; stack.append((c, d))
+            cells = np.array(cells); low, high = cells.min(0), cells.max(0) + 1; panel = np.zeros(high - low, bool); panel[tuple((cells - low).T)] = True
+            yield (slice(int(low[0]), int(high[0])), slice(int(low[1]), int(high[1]))), panel
+
+    where, covered, toward = placed if placed is not None else glow.position_map(vertices, uvs, faces, size or BLANK_SIZE, facing=True)
+    size = covered.shape[0]
+    base = np.asarray(colour.convert('RGB').resize((size, size), Image.BOX), float) / 255; bright = base @ np.array([0.2126, 0.7152, 0.0722])
+    foot = float(np.asarray(vertices, float)[:, 2].min()); found = []
+    for side, (x, y) in enumerate(glow.SIDES):
+        facing = covered & (toward[..., 0] * x + toward[..., 1] * y > 0.9)
+        if not facing.any():
+            continue
+        depth = (where[..., 0] * x + where[..., 1] * y)[facing]; along = (where[..., 0] * y - where[..., 1] * x)[facing]
+        height = where[..., 2][facing]; shade, tint = bright[facing], base[facing]
+        for shift in (0.0, 0.5):  # planes are told twice, half a plane apart, so a wall on a line between two is whole in one
+            plane = np.floor(depth / BLANK_PLANE + shift).astype(int)
+            for one in np.unique(plane):
+                mine = plane == one
+                if mine.sum() < (BLANK_LEAST / BLANK_CELL) ** 2 * 4:
+                    continue
+                column = np.floor(along[mine] / BLANK_CELL).astype(int); row = np.floor(height[mine] / BLANK_CELL).astype(int)
+                left, low = column.min(), row.min(); shape = (column.max() - left + 1, row.max() - low + 1); cell = (column - left, row - low)
+                count = np.zeros(shape); total = np.zeros(shape); squares = np.zeros(shape)
+                np.add.at(count, cell, 1); np.add.at(total, cell, shade[mine]); np.add.at(squares, cell, shade[mine] ** 2)
+                mean = total / np.maximum(count, 1); varies = np.sqrt(np.maximum(squares / np.maximum(count, 1) - mean ** 2, 0))
+                for (columns, rows), panel in patches((count >= 4) & (varies <= BLANK_WITHIN * np.maximum(mean, 0.1))):
+                    wide, tall = (np.array(panel.shape) * BLANK_CELL).tolist()
+                    sill = (low + rows.start) * BLANK_CELL
+                    if (wide < BLANK_LEAST or tall < BLANK_LEAST or panel.mean() < BLANK_FILL or sill > foot + BLANK_SILL
+                            or float(mean[columns, rows][panel].std()) > BLANK_BETWEEN):
+                        continue
+                    texels = mine.copy(); texels[mine] = (cell[0] >= columns.start) & (cell[0] < columns.stop) & (cell[1] >= rows.start) & (cell[1] < rows.stop)
+                    lows, highs = (left + columns.start) * BLANK_CELL, (left + columns.stop) * BLANK_CELL
+                    near, far = float(depth[texels].min()) - 0.05, float(depth[texels].max()) + 0.05
+                    # back from the wall's own measures to the model's: along is x * y' - y * x' of the side's way (x', y')
+                    ends = np.array([[lows * y + near * x, -lows * x + near * y], [highs * y + far * x, -highs * x + far * y]])
+                    box = [[round(float(ends[:, 0].min()), 2), round(float(ends[:, 1].min()), 2), round(float(sill), 2)],
+                           [round(float(ends[:, 0].max()), 2), round(float(ends[:, 1].max()), 2), round(float(sill + tall), 2)]]
+                    found.append({'side': side, 'box': box, 'm2': round(wide * tall * float(panel.mean()), 1),
+                                  'colour': (tint[texels].mean(0) * 255).round().astype(int).tolist(),
+                                  'repair': {'part': 'roller door', 'box': box, 'radius': BLANK_RADIUS, 'slats': BLANK_SLATS}})
+    kept = []  # told twice where one plane's shift held it whole both times, and from both faces of a thin door: the larger stays
+    for one in sorted(found, key=lambda one: -one['m2']):
+        # The two faces of a thin door look opposite ways and lie a door's thickness apart: along the way they face,
+        # boxes within a wall plane of each other are one panel.
+        reach = np.zeros(3); reach[0 if glow.SIDES[one['side']][0] else 1] = BLANK_PLANE
+        low, high = np.array(one['box'], float) + [-reach, reach]
+        if not any(one['side'] % 2 == other['side'] % 2 and (np.minimum(high, np.array(other['box'][1])) > np.maximum(low, np.array(other['box'][0]))).all() for other in kept):
+            kept.append(one)
+    return kept
+
+
+def shipped_blank_panels(made, maps, smooth=None):
+    """`blank_panels` of a finished model (`shape`) by its colour picture as it ships: retouched where it was, else as
+    generated. Read at BLANK_SIZE: brought down to an eighth of its picture, the flecks that tell a blank door from a
+    plain wall go, and the Ghost Riders garage's door was found from behind only. Where `shape` made a map of the
+    model's places at that size for its lit parts (`placed`), it serves here too: making it again was a third of
+    the garage's conversion after its shaping (46 of 58 seconds, 2026-11-16). A panel whose middle lies in a
+    `smooth` box of the game set that draws `slats` is mended and left out: its joints are finer than the cells
+    it is read by."""
+    from PIL import Image
+    placed = made.get('placed') if made.get('placed') is not None and made['placed'][1].shape[0] == BLANK_SIZE else None
+    if made.get('colour') is not None:
+        found = blank_panels(made['vertices'], made['uvs'], made['faces'], made['colour'], placed=placed)
+    elif 'base_color' not in maps:
+        return []
+    else:
+        with Image.open(maps['base_color']) as picture:
+            found = blank_panels(made['vertices'], made['uvs'], made['faces'], picture, placed=placed)
+    mended = [np.asarray(part['box'], float) for part in smooth or [] if 'slats' in part]
+    middle = lambda one: np.asarray(one['box'], float).mean(0)
+    return [one for one in found if not any((middle(one) >= box.min(0)).all() and (middle(one) <= box.max(0)).all() for box in mended)]
+
+
+def blank_panels_of(shaped, models):
+    """{name: its blank panels} of the models of a tile group that have any (`shipped_blank_panels`). shaped: {name:
+    (made, maps)}, each a finished model of the game set `models`. Each model's map of places (`placed`) is let go
+    once it is read by: it is large, and a group holds every model it places until it is built."""
+    found = {}
+    for name, (made, maps) in shaped.items():
+        if panels := shipped_blank_panels(made, maps, models[name].get('smooth')):
+            found[name] = panels
+        made['placed'] = None
+    return found
+
+
+def blank_notes(name, panels):
+    """What a build says of each blank panel found (`blank_panels`): where to look, and the entry that mends a door."""
+    return [f'{name}: a panel of {one["m2"]} m² is drawn in one flat colour {one["colour"]} at {one["box"]}: look at it close up with `view --eye`; '
+            f'a roller or bay door that lost its slats takes this under `smooth` (add "colour": [r, g, b] for another shade): {json.dumps(one["repair"])}'
+            for one in panels]
+
+
+def fire_values(part):
+    """(at, width) of a fire a game set states: {at: [x, y, z], width}, metres on the finished model, where the game
+    draws flames of its own (`fire_lines`)."""
+    number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
+    require(isinstance(part, dict) and {'at', 'width'} <= set(part) <= {'part', 'at', 'width'} and isinstance(part['at'], list) and len(part['at']) == 3
+            and all(number(value) for value in part['at']) and number(part['width']) and FIRE_WIDTH[0] <= part['width'] <= FIRE_WIDTH[1],
+            f'A fire is {{at: [x, y, z], width: {FIRE_WIDTH[0]} to {FIRE_WIDTH[1]} metres}} on the finished model')
+    return [float(value) for value in part['at']], float(part['width'])
+
+
+def fire_lines(name, number, part):
+    """A fire as the game draws one: an emitter node at the fire's foot, the stock medium flame's (`plc_t05`, read from
+    the game's own model on 2026-11-15: the flame sheet `fxpa_flame00` in sixteen frames, added to what is behind it,
+    each particle added to what is behind it), its sizes scaled to the fire's width. The stock flame swells as it rises and hardly climbs, a ball of fire on the Ghost Riders barrel in the client; here each particle climbs its fire's width in its second of life and narrows, so the flames stand about twice as tall as the fire is wide. A generator makes flames a solid, still
+    mesh (the Ghost Riders burn barrel; user, 2026-11-15: "we should remove the flames from the barrel and add that as
+    a vfx"): clear them and state the fire. It burns by day and by night until a script puts it out (`fire_anim_lines`)."""
+    (x, y, z), width = fire_values(part)
+    values = {'deadspace': 0, 'blastRadius': 0, 'blastLength': 0, 'xgrid': 4, 'ygrid': 4, 'spawntype': 0, 'update': 'Fountain', 'render': 'Normal',
+              'blend': 'Lighten', 'texture': 'fxpa_flame00', 'twosidedtex': 0, 'loop': 0, 'renderorder': 0, 'p2p': 0, 'p2p_sel': 1, 'affectedByWind': 0,
+              'm_isTinted': 0, 'bounce': 0, 'random': 1, 'inherit': 1, 'inheritvel': 0, 'inherit_local': 0, 'splat': 0, 'inherit_part': 0,
+              'alphaStart': 0.75, 'alphaMid': 0, 'alphaEnd': 0.1, 'colorStart': '0.254902 0.254902 0.254902', 'colorMid': '0 0 0', 'colorEnd': '1 1 1',
+              'sizeStart': round(width * 2.0, 3), 'sizeMid': 0, 'sizeEnd': round(width * 1.0, 3), 'sizeStart_y': 0, 'sizeMid_y': 0, 'sizeEnd_y': 0,
+              'birthrate': FIRE_BIRTHRATE, 'lifeExp': 1, 'mass': 0, 'spread': 0.2, 'particleRot': 0, 'velocity': round(width, 3), 'randvel': 0, 'bounce_co': 0,
+              'blurlength': 10, 'fps': 24, 'frameStart': 0, 'frameEnd': 15, 'grav': 0, 'drag': 0, 'threshold': 0, 'combinetime': 0, 'percentStart': 0,
+              'percentMid': 0, 'percentEnd': 0, 'lightningDelay': 0, 'lightningRadius': 0, 'lightningScale': 0, 'p2p_bezier2': 0, 'p2p_bezier3': 0,
+              'xsize': round(width * 50), 'ysize': round(width * 50)}
+    return [f'node emitter {name}_f{number}', f'  parent {name}', f'  position {x:.5f} {y:.5f} {z:.5f}', '  orientation 0 0 1 0',
+            *(f'  {key} {value}' for key, value in values.items()), 'endnode']
+
+
+def fire_anim_lines(name, fires):
+    """The animations that put a model's fires out and light them again, as the stock flame's do (`plc_t05`): `on`,
+    `off2on`, `on2off` and `off`, each keying every fire's birthrate. A placeable plays `on2off` then `off` when a
+    script deactivates it (ANIMATION_PLACEABLE_DEACTIVATE) and `off2on` then `on` when it activates it; placed and left
+    alone it burns by the birthrate of its emitter. Without them the Ghost Riders burn barrel's light went out with the
+    lights and its flame burned on (2026-11-15). Their nodes are indented, so a line that starts `node emitter` is a
+    fire of the model itself."""
+    lines = []
+    for anim, (first, last) in (('on', (FIRE_BIRTHRATE, FIRE_BIRTHRATE)), ('off2on', (0, FIRE_BIRTHRATE)), ('on2off', (FIRE_BIRTHRATE, 0)), ('off', (0, 0))):
+        lines += [f'newanim {anim} {name}', f'  length {FIRE_ANIM:.7f}', '  transtime 0', f'  animroot {name}', f'  node dummy {name}', '    parent NULL', '  endnode']
+        for number in range(fires):
+            lines += [f'  node emitter {name}_f{number}', f'    parent {name}', '    birthratekey 2', f'      0 {first}', f'      {FIRE_ANIM:.7f} {last}', '    endlist', '  endnode']
+        lines += [f'doneanim {anim} {name}']
+    return lines
+
+
+def compile_placeable(source, output):
+    """Compile a placeable's ASCII model into `output`; returns the compiled paths. armorkit's compile reads each
+    model back with a reader that knows only rigid dummy and mesh nodes, and refuses one with a fire's emitter. Such a
+    model is checked in two halves: a twin without its fires goes through that compile and its read-back, so the
+    meshes are checked as any prop's are; the model itself is compiled with the same pinned tool and decompiled
+    again, and must still hold every fire and every face."""
+    import tempfile
+    from tools.armorkit import export, toolchain
+    source, output = Path(source), Path(output); text = source.read_text(encoding='cp1252')
+    fires = len(re.findall(r'(?m)^node emitter ', text))
+    if not fires:
+        return export.compile_models([source], output)
+    require(source.parent.resolve() != output.resolve(), 'Compile into a folder other than the sources\'')
+    output.mkdir(parents=True, exist_ok=True); target = output / source.name; target.unlink(missing_ok=True)
+    tool = toolchain.cleanmodels(); run = lambda *said: subprocess.run([tool['path'], *said], capture_output=True, text=True, timeout=600,
+                                                                      creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    with tempfile.TemporaryDirectory() as scratch:
+        twin = Path(scratch) / 'source' / source.name; twin.parent.mkdir()
+        # the twin has neither the fires nor the animations that key them
+        twin.write_text(re.sub(r'(?ms)^newanim .*?^doneanim [^\n]*\n', '', re.sub(r'(?ms)^node emitter .*?^endnode\n', '', text)), encoding='cp1252', newline='\n')
+        export.compile_models([twin], Path(scratch) / 'compiled')
+        result = run('compile', '--overwrite', '--json', str(source), str(target))
+        require(result.returncode == 0 and target.is_file() and target.read_bytes()[:4] == b'\0\0\0\0',
+                f'{source.name} did not compile: {(result.stdout + result.stderr)[-600:]}')
+        back = Path(scratch) / 'back' / source.name; back.parent.mkdir()
+        result = run('decompile', '--overwrite', str(target), str(back))
+        require(result.returncode == 0 and back.is_file(), f'{source.name} compiled to a model that cannot be read back: {(result.stdout + result.stderr)[-600:]}')
+        told = back.read_text(encoding='cp1252', errors='replace'); geometry = told.split('endmodelgeom')[0]
+        faces = lambda told: sum(int(count) for count in re.findall(r'(?m)^\s*faces (\d+)', told))
+        require(len(re.findall(r'(?m)^\s*newanim ', told)) == len(re.findall(r'(?m)^newanim ', text)),
+                f'{source.name} compiled to a model without all of the animations that put its fires out')
+        kept, wanted = (len(re.findall(r'(?m)^\s*node emitter ', geometry)), faces(geometry)), (fires, faces(text.split('endmodelgeom')[0]))
+        require(kept == wanted, f'{source.name} compiled to a model of {kept[0]} fires and {kept[1]} faces, not its {wanted[0]} fires and {wanted[1]} faces')
+    return [target]
+
+
 def two_sided(points, normals, uvs, faces, tilt, *, gap=0.02):
     """(points, normals, uvs, faces) of a sign that reads the same from both sides: the front sheet leaning back `tilt`
     degrees and a half-turned copy of it behind, the two meeting along the top.
@@ -746,8 +1047,11 @@ def card_normal_line(card):
     return f'    {x:g} {y:g} {z:g}'
 
 
-def model_text(name, vertices, normals, uvs, faces, cards=None, wire=None, glass=None):
+def model_text(name, vertices, normals, uvs, faces, cards=None, wire=None, glass=None, fire=None, embers=None):
     """The ASCII model. `wire` is a fence's sheets (`sheets`), which show `name`_w, a plain picture with gaps.
+    `embers` is its beds of embers (`ember_beds`), one node that shows `name`_e as a halo's cards show theirs: it
+    takes no light and its picture is in the glow slot of its own material file, so it is as bright by night as by day.
+    `fire` is the fires the game draws on it ([{at, width}], `fire_lines`), each an emitter node.
     `glass` is its panes (`glazed`), each a node that shows its patch of `name`_g, added to what is behind it as the
     halo's cards are, and lit as the model is.
     `cards` are a halo's sheets (`glow.halo`), four corners each, all showing `name`_h. That
@@ -786,7 +1090,16 @@ def model_text(name, vertices, normals, uvs, faces, cards=None, wire=None, glass
         lines += [f'  tverts {len(pane["uvs"])}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in pane['uvs'].tolist()]
         lines += [f'  normals {len(pane["normals"])}'] + [f'    {x + 0.0:.5f} {y + 0.0:.5f} {z + 0.0:.5f}' for x, y, z in pane['normals'].tolist()]
         lines += [f'  faces {len(pane["faces"])}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in pane['faces'].tolist()] + ['endnode']
-    return '\n'.join(lines + [f'endmodelgeom {name}', f'donemodel {name}']) + '\n'
+    if embers is not None:
+        lines += [f'node trimesh {name}_e0', f'  parent {name}', '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1',
+                  f'  bitmap {name}_e', '  render 1', '  shadow 0', f'  verts {len(embers["vertices"])}']
+        lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in embers['vertices'].tolist()]
+        lines += [f'  tverts {len(embers["uvs"])}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in embers['uvs'].tolist()]
+        lines += [f'  normals {len(embers["normals"])}'] + [f'    {x + 0.0:.5f} {y + 0.0:.5f} {z + 0.0:.5f}' for x, y, z in embers['normals'].tolist()]
+        lines += [f'  faces {len(embers["faces"])}'] + [f'    {a} {b} {c} 1 {a} {b} {c} 1' for a, b, c in embers['faces'].tolist()] + ['endnode']
+    for number, part in enumerate(fire or []):
+        lines += fire_lines(name, number, part)
+    return '\n'.join(lines + [f'endmodelgeom {name}', *(fire_anim_lines(name, len(fire)) if fire else []), f'donemodel {name}']) + '\n'
 
 
 def material_text(name, illumination=False):
@@ -811,16 +1124,48 @@ def outline(points, sides=8):
     return [(round(float(x), 6) + 0.0, round(float(y), 6) + 0.0) for x, y in corners]
 
 
-def walk_text(name, vertices, *, overhead=False):
+def standing(vertices, faces):
+    """The parts of a model that stand in a walker's way, each as its points: what of its surface lies under head
+    height (OVERHEAD), told apart wherever WALK_GAP of clear ground lies between (parts nearer than a quarter of it are one). A gantry crane is two legs and a beam
+    twelve metres up: one block on its whole footprint shut the track it spans (user, 2026-11-15: "the crane
+    placeable should NOT block walking underneath it")."""
+    vertices = np.asarray(vertices, float)  # its own corners with the places spread over its faces: a block's corners are the model's
+    points = np.vstack([vertices, scatter(vertices, np.asarray(faces), spacing=WALK_GAP / WALK_CELLS)]); points = points[points[:, 2] < OVERHEAD]
+    require(len(points), 'Nothing of the model stands under head height: it is hung overhead and needs no parts to walk between')
+    # Cells a quarter of the gap across: two that hold points are one part only where no two points in them can lie
+    # the gap apart, so ground WALK_GAP clear and more is never closed, wherever the model lies on the cells. (Cells
+    # the gap across joined posts 0.8 m apart that fell in neighbouring cells: found in review, 2026-11-15.)
+    fine = WALK_GAP / WALK_CELLS; near = [(c, d) for c in range(-WALK_CELLS, WALK_CELLS + 1) for d in range(-WALK_CELLS, WALK_CELLS + 1)
+                                          if (c or d) and (abs(c) + 1) ** 2 + (abs(d) + 1) ** 2 <= WALK_CELLS ** 2]
+    cell = np.floor(points[:, :2] / fine).astype(int); cell -= cell.min(0); grid = np.zeros(cell.max(0) + 1, int); grid[tuple(cell.T)] = -1; parts = 0
+    for start in zip(*np.nonzero(grid)):
+        if grid[start] != -1:
+            continue
+        parts += 1; grid[start] = parts; stack = [start]
+        while stack:
+            a, b = stack.pop()
+            for c, d in near:
+                c, d = a + c, b + d
+                if 0 <= c < grid.shape[0] and 0 <= d < grid.shape[1] and grid[c, d] == -1:
+                    grid[c, d] = parts; stack.append((c, d))
+    part = grid[tuple(cell.T)]
+    return [points[part == number] for number in range(1, parts + 1)]
+
+
+def walk_text(name, vertices, *, overhead=False, blocks=None):
     """Collision: an upright block on the model's footprint (`outline`), as tall as the model, and where a character
     stands to use it (in front and behind). `overhead` leaves the block out: a thing hung above head height is walked
-    under."""
+    under. `blocks` are the points of each part that stands on the ground (`standing`), a block for each in place of
+    the one: a thing on legs is walked under between them."""
     vertices = np.asarray(vertices, float); (x0, y0, _), (x1, y1, z1) = vertices.min(0), vertices.max(0); lines = []
     if not overhead:
-        corners = outline(vertices); count = len(corners)
-        verts = [(x, y, 0.0) for x, y in corners] + [(x, y, z1) for x, y in corners]
-        faces = [face for index in range(count) for face in ((index, (index + 1) % count, (index + 1) % count + count), (index, (index + 1) % count + count, index + count))]
-        faces += [(count, count + index, count + index + 1) for index in range(1, count - 1)]
+        verts, faces = [], []
+        for block in [vertices] if blocks is None else blocks:
+            corners = outline(block); count = len(corners); first = len(verts)
+            verts += [(x, y, 0.0) for x, y in corners] + [(x, y, z1) for x, y in corners]
+            sides = [face for index in range(count) for face in ((index, (index + 1) % count, (index + 1) % count + count), (index, (index + 1) % count + count, index + count))]
+            sides += [(count, count + index, count + index + 1) for index in range(1, count - 1)]
+            faces += [tuple(corner + first for corner in face) for face in sides]
         lines = [f'node trimesh {name}_wg', f'  parent {name}_pwk', '  position 0 0 0', '  orientation 0 1 0 0', f'  verts {len(verts)}']
         lines += [f'    {x:.5f} {y:.5f} {z:.5f}' for x, y, z in verts]
         lines += [f'  faces {len(faces)}'] + [f'    {a} {b} {c} 1 0 0 0 {NON_WALK}' for a, b, c in faces] + ['endnode']
@@ -1175,24 +1520,36 @@ def load_models(path):
     mean we have to generate it as one single mesh"): `parts` places other models of the set in it, each
     {model, at: [x, y, z], turn} in metres on this one and turned a quarter at a time, with a texture of its own (`part_textures`).
     `measuredAt` is how the model stood when its boxes, fences, door and fade height were measured: its height, or
-    {height, lift, turn, signTilt, length} with each of the four the model states. `length` draws the model out (or in)
+    {height, lift, turn, signTilt, length, level} with each of the five the model states. `length` draws the model out (or in)
     along the longer side of its footprint to that many metres, its height and width kept (`stretched`). A model that states any measurement states
     it, and it must be how the model stands still. `placeable` gives it a row in the placeables table: its label
     and the row of placeableobjsnds.2da it sounds like, and optionally the palette `category` its blueprint is offered
     under and whether the blueprint is `static` (by default a model with lit parts is not, so a script can reach it),
     and a `light` {colour, at} that lights what stands round it, as a lamp post does (`placeables.light_values`).
     `underfoot` (true) lays the model on the ground as railway track is laid (`track`): a group it is placed in is walked
-    flat across it, and it may run off the group's edges (`tile.group`). It is a part of groups, never a group itself."""
+    flat across it, and it may run off the group's edges (`tile.group`). It is a part of groups, never a group itself;
+    as a placeable it has no block to walk into and stands no higher than the knee (`placeable`). `walkUnder` (true)
+    gives a placeable on legs a block for each part of it that stands under head height in place of one on its whole
+    footprint, so it is walked under between them (`standing`; a gantry crane). `level` lays a floor
+    marking that came back a wedge flat, that many metres thick (`levelled`), on a model that is neither lifted nor a
+    group. `fire` is the fires the game draws on a placeable, [{part, at: [x, y, z], width}] on the finished model
+    (`fire_lines`); a model with a fire is no part of a group, which draws none."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot'},
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'embers', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot', 'level', 'fire', 'walkUnder'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
         require(number(model.get('turn', 0)) and -180 <= model.get('turn', 0) <= 180, 'A model is turned by -180 to 180 degrees: ' + name)
         require('length' not in model or (number(model['length']) and 0 < model['length'] <= 100), 'A length is 0 to 100 metres along the model: ' + name)
+        require('level' not in model or (number(model['level']) and 0 < model['level'] <= LEVEL_MOST and not model.get('lift') and not model.get('tiles')),
+                f'level is the thickness a floor marking is laid flat at, over 0 and at most {LEVEL_MOST} metres, on a model that is neither lifted nor a tile group: ' + name)
+        require('fire' not in model or (isinstance(model['fire'], list) and model['fire'] and model.get('placeable') and not model.get('tiles')),
+                'fire is a list of the fires the game draws on a placeable, [{at, width}]; a tile group draws none: ' + name)
+        for part in model.get('fire', []):
+            fire_values(part)
         tones = model.get('tone', 1); tones = tones if isinstance(tones, list) and len(tones) == 3 else [tones]
         require(all(number(tone) and 0.2 <= tone <= 2 for tone in tones), 'A tone is 0.2 to 2 times the colour, one number or one each for red, green and blue: ' + name)
         shade = lambda value: isinstance(value, list) and len(value) == 3 and all(type(part) is int and 0 <= part <= 255 for part in value)
@@ -1256,6 +1613,15 @@ def load_models(path):
                     and shade(part.get('colour', list(GLASS_COLOUR))) and number(part.get('strength', GLASS_STRENGTH)) and 0 < part.get('strength', GLASS_STRENGTH) <= 1,
                     f'A pane of glass is {{corners: 3 to {GLASS_MOST} points round it in metres on the finished model, colour: [r, g, b] of 0 to 255, strength: over 0, at most 1}}: ' + name)
         require(not model.get('glass') or (model.get('placeable') and not model.get('tiles')), 'Glass is made for a placeable only, not for a tile group: ' + name)
+        for part in model.get('embers', []):
+            require(isinstance(part, dict) and {'at', 'radius'} <= set(part) <= {'part', 'at', 'radius'} and point(part['at']) and number(part['radius']) and EMBER_RADIUS[0] <= part['radius'] <= EMBER_RADIUS[1],
+                    f'A bed of embers is {{at: the middle of its rim, radius: {EMBER_RADIUS[0]} to {EMBER_RADIUS[1]}}}, in metres on the finished model '
+                    '(its lumps grow with it: a wider one would show coals the size of paving stones): ' + name)
+        require(not model.get('embers') or (model.get('placeable') and not model.get('tiles')), 'A bed of embers is made for a placeable only, not for a tile group: ' + name)
+        # The burn barrel had both at first, and its flame burned on when one script swapped its lights-out material in
+        # and played the animation that puts the fire out; each call alone did its work (client checks, 2026-11-16).
+        require(not (model.get('fire') and model.get('lit')), 'A model with a fire has no lit parts: a script that puts both out leaves the flame burning. '
+                'Its embers are a bed of their own (embers), and a lamp on it is another prop: ' + name)
         # The panes share a picture GLASS_PICTURE pixels wide, compressed in blocks of four: narrower patches run into each other.
         require(len(model.get('glass', [])) <= GLASS_PICTURE // 4, f'A model has at most {GLASS_PICTURE // 4} panes of glass: ' + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
@@ -1290,9 +1656,11 @@ def load_models(path):
         # A glow map lights only the model's own faces. The Chop Shop clinic's surgical lamp was converted with glowing
         # lenses and no light (user, 2026-11-14: "the lamp needs a light", "make sure you are checking for when props
         # need lights from now on", "it should only be for things that should be bright").
-        require(not (placed and model.get('lit')) or 'light' in placed,
-                'A lit prop says whether it lights what stands round it: give its placeable a light, {colour, at} for what should be bright '
-                '(a lamp, a floodlight), null for what only glows (a screen, a sign, an indicator, trim): ' + name)
+        # A fire and a bed of embers are asked as lit parts are: the barrels' lit parts became a bed of embers, and with
+        # them went the question (review, 2026-11-16).
+        require(not (placed and (model.get('lit') or model.get('fire') or model.get('embers'))) or 'light' in placed,
+                'A lit prop, and one with a fire or a bed of embers, says whether it lights what stands round it: give its placeable a light, {colour, at} for what '
+                'should be bright (a lamp, a floodlight, a fire), null for what only glows (a screen, a sign, an indicator, trim, embers): ' + name)
         if placed and 'light' in placed:
             placeables.light_values(placed['light'])
         tiles = model.get('tiles')
@@ -1306,6 +1674,8 @@ def load_models(path):
                 'inside is true, for a box whose openings show what stands behind it, or a list of boxes whose faces get backs: ' + name)
         require(model.get('underfoot', True) is True and not ('underfoot' in model and tiles),
                 'underfoot is true, for a model laid on the ground of the groups it is placed in, and that is no group itself: ' + name)
+        require(model.get('walkUnder', True) is True and not ('walkUnder' in model and (tiles or not placed or model.get('underfoot'))),
+                'walkUnder is true, for a placeable on legs that is walked under between them, and that is neither a group nor laid underfoot: ' + name)
         require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
@@ -1344,7 +1714,7 @@ def load_models(path):
         # part of it (found in review, 2026-11-12); so would the boxes of a sign hung at another lift or turned since
         # they were read. So a model that states any measurement says how it stood when they were made, and standing
         # otherwise they are made again.
-        measured = any(model.get(key) for key in MEASURED) or isinstance(model.get('inside'), list) or door is not None or fade is not None or bool(parts)
+        measured = any(model.get(key) for key in MEASURED) or bool(model.get('fire')) or isinstance(model.get('inside'), list) or door is not None or fade is not None or bool(parts)
         stands = {'height': model['height'], **{key: model[key] for key in PLACING if key in model}}
         told = lambda at: ', '.join(f'{key} {value}' for key, value in at.items())
         require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says how it stood when they were measured '
@@ -1359,6 +1729,9 @@ def load_models(path):
             require(other is not None and part['model'] != name and not other.get('tiles'),
                     f'A part of {name} is another model of the set, and no tile group itself: {part["model"]}')
             require(not other.get('glass'), f'A part of {name} has glass, which a tile group does not draw: {part["model"]}')
+            require(not other.get('embers'), f'A part of {name} has a bed of embers, which a tile group does not draw: {part["model"]}')
+            # `shape` knows nothing of a fire: placed in a group the barrel would stand there cold, and nothing would say so.
+            require(not other.get('fire'), f'A part of {name} has a fire, which a tile group does not draw: place it in the area as a placeable: {part["model"]}')
     # Every file a model ships is named from its own name: its pictures with a suffix (`MAP_SUFFIXES`), a group's tiles
     # with _t and the tile, the models placed in it with p and a number. A model named like one of those would write
     # over it in the pack: the rail yard's first copy of its office for the depot's group was ek_rf_admin_s, the name
@@ -1402,7 +1775,8 @@ def place(made, at, turn=0):
     cos, sin = (round(math.cos(math.radians(turn))), round(math.sin(math.radians(turn)))) if turn % 90 == 0 else (math.cos(math.radians(turn)), math.sin(math.radians(turn)))
     spin = np.array([[cos, -sin, 0.0], [sin, cos, 0.0], [0.0, 0.0, 1.0]]); shift = np.asarray(at, float)
     moved = lambda points: np.asarray(points, float) @ spin.T + shift
-    placed = {**made, 'vertices': moved(made['vertices']), 'normals': np.asarray(made['normals'], float) @ spin.T}
+    # its map of places (`placed`) was measured where it stood before: it is not carried along
+    placed = {**made, 'placed': None, 'vertices': moved(made['vertices']), 'normals': np.asarray(made['normals'], float) @ spin.T}
     if made.get('wire'):
         placed['wire'] = {**made['wire'], 'vertices': moved(made['wire']['vertices']), 'normals': np.asarray(made['wire']['normals'], float) @ spin.T}
     if made.get('card'):
@@ -1451,12 +1825,21 @@ def lights(name, folder):
     return {**found, 'halo': f'{name}_h', 'dark': HALO_OUT} if (folder / f'{name}_h.mtr').is_file() else found
 
 
-def lights_script(name, target, on, halo=True, light=False):
-    """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on. `light`: its
-    row names a light colour (`placeables.light_values`), which lights what stands round it and is put out with it."""
-    swaps = [(name, f'{name}_o')] + ([(f'{name}_h', HALO_OUT)] if halo else [])
+def scripted(model):
+    """Whether a script reaches a model of a game set as it stands: one with lit parts, put out by a swap of its
+    pictures, or with a fire, put out by its animation. Such a prop is placed not static, and its blueprint is made so."""
+    return bool(model.get('lit') or model.get('fire'))
+
+
+def lights_script(name, target, on, halo=True, light=False, fire=False, glow=True):
+    """One line of NWScript that puts the lights of the object `target` (an expression) out, or back on. `glow` False:
+    the model has no lit parts of its own (a fire barrel: only its fire and its light go out). `light`: its
+    row names a light colour (`placeables.light_values`), which lights what stands round it and is put out with it.
+    `fire`: the model has fires the game draws (`fire_lines`), put out and lit again by its animations (`fire_anim_lines`)."""
+    swaps = ([(name, f'{name}_o')] if glow else []) + ([(f'{name}_h', HALO_OUT)] if halo and glow else [])
     switch = f'SetPlaceableIllumination({target},{"TRUE" if on else "FALSE"});RecomputeStaticLighting(GetArea({target}));' if light else ''
-    return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps) + switch
+    burn = f'AssignCommand({target},PlayAnimation(ANIMATION_PLACEABLE_{"" if on else "DE"}ACTIVATE));' if fire else ''
+    return ''.join(f'ReplaceObjectTexture({target},"{old}"' + ('' if on else f',"{new}"') + ');' for old, new in swaps) + switch + burn
 
 
 def blackout_script(name, player, on, halo=True):
@@ -1466,8 +1849,8 @@ def blackout_script(name, player, on, halo=True):
     return ''.join(f'SetTextureOverride("{old}","{"" if on else new}",{player});' for old, new in swaps)
 
 
-def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, tone=None, paint=None,
-          copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None, glass=None, sight=True):
+def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, level=None, tone=None, paint=None,
+          copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None, glass=None, embers=None, sight=True):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
@@ -1476,7 +1859,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     where its other maps are smoothed (`retouch`; all None for a model left as generated). `fence` gives `wire`, the chain-link sheets hung on it and their picture (`sheets`). `sign_tilt`, in degrees, rebuilds a two-sided sign from its front sheet (`two_sided`). `lit`
     names the parts lit from within as boxes on the finished model (`glow.glow`); `illumination` is a ready-made glow
     map instead. `halo` ({reach, strength, core}) adds the cards that spread the lit parts' light (`glow.halo`).
-    `glass` gives `glass`, its panes (`glazed`), which are no part of its own faces."""
+    `glass` gives `glass`, its panes (`glazed`), which are no part of its own faces, and `embers` gives `embers`, its
+    beds of embers (`ember_beds`), which are none either. `placed` is the map of its places its lit parts were found by."""
     vertices, normals, uvs, faces = read_glb(model); card = None
     vertices, normals, uvs, scale, angles = fit(vertices, normals, uvs, height, faces=faces)
     if sign_tilt is not None:
@@ -1489,6 +1873,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         vertices, normals = stretched(vertices, normals, float(length))
     faces, faces_turned = turn_faces(vertices, faces)
     normals, repaired = repair_normals(vertices, normals, faces); normals, turned = turn_normals(vertices, normals, faces)
+    if level is not None:  # a floor marking that came back a wedge, laid flat (`levelled`): after its faces are wound right, before anything is measured on it
+        vertices, normals = levelled(vertices, faces, float(level))
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
     if wheels:
         vertices, normals = gauged(vertices, normals, wheels)
@@ -1535,8 +1921,9 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if built:  # after the pictures: a built member takes one place of the picture, which no retouching or glow should read as its
         vertices, normals, uvs, faces = with_built(vertices, normals, uvs, faces, built)
     panes = glazed(glass) if glass else None
-    return {'glass': panes, 'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
-            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire, 'behind': behind}
+    return {'embers': ember_beds(embers) if embers else None, 'emberBeds': len(embers or []), 'glass': panes, 'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
+            'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire, 'behind': behind,
+            'placed': placed}  # the map of the model's places its lit parts were found by, None where it has none: `shipped_blank_panels` reads by it
 
 
 def _hung(vertices, faces, fences):
@@ -1567,6 +1954,10 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
     if made.get('glass'):  # a plain picture, added to what is behind it: it needs no material file either
         files.append(_compress(glass_picture(made['glass']), folder / f'{name}_g.dds', '-DXT1', GLASS_PICTURE, crunch, data=False))
         (folder / f'{name}_g.txi').write_text('blending additive\n', encoding='ascii', newline='\n')
+    if made.get('embers') is not None:  # its picture in the glow slot too, as a halo's is: the bed shows it whatever light falls on it
+        files.append(_compress(ember_picture(), folder / f'{name}_e.dds', '-DXT1', EMBER_PICTURE, crunch, data=False))
+        (folder / f'{name}_e.mtr').write_text('\n'.join(['renderhint NormalAndSpecMapped', '', f'texture0 {name}_e', *(f'texture{slot} null' for slot in range(1, 5)), f'texture5 {name}_e']) + '\n',
+                                              encoding='cp1252', newline='\n')
     if made.get('wire'):  # a plain picture, see-through between the wires: it needs no material file; _w is a suffix like the maps'
         files.append(_compress(made['wire']['image'], folder / f'{name}_w.dds', '-DXT5', made['wire']['image'].width, crunch, data=False))
     if illumination is not None:
@@ -1577,25 +1968,43 @@ def skin(name, maps, folder, crunch, made, *, colour=1024):
 def measured(name, made, files, sign_tilt=None):
     vertices, faces, card, angles = made['vertices'], made['faces'], made['card'], made['angles']
     return {'name': name, 'triangles': len(faces), 'vertices': len(vertices), 'nodes': len(split(faces)), 'scale': round(float(made['scale']), 5),
-            'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'turnedFaces': made['facesTurned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0, 'glassPanes': len(made.get('glass') or []),
+            'repairedNormals': made['repaired'], 'turnedNormals': made['turned'], 'turnedFaces': made['facesTurned'], 'signTilt': sign_tilt, 'lit': made['illumination'] is not None, 'haloCards': len(card.cards) if card else 0, 'glassPanes': len(made.get('glass') or []), 'emberBeds': made.get('emberBeds', 0),
             'turnedByDegrees': {'yaw': angles[0], 'pitch': angles[1], 'roll': angles[2]}, 'turn': made.get('turn', 0.0), 'seeThrough': made.get('colour') is not None and made['colour'].mode == 'RGBA', 'fenceFaces': len(made['wire']['faces']) if made.get('wire') else 0,
             # the largest patch seen from behind, and from which way: a hole, or glass wound inward (`inside` gives backs); None where every face has a back
             'seenFromBehind': {'cm2': round(made['behind'][0] * 1e4), 'from': made['behind'][1]} if made.get('behind') else None,
             'size': [round(float(v), 3) for v in vertices.max(0) - vertices.min(0)], 'textures': {f.name: f.stat().st_size for f in files}}
 
 
-def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_tilt=None, light=None, **keywords):
+def placeable(name, model, maps, folder, crunch, *, height, colour=1024, sign_tilt=None, light=None, fire=None, underfoot=False, walk_under=False, **keywords):
     """Write `name`.mdl (ASCII), .mtr, .pwk and the DDS maps into `folder`; returns what was measured. The keywords are
-    `shape`'s. A model lifted clear of a standing character's head gets no block to walk into. `light` is the light
-    its row of the placeables table casts ({colour, at}), refused further than LIGHT_NEAR from the model (`light_gap`)."""
+    `shape`'s. A model lifted clear of a standing character's head gets no block to walk into, and nor does one laid
+    `underfoot` (track, a floor marking), which is walked across. One to `walk_under` gets a block for each part of it
+    that stands on the ground (`standing`) and the report tells how many, `walkBlocks`. `light` is the light
+    its row of the placeables table casts ({colour, at}), refused further than LIGHT_NEAR from the model (`light_gap`).
+    `fire` is the fires the game draws on it (`fire_lines`), each refused further than LIGHT_NEAR from the model as a
+    light is: a fire stated before a turn or at another height would burn in the air. The report's `blankPanels` are
+    the door-sized panels its picture draws in one flat colour (`blank_panels`)."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     made = shape(model, maps, height=height, colour=colour, sign_tilt=sign_tilt, **keywords)
     vertices, card = made['vertices'], made['card']; gap = light_gap(vertices, made['faces'], light['at']) if light else None
     require(gap is None or gap <= LIGHT_NEAR, f'The light of {name} stands {gap or 0:.2f} metres from the model, and the game draws a flare where it stands, in the '
             f'air beside the lamps: set it at a lamp\'s lens or inside the model (a beam, a housing), within {LIGHT_NEAR} metres')
-    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire'], made.get('glass')),
+    for part in fire or []:
+        away = light_gap(vertices, made['faces'], fire_values(part)[0])
+        require(away <= LIGHT_NEAR, f'A fire of {name} burns {away:.2f} metres from the model, in the air: state it on the finished model, within {LIGHT_NEAR} metres '
+                f'of what burns ({part.get("part", part["at"])})')
+    for part in keywords.get('embers') or []:  # here and not in `shape`: `view`, which its place is read from, draws a model whose bed is stated wrong
+        away = light_gap(vertices, made['faces'], part['at'])
+        require(away <= LIGHT_NEAR + float(part['radius']), f'A bed of embers of {name} lies {away:.2f} metres from the model, in the air: state it on the finished model '
+                f'({part.get("part", part["at"])})')
+    (folder / f'{name}.mdl').write_text(model_text(name, vertices, made['normals'], made['uvs'], made['faces'], card.cards if card else None, made['wire'], made.get('glass'), fire, made.get('embers')),
                                         encoding='cp1252', newline='\n')
-    (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=float(vertices[:, 2].min()) >= OVERHEAD), encoding='cp1252', newline='\n')
+    blocks = standing(vertices, made['faces']) if walk_under else None
+    # What is walked across is low enough to step over, as a part laid underfoot in a group is (`tile.group`).
+    require(not underfoot or float(vertices[:, 2].max()) <= UNDERFOOT_MOST + 1e-6, f'{name} is laid underfoot and stands {float(vertices[:, 2].max()):.2f} metres high: '
+            f'what is walked across stands no higher than the knee, {UNDERFOOT_MOST} metres')
+    (folder / f'{name}.pwk').write_text(walk_text(name, vertices, overhead=underfoot or float(vertices[:, 2].min()) >= OVERHEAD, blocks=blocks), encoding='cp1252', newline='\n')
+    panels = shipped_blank_panels(made, maps, keywords.get('smooth'))
     # `lightAt` is the light this conversion measured: `envkit placeables` writes a row no other light (`additions.command_placeables`).
-    return {**measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt),
+    return {'blankPanels': panels, 'fires': len(fire or []), **({} if blocks is None else {'walkBlocks': len(blocks)}), **measured(name, made, skin(name, maps, folder, crunch, made, colour=colour), sign_tilt),
             **({} if gap is None else {'lightFromModel': round(gap, 3), 'lightAt': [float(value) for value in light['at']]})}

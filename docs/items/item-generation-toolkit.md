@@ -390,7 +390,16 @@ hand fit an even scale would shrink (the wave-5 Tonfa's shaft). `narrow MESH.glb
 LO HI --band INNER OUTER --factor K` pulls side parts such as sai prongs towards
 the centreline: across the width band (distances from the centreline as fractions
 of the length) the extent shrinks to K, and everything beyond moves in unchanged.
-It refuses a span that would cut through the side parts.
+It refuses a span that would cut through the side parts. `level MESH.glb OUT_DIR --span LO HI --band INNER
+OUTER` shears side parts that curl out of the blade's plane (guard arms bowed to
+one face) back into it: past the band's inner distance, each width bin of the arms
+keeps its thickness and shape but its depth midline moves onto the plane of the mesh
+outside the span, fading in up to the outer distance (wave-6 Monofilament Sword).
+It refuses a band that the blade or grip outside the span reaches, and its
+`level-map.npz` carries to the donor and shell like the others.
+When one `drive textured --straight DIR` folder holds several maps, each map's
+measuring report (`straighten.json`, `thin.json`, `level.json`) must sit beside it
+and show it was measured on the previous map's output; otherwise the step refuses.
 
 The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
 (`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default
@@ -412,6 +421,9 @@ scaling depth and width separately. The depth departs from the standard by
 construction, so the fit always stops until `fit.gripDeparture` carries an approved
 review with the digest from the worker's retained `grip-measurement.json`. See the
 Club continuation in `four-weapon-lessons.md`.
+The fit override `roundBasis: "depth"` (recorded as `fit.roundBasis`) sizes the
+diameter to the approved grip depth instead of the face width, for a thin stick that
+the face width makes too thick (the wave-6 Rattan Stick, 3.0 cm instead of 4.8 cm).
 
 ## Chained stages
 

@@ -233,6 +233,9 @@ class SetTests(unittest.TestCase):
         data = copy.deepcopy(good); data['assets']['building-left'] = {'kind': 'building', 'drawn': True, 'subject': 'left', 'box': [0, 0, 10, 10], 'cut': {'from': whole, 'box': [0, 0, 6, 4]}}
         with self.assertRaisesRegex(ValueError, 'neither cut nor turned'):
             reference.load_set(self.write(data))
+        # A mirrored cut may be drawn: the rear taken as the front's mirror image, never redrawn (user, 2026-11-15).
+        data['assets']['building-left']['cut']['mirror'] = True
+        self.assertTrue(reference.load_set(self.write(data))['assets']['building-left']['drawn'])
 
     def test_a_sheet_is_accepted_only_at_its_recorded_hash(self):
         sheet = {'file': 'sheet.png', 'sha256': 'a' * 64, 'size': [4, 4]}

@@ -56,7 +56,7 @@
     ], "inside": [
       {"part": "west leg's sill, its faces wound inward", "box": [[-9.4, -4.7, 0.9], [-6.5, 4.7, 2.3]]},
       {"part": "east leg's sill, its faces wound inward", "box": [[6.5, -4.7, 0.9], [9.4, 4.7, 2.3]]}
-    ], "placeable": {"label": "Rail Freight Yard, Gantry Crane", "sound": 28, "category": 161}},
+    ], "walkUnder": true, "placeable": {"label": "Rail Freight Yard, Gantry Crane", "sound": 28, "category": 161}},
     "ek_rf_track": {"source": "track/straight-s0", "height": 0.312, "colour": 2048, "underfoot": true},
     "ek_rf_merge": {"source": "track/merge-s0", "height": 0.312, "colour": 2048, "underfoot": true},
     "ek_rf_runway": {"source": "track/crane-s1", "height": 0.23, "colour": 2048, "underfoot": true, "placeable": {"label": "Rail Freight Yard, Crane Rail", "sound": 28, "category": 161}},
@@ -65,7 +65,7 @@
     "ek_rf_tankcar": {"source": "meshy/models/rf-tank-car-a1", "height": 4.4, "lift": 0.312, "wheels": {"spans": [[-6.6, -3.4], [3.3, 6.4]], "top": 1.362, "back": 0.9}, "measuredAt": {"height": 4.4, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Tank Car", "sound": 28, "category": 161}},
     "ek_rf_flatcar": {"source": "meshy/models/rf-flatcar-a1", "height": 3.2, "lift": 0.312, "wheels": {"spans": [[-6.4, -3.6], [3.3, 6.4]], "top": 1.262, "back": 0.85}, "measuredAt": {"height": 3.2, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Flatcar", "sound": 28, "category": 161}},
     "ek_rf_dock": {"source": "meshy/models/rf-loading-dock-a1", "height": 4.8, "colour": 2048, "inside": true, "placeable": {"label": "Rail Freight Yard, Loading Dock", "sound": 26, "category": 161}},
-    "ek_rf_shed": {"source": "meshy/models/rf-transfer-shed-a1", "height": 5.5, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Transfer Shed", "sound": 28, "category": 161}},
+    "ek_rf_shed": {"source": "meshy/models/rf-transfer-shed-a1", "height": 5.5, "colour": 2048, "walkUnder": true, "placeable": {"label": "Rail Freight Yard, Transfer Shed", "sound": 28, "category": 161}},
     "ek_rf_walkway": {"source": "meshy/models/rf-walkway-a1", "height": 3.2, "measuredAt": 3.2, "colour": 2048, "move": [
       {"part": "north-east leg, generated 1.7 m in from its corner", "box": [[0.15, 1.8, -0.05], [1.0, 2.5, 1.97]], "by": [1.66, 0, 0]}
     ], "clear": [
