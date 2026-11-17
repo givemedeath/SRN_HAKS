@@ -177,17 +177,21 @@ def creature(template, actor, name, index):
     return c
 
 
+DONE = 'ARMORKIT_DONE'  # the module's local int the entry script sets to 1 once its last shot has been held
+
+
 def enter_script(name, shots, start=START, hold=HOLD):
     """The module entry script: hide the player, then step the camera through `shots`.
 
     Each shot attaches the camera to an actor (by index) and logs `ARMORKIT shot=<n>` once it is set, so
     a driver can capture the window after each line. A shot schedules the next one itself, `hold` seconds
     after it fired, so the game stays that long on every shot even after a stall (shots laid out on the
-    clock up front fire back to back once the client catches up). Facing 90 looks north, at the front of
+    clock up front fire back to back once the client catches up). After the last it sets the module's `DONE`
+    variable, for a spec's own script that has more to show to begin by. Facing 90 looks north, at the front of
     an actor placed with the default facing."""
     require(isinstance(shots, list) and start >= 3.0 and hold > 0, 'Shots are a list; start is at least 3 s and hold positive')
     lines = ['void Shot(object pc,int n) {',
-             f'  if(n>={len(shots)}) {{ WriteTimestampedLogEntry("ARMORKIT done"); return; }}',
+             f'  if(n>={len(shots)}) {{ SetLocalInt(GetModule(),"{DONE}",1); WriteTimestampedLogEntry("ARMORKIT done"); return; }}',
              '  string tag; float facing; float distance; float pitch; float height;']
     for index, shot in enumerate(shots):
         require(isinstance(shot, dict) and set(shot) <= SHOT_KEYS and type(shot.get('actor')) is int and shot['actor'] >= 0
