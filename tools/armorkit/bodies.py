@@ -296,8 +296,8 @@ def subset(document, layout, wanted):
 def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.2, retries=2):
     """Build the client check into the fresh folder `output` and, with `run`, look: the fixture's record, with
     the `evidence` where it ran. The captures are laid out in `<output>/sheet.jpg`, a row per body and pose,
-    and the one of the item kept as `icon.png`. `wait` is the seconds to
-    wait for another session's client to close first.
+    and the one of the item kept as `icon.png`. `wait` is the seconds to wait for another session's client to
+    close first.
 
     A shot that was not captured in its time (`client.run`, `tolerate`) stops nothing: when the run is over
     the shots missed are looked at again by themselves, in a fixture of their own under `<output>/retry-N`
@@ -335,18 +335,26 @@ def check(document, layout, output, nwn_root, *, run=False, wait=None, settle=1.
         evidence = look(record, layout, output, every)
         evidence['retries'] = []
         keep = lambda: (output / 'evidence.json').write_text(json.dumps(evidence, indent=1) + '\n', encoding='utf-8', newline='\n')
+
+        def tally():
+            """Write the evidence as it stands: every capture there is, and the shots that have none."""
+            evidence['missed'] = [number for number in every if number not in found]
+            evidence['captures'] = [found[number] for number in every if number in found]
+            keep()
         for attempt in range(1, int(retries) + 1):
             missing = [number for number in every if number not in found]
             if not missing:
                 break
-            keep()
             again, part = subset(document, layout, missing)
             folder = output / f'retry-{attempt}'
-            seen = look(poses.build(again, part, folder, nwn_root), part, folder, missing)
+            try:
+                seen = look(poses.build(again, part, folder, nwn_root), part, folder, missing)
+            except Exception as error:  # a look that could not be had (another client, a timeout) is told in the evidence, with what is still missed
+                evidence['retries'].append({'shots': missing, 'failed': f'{type(error).__name__}: {error}'})
+                tally()
+                raise
             evidence['retries'].append({'shots': missing, 'lines': seen['lines'], 'missed': [missing[at] for at in seen['missed']]})
-        evidence['missed'] = [number for number in every if number not in found]
-        evidence['captures'] = [found[number] for number in every if number in found]
-        keep()  # before the sheet: what the client said and showed is kept whatever becomes of the layout
+        tally()  # before the sheet: what the client said and showed is kept whatever becomes of the layout
         require(not evidence['missed'], f'Shots {", ".join(map(str, evidence["missed"]))} were not captured in {int(retries)} more looks; see {output / "evidence.json"}')
         if count in found:
             (output / 'icon.png').write_bytes(Path(found[count]).read_bytes())

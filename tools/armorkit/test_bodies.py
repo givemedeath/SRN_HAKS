@@ -246,6 +246,9 @@ class CheckTests(unittest.TestCase):
         self.assertIn('shot=3 target=item', again['scripts']['ak_icons'])
         self.assertEqual(again['hold'], 2 * document['hold'])  # twice the time on each: these are the shots a slow machine lost
         self.assertNotIn(f'shot={count} target=item', again['scripts']['ak_icons'])
+        alone, only = bodies.subset(document, layout, [count])  # the item by itself: no body shots, and it is shot 0
+        self.assertEqual((alone['shots'], [actor['label'] for actor in alone['actors']], only), ([], ['icon host'], {'labels': [], 'columns': layout['columns'], 'icons': True}))
+        self.assertIn('shot=0 target=item', alone['scripts']['ak_icons'])
         plain, without = bodies.subset(document, layout, [5])
         self.assertEqual((without['icons'], set(plain['scripts']), len(plain['actors'])), (False, {'ak_pose'}, 1))
         with tempfile.TemporaryDirectory() as folder:
@@ -280,6 +283,17 @@ class CheckTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Shots 3 were not captured in 1 more looks'):
                     bodies.check(spec, small, root / 'once', 'game', run=True, retries=1)
                 self.assertEqual(json.loads((root / 'once' / 'evidence.json').read_text(encoding='utf-8'))['missed'], [3])
+                runs.clear()  # a look that could not be had is told in the evidence, with what is still missed
+                real = poses.build.side_effect
+
+                def refused(document, layout, output, nwn_root):
+                    if Path(output).name == 'retry-2':
+                        raise ValueError('A client is already running')
+                    return real(document, layout, output, nwn_root)
+                with mock.patch.object(poses, 'build', side_effect=refused), self.assertRaisesRegex(ValueError, 'already running'):
+                    bodies.check(spec, small, root / 'blocked', 'game', run=True)
+                kept = json.loads((root / 'blocked' / 'evidence.json').read_text(encoding='utf-8'))
+                self.assertEqual((kept['missed'], len(kept['captures']), kept['retries'][-1]), ([3], 3, {'shots': [3], 'failed': 'ValueError: A client is already running'}))
                 runs.clear(); first.clear()  # a whole check that captured nothing leaves no folder for the retries' captures: it is made
                 with self.assertRaisesRegex(ValueError, 'were not captured'):
                     bodies.check(spec, small, root / 'none', 'game', run=True)

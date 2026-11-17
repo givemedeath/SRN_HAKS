@@ -114,15 +114,24 @@ def window(pid):
     return found[0] if found else None
 
 
-def capture(pid, path):
-    """Save the client window's own pixels, whether or not it is in front."""
+def grab(pid):
+    """The client window's own pixels, whether or not it is in front."""
     from PIL import ImageGrab
     handle = window(pid)
     require(handle is not None, 'The client has no window to capture')
-    image = ImageGrab.grab(window=handle)
+    return ImageGrab.grab(window=handle)
+
+
+def save(image, path):
+    """Write a grabbed picture as `path`."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     image.convert('RGB').save(path)
     return Path(path)
+
+
+def capture(pid, path):
+    """Save the client window's own pixels, whether or not it is in front."""
+    return save(grab(pid), path)
 
 
 def stop(process):
@@ -139,9 +148,10 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', t
     record: the dict fixture.build returned. captures: folder for the window captures. The game holds each
     shot for `record['hold']` seconds and only then moves on, so a capture belongs to its shot as long as
     it is taken inside that time. A capture that would come after the next shot began is refused, and so
-    is a shot whose actor does not exist: a wrong picture must never be filed as evidence. So is a capture
-    that ended after the next shot began: the window's pixels are read at some time inside the grab, and one
-    grab took 8.7 s where they take 2 (2026-11-16), which stopped the shot after it and not itself.
+    is a shot whose actor does not exist: a wrong picture must never be filed as evidence. So is a grab
+    that ended after the next shot began: the window's pixels are read at some time inside it, and one
+    took 8.7 s where they take 2 (2026-11-16), which stopped the shot after it and not itself. The picture
+    is written only once that is known, so the time to encode it is not counted against its shot.
 
     With `tolerate` a shot that was not captured in its time, or whose grab the system refused, stops
     nothing: it is left out and its number listed under `missed` in the evidence, for the caller to look at
@@ -175,7 +185,7 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', t
                 if 'shot' in values and 'target' in values:
                     number = int(values['shot'])
                     require(values.get('valid') != '0', f'Shot {number} has no actor to look at: {values["target"]}')
-                    if tolerate and number < max(shot_numbers(lines)):  # over already: no settle spent on it, or the shots after it are lost with it
+                    if tolerate and number < latest(lines):  # over already: no settle spent on it, or the shots after it are lost with it
                         lost(number, f'Shot {number} was over before it was seen')
                         continue
                     time.sleep(settle)
@@ -185,7 +195,7 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', t
                              'the client or the driver stalled, so the picture would show the wrong shot')
                         continue
                     try:
-                        path = capture(process.pid, Path(captures) / f'shot-{number:02d}.png')
+                        image = grab(process.pid)
                     except OSError as error:  # the system refuses a grab now and then ('screen grab failed')
                         if not tolerate:
                             raise
@@ -193,10 +203,9 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', t
                         continue
                     newest = latest(log_lines(user))
                     if newest != number:  # the grab outlasted the shot: what it read may be the next one
-                        path.unlink(missing_ok=True)
                         lost(number, f'The capture of shot {number} ended after shot {newest} began, so the picture may show the wrong shot')
                         continue
-                    shots.append(str(path))
+                    shots.append(str(save(image, Path(captures) / f'shot-{number:02d}.png')))
             seen = len(lines)
             if any(line == f'{LOG_PREFIX} {until}' for line in lines):
                 break

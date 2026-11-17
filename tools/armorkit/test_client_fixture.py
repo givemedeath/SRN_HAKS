@@ -146,8 +146,8 @@ class FixtureTests(unittest.TestCase):
 class FakeClient:
     """The driver's view of a client: a scripted log, and a record of what was captured when."""
     def __init__(self, test, reads):
-        self.reads, self.captured, self.stopped, self.refused = list(reads), [], 0, set()
-        for name, stand_in in (('start', lambda *a, **k: self), ('stop', self.stop), ('capture', self.capture),
+        self.reads, self.captured, self.stopped, self.refused, self.grabs = list(reads), [], 0, set(), 0
+        for name, stand_in in (('start', lambda *a, **k: self), ('stop', self.stop), ('grab', self.grab), ('save', self.save),
                                ('log_lines', self.log_lines)):
             patcher = mock.patch.object(client, name, stand_in)
             patcher.start()
@@ -164,9 +164,13 @@ class FakeClient:
     def stop(self, process):
         self.stopped += 1
 
-    def capture(self, pid, path):
-        if Path(path).name in self.refused:
+    def grab(self, pid):
+        self.grabs += 1
+        if self.grabs - 1 in self.refused:  # the grabs the system refuses, counted from 0
             raise OSError('screen grab failed')
+        return object()
+
+    def save(self, image, path):
         self.captured.append(Path(path).name)
         return Path(path)
 
@@ -231,7 +235,7 @@ class ClientTests(unittest.TestCase):
         # shot 0 is seen late, shot 1's grab is refused by the system, shot 2 is captured
         fake = FakeClient(self, [[zero], [zero, one], [zero, one], [zero, one], [zero, one, two], [zero, one, two], [zero, one, two],
                                  [zero, one, two, 'ARMORKIT done']])
-        fake.refused = {'shot-01.png'}
+        fake.refused = {0}  # shot 1's: shot 0 was never grabbed
         got = client.run('game', {**RECORD, 'shots': 3}, 'captures', tolerate=True)
         self.assertEqual((fake.captured, got['missed'], fake.stopped), (['shot-02.png'], [0, 1], 1))
         self.assertEqual([Path(path).name for path in got['captures']], ['shot-02.png'])
@@ -241,10 +245,13 @@ class ClientTests(unittest.TestCase):
         after = [zero, one, 'ARMORKIT done']
         more = FakeClient(self, [[zero], [zero], [zero], [zero, one], [zero, one], after, after + [two], after + [two], after + [two], after + [two, 'ARMORKIT icons-done']])
         got = client.run('game', RECORD, 'captures', tolerate=True, until='icons-done')
-        self.assertEqual((got['missed'], more.captured), ([1], ['shot-00.png', 'shot-01.png', 'shot-02.png']))  # shot 1 was grabbed, and thrown away
+        self.assertEqual((got['missed'], more.captured, more.grabs), ([1], ['shot-00.png', 'shot-02.png'], 3))  # shot 1 was grabbed, and not written
+        # the last shot and `done` in one read: over before it was seen, no settle spent on it
+        both = FakeClient(self, [[zero], [zero], [zero], after, after + [two], after + [two], after + [two], after + [two, 'ARMORKIT icons-done']])
+        self.assertEqual((client.run('game', RECORD, 'captures', tolerate=True, until='icons-done')['missed'], both.grabs), ([1], 2))
         self.assertEqual([Path(path).name for path in got['captures']], ['shot-00.png', 'shot-02.png'])
         strict = FakeClient(self, [[zero], [zero], [zero]])
-        strict.refused = {'shot-00.png'}
+        strict.refused = {0}
         with self.assertRaisesRegex(OSError, 'screen grab failed'):  # without it a refused grab still stops the run
             client.run('game', RECORD, 'captures')
 
