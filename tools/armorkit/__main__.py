@@ -200,7 +200,7 @@ def command_poses(args):
         from . import bodies
         source, _, number = args.under.rpartition('=')
         registry.require(source and number.isdigit(), '--under is REGISTRY=NUMBER')
-        filled = [slot for slot in bodies.published(registry.load(json.loads(Path(source).read_text(encoding='utf-8'))), int(number))[0]]
+        filled = [slot for slot in bodies.published(registry.load(source), int(number))[0]]
         mine = {poses.slot_of(token) for token in json.loads((Path(args.bake) / 'bake.json').read_text(encoding='utf-8'))['models']}
         under = {slot: int(number) for slot in filled if slot not in mine}
     spec, labels = poses.spec(args.bake, args.output, args.stock, args.hak, tlk=args.tlk, preset=args.preset, without=args.without,
