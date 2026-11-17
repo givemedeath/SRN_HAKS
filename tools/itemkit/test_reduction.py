@@ -43,5 +43,7 @@ class WholePartTests(unittest.TestCase):
         f=np.array(f)
         if np.einsum('ij,ij->i',p[f[:,0]],np.cross(p[f[:,1]],p[f[:,2]])).sum()<0:f=f[:,::-1]
         rv,rf,audit=reduce(p,f,300,[],pymeshlab)
+        corners=p[f].reshape(-1,3);split=np.arange(len(corners)).reshape(-1,3)        # a vertex per corner, as fitted
+        self.assertLessEqual(len(reduce(corners,split,300,[],pymeshlab)[1]),300)
         self.assertTrue(audit['closedWound']);self.assertLessEqual(len(rf),300);self.assertLess(len(rf),len(f))
         with self.assertRaisesRegex(ValueError,'natural joins'):reduce(p,f,300,[0.],pymeshlab)

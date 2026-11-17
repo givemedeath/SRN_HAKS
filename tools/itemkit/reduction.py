@@ -44,6 +44,9 @@ def reduce(vertices,faces,budget,joins,meshlab,distances=None):
     require(type(budget)is int and budget>=4 and (len(joins)==0 or len(joins)==2 and joins[0]<joins[1]),
             'Explicit part budget and ordered natural joins (or none, for a one-piece part) required')
     if len(f)<=budget:return p.copy(),f.copy(),validate(p,f,p,f,budget,joins,distances)
+    if not len(joins):
+        # A one-piece part arrives with a vertex per face corner (the fitted firearm arrays): collapses need shared ones.
+        p,inverse=np.unique(p,axis=0,return_inverse=True);f=inverse.reshape(-1)[f].astype(np.int32)
     seam=np.zeros(len(p),bool)
     for y in joins:seam|=np.abs(p[:,1]-y)<1e-7
     protected=seam[f].any(1);target=budget-int(protected.sum())-4
