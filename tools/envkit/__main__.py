@@ -167,7 +167,13 @@ def command_tiles(args):
         else:
             with Image.open(maps['base_color']) as image:
                 colour = np.asarray(image.convert('RGB').resize((512, 512)), float) / 255
+        # A roller or bay door drawn as one flat panel, its slats lost, in the picture as it ships: looked for here, by the
+        # map of places the lit parts were found by, which is then let go (it is large, and a group has many models).
+        if found := convert.shipped_blank_panels(made, maps, one.get('smooth')):
+            blank[name] = found
+        made['placed'] = None
         return made, maps, colour
+    blank = {}
     with fresh(Path(args.output) / args.model) as folder:  # a group that is refused leaves nothing in the way of the next attempt
         made, maps, colour = shaped(args.model); textures = convert.part_textures(args.model, tiles.get('parts', [])); placed, crunch = [], _crunch()
         counts = {args.model: len(made['faces'])}; shapes = {}
@@ -190,9 +196,7 @@ def command_tiles(args):
         report['veils'] = {name: found for name, one in {args.model: made, **{name: shapes[name][0] for name in textures}}.items() if (found := convert.veils(one['vertices'], one['faces']))}
         report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '
                             f'with `view --eye`; a stray face over an opening takes `clear`' for name, found in report['veils'].items() for one in found]
-        # A roller or bay door drawn as one flat panel, its slats lost, in the picture as it ships.
-        report['blankPanels'] = {name: found for name, (one, its_maps, _) in {args.model: (made, maps, colour), **shapes}.items()
-                                 if (found := convert.shipped_blank_panels(one, its_maps, models[name].get('smooth')))}
+        report['blankPanels'] = blank
         report['notes'] += [note for name, found in report['blankPanels'].items() for note in convert.blank_notes(name, found)]
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')

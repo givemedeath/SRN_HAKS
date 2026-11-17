@@ -927,10 +927,10 @@ class GhostRidersTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'without all of the animations'):
                 convert.compile_placeable(source, output)
             back['text'] = plain + end.replace('newanim', '  newanim')  # a compile that lost the fire (a decompiled model's lines are indented)
-            with self.assertRaisesRegex(ValueError, 'without all of its 1 fires'):
+            with self.assertRaisesRegex(ValueError, 'a model of 0 fires and 2 faces, not its 1 fires and 2 faces'):
                 convert.compile_placeable(source, output)
             back['text'] = plain.replace('faces 2', 'faces 1') + fire + end  # or a face
-            with self.assertRaisesRegex(ValueError, 'or its 2 faces'):
+            with self.assertRaisesRegex(ValueError, 'a model of 1 fires and 1 faces, not its 1 fires and 2 faces'):
                 convert.compile_placeable(source, output)
 
     def test_a_floor_marking_that_came_back_a_wedge_is_laid_flat(self):

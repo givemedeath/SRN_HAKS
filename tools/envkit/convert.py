@@ -944,8 +944,8 @@ def compile_placeable(source, output):
         faces = lambda told: sum(int(count) for count in re.findall(r'(?m)^\s*faces (\d+)', told))
         require(len(re.findall(r'(?m)^\s*newanim ', back.read_text(encoding='cp1252', errors='replace'))) == len(re.findall(r'(?m)^newanim ', text)),
                 f'{source.name} compiled to a model without all of the animations that put its fires out')
-        require(len(re.findall(r'(?m)^\s*node emitter ', geometry)) == fires and faces(geometry) == faces(text.split('endmodelgeom')[0]),
-                f'{source.name} compiled to a model without all of its {fires} fires or its {faces(text)} faces')
+        kept, wanted = (len(re.findall(r'(?m)^\s*node emitter ', geometry)), faces(geometry)), (fires, faces(text.split('endmodelgeom')[0]))
+        require(kept == wanted, f'{source.name} compiled to a model of {kept[0]} fires and {kept[1]} faces, not its {wanted[0]} fires and {wanted[1]} faces')
     return [target]
 
 
