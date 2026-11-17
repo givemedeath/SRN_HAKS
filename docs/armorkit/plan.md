@@ -884,6 +884,9 @@ Nothing here is published; the other 18 bodies, the registry entries and the pac
   side or the top of the head (2026-11-17): `headgear` cuts the fitted piece to a rounded outline from the chin to
   the brow, short of the ears, and turns the cut edge in, so the head's own hair, ears, horns and skull show (`--cover head` keeps a piece whole, for a hood). The piece's hem hangs below the chin
   by a share of the piece, so the cut removes its flare on every race.
+  **On hold (user, 2026-11-17):** the respirator is halted, to be tried again later. The face-only cut passes its
+  gates on the six bodies checked and was seen in the client on the Human male only; it is not approved, and it is
+  not part of the step to the other bodies or of any publication until the user takes it up again.
 * **Client check.** `poses` gained `--under REGISTRY=NUMBER` (the actors also wear a published outfit),
   `--cells` (logo cells in turn), the presets `waist` and `head`, and `--body-pack` (camera set for the body's
   height). A client check and a generation on the shared ComfyUI are not run at the same time: the shots stall.
