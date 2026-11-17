@@ -245,6 +245,29 @@ python -m tools.itemkit.drive remesh-shell IN.glb OUT.glb EDGE [--taubin N]
 Each reports topology before and after and the volume ratio. A repaired shell is a new working mesh, so pin it in a
 new manifest and review it like any other; these commands do not change an existing manifest or run.
 
+## Firearm sideways lean
+
+A generated firearm can arrive rolled a few degrees about its barrel. A fit frame that only levels the gun keeps that
+roll, and the gun then leans sideways in the hand. The wave-1 Fichetti leaned about 11 degrees and the Pulsar about 6;
+neither was caught until their muzzles were measured for effects (2026-11-17).
+
+Every firearm fit now measures the lean (`tools/itemkit/firearm_lean.py`, called from `firearm_grip.measured_fit`):
+
+- The fitted surface is sampled evenly and binned into 4 mm cells seen from the side. Each cell's middle between its
+  left and right faces is a point of the gun's middle surface.
+- A plane is fitted to those middles by least absolute deviation, so a charging handle or a one-sided lever does not
+  turn the answer. Its tilt from the native `x = constant` plane is the lean: roll about the barrel and toe to a side.
+- The fit refuses a lean over 1.5 degrees. The report keeps the measurement as `sidewaysLean`.
+
+| Fit failure | What to do |
+|---|---|
+| `leans N degrees sideways in the hand` | Square the fit frame to the gun's own middle plane and fit again. The frame's across axis is the fitted plane's normal; a second measurement should read under 0.1 degrees. |
+| The gun's own shape is lopsided, or a published fit is replayed as it shipped | Bind `fit.sidewaysLeanReview` (`decision: approved`, `leanDegrees` equal to the measurement within 0.05, `notes`). |
+| `Too little of the firearm has two sides` | The working shell is not a closed solid; repair it before fitting. |
+
+Squaring a gun changes its measured grip thickness, so its scale changes too. Both wave-1 pistols came out slightly
+larger once square (the Fichetti by 5%, the Pulsar by 2.5%).
+
 ## Validation scope
 
 New focused regressions cover invalid geometry, blocked openings, UV defects,
