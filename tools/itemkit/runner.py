@@ -297,7 +297,7 @@ class Runner:
             result = self.worker(stage, folder, **values)
             if stage=='reduce' and self.data.get('processing',{}).get('shadowProxies'):
                 from .shadow import build_candidates
-                quadric=any(row.get('method')=='quadric' for row in self.data['processing']['shadowProxies'].values())
+                quadric=any(row.get('method') in ('quadric','voxel-shell') for row in self.data['processing']['shadowProxies'].values())
                 libraries={'meshlab':library(self.local,'pymeshlab'),'igl':library(self.local,'igl')} if quadric else {}
                 result['shadowPreflight']=build_candidates(result['shadowSource']['path'],self.family,self.data['processing'],
                                                            folder/'shadow-preflight',**libraries)
