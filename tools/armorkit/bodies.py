@@ -274,7 +274,8 @@ def check_spec(bodies, slots, number, haks, body_pack, *, tlk=None, colours=None
 def subset(document, layout, wanted):
     """(fixture spec, layout) of the shots numbered `wanted` alone, for another look at them: their actors
     stood side by side from the first place on, so the camera goes no further between them than in the whole
-    check, and the item's shot (the number after the last body shot) with its actor where it is wanted."""
+    check, and the item's shot (the number after the last body shot) with its actor where it is wanted. Each
+    shot is held twice as long as in the whole check."""
     count = len(layout['labels'])
     numbers = [number for number in wanted if number < count]
     used = list(dict.fromkeys(document['shots'][number]['actor'] for number in numbers))
@@ -287,7 +288,8 @@ def subset(document, layout, wanted):
         marker = f'shot={count} target=item'
         require(document['scripts']['ak_icons'].count(marker) == 1, 'The item script announces its shot once')
         scripts['ak_icons'] = document['scripts']['ak_icons'].replace(marker, f'shot={len(shots)} target=item')
-    return ({**document, 'actors': actors, 'shots': shots, 'scripts': scripts},
+    # twice the time on each shot: these are the shots a slow machine lost, and they are few
+    return ({**document, 'actors': actors, 'shots': shots, 'scripts': scripts, 'hold': 2 * document.get('hold', fixture.HOLD)},
             {'labels': [layout['labels'][number] for number in numbers], 'columns': layout['columns'], 'icons': bool(item)})
 
 

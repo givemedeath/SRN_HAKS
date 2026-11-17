@@ -244,6 +244,7 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([(shot['actor'], shot['distance']) for shot in again['shots']],
                          [(0, document['shots'][3]['distance']), (1, document['shots'][101]['distance']), (1, document['shots'][102]['distance'])])
         self.assertIn('shot=3 target=item', again['scripts']['ak_icons'])
+        self.assertEqual(again['hold'], 2 * document['hold'])  # twice the time on each: these are the shots a slow machine lost
         self.assertNotIn(f'shot={count} target=item', again['scripts']['ak_icons'])
         plain, without = bodies.subset(document, layout, [5])
         self.assertEqual((without['icons'], set(plain['scripts']), len(plain['actors'])), (False, {'ak_pose'}, 1))

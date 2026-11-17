@@ -362,7 +362,7 @@ def main(argv=None):
     p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
     p.add_argument('--wait', type=float, help="seconds to wait for another session's client to close first")
     p.add_argument('--settle', type=float, default=1.2, help='seconds between a shot line and its capture')
-    p.add_argument('--hold', type=float, default=3.0, help='seconds the game stays on each shot (default 3): longer on a busy machine, where shots stall')
+    p.add_argument('--hold', type=float, default=5.0, help='seconds the game stays on each shot (default 5; a capture takes 2 to 3): longer on a busy machine')
     p.add_argument('--retries', type=int, default=2, help='times the shots that were not captured in their time are looked at again by themselves (default 2)')
     p.set_defaults(handler=command_wear)
     p = commands.add_parser('fixture', help='build an isolated client fixture, and optionally run it')

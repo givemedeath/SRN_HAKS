@@ -167,6 +167,9 @@ def run(nwn_root, record, captures, *, timeout=None, settle=1.5, until='done', t
                 if 'shot' in values and 'target' in values:
                     number = int(values['shot'])
                     require(values.get('valid') != '0', f'Shot {number} has no actor to look at: {values["target"]}')
+                    if tolerate and number < max(shot_numbers(lines)):  # over already: no settle spent on it, or the shots after it are lost with it
+                        lost(number, f'Shot {number} was over before it was seen')
+                        continue
                     time.sleep(settle)
                     newest = max(shot_numbers(log_lines(user)))
                     if newest != number:
