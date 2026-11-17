@@ -3,6 +3,10 @@
     python -m tools.armorkit publish REGISTRY --bake DIR [--bake DIR ...] --stock FOLDER --record MODEL=FILE [...]
                                      [--brief MODEL=FILE] [--body-pack DIR] [--trial ROOT | --dry-run] [--build]
                                      [--report FILE]
+    python -m tools.armorkit logos [--trial ROOT | --dry-run] [--build] [--report FILE]
+
+`logos` is the one way a published file changes: it puts the kit's logo strip in place of the published one, for a
+new logo (`relogo`). The rest of this is `publish`.
 
 REGISTRY is the whole part registry as it stands after the publication (`registry.py`): the parts already
 published, unchanged, and the new ones. Each `--bake` is the output folder of a bake compiled at the part's
@@ -15,7 +19,8 @@ name of the brief it belongs to.
 What a publication writes, under the repository or under `--trial ROOT`:
 
 * `srn_parts/`: each model with its tint texture, material file and the maps that file names, and an inventory
-  icon per gender for each chest, pelvis, belt, shoulder and robe part (`icon`);
+  icon per gender for each chest, pelvis, belt, shoulder and robe part (`icon`); with the first part that shows a
+  logo, the logo's material, shader and strip (`logo.FILES`), once for every such part;
 * `srn_2da/parts_<slot>.2da`: the stock rows, padding and the registry's live rows, for every table with a live
   row (`merged`): no gap, no existing row changed;
 * `docs/armorkit/parts-registry.json`, the registry, and `docs/armorkit/parts-handoff.json`, the file SR_NWN
@@ -37,6 +42,7 @@ first 40 failures; `--report FILE` writes all of it.
 
 Publishing grants no approval: the client is the evidence, and the user's review comes before the commit.
 """
+import functools
 import hashlib
 import json
 import math
@@ -50,7 +56,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import registry, seams, tables
+from . import logo, registry, seams, tables
 from .registry import require
 
 REPO = Path(__file__).resolve().parents[2]
@@ -70,7 +76,7 @@ BRIEFS = Path(__file__).with_name('briefs')
 HANDOFF_KIND = registry.KIND + '-handoff'
 TOKEN_SLOT = {token: slot for slot, row in registry.SLOTS.items() for token in row['tokens']}
 UNREADABLE = (ValueError, OSError, LookupError, struct.error)  # what reading a model or a material file that is not one raises
-TEXT = ('.mtr', '.2da')  # stored with LF in the repository (.gitattributes): a carriage return would change on commit
+TEXT = ('.mtr', '.2da', '.shd')  # stored with LF in the repository (.gitattributes): a carriage return would change on commit
 
 # The neck: the body's own neck part stands in the chest's collar, and both are closed surfaces.
 NECK_END = 0.01  # metres: the neck's lowest centimetre is its end, which the chest hides
@@ -102,6 +108,14 @@ def sha(path):
 
 def failure(gate, model, reason):
     return {'gate': gate, 'model': model, 'reason': reason}
+
+
+def counted(failures):
+    """{gate: how many of the failures are its}, for a report's `failuresByGate`."""
+    by_gate = {}
+    for found in failures:
+        by_gate[found['gate']] = by_gate.get(found['gate'], 0) + 1
+    return by_gate
 
 
 def icon_name(gender, token, number):
@@ -275,7 +289,11 @@ def tint_channels(path):
 
 def survey(folder):
     """One bake's output folder as a publication reads it: its record, the files of each of its models and what
-    is wrong with it, as (model, reason) pairs. A folder that is no bake at all is refused."""
+    is wrong with it, as (model, reason) pairs. A folder that is no bake at all is refused.
+
+    A drawn piece (`brassard`; its record says `drawn`) is made from no brief, and its tint texture has no
+    material file. A piece that shows a logo (its record's `logo`) brings the logo's files, `logo.FILES`, and
+    is refused when it was drawn for another strip than the kit's own: SR_NWN stores the cells."""
     folder = Path(folder)
     path = folder / 'bake.json'
     require(path.is_file(), f'{folder} holds no bake: it has no bake.json')
@@ -285,13 +303,22 @@ def survey(folder):
             and isinstance(record.get('gates'), dict), f'{path} is no bake record')
     body, number, resources = record['body'], record['number'], folder / 'resources'
     files, wrong = {}, []
+    drawn = record.get('drawn') is True  # said, not guessed: an outfit's record that lost its materials is still held to its brief
+    if 'logo' in record:
+        if record['logo'] != logo.record():
+            wrong.append((f'{body} {record["model"]}', 'it was drawn for another logo strip than the kit\'s: draw it again'))
+        for name in logo.FILES:
+            if not (resources / name).is_file():
+                wrong.append((f'{body} {record["model"]}', f'the bake holds no {name}'))
+            else:
+                files[name] = resources / name
     if not record['gates'].get('passed'):
         wrong.append((f'{body} {record["model"]}', 'its bake did not pass its own gates: ' + '; '.join(record['gates'].get('failures', []))[:400]))
     if record.get('compiled') != len(record['models']):
         wrong.append((f'{body} {record["model"]}', 'its models were not compiled: bake it with --nwn-root'))
     for token, model in record['models'].items():
         require(token in TOKEN_SLOT and model == registry.model_name(body, token, number), f'{path}: {model} is not the model of {token} {number} on {body}')
-        names = [model + '.mdl', model + '.plt', model + '.mtr']
+        names = [model + '.mdl', model + '.plt'] + ([] if drawn else [model + '.mtr'])
         material = resources / (model + '.mtr')
         if material.is_file():
             try:
@@ -308,7 +335,7 @@ def survey(folder):
             with compiled.open('rb') as stream:
                 if stream.read(4) != bytes(4):
                     wrong.append((model, 'the model is not compiled'))
-    return {'folder': folder, 'record': record, 'sha256': sha(path), 'files': files, 'wrong': wrong}
+    return {'folder': folder, 'record': record, 'sha256': sha(path), 'files': files, 'wrong': wrong, 'drawn': drawn}
 
 
 def brief_of(model, given, folder=BRIEFS):
@@ -512,12 +539,31 @@ def chest_neck(pack, body_pack, body, model, contract=None):
                 {**seams.ENDS, **contract.get('ends', {})})
 
 
-def model_textures(path):
-    """The textures a compiled model's meshes name."""
+@functools.lru_cache(maxsize=1)
+def model_tool():
+    """The pinned model tool, resolved once for the run: resolving it reads and hashes the executable (`toolchain.cleanmodels`)."""
+    from . import toolchain
+    return toolchain.cleanmodels()
+
+
+def model_textures(path, read_back=None):
+    """The textures a compiled model's meshes name. A model the kit's rigid reader refuses (headgear's skin, bound
+    to the head) is read back by the model tool (`export.decompiled`, or `read_back`) for its `bitmap` lines; one
+    the tool cannot read either is refused, with what each of the two said."""
     from tools.headkit import native_reader
     path = Path(path)
-    meshes = native_reader.decode(path.read_bytes(), path.stem, require_tangents=False)
-    first = [(mesh.get('textures') or [''])[0] or '' for mesh in meshes]
+    try:
+        meshes = native_reader.decode(path.read_bytes(), path.stem, require_tangents=False)
+        first = [(mesh.get('textures') or [''])[0] or '' for mesh in meshes]
+    except ValueError as refused:
+        if read_back is None:
+            from .export import decompiled
+            read_back = lambda model: decompiled(model, tool=model_tool())
+        try:
+            text = read_back(path)
+        except ValueError as error:  # the first is what is wrong with a rigid model; the second alone would hide it
+            raise ValueError(f'{refused}; read back by the model tool: {error}') from error
+        first = re.findall(r'^\s*bitmap\s+(\S+)', text, re.M)
     return sorted({name.lower() for name in first if name and name.lower() != 'null'})
 
 
@@ -595,7 +641,8 @@ def icons(parts, pack, body_pack):
                 bone = rigs[body][seams.BONES[token]] if token in seams.BONES else np.eye(4)  # a robe has no bone of its own: it is in body space
                 shades, layers = export.read_tint(Path(pack[model + '.plt']).read_bytes())
                 meshes = native_reader.decode(Path(pack[model + '.mdl']).read_bytes(), model, require_tangents=False, apply_rigid_transforms=True)
-                drawn = [(mesh['position'] @ bone[:3, :3].T + bone[:3, 3], mesh['faces'].astype(int), mesh['uv'], shades, layers) for mesh in meshes]
+                drawn = [(mesh['position'] @ bone[:3, :3].T + bone[:3, 3], mesh['faces'].astype(int), mesh['uv'], shades, layers) for mesh in meshes
+                         if ((mesh.get('textures') or [''])[0] or '').lower() != logo.STRIP]  # a badge is on the logo strip, not on the tint texture
                 waist = rigs[body][seams.JOINTS['waist']['centre']][2, 3]
                 made[icon_name(gender, token, part['number']) + '.plt'] = export.tint(*icon(drawn, waist, ICON_CLIP.get(part['slot'], (None, None))))
     return made
@@ -603,7 +650,7 @@ def icons(parts, pack, body_pack):
 
 # --- the gates ----------------------------------------------------------------------------------------------------
 
-def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures, measure_neck=chest_neck, necks=None, fresh=None):
+def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures, measure_neck=chest_neck, necks=None, fresh=None, plain=()):
     """The publication gates on a pack as it would stand: a list of failures, each with its gate, the model and
     the reason (docs/armorkit/plan.md, Gates).
 
@@ -615,6 +662,9 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
     * `closure`: every texture a model names is in the pack as a tint texture, with its material file, and so is
       each map that file names. A model names the tint texture of its own name and no other: the game colours
       an armor part's texture only under the model's name (user, 2026-11-14), so every body carries its own.
+      A part with a badge names the logo strip as well, on its badge, and then the pack holds the logo's files
+      (`logo.FILES`); it must name it, and no other part may. A model in `plain`, a drawn piece's, has a tint
+      texture without a material file.
     * `clash`: no file of the pack is one a pack in `clash` holds.
     * `neck`: each chest closes round its body's neck (`neck`); `necks`, a dictionary, is given each chest's measure.
       With `fresh`, the file names that are new, only the chests among them are measured and only the models
@@ -644,10 +694,19 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
                     continue
                 if not named:
                     failures.append(failure('closure', model, 'the model names no texture'))
+                read = fresh is None or model + '.mdl' in fresh
+                if part['badge'] and read and logo.STRIP not in named:
+                    failures.append(failure('closure', model, f'{label} has a badge and the model has no mesh on the logo strip {logo.STRIP}'))
                 for texture in named:
+                    if texture == logo.STRIP and part['badge']:
+                        failures += [failure('closure', model, f'its badge is on the logo strip, and the pack holds no {name}') for name in logo.FILES if name not in pack]
+                        continue
                     if texture != model:
                         failures.append(failure('closure', model, f'it names the texture {texture}, not its own: the game colours a part\'s tint texture only under the model\'s name'))
                     for name in (texture + '.plt', texture + '.mtr'):
+                        # a drawn piece has no material file, and a published model is held to its recorded files (`published`)
+                        if name.endswith('.mtr') and name not in pack and (model in plain or not read):
+                            continue
                         listed.add(name)
                         if name not in pack:
                             failures.append(failure('closure', model, f'it names {texture}, and the pack holds no {name}'))
@@ -673,6 +732,8 @@ def gates(parts, pack, table_texts, body_pack, clash=(), textures=model_textures
             listed.add(name + '.plt')
             if name + '.plt' not in pack:
                 failures.append(failure('icons', name, f'{label} has no inventory icon {name}.plt'))
+    if any(part['badge'] for part in parts):
+        listed.update(logo.FILES)
     for name in sorted(pack):
         stem, _, suffix = name.rpartition('.')
         if name != name.lower() or not stem or len(stem) > 16 or not all(letter.isalnum() or letter == '_' for letter in stem):
@@ -862,16 +923,26 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                 failures.append(failure('colours', f'{slot} {number}', f'the bake of {record["body"]} suggests {json.dumps(asked, sort_keys=True)} and the registry gives '
                                         f'{json.dumps(entry.get("colours", {}), sort_keys=True)}: write the bakes\' colours into it (registry FILE --colours-from BAKE)'))
         for name, path in bake['files'].items():
+            if name in logo.FILES and (name in pack or name in incoming):
+                # one set of logo files serves every part with a badge: recorded with the first bake that brings it
+                if once(path) != once(pack[name] if name in pack else incoming[name]):
+                    failures.append(failure('bake', name, f'{label} holds another {name} than the one '
+                                            + ('published: put the kit\'s strip in place first (`armorkit logos`), then draw the piece again' if name in pack else 'the other bakes hold')))
+                continue
             if name in pack or name in incoming:
                 failures.append(failure('bake', name, f'{PACK} already holds a file of that name' if name in pack else 'two bakes hold a file of that name'))
             else:
                 incoming[name] = path
                 bake.setdefault('taken', set()).add(name)
+        if bake['drawn']:
+            found_briefs.setdefault(record['model'], (None, None))
         if record['model'] not in found_briefs:
             path = brief_of(record['model'], given_briefs)
             found_briefs[record['model']] = (path, None if path is None else {material['name'] for material in json.loads(path.read_text(encoding='utf-8')).get('materials', [])})
         brief, materials = found_briefs[record['model']]
-        if brief is None:
+        if bake['drawn']:
+            pass  # drawn by the kit, from no brief: its history record is what drew it
+        elif brief is None:
             failures.append(failure('records', label, f'no brief of {record["model"]} in {BRIEFS.name}: name it (--brief {record["model"]}=FILE)'))
         elif materials != {material['name'] for material in record.get('materials', [])}:
             failures.append(failure('records', label, f'{brief.name} lists other materials than the bake found: it is not the brief the outfit was baked from'))
@@ -880,7 +951,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             failures.append(failure('records', label, f'no record of how {record["model"]} was made: pin its generation ledger or log (--record {record["model"]}=FILE)'))
         outfits.append((bake, brief, history))
     for flag, given in (('--record', given_records), ('--brief', given_briefs)):
-        unknown = sorted(set(given) - {bake['record']['model'] for bake in surveyed})
+        unknown = sorted(set(given) - {bake['record']['model'] for bake in surveyed if flag == '--record' or not bake['drawn']})
         require(not unknown, f'{flag} names a model no bake is of: {", ".join(unknown)}')
 
     # One image under several names is published once: the other bodies' material files name the one kept.
@@ -931,7 +1002,8 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                 pack[name] = incoming[name] = work / name
         table_texts = merged(parts, stock, root / TABLE_PACK)
         measured = {}
-        failures += gates(parts, pack, table_texts, body_pack, [repo / name for name in CLASH], textures, measure_neck, measured, set(incoming))
+        failures += gates(parts, pack, table_texts, body_pack, [repo / name for name in CLASH], textures, measure_neck, measured, set(incoming),
+                          {model for bake in surveyed if bake['drawn'] for model in bake['record']['models'].values()})
         skipped = []
         provenance = (repo / PROVENANCE).read_text(encoding='utf-8') if (repo / PROVENANCE).is_file() else ''
         unnamed = [name for name in [PACK] + sorted({bake['record']['model'] for bake in surveyed}) if name not in provenance]
@@ -939,9 +1011,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             skipped.append(f'provenance: PROVENANCE.md names no {", ".join(unnamed)}; a trial does not need the entry, a publication does')
         elif unnamed:
             failures += [failure('provenance', name, 'PROVENANCE.md has no entry naming it: write the content entry before publishing') for name in unnamed]
-        by_gate = {}
-        for found in failures:
-            by_gate[found['gate']] = by_gate.get(found['gate'], 0) + 1
+        by_gate = counted(failures)
         missing = sorted({found['model'][:4] for found in failures if found['gate'] == 'bodies'})
         report = {'root': str(root), 'trial': bool(trial), 'passed': not failures, 'failures': failures, 'failuresByGate': by_gate,
                   'bodiesWithoutModels': missing, 'skipped': skipped, 'newParts': [f'{part["slot"]} {part["number"]}' for part in new],
@@ -959,13 +1029,14 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
         outfits = [{'model': bake['record']['model'], 'body': bake['record']['body'], 'number': bake['record']['number'], 'tier': bake['record'].get('tier'),
                     'brief': None if brief is None else {'name': brief.name, 'sha256': once(brief)},
                     'bake': {'sha256': bake['sha256'], 'materials': bake['record'].get('materials', []),
-                             'triangles': bake['record']['gates'].get('triangles', {}).get('outfit')},
+                             'triangles': triangles(bake['record'])},
                     'records': [pinned(path) for path in history],
                     'resources': [{'name': name, 'sha256': hashes[name], 'bytes': path.stat().st_size} for name, path in sorted(bake['files'].items())
                                   if name in bake.get('taken', ())]}  # a file refused for its name was not copied, and is not recorded
                    for bake, brief, history in outfits]
         document = {'schemaVersion': 1, 'kind': registry.KIND, 'parts': parts}
-        handoff = {**registry.handoff(parts), 'pack': PACK, 'tablePack': TABLE_PACK, 'tables': sorted(table_texts),
+        shown = next((bake['record']['logo'] for bake in surveyed if 'logo' in bake['record']), handoff_before.get('logo'))
+        handoff = {**registry.handoff(parts), **({'logo': shown} if shown else {}), 'pack': PACK, 'tablePack': TABLE_PACK, 'tables': sorted(table_texts),
                    'icons': sorted(name for part in parts for name in icon_names(part)),
                    'iconFiles': handoff_before.get('iconFiles', []) + [{'name': name, 'sha256': hashes[name], 'bytes': incoming[name].stat().st_size}
                                                                        for name in sorted(drawn) if name in incoming],
@@ -1012,6 +1083,80 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             shutil.rmtree(work, ignore_errors=True)
 
 
+def relogo(*, root=None, trial=False, dry_run=False, repo=REPO, write=logo.write):
+    """Put the kit's logo strip in place of the published one: the report.
+
+    A new logo is a new picture in `logos/` and its name in `logo.CELLS`; the strip, and with another count of
+    cells the shader, are then other files than the ones published, which nothing else may change. This writes
+    the kit's three files (`logo.FILES`, made by `write`) over the pack's and records their hashes and the
+    cells in the handoff, where the first part with a badge recorded them. No part is touched: a badge reads
+    whatever strip the pack holds.
+
+    It fails, and writes nothing into the repository, unless the pack has a published logo, its three files
+    are still the ones recorded (`published`), the material, parameter and strip keep their names, and every
+    published cell keeps its name and number (`cells`): SR_NWN stores a cell's number. `root`, `trial` and
+    `dry_run` are `publish`'s; a trial root is written whatever the gates say."""
+    repo = Path(repo).resolve()
+    require(not (trial and dry_run), 'A trial writes its scratch root; a dry run writes nothing: ask for one of them')
+    require(trial or root is None, 'A root is a trial\'s scratch folder: pass trial=True with it, or no root to publish into the repository')
+    root = seed(root, repo) if trial else repo
+    parts, handoff = published(root)
+    before, now = handoff.get('logo'), logo.record()
+    entries = {resource['name']: resource for outfit in handoff['outfits'] for resource in outfit.get('resources', []) if resource['name'] in logo.FILES}
+    require(before and set(entries) == set(logo.FILES), f'{PACK} has no published logo to replace: the first part with a badge publishes it')
+    failures = []
+    for name in logo.FILES:
+        if not (root / PACK / name).is_file() or sha(root / PACK / name) != entries[name]['sha256']:
+            failures.append(failure('published', name, f'{PACK} holds another file than the one published, or none: its hash is not the one the handoff records'))
+    failures += [failure('cells', key, f'the published logo names its {key} {before[key]}, which every badge and SR_NWN use, and the kit {now[key]}')
+                 for key in ('material', 'parameter', 'strip') if before[key] != now[key]]
+    for name, cell in sorted(before['cells'].items(), key=lambda item: item[1]):
+        if now['cells'].get(name) != cell:
+            failures.append(failure('cells', name, f'published as cell {cell} and now ' + (f'cell {now["cells"][name]}' if name in now['cells'] else 'gone')
+                                    + ': a cell once given keeps its name and number, which SR_NWN stores'))
+    work = Path(tempfile.mkdtemp(prefix='armorkit-logo-'))
+    try:
+        write(work)
+        hashes = {name: sha(work / name) for name in logo.FILES}
+        changed = sorted(name for name in logo.FILES if hashes[name] != entries[name]['sha256'])
+        require(changed or before != now, f'The kit\'s logo strip is the one {PACK} holds: there is nothing to replace')
+        report = {'root': str(root), 'trial': bool(trial), 'passed': not failures, 'failures': failures, 'failuresByGate': counted(failures), 'files': changed,
+                  'cells': {'added': sorted(set(now['cells']) - set(before['cells']), key=now['cells'].get), 'kept': len(set(now['cells']) & set(before['cells']))},
+                  'written': False}
+        if dry_run or (failures and not trial):
+            return report
+        for name in logo.FILES:
+            entries[name].update(sha256=hashes[name], bytes=(work / name).stat().st_size)
+        handoff['logo'] = now
+        targets = {root / PACK / name: (work / name).read_bytes() for name in changed}
+        targets[root / HANDOFF] = (json.dumps(handoff, indent=1) + '\n').encode('utf-8')
+        saved = {path: path.read_bytes() if path.is_file() else None for path in targets}
+        try:
+            if trial:
+                (root / TRIAL).write_text(json.dumps({**TRIAL_MARK, 'written': True}) + '\n', encoding='utf-8')
+            for path, blob in targets.items():
+                path.write_bytes(blob)
+        except BaseException:  # put back as it was: a strip without its handoff would fail every later check
+            for path, blob in saved.items():
+                if blob is None:
+                    path.unlink(missing_ok=True)
+                else:
+                    path.write_bytes(blob)
+            raise
+        report['written'] = True
+        if trial:
+            (root / 'publish-report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8', newline='\n')
+        return report
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+def triangles(record):
+    """The triangles a bake's record counts: an outfit's whole count, an accessory's own, a paired piece's by side."""
+    counted = record['gates'].get('triangles')
+    return counted.get('outfit', counted) if isinstance(counted, dict) else counted
+
+
 def pairs(values, what):
     """[(model, file)] of `MODEL=FILE` arguments."""
     out = []
@@ -1024,8 +1169,17 @@ def pairs(values, what):
 
 def command(args):
     """The `publish` command of `python -m tools.armorkit`: prints the report and returns its exit code."""
-    report = publish(args.registry, args.bake, args.stock, records=pairs(args.record, '--record'), briefs=pairs(args.brief, '--brief'),
-                     root=args.trial, trial=bool(args.trial), dry_run=args.dry_run, body_pack=args.body_pack)
+    return finish(publish(args.registry, args.bake, args.stock, records=pairs(args.record, '--record'), briefs=pairs(args.brief, '--brief'),
+                          root=args.trial, trial=bool(args.trial), dry_run=args.dry_run, body_pack=args.body_pack), args)
+
+
+def command_logos(args):
+    """The `logos` command: the strip alone (`relogo`). Prints the report and returns its exit code."""
+    return finish(relogo(root=args.trial, trial=bool(args.trial), dry_run=args.dry_run), args)
+
+
+def finish(report, args):
+    """Build what a report says was written, where asked (`--build`), write and print the report: the exit code."""
     failed = False
     if args.build and report['written']:
         try:  # the publication is written by now: a build that fails is said in its report, not in place of it
