@@ -17,8 +17,9 @@ from .registry import require
 DIRECTIONS = 32  # the band's points round the arm
 BELOW = 0.3  # of the upper arm's length from the shoulder joint: where the band's upper edge lies
 TALL = 0.085  # metres from edge to edge
-CLEARANCE = 0.005  # metres the band stands outside what is worn under it
-LIP = 0.03  # metres each edge is turned in toward the arm, so that no gap shows the band's inside
+CLEARANCE = 0.003  # metres the band stands outside what is worn under it
+LIP = 0.012  # metres each edge is turned in toward the arm, so that no gap shows the band's inside. At 3 cm, hemmed in
+# leather, the edges stood round a lifted arm as wide flanges (client, 2026-11-17): they are short and the band's own cloth, in shadow
 BADGE = 0.068  # metres a side
 PROUD = 0.003  # metres the badge stands off the band
 GRID = 4  # the badge's faces along each side: it is curved to the band
@@ -109,10 +110,11 @@ def tint(size=TEXELS):
     """(shades, layers) of the band's tint texture: accent cloth with a woven grain, hemmed in leather at both edges."""
     rows = np.arange(size)[:, None] / (size - 1)  # v = 0 first
     columns = np.arange(size)[None, :]
-    hem = (rows < 0.14) | (rows > 0.86)
+    lip = (rows < 0.115) | (rows > 0.885)  # the edges turned in: the band's cloth, in the shadow under it
+    hem = ~lip & ((rows < 0.2) | (rows > 0.8))
     shade = 168 + 14 * np.sin(columns * np.pi / 2) * np.cos(rows * size * np.pi / 2) + np.zeros((size, size))
-    shade = np.where(hem, 140, shade)
-    stitch = (np.abs(rows - 0.17) < 0.012) | (np.abs(rows - 0.83) < 0.012)
+    shade = np.where(hem, 150, np.where(lip, 85, shade))
+    stitch = (np.abs(rows - 0.23) < 0.012) | (np.abs(rows - 0.77) < 0.012)
     shade = np.where(stitch & (columns % 4 < 2), 215, shade)
     layers = np.where(hem, export.LAYERS['leather1'], export.LAYERS['cloth2']) + np.zeros((size, size), int)
     return np.clip(np.round(shade), 30, 240).astype(int), layers
