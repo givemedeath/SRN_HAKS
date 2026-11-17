@@ -271,7 +271,11 @@ requests. Use a fresh manifest and distinct offset for a new noise trial; identi
 conditioning and identical seeds are not a useful retry. `drive gen` refuses a
 geometry attempt whose workflow and seeds match an earlier submitted attempt of
 the same design, after the request and before the submit. Appearance keeps its
-saved-shape binding and its original texture seed. Every submitted geometry job
+saved-shape binding and its original texture seed unless the manifest carries
+`appearanceSeedOffset` (same range), which moves the one texture noise seed;
+`drive textured --appearance-seed N` colours an approved clay again that way
+(job `appearance-sN`, manifests `geometry-approved-seedN-v1` and `donor-seedN-v1`).
+A repeated appearance request with the same seed is refused like a repeated geometry one. Every submitted geometry job
 still counts against the shared model allowance.
 `run --stage inspect` renders the raw mesh in seven directions without texturing.
 Record the generated-geometry decision with both exact raw-mesh and saved-shape

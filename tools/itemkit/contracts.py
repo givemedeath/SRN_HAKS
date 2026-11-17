@@ -359,12 +359,13 @@ def manifest(path, *, input_roles=None, validate_native=True):
     data = read(path)
     allowed = {'schemaVersion', 'kind', 'id', 'profile', 'familyProfile', 'inputs', 'features', 'openings',
                'camera', 'approval', 'fit', 'processing', 'render', 'clientCoverage', 'notes',
-               'landmarks', 'materials', 'generationSettings', 'geometrySeedOffset', 'conditioning'}
+               'landmarks', 'materials', 'generationSettings', 'geometrySeedOffset', 'appearanceSeedOffset', 'conditioning'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1 and data.get('kind') == 'item-asset', 'Unsupported item manifest')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')), 'Safe item ID required')
     require(data.get('profile') == 'pixal-single-v1', 'Items currently qualify only the single-image workflow')
     require(data.get('generationSettings') == GENERATION, 'Item generation settings must match the frozen preset')
     integer(data.get('geometrySeedOffset', 0), 0, 2147483647, 'geometry seed offset')
+    integer(data.get('appearanceSeedOffset', 0), 0, 2147483647, 'appearance seed offset')
     require(isinstance(data.get('landmarks'), list), 'Explicit measured landmark inventory required')
     require(data.get('materials') and all(isinstance(row.get('name'), str) and row.get('region')
             for row in data['materials']), 'Explicit material inventory required')

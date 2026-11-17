@@ -198,13 +198,13 @@ class Driver:
         flags = {'appearance': ['--appearance-donor'], 'export': ['--working-shell']}.get(stage, [])
         common = ['--manifest', manifest, '--stage', stage]
         self.launch(design, run, 'request', common, ['request', '--manifest', manifest, '--stage', stage, '--output', run/'request', *flags], kind='generation')
-        if stage == 'geometry':
-            # The same workflow and seeds return the same mesh byte for byte (Defiance T-250 a2, 2026-11-17: an attempt
+        if stage in ('geometry', 'appearance'):
+            # The same workflow and seeds return the same result byte for byte (Defiance T-250 a2, 2026-11-17: an attempt
             # spent for nothing). Refused after the free request and before the submit that the ledger counts.
-            same = [p.parent.name for p in sorted((self.ws.items/design).glob('geometry-*/request'))
+            same = [p.parent.name for p in sorted((self.ws.items/design).glob(f'{stage}-*/request'))
                     if p.parent != run and (p.parent/'job/submission.json').exists() and workflow_key(read(p)) == workflow_key(read(run/'request'))]
-            if same: raise SystemExit(f'{design} {stage}-{attempt} repeats the workflow and seeds of {", ".join(same)} and would return the same mesh: '
-                                      'set geometrySeedOffset in a new manifest, or change the reference')
+            if same: raise SystemExit(f'{design} {stage}-{attempt} repeats the workflow and seeds of {", ".join(same)} and would return the same result: '
+                                      "set geometrySeedOffset in a new manifest or change the reference (geometry); use textured --appearance-seed (appearance)")
         # submit waits in headkit.shared_comfy.slot for the GPU lease and an idle queue, before any ledger record.
         out, _, _ = self.launch(design, run, 'submit', [*common, '--extra', run/'request'],
                                 ['submit', '--request', run/'request', '--output', run/'job'], kind='generation')
@@ -308,10 +308,12 @@ class Driver:
         m['processing']['sourceFieldPolicy'] = policy
         return str(write_new(self.manifest(design, dst), m))
 
-    def textured(self, design, attempt, src, notes, straight=None, field_range=None):
+    def textured(self, design, attempt, src, notes, straight=None, field_range=None, appearance_seed=0):
         """Approved clay -> appearance (with the 200K donor) -> donor manifest -> CPU colour bake -> textured views.
 
-        `field_range` (LO, HI): the colour field's reviewed value range when it overshoots the decoder (donor_manifest)."""
+        `field_range` (LO, HI): the colour field's reviewed value range when it overshoots the decoder (donor_manifest).
+        `appearance_seed` N > 0 colours the same approved clay again with the texture noise seed moved by N (the same
+        seed returns the same colours): job appearance-sN, manifests geometry-approved-seedN-v1 and donor-seedN-v1."""
         if not notes.strip(): raise SystemExit("--notes must quote the user's clay approval")
         collection = self.ws.items/design/f'geometry-{attempt}/job/collection.json'
         if not collection.exists(): raise SystemExit(f'{design}: geometry {attempt} was never collected')
@@ -320,20 +322,25 @@ class Driver:
         glb = next(o['sha256'] for o in collected['outputs'] if o['path'].endswith('.glb'))
         if read(self.manifest(design, 'geometry-approved-v1'))['approval']['generatedGeometry']['geometryRawSha256'] != glb:
             raise SystemExit(f'geometry-approved-v1 binds another attempt than {attempt}: this chain continues only one approved clay')
-        if not (self.ws.items/design/'appearance-a1/job/collection.json').exists():
+        coloured, job, donor_suffix = 'geometry-approved-v1', 'a1', 'donor-v1'
+        if appearance_seed:
+            coloured, job, donor_suffix = f'geometry-approved-seed{appearance_seed}-v1', f's{appearance_seed}', f'donor-seed{appearance_seed}-v1'
+            if not self.manifest(design, coloured).exists():
+                write_new(self.manifest(design, coloured), {**read(self.manifest(design, 'geometry-approved-v1')), 'appearanceSeedOffset': appearance_seed})
+        if not (self.ws.items/design/f'appearance-{job}/job/collection.json').exists():
             self.comfy('start')
-            try: self.gen(design, 'appearance', 'geometry-approved-v1')
+            try: self.gen(design, 'appearance', coloured, job)
             finally: self.comfy('stop')
-        if self.manifest(design, 'donor-v1').exists():
-            policy = read(self.manifest(design, 'donor-v1'))['processing']['sourceFieldPolicy']
+        if self.manifest(design, donor_suffix).exists():
+            policy = read(self.manifest(design, donor_suffix))['processing']['sourceFieldPolicy']
             if field_range is not None and [policy['minimum'], policy['maximum']] != [float(x) for x in field_range]:
-                raise SystemExit(f"donor-v1 exists with the field range {policy['minimum']:g}..{policy['maximum']:g}: "
+                raise SystemExit(f"{donor_suffix} exists with the field range {policy['minimum']:g}..{policy['maximum']:g}: "
                                  '--field-range binds only a new donor manifest (manifests are immutable)')
         else:
-            self.donor_manifest(design, 'geometry-approved-v1', 'donor-v1', 'Automated chain: 200K/768 UDF donor and colour field from the appearance job '
+            self.donor_manifest(design, coloured, donor_suffix, 'Automated chain: 200K/768 UDF donor and colour field from the appearance job '
                                 'on the approved clay (raw mesh hash checked identical). Visual review of the textured result is still required.',
-                                field_range=field_range)
-        run = self.run_dir(design, 'donor-v1')
+                                attempt=job, field_range=field_range)
+        run = self.run_dir(design, donor_suffix)
         # The donor of the attempt the run's state records: attempt folders are not ordered, and an older or failed
         # attempt may hold a textured-donor.glb too.
         recorded = lambda: (read(run/'state.json')['stages'].get('donor') if (run/'state.json').exists() else None)
@@ -712,6 +719,7 @@ def parser():
     # Two numbers, not "LO,HI": argparse takes "-0.22,1.13" for an option, while a lone "-0.22" reads as a number.
     s.add_argument('--field-range', nargs=2, type=float, metavar=('LO', 'HI'),
                    help="the colour field's reviewed range when it overshoots the decoder (the refusal suggests one)")
+    s.add_argument('--appearance-seed', type=int, default=0, help='colour the approved clay again with the texture seed moved by N')
     s = c.add_parser('fit'); [s.add_argument(k) for k in ('id', 'src', 'dst', 'working', 'donor')]
     s.add_argument('--overrides'); s.add_argument('--measure-only', action='store_true'); s.add_argument('--donor-review'); s.add_argument('--authority')
     s = c.add_parser('opening-probes'); s.add_argument('id'); s.add_argument('suffix'); s.add_argument('--write', help='new manifest suffix')
@@ -769,7 +777,7 @@ def main(argv=None):
         'gen': lambda: d.gen(a.id, a.stage, a.manifest, a.attempt), 'calibrated': lambda: d.calibrated(a.id, a.fov, a.source),
         'colour-geometry': lambda: d.colour_geometry(a.id, a.src, a.dst, a.notes),
         'approve-geometry': lambda: d.approve_geometry(a.id, a.attempt, a.src, a.dst, a.notes),
-        'textured': lambda: d.textured(a.id, a.attempt, a.src, a.notes, a.straight, a.field_range),
+        'textured': lambda: d.textured(a.id, a.attempt, a.src, a.notes, a.straight, a.field_range, a.appearance_seed),
         'fit': lambda: d.fit(a.id, a.src, a.dst, a.working, a.donor, a.overrides, measure_only=a.measure_only, donor_review=a.donor_review, authority=a.authority),
         'opening-probes': lambda: d.opening_probes(a.id, a.suffix, a.write),
         'preview': lambda: d.preview(a.id, a.suffix), 'stage': lambda: d.stage(a.id, a.suffix, a.stage),
