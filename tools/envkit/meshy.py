@@ -44,7 +44,11 @@ def shared_ledger(repo=None, root=None):
     finds the same way (explicit root, then SRN_TOOLS_ROOT, then the primary checkout's .tools) and which outlives
     every worktree. It lay in a worktree's ignored output before, and had to be moved whenever that worktree retired."""
     from tools import shared_tools
-    return shared_tools.tools_root(repo or Path(__file__).resolve().parents[2], root)[0] / 'envkit' / 'meshy-ledger.json'
+    try:
+        found = shared_tools.tools_root(repo or Path(__file__).resolve().parents[2], root)[0]
+    except ValueError as error:  # its own advice is for callers that take a tools root, which envkit's commands do not
+        raise ValueError(f'The shared ledger cannot be found ({error}): set SRN_TOOLS_ROOT, or name the ledger with --ledger') from error
+    return found / 'envkit' / 'meshy-ledger.json'
 
 
 def copies(path):
@@ -99,7 +103,7 @@ class Ledger:
         require(type(cap) is int and cap > 0, 'Credit cap must be a positive whole number')
         require(not path.exists(), 'Ledger already exists: ' + str(path))
         lost = _was_here(path)  # an empty ledger in a lost one's place would forget every credit it had counted
-        require(not lost, f'No new ledger at {path}' + lost)
+        require(not lost, f'No new ledger at {path}' + lost + '; a ledger meant to start afresh here needs that folder moved away first')
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-envkit-meshy-ledger', 'cap': cap, 'entries': []}, indent=1),
                         encoding='utf-8')
@@ -318,6 +322,9 @@ def download(ledger, key, folder, bank, *, master=False, run=run_cli):
         require(row['operation'] in BOUNDED, 'Only a remeshed or smart-topology model is a working model; remesh ' + key
                 + ' first, or fetch it as a master')
     require(row['state'] == 'succeeded' and row.get('task'), 'Successful task required: ' + key)
+    # One ledger serves every worktree, and the record of a task lies where its wait ran.
+    require(Path(row['task']).is_file(), f'The task record of {key} is not here: {row["task"]} (download it from the worktree that waited for it, '
+            'or restore that folder)')
     bank = Path(bank)
     require(not bank.exists(), 'Fresh download folder required: ' + str(bank))
     code, _ = run(['download', '--task-json', row['task'], '--all', '--output-dir', str(bank.resolve())], Path(folder) / key / 'download')

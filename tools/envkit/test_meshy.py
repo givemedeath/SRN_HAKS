@@ -74,7 +74,7 @@ class MeshyTests(unittest.TestCase):
         self.ledger.path.unlink()
         with self.assertRaisesRegex(ValueError, 'No ledger at .*read it back from the latest copy'):
             meshy.Ledger(self.ledger.path)
-        with self.assertRaisesRegex(ValueError, 'No new ledger at .*read it back'):
+        with self.assertRaisesRegex(ValueError, 'No new ledger at .*read it back.*moved away'):
             meshy.Ledger.create(self.ledger.path, 50)
         with self.assertRaisesRegex(ValueError, r'never\.json$'):
             meshy.Ledger(self.root / 'never.json')
@@ -87,6 +87,9 @@ class MeshyTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'leave it out'):
                 cli.ledger_path(argparse.Namespace(ledger=''))  # an unset variable, not the shared cap
             self.assertEqual(shared.call_count, 1)
+        with mock.patch('tools.shared_tools.tools_root', side_effect=ValueError('Git metadata unavailable; supply an explicit tools root')):
+            with self.assertRaisesRegex(ValueError, 'SRN_TOOLS_ROOT, or name the ledger with --ledger'):
+                meshy.shared_ledger()
 
     def test_arguments_bound_the_triangles_of_everything_that_can_be_downloaded(self):
         prop = meshy.prop_arguments(self.image, 6000)
@@ -201,6 +204,15 @@ class MeshyTests(unittest.TestCase):
             meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=cut_short)
         self.assertFalse((self.root / 'bank').exists())
         self.assertEqual(list(meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=run).values()), [9000])
+
+    def test_a_download_says_where_the_task_record_lies_when_it_is_not_here(self):
+        run = FakeMeshy()  # one ledger serves every worktree, and the record lies in the one that waited
+        meshy.submit(self.ledger, 'p', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=run)
+        meshy.wait(self.ledger, 'p', self.root / 'work', run=run)
+        Path(self.ledger.entry('p')['task']).unlink()
+        with self.assertRaisesRegex(ValueError, 'task record of p is not here.*worktree that waited'):
+            meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=run)
+        self.assertFalse((self.root / 'bank').exists())
 
     def test_a_full_detail_generation_is_never_downloaded_but_its_remesh_is(self):
         run = FakeMeshy(credits=30, triangle_counts=(60000, 31000))

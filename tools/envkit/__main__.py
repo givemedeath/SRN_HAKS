@@ -235,7 +235,7 @@ def command_meshy(args):
     elif args.action in ('download', 'master'):
         print(json.dumps(meshy.download(ledger, args.key, args.work, args.bank, master=args.action == 'master')))
     rows = [{k: row.get(k) for k in ('key', 'asset', 'operation', 'state', 'estimate', 'credits', 'taskId')} for row in ledger.data['entries']]
-    print(json.dumps({'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
+    print(json.dumps({'ledger': str(ledger.path), 'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
 
 
 def command_contact(args):
@@ -251,7 +251,7 @@ def command_sheet(args):
         print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work, sent=root / 'references' / 'sent')}))
     elif args.action == 'collect':
         made = sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters'); failed = made['failed']; print(json.dumps(made))
-    print(json.dumps(sheet.status(ledger, plan), indent=1))
+    print(json.dumps({'ledger': str(ledger.path), **sheet.status(ledger, plan)}, indent=1))  # which ledger: none need be named now
     require(not failed, 'Calls of the plan have no working model: ' + ', '.join(failed))  # after the status, so that a failed collect does not end as a good one
 
 
