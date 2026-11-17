@@ -910,6 +910,12 @@ converted again from its archived source and came out byte for byte as the pack 
 collision file changed. In the game client a walker sent to the middle under the beam stood there, and one sent
 through from side to side went straight.
 
+On 2026-11-16 every envkit placeable in the pack was measured for the same fault (clear ground under it that one
+block on its footprint shuts; 101 models). The transfer shed `ek_rf_shed`, a roof on four posts, was the only other:
+its collision file was written again with a block under each post (`walkUnder`). The model was converted again from
+its archived source and came out byte for byte as the pack holds it, as did its maps. Signs and banners hung over
+head height had no block already. Not walked in the game client.
+
 ## Iron Sight Arms tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-14)
 
 A street gun shop with an indoor range: a single-storey riveted steel shop front under an IRON SIGHT ARMS sign, with a
@@ -1281,6 +1287,16 @@ palette listed all fifteen, ten under Modern Exterior and five under Modern Inte
 it and read back from the saved areas with their rows and blueprints: the burn barrel, ember barrel, mural wall and
 repair bench not static, so that a script can put their lights out, and the fence section, stash cases, parking
 pad, motorpool sign, parts rack and tagged barrier static.
+
+On 2026-11-16 both barrels were built again (operator: "the embers in the barrel don't look like embers"). The block of
+one glowing colour under the wood, its glow map and its lights-out material are gone. In their place each barrel has a
+bed of embers of its own: a low mound under the charred wood (`convert.ember_beds`) with a picture `<name>_e` drawn
+by `tools/envkit` itself (`convert.ember_picture`: dark lumps of charcoal under grey ash, the fire in the gaps between
+them), shown as bright by night as by day. No third-party picture was used. The burn barrel's model also has the four
+animations of the stock flame, by which a script puts its fire out and lights it again (`docs/envkit/lights.md`); its
+embers glow on when the fire is out. So neither barrel has a glow map or a lights-out material any more, and neither has `lights` in the catalog. Rows, blueprints and collision are unchanged. Checked in the game client the
+same day by night, from the converted files: both beds seen from the side and from above, the fire and its light put
+out by script with the embers left glowing, and lit again.
 
 ## MDRNEE placeable import (2026-09-11)
 

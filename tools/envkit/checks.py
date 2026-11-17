@@ -112,8 +112,9 @@ def props(game, repo, base, name, models_path, built, wanted, *, night=False):
 
 
 def lit_props(models):
-    """The lit props of a game set, in the order the lights check stands and tags them."""
-    return [model for model, stated in models.items() if stated.get('lit') and stated.get('placeable')]
+    """The lit props of a game set, in the order the lights check stands and tags them: those with lit parts, and those
+    with a fire, which a script puts out as it does a lamp."""
+    return [model for model, stated in models.items() if (stated.get('lit') or stated.get('fire')) and stated.get('placeable')]
 
 
 def rows_of_lights(models, sizes, tags, halos):
@@ -136,7 +137,8 @@ def rows_of_lights(models, sizes, tags, halos):
             props.append({'model': model, 'position': [x, y], 'static': False, 'light': models[model].get('placeable', {}).get('light')})
             people.append({'position': [x + size[0] / 2 + 0.8, y - size[1] / 2 - 0.3], 'facing': 270.0})
             x += size[0] / 2 + 3.5
-    swap = lambda on: ''.join(convert.lights_script(model, tags[model], on, halo=model in halos, light=bool(models[model].get('placeable', {}).get('light'))) for model in lit)
+    swap = lambda on: ''.join(convert.lights_script(model, tags[model], on, halo=model in halos, light=bool(models[model].get('placeable', {}).get('light')),
+                                                     fire=bool(models[model].get('fire')), glow=bool(models[model].get('lit'))) for model in lit)
     view = lambda index: {'stand': [28.0, 62.0 - 16.0 * index - 9.0], 'distance': 24.0, 'pitch': 62, 'height': 1.0}
     shots = []
     for stage_name, run in (('lit', None), ('out', swap(False)), ('on-again', swap(True))):
