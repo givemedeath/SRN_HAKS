@@ -27,8 +27,8 @@ SHORT = 0.002  # metres a point of the piece's outside may stand short of the en
 OUTWARD = 0.2  # a face counts as the piece's outside where its normal leans this much away from the axis
 RELIEF = (3, 5)  # directions and levels each way that what stands proud of the shell (a filter, a valve) is told from it
 EVEN = 1.5  # cells the fit is evened over
+RIM = 0.01  # metres the piece's lower edge hangs below the chin
 FACE = (np.radians(55), 0.65)  # the face a piece must cover: this far to each side of straight ahead, this share of the head's height up from the chin
-GRID = 3  # a face of the piece is read at the points of a grid this many steps along each edge
 
 
 def envelope(body, path=ENVELOPES):
@@ -140,8 +140,10 @@ def outside(points, faces, bottom, levels):
     radial = middle * [1.0, 1.0, 0.0]
     radial /= np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-12)
     out = (normal * radial).sum(axis=1) > OUTWARD
-    grid = np.array([(i, j, GRID - i - j) for i in range(GRID + 1) for j in range(GRID + 1 - i)], float) / GRID
-    samples = np.einsum('gk,fkc->fgc', grid, corners[out]).reshape(-1, 3)
+    used, renumbered = np.unique(faces[out], return_inverse=True)
+    # read no sparser than a third of a level: on a Troll's head the piece's faces are twice a Human's, and a grid of
+    # points per face left cells of the face unread, which the cover gate then failed (2026-11-17)
+    samples = measure.surface_points(points[used], renumbered.reshape(-1, 3), LEVELS / 3)
     way, level, radius = _cells(samples, bottom)
     inside = (level >= 0) & (level < levels)
     table = np.full((levels, DIRECTIONS), -np.inf)
@@ -164,12 +166,14 @@ def conform(points, faces, row):
     chin_level = int(np.flatnonzero(known[:, ahead]).min())  # the lowest level with a face straight ahead
     chin, top = bottom + chin_level * LEVELS, float(row['max'][2])
     low, high = points.min(axis=0), points.max(axis=0)
-    scale = (top - chin + 2 * CLEARANCE) / (high[2] - low[2])
+    # the rim hangs a level below the chin: an edge at the chin's own level turns under there and left cells of
+    # the face unread and the envelope short on the Orc woman and both Trolls (2026-11-17)
+    scale = (top - chin + 2 * CLEARANCE + RIM) / (high[2] - low[2])
     front = float(np.nanmax(radius[chin_level:, ahead - 2:ahead + 3])) + CLEARANCE
-    placed = (points - [(low[0] + high[0]) / 2, high[1], low[2]]) * scale + [0.0, front, chin - CLEARANCE]
+    placed = (points - [(low[0] + high[0]) / 2, high[1], low[2]]) * scale + [0.0, front, chin - CLEARANCE - RIM]
     target = radius + CLEARANCE
     moved_by = np.zeros((levels, DIRECTIONS))
-    for attempt in range(3):
+    for attempt in range(12):
         shell, _ = outside(placed, faces, bottom, levels)
         if attempt == 0:  # the shell without what stands proud of it
             shell = _window(_window(shell, RELIEF, 'least'), RELIEF, 'most')
