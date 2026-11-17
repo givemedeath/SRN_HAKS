@@ -880,7 +880,8 @@ Nothing here is published; the other 18 bodies, the registry entries and the pac
   concept sheets; cut from the corporate security sheet): 0 blank, 1 Ares, 2 Renraku, 3 Saeder-Krupp, 4 Wuxing,
   5 Mitsuhama. The rest of the major corporations followed (user, 2026-11-17): 6 Aztechnology and 11 Lone Star,
   cut from the battle armour and magical response sheets, and 7 Evo, 8 Horizon, 9 NeoNET, 10 Shiawase, which are
-  on no sheet and were cut from one image drawn in the sheets' header style. 12 to 15 are blank. A cell once
+  on no sheet and were cut from one image drawn in the sheets' header style (the four designs approved by the
+  user, 2026-11-17). 12 to 15 are blank. A cell once
   given keeps its number. SR_NWN sets a wearer's logo with
   `SetMaterialShaderUniformVec4(creature, "srn_logo", "LogoCell", cell)`; an unset wearer shows cell 0.
   A badge is gated to read the right way round (`logo.reads_right`) and was looked at with all five logos, none
