@@ -187,8 +187,9 @@ class WorkflowWiringTests(unittest.TestCase):
     def test_snapshot_jobs_have_time_for_census_and_finalization(self):
         tests=self.helpers.split('  tests:',1)[1].split('  item-import:',1)[0]
         # Windows measured 841 seconds of successful tests before its 15-minute
-        # job limit expired during finalization. Keep other groups bounded at 15.
-        self.assertIn("timeout-minutes: ${{ matrix.group == 'headkit' && 25 || 15 }}",tests)
+        # job limit expired during finalization. The packs leg was cancelled at 15 minutes on four of
+        # eleven Windows runs (2026-11-15): it has 25 too. Keep other groups bounded at 15.
+        self.assertIn("timeout-minutes: ${{ (matrix.group == 'headkit' || matrix.group == 'packs') && 25 || 15 }}",tests)
 
     def test_single_item_import_owner_and_single_cache_key_format(self):
         self.assertEqual(sum(t.count('./tools/Test-ItemImportTools.ps1') for t in self.all),1)
