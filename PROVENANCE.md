@@ -1343,6 +1343,17 @@ strip of the slab under the stair tower, on the line between two tiles. Walkers 
 and from the south-west corner arrived, and so did one sent from the north-east corner to the ground 1.4 metres west
 of it, so the ground there is reached; only that one long walk gives up.
 
+Painted in the Toolset on 2026-11-17 from the built packs, with the Night Bazaar gatehouse below, in two user
+folders of 12-tile areas (`envkit toolset prepare --size 12`): straight in Modern Exterior and in Suburbs in the
+first, turned a quarter in Modern Exterior and a half in Suburbs in the second. Both palettes list `Aurora Warrens
+3x2` under Groups; each painting laid the six tiles with their turn and the Toolset made one door of appearance 58
+at the hook (`envkit toolset saved`). In Suburbs it also repainted the tiles round the group as road. Six of the
+props below were placed from the palette in the first folder and four in the second (entry shack, water tank, caged
+stairwell and bodega kiosk of this sheet; from Structures in Modern Exterior and Furniture in Modern Interior) and
+were saved with their own rows and names, the unlit ones static. In the client (`envkit check doors`, first folder)
+the four doors of the two groups were found with their transitions and the player stood free at the Warrens' door;
+nobody clicked the doors, so the walk through them is not shown.
+
 ## Aurora Warrens props (`srn_placeable`, `srn_2da`; 2026-11-16)
 
 Thirteen envkit props from the same concept sheet as the Aurora Warrens tile group join `srn_placeable`, each with a
@@ -1409,6 +1420,13 @@ tilesets: their targets are strips of the slab at the group's edge, on the line 
 the same two spots from the next tile out and from the south corners arrived, and one sent from north of the group
 to south of it arrived, so the ground is reached; only those two long walks give up
 (`docs/envkit/sheet-runbook.md` has the row).
+
+Painted in the Toolset on 2026-11-17 from the built packs, in the two user folders the Aurora Warrens entry above
+describes: straight in Modern Exterior and in Suburbs, turned a quarter in Modern Exterior and a half in Suburbs.
+Both palettes list `Night Bazaar Gatehouse 3x2` under Groups; each painting laid the six tiles with their turn and
+the Toolset made one door of appearance 58 at the hook. The light string, bench, vendor stall, shutter booth and
+tarped kiosk were placed from the palette and saved with their own rows and names. The doors were not clicked in the
+client, as that entry says.
 
 ## Night Bazaar props (`srn_placeable`, `srn_2da`; 2026-11-16)
 
