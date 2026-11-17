@@ -210,8 +210,8 @@ def command_meshy(args):
     missing = ['--' + name for name in MESHY_NEEDS.get(args.action, ()) if not getattr(args, name)]
     require(not missing, f'envkit meshy {args.action} needs ' + ', '.join(missing))  # said before the ledger is touched
     if args.action == 'init':
-        meshy.Ledger.create(args.ledger, args.cap)
-    ledger = meshy.Ledger(args.ledger)
+        meshy.Ledger.create(args.ledger or meshy.shared_ledger(), args.cap)
+    ledger = meshy.Ledger(args.ledger or meshy.shared_ledger())
     if args.action == 'cap':
         ledger.raise_cap(args.cap, args.reason)
     elif args.action in ('prop', 'building', 'remesh'):
@@ -234,7 +234,7 @@ def command_contact(args):
 
 def command_sheet(args):
     from . import meshy, sheet
-    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger); root = Path(args.root); work = root / 'meshy' / 'work'
+    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger or meshy.shared_ledger()); root = Path(args.root); work = root / 'meshy' / 'work'
     failed = []
     if args.action == 'submit':
         print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work, sent=root / 'references' / 'sent')}))
@@ -374,10 +374,11 @@ def command_toolset(args):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='envkit')
+    LEDGER = "another ledger than the shared one, <shared tool root>/envkit/meshy-ledger.json"
     commands = parser.add_subparsers(dest='command', required=True)
     sub = commands.add_parser('meshy', help='paid Meshy calls under the ledger cap')
     sub.add_argument('action', choices=['init', 'status', 'cap', 'prop', 'building', 'remesh', 'wait', 'download', 'master'])
-    sub.add_argument('--ledger', required=True)
+    sub.add_argument('--ledger', help=LEDGER)
     sub.add_argument('--cap', type=int); sub.add_argument('--reason', help='cap: the approval a raise rests on, in a few words')
     sub.add_argument('--key', help='ledger key of this call')
     sub.add_argument('--asset')
@@ -419,7 +420,7 @@ def main(argv=None):
     sub.add_argument('--columns', type=int, default=3); sub.set_defaults(run=command_contact)
     sub = commands.add_parser('sheet', help="a sheet's models through Meshy, as its plan states them")
     sub.add_argument('action', choices=['status', 'submit', 'collect'])
-    sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', required=True)
+    sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', help=LEDGER)
     sub.add_argument('--root', required=True, help="the sheet's output root: references/selected and references/sent are read, meshy/ is written")
     sub.set_defaults(run=command_sheet)
     sub = commands.add_parser('enlarge', help="a sheet's chosen references at Meshy's size (2048 pixels or more on the longer side)")

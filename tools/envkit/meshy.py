@@ -38,6 +38,14 @@ QUEUE = 10  # the tasks Meshy holds for this plan at once: the next is refused, 
 IMAGES = ('.png', '.jpg', '.jpeg', '.webp')
 
 
+def shared_ledger(repo=None, root=None):
+    """Where the one ledger of every sheet, session and worktree lies: in the shared tool root, which every checkout
+    finds the same way (explicit root, then SRN_TOOLS_ROOT, then the primary checkout's .tools) and which outlives
+    every worktree. It lay in a worktree's ignored output before, and had to be moved whenever that worktree retired."""
+    from tools import shared_tools
+    return shared_tools.tools_root(repo or Path(__file__).resolve().parents[2], root)[0] / 'envkit' / 'meshy-ledger.json'
+
+
 class Ledger:
     """One JSON file: the cap and every paid call, counted at its estimate until Meshy reports what it consumed."""
 
@@ -81,9 +89,14 @@ class Ledger:
                         encoding='utf-8')
         return cls(path)
 
-    def save(self):
+    def save(self, *, today=None):
+        """Write the change, and the ledger as it now stands as the day's copy beside it: the shared tool root is in
+        no repository and no archive, so the copies are what a lost or spoiled ledger is read back from."""
+        text = json.dumps(self.data, indent=1)
         temporary = self.path.with_suffix('.tmp')
-        temporary.write_text(json.dumps(self.data, indent=1), encoding='utf-8'); temporary.replace(self.path)
+        temporary.write_text(text, encoding='utf-8'); temporary.replace(self.path)
+        copies = self.path.with_name(self.path.stem + '-copies'); copies.mkdir(exist_ok=True)
+        (copies / ((today or datetime.date.today().isoformat()) + '.json')).write_text(text, encoding='utf-8')
 
     def entry(self, key):
         found = [row for row in self.data['entries'] if row['key'] == key]

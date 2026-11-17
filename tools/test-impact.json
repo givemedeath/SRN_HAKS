@@ -425,7 +425,8 @@
       "tools/headkit/design.py"
     ],
     "tools/envkit/meshy.py": [
-      "tools/headkit/gpu_lock.py"
+      "tools/headkit/gpu_lock.py",
+      "tools/shared_tools.py"
     ],
     "tools/envkit/onboard.py": [
       "tools/envkit/reference.py"

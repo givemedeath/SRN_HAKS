@@ -47,6 +47,15 @@ class MeshyTests(unittest.TestCase):
         self.image = self.root / 'ref.png'; self.image.write_bytes(b'png')
         self.ledger = meshy.Ledger.create(self.root / 'ledger.json', 50)
 
+    def test_the_shared_ledger_lies_in_the_tool_root_and_every_change_leaves_the_days_copy(self):
+        self.assertEqual(meshy.shared_ledger(root=self.root / 'tools'), (self.root / 'tools').resolve() / 'envkit' / 'meshy-ledger.json')
+        self.ledger.reserve('a-prop', 'crate', 'prop', [])
+        with self.ledger.changing():
+            self.ledger.data['cap'] = 60; self.ledger.save(today='2026-11-16')
+        copies = self.root / 'ledger-copies'
+        self.assertEqual(json.loads((copies / '2026-11-16.json').read_text(encoding='utf-8')), json.loads(self.ledger.path.read_text(encoding='utf-8')))
+        self.assertEqual(len(list(copies.iterdir())), 2)  # the reservation wrote today's
+
     def test_arguments_bound_the_triangles_of_everything_that_can_be_downloaded(self):
         prop = meshy.prop_arguments(self.image, 6000)
         self.assertEqual(prop[prop.index('--model-type') + 1], 'smart-topology')

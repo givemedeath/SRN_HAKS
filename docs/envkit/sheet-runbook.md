@@ -70,14 +70,20 @@ is doubled.
 
 ## 2. Meshy
 
-The ledger (`output/envkit/stuffer-shack/meshy/ledger.json`, shared by every sheet) holds the cap, which is the
-spending the user has approved. A prop costs 15 credits, a building 30 and its remesh 5.
+The ledger holds the cap, which is the spending the user has approved. A prop costs 15 credits, a building 30 and
+its remesh 5. There is one ledger for every sheet, session and worktree: `envkit/meshy-ledger.json` in the shared
+tool root (`SRN_TOOLS_ROOT`, else the primary checkout's `.tools`), which every command finds by itself and which
+stays where it is when a worktree retires. Every change is made under a lock, so sessions may spend against it at
+once, and every change writes the day's copy to `envkit/meshy-ledger-copies/<date>.json` beside it: the tool root
+is in no repository and no archive, so read a lost ledger back from the latest copy. `--ledger <file>` names
+another ledger (a trial's own); do not keep the shared one in a worktree's output again. The paths an entry
+records (`task`, `downloaded`, the triangle counts) are where the files lay in the worktree that made the call.
 
 ```
-envkit sheet status  --plan tools/envkit/sets/<sheet>-meshy.json --ledger <ledger> --root <root>
-envkit meshy cap     --ledger <ledger> --cap <n> --reason "<who approved it, when, for what>"
-envkit sheet submit  --plan ... --ledger <ledger> --root <root>
-envkit sheet collect --plan ... --ledger <ledger> --root <root>
+envkit sheet status  --plan tools/envkit/sets/<sheet>-meshy.json --root <root>
+envkit meshy cap     --cap <n> --reason "<who approved it, when, for what>"
+envkit sheet submit  --plan ... --root <root>
+envkit sheet collect --plan ... --root <root>
 ```
 
 `status` says what the sheet's unsent calls cost (`unsentCredits`) against what the cap has left. Raise the cap only on the
