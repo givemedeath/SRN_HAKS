@@ -873,7 +873,8 @@ Nothing here is published; the other 18 bodies, the registry entries and the pac
   Refitted on all 20 bodies (nine tenths of the band within 1 cm of the sleeve, nothing through it) and seen in the
   client on the Human female, Large Orc female and Large Troll male. On the female bodies the published 6020 vest
   has a piece over the left upper arm that hides the band's upper part with the arm down: the band is fitted to
-  the sleeve, not over the vest (open: user's call).
+  the sleeve, not over the vest, and stays so (user, 2026-11-17: leave it on the sleeve); the cause is in the
+  female cut's vest.
 * **Logo resources.** `logo.write` makes the shared material `srn_logo`, the vertex shader `srn_vslogo` and the
   strip `srn_logos` of sixteen cells, 128 texels each. Cells (user: the major corporations' logos are in the
   concept sheets; cut from the corporate security sheet): 0 blank, 1 Ares, 2 Renraku, 3 Saeder-Krupp, 4 Wuxing,
