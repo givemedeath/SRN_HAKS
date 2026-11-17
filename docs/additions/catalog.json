@@ -1555,6 +1555,228 @@
    "added": "2026-11-15",
    "blueprint": "ek_aw_crates",
    "category": 164
+  },
+  {
+   "row": 22846,
+   "model": "ek_nb_stall",
+   "label": "[envkit]Night Bazaar, Vendor Stall",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_nb_stall",
+    "out": "ek_nb_stall_o",
+    "glow": "ek_nb_stall_i",
+    "halo": "ek_nb_stall_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_stall",
+   "category": 174
+  },
+  {
+   "row": 22847,
+   "model": "ek_nb_kiosk",
+   "label": "[envkit]Night Bazaar, Tarped Kiosk",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_nb_kiosk",
+    "out": "ek_nb_kiosk_o",
+    "glow": "ek_nb_kiosk_i",
+    "halo": "ek_nb_kiosk_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_kiosk",
+   "category": 174
+  },
+  {
+   "row": 22848,
+   "model": "ek_nb_neon",
+   "label": "[envkit]Night Bazaar, Cyberware Neon Sign",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_nb_neon",
+    "out": "ek_nb_neon_o",
+    "glow": "ek_nb_neon_i",
+    "halo": "ek_nb_neon_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_neon",
+   "category": 156
+  },
+  {
+   "row": 22849,
+   "model": "ek_nb_gatesign",
+   "label": "[envkit]Night Bazaar, Gateway Sign",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_nb_gatesign",
+    "out": "ek_nb_gatesign_o",
+    "glow": "ek_nb_gatesign_i",
+    "halo": "ek_nb_gatesign_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_gatesign",
+   "category": 156
+  },
+  {
+   "row": 22850,
+   "model": "ek_nb_panel",
+   "label": "[envkit]Night Bazaar, Neon Panel",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_nb_panel",
+    "out": "ek_nb_panel_o",
+    "glow": "ek_nb_panel_i",
+    "halo": "ek_nb_panel_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_panel",
+   "category": 156
+  },
+  {
+   "row": 22851,
+   "model": "ek_nb_cart",
+   "label": "[envkit]Night Bazaar, Food Cart",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_cart",
+   "category": 174
+  },
+  {
+   "row": 22852,
+   "model": "ek_nb_table",
+   "label": "[envkit]Night Bazaar, Folding Table",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_table",
+   "category": 174
+  },
+  {
+   "row": 22853,
+   "model": "ek_nb_cases",
+   "label": "[envkit]Night Bazaar, Case Stack",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_cases",
+   "category": 164
+  },
+  {
+   "row": 22854,
+   "model": "ek_nb_gen",
+   "label": "[envkit]Night Bazaar, Portable Generator",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_gen",
+   "category": 161
+  },
+  {
+   "row": 22855,
+   "model": "ek_nb_booth",
+   "label": "[envkit]Night Bazaar, Shutter Booth",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_nb_booth",
+    "out": "ek_nb_booth_o",
+    "glow": "ek_nb_booth_i"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_booth",
+   "category": 161
+  },
+  {
+   "row": 22856,
+   "model": "ek_nb_bench",
+   "label": "[envkit]Night Bazaar, Bench",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_bench",
+   "category": 161
+  },
+  {
+   "row": 22857,
+   "model": "ek_nb_lights",
+   "label": "[envkit]Night Bazaar, Light String",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_nb_lights",
+    "out": "ek_nb_lights_o",
+    "glow": "ek_nb_lights_i",
+    "halo": "ek_nb_lights_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_lights",
+   "category": 161
+  },
+  {
+   "row": 22858,
+   "model": "ek_nb_pylon",
+   "label": "[envkit]Night Bazaar, Pylon Sign",
+   "pack": "srn_placeable",
+   "lights": {
+    "lit": "ek_nb_pylon",
+    "out": "ek_nb_pylon_o",
+    "glow": "ek_nb_pylon_i",
+    "halo": "ek_nb_pylon_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_pylon",
+   "category": 156
+  },
+  {
+   "row": 22859,
+   "model": "ek_nb_fence",
+   "label": "[envkit]Night Bazaar, Fence Segment",
+   "pack": "srn_placeable",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar props",
+   "added": "2026-11-16",
+   "blueprint": "ek_nb_fence",
+   "category": 159
   }
  ],
  "tileGroups": [
@@ -2083,6 +2305,35 @@
    "added": "2026-11-15"
   },
   {
+   "tileset": "dgt04",
+   "group": 65,
+   "name": "Night_Bazaar",
+   "label": "Night Bazaar Gatehouse 3x2",
+   "rows": 2,
+   "columns": 3,
+   "tiles": [
+    540,
+    541,
+    542,
+    543,
+    544,
+    545
+   ],
+   "models": [
+    "ek_nb_gate_t00",
+    "ek_nb_gate_t01",
+    "ek_nb_gate_t02",
+    "ek_nb_gate_t10",
+    "ek_nb_gate_t11",
+    "ek_nb_gate_t12"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar tile group",
+   "added": "2026-11-16"
+  },
+  {
    "tileset": "udp1",
    "group": 106,
    "name": "Stuffer_Shack",
@@ -2515,6 +2766,35 @@
    "source": "tools/envkit/sets/aurora-warrens-game.json",
    "provenance": "Aurora Warrens tile group",
    "added": "2026-11-15"
+  },
+  {
+   "tileset": "udp1",
+   "group": 114,
+   "name": "Night_Bazaar",
+   "label": "Night Bazaar Gatehouse 3x2",
+   "rows": 2,
+   "columns": 3,
+   "tiles": [
+    782,
+    783,
+    784,
+    785,
+    786,
+    787
+   ],
+   "models": [
+    "ek_nb_gate_t00",
+    "ek_nb_gate_t01",
+    "ek_nb_gate_t02",
+    "ek_nb_gate_t10",
+    "ek_nb_gate_t11",
+    "ek_nb_gate_t12"
+   ],
+   "pack": "srn_t_common",
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/night-bazaar-game.json",
+   "provenance": "Night Bazaar tile group",
+   "added": "2026-11-16"
   }
  ]
 }
