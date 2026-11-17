@@ -176,6 +176,7 @@ def command_tiles(args):
         built = convert.building_triangles(models, args.model, counts)
         require(built <= meshy.BUILDING_TRIANGLES, f'The building of {args.model} is {built} triangles, its own and those of the models placed in it that are '
                 f'no placeables: more than the building budget of {meshy.BUILDING_TRIANGLES}; remesh its pieces lower')
+        report_blank = convert.blank_panels_of({args.model: (made, maps), **{name: one[:2] for name, one in shapes.items()}}, models)
         files = convert.skin(args.model, maps, folder / 'shared', crunch, made, colour=model.get('colour', 1024))
         for name, texture in textures.items():  # each model placed in the group, once for its pictures, then where it stands
             part, part_maps, part_colour = shapes[name]
@@ -190,9 +191,7 @@ def command_tiles(args):
         report['veils'] = {name: found for name, one in {args.model: made, **{name: shapes[name][0] for name in textures}}.items() if (found := convert.veils(one['vertices'], one['faces']))}
         report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '
                             f'with `view --eye`; a stray face over an opening takes `clear`' for name, found in report['veils'].items() for one in found]
-        # A roller or bay door drawn as one flat panel, its slats lost, in the picture as it ships.
-        report['blankPanels'] = {name: found for name, (one, its_maps, _) in {args.model: (made, maps, colour), **shapes}.items()
-                                 if (found := convert.shipped_blank_panels(one, its_maps, models[name].get('smooth')))}
+        report['blankPanels'] = report_blank
         report['notes'] += [note for name, found in report['blankPanels'].items() for note in convert.blank_notes(name, found)]
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
