@@ -6,9 +6,12 @@ A part that shows a logo carries a badge mesh naming the material `MATERIAL` (do
 `SetMaterialShaderUniformVec4(creature, MATERIAL, PARAMETER, cell)`. Cell 0 is blank and is what an unset
 creature shows.
 
-The cells' pictures are `logos/<name>.png`, 128 texels square, cut from the corporate security concept sheet
-(user, 2026-11-17: the major corporations' logos are in the concept sheets). Adding a logo replaces the strip;
-no part changes.
+The cells' pictures are `logos/<name>.png`, 128 texels square. Ares, Renraku, Saeder-Krupp, Wuxing and Mitsuhama
+are cut from the corporate security concept sheet, Aztechnology and Lone Star from the battle armour and magical
+response sheets (user, 2026-11-17: the major corporations' logos are in the concept sheets). Evo, Horizon, NeoNET
+and Shiawase are on no sheet: they are cut from one image drawn in the sheets' header style (user, 2026-11-17:
+the rest of the major corporations' logos). Adding a logo replaces the strip; no part changes, and a cell once
+given keeps its number, since SR_NWN stores it.
 """
 from pathlib import Path
 
@@ -20,7 +23,8 @@ from .registry import require
 
 MATERIAL, SHADER, STRIP, PARAMETER = 'srn_logo', 'srn_vslogo', 'srn_logos', 'LogoCell'
 CELL = 128  # texels a side of one logo
-CELLS = (None, 'ares', 'renraku', 'saeder-krupp', 'wuxing', 'mitsuhama', None, None)  # the strip, cell by cell; None is blank
+CELLS = (None, 'ares', 'renraku', 'saeder-krupp', 'wuxing', 'mitsuhama', 'aztechnology', 'evo', 'horizon', 'neonet', 'shiawase',
+         'lone-star', None, None, None, None)  # the strip, cell by cell; None is blank
 BLANK = (0.09, 0.09, 0.1)
 PICTURES = Path(__file__).resolve().parent / 'logos'
 MATERIAL_TEXT = f'customshaderVS {SHADER}\ncustomshaderFS fslit\ntexture0 {STRIP}\nparameter float {PARAMETER} 0.0\n'

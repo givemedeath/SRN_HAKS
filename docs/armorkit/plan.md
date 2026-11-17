@@ -867,11 +867,16 @@ Nothing here is published; the other 18 bodies, the registry entries and the pac
   direction by direction (`accessory fit`); headgear is brought to its race's head envelope (`headgear`). A race
   version cannot scale either (spikes.md, section 13).
 * **The brassard is drawn, not generated.** `brassard` makes a band round the upper arm over the outfit's
-  sleeve, with a curved badge, on both shoulders. It needs no reference image and no generation.
+  sleeve, with a curved badge, on both shoulders. It needs no reference image and no generation. The first one
+  took one outline for its whole height and stood off a lifted arm as a loose ring (user, 2026-11-17); the band
+  now follows what is worn ring by ring, about the sleeve's own middle, and is gated on how far it stands off.
 * **Logo resources.** `logo.write` makes the shared material `srn_logo`, the vertex shader `srn_vslogo` and the
-  strip `srn_logos` of eight cells, 128 texels each. Cells (user: the major corporations' logos are in the
+  strip `srn_logos` of sixteen cells, 128 texels each. Cells (user: the major corporations' logos are in the
   concept sheets; cut from the corporate security sheet): 0 blank, 1 Ares, 2 Renraku, 3 Saeder-Krupp, 4 Wuxing,
-  5 Mitsuhama, 6 and 7 blank. SR_NWN sets a wearer's logo with
+  5 Mitsuhama. The rest of the major corporations followed (user, 2026-11-17): 6 Aztechnology and 11 Lone Star,
+  cut from the battle armour and magical response sheets, and 7 Evo, 8 Horizon, 9 NeoNET, 10 Shiawase, which are
+  on no sheet and were cut from one image drawn in the sheets' header style. 12 to 15 are blank. A cell once
+  given keeps its number. SR_NWN sets a wearer's logo with
   `SetMaterialShaderUniformVec4(creature, "srn_logo", "LogoCell", cell)`; an unset wearer shows cell 0.
   A badge is gated to read the right way round (`logo.reads_right`) and was looked at with all five logos, none
   of them symmetric, on both shoulders. These resources are not yet in a pack, and the handoff does not yet

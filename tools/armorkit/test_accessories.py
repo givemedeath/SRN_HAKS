@@ -110,7 +110,8 @@ class LogoTests(unittest.TestCase):
     def test_the_strip_holds_every_logo_in_its_cell_and_none_reads_the_same_mirrored(self):
         strip = logo.strip()
         self.assertEqual(strip.shape, (logo.CELL, logo.CELL * len(logo.CELLS), 3))
-        self.assertEqual(logo.cells(), {'ares': 1, 'renraku': 2, 'saeder-krupp': 3, 'wuxing': 4, 'mitsuhama': 5})
+        self.assertEqual(logo.cells(), {'ares': 1, 'renraku': 2, 'saeder-krupp': 3, 'wuxing': 4, 'mitsuhama': 5, 'aztechnology': 6, 'evo': 7,
+                                        'horizon': 8, 'neonet': 9, 'shiawase': 10, 'lone-star': 11})  # a cell keeps its number: SR_NWN stores it
         np.testing.assert_allclose(strip[:, :logo.CELL], np.broadcast_to(logo.BLANK, (logo.CELL, logo.CELL, 3)))
         for name, cell in logo.cells().items():
             picture = strip[:, cell * logo.CELL:(cell + 1) * logo.CELL]
@@ -134,6 +135,24 @@ class BrassardTests(unittest.TestCase):
         self.assertEqual(set(np.unique(layers).tolist()), {export.LAYERS['cloth2'], export.LAYERS['leather1']})
         self.assertEqual(int(layers[len(layers) // 2, 0]), export.LAYERS['cloth2'])
         self.assertTrue(30 <= shades.min() and shades.max() <= 240)
+
+    def test_the_band_follows_a_sleeve_that_ends_under_it(self):
+        # a wide sleeve over the band's upper half and the bare arm under its lower, off the bone's line
+        sleeve, arm = tube(0.07, -0.02, 0.045, around=64, rings=12), tube(0.04, 0.045, 0.12, around=64, rings=12)
+        v = np.concatenate([sleeve[0], arm[0]]) + [0.02, 0.01, 0.0]
+        under = (v, np.concatenate([sleeve[1], arm[1] + len(sleeve[0])]))
+        start, axis, out, third = np.zeros(3), np.array([0.0, 0, 1]), np.array([1.0, 0, 0]), np.array([0.0, 1, 0])
+        heights = brassard.TALL * np.arange(brassard.RINGS) / (brassard.RINGS - 1)
+        middle = brassard.centred(under, start, axis, out, third, 0.0, brassard.TALL)
+        np.testing.assert_allclose(middle, [0.02, 0.01, 0.0], atol=2e-3)
+        radius = brassard.outline(under, middle, axis, out, third, heights) + brassard.CLEARANCE
+        off, most, inside = brassard.fit(under, middle, axis, out, third, heights, radius)
+        self.assertLess(off, brassard.OFF)
+        self.assertLessEqual(inside, brassard.INSIDE)
+        self.assertLess(radius[-1].max(), 0.05)  # on the arm at its lower edge, not out at the sleeve
+        # one outline for the whole height, as the first brassard had, stands off the arm by the sleeve's depth
+        one = np.tile(radius.max(axis=0), (brassard.RINGS, 1))
+        self.assertGreater(brassard.fit(under, middle, axis, out, third, heights, one)[0], brassard.OFF)
 
     def test_the_badge_is_a_node_on_the_logo_material(self):
         v = np.array([[0.0, 0, 0], [1, 0, 0], [0, 0, 1]])
