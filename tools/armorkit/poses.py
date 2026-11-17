@@ -84,7 +84,7 @@ def entries(slots, number, tier):
     base = {**named, 'genderedCut': False, 'coverage': {'skin': False, 'headgear': False}, 'channels': list(CHANNELS),
             'badge': None, 'bodies': list(registry.BODIES), 'mesh': 'rigid'}
     # a neck part is headgear here: the one kind of neck part the kit makes so far (`headgear.fit`), skinned to the head
-    neck = {'neckCategory': 'headgear', 'coverage': {'skin': True, 'headgear': True}, 'mesh': 'skinned'}
+    neck = {'neckCategory': 'headgear', 'coverage': {'skin': True, 'headgear': True}, 'mesh': 'skinned', 'channels': ['skin', *CHANNELS]}
     parts = [{**base, 'slot': slot, 'number': number, 'genderedCut': slot == 'chest', 'tiers': {joint: tier for joint in registry.SLOT_JOINTS[slot]},
               **(neck if slot == 'neck' else {})} for slot in slots]
     return registry.validate({'schemaVersion': 1, 'kind': registry.KIND, 'parts': parts})
