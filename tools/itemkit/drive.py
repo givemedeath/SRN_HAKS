@@ -421,13 +421,45 @@ class Driver:
                                 ['review', '--manifest', m, '--run', run, '--stage', stage, '--decision', decision, '--notes', notes])
         return json.loads(out[out.index('{'):]) if '{' in out else out
 
-    def chain(self, design, suffix, stages, notes=None):
+    def chain(self, design, suffix, stages, notes=None, screen=True):
+        """One verified launch of consecutive stages. A chain that unwraps and then bakes stops between the two for the
+        donor screen (about 10 s): faces the bake preflight would refuse are reported before Cycles spends minutes on them."""
+        stages = list(stages); cut = stages.index('bake') if 'bake' in stages else 0
+        if screen and 'unwrap' in stages[:cut]:
+            first = self.chain(design, suffix, stages[:cut], notes, screen=False)
+            found = self.screen_before_bake(design, suffix)
+            if found.get('failedCount'):
+                faces = ','.join(map(str, found['failedFaces']))
+                return {**first, 'screen': found, 'failed': f"donor screen before the bake: {found['failedCount']} visible faces have no facing donor "
+                        f"surface in reach ({faces}). Measure them (patch-measure {design} {suffix} DONOR --faces {faces}), add the reviewed "
+                        f"patch (patch-add {design} {suffix} NEW_SUFFIX ...; it adopts this run's stages) and chain NEW_SUFFIX."}
+            # The stages before the bake are reused from the launch above; the last of them is approved here on its gates.
+            rest = self.chain(design, suffix, stages, notes, screen=False)
+            return {**rest, 'seconds': first['seconds']+rest['seconds'], 'screen': found,
+                    'stages': first['stages']+[row for row in rest['stages'] if row.get('stage') in stages[cut:]]}
         m = self.manifest(design, suffix); run = self.run_dir(design, suffix); started = time.monotonic()
         notes = notes or CHAIN_NOTES.format(date=time.strftime('%Y-%m-%d'))
         _, err, out = self.launch(design, run, 'chain', ['--manifest', m, '--run', run, '--stages', *stages],
                                   ['chain', '--manifest', m, '--run', run, '--stages', *stages, '--notes', notes])
         rows = [json.loads(line) for line in err.splitlines() if line.startswith('{"stage"')]
         return {'design': design, 'suffix': suffix, 'seconds': round(time.monotonic() - started), 'stages': rows, 'launch': str(out)}
+
+    def screen_before_bake(self, design, suffix):
+        """The donor screen in its own process (it needs the mesh libraries). An early warning only: a screen that cannot
+        run, for want of a donor or a single attempt to read, is reported and never stops the chain."""
+        try:
+            donor = self.ws.handoff/read(self.manifest(design, suffix))['inputs']['texturedDonor']['path']
+            done = self.python('-m', 'tools.itemkit.drive', 'screen', design, suffix, donor, check=False)
+            if done.returncode: return {'skipped': (done.stderr or done.stdout or '')[-300:]}
+            return json.loads(done.stdout[done.stdout.index('{'):])
+        except (KeyError, OSError, ValueError) as error: return {'skipped': str(error)[-300:]}
+
+    def adopt(self, design, suffix, source_suffix):
+        """Name SOURCE's approved stages before the bake in SUFFIX's run when the manifests differ only in the
+        miss-correction policy, so a patched manifest starts again at its bake."""
+        done = self.python('tools/itemkit/run_itemkit.py', 'adopt', '--bindings', self.ws.bindings('processing'), '--manifest',
+                           self.manifest(design, suffix), '--run', self.run_dir(design, suffix), '--source', self.run_dir(design, source_suffix))
+        return json.loads(done.stdout[done.stdout.index('{'):])
 
     def batch(self, items, stages, jobs=2):
         """Chains for several designs at once (at most MAX_JOBS); each item's log stays in its own run folder."""
@@ -681,7 +713,9 @@ class Driver:
                                         replace=replace)
         path = write_new(self.manifest(design, new_suffix), manifest)
         patch = manifest['processing']['missCorrection']['unorientedSourcePatch']
-        return {'manifest': str(path), 'sha256': sha(path), 'target': target['source'], 'patch': patch,
+        try: adopted = self.adopt(design, new_suffix, suffix)['adopted']
+        except (SystemExit, ValueError, OSError) as error: adopted = f'none: {str(error)[-200:]}'
+        return {'manifest': str(path), 'sha256': sha(path), 'target': target['source'], 'patch': patch, 'adopted': adopted,
                 'maximumUnorientedDistance': manifest['processing']['missCorrection'].get('maximumUnorientedDistance')}
 
     def shell(self, operation, source, target, *arguments, **settings):
@@ -730,6 +764,8 @@ def parser():
     s = c.add_parser('batch'); s.add_argument('items', nargs='+', help='ID:SUFFIX')
     s.add_argument('--stages', type=stage_list, required=True, help='comma-separated, e.g. fit,reduce,unwrap')
     s.add_argument('--jobs', type=int, default=2)
+    s = c.add_parser('adopt', help="reuse SOURCE's approved stages before the bake in SUFFIX's run (patch-add does this itself)")
+    [s.add_argument(k) for k in ('id', 'suffix', 'source')]
     s = c.add_parser('fixture-inputs'); s.add_argument('id'); s.add_argument('suffix', help='a manifest of the design (its family contract)'); s.add_argument('name')
     s = c.add_parser('refixture'); [s.add_argument(k) for k in ('id', 'suffix', 'name')]; s.add_argument('--capture', action='store_true')
     s = c.add_parser('capture'); s.add_argument('fixture'); s.add_argument('output')
@@ -782,7 +818,7 @@ def main(argv=None):
         'opening-probes': lambda: d.opening_probes(a.id, a.suffix, a.write),
         'preview': lambda: d.preview(a.id, a.suffix), 'stage': lambda: d.stage(a.id, a.suffix, a.stage),
         'review': lambda: d.review(a.id, a.suffix, a.stage, a.decision, a.notes), 'chain': lambda: d.chain(a.id, a.suffix, a.stages),
-        'batch': lambda: d.batch(a.items, a.stages, a.jobs), 'fixture-inputs': lambda: d.fixture_inputs(a.id, a.suffix, a.name),
+        'batch': lambda: d.batch(a.items, a.stages, a.jobs), 'adopt': lambda: d.adopt(a.id, a.suffix, a.source), 'fixture-inputs': lambda: d.fixture_inputs(a.id, a.suffix, a.name),
         'refixture': lambda: d.refixture(a.id, a.suffix, a.name, a.capture), 'capture': lambda: d.capture(a.fixture, a.output),
         'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible, a.base, a.replace_stock), 'views': lambda: d.views(a.glb, a.output, a.textured),
         'retire-contracts': lambda: d.retire_contracts(a.folder, a.reason, contracts=a.contract),

@@ -218,6 +218,31 @@ python -m tools.itemkit.drive patch-add ID SUFFIX NEW_SUFFIX --faces F,F,... --d
 None of these approves a patch. The user reviews the measured faces, the note quotes that review, and the baked
 colour still needs the lit and unlit review.
 
+## Shorter reruns after a donor miss
+
+A patched manifest used to repeat the whole chain (about 13 minutes for a pistol) twice or three times. Three steps
+in the runner and the driver now avoid that. None of them changes a gate.
+
+- **The chain screens before it bakes.** `drive chain` and `drive batch` run the stages before the bake, then `screen`
+  (about 10 s), then the rest. A face the bake preflight would refuse stops the chain there with the faces listed,
+  before Cycles runs. A screen that cannot run (no donor, several attempts) is reported as `skipped` and never stops
+  the chain. `chain(..., screen=False)` is the old single launch.
+- **A patched manifest keeps the earlier stages.** Each stage receipt records `stageManifestHash`: for the stages before
+  the bake that is the manifest without `processing.missCorrection`, which only the bake reads. `patch-add` then calls
+  `adopt` (`drive adopt ID SUFFIX SOURCE_SUFFIX`, `run_itemkit.py adopt`): the new run's state names the source run's
+  approved fit, reduce, unwrap and finish receipts and reviews, and writes `adopted.json`. Nothing is copied. Each
+  adopted receipt is verified on every use exactly like the run's own (bytes, bindings, code version, parents), and
+  the reduce stage's one use of the policy, that a patch names the reduced geometry, is checked again against that
+  receipt. Any other manifest difference, an unapproved stage or an older receipt without the field adopts nothing
+  from that stage on, and the stages simply run.
+- **A bake that finished and failed only on a miss is corrected, not repeated.** When a run that this one adopted
+  stages from holds a `bake-recovery.json` for the same finished scene, family and processing (policy aside), the
+  bake stage runs the recovery worker above on the retained pixels instead of Cycles. The proof and its files are
+  declared launch inputs. An item with a metal treatment bakes in full, because the proof keeps no metallic layer.
+
+To learn a firearm's grip departure digest use `drive preview` (the measure-only fit pass), not a fit stage in a
+throwaway run. A test module whose packs did not change needs only its top hak repacked.
+
 ## Repairing a working shell
 
 When a generated or donor-derived working shell is not one closed outward solid, these write a new GLB and refuse
