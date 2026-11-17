@@ -158,23 +158,17 @@ def build(name, resources, props, shots, output, nwn_root, stock_table, *, peopl
     return record
 
 
-def window_shot(pid, path):
-    """The client window's pixels written as `path`. The armorkit client gives them as two steps, a grab and a save,
-    since 2026-11-16 (PR 162); one name here keeps the calls below and the tests' patch."""
-    return client.save(client.grab(pid), path)
-
-
 def grab(pid, path):
     """(the client window's pixels, `clock()` as the grab that made them began). A window that opened minimised (someone
     is using the machine) cannot be grabbed, so it is shown, without taking the focus, and grabbed again: the time is
     the second grab's, since the wait before it can carry the grab past its shot (review, 2026-11-14)."""
     try:
-        began = clock(); return window_shot(pid, path), began
+        began = clock(); return client.capture(pid, path), began
     except OSError:
         import ctypes
         ctypes.WinDLL('user32').ShowWindow(ctypes.c_void_p(client.window(pid)), 4)  # SW_SHOWNOACTIVATE
         time.sleep(0.7)
-        began = clock(); return window_shot(pid, path), began
+        began = clock(); return client.capture(pid, path), began
 
 
 def capture(pid, path):

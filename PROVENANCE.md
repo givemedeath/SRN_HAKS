@@ -1325,7 +1325,7 @@ Modifications, all by `tools/envkit` (SRN project operator with Claude): the mod
 scaled to 15.3 metres to the top of its roof, which gives its front door a leaf of about 2.1 metres, and its textures
 were recompressed (colour 4096 DXT1, the other maps 2048). Glow maps were made from the model's own colour for
 nineteen parts, each measured on the wall it lies in: the strip lights over the front and rear doors, the lamp by the
-east door, and the lit windows of the first and second floors and of the roof shacks, front and rear, each with a
+west door, and the lit windows of the first and second floors and of the roof shacks, front and rear, each with a
 halo sheet of its own just in front of it. Nothing else was retouched. The mesh (105,520 triangles) was shared out
 over six tiles (9,886 to 28,664 faces each) with a ground square, a map picture and two main lights each; nothing
 carries `tilefade`; and a walkmesh was generated from its shape (1,112 to 1,672 faces a tile, where the stock tiles
