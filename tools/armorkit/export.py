@@ -172,9 +172,12 @@ def decompiled(model, *, tool=None, game=None):
     tool = tool or toolchain.cleanmodels()
     with tempfile.TemporaryDirectory() as scratch:
         back = Path(scratch) / model.name
-        read = subprocess.run([tool['path'], 'decompile', '--overwrite', *(['--game-dir', str(game)] if game is not None else []),
-                               str(model), str(back)], capture_output=True, text=True, timeout=600,
-                              creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        try:
+            read = subprocess.run([tool['path'], 'decompile', '--overwrite', *(['--game-dir', str(game)] if game is not None else []),
+                                   str(model), str(back)], capture_output=True, text=True, timeout=600,
+                                  creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        except subprocess.TimeoutExpired as error:  # said as a model that cannot be read, which a publication's gates report and go on from
+            raise ValueError(f'{model.name} is a compiled model the model tool did not read back in {error.timeout:g} s') from error
         require(read.returncode == 0 and back.is_file(), f'{model.name} is a compiled model that cannot be read back: {(read.stdout + read.stderr)[-400:]}')
         return back.read_text(encoding='cp1252')
 

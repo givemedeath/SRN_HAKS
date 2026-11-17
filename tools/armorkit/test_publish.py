@@ -346,7 +346,7 @@ class IconTests(unittest.TestCase):
 
             def unread(path):
                 raise ValueError('cannot be read back')
-            with self.assertRaisesRegex(ValueError, 'cannot be read back'):
+            with self.assertRaisesRegex(ValueError, '.+; read back by the model tool: cannot be read back'):  # what both readers said
                 publish.model_textures(model, read_back=unread)
 
     def test_only_the_slots_the_game_draws_have_icons(self):

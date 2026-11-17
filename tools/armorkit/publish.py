@@ -42,6 +42,7 @@ first 40 failures; `--report FILE` writes all of it.
 
 Publishing grants no approval: the client is the evidence, and the user's review comes before the commit.
 """
+import functools
 import hashlib
 import json
 import math
@@ -538,19 +539,31 @@ def chest_neck(pack, body_pack, body, model, contract=None):
                 {**seams.ENDS, **contract.get('ends', {})})
 
 
+@functools.lru_cache(maxsize=1)
+def model_tool():
+    """The pinned model tool, resolved once for the run: resolving it reads and hashes the executable (`toolchain.cleanmodels`)."""
+    from . import toolchain
+    return toolchain.cleanmodels()
+
+
 def model_textures(path, read_back=None):
     """The textures a compiled model's meshes name. A model the kit's rigid reader refuses (headgear's skin, bound
     to the head) is read back by the model tool (`export.decompiled`, or `read_back`) for its `bitmap` lines; one
-    the tool cannot read either is refused."""
+    the tool cannot read either is refused, with what each of the two said."""
     from tools.headkit import native_reader
     path = Path(path)
     try:
         meshes = native_reader.decode(path.read_bytes(), path.stem, require_tangents=False)
         first = [(mesh.get('textures') or [''])[0] or '' for mesh in meshes]
-    except ValueError:
+    except ValueError as refused:
         if read_back is None:
-            from .export import decompiled as read_back
-        first = re.findall(r'^\s*bitmap\s+(\S+)', read_back(path), re.M)
+            from .export import decompiled
+            read_back = lambda model: decompiled(model, tool=model_tool())
+        try:
+            text = read_back(path)
+        except ValueError as error:  # the first is what is wrong with a rigid model; the second alone would hide it
+            raise ValueError(f'{refused}; read back by the model tool: {error}') from error
+        first = re.findall(r'^\s*bitmap\s+(\S+)', text, re.M)
     return sorted({name.lower() for name in first if name and name.lower() != 'null'})
 
 

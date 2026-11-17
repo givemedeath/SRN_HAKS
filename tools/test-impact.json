@@ -157,6 +157,7 @@
       "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
       "tools/armorkit/tables.py",
+      "tools/armorkit/toolchain.py",
       "tools/headkit/__init__.py",
       "tools/headkit/native_reader.py",
       "tools/shared_tools.py"
@@ -214,6 +215,7 @@
       "tools/armorkit/headgear.py",
       "tools/armorkit/logo.py",
       "tools/armorkit/poses.py",
+      "tools/armorkit/registry.py",
       "tools/armorkit/test_brief.py",
       "tools/armorkit/test_poses.py"
     ],

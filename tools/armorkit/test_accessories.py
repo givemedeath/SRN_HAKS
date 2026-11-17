@@ -277,10 +277,10 @@ class HeadgearTests(unittest.TestCase):
         self.assertEqual(text.count('bitmap pmh0_neck1000'), 2)  # one tint texture, named like the model
 
     def test_every_race_checked_has_an_envelope_and_a_published_head(self):
-        from . import bodies
-        for body in ('pmh0', 'pfh0', 'pmo0', 'pfo0', 'pmg0', 'pfg0', 'pmh2'):
-            self.assertGreater(len(headgear.envelope(body)['rings']), 0)
-        self.assertTrue(bodies.HEADS)
+        from . import bodies, registry
+        for body in registry.BODIES:  # the Dwarves and Elves too: the Dwarf woman's head bone is the one that is turned
+            self.assertGreater(len(headgear.envelope(body)['rings']), 0, body)
+            self.assertIn(body[:3], bodies.HEADS)
         with self.assertRaises(ValueError):
             headgear.envelope('xxx0')
 
