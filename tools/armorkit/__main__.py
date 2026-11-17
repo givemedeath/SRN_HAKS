@@ -221,7 +221,7 @@ def command_poses(args):
         from . import bodies
         source, _, number = args.under.rpartition('=')
         registry.require(source and number.isdigit(), '--under is REGISTRY=NUMBER')
-        filled = [slot for slot in bodies.published(registry.load(source), int(number))[0]]
+        filled = bodies.published(registry.load(source), int(number))[0]
         mine = {poses.slot_of(token) for token in json.loads((Path(args.bake) / 'bake.json').read_text(encoding='utf-8'))['models']}
         under = {slot: int(number) for slot in filled if slot not in mine}
     spec, labels = poses.spec(args.bake, args.output, args.stock, args.hak, tlk=args.tlk, preset=args.preset, without=args.without,
@@ -276,6 +276,13 @@ def command_fixture(args):
 def command_publish(args):
     from . import publish
     code = publish.command(args)
+    if code:
+        sys.exit(code)
+
+
+def command_logos(args):
+    from . import publish
+    code = publish.command_logos(args)
     if code:
         sys.exit(code)
 
@@ -471,7 +478,7 @@ def main(argv=None):
     p.add_argument('--dry-run', action='store_true', help='run the gates and print the report; write nothing')
     p.add_argument('--build', action='store_true', help='pack srn_parts and srn_2da once written (a trial: into its own output folder)')
     p.add_argument('--report', help='file to write the report to')
-    p.set_defaults(handler=command_publish, logos=True)
+    p.set_defaults(handler=command_logos)
     args = parser.parse_args(argv)
     args.handler(args)
 

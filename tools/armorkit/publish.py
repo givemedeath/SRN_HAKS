@@ -3,6 +3,10 @@
     python -m tools.armorkit publish REGISTRY --bake DIR [--bake DIR ...] --stock FOLDER --record MODEL=FILE [...]
                                      [--brief MODEL=FILE] [--body-pack DIR] [--trial ROOT | --dry-run] [--build]
                                      [--report FILE]
+    python -m tools.armorkit logos [--trial ROOT | --dry-run] [--build] [--report FILE]
+
+`logos` is the one way a published file changes: it puts the kit's logo strip in place of the published one, for a
+new logo (`relogo`). The rest of this is `publish`.
 
 REGISTRY is the whole part registry as it stands after the publication (`registry.py`): the parts already
 published, unchanged, and the new ones. Each `--bake` is the output folder of a bake compiled at the part's
@@ -103,6 +107,14 @@ def sha(path):
 
 def failure(gate, model, reason):
     return {'gate': gate, 'model': model, 'reason': reason}
+
+
+def counted(failures):
+    """{gate: how many of the failures are its}, for a report's `failuresByGate`."""
+    by_gate = {}
+    for found in failures:
+        by_gate[found['gate']] = by_gate.get(found['gate'], 0) + 1
+    return by_gate
 
 
 def icon_name(gender, token, number):
@@ -979,9 +991,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             skipped.append(f'provenance: PROVENANCE.md names no {", ".join(unnamed)}; a trial does not need the entry, a publication does')
         elif unnamed:
             failures += [failure('provenance', name, 'PROVENANCE.md has no entry naming it: write the content entry before publishing') for name in unnamed]
-        by_gate = {}
-        for found in failures:
-            by_gate[found['gate']] = by_gate.get(found['gate'], 0) + 1
+        by_gate = counted(failures)
         missing = sorted({found['model'][:4] for found in failures if found['gate'] == 'bodies'})
         report = {'root': str(root), 'trial': bool(trial), 'passed': not failures, 'failures': failures, 'failuresByGate': by_gate,
                   'bodiesWithoutModels': missing, 'skipped': skipped, 'newParts': [f'{part["slot"]} {part["number"]}' for part in new],
@@ -1090,10 +1100,7 @@ def relogo(*, root=None, trial=False, dry_run=False, repo=REPO, write=logo.write
         hashes = {name: sha(work / name) for name in logo.FILES}
         changed = sorted(name for name in logo.FILES if hashes[name] != entries[name]['sha256'])
         require(changed or before != now, f'The kit\'s logo strip is the one {PACK} holds: there is nothing to replace')
-        by_gate = {}
-        for found in failures:
-            by_gate[found['gate']] = by_gate.get(found['gate'], 0) + 1
-        report = {'root': str(root), 'trial': bool(trial), 'passed': not failures, 'failures': failures, 'failuresByGate': by_gate, 'files': changed,
+        report = {'root': str(root), 'trial': bool(trial), 'passed': not failures, 'failures': failures, 'failuresByGate': counted(failures), 'files': changed,
                   'cells': {'added': sorted(set(now['cells']) - set(before['cells']), key=now['cells'].get), 'kept': len(set(now['cells']) & set(before['cells']))},
                   'written': False}
         if dry_run or (failures and not trial):
@@ -1142,11 +1149,17 @@ def pairs(values, what):
 
 def command(args):
     """The `publish` command of `python -m tools.armorkit`: prints the report and returns its exit code."""
-    if getattr(args, 'logos', False):  # the `logos` command: the strip alone
-        report = relogo(root=args.trial, trial=bool(args.trial), dry_run=args.dry_run)
-    else:
-        report = publish(args.registry, args.bake, args.stock, records=pairs(args.record, '--record'), briefs=pairs(args.brief, '--brief'),
-                         root=args.trial, trial=bool(args.trial), dry_run=args.dry_run, body_pack=args.body_pack)
+    return finish(publish(args.registry, args.bake, args.stock, records=pairs(args.record, '--record'), briefs=pairs(args.brief, '--brief'),
+                          root=args.trial, trial=bool(args.trial), dry_run=args.dry_run, body_pack=args.body_pack), args)
+
+
+def command_logos(args):
+    """The `logos` command: the strip alone (`relogo`). Prints the report and returns its exit code."""
+    return finish(relogo(root=args.trial, trial=bool(args.trial), dry_run=args.dry_run), args)
+
+
+def finish(report, args):
+    """Build what a report says was written, where asked (`--build`), write and print the report: the exit code."""
     failed = False
     if args.build and report['written']:
         try:  # the publication is written by now: a build that fails is said in its report, not in place of it

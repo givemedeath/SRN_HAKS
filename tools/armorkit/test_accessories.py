@@ -86,6 +86,16 @@ class BeltTests(unittest.TestCase):
         self.assertLess(np.ptp(levelled[:, 2]), 0.045)
         self.assertLess(np.abs(levelled.mean(axis=0)).max(), 1e-6)
 
+    def test_headgear_goes_through_the_head_bones_turn_and_a_logo_without_its_picture_is_named(self):
+        angle = np.radians(10)
+        head = np.array([[np.cos(angle), 0, np.sin(angle), 0.0], [0, 1.0, 0, 0.1], [-np.sin(angle), 0, np.cos(angle), 1.6], [0, 0, 0, 1.0]])
+        worn = headgear.in_body(np.array([[0.0, 0.0, 0.2], [0.1, 0.0, 0.0]]), {'axis': [0.0, 0.03]}, head)
+        np.testing.assert_allclose(worn[0], [0.2 * np.sin(angle), 0.13, 1.6 + 0.2 * np.cos(angle)])  # its top leans with the head
+        np.testing.assert_allclose(headgear.in_body(np.zeros((1, 3)), {'axis': [0.0, 0.03]}, np.eye(4)), [[0.0, 0.03, 0.0]])
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(ValueError, 'ares: the strip names this logo and .*ares.png is not there'):
+                logo.strip(folder)
+
     def test_a_pack_folder_that_is_not_there_is_refused_and_the_fit_is_evened_alike_each_way(self):
         with tempfile.TemporaryDirectory() as folder:
             for fitted in (lambda: accessory.worn_under(folder, 'pmh0', {}, {}, (str(Path(folder) / 'srn_part'), 6020)),

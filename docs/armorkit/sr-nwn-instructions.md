@@ -137,7 +137,7 @@ An NPC is set the same way from its spawn script.
 
 ## Not checked: decide or test in SR_NWN
 
-Every client check so far was one local client, one area, one session. These are open, and the first three
+Every client check so far was one local client, one area, one session. These are open, and the first two
 decide where else the logo call has to be made:
 
 1. Whether the value lasts through an area change, a save and load, and a new login. Until it is tested, set it

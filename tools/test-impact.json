@@ -253,7 +253,9 @@
     ],
     "tools/armorkit/test_cli.py": [
       "tools/armorkit/__main__.py",
+      "tools/armorkit/accessory.py",
       "tools/armorkit/bake.py",
+      "tools/armorkit/brassard.py",
       "tools/armorkit/brief.py",
       "tools/armorkit/briefs/corpsec-siteguard-male-2.json",
       "tools/armorkit/client.py",
@@ -261,6 +263,7 @@
       "tools/armorkit/examples/registry.json",
       "tools/armorkit/generate.py",
       "tools/armorkit/poses.py",
+      "tools/armorkit/publish.py",
       "tools/armorkit/reference.py",
       "tools/armorkit/refit.py",
       "tools/armorkit/registry.py",
@@ -5572,7 +5575,8 @@
     ],
     "tools/armorkit/test_cli.py": [
       "srn_armor",
-      "srn_body"
+      "srn_body",
+      "srn_parts"
     ],
     "tools/armorkit/test_measure.py": [
       "srn_body",

@@ -51,6 +51,7 @@ def strip(pictures=PICTURES):
     row[:] = BLANK
     for index, name in enumerate(CELLS):
         if name is not None:
+            require((Path(pictures) / (name + '.png')).is_file(), f'{name}: the strip names this logo and {Path(pictures).name}/{name}.png is not there')
             picture = Image.open(Path(pictures) / (name + '.png')).convert('RGB')
             require(picture.size == (CELL, CELL), f'{name}: a logo is {CELL} texels square')
             row[:, index * CELL:(index + 1) * CELL] = np.asarray(picture, float) / 255

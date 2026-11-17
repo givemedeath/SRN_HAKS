@@ -212,6 +212,28 @@ class CommandLineTests(unittest.TestCase):
         self.assertEqual((steps[3][1][0], steps[3][1][1]['module'], *steps[3][1][2:], steps[3][2]), ('game', 'm', layout, 'check', {'settle': 1.2}))
         self.assertEqual((steps[1][1][0].get('hold'), steps[5][1][0].get('hold')), (5.0, None))  # a longer hold only when asked
 
+    def test_the_accessory_commands_route_their_options(self):
+        from . import accessory, brassard, brief, publish
+        calls = []
+        gates = {'passed': True, 'failures': []}
+        with mock.patch.object(brief, 'load', lambda path: {'model': 'belt-test', 'accessory': 'belt'}), \
+                mock.patch.object(accessory, 'fit', lambda *given, **options: calls.append(('fit', given[1:], options)) or {'model': 'belt-test', 'gates': gates}), \
+                mock.patch.object(brassard, 'run', lambda *given, **options: calls.append(('brassard', given, options)) or {'model': 'brassard', 'gates': gates}), \
+                mock.patch.object(publish, 'relogo', lambda **options: calls.append(('logos', options)) or {'passed': True, 'failures': [], 'written': False}):
+            run('accessory', 'fit', 'brief.json', 'kept', '--output', 'out', '--number', 6020, '--body-pack', 'bodies', '--body', 'pfd0',
+                '--over', 'srn_parts=6020', '--tier', 1, '--pack', 'srn_body', '--nwn-root', 'game')
+            run('accessory', 'fit', 'brief.json', 'kept', '--output', 'out', '--number', 6020, '--body-pack', 'bodies', '--drop', 0.05)
+            run('brassard', 'out', '--number', 1000, '--body-pack', 'bodies', '--over', 'srn_parts=6020')
+            run('logos', '--dry-run')
+            with self.assertRaisesRegex(ValueError, '--over is PACK=NUMBER'):
+                run('brassard', 'out', '--number', 1000, '--body-pack', 'bodies', '--over', 'srn_parts')
+        self.assertEqual(calls[0][1], ('kept', 'out', 'bodies', 6020))
+        self.assertEqual({key: calls[0][2][key] for key in ('body', 'outfit', 'drop', 'turn', 'tier', 'packs', 'game')},
+                         {'body': 'pfd0', 'outfit': ('srn_parts', 6020), 'drop': accessory.DROP, 'turn': 0.0, 'tier': 1, 'packs': ['srn_body'], 'game': 'game'})
+        self.assertEqual({key: calls[1][2][key] for key in ('body', 'outfit', 'drop', 'tier')}, {'body': 'pmh0', 'outfit': None, 'drop': 0.05, 'tier': 2})
+        self.assertEqual((calls[2][1], calls[2][2]['outfit']), (('out', 'bodies', 1000), ('srn_parts', 6020)))
+        self.assertEqual(calls[3], ('logos', {'root': None, 'trial': False, 'dry_run': True}))
+
     def test_measuring_seams_needs_the_animation_models(self):
         for flags in ((), ('--only', 'seams')):
             with self.assertRaisesRegex(ValueError, 'needs --supermodels'):

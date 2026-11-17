@@ -318,6 +318,14 @@ def clears(points, faces, row, worn=None):
     return failures, {'shortOfEnvelope': round(max(short, 0.0), 4), 'faceCovered': round(float(face.mean()), 3)}
 
 
+def in_body(placed, row, head):
+    """A fitted piece's points in body space: from the envelope's own axis, in the head bone's space, through the
+    head bone, its turn too. The Dwarf woman's head bone is turned a degree in the body's model, and a piece moved
+    by the bone's place alone was worn that much off the envelope it was gated on."""
+    head = np.asarray(head, float)
+    return (np.asarray(placed, float) + [0.0, float(row['axis'][1]), 0.0]) @ head[:3, :3].T + head[:3, 3]
+
+
 def beside_neck(piece, tinted, skin, limit=1024):
     """(uv of the piece, uv of the neck, (shades, layers), relief, rough): one texture for the piece and the body's
     neck, the piece's maps in the first quarter and the neck's skin in the last, as `bodyskin.worn` lays a sleeve's."""
@@ -380,14 +388,14 @@ def fit(document, kept, output, body_pack, body_textures, number, *, body='pmh0'
         placed, piece['f'], piece['uv'] = trim(placed, piece['f'], piece['uv'], record['chin'], record['top'])
     record['cover'] = cover
     failures, cleared = clears(*whole_shell, row, worn=(placed, piece['f']))
-    head, neck_bone = np.asarray(bones['head_g'], float), np.asarray(bones['neck_g'], float)
-    in_body = placed + [0.0, float(row['axis'][1]), 0.0] + head[:3, 3]  # the envelope is about its own axis, in the head bone's space
+    neck_bone = np.asarray(bones['neck_g'], float)
+    worn = in_body(placed, row, bones['head_g'])
     skin = bodyskin.body_part(body_pack, body_textures, body, 'neck', bones)
     piece_uv, neck_uv, tint, relief, rough = beside_neck(piece, tinted, skin)
     name = registry.model_name(body, 'neck', number)
     to_part = lambda v, n: (export.to_bone(v, neck_bone), export.to_bone(n, neck_bone, direction=True))
     neck_v, neck_n = to_part(skin['v'], skin['n'])
-    piece_v, piece_n = to_part(in_body, export.vertex_normals(in_body, piece['f']))
+    piece_v, piece_n = to_part(worn, export.vertex_normals(worn, piece['f']))
     ascii_dir, written = Path(output) / 'ascii', Path(output) / 'resources'
     for made in (ascii_dir, written):
         made.mkdir(parents=True, exist_ok=True)
@@ -410,5 +418,5 @@ def fit(document, kept, output, body_pack, body_textures, number, *, body='pmh0'
         compiled = export.compile_models([ascii_dir / (name + '.mdl')], written, game=game, resources=list(resources))
         record['compiled'] = len(compiled)
     (Path(output) / 'bake.json').write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
-    np.savez_compressed(Path(output) / 'fitted.npz', v=in_body, f=piece['f'])
+    np.savez_compressed(Path(output) / 'fitted.npz', v=worn, f=piece['f'])
     return record
