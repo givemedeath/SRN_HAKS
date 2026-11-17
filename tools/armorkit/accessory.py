@@ -37,6 +37,7 @@ SURFACE = 0.004  # metres: what is worn under a belt is sampled this densely
 SPAN = {'belt': 0.42}  # metres across, about, as a Human wears the piece: what its texture is sized for
 BAND = 0.05  # metres tall a duty belt's band is worn: a belt drawn daintier is made taller and deeper to it, not longer round
 TALLER = 1.8  # by this much at most
+DEEPER = 1.2  # and deeper by this much at most: on a narrow body the pouches would else stand off the hips like a hoop
 GRID = 4  # a face of the hoop is read at the points of a grid this many steps along each edge
 EVEN = 2.0  # directions: the fit is evened over this many each way, so that a pouch is not bent to a fold of cloth
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'src')  # what `store` keeps of a prepared piece
@@ -99,8 +100,8 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     the axis is moved in or out as one column, by as much as brings the hoop's inner face there `clearance`
     outside the widest of what lies under it at any height the hoop has surface in that direction, a holster
     down the thigh too. The move is evened round the circle and never less than a direction asks. Before it, a
-    hoop whose band is less than `BAND` tall is made taller and deeper to it (`TALLER` at most): heights and
-    how far each point stands off the inner face grow, lengths round the hoop do not."""
+    hoop whose band is less than `BAND` tall is made taller to it (`TALLER` at most) and deeper (`DEEPER` at most):
+    heights and how far each point stands off the inner face grow, lengths round the hoop do not."""
     points, centre = np.asarray(points, float), np.asarray(centre, float)
     worn = np.concatenate([measure.surface_points(np.asarray(v, float), np.asarray(f, int), SURFACE) for v, f in under]) - centre
     way, height, radius = _cells(worn)
@@ -129,7 +130,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     first = np.floor(angle).astype(int)
     share = angle - first
     face = scale * ((1 - share) * inner[first % DIRECTIONS] + share * inner[(first + 1) % DIRECTIONS])  # the inner face in each point's direction
-    deeper = np.maximum(face + (hoop_radius - face) * taller, 1e-6) / np.maximum(hoop_radius, 1e-6)
+    deeper = np.maximum(face + (hoop_radius - face) * min(taller, DEEPER), 1e-6) / np.maximum(hoop_radius, 1e-6)
     placed = np.stack([placed[:, 0] * deeper, placed[:, 1] * deeper, placed[:, 2] * taller], axis=1)
     hoop_way, hoop_level, hoop_radius = _cells(placed)
     table = {}
@@ -274,7 +275,20 @@ def gates(part, under, model, resources, packs=(), whole=None):
     deepest, where = 0.0, None
     for name, (v, f) in under.items():
         v, f = np.asarray(v, float), np.asarray(f, int)
-        inside = np.abs(measure.winding(points, v, f)) >= 0.5
+        # only a point no farther from the part's own axis than its surface reaches at that height and direction
+        # can be inside it: a winding number is read for those alone (100,000 points against 8,000 faces took minutes)
+        axis = v.mean(axis=0) * [1.0, 1.0, 0.0]
+        reach = {}
+        for key, value in zip(zip(*[cells.tolist() for cells in _cells(measure.surface_points(v, f, SURFACE) - axis)[:2]]),
+                              _cells(measure.surface_points(v, f, SURFACE) - axis)[2].tolist()):
+            if value > reach.get(key, 0.0):
+                reach[key] = value
+        way, height, radius = _cells(points - axis)
+        near = np.array([any(radius[i] <= reach.get(((way[i] + a) % DIRECTIONS, height[i] + b), -1.0) + SURFACE for a in (-1, 0, 1) for b in (-1, 0, 1))
+                         for i in range(len(points))])
+        inside = np.zeros(len(points), bool)
+        if near.any():
+            inside[near] = np.abs(measure.winding(points[near], v, f)) >= 0.5
         if inside.any():
             depth = float(baking._off(points[inside], [(v, f)], near=0.08).max())
             if depth > deepest:
