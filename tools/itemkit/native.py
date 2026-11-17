@@ -30,8 +30,7 @@ ENVIRONMENT_MAP = 'chrome1'
 
 def reflection_txi(tga):
     """The TXI that makes a reflection-masked diffuse (textures.metal_policy) reflect instead of turning see-through."""
-    target = Path(tga).with_suffix('.txi'); target.write_bytes(f'envmaptexture {ENVIRONMENT_MAP}
-'.encode('ascii')); return target
+    target = Path(tga).with_suffix('.txi'); target.write_bytes(f'envmaptexture {ENVIRONMENT_MAP}\r\n'.encode('ascii')); return target
 
 
 def nwn_dds(tga, target, compression='DXT5', *, crunch=None):

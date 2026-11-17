@@ -55,5 +55,4 @@ class MetalTreatmentTests(unittest.TestCase):
         from .native import reflection_txi
         with tempfile.TemporaryDirectory() as tmp:
             target = reflection_txi(Path(tmp)/'sr_gun_017.tga')
-            self.assertEqual((target.name, target.read_bytes()), ('sr_gun_017.txi', b'envmaptexture chrome1
-'))
+            self.assertEqual((target.name, target.read_bytes()), ('sr_gun_017.txi', b'envmaptexture chrome1\r\n'))
