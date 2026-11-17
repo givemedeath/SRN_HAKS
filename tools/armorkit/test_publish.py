@@ -707,7 +707,7 @@ def brassard(folder, body, strip=b'strip'):
         (resources / (name + '.plt')).write_bytes(b'band')
     for name in logo.FILES:
         (resources / name).write_bytes(strip if name.endswith('.tga') else b'text\n')
-    record = {'model': 'brassard-test', 'body': body, 'tier': 1, 'number': 1000, 'models': models, 'logo': logo.record(),
+    record = {'model': 'brassard-test', 'body': body, 'tier': 1, 'number': 1000, 'models': models, 'drawn': True, 'logo': logo.record(),
               'gates': {'passed': True, 'failures': [], 'triangles': {'shol': 10, 'shor': 10}}, 'compiled': 2}
     (folder / 'bake.json').write_text(json.dumps(record), encoding='utf-8')
     return folder
@@ -734,6 +734,17 @@ class DrawnPieceTests(Workspace):
         (self.bakes[0] / 'resources' / logo.FILES[1]).unlink()
         self.assertEqual([reason for _, reason in publish.survey(self.bakes[0])['wrong']],
                          ["it was drawn for another logo strip than the kit's: draw it again", f'the bake holds no {logo.FILES[1]}'])
+        del record['drawn']  # a record that lists no materials is not thereby a drawn piece: it is held to its material files
+        (self.bakes[0] / 'bake.json').write_text(json.dumps(record), encoding='utf-8')
+        found = publish.survey(self.bakes[0])
+        self.assertFalse(found['drawn'])
+        self.assertIn(('pmh0_shol1000', 'the bake holds no pmh0_shol1000.mtr'), found['wrong'])
+
+    def test_a_shader_with_carriage_returns_fails(self):
+        for folder in self.bakes:
+            (folder / 'resources' / logo.FILES[1]).write_bytes(b'text\r\n')
+        report = self.publish(self.bakes, dry_run=True, **self.options)
+        self.assertEqual([(one['gate'], one['model']) for one in report['failures']], [('format', logo.FILES[1])])
 
     def test_it_is_published_with_the_logo_once_and_the_handoff_names_it(self):
         report = self.publish(self.bakes, **self.options)

@@ -71,7 +71,7 @@ BRIEFS = Path(__file__).with_name('briefs')
 HANDOFF_KIND = registry.KIND + '-handoff'
 TOKEN_SLOT = {token: slot for slot, row in registry.SLOTS.items() for token in row['tokens']}
 UNREADABLE = (ValueError, OSError, LookupError, struct.error)  # what reading a model or a material file that is not one raises
-TEXT = ('.mtr', '.2da')  # stored with LF in the repository (.gitattributes): a carriage return would change on commit
+TEXT = ('.mtr', '.2da', '.shd')  # stored with LF in the repository (.gitattributes): a carriage return would change on commit
 
 # The neck: the body's own neck part stands in the chest's collar, and both are closed surfaces.
 NECK_END = 0.01  # metres: the neck's lowest centimetre is its end, which the chest hides
@@ -278,7 +278,7 @@ def survey(folder):
     """One bake's output folder as a publication reads it: its record, the files of each of its models and what
     is wrong with it, as (model, reason) pairs. A folder that is no bake at all is refused.
 
-    A drawn piece (`brassard`; its record lists no materials) is made from no brief, and its tint texture has no
+    A drawn piece (`brassard`; its record says `drawn`) is made from no brief, and its tint texture has no
     material file. A piece that shows a logo (its record's `logo`) brings the logo's files, `logo.FILES`, and
     is refused when it was drawn for another strip than the kit's own: SR_NWN stores the cells."""
     folder = Path(folder)
@@ -290,7 +290,7 @@ def survey(folder):
             and isinstance(record.get('gates'), dict), f'{path} is no bake record')
     body, number, resources = record['body'], record['number'], folder / 'resources'
     files, wrong = {}, []
-    drawn = 'materials' not in record
+    drawn = record.get('drawn') is True  # said, not guessed: an outfit's record that lost its materials is still held to its brief
     if 'logo' in record:
         if record['logo'] != logo.record():
             wrong.append((f'{body} {record["model"]}', 'it was drawn for another logo strip than the kit\'s: draw it again'))

@@ -401,9 +401,7 @@ def fit(document, kept, output, body_pack, body_textures, number, *, body='pmh0'
     if len(tint[0]) > accessory.BUDGET['texture']:
         failures.append(f'a texture of {len(tint[0])} texels a side, over the budget of {accessory.BUDGET["texture"]}')
     failures += [f'{name}: {pack} holds a model of that name' for pack in packs if (Path(pack) / (name + '.mdl')).exists()]
-    if whole is not None:
-        failures += [f'the generated piece: an opening {hole * 100:.1f} cm round' for hole in whole['holes']]
-        failures += [f'the generated piece: a piece of {loose * 1e4:.1f} cm² standing apart from the rest' for loose in whole['debris']]
+    failures += accessory.surface_failures(whole)
     record = {'model': document['model'], 'body': body, 'tier': 1, 'number': number, 'models': {'neck': name}, **colours, 'fit': record,
               'gates': {'passed': not failures, 'failures': [f'{name}: {reason}' if not reason.startswith(name) else reason for reason in failures],
                         'triangles': triangles, 'texels': int(len(tint[0])), 'head': cleared, **({} if whole is None else {'surface': whole})}}

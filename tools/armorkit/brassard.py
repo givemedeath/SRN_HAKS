@@ -209,6 +209,7 @@ def model_text(name, band, badge):
 def run(output, body_pack, number, *, body='pmh0', outfit=None, packs=(), game=None, resources=()):
     """Build both arms' brassards for `body` over `outfit` = (pack folder, number), write and gate them: the
     record, also written as `<output>/bake.json`. With `game` the models are compiled."""
+    require(outfit is None or Path(outfit[0]).is_dir(), f'{outfit and outfit[0]} is no pack folder to fit over')  # else the band is fitted to the bare arm
     bones, skin = measure.body(body_pack, body)
     ascii_dir, written = Path(output) / 'ascii', Path(output) / 'resources'
     for made in (ascii_dir, written):
@@ -245,7 +246,8 @@ def run(output, body_pack, number, *, body='pmh0', outfit=None, packs=(), game=N
             failures.append(f'{name}: {triangles[token]} triangles, over the budget of {BUDGET}')
         failures += [f'{name}: {pack} holds a model of that name' for pack in packs if (Path(pack) / (name + '.mdl')).exists()]
     record = {'model': 'brassard', 'body': body, 'tier': 1, 'number': number, 'models': models,
-              'logo': {'material': logo.MATERIAL, 'parameter': logo.PARAMETER, 'strip': logo.STRIP, 'cells': logo.cells()},
+              'drawn': True,  # from no brief, and with no material file: a publication asks for neither (`publish.survey`)
+              'logo': logo.record(),
               'over': None if outfit is None else {'pack': Path(outfit[0]).name, 'number': outfit[1]},
               'gates': {'passed': not failures, 'failures': failures, 'triangles': triangles, 'texels': TEXELS, 'fit': stands}}
     if game is not None:

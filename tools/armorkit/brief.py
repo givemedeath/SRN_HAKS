@@ -147,7 +147,7 @@ def validate(document):
                 f'A material holds {sorted(MATERIAL_KEYS - OPTIONAL)}, and may hold {" and ".join(sorted(OPTIONAL))}')
         require(all(text(material[key]) for key in ('name', 'look', 'wears')), 'A material has a name, a look and what wears it')
         require(material['kind'] in texture.KINDS, f'{material["name"]}: a material is one of {texture.KINDS}')
-        require('channel' not in material or (piece is not None and material['channel'] in (1, 2) and not isinstance(material['channel'], bool)),
+        require('channel' not in material or (piece is not None and type(material['channel']) is int and material['channel'] in (1, 2)),
                 f'{material["name"]}: the material of an accessory may name channel 1 or 2 of its kind')
         require(colour(material['colour']) and all(key not in material or colour(material[key]) for key in ('shown', 'suggested')),
                 f'{material["name"]}: a colour is three whole numbers, 0-255')

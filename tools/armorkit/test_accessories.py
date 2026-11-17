@@ -52,9 +52,10 @@ class AccessoryBriefTests(unittest.TestCase):
             brief.validate(made)
         made['materials'][1]['channel'] = 2
         brief.validate(made)
-        made['materials'][1]['channel'] = 3
-        with self.assertRaises(ValueError):
-            brief.validate(made)
+        for wrong in (3, 2.0, True):  # 2.0 would name the channel "metal2.0"
+            made['materials'][1]['channel'] = wrong
+            with self.assertRaises(ValueError):
+                brief.validate(made)
         outfit = document()
         outfit['materials'][0]['channel'] = 2  # an outfit's channels are sorted by where its materials are worn
         with self.assertRaises(ValueError):
@@ -69,6 +70,17 @@ class BeltTests(unittest.TestCase):
         levelled, _ = accessory.level(v @ turn.T + [0.3, 0.1, 0.5], f)
         self.assertLess(np.ptp(levelled[:, 2]), 0.045)
         self.assertLess(np.abs(levelled.mean(axis=0)).max(), 1e-6)
+
+    def test_a_pack_folder_that_is_not_there_is_refused_and_the_fit_is_evened_alike_each_way(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for fitted in (lambda: accessory.worn_under(folder, 'pmh0', {}, {}, (str(Path(folder) / 'srn_part'), 6020)),
+                           lambda: brassard.run(Path(folder) / 'out', folder, 1000, outfit=(str(Path(folder) / 'srn_part'), 6020))):
+                with self.assertRaisesRegex(ValueError, 'is no pack folder to fit over'):
+                    fitted()
+        peak = np.zeros(96)
+        peak[48] = 1.0
+        evened = accessory._evened(peak, width=1.5)  # an odd reach: the widest-of-neighbours window was a step longer one way
+        np.testing.assert_allclose(evened[48 - 8:48], evened[48 + 8:48:-1], atol=1e-12)
 
     def test_a_hoop_is_wrapped_outside_what_is_worn_under_it(self):
         v, f = tube(0.5, -0.025, 0.025)  # generated at no scale of its own

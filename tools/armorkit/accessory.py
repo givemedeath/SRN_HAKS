@@ -78,7 +78,8 @@ def _evened(values, width=EVEN):
     count = len(values)
     reach = int(np.ceil(3 * width))
     kernel = np.exp(-0.5 * (np.arange(-reach, reach + 1) / width) ** 2)
-    widest = np.max([np.roll(values, shift) for shift in range(-reach // 2, reach // 2 + 1)], axis=0)
+    half = reach // 2  # the same each way: `-reach // 2` rounds an odd reach down on one side only
+    widest = np.max([np.roll(values, shift) for shift in range(-half, half + 1)], axis=0)
     padded = np.concatenate([widest[-reach:], widest, widest[:reach]])
     return np.maximum(np.convolve(padded, kernel / kernel.sum(), mode='valid')[:count], values)
 
@@ -249,7 +250,10 @@ def tints(piece, document):
 
 def worn_under(body_pack, body, bones, skin, outfit=None):
     """{part: (vertices, faces)} of what a belt lies on, in body space: the parts of `WORN_UNDER` as the outfit
-    `outfit` = (pack folder, number) has them, and the body's own skin where it has none (or there is no outfit)."""
+    `outfit` = (pack folder, number) has them, and the body's own skin where it has none (or there is no outfit).
+    A pack folder that is not there is refused: every part would be read as the bare skin, and the record would
+    still name the outfit."""
+    require(outfit is None or Path(outfit[0]).is_dir(), f'{outfit and outfit[0]} is no pack folder to fit over')
     under = {}
     for token in WORN_UNDER:
         path = None if outfit is None else Path(outfit[0]) / (registry.model_name(body, token, outfit[1]) + '.mdl')
@@ -259,6 +263,14 @@ def worn_under(body_pack, body, bones, skin, outfit=None):
             under[token] = skin[token]
     require(under, f'Nothing of {body} is found to wear the belt on')
     return under
+
+
+def surface_failures(whole):
+    """The failures of a generated piece as `bake.surface` found it: its openings and its loose pieces."""
+    if whole is None:
+        return []
+    return ([f'the generated piece: an opening {hole * 100:.1f} cm round' for hole in whole['holes']]
+            + [f'the generated piece: a piece of {loose * 1e4:.1f} cm² standing apart from the rest' for loose in whole['debris']])
 
 
 def gates(part, under, model, resources, packs=(), whole=None):
@@ -288,9 +300,7 @@ def gates(part, under, model, resources, packs=(), whole=None):
     else:
         named = [line.split()[1] for line in material.read_text(encoding='ascii').splitlines() if line.startswith('texture') and len(line.split()) > 1]
         failures += [f'{model}: its material file names {image}, which is not there' for image in named if not (resources / (image + '.tga')).is_file()]
-    if whole is not None:
-        failures += [f'the generated piece: an opening {hole * 100:.1f} cm round' for hole in whole['holes']]
-        failures += [f'the generated piece: a piece of {piece * 1e4:.1f} cm² standing apart from the rest' for piece in whole['debris']]
+    failures += surface_failures(whole)
     points = measure.surface_points(np.asarray(part['v'], float), np.asarray(part['f'], int), SURFACE)
     deepest, where = 0.0, None
     for name, (v, f) in under.items():
@@ -299,8 +309,8 @@ def gates(part, under, model, resources, packs=(), whole=None):
         # can be inside it: a winding number is read for those alone (100,000 points against 8,000 faces took minutes)
         axis = v.mean(axis=0) * [1.0, 1.0, 0.0]
         reach = {}
-        for key, value in zip(zip(*[cells.tolist() for cells in _cells(measure.surface_points(v, f, SURFACE) - axis)[:2]]),
-                              _cells(measure.surface_points(v, f, SURFACE) - axis)[2].tolist()):
+        worn_way, worn_level, worn_radius = _cells(measure.surface_points(v, f, SURFACE) - axis)
+        for key, value in zip(zip(worn_way.tolist(), worn_level.tolist()), worn_radius.tolist()):
             if value > reach.get(key, 0.0):
                 reach[key] = value
         way, height, radius = _cells(points - axis)

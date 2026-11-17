@@ -206,9 +206,9 @@ def compile_models(sources, output, *, tool=None, game=None, resources=()):
         require(result.returncode == 0 and len(entries) == len(batch), 'The models did not compile: ' + said)
     for source, target in zip(sources, targets):
         require(target.is_file(), f'{source.name} did not compile: {said}')
-        wanted = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', source.read_text(encoding='cp1252'), re.M))
-        require(wanted > 0, f'{source.name} holds no faces')
         text = source.read_text(encoding='cp1252')
+        wanted = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', text, re.M))
+        require(wanted > 0, f'{source.name} holds no faces')
         if re.search(r'^node skin ', text, re.M):  # the rigid reader takes no skin: the tool reads its own model back
             with tempfile.TemporaryDirectory() as scratch:
                 back = Path(scratch) / source.name

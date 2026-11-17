@@ -138,6 +138,15 @@ def command_bake(args):
         sys.exit(1)
 
 
+def over_outfit(value):
+    """(pack folder, number) of an `--over PACK=NUMBER`, or None without one."""
+    if not value:
+        return None
+    pack, _, number = value.rpartition('=')
+    registry.require(pack and number.isdigit(), '--over is PACK=NUMBER')
+    return pack, int(number)
+
+
 def command_accessory(args):
     from . import accessory, brief
     document = brief.load(args.brief)
@@ -148,12 +157,7 @@ def command_accessory(args):
         print(json.dumps({'kept': args.folder, 'triangles': int(len(piece['f'])), 'texels': int(len(piece['rgb'])), 'surface': whole}))
         return
     registry.require(args.output and args.number and args.body_pack, 'fit takes --output, --number and --body-pack')
-    outfit = None
-    if args.over:
-        pack, _, number = args.over.rpartition('=')
-        registry.require(pack and number.isdigit(), '--over is PACK=NUMBER')
-        outfit = (pack, int(number))
-    record = accessory.fit(document, args.folder, args.output, args.body_pack, args.number, body=args.body, outfit=outfit, drop=args.drop,
+    record = accessory.fit(document, args.folder, args.output, args.body_pack, args.number, body=args.body, outfit=over_outfit(args.over), drop=args.drop,
                            turn=args.turn, packs=args.pack, game=args.nwn_root, resources=args.resources, say=lambda *said: print(*said, flush=True))
     print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'fit', 'gates', 'compiled') if key in record}))
     if not record['gates']['passed']:
@@ -162,12 +166,7 @@ def command_accessory(args):
 
 def command_brassard(args):
     from . import brassard
-    outfit = None
-    if args.over:
-        pack, _, number = args.over.rpartition('=')
-        registry.require(pack and number.isdigit(), '--over is PACK=NUMBER')
-        outfit = (pack, int(number))
-    record = brassard.run(args.output, args.body_pack, args.number, body=args.body, outfit=outfit, packs=args.pack, game=args.nwn_root, resources=args.resources)
+    record = brassard.run(args.output, args.body_pack, args.number, body=args.body, outfit=over_outfit(args.over), packs=args.pack, game=args.nwn_root, resources=args.resources)
     print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'gates', 'compiled') if key in record}))
     if not record['gates']['passed']:
         raise SystemExit(1)
