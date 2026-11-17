@@ -10,6 +10,7 @@ import json
 import re
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -207,10 +208,20 @@ def compile_models(sources, output, *, tool=None, game=None, resources=()):
         require(target.is_file(), f'{source.name} did not compile: {said}')
         wanted = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', source.read_text(encoding='cp1252'), re.M))
         require(wanted > 0, f'{source.name} holds no faces')
-        try:
-            got = sum(len(mesh['faces']) for mesh in native_reader.decode(target.read_bytes(), source.stem, require_tangents=False, apply_rigid_transforms=True))
-        except ValueError as error:
-            raise ValueError(f'{source.name} compiled to a model that cannot be read back: {error}') from error
+        text = source.read_text(encoding='cp1252')
+        if re.search(r'^node skin ', text, re.M):  # the rigid reader takes no skin: the tool reads its own model back
+            with tempfile.TemporaryDirectory() as scratch:
+                back = Path(scratch) / source.name
+                read = subprocess.run([tool['path'], 'decompile', '--overwrite', *(['--game-dir', str(game)] if game is not None else []),
+                                       str(target), str(back)], capture_output=True, text=True, timeout=600,
+                                      creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+                require(read.returncode == 0 and back.is_file(), f'{source.name} compiled to a model that cannot be read back: {(read.stdout + read.stderr)[-400:]}')
+                got = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', back.read_text(encoding='cp1252'), re.M))
+        else:
+            try:
+                got = sum(len(mesh['faces']) for mesh in native_reader.decode(target.read_bytes(), source.stem, require_tangents=False, apply_rigid_transforms=True))
+            except ValueError as error:
+                raise ValueError(f'{source.name} compiled to a model that cannot be read back: {error}') from error
         require(got == wanted, f'{source.name} compiled to {got} faces, not the {wanted} of its source')
         texture = source.with_suffix('.plt')
         if texture.is_file():
