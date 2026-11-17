@@ -195,8 +195,16 @@ def command_render(args):
 
 def command_poses(args):
     from . import client, poses
+    under = None
+    if args.under:
+        from . import bodies
+        source, _, number = args.under.rpartition('=')
+        registry.require(source and number.isdigit(), '--under is REGISTRY=NUMBER')
+        filled = [slot for slot in bodies.published(registry.load(json.loads(Path(source).read_text(encoding='utf-8'))), int(number))[0]]
+        mine = {poses.slot_of(token) for token in json.loads((Path(args.bake) / 'bake.json').read_text(encoding='utf-8'))['models']}
+        under = {slot: int(number) for slot in filled if slot not in mine}
     spec, labels = poses.spec(args.bake, args.output, args.stock, args.hak, tlk=args.tlk, preset=args.preset, without=args.without,
-                              colours=json.loads(args.colours) if args.colours else None)
+                              colours=json.loads(args.colours) if args.colours else None, under=under)
     if args.hold:
         spec['hold'] = args.hold  # seconds the game stays on each shot: longer where the machine is busy and the capture falls behind
     record = poses.build(spec, labels, args.output, args.nwn_root)
@@ -358,8 +366,9 @@ def main(argv=None):
     p.add_argument('--stock', required=True, help='folder of the stock parts tables the outfit is added to')
     p.add_argument('--hak', action='append', default=[], required=True, help='built pack the fixture loads, highest priority first')
     p.add_argument('--tlk', help='talk table the fixture loads')
-    p.add_argument('--preset', default='body', choices=('body', 'shoulders'), help='where the camera looks')
+    p.add_argument('--preset', default='body', choices=('body', 'shoulders', 'waist', 'head'), help='where the camera looks')
     p.add_argument('--without', action='append', default=[], help='also pose a second actor without the part in this slot (shoulder: no pads)')
+    p.add_argument('--under', help='REGISTRY=NUMBER: every actor also wears that published outfit, from the packs in --hak (an accessory is looked at on it)')
     p.add_argument('--colours', help='JSON of colour channels to wear in another colour than the six contrasting ones, e.g. {"cloth1": 22}; no two channels the same')
     p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
     p.add_argument('--wait', type=float, help='seconds to wait for another session\'s client to close first')
