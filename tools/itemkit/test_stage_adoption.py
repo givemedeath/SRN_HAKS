@@ -143,6 +143,17 @@ class ScreenedChainTests(unittest.TestCase):
         result, calls = self.driver({'failedCount': 2, 'failedFaces': [7, 9]})
         self.assertEqual(calls, [self.STAGES[:4]]); self.assertIn('--faces 7,9', result['failed'])
 
+    def test_a_failure_after_the_screen_keeps_the_first_launch(self):
+        from tools.itemkit import drive
+        with tempfile.TemporaryDirectory() as tmp:
+            item = drive.Driver(unittest.mock.Mock(handoff=Path(tmp), items=Path(tmp)))
+            def launch(design, run, name, inputs, command, **more):
+                if 'bake' in command: raise SystemExit('Blender worker failed')
+                return '', '\n'.join(json.dumps({'stage': stage, 'seconds': 1}) for stage in self.STAGES[:4]), 'launch'
+            with patch.object(item, 'launch', side_effect=launch), patch.object(item, 'screen_before_bake', return_value={'failedCount': 0}):
+                result = item.chain('sr4-x', 'v1', self.STAGES)
+        self.assertEqual((len(result['stages']), result['screen'], result['failed']), (4, {'failedCount': 0}, 'Blender worker failed'))
+
     def test_a_screen_that_cannot_run_never_stops_the_chain(self):
         result, calls = self.driver({'skipped': 'no donor'})
         self.assertEqual(len(calls), 2); self.assertNotIn('failed', result)

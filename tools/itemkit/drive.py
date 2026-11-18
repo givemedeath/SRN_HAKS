@@ -434,7 +434,9 @@ class Driver:
                         f"surface in reach ({faces}). Measure them (patch-measure {design} {suffix} DONOR --faces {faces}), add the reviewed "
                         f"patch (patch-add {design} {suffix} NEW_SUFFIX ...; it adopts this run's stages) and chain NEW_SUFFIX."}
             # The stages before the bake are reused from the launch above; the last of them is approved here on its gates.
-            rest = self.chain(design, suffix, stages, notes, screen=False)
+            # A failure from the bake on keeps what the first launch measured: its stage timings and the screen.
+            try: rest = self.chain(design, suffix, stages, notes, screen=False)
+            except (SystemExit, Exception) as error: return {**first, 'screen': found, 'failed': str(error)[-800:]}
             return {**rest, 'seconds': first['seconds']+rest['seconds'], 'screen': found,
                     'stages': first['stages']+[row for row in rest['stages'] if row.get('stage') in stages[cut:]]}
         m = self.manifest(design, suffix); run = self.run_dir(design, suffix); started = time.monotonic()
