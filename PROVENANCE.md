@@ -1520,9 +1520,10 @@ four sides, the corners and at the door (over two runs: the client stalled in ea
 view from above was late in both and is not kept); by night, where the lit parts were lit, put out by script and
 brought back; and with walkers in both tilesets sent from the far corners to the door, the roller door, both halves
 of the yard, a corner of it and each side of the building, and from the next tile onto the yard: all arrived. On
-2026-11-18 the build with the round fence posts, the redrawn faces and the lamp lights was checked again: by day and
-with the same walkers in both tilesets (all arrived), and by night in Modern Exterior, where the five lamp heads glow
-and light the yard and the roof round them.
+2026-11-18 the build with the round fence posts and the redrawn faces was checked again by day and with the same
+walkers in both tilesets (all arrived). The lamp lights came after it and changed the picture and the tiles' light
+nodes only; that build was checked by night in Modern Exterior, where the five lamp heads glow and light the yard and
+the roof round them, and was not walked again.
 
 Painted in the Toolset on 2026-11-18 from the built packs, in two user folders: straight in Modern Exterior and a
 quarter turn in Suburbs in the first, a half turn in Modern Exterior and straight in Suburbs in the second. Each
