@@ -1595,8 +1595,16 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth
     return Image.fromarray(np.dstack([picture, alpha.astype(np.uint8) * 255]), 'RGBA'), level, plain
 
 
+def relief_size(colour):
+    """Pixels across a model's relief map: half its colour picture's, and all of it for a building's 4096 (user,
+    2026-11-17: "Yes, full 4K normals"). A building's one picture is spread thin, some 40 texels a metre on the
+    Shiawase Barrens power station where a prop has 100 to 300, and Meshy's relief comes at 4096: at half, every
+    crack and panel line of its walls was drawn 20 texels a metre."""
+    return colour if colour >= 4096 else max(colour // 2, 256)
+
+
 def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base=None, flat=None, plain=None):
-    """`maps` holds base_color, normal, metallic and roughness image paths. Colour at `colour` pixels, the rest at half.
+    """`maps` holds base_color, normal, metallic and roughness image paths. Colour at `colour` pixels, the rest at half; the relief of a 4096 picture at 4096 too (`relief_size`).
     `base` is the colour picture retouched (`retouch`); with an alpha channel it is stored with one. `flat` marks where
     the relief map is levelled, `plain` the parts whose roughness and metal are smoothed as the colour was (`_levelled`)."""
     from PIL import Image
@@ -1612,7 +1620,7 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base
     # The maps are compressed side by side, four at a time: one after another they were 59 of the 146 seconds of the
     # Shiawase Barrens power station's first build (2026-11-17).
     from concurrent.futures import ThreadPoolExecutor
-    wanted = [(shown, folder / f'{name}.dds', '-DXT5' if shown.mode == 'RGBA' else '-DXT1', colour, False), (relief, folder / f'{name}_n.dds', '-DXN', half, True),
+    wanted = [(shown, folder / f'{name}.dds', '-DXT5' if shown.mode == 'RGBA' else '-DXT1', colour, False), (relief, folder / f'{name}_n.dds', '-DXN', relief_size(colour), True),
               (channel(shine), folder / f'{name}_s.dds', '-DXT5A', half, True), (channel(grey('roughness')), folder / f'{name}_r.dds', '-DXT5A', half, True)]
     if illumination is not None:  # a path or an image; mostly black, so half size like the other maps
         lit = illumination if isinstance(illumination, Image.Image) else Image.open(illumination)

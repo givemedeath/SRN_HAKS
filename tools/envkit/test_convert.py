@@ -674,6 +674,20 @@ class ConvertTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 convert.perimeter(wrong)
 
+    def test_a_building_ships_its_relief_at_full_size(self):
+        """User, 2026-11-17: full 4K normals for buildings; props keep theirs at half."""
+        self.assertEqual([convert.relief_size(one) for one in (512, 1024, 2048, 4096)], [256, 512, 1024, 4096])
+        from unittest import mock
+        from PIL import Image
+        folder = Path(tempfile.mkdtemp()); sizes = {}; maps = {}
+        for key in ('base_color', 'normal', 'metallic', 'roughness'):
+            maps[key] = folder / f'{key}.png'; Image.new('RGB', (16, 16), (128, 128, 255)).save(maps[key])
+        def packed(image, path, mode, size, crunch, *, data):
+            sizes[Path(path).name] = size; return Path(path)
+        with mock.patch.object(convert, '_compress', side_effect=packed):
+            convert.textures('ek_x', maps, folder / 'out', 'crunch', colour=4096)
+        self.assertEqual(sizes, {'ek_x.dds': 4096, 'ek_x_n.dds': 4096, 'ek_x_s.dds': 2048, 'ek_x_r.dds': 2048})
+
     def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
         """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""
         points, normals, faces = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.5)
