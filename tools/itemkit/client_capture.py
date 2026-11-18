@@ -78,6 +78,29 @@ def contact_sheets(captures, columns=4, size=(480, 270)):
     return sheets
 
 
+class Writer:
+    """Writes pictures on a thread of its own, in order. Making a file stopped the capture loop for five seconds now
+    and then (and opening the log, before `client.LogTail`, for eleven), and the shot after it was lost: the loop
+    hands a picture over and goes on. `wait()` returns once all are written, with the longest one write took."""
+
+    def __init__(self, save):
+        from concurrent.futures import ThreadPoolExecutor
+        self.save = save; self.pool = ThreadPoolExecutor(max_workers=1); self.pending = []; self.slowest = 0.0
+
+    def __call__(self, image, path): self.pending.append(self.pool.submit(self.one, image, path))
+
+    def one(self, image, path):
+        started = time.monotonic(); self.save(image, path); self.slowest = max(self.slowest, time.monotonic() - started)
+
+    def wait(self):
+        pending, self.pending = self.pending, []
+        for written in pending: written.result()          # a failed write is raised here
+        slowest, self.slowest = round(self.slowest, 2), 0.0
+        return slowest
+
+    def close(self): self.pool.shutdown(wait=True)
+
+
 def actor(row):
     """The body a shot looks at; a shot without one is refused, never filed."""
     body = BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
@@ -90,25 +113,29 @@ def passed(rows):
     return [{**row, 'body': actor(row), 'captures': [], 'rejected': 'next shot began'} for row in rows]
 
 
-def file_shots(client, process, user, captures, rows, previous_read, frames=FRAMES, gap=GAP, settle=SETTLE, hold=SHOT_HOLD):
-    """Capture the newest shot of one log read into `captures`; the shots that read already passed are filed as rejected."""
+def file_shots(client, process, user, captures, rows, previous_read, frames=FRAMES, gap=GAP, settle=SETTLE, hold=SHOT_HOLD, log=None, save=None):
+    """Capture the newest shot of one log read into `captures`; the shots that read already passed are filed as rejected.
+    `log` returns the log's lines where the caller reads it through a `client.LogTail`; `save` is the caller's `Writer`."""
     if not rows: return []
     row = rows[-1]; body = actor(row)
     # The shot fired after the previous log read, and the camera is free for the next one `hold` seconds after
     # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
     hold_ends = previous_read + hold
     # The pictures are taken first and written afterwards, so the writing is outside the hold.
-    time.sleep(settle); names = []; images = []; started = time.monotonic()
-    for frame in range(frames):
-        names.append(f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"); images.append(client.grab(process.pid))
-        if frame < frames - 1: time.sleep(gap)
+    time.sleep(settle); names = []; images = []; started = time.monotonic(); refused = None
+    try:
+        for frame in range(frames):
+            images.append(client.grab(process.pid)); names.append(f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png")
+            if frame < frames - 1: time.sleep(gap)
+    except OSError as error:      # the system refuses a grab now and then ('screen grab failed'): this shot is lost, not the run
+        refused = f'{error}'; names = []; images = []
     took = round(time.monotonic() - started, 2)
     # A burst that ran into the next shot shows the wrong thing: keep the files, never file them.
-    newest = shot_rows(client.log_lines(user, PREFIX))[-1]['shot']
-    rejected = ('next shot began' if newest != row['shot'] else
-                'burst overran the shot hold' if time.monotonic() > hold_ends else None)
+    newest = shot_rows(log() if log else client.log_lines(user, PREFIX))[-1]['shot']
+    rejected = (refused or ('next shot began' if newest != row['shot'] else
+                            'burst overran the shot hold' if time.monotonic() > hold_ends else None))
     started = time.monotonic()
-    for name, image in zip(names, images): client.save(image, Path(captures) / name)
+    for name, image in zip(names, images): (save or client.save)(image, Path(captures) / name)
     return [*passed(rows[:-1]), {**row, 'body': body, 'captures': names, 'grabSeconds': took,
                                  'saveSeconds': round(time.monotonic() - started, 2), **({'rejected': rejected} if rejected else {})}]
 
@@ -132,17 +159,18 @@ def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP
     toggle.write_text(TOGGLE_TABLE, encoding='ascii')
     shots, seen, finished = [], 0, False
     try:
-        process = client.start(nwn_root, user, module)
+        process = client.start(nwn_root, user, module); tail = client.LogTail(user, PREFIX); writer = Writer(client.save)
         try:
             deadline = time.monotonic() + timeout; previous_read = time.monotonic()
             while time.monotonic() < deadline and not finished:
                 time.sleep(.05)          # a short poll keeps the hold deadline below close to the shot's real firing time
                 require(process.poll() is None, 'The client exited before the fixture finished')
-                read_at = time.monotonic(); lines = client.log_lines(user, PREFIX)
-                shots += file_shots(client, process, user, captures, shot_rows(lines[seen:]), previous_read, frames, gap, settle)
+                read_at = time.monotonic(); lines = tail.lines()
+                shots += file_shots(client, process, user, captures, shot_rows(lines[seen:]), previous_read, frames, gap, settle, log=tail.lines, save=writer)
                 seen = len(lines); finished = DONE in lines; previous_read = read_at
+            slowest = writer.wait()
         finally:
-            client.stop(process)
+            writer.close(); tail.close(); client.stop(process)
     finally:
         toggle.unlink(missing_ok=True)
     log = user / 'logs' / 'nwclientLog1.txt'
@@ -150,6 +178,7 @@ def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP
     lines = client.log_lines(user, PREFIX)
     result = {'fixture': pin(fixture_dir / 'fixture.json'), 'module': record['module'], 'hak': record['hak'],
               'fixtureHaks': record['fixtureHaks'], 'finished': finished, 'shotsExpected': total, 'shots': shots,
+              'slowestWrite': slowest,
               'equipped': [line for line in lines if line.startswith('ITEMKIT_EQUIPPED')],
               'failures': [line for line in lines if 'FAILED' in line],
               'clientValidated': False, 'productionAccepted': False}

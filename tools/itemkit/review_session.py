@@ -327,28 +327,33 @@ def bright(image):
     return image.convert('L').resize((640, 360)).point(lambda value: 255 if value >= BRIGHT else 0).histogram()[255]
 
 
-def fire_burst(client, process, user, folder, row, previous_read, hold=FIRE_HOLD):
+def fire_burst(client, process, user, folder, row, previous_read, hold=FIRE_HOLD, log=None, save=None):
     """Watch one firing shot for its whole hold and keep the pictures with the most flash: the brightest is frame 1,
     the one the contact sheet shows. A flash lasts a tenth of a second, so the pictures are scored as they are taken
     and only the kept ones are written. `flash` is the brightest picture's bright area over the burst's dimmest: no
     one picture is the baseline, so a flash in the first picture counts. A burst that stopped taking pictures for
     `STALL` seconds may have missed the flash and is rejected, never filed as a gun without one."""
     body = cc.BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
-    ends = previous_read + hold - .4; kept = []; taken = 0; least = None; gap = 0.0; last = time.monotonic()
+    ends = previous_read + hold - .4; kept = []; taken = 0; least = None; gap = 0.0; last = time.monotonic(); refused = 0
     while last < ends:
-        image = client.grab(process.pid); now = time.monotonic(); gap = max(gap, now - last); last = now
+        try: image = client.grab(process.pid)
+        except OSError:       # the system refuses a grab now and then: one picture fewer, and a gap if it goes on
+            refused += 1; time.sleep(.02); now = time.monotonic()
+            if now >= ends: gap = max(gap, now - last); break
+            continue
+        now = time.monotonic(); gap = max(gap, now - last); last = now
         score = bright(image); least = score if least is None else min(least, score); taken += 1
         kept = sorted(kept + [(score, -taken, image)], key=lambda entry: entry[:2], reverse=True)[:KEEP]
     late = time.monotonic() > previous_read + hold
-    newest = cc.shot_rows(client.log_lines(user, cc.PREFIX))[-1]['shot']      # before the pictures are written, as file_shots does
+    newest = cc.shot_rows(log() if log else client.log_lines(user, cc.PREFIX))[-1]['shot']      # before the pictures are written, as file_shots does
     order = [kept[at] for at in (1, 0, 2) if at < len(kept)] if len(kept) > 1 else kept      # the best is frame 1
     names = []
     for frame, (_, _, image) in enumerate(order):
-        name = f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"; client.save(image, Path(folder)/name); names.append(name)
+        name = f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"; (save or client.save)(image, Path(folder)/name); names.append(name)
     rejected = ('next shot began' if newest != row['shot'] else 'burst overran the shot hold' if late else
                 'burst stalled' if gap > STALL or not kept else None)
     return {**row, 'body': body, 'captures': names, 'pictures': taken, 'longestGap': round(gap, 2), 'flash': kept[0][0] - least if kept else 0,
-            **({'rejected': rejected} if rejected else {})}
+            **({'refused': refused} if refused else {}), **({'rejected': rejected} if rejected else {})}
 
 
 def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, timeout=None, frames=cc.FRAMES, gap=cc.GAP, settle=cc.SETTLE):
@@ -378,10 +383,10 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
         """File one item's shots as client_capture files a fixture's: a record, an evidence draft and contact sheets.
         `lines` are the item's own log lines, so another item's failure is not put down to this one. The log is copied
         now: a later failure of the run would leave a finished item without the log its draft names."""
-        folder = captures/item
+        folder = captures/item; slowest = writer.wait()        # the pictures are all written before they are listed
         if log.is_file(): shutil.copyfile(log, folder/'nwclientLog1.txt')
         result = {'session': pin(session/'session.json'), 'item': item, 'fixture': known[item]['fixture'], 'module': record['module'],
-                  'haks': record['haks'], 'finished': complete, 'shotsExpected': total, 'shots': shots,
+                  'haks': record['haks'], 'finished': complete, 'shotsExpected': total, 'shots': shots, 'slowestWrite': slowest,
                   'failures': [line for line in lines if 'FAILED' in line], 'clientValidated': False, 'productionAccepted': False}
         write(folder/'capture.json', result)
         write(folder/'evidence-draft.json', {'session': result['session'], 'reviewMaterialOnly': True,
@@ -392,13 +397,14 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
                      **({'flash': flash} if flash is not None else {})})
 
     try:
-        process = client.start(nwn_root, user, MODULE)
+        process = client.start(nwn_root, user, MODULE); tail = client.LogTail(user, cc.PREFIX); writer = cc.Writer(client.save)
         try:
-            deadline = time.monotonic() + 120 + per_item; previous_read = time.monotonic()
+            deadline = time.monotonic() + 120 + per_item; previous_read = time.monotonic(); looped = previous_read; idle = 0.0
             while not over and time.monotonic() < deadline:
                 time.sleep(.05)
                 require(process.poll() is None, 'The client exited before the session finished')
-                read_at = time.monotonic(); lines = client.log_lines(user, cc.PREFIX)
+                read_at = time.monotonic(); lines = tail.lines()
+                idle = max(idle, time.monotonic() - looped)        # the longest turn of this loop that found no shot
                 fired = []          # this read's shots of the current item, in order; only the last can still be on screen
                 for at, line in enumerate(lines[seen:], seen):
                     if line.startswith(ITEM_LINE) or line.startswith(ITEM_DONE) or line.startswith(SESSION_DONE):
@@ -412,15 +418,18 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
                     elif line.startswith('ITEMKIT_SHOT ') and current: fired += [{**row, 'seen': round(read_at - began, 1)} for row in cc.shot_rows([line])]
                     elif line.startswith(ITEM_DONE) and current: close(current, True, lines[first:at + 1]); current = None
                     elif line.startswith(SESSION_DONE): over = True
+                if current and fired:
+                    # `waited`, `readSeconds`: the longest turn of the loop and the longest log read since the shot before.
+                    fired[-1].update(waited=round(idle, 2), readSeconds=round(tail.slowest, 2)); idle = tail.slowest = 0.0
                 if current and fired and fired[-1]['check'] == FIRE_CHECK:
                     shots += cc.passed(fired[:-1])
-                    shots.append(fire_burst(client, process, user, captures/current, fired[-1], previous_read))
+                    shots.append(fire_burst(client, process, user, captures/current, fired[-1], previous_read, log=tail.lines, save=writer))
                 elif current and fired:
-                    shots += cc.file_shots(client, process, user, captures/current, fired, previous_read, frames, gap, settle, HOLD)
-                seen = len(lines); previous_read = read_at
-            if current: close(current, False, client.log_lines(user, cc.PREFIX)[first:])
+                    shots += cc.file_shots(client, process, user, captures/current, fired, previous_read, frames, gap, settle, HOLD, log=tail.lines, save=writer)
+                seen = len(lines); previous_read = read_at; looped = time.monotonic()
+            if current: close(current, False, tail.lines()[first:])
         finally:
-            client.stop(process)
+            writer.close(); tail.close(); client.stop(process)
     finally:
         toggle.unlink(missing_ok=True)
         table.write_bytes(items_table(record['items']))       # every item again, for a look by hand

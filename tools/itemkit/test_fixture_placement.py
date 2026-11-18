@@ -113,6 +113,13 @@ class PlacementTests(unittest.TestCase):
 if __name__ == '__main__': unittest.main()
 
 
+class Tail:
+    """A `client.LogTail` that reads what a test's `log_lines` returns."""
+    def __init__(self, read): self.read = read
+    def lines(self): return self.read(None, None)
+    def close(self): pass
+
+
 class ScriptedShotTests(unittest.TestCase):
     def test_entry_script_carries_a_dormant_shot_sequence_for_every_check(self):
         from tools.itemkit.fixture import CHECKS, SHOTS, SHOT_TOGGLE, shot_script
@@ -170,7 +177,7 @@ class ScriptedShotTests(unittest.TestCase):
             save = lambda image, path: Path(path).write_bytes(b'png')
             process = type('P', (), {'pid': 1, 'poll': lambda self: None})()
             with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), patch('tools.armorkit.client.running', return_value=[]), \
-                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.grab', side_effect=slow), patch('tools.armorkit.client.save', side_effect=save):
+                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.LogTail', side_effect=lambda *_: Tail(log_lines)), patch('tools.armorkit.client.grab', side_effect=slow), patch('tools.armorkit.client.save', side_effect=save):
                 result = client_capture.run(root, root, root/'captures', timeout=30, frames=1, gap=0, settle=0)
             self.assertEqual(result['shots'][0]['rejected'], 'burst overran the shot hold')
             draft = json.loads((root/'captures/evidence-draft.json').read_text(encoding='utf-8'))
@@ -192,7 +199,7 @@ class ScriptedShotTests(unittest.TestCase):
             taken = []; save = lambda image, path: (taken.append(Path(path).name), Path(path).write_bytes(b'png'))
             process = type('P', (), {'pid': 1, 'poll': lambda self: None})()
             with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), patch('tools.armorkit.client.running', return_value=[]), \
-                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.grab'), patch('tools.armorkit.client.save', side_effect=save):
+                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.LogTail', side_effect=lambda *_: Tail(log_lines)), patch('tools.armorkit.client.grab'), patch('tools.armorkit.client.save', side_effect=save):
                 result = client_capture.run(root, root, root/'captures', timeout=30, frames=1, gap=0, settle=0)
             self.assertEqual([(s['shot'], s['captures'], s.get('rejected')) for s in result['shots']],
                              [(1, [], 'next shot began'), (2, ['human-male-walk-02-0.png'], None)])

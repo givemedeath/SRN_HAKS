@@ -160,6 +160,42 @@ class FlashTests(unittest.TestCase):
         stalled = burst([dark], [0.0, 0.1, 2.1, 4.7, 4.8, 4.9])
         self.assertEqual((stalled['pictures'], stalled['rejected']), (3, 'burst stalled'))
 
+    def test_a_refused_grab_costs_a_picture_and_not_the_run(self):
+        from PIL import Image
+        dark = Image.new('RGB', (640, 360), (40, 40, 40)); feed = iter([dark, OSError('screen grab failed')] + [dark] * 500)
+        def grab(pid):
+            picture = next(feed)
+            if isinstance(picture, OSError): raise picture
+            return picture
+        client = mock.Mock(); client.grab.side_effect = grab; written = []
+        row = {'shot': 4, 'target': 'sr_it_male', 'check': 'firing', 'step': 12, 'valid': True}; line = ['ITEMKIT_SHOT shot=4 target=sr_it_male check=firing step=12 valid=1']
+        clock = iter(range(10 ** 6))
+        with mock.patch.object(R.time, 'monotonic', side_effect=lambda: next(clock) * .1), mock.patch.object(R.time, 'sleep'):
+            shot = R.fire_burst(client, mock.Mock(pid=1), 'user', 'folder', row, previous_read=0.0, log=lambda: line,
+                                save=lambda image, path: written.append(Path(path).name))
+        self.assertEqual((shot['refused'], shot.get('rejected'), written), (1, None, shot['captures']))      # read and written the caller's way
+        client.log_lines.assert_not_called(); client.save.assert_not_called()
+        # a still shot whose grab is refused is lost by itself
+        client.grab.side_effect = OSError('screen grab failed')
+        with mock.patch.object(R.cc.time, 'sleep'):
+            still = R.cc.file_shots(client, mock.Mock(pid=1), 'user', 'folder', [{**row, 'check': 'idle'}], 0.0, log=lambda: line, save=written.append)
+        self.assertEqual((still[0]['rejected'], still[0]['captures']), ('screen grab failed', []))
+
+    def test_pictures_are_written_on_a_thread_of_their_own_and_a_failed_write_is_raised(self):
+        import threading
+        held = threading.Event(); done = []
+        def save(image, path):
+            held.wait(5); done.append(path)
+            if image == 'bad': raise OSError('disk')
+        writer = R.cc.Writer(save)
+        try:
+            writer('a', 'one.png'); writer('b', 'two.png'); self.assertEqual(done, [])        # handed over, not waited for
+            held.set(); self.assertGreaterEqual(writer.wait(), 0); self.assertEqual(done, ['one.png', 'two.png'])
+            writer('bad', 'three.png')
+            with self.assertRaisesRegex(OSError, 'disk'): writer.wait()
+        finally:
+            held.set(); writer.close()
+
 
 if __name__ == '__main__':
     unittest.main()

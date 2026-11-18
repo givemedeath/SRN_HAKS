@@ -527,11 +527,15 @@ built fixtures of one hand in a session:
   The attack and firing shots are framed from the direction of the actor's target (an attacking actor has turned,
   and `GetFacing` did not say where to), so they stay side views. An actor stops attacking after its own firing
   shot: left shooting, its flash was the brightest thing in the other actor's burst.
-- **Lost shots.** About one shot in ten is still rejected (`next shot began`, `burst overran the shot hold`): the
-  capture process stops for several seconds now and then, cause unknown. It is not the pictures (each shot records
-  `grabSeconds` and `saveSeconds`, steady at about 1.0 and 0.2) and not a late log (extra log lines after each shot
-  changed nothing). `seen` is when the driver found the shot, in seconds from the item's start, to set against the
-  log's own times. `--again` retakes an item.
+- **Lost shots.** About one shot in ten used to be rejected (`next shot began`, `burst overran the shot hold`). The
+  cause was the driver's own file work: opening the client log on every poll stopped it for up to eleven seconds now
+  and then, and making a picture file for five (2026-11-18), and the shot after was lost. The log is now read through
+  one open file (`client.LogTail`) and the pictures are written on a thread of their own (`client_capture.Writer`),
+  so neither holds up a shot. Each shot records what would show it again: `waited` (the longest turn of the poll
+  loop since the shot before), `readSeconds` (the longest log read), `grabSeconds`, and `seen` (when the driver found
+  the shot, in seconds from the item's start, to set against the log's own times); `capture.json` records
+  `slowestWrite`. A grab the system refuses (`screen grab failed`) loses that still shot, or one picture of a firing
+  burst (`refused`), and no longer the run. `--again` retakes an item.
 - **Effect models.** `--resources FOLDER` puts a folder's files in the first-listed session HAK, where they win over
   every pack: the compiled models with firing effects, when a fixture's bound `srn_weapon.hak` predates them.
 

@@ -64,6 +64,30 @@ def log_lines(user_directory, prefix=LOG_PREFIX):
     return found
 
 
+class LogTail:
+    """The client log's evidence lines read as the log grows, through one open file: `lines()` reads only what was
+    written since the last call. `slowest` is the longest one call took, in seconds, since it was last set to 0.
+    `close()` it before the log is deleted: the open file would refuse that."""
+
+    def __init__(self, user_directory, prefix=LOG_PREFIX):
+        self.path = Path(user_directory) / 'logs' / 'nwclientLog1.txt'; self.prefix = prefix
+        self.file = None; self.rest = b''; self.found = []; self.slowest = 0.0
+
+    def lines(self):
+        started = time.monotonic()
+        if self.file is None and self.path.is_file(): self.file = open(self.path, 'rb')
+        if self.file is not None:
+            *whole, self.rest = (self.rest + self.file.read()).split(b'\n')      # a line still being written waits
+            for raw in whole:
+                text = STAMP.sub('', raw.decode('cp1252', errors='replace').strip())
+                if text.startswith(self.prefix): self.found.append(text)
+        self.slowest = max(self.slowest, time.monotonic() - started)
+        return list(self.found)
+
+    def close(self):
+        if self.file is not None: self.file.close(); self.file = None
+
+
 def parse_line(line):
     """`ARMORKIT actor=A b=1 parts=1,2` -> {'actor': 'A', 'b': '1', 'parts': '1,2'}; values may hold spaces."""
     pairs = re.findall(r'(\w+)=(.*?)(?= \w+=|$)', line)
