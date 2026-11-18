@@ -383,6 +383,12 @@ class ConvertTests(unittest.TestCase):
         self.assertGreater(len(convert.shape(model, maps, height=2.0, fence=[sheet])['wire']['faces']), 0)
         with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):  # measured before a turn: it would hang beside the wall
             convert.shape(model, maps, height=2.0, fence=[{**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
+        # A frame's own upright posts hold a fence up where the model has nothing: a rail along it holds up neither end.
+        aside = {**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}; points, _, _, _, _ = convert.fit(*convert.read_glb(model)[:3], 2.0); corners = convert.read_glb(model)[3]
+        post = lambda y: {'tube': [[1.5, y, 0.4], [1.5, y, 1.6]], 'radius': 0.04, 'picture': [0.0, 0.0, 1.0]}
+        convert._hung(points, corners, [aside], [post(-0.5), post(0.5)])
+        with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):
+            convert._hung(points, corners, [aside], [post(-0.5), {'tube': [[1.5, -0.5, 1.5], [1.5, 0.5, 1.5]], 'radius': 0.02, 'picture': [0.0, 0.0, 1.0]}])
         with mock.patch.object(glow, 'position_map', wraps=glow.position_map) as placed:  # and it is said before the long work on the pictures
             with self.assertRaisesRegex(ValueError, 'hangs between posts'):
                 convert.shape(model, maps, height=2.0, lit=whole, paint=cover, fence=[{**sheet, 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])

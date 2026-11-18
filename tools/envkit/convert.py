@@ -2308,7 +2308,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     require(not lit or illumination is None, 'Give the lit parts or a glow map, not both')
     wire = None
     if fence:  # before the long work on the pictures: a fence that is refused is refused in the first seconds
-        _hung(vertices, faces, fence); tones = {}
+        _hung(vertices, faces, fence, frame); tones = {}
         if frame:  # its steel and concrete in the tones of the model's picture at the points stated
             from PIL import Image
             with Image.open(maps['base_color']) as picture:
@@ -2345,16 +2345,27 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
             'placed': placed}  # the map of the model's places its lit parts were found by, None where it has none: `shipped_blank_panels` reads by it
 
 
-def _hung(vertices, faces, fences):
+def _hung(vertices, faces, fences, frame=None):
     """Refuse a fence either end of which is at no part of the model. A fence hangs between its posts, and its ends are
     stated on the finished model, turned and lifted; one measured before a turn would pass every check of its heights
-    and be built hanging in the air (the wall sign's lit boxes went wrong the same way, 2026-11-12)."""
+    and be built hanging in the air (the wall sign's lit boxes went wrong the same way, 2026-11-12). The upright
+    tubes and blocks of its `frame` are posts too: a perimeter builds its own, and round a building with no slab or
+    wall at its edge there is nothing else to hang from (review of PR 175, 2026-11-18)."""
     surface = scatter(vertices, faces, spacing=FENCE_NEAR / 3)  # places all over the model: a post's flat side may have no corner near
+    posts = []
+    for part in frame or []:
+        ends = part.get('tube') or part.get('block')
+        if ends is not None:
+            (foot, top), reach = np.asarray(ends, float), float(np.max(part['radius' if 'tube' in part else 'size'])) / (1 if 'tube' in part else 2)
+            if np.linalg.norm(top[:2] - foot[:2]) <= FENCE_NEAR:  # a post stands; a rail lies along the fence and holds up neither end
+                posts.append((foot[:2], min(foot[2], top[2]), max(foot[2], top[2]), reach))
     for one in fences:
         low, high = (float(value) for value in one['z'])
         level = surface[(surface[:, 2] >= low - FENCE_NEAR) & (surface[:, 2] <= high + FENCE_NEAR)][:, :2]
         for end in (one['from'], one['to']):
             away = float(np.linalg.norm(level - np.asarray(end, float), axis=1).min()) if len(level) else float('inf')
+            built = [max(float(np.linalg.norm(at - np.asarray(end, float))) - reach, 0.0) for at, foot, top, reach in posts if foot <= high + FENCE_NEAR and top >= low - FENCE_NEAR]
+            away = min([away, *built])
             require(away <= FENCE_NEAR, f'A fence hangs between posts of the model, and no part of the model lies within {FENCE_NEAR} metres of its end at {list(end)} '
                     f'between its heights (the nearest is {away:.2f} away); fences are on the finished model, turned and lifted: ' + str(one.get('part', '')))
 
