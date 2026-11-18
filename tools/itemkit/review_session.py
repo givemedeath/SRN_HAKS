@@ -16,7 +16,8 @@ of built fixtures of one hand into one session:
 
 `capture` waits for another session's client to close if asked, starts the client once and files each item's shots
 in `CAPTURES/<blueprint>/` exactly as `client_capture` does for one fixture. It writes the item table itself, so a
-second run captures only the items that have no finished capture yet, and `--items` picks a subset without a rebuild.
+second run captures only the items that have no finished capture yet, and `--items` picks a subset without a rebuild
+(`--again` with it retakes a finished item whose bursts a busy machine spoiled).
 
 Session captures are review material, never the client stage's evidence: that evidence names the item's own fixture
 module and HAKs (fixture.validate_evidence), and a session runs another module. Nothing here grants an approval.
@@ -236,13 +237,14 @@ def finished(folder):
     return record.is_file() and read(record).get('finished') is True
 
 
-def capture(session, captures, nwn_root, *, wait=0, only=None, timeout=None, frames=cc.FRAMES, gap=cc.GAP, settle=cc.SETTLE):
+def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, timeout=None, frames=cc.FRAMES, gap=cc.GAP, settle=cc.SETTLE):
     from tools.armorkit import client
     session = Path(session).resolve(); captures = Path(captures).resolve(); record = read(session/'session.json')
     verify([record['module'], *record['haks']]); user = Path(record['userDirectory'])
     known = {row['item']: row for row in record['items']}
     unknown = sorted(set(only or ()) - set(known)); require(not unknown, f'Not in this session: {unknown}')
-    todo = [row for row in record['items'] if (not only or row['item'] in only) and not finished(captures/row['item'])]
+    require(not again or only, 'Name the items to capture again (--items)')
+    todo = [row for row in record['items'] if (not only or row['item'] in only) and (again or not finished(captures/row['item']))]
     skipped = [row['item'] for row in record['items'] if (not only or row['item'] in only) and row not in todo]
     if not todo: return {'captured': [], 'alreadyCaptured': skipped, 'unfinished': []}
     per_item = 60 + 3 * SHOT_CYCLE * 6 if timeout is None else timeout; total = len(SHOTS) * len(SHOT_ACTORS)
@@ -309,6 +311,7 @@ def main(argv=None):
     c = commands.add_parser('capture'); c.add_argument('session', type=Path); c.add_argument('captures', type=Path)
     c.add_argument('--wait', type=float, default=0, help="seconds to wait for another session's client to close first")
     c.add_argument('--items', type=lambda text: [name for name in text.split(',') if name], help='blueprints to capture, of the session')
+    c.add_argument('--again', action='store_true', help='capture the named items again although they are finished (shots lost to a busy machine)')
     c.add_argument('--timeout', type=float, help='seconds allowed per item')
     for command in (b, c): command.add_argument('--nwn-root', type=Path, required=True, help='game install folder (holds bin/win32/nwmain.exe)')
     a = parser.parse_args(argv)
@@ -316,7 +319,7 @@ def main(argv=None):
         record = build(a.session, a.fixtures, a.nwn_root)
         result = {'session': str(a.session), 'module': record['module']['path'], 'items': [row['item'] for row in record['items']], 'haks': record['hakOrder']}
     else:
-        result = capture(a.session, a.captures, a.nwn_root, wait=a.wait, only=a.items, timeout=a.timeout)
+        result = capture(a.session, a.captures, a.nwn_root, wait=a.wait, only=a.items, again=a.again, timeout=a.timeout)
     print(json.dumps(result, indent=2))
     return 1 if a.command == 'capture' and result['unfinished'] else 0
 

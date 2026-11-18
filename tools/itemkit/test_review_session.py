@@ -71,6 +71,8 @@ class ResumeTests(unittest.TestCase):
                  mock.patch('tools.armorkit.client.running', return_value=[]):
                 self.assertEqual(R.capture(session, captures, root, only=['sr_a']), {'captured': [], 'alreadyCaptured': ['sr_a'], 'unfinished': []})
                 with self.assertRaisesRegex(ValueError, 'Not in this session'): R.capture(session, captures, root, only=['sr_c'])
+                with self.assertRaisesRegex(ValueError, 'Name the items'): R.capture(session, captures, root, again=True)
+                with self.assertRaisesRegex(AssertionError, 'no client'): R.capture(session, captures, root, only=['sr_a'], again=True)
                 with self.assertRaisesRegex(AssertionError, 'no client'): R.capture(session, captures, root)
             # the unfinished item alone was put in the table, and the toggle did not outlive the failed start
             self.assertEqual((user/'override'/'itk_items.2da').read_bytes(), R.items_table([{'item': 'sr_b', 'carry': 'hip'}]))

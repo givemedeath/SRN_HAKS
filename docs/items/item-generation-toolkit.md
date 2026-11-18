@@ -516,7 +516,8 @@ built fixtures of one hand in a session:
 `capture` starts the client once and files each item under `CAPTURES/<blueprint>/` in the single-fixture layout
 (`capture.json`, `evidence-draft.json`, contact sheets). It writes the item table itself: items with a finished
 capture are left out, so a second run takes up where a stopped one ended, and `--items` picks a subset without a
-rebuild. It exits 1 while any item is unfinished.
+rebuild; with `--again` it retakes finished items, for bursts a busy machine spoiled (other heavy work on the machine
+during a capture shows up as `burst overran the shot hold`). It exits 1 while any item is unfinished.
 
 Session captures are review material. The client stage's evidence names the item's own fixture module and HAKs
 (`fixture.validate_evidence`), which a session does not run, so the single-fixture capture stays the route to that
