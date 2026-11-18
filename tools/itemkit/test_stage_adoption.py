@@ -104,7 +104,7 @@ class AdoptionTests(Fixture):
         proof = self.root/'run-a'/'bake'/'attempt-1'/'worker'/'bake-recovery.json'; proof.parent.mkdir(parents=True); proof.write_text('{}')
         self.assertEqual(recovery_proofs(self.root/'run-b'), [])
         runner.adopt(self.root/'run-a')
-        self.assertEqual(recovery_proofs(self.root/'run-b'), [proof])
+        self.assertEqual(recovery_proofs(self.root/'run-b'), [proof.resolve()])        # adoption records the run's resolved path
         self.assertIsNone(runner.recoverable_bake(self.first.result('finish')['artifact']['path']))     # not a valid proof
 
 
