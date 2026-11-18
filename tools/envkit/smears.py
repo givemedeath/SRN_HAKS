@@ -57,8 +57,8 @@ def _ndimage():
 
 
 def scatter(points, uvs, faces, *, resolution=RESOLUTION, seed=7):
-    """Points strewn evenly over the surface, six to a depth pixel: (face, point, texel, area) of each, the area the
-    share of its face's that it stands for."""
+    """Points strewn evenly over the surface, six to a depth pixel: (face, point, texel, area, normal) of each, the
+    area the share of its face's that it stands for and the normal the way its face looks."""
     a, b, c = points[faces[:, 0]], points[faces[:, 1]], points[faces[:, 2]]
     cross = np.cross(b - a, c - a); area = np.linalg.norm(cross, axis=1) / 2
     kept = np.flatnonzero(area > 1e-9); require(len(kept), 'The model has no surface')

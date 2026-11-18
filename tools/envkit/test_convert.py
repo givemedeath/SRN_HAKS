@@ -384,7 +384,7 @@ class ConvertTests(unittest.TestCase):
         # A frame's steel is toned from the picture as it ships: a model toned down has its fence toned down with it.
         post = [{'tube': [[-0.5, 0.0, 0.0], [-0.5, 0.0, 1.6]], 'radius': 0.03, 'picture': [0.0, 0.0, 1.0]}]
         steel = lambda made: float(np.asarray(made['wire']['image'])[200:, 180:300, :3].mean())
-        as_made, toned = (convert.shape(model, maps, height=2.0, fence=[sheet], frame=post, **more) for more in ({}, {'tone': 0.5}))
+        as_made, toned = (convert.shape(model, maps, height=2.0, fence=[sheet], frame=post, sight=False, **more) for more in ({}, {'tone': 0.5}))
         self.assertAlmostEqual(steel(toned) / steel(as_made), 0.5, delta=0.05)
         with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):  # measured before a turn: it would hang beside the wall
             convert.shape(model, maps, height=2.0, fence=[{**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
@@ -736,6 +736,9 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(sizes, {'ek_x.dds': 4096, 'ek_x_n.dds': 4096, 'ek_x_s.dds': 2048, 'ek_x_r.dds': 2048})
         notes = convert.oversize_notes({'ek_x.dds': 11184952, 'ek_x_n.dds': 22369776})  # and such a relief map is more than the repository takes unstated
         self.assertEqual(len(notes), 1); self.assertIn('ek_x_n.dds: 21.3 MiB', notes[0]); self.assertIn('srn-size-exception', notes[0])
+        # Nor are the fences built on to a group part of its building's count: they are told where the tiles draw more than the budget with them.
+        self.assertEqual((convert.fence_notes('ek_x', 181833, 16696, 200000), convert.fence_notes('ek_x', 201000, 0, 200000)), ([], []))
+        self.assertIn('211696 triangles, 16696 of them fence', convert.fence_notes('ek_x', 195000, 16696, 200000)[0])
 
     def test_a_fences_frame_is_round_posts_and_capped_blocks_on_a_picture_of_steel_and_concrete(self):
         """The first perimeter's posts were square bars in one flat colour (user, 2026-11-17: "the posts for the fences

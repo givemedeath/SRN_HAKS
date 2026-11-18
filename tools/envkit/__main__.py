@@ -188,6 +188,9 @@ def command_tiles(args):
                             parts=placed)  # a model placed twice is joined there into one model of the group
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
         report['parts'] = textures; report['buildingTriangles'] = built
+        # The fences built on to the group are drawn by the same tiles and are no part of that count.
+        report['fenceTriangles'] = sum(len(one['wire']['faces']) for one in [made, *[one for _, one, _ in placed]] if one.get('wire'))
+        report['notes'] += convert.fence_notes(args.model, built, report['fenceTriangles'], meshy.BUILDING_TRIANGLES)
         # A stray face across a window hides what was modelled behind it and is passed over in a view of the whole front.
         report['veils'] = {name: found for name, one in {args.model: made, **{name: shapes[name][0] for name in textures}}.items() if (found := convert.veils(one['vertices'], one['faces']))}
         report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '

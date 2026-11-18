@@ -2191,6 +2191,15 @@ def building_triangles(models, name, triangles):
     return triangles[name] + sum(triangles[part['model']] for part in parts if not models[part['model']].get('placeable'))
 
 
+def fence_notes(name, built, fenced, budget):
+    """A note where a group's tiles draw more than the building budget once the fences built on to it are counted:
+    `built` is the budget's own count (`building_triangles`), `fenced` the triangles of the sheets, posts, rails and
+    coils its tiles draw beside it. The power station's perimeter is 16,696, most of it barbed wire: a coil is some
+    240 triangles a metre at a pitch of half a metre. A fence cannot be remeshed lower, so this is told, not refused."""
+    return [f'{name}: its tiles draw {built + fenced} triangles, {fenced} of them fence (sheets, posts, rails and coils), more than the building budget of {budget}: '
+            'a coil at a longer pitch, or a perimeter with "coil": false, draws fewer'] if fenced and built + fenced > budget else []
+
+
 def place(made, at, turn=0):
     """A finished model (`shape`) turned `turn` degrees about the vertical, counter-clockwise seen from above, and moved
     to `at`: its vertices, normals, fence sheets and halo cards; its pictures are its own as they were."""
