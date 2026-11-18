@@ -39,6 +39,17 @@ def review_command(chosen):
     return 0
 
 
+def material_command(chosen):
+    from tools import shared_tools
+    from . import material
+    spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
+    masters = chosen.masters or shared_tools.tools_root(chosen.repo)[0] / 'tilekit' / 'masters'
+    crunch = shared_tools.resolve_tool('crunch', chosen.repo)['path']
+    told = material.build(spec, chosen.repo, masters, chosen.out, crunch, only=chosen.only.split(',') if chosen.only else None)
+    print(json.dumps(told, indent=2))
+    return 0
+
+
 def main(arguments=None):
     parser = argparse.ArgumentParser(prog='tilekit', description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -56,10 +67,17 @@ def main(arguments=None):
     three.add_argument('--views', help='only the views whose label begins with one of these, comma separated')
     three.add_argument('--every', type=int, default=1, help='only every nth view, for a short look')
     three.add_argument('--no-run', action='store_true', help='build the module and stop'); three.add_argument('--repo', type=Path, default=REPO)
+    four = commands.add_parser('material', help='make the restyled textures of a material spec: DDS maps and material files into a folder')
+    four.add_argument('--spec', required=True, type=Path, help='the tileset\'s material spec (docs/tilesets/<tileset>/materials.json)')
+    four.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay, until a texture is accepted')
+    four.add_argument('--masters', type=Path, help='the folder of tiling scans (default: tilekit/masters in the shared tool root)')
+    four.add_argument('--only', help='only these textures, comma separated'); four.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
         if chosen.command == 'review':
             return review_command(chosen)
+        if chosen.command == 'material':
+            return material_command(chosen)
         told, walkmesh = inventory.inventory(chosen.repo, chosen.tileset.lower(), walkmesh_only=chosen.command == 'walkmesh')
         if chosen.command == 'inventory':
             written = inventory.write(chosen.out, told, walkmesh)
