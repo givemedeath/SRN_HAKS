@@ -11,22 +11,21 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     __package__ = 'tools.tilekit'
 
-from . import inventory, require
+from . import PARTS, inventory, require
 
 REPO = Path(__file__).resolve().parents[2]
 
 
-def review_parts():
-    return ('block', 'grid', 'area')  # review.PARTS, said here so that asking for help imports nothing of the client
-
-
 def review_command(chosen):
-    from . import review
+    from . import review  # here, so that asking for help imports nothing of the client
     spec = json.loads(chosen.spec.read_text(encoding='utf-8')); require(isinstance(spec, dict) and spec.get('tileset'), 'A review spec names its tileset')
     tileset = spec['tileset']
     set_text = (chosen.repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252')
-    areas, shots = review.plan(set_text, spec, parts=tuple(part for part in chosen.parts.split(',') if part),
-                               built_area=review.read_area(chosen.area) if chosen.area else None)
+    try:
+        areas, shots = review.plan(set_text, spec, parts=tuple(part for part in chosen.parts.split(',') if part),
+                                   built_area=review.read_area(chosen.area) if chosen.area else None)
+    except KeyError as error:
+        raise ValueError(f'The review spec lacks {error}') from error
     if chosen.views:
         shots = [shot for shot in shots if shot['label'].startswith(tuple(chosen.views.split(',')))]
         require(shots, 'No view begins with ' + ' or '.join(chosen.views.split(',')))
@@ -53,7 +52,7 @@ def main(arguments=None):
     three.add_argument('--out', required=True, type=Path, help='a fresh folder for the module and its captures'); three.add_argument('--name', required=True, help='the module\'s name, a resref of at most 11 characters')
     three.add_argument('--area', type=Path, help='an area someone built with the tileset (.are, or its JSON)')
     three.add_argument('--overlay', type=Path, help='a folder of files shown instead of the packs\' own')
-    three.add_argument('--parts', default=','.join(review_parts()), help='block, grid, area (default: all)')
+    three.add_argument('--parts', default=','.join(PARTS), help='block, grid, area (default: all)')
     three.add_argument('--views', help='only the views whose label begins with one of these, comma separated')
     three.add_argument('--every', type=int, default=1, help='only every nth view, for a short look')
     three.add_argument('--no-run', action='store_true', help='build the module and stop'); three.add_argument('--repo', type=Path, default=REPO)
@@ -67,10 +66,13 @@ def main(arguments=None):
             print(json.dumps({'written': written, 'set': told['set'], 'edge': told['edge'], 'forms': told['forms'], 'textures': len(told['textures']),
                               'surface': told['surface'], 'coverage': told['coverage']}, indent=2))
             return 0
-        lines = inventory.moved(json.loads(chosen.baseline.read_text(encoding='utf-8')), walkmesh)
+        baseline = json.loads(chosen.baseline.read_text(encoding='utf-8'))
+        require(isinstance(baseline, dict) and baseline.get('tileset') == walkmesh['tileset'] and isinstance(baseline.get('models'), dict),
+                f"{chosen.baseline.name} is not a walkmesh baseline of {walkmesh['tileset']}")
+        lines = inventory.moved(baseline, walkmesh)
         print('\n'.join(lines) if lines else f"{len(walkmesh['models'])} walkmeshes as the baseline has them")
         return 1 if lines else 0
-    except ValueError as error:
+    except (ValueError, OSError) as error:  # a refusal, or a file that is not there: said, not thrown
         print(f'tilekit: {error}', file=sys.stderr)
         return 2
 

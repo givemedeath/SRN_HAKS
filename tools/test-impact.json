@@ -5643,6 +5643,7 @@
     "tools/tilekit/inventory.py": [],
     "tools/tilekit/review.py": [
       "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/envkit/__init__.py",
       "tools/envkit/checks.py",
@@ -5655,6 +5656,7 @@
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/test_review.py": [
+      "tools/tilekit/__main__.py",
       "tools/tilekit/review.py"
     ]
   },

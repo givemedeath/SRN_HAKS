@@ -77,7 +77,9 @@ class ReviewTests(unittest.TestCase):
         self.assertIn('if(n==0) { x=5.000; y=5.000; facing=90.000; distance=30.000; pitch=50.000; height=1.000; wait=8.0; label="one"; area="tkbd"; }', script)
         self.assertIn('wait=0.2; label="two"; area="tkbd"', script); self.assertIn('wait=8.0; label="three"; area="tkbn"', script)
         self.assertIn('JumpToLocation(Location(GetObjectByTag(area),Vector(x,y,0.0),facing))', script)
-        self.assertIn('DelayCommand(wait+1.0,WriteTimestampedLogEntry("ENVKIT shot="+IntToString(n)+" target="+label+" valid=1"));', script)
+        self.assertIn('DelayCommand(wait+1.0,Line(pc,n,label,area));', script)  # the line is written then, and says whether the player stands in the view's area
+        self.assertIn('WriteTimestampedLogEntry("ENVKIT shot="+IntToString(n)+" target="+label+" valid="+IntToString(GetTag(GetArea(pc))==area));', script)
+        self.assertEqual(review.elsewhere(['ENVKIT enter shots=3', 'ENVKIT shot=0 target=one valid=1', 'ENVKIT shot=1 target=two valid=0', 'ENVKIT done']), ['two'])
         self.assertIn('DelayCommand(wait+6.0,Shot(pc,n+1));', script); self.assertIn('if(n>=3) { WriteTimestampedLogEntry("ENVKIT done"); return; }', script)
         with self.assertRaisesRegex(ValueError, 'label is letters'):
             review.enter_script([review._shot('tkbd', 'two words', 5, 5, 90, 30, 50)])
@@ -116,6 +118,29 @@ class ReviewTests(unittest.TestCase):
             review.LIGHTS['dusk'] = review.LIGHTS['overcast']; self.addCleanup(review.LIGHTS.pop, 'dusk')
             review.plan(SET, {**spec, 'grid': {'across': 4, 'lights': ['day', 'dusk']}}, parts=('grid',))
         self.assertEqual([area['tag'] for area in review.plan(SET, {key: spec[key] for key in ('tileset', 'grid')})[0]], ['tkgd'])  # a spec of a grid alone
+
+    def test_the_command_refuses_in_words_and_a_refused_overlay_leaves_the_folder_fresh(self):
+        import contextlib, io, json
+        from . import __main__ as command
+        spec = {'tileset': 'tst01', 'grid': {'across': 4, 'lights': ['day']}}
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); (root / 'srn_t_tst01').mkdir(); (root / 'srn_t_tst01' / 'tst01.set').write_text(SET, encoding='cp1252')
+            (root / 'game' / 'data').mkdir(parents=True); (root / 'built').mkdir(); (root / 'over').mkdir(); (root / 'over' / 'Brick.tga').write_bytes(b'')
+            for name in [pack + '.hak' for pack in review.HAKS] + [review.TLK + '.tlk']:
+                (root / 'built' / name).write_bytes(b'')
+
+            def run(document, *more):
+                (root / 'spec.json').write_text(json.dumps(document), encoding='utf-8'); said = io.StringIO()
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(said):
+                    code = command.main(['review', '--spec', str(root / 'spec.json'), '--game', str(root / 'game'), '--built', str(root / 'built'),
+                                         '--out', str(root / 'out'), '--name', 'tkt', '--repo', str(root), '--no-run', *more])
+                return code, said.getvalue()
+            self.assertEqual(run(spec, '--views', 'blok-day'), (2, 'tilekit: No view begins with blok-day\n'))
+            self.assertEqual(run({'fill': 0}), (2, 'tilekit: A review spec names its tileset\n'))
+            self.assertEqual(run({'tileset': 'tst01', 'grid': {}}), (2, "tilekit: The review spec lacks 'lights'\n"))
+            self.assertEqual(run({'tileset': 'nope', 'grid': {}})[0], 2)  # no such set file: said, not thrown
+            self.assertEqual(run(spec, '--overlay', str(root / 'over')), (2, 'tilekit: Overlay files are lowercase resref files: Brick.tga\n'))
+            self.assertFalse((root / 'out').exists())
 
     def test_what_the_views_wait_is_counted_for_every_change_of_area(self):
         shots = [review._shot(area, 'one', 5, 5, 90, 30, 50) for area in ('tkbd', 'tkbd', 'tkbn', 'tkbd')]

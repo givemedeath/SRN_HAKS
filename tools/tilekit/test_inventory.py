@@ -198,6 +198,9 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(inventory.moved(json.loads((out / 'walkmesh.json').read_text()), now),
                          ['tst01_a01_01: wok changed', 'tst01_a01_01: aabb changed', 'tst01_z01_01: gone'])
         self.assertEqual(main(baseline), 1)
+        (out / 'other.json').write_text(json.dumps({'schemaVersion': 1, 'tileset': 'oth01', 'models': {}}))
+        self.assertEqual(main([*baseline[:4], str(out / 'other.json'), *baseline[5:]]), 2)  # another tileset's baseline is refused, not held against this one
+        self.assertEqual(main([*baseline[:4], str(out / 'none.json'), *baseline[5:]]), 2)  # as is one that is not there
         self.assertEqual(main(['walkmesh', '--tileset', 'nope', '--baseline', str(out / 'walkmesh.json'), '--repo', str(self.repo)]), 2)
 
 

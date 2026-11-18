@@ -185,7 +185,7 @@ def inventory(repo, tileset, *, walkmesh_only=False):
             marks = {'wok': hashlib.sha256(wok.read_bytes()).hexdigest() if wok.is_file() else None, 'aabb': None}
             if entry['form'] == 'uncompiled':
                 text = data.decode('cp1252'); marks['aabb'] = walk_hash(text)
-                for texture, area in surfaces(text).items():
+                for texture, area in ({} if walkmesh_only else surfaces(text)).items():
                     surface[texture] = surface.get(texture, 0.0) + area; users.setdefault(texture, []).append(name)
                     terrains.setdefault(texture, set()).update(terrains_of.get(name, ()))
                 walkmesh[name] = marks

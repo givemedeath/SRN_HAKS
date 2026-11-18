@@ -17,11 +17,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from tools.armorkit import client_fixture
+from tools.armorkit import client, client_fixture
 from tools.armorkit.client_fixture import field
 from tools.envkit import checks, prop_fixture
 
-from . import require
+from . import PARTS, require
 
 TILE = 10.0
 HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_2da')  # as a module lists them, first wins
@@ -180,17 +180,20 @@ def waits(shots, arrive=ARRIVE):
 def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
     """The module's entry script: the player, unseen, is stood at each view in turn, in whichever area it is of, and the
     camera set. Each view writes envkit's shot line a second after its camera is set, which is what a capture waits
-    for; a view in another area than the last is given `arrive` seconds first."""
+    for; a view in another area than the last is given `arrive` seconds first. The line says valid=0 where the player
+    is not standing in the view's area by then (`capture` names those views)."""
     require(all(prop_fixture.LABEL.fullmatch(shot['label']) for shot in shots), 'A view\'s label is letters, digits, - and _')
     prefix = prop_fixture.LOG_PREFIX
-    lines = ['void Shot(object pc,int n) {', f'  if(n>={len(shots)}) {{ WriteTimestampedLogEntry("{prefix} done"); return; }}',
+    lines = ['void Line(object pc,int n,string label,string area) {',
+             f'  WriteTimestampedLogEntry("{prefix} shot="+IntToString(n)+" target="+label+" valid="+IntToString(GetTag(GetArea(pc))==area));', '}',
+             'void Shot(object pc,int n) {', f'  if(n>={len(shots)}) {{ WriteTimestampedLogEntry("{prefix} done"); return; }}',
              '  float x; float y; float facing; float distance; float pitch; float height; float wait; string label; string area;']
     for index, (shot, wait) in enumerate(zip(shots, waits(shots, arrive))):
         lines.append(f'  if(n=={index}) {{ x={shot["stand"][0]:.3f}; y={shot["stand"][1]:.3f}; facing={float(shot["facing"]):.3f}; distance={float(shot["distance"]):.3f}; '
                      f'pitch={float(shot["pitch"]):.3f}; height={float(shot["height"]):.3f}; wait={wait:.1f}; label="{shot["label"]}"; area="{shot["area"]}"; }}')
     lines += ['  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetObjectByTag(area),Vector(x,y,0.0),facing)));',
               '  DelayCommand(wait,SetCameraHeight(pc,height)); DelayCommand(wait,AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP)));',
-              f'  DelayCommand(wait+{prop_fixture.LINE_DELAY:.1f},WriteTimestampedLogEntry("{prefix} shot="+IntToString(n)+" target="+label+" valid=1"));',
+              f'  DelayCommand(wait+{prop_fixture.LINE_DELAY:.1f},Line(pc,n,label,area));',
               f'  DelayCommand(wait+{hold:.1f},Shot(pc,n+1));', '}',
               'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', '  SetCameraLimits(pc,1.0,89.0,0.5,60.0);',
               '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
@@ -248,6 +251,9 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     require(areas and shots and {shot['area'] for shot in shots} <= {area['tag'] for area in areas}, 'Every view is of one of the areas')
     missing = [pack for pack in haks if not (built / f'{pack}.hak').is_file()] + ([] if (built / f'{tlk}.tlk').is_file() else [tlk + '.tlk'])
     require(not missing, f'The built packs are needed in {built}: ' + ', '.join(missing))
+    laid_over = sorted(Path(overlay).iterdir()) if overlay else []  # refused before anything is made: the folder stays fresh
+    for path in laid_over:
+        require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Overlay files are lowercase resref files: ' + path.name)
     user, staged, documents, binary = (output / part for part in ('userdir', 'hak-resources', 'json', 'module'))
     for folder in (user / 'hak', user / 'modules', user / 'tlk', staged, documents, binary):
         folder.mkdir(parents=True)
@@ -257,8 +263,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     shutil.copyfile(built / f'{tlk}.tlk', user / 'tlk' / f'{tlk}.tlk')
     (staged / f'{name}.txt').write_text('Review module of a tileset restyle; files beside this one are shown instead of the packs\' own.\n', encoding='ascii')
     held = []
-    for path in sorted(Path(overlay).iterdir()) if overlay else ():
-        require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Overlay files are lowercase resref files: ' + path.name)
+    for path in laid_over:
         shutil.copyfile(path, staged / path.name); held.append(path.name)
     run('nwn_erf', ['-c', '-f', user / 'hak' / f'{name}.hak', '-e', 'HAK', staged])
     script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold), encoding='ascii', newline='\n')
@@ -284,21 +289,24 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
 
 def capture(game, record, folder):
     """Run the client on a built review and capture every view into `folder/captures`. Waits while another game
-    client runs. Returns {captures, late}: `late` names the views captured after they had passed, kept as -late.png."""
+    client runs. Returns {captures, late, elsewhere}: `late` names the views captured after they had passed, kept as
+    -late.png; `elsewhere` those whose area the player had not reached when the view was taken. Neither shows its view."""
     checks.wait_for_clients(); captures = Path(folder) / 'captures'
     result = prop_fixture.run(game, record, captures, late_ok=True)
     (captures / 'run.json').write_text(json.dumps(result, indent=1), encoding='utf-8')
-    return {'captures': result['captures'], 'late': result['late']}
+    return {'captures': result['captures'], 'late': result['late'], 'elsewhere': elsewhere(result['lines'])}
 
 
-PARTS = ('block', 'grid', 'area')
+def elsewhere(lines):
+    """The views a run's log lines say were taken with the player outside the view's area."""
+    return [values['target'] for values in map(client.parse_line, lines) if 'shot' in values and values.get('valid') == '0']
 
 
 def plan(set_text, spec, *, parts=PARTS, built_area=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
     patches, runs, crossings, lights}, grid: {across, lights}, area: {step, lights}}. built_area: (width, height, laid)
-    of an area someone built (`read_area`), without which the `area` part is left out, as is a part the spec lacks. The grid holds every tile that
-    is not an envkit building's; the block is laid only with tiles outside groups."""
+    of an area someone built (`read_area`), without which the `area` part is left out, as is a part the spec lacks.
+    The grid holds every tile that is not an envkit building's; the block is laid only with tiles outside groups."""
     from . import inventory
     laid = inventory.read_set(set_text); tiles = {tile['number']: tile for tile in laid['tiles']}; tileset, fill = spec['tileset'], spec.get('fill', 0)
     require(all(part in PARTS for part in parts), 'A review\'s parts are ' + ', '.join(PARTS))
