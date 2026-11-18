@@ -175,10 +175,11 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
     raise ValueError(f'No pack holds a picture of {name}')
 
 
-def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enlarged=None):
+def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enlarged=None, redrawn=None):
     """Make and write every texture of a material spec ({grades: {name: grade}, textures: {name: how}}; how['master']
     names a scan's folder in `masters`, how['grade'] one of the spec's grades, `pictures.graded`) into `folder`. A
-    texture that is `doubled` starts from its picture in `enlarged`, the folder `enlarge.enlarge` filled.
+    texture that is `doubled` starts from its picture in `enlarged`, the folder `enlarge.enlarge` filled, and one that
+    is `redrawn` from its picture in `redrawn`, the folder `redraw.redraw` filled.
     Returns {name: {route, size, grade, files}}."""
     from . import enlarge
     textures = spec.get('textures'); require(isinstance(textures, dict) and textures, 'A material spec lists its textures')
@@ -190,7 +191,9 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             if how['master'] not in scans:
                 scans[how['master']] = master(Path(masters) / how['master'])
             scan = scans[how['master']]
-        made = make(np.asarray(current(repo, name)), how, scan, enlarged=enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
+        picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
+                   enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
+        made = make(np.asarray(current(repo, name)), how, scan, enlarged=picture)
         if how.get('grade'):  # the district's look, laid on whatever route made the picture
             require(how['grade'] in grades, f'{name}: the spec has no grade {how["grade"]}')
             made['colour'] = pictures.graded(made['colour'], grades[how['grade']])

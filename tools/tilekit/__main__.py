@@ -45,9 +45,20 @@ def material_command(chosen):
     spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
     masters = chosen.masters or shared_tools.tools_root(chosen.repo)[0] / 'tilekit' / 'masters'
     crunch = shared_tools.resolve_tool('crunch', chosen.repo)['path']
-    told = material.build(spec, chosen.repo, masters, chosen.out, crunch, only=chosen.only.split(',') if chosen.only else None, enlarged=chosen.enlarged)
+    told = material.build(spec, chosen.repo, masters, chosen.out, crunch, only=chosen.only.split(',') if chosen.only else None, enlarged=chosen.enlarged,
+                          redrawn=chosen.redrawn)
     print(json.dumps(told, indent=2))
     return 0
+
+
+def redraw_command(chosen):
+    from . import redraw
+    spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
+    told = redraw.redraw(spec, chosen.repo, chosen.out, redraw.codex(chosen.codex), only=chosen.only.split(',') if chosen.only else None,
+                         enlarged=chosen.enlarged, workers=chosen.workers)
+    failed = {name: state for name, state in told.items() if state.startswith('failed')}
+    print(json.dumps({'redrawn': sum(state == 'redrawn' for state in told.values()), 'kept': sum(state == 'kept' for state in told.values()), 'failed': failed}, indent=1))
+    return 1 if failed else 0
 
 
 def enlarge_command(chosen):
@@ -86,10 +97,20 @@ def main(arguments=None):
     five.add_argument('--spec', required=True, type=Path); five.add_argument('--out', required=True, type=Path, help='the folder the enlarged pictures are kept in')
     five.add_argument('--bindings', required=True, type=Path, help='local JSON with absolute comfyInput and comfyOutput')
     five.add_argument('--url', default='http://127.0.0.1:8188'); five.add_argument('--only', help='only these textures, comma separated'); five.add_argument('--repo', type=Path, default=REPO)
+    four.add_argument('--redrawn', type=Path, help='the folder `redraw` filled, for the textures the spec has `redrawn`')
+    six = commands.add_parser('redraw', help='draw the textures of a redraw list again with an image generator, on the layout they have')
+    six.add_argument('--spec', required=True, type=Path, help='the tileset\'s redraw list (docs/tilesets/<tileset>/redraw.json)')
+    six.add_argument('--out', required=True, type=Path, help='the folder the redrawn pictures are kept in')
+    six.add_argument('--codex', required=True, type=Path, help='the Codex CLI (codex.exe), whose image generation draws them')
+    six.add_argument('--enlarged', type=Path, help='the folder `enlarge` filled: a cleaner reference where it has one')
+    six.add_argument('--workers', type=int, default=3, help='how many are drawn at a time'); six.add_argument('--only', help='only these textures, comma separated')
+    six.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
         if chosen.command == 'enlarge':
             return enlarge_command(chosen)
+        if chosen.command == 'redraw':
+            return redraw_command(chosen)
         if chosen.command == 'review':
             return review_command(chosen)
         if chosen.command == 'material':

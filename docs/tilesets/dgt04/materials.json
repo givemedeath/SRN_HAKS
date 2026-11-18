@@ -69,6 +69,32 @@
     "white_tile": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.5, "grade": "walkway", "doubled": 2},
     "white_tile_f": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.5, "grade": "walkway", "doubled": 2},
     "manhole_tex2": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "street", "doubled": 2},
-    "traffic_light": {"route": "upscale", "size": [512, 1024], "relief": 0.5, "roughness": 0.5, "doubled": 1}
+    "traffic_light": {"route": "upscale", "size": [512, 1024], "relief": 0.5, "roughness": 0.5, "doubled": 1},
+
+    "hrise_06_wall3": {"route": "master", "master": "Concrete034", "repeat": 1, "tone": 1.0, "grade": "corporate", "size": [1024, 1024]},
+    "pavement_dirty05": {"route": "layout", "master": "Road012A", "repeat": 1, "keep": 16, "grade": "barrens", "size": [512, 512], "stem": "pave_dirty05"},
+    "pavement_dirty04": {"route": "layout", "master": "Road012A", "repeat": 1, "keep": 16, "grade": "barrens", "size": [512, 512], "stem": "pave_dirty04"},
+    "pavement_dark": {"route": "master", "master": "Road012A", "repeat": 1, "tone": 1.0, "grade": "barrens", "size": [512, 512]},
+    "asphalt1": {"route": "master", "master": "Asphalt033", "repeat": 1, "tone": 1.0, "grade": "barrens", "size": [512, 512]},
+    "concrete_04": {"route": "master", "master": "Concrete047A", "repeat": 1, "tone": 1.0, "grade": "barrens", "size": [512, 512]},
+    "trim_concrete05b": {"route": "layout", "master": "Concrete034", "repeat": 1, "keep": 8, "grade": "barrens", "size": [512, 512], "stem": "trim_conc05b"},
+    "greenwood_02": {"route": "upscale", "size": [512, 512], "relief": 1.0, "grade": "barrens"},
+    "doortrim1": {"route": "upscale", "size": [512, 512], "relief": 1.0, "grade": "barrens"},
+    "dumpster": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "doubled": 2},
+    "ac_back": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.5, "grade": "industrial", "doubled": 2},
+    "gutter_grey02": {"route": "upscale", "size": [64, 512], "relief": 0.5, "roughness": 0.5, "grade": "industrial", "doubled": 2},
+    "fr_escp_fence3": {"route": "upscale", "size": [256, 1024], "relief": 0.5, "roughness": 0.5, "grade": "industrial", "doubled": 2},
+    "fire_escape3": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.5, "grade": "industrial"},
+    "barbed_wire5": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.5, "grade": "industrial"},
+    "fence_iron_02": {"route": "upscale", "size": [1024, 512], "relief": 0.5, "roughness": 0.5, "grade": "industrial", "doubled": 1},
+    "win_unbrkn_002a": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.6, "grade": "barrens", "doubled": 2, "stem": "win_unbrk002a"},
+    "win001_unbrknn": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.6, "grade": "lit_warm", "doubled": 2},
+    "win002_unbrknn": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.6, "grade": "lit_warm", "doubled": 2},
+    "win003_unbrknn": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.6, "grade": "lit_warm", "doubled": 2},
+    "window_tex07": {"route": "upscale", "size": [1024, 512], "relief": 0.5, "roughness": 0.5, "grade": "corporate", "doubled": 1},
+    "window_tex24": {"route": "upscale", "size": [1024, 512], "relief": 0.5, "roughness": 0.5, "grade": "corporate", "doubled": 1},
+    "window_store003": {"route": "upscale", "size": [1024, 512], "relief": 0.5, "roughness": 0.6, "doubled": 1, "stem": "win_store003"},
+    "slumbrd2": {"route": "upscale", "size": [512, 512], "relief": 0.5, "grade": "barrens", "doubled": 2},
+    "slumbrd4": {"route": "upscale", "size": [512, 512], "relief": 0.5, "grade": "barrens", "doubled": 2}
   }
 }

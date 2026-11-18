@@ -5642,6 +5642,7 @@
       "tools/tilekit/enlarge.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/material.py",
+      "tools/tilekit/redraw.py",
       "tools/tilekit/review.py"
     ],
     "tools/tilekit/enlarge.py": [
@@ -5659,6 +5660,9 @@
       "tools/tilekit/pictures.py"
     ],
     "tools/tilekit/pictures.py": [],
+    "tools/tilekit/redraw.py": [
+      "tools/tilekit/material.py"
+    ],
     "tools/tilekit/review.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/client.py",
@@ -5681,6 +5685,11 @@
     "tools/tilekit/test_material.py": [
       "tools/tilekit/material.py",
       "tools/tilekit/pictures.py"
+    ],
+    "tools/tilekit/test_redraw.py": [
+      "tools/tilekit/material.py",
+      "tools/tilekit/redraw.py",
+      "tools/tilekit/test_material.py"
     ],
     "tools/tilekit/test_review.py": [
       "tools/tilekit/__main__.py",
@@ -5892,7 +5901,8 @@
     "tools/tilekit/material.py": [
       "srn_door",
       "srn_placeable",
-      "srn_t_common"
+      "srn_t_common",
+      "srn_t_dgt04"
     ],
     "tools/tilekit/review.py": [
       "srn_2da",
@@ -5911,6 +5921,9 @@
       "srn_t_common"
     ],
     "tools/tilekit/test_material.py": [
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_redraw.py": [
       "srn_t_common"
     ]
   },
@@ -6233,6 +6246,7 @@
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_inventory.py",
     "tools/tilekit/test_material.py",
+    "tools/tilekit/test_redraw.py",
     "tools/tilekit/test_review.py"
   ]
 }

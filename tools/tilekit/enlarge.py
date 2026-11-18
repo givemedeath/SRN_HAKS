@@ -67,10 +67,11 @@ def enlarge(client, local, bindings_path, repo, spec, folder, *, only=None, dead
     return told
 
 
-def picture_of(folder, name):
-    """The enlarged picture of a texture (uint8 RGB array) that `enlarge` left in `folder`."""
+def picture_of(folder, name, word='doubled', command='enlarge'):
+    """The picture of a texture (uint8 RGB array) that `enlarge`, or `redraw`, left in `folder`."""
     from PIL import Image
     path = Path(folder) / f'{name}.png' if folder is not None else None
-    require(path is not None and path.is_file(), f'{name} is to be doubled and has no enlarged picture: run `tilekit enlarge` and give its folder as --enlarged')
+    made = 'enlarged' if command == 'enlarge' else 'redrawn'
+    require(path is not None and path.is_file(), f'{name} is to be {word} and has no {made} picture: run `tilekit {command}` and give its folder as --{made}')
     with Image.open(path) as picture:
         return np.asarray(picture.convert('RGB'))
