@@ -389,6 +389,66 @@ def coil(start, end, radius, pitch):
     return points, normals, faces
 
 
+PERIMETER_POSTS, PERIMETER_POST, PERIMETER_RAIL, PERIMETER_GATEPOST = 2.6, 0.08, 0.06, 0.35  # metres: posts at most this far apart, and the sections of a post, a rail and a gateway's concrete post
+PERIMETER_SIDES = ('north', 'east', 'south', 'west')
+
+
+def perimeter(spec):
+    """A perimeter fence as the `built` and `fence` parts that make it: (built, fence).
+
+    spec: {box: [[x0, y0], [x1, y1]], z: [foot, top], steel: [x, y, z], gateways: [{side, from, to}], concrete: [x, y,
+    z], coil: {radius, pitch} or false, posts, pitch, wire, colour}, in metres on the finished model. The fence runs
+    round `box` from `foot` (the ground it stands on) to `top`: steel posts at its corners and at most `posts` apart, a
+    top and a bottom rail, chain-link sheets between them and a coil of barbed wire along the top of every run (user,
+    2026-11-17), all coloured from the model's picture at `steel`. A gateway is an opening in one side, north, east,
+    south or west, from one place along it to another (x for north and south, y for east and west), between two
+    concrete posts coloured at `concrete`. The Shiawase Barrens power station's fence was 46 built parts and 6 fences
+    written by a script; this states it in a few lines. A fence is built, never generated (`reference.FENCE`)."""
+    number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
+    spot = lambda value: isinstance(value, list) and len(value) == 3 and all(number(one) for one in value)
+    require(isinstance(spec, dict) and {'box', 'z', 'steel'} <= set(spec) <= {'box', 'z', 'steel', 'gateways', 'concrete', 'coil', 'posts', 'pitch', 'wire', 'colour'},
+            'A perimeter needs box, z and steel, and may state gateways, concrete, coil, posts, pitch, wire and colour')
+    require(np.asarray(spec['box'], float).shape == (2, 2) and np.asarray(spec['z'], float).shape == (2,) and spot(spec['steel']), 'A perimeter runs round a box [[x0, y0], [x1, y1]] from z [foot, top], coloured at a point of the model')
+    (x0, y0), (x1, y1) = spec['box']; foot, top = (float(one) for one in spec['z']); gateways = spec.get('gateways', [])
+    require(x1 - x0 > 1 and y1 - y0 > 1 and 1.0 <= top - foot <= 6.0, 'A perimeter is more than a metre across and one to six metres high')
+    require(isinstance(gateways, list) and all(isinstance(one, dict) and set(one) == {'side', 'from', 'to'} and one['side'] in PERIMETER_SIDES and number(one['from'])
+                                              and number(one['to']) and one['to'] - one['from'] >= 1.0 for one in gateways), 'A gateway is {side, from, to}: an opening of a metre or more in the north, east, south or west side')
+    require(not gateways or spot(spec.get('concrete')), "A perimeter with gateways colours their posts at a point of the model: concrete")
+    coiled = spec.get('coil', {'radius': 0.25, 'pitch': 0.5}); spacing = float(spec.get('posts', PERIMETER_POSTS))
+    require(coiled is False or isinstance(coiled, dict) and set(coiled) == {'radius', 'pitch'}, 'A perimeter coil is {radius, pitch}, or false for a fence without one')
+    require(0.5 <= spacing <= 6.0, 'A perimeter has a post every 0.5 to 6 metres')
+    wire = {'pitch': spec.get('pitch', 0.09), 'wire': spec.get('wire', 0.016), **({'colour': spec['colour']} if 'colour' in spec else {})}
+    fixed = lambda point: [round(float(value), 2) for value in point]
+    ends = {'north': ((x0, y1), (x1, y1)), 'east': ((x1, y1), (x1, y0)), 'south': ((x1, y0), (x0, y0)), 'west': ((x0, y0), (x0, y1))}
+    built, fence, stood, gateposts = [], [], set(), []
+    for side in PERIMETER_SIDES:
+        start, end = (np.array(one, float) for one in ends[side]); axis = 0 if side in ('north', 'south') else 1; low, high = sorted((start[axis], end[axis]))
+        openings = sorted((float(one['from']), float(one['to'])) for one in gateways if one['side'] == side)
+        require(all(low < a and b < high for a, b in openings) and all(first[1] < second[0] for first, second in zip(openings, openings[1:])),
+                f'The gateways of the {side} side lie within it, from {low} to {high}, and apart from one another')
+        cuts = [low, *(value for opening in openings for value in opening), high]; runs = list(zip(cuts[::2], cuts[1::2]))
+        if start[axis] > end[axis]:  # the side is walked the other way: its runs too
+            runs = [(b, a) for a, b in reversed(runs)]
+        for index, (a, b) in enumerate(runs):
+            one, other = start.copy(), start.copy(); one[axis], other[axis] = a, b; name = side if len(runs) == 1 else f'{side} {index + 1}'
+            spans = int(np.ceil(abs(b - a) / spacing - 1e-9))
+            for step in range(spans + 1):
+                at = tuple(fixed(one + (other - one) * step / spans))
+                if at in stood or any(abs(at[axis] - value) < 1e-6 for opening in openings for value in opening):
+                    continue
+                stood.add(at); built.append({'part': f'{name} fence post', 'bar': [[*at, foot], [*at, top]], 'size': [PERIMETER_POST, PERIMETER_POST], 'picture': spec['steel']})
+            for label, height in (('top', round(top - 0.03, 3)), ('bottom', round(foot + 0.12, 3))):
+                built.append({'part': f'{name} fence {label} rail', 'bar': [[*fixed(one), height], [*fixed(other), height]], 'size': [PERIMETER_RAIL, PERIMETER_RAIL], 'picture': spec['steel']})
+            if coiled:
+                built.append({'part': f'{name} fence barbed wire coil', 'coil': [[*fixed(one), round(top + coiled['radius'], 3)], [*fixed(other), round(top + coiled['radius'], 3)]], 'radius': coiled['radius'],
+                              'pitch': coiled['pitch'], 'picture': spec['steel']})
+            fence.append({'part': f'{name} fence', 'from': fixed(one), 'to': fixed(other), 'z': [round(foot + 0.1, 3), top], **wire})
+        for a, b in openings:
+            for value in (a, b):
+                at = start.copy(); at[axis] = value; gateposts.append({'part': 'gateway post', 'bar': [[*fixed(at), foot], [*fixed(at), round(top + 0.15, 3)]], 'size': [PERIMETER_GATEPOST, PERIMETER_GATEPOST], 'picture': spec['concrete']})
+    return built + gateposts, fence
+
+
 def with_built(vertices, normals, uvs, faces, parts):
     """The model with straight members of its own made on to it: [{bar: [from, to], size}], [{railing: [points],
     height}] (`railing`) or [{stairs: {foot, top, width, sides}, rails}] (`flight`), each member a square-cut box drawn wholly in the colour of the model's picture at
@@ -1549,13 +1609,16 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base
     grey = read if plain is None else lambda key: _levelled(read(key), plain)
     shine = np.clip(specular(np.asarray(base, float) / 255, grey('metallic')), 0, 1)
     channel = lambda values: Image.fromarray(np.repeat((values * 255).round().astype(np.uint8)[..., None], 4, axis=2), 'RGBA')
-    written = [_compress(shown, folder / f'{name}.dds', '-DXT5' if shown.mode == 'RGBA' else '-DXT1', colour, crunch, data=False),
-               _compress(relief, folder / f'{name}_n.dds', '-DXN', half, crunch, data=True),
-               _compress(channel(shine), folder / f'{name}_s.dds', '-DXT5A', half, crunch, data=True),
-               _compress(channel(grey('roughness')), folder / f'{name}_r.dds', '-DXT5A', half, crunch, data=True)]
+    # The maps are compressed side by side, four at a time: one after another they were 59 of the 146 seconds of the
+    # Shiawase Barrens power station's first build (2026-11-17).
+    from concurrent.futures import ThreadPoolExecutor
+    wanted = [(shown, folder / f'{name}.dds', '-DXT5' if shown.mode == 'RGBA' else '-DXT1', colour, False), (relief, folder / f'{name}_n.dds', '-DXN', half, True),
+              (channel(shine), folder / f'{name}_s.dds', '-DXT5A', half, True), (channel(grey('roughness')), folder / f'{name}_r.dds', '-DXT5A', half, True)]
     if illumination is not None:  # a path or an image; mostly black, so half size like the other maps
         lit = illumination if isinstance(illumination, Image.Image) else Image.open(illumination)
-        written.append(_compress(lit.convert('RGB'), folder / f'{name}_i.dds', '-DXT1', half, crunch, data=False))
+        wanted.append((lit.convert('RGB'), folder / f'{name}_i.dds', '-DXT1', half, False))
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        written = list(pool.map(lambda one: _compress(one[0], one[1], one[2], one[3], crunch, data=one[4]), wanted))
     return written
 
 
@@ -1602,7 +1665,9 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'embers', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot', 'level', 'fire', 'walkUnder'},
+        if isinstance(model, dict) and 'perimeter' in model:  # a fence stated in a few lines, built as the parts it is made of
+            made, hung = perimeter(model['perimeter']); model['built'] = [*model.get('built', []), *made]; model['fence'] = [*model.get('fence', []), *hung]
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'perimeter', 'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'embers', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot', 'level', 'fire', 'walkUnder'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)

@@ -649,6 +649,31 @@ class ConvertTests(unittest.TestCase):
             convert._compress(picture, folder / 'e.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 4)
         self.assertFalse(list(folder.glob('*.png')))
 
+    def test_a_perimeter_is_the_posts_rails_sheets_and_coils_of_its_fence(self):
+        """The power station's fence was 46 built parts and 6 fences written by a script (2026-11-17)."""
+        spec = {'box': [[-9.45, -7.0], [9.45, 7.0]], 'z': [0.31, 2.81], 'steel': [9.22, 0.64, 1.53], 'concrete': [0.0, 4.8, 0.31],
+                'gateways': [{'side': 'north', 'from': -7.5, 'to': -2.5}, {'side': 'north', 'from': 3.5, 'to': 6.5}]}
+        built, fence = convert.perimeter(spec)
+        self.assertEqual([one['part'] for one in fence], ['north 1 fence', 'north 2 fence', 'north 3 fence', 'east fence', 'south fence', 'west fence'])
+        self.assertEqual((fence[0]['from'], fence[0]['to'], fence[0]['z']), ([-9.45, 7.0], [-7.5, 7.0], [0.41, 2.81]))
+        self.assertEqual((fence[3]['from'], fence[3]['to']), ([9.45, 7.0], [9.45, -7.0])); self.assertEqual((fence[0]['pitch'], fence[0]['wire']), (0.09, 0.016))
+        posts = [one for one in built if one['part'].endswith('fence post')]; gate = [one for one in built if one['part'] == 'gateway post']
+        self.assertEqual(len({tuple(one['bar'][0]) for one in posts}), len(posts))  # a corner has one post, not one for each side
+        self.assertEqual(sorted(one['bar'][0][0] for one in gate), [-7.5, -2.5, 3.5, 6.5]); self.assertTrue(all(one['picture'] == spec['concrete'] and one['size'] == [0.35, 0.35] for one in gate))
+        self.assertFalse(any(one['bar'][0][:2] == [-7.5, 7.0] for one in posts))  # a gateway's end is its concrete post
+        self.assertEqual(sum('coil' in one for one in built), 6); self.assertEqual(sum(one['part'].endswith('rail') for one in built), 12)
+        self.assertTrue(all(one['coil'][0][2] == 3.06 for one in built if 'coil' in one))
+        spans = [np.hypot(*np.subtract(b['bar'][0][:2], a['bar'][0][:2])) for a, b in zip(posts, posts[1:]) if a['part'] == b['part']]
+        self.assertLessEqual(max(spans), convert.PERIMETER_POSTS + 1e-6)
+        self.assertEqual(sum('coil' in one for one in convert.perimeter({**spec, 'coil': False})[0]), 0)
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'perimeter': spec, 'measuredAt': 4.0}}}), encoding='utf-8')
+        loaded = convert.load_models(path)['ek_x']; self.assertEqual((loaded['built'], loaded['fence']), (built, fence))
+        for wrong in ({**spec, 'gateways': [{'side': 'north', 'from': -12.0, 'to': -8.0}]}, {**spec, 'gateways': [{'side': 'up', 'from': 0, 'to': 2}]},
+                      {key: value for key, value in spec.items() if key != 'concrete'}, {**spec, 'z': [0.3, 0.5]}, {**spec, 'height': 2}):
+            with self.assertRaises(ValueError):
+                convert.perimeter(wrong)
+
     def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
         """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""
         points, normals, faces = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.5)
