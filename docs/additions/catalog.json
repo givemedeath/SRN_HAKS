@@ -2562,6 +2562,38 @@
    "added": "2026-11-17"
   },
   {
+   "tileset": "dgt04",
+   "group": 67,
+   "name": "SB_Station",
+   "label": "Shiawase Barrens Power Station 2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    552,
+    553,
+    554,
+    555
+   ],
+   "models": [
+    "ek_sb_power_t00",
+    "ek_sb_power_t01",
+    "ek_sb_power_t10",
+    "ek_sb_power_t11"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_sb_power",
+    "out": "ek_sb_power_o",
+    "glow": "ek_sb_power_i",
+    "halo": "ek_sb_power_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/shiawase-barrens-game.json",
+   "provenance": "Shiawase Barrens Power Station tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-17)",
+   "added": "2026-11-17"
+  },
+  {
    "tileset": "udp1",
    "group": 106,
    "name": "Stuffer_Shack",
@@ -3058,6 +3090,38 @@
    "madeBy": "envkit",
    "source": "tools/envkit/sets/night-bazaar-game.json",
    "provenance": "Night Bazaar tile group",
+   "added": "2026-11-17"
+  },
+  {
+   "tileset": "udp1",
+   "group": 116,
+   "name": "SB_Station",
+   "label": "Shiawase Barrens Power Station 2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    794,
+    795,
+    796,
+    797
+   ],
+   "models": [
+    "ek_sb_power_t00",
+    "ek_sb_power_t01",
+    "ek_sb_power_t10",
+    "ek_sb_power_t11"
+   ],
+   "pack": "srn_t_common",
+   "lights": {
+    "lit": "ek_sb_power",
+    "out": "ek_sb_power_o",
+    "glow": "ek_sb_power_i",
+    "halo": "ek_sb_power_h",
+    "dark": "ek_off"
+   },
+   "madeBy": "envkit",
+   "source": "tools/envkit/sets/shiawase-barrens-game.json",
+   "provenance": "Shiawase Barrens Power Station tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-17)",
    "added": "2026-11-17"
   }
  ]

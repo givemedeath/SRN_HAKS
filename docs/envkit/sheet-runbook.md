@@ -537,6 +537,16 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   ground is reached and only the one long walk gives up: say so in the provenance, with the starts that arrived.
   Aurora Warrens' west walker stopped at the same spot under three settings of its nodes, and Night Bazaar's west and
   east walkers both stopped so; in each the walkers from beside and from the south corner arrived (2026-11-16).
+- **Walkers into a fenced yard arrive in the tile that holds its gateway and give up in the next.** A planned walk
+  did not cross from one tile to the next inside the Shiawase Barrens power station's fenced yard, which stands on
+  the building's slab: as a 3 by 2 group with one gateway in the middle tile, walkers to the door and the middle of
+  the yard arrived and those to its east and west ends walked straight at the fence, with the nodes chosen and with
+  the end tiles stated; as a 2 by 2 group with the one gateway in the west tile, the walker to the door in the east
+  tile gave up as well (2026-11-17, both tilesets, five builds). Give every tile of the yard a gateway of its own on
+  the middle of a side that faces out, and state each of those tiles a node of that one side (`N`, turned), so no
+  walk is planned from tile to tile inside the fence: with a vehicle gateway before the roller door and a personnel
+  gateway before the tunnel door, every walker arrived. Fit the site to as few tiles as hold it first: at three tiles
+  wide the fences ran through the middles of the end tiles.
 - **A walk check that passed fails after a rebuild that changed nothing walkable** (an underfoot part, a `clear`).
   A rebuild can draw every tile's walkmesh faces a little differently, and a walk the engine can only just plan
   comes out either way. The depot's crane rails and the crane's own stub rails taken away left `walk.png` the same,
