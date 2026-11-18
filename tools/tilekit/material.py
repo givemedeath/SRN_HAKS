@@ -165,7 +165,7 @@ def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None):
     return [one[1] for one in wanted] + [f'{name}.mtr']
 
 
-def current(repo, name, packs=('srn_t_common', 'srn_door', 'srn_placeable')):
+def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable')):
     """The picture of a texture the game draws now: its DDS copy before its TGA, in the first of `packs` to hold one."""
     for pack in packs:
         for kind in ('dds', 'tga'):

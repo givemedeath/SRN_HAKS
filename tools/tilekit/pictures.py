@@ -126,10 +126,17 @@ def toned(colour, like, amount=1.0):
 def graded(colour, grade):
     """`colour` (uint8 RGB array) as a district's grade leaves it. grade: {saturation (1 keeps it, 0 is grey), contrast
     (about the picture's own mean brightness, 1 keeps it), gain (brightness, 1 keeps it), tint ([red, green, blue]
-    multipliers)}, each optional. Nothing here depends on where in the picture a pixel is, so a tiling picture still tiles
-    and no stain is added to read as a repeat."""
-    unknown = set(grade) - {'saturation', 'contrast', 'gain', 'tint'}; require(not unknown, 'A grade has no ' + ', '.join(sorted(unknown)))
+    multipliers), paint (0-1: how far what is painted on the surface, a lane line or a kerb mark, is spared the grade;
+    paint is what stands well above the picture's middle brightness or is strongly coloured)}, each optional. Nothing
+    here depends on where in the picture a pixel is, so a tiling picture still tiles and no stain is added to read as a
+    repeat."""
+    unknown = set(grade) - {'saturation', 'contrast', 'gain', 'tint', 'paint'}; require(not unknown, 'A grade has no ' + ', '.join(sorted(unknown)))
     values = np.asarray(colour, np.float64)[..., :3]
+    if grade.get('paint'):
+        plain = graded(colour, {key: value for key, value in grade.items() if key != 'paint'}).astype(np.float64)
+        light = values @ np.array([0.2126, 0.7152, 0.0722]); chroma = values.max(axis=2) - values.min(axis=2)
+        painted = np.maximum(np.clip((light - np.median(light) - 25) / 25, 0, 1), np.clip((chroma - 50) / 30, 0, 1))[..., None] * float(grade['paint'])
+        return np.uint8(plain * (1 - painted) + values * painted + 0.5)
     grey = (values @ np.array([0.2126, 0.7152, 0.0722]))[..., None]
     values = grey + (values - grey) * float(grade.get('saturation', 1.0))
     middle = float(grey.mean()); values = middle + (values - middle) * float(grade.get('contrast', 1.0))

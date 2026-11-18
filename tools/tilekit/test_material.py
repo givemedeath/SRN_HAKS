@@ -76,6 +76,8 @@ class PictureTests(unittest.TestCase):
         made = pictures.graded(colour, {'gain': 0.5, 'tint': [1.0, 1.0, 2.0]})
         self.assertEqual((tuple(made[0, 0]), tuple(made[1, 1]), tuple(made[0, 1])), ((100, 50, 50), (100, 50, 50), (0, 0, 0)))
         self.assertGreater(int(pictures.graded(colour, {'contrast': 2.0})[0, 0, 0]), 200 - 1); self.assertEqual(int(pictures.graded(colour, {'contrast': 2.0})[0, 1, 1]), 0)
+        lined = np.full((8, 8, 3), 90, np.uint8); lined[:, 3] = (230, 230, 230); lined[:, 5] = (200, 160, 20)  # asphalt, a white line and a yellow one
+        spared = pictures.graded(lined, {'gain': 0.5, 'paint': 1.0}); self.assertEqual((tuple(spared[0, 0]), tuple(spared[0, 3]), tuple(spared[0, 5])), ((45, 45, 45), (230, 230, 230), (200, 160, 20)))
         with self.assertRaisesRegex(ValueError, 'A grade has no grime'):
             pictures.graded(colour, {'grime': 1})
 

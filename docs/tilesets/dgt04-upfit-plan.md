@@ -176,11 +176,43 @@ authored one at a time; any that then stands out is promoted.
 - **Gate (user):** the look by day and night beside the envkit building. This fixes the standard and the
   route each family takes.
 
+**State (2026-11-18): pilot shown, gate not held.** Tool: `tilekit material` (routes `master`, `layout`,
+`upscale`; district grades; DDS maps and material file) and `tilekit enlarge` (a texture doubled by the shared
+ComfyUI's upscaling model before an upscale). Spec: `docs/tilesets/dgt04/materials.json`. Nothing is in the
+packs: every picture so far was shown through `tilekit review --overlay`.
+
+- Nine CC0 scans from ambientCG (1K) are the masters, in `tilekit/masters` of the shared tool root with the
+  record of what was fetched. Old brick textures had oversized bricks; a scan at one repeat gives a real course.
+- The game takes the first row of a DDS for the bottom of the picture. Every map is stored turned over; before
+  that, lit window patterns came out upside down.
+- A lit (`_g`) facade keeps its alpha and takes no glow map: one blew its windows white.
+- Ground and concrete change little at play distance under the review light; the look comes from the district
+  grade. The user asked for a grade per district and then a stronger one (corporate cool and dark, barrens warm
+  and dark, lit windows cool except in the barrens, which stay warm).
+- Windows need the upscaling model, not a resize (user). The model draws frames and lettering clean and smooths
+  fine grain (blind slats, grime). A 64-pixel window gains only a sharper frame and is a candidate to redraw.
+- Normal maps: a master's is the scan's own; a layout's is the scan's with guessed edges; an upscale's is guessed
+  from the picture and kept weak; a by-rule texture's is flat.
+- Not done: the regenerated sign, the look beside an envkit building, mirrored-UV check, and the in-game look
+  at the upscaled windows and warm lit windows (client starts were put on hold by the user, who then asked for
+  the next stratum without waiting for client reviews). Unit times: a master texture 2 minutes once its scan is
+  chosen; a by-rule texture seconds; the upscaling model 5–10 s a doubling; a 64-view capture 8 minutes.
+
 ### 2 — Ground, streets and infrastructure
 
 Roads, sidewalks, curbs, crossers, Freeway, Green_Bridge, Aqueduct, Water edges, Cliff, edge tiles. Checked on
 a grid of straight, corner, T, four-way, ramp and transition tiles in all rotations. **Gate:** no new seam at
 any join; road against sidewalk still reads at night.
+
+**State (2026-11-18): authored, not seen in the game.** Forty textures added to the spec (the six ground
+textures of the pilot were there already): every asphalt road and street on the one asphalt scan at the one
+repeat, so their grain meets at a join; concretes and barriers from the three concrete scans; rust, wood,
+fences, tiles, rail and manhole upscaled, the small ones through the model. A `road` grade spares painted lines
+the darkening the asphalt takes. Checked without the client: every tiling texture wraps as well as it did
+(seam measure 1.1–1.4 against 1.0–2.0 before); the graded road is half as bright as the graded sidewalk (38
+against 73 of 255). Left for the base-game batch: `tcn01_water01` and the other stock textures. Left to the
+by-rule remainder: sea plants, `lamp_dirty`, `tire_tread`, `walk`, small trims. The gate itself needs the
+client: joins on the grid of road tiles, and road against sidewalk at night.
 
 ### 3 — Building families, one batch each
 
