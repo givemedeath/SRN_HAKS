@@ -372,10 +372,14 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
     (user/'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
     table.write_bytes(items_table(todo)); toggle.write_bytes(cc.TOGGLE_TABLE.encode('ascii'))
     done, current, shots, seen, over = [], None, [], 0, False
+    log = user/'logs'/'nwclientLog1.txt'
 
     def close(item, complete, lines):
-        """File one item's shots as client_capture files a fixture's: a record, an evidence draft and contact sheets."""
+        """File one item's shots as client_capture files a fixture's: a record, an evidence draft and contact sheets.
+        `lines` are the item's own log lines, so another item's failure is not put down to this one. The log is copied
+        now: a later failure of the run would leave a finished item without the log its draft names."""
         folder = captures/item
+        if log.is_file(): shutil.copyfile(log, folder/'nwclientLog1.txt')
         result = {'session': pin(session/'session.json'), 'item': item, 'fixture': known[item]['fixture'], 'module': record['module'],
                   'haks': record['haks'], 'finished': complete, 'shotsExpected': total, 'shots': shots,
                   'failures': [line for line in lines if 'FAILED' in line], 'clientValidated': False, 'productionAccepted': False}
@@ -396,17 +400,17 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
                 require(process.poll() is None, 'The client exited before the session finished')
                 read_at = time.monotonic(); lines = client.log_lines(user, cc.PREFIX)
                 fired = []          # this read's shots of the current item, in order; only the last can still be on screen
-                for line in lines[seen:]:
+                for at, line in enumerate(lines[seen:], seen):
                     if line.startswith(ITEM_LINE) or line.startswith(ITEM_DONE) or line.startswith(SESSION_DONE):
                         if current: shots += cc.passed(fired)       # the item moved on within this read
                         fired = []
                     if line.startswith(ITEM_LINE):
                         current = client.parse_line(line)['item']; shots = []; folder = captures/current
                         if folder.exists(): shutil.rmtree(folder)      # an unfinished earlier attempt of this item
-                        folder.mkdir(); deadline = time.monotonic() + per_item; began = read_at
+                        folder.mkdir(); deadline = time.monotonic() + per_item; began = read_at; first = at
                     # `seen`: seconds from the item's start to the read that found the shot, to set against the log's own times.
                     elif line.startswith('ITEMKIT_SHOT ') and current: fired += [{**row, 'seen': round(read_at - began, 1)} for row in cc.shot_rows([line])]
-                    elif line.startswith(ITEM_DONE) and current: close(current, True, lines); current = None
+                    elif line.startswith(ITEM_DONE) and current: close(current, True, lines[first:at + 1]); current = None
                     elif line.startswith(SESSION_DONE): over = True
                 if current and fired and fired[-1]['check'] == FIRE_CHECK:
                     shots += cc.passed(fired[:-1])
@@ -414,14 +418,13 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
                 elif current and fired:
                     shots += cc.file_shots(client, process, user, captures/current, fired, previous_read, frames, gap, settle, HOLD)
                 seen = len(lines); previous_read = read_at
-            if current: close(current, False, client.log_lines(user, cc.PREFIX))
+            if current: close(current, False, client.log_lines(user, cc.PREFIX)[first:])
         finally:
             client.stop(process)
     finally:
         toggle.unlink(missing_ok=True)
         table.write_bytes(items_table(record['items']))       # every item again, for a look by hand
-    log = user/'logs'/'nwclientLog1.txt'
-    for row in done:
+    for row in done:        # the whole session's log, now that it is complete
         if log.is_file(): shutil.copyfile(log, captures/row['item']/'nwclientLog1.txt')
     left = [row['item'] for row in todo if row['item'] not in {entry['item'] for entry in done if entry['finished']}]
     return {'captured': done, 'alreadyCaptured': skipped, 'unfinished': left}
