@@ -39,6 +39,7 @@ MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear',
 FILL_NEAR, FILL_WELD, FILL_MOST = 0.1, 0.002, 64  # metres from a stated point to a hole's rim; how near two corners are one place; a hole's most corners
 STEP_RISE, RAIL_HEIGHT, POST_EVERY = 0.19, 0.95, 1.2  # metres: a built stair's most rise a step, its handrail's height over the nosings, posts at most this far apart
 STAIR_STEEPEST = 1.2  # a built stair flight's most rise over its run (about 50 degrees): steeper, it is a ladder
+COIL, COIL_SIDES = (0.03, 0.03), 6  # a built coil of barbed wire: its wire's section, metres (thicker than wire, to be seen from the yard), and the straight lengths to a turn
 TREAD, STRINGER, RAIL, POST = (0.04,), (0.05, 0.22), (0.045, 0.045), (0.045, 0.045)  # built stair members' sections, metres: tread thickness, stringer, rails, posts
 GLASS_COLOUR, GLASS_STRENGTH, GLASS_FLAT, GLASS_MOST, GLASS_PICTURE = (150, 170, 185), 0.25, 0.02, 8, 64  # a pane's colour and how much of it is added to what stands behind; metres its corners may stand off its plane; its most corners; its picture's width
 LIGHT_NEAR = 0.3  # metres a placeable's cast light may stand from the model: the game draws a flare where it stands
@@ -352,10 +353,22 @@ def railing(path, height=RAIL_HEIGHT, below=0.0):
     return members
 
 
+def coil(start, end, radius, pitch):
+    """The members of a coil of barbed wire along the line from `start` to `end`, its axis: a turn of `radius` every
+    `pitch` metres, each turn COIL_SIDES straight lengths of wire: [(start, end, size, kind)]. A fence built after
+    generation is topped with one (user, 2026-11-17: "Fences will generally need to be topped with spiral barbed
+    wire"); a generator's own smudges what stands behind it (`smears`)."""
+    start, end = np.asarray(start, float), np.asarray(end, float); along = end - start; length = float(np.linalg.norm(along)); along = along / length
+    level = np.cross(along, [0.0, 0.0, 1.0]); level = level / np.linalg.norm(level) if np.linalg.norm(level) > 1e-6 else np.array([1.0, 0.0, 0.0])
+    upright = np.cross(level, along); steps = max(int(round(length / pitch)), 1) * COIL_SIDES
+    at = lambda k: start + along * length * k / steps + radius * (np.cos(2 * np.pi * k / COIL_SIDES) * level + np.sin(2 * np.pi * k / COIL_SIDES) * upright)
+    return [(at(k), at(k + 1), COIL, 'coil') for k in range(steps)]
+
+
 def with_built(vertices, normals, uvs, faces, parts):
     """The model with straight members of its own made on to it: [{bar: [from, to], size}], [{railing: [points],
     height}] (`railing`) or [{stairs: {foot, top, width, sides}, rails}] (`flight`), each member a square-cut box drawn wholly in the colour of the model's picture at
-    `picture` (and a flight's rails and posts at `rails`), a point on the model. A generator draws rails and stairs it
+    `picture` (and a flight's rails and posts at `rails`), a point on the model; or [{coil: [from, to], radius, pitch}], a coil of barbed wire (`coil`). A generator draws rails and stairs it
     cannot hold straight as wavy strands, or leaves them off: the rail yard's stair tower's handrails and the stairs up
     to its walkway (user, 2026-11-13). Returns (vertices, normals, uvs, faces)."""
     vertices, normals, uvs, faces = (np.asarray(one) for one in (vertices, normals, uvs, faces))
@@ -366,6 +379,8 @@ def with_built(vertices, normals, uvs, faces, parts):
             members = [(part['bar'][0], part['bar'][1], part['size'], 'bar')]
         elif 'railing' in part:
             members = railing(part['railing'], part.get('height', RAIL_HEIGHT))
+        elif 'coil' in part:
+            members = coil(part['coil'][0], part['coil'][1], part['radius'], part['pitch'])
         else:
             stairs = part['stairs']; members = flight(stairs['foot'], stairs['top'], stairs['width'], stairs.get('sides', ('left', 'right')))
         for start, end, size, kind in members:
@@ -1585,12 +1600,16 @@ def load_models(path):
             require(isinstance(part, dict) and {'box', 'by'} <= set(part) <= {'part', 'box', 'by'} and box(part) and point(part['by']),
                     'A moved part is a box and how far it is moved, [x, y, z] metres: ' + name)
         for part in model.get('built', []):
-            kinds = {'bar', 'stairs', 'railing'} & set(part) if isinstance(part, dict) else set()
-            require(len(kinds) == 1 and point(part.get('picture')), 'A built part is one bar, railing or stair flight, coloured from a point of the model\'s picture: ' + name)
+            kinds = {'bar', 'stairs', 'railing', 'coil'} & set(part) if isinstance(part, dict) else set()
+            require(len(kinds) == 1 and point(part.get('picture')), 'A built part is one bar, railing, stair flight or coil, coloured from a point of the model\'s picture: ' + name)
             if 'railing' in part:
                 require(set(part) <= {'part', 'railing', 'height', 'picture'} and isinstance(part['railing'], list) and len(part['railing']) >= 2
                         and all(point(one) for one in part['railing']) and (number(part.get('height', 1.0)) and 0.3 <= part.get('height', 1.0) <= 1.5),
                         'A built railing is a path of two or more points on the surface walked and a height of 0.3 to 1.5 metres: ' + name)
+            elif 'coil' in part:
+                require(set(part) <= {'part', 'coil', 'radius', 'pitch', 'picture'} and isinstance(part['coil'], list) and len(part['coil']) == 2 and all(point(end) for end in part['coil'])
+                        and part['coil'][0] != part['coil'][1] and number(part.get('radius')) and 0.1 <= part['radius'] <= 0.6 and number(part.get('pitch')) and 0.1 <= part['pitch'] <= 1.0,
+                        'A built coil of barbed wire is the two ends of its axis, a radius of 0.1 to 0.6 metres and a pitch of 0.1 to 1 metre a turn: ' + name)
             elif 'bar' in part:
                 require(set(part) <= {'part', 'bar', 'size', 'picture'} and isinstance(part['bar'], list) and len(part['bar']) == 2 and all(point(end) for end in part['bar'])
                         and part['bar'][0] != part['bar'][1] and isinstance(part.get('size'), list) and len(part['size']) == 2 and all(number(one) and one > 0 for one in part['size']),

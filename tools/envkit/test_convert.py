@@ -629,6 +629,30 @@ class ConvertTests(unittest.TestCase):
         np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind in ('rail', 'post')]], 0.9)
         np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind == 'tread']], 0.1)
 
+    def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
+        """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""
+        members = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.4)
+        self.assertEqual(len(members), 15 * convert.COIL_SIDES); self.assertTrue(all(kind == 'coil' for *_, kind in members))
+        ends = np.array([m[0] for m in members] + [members[-1][1]])
+        np.testing.assert_allclose(np.hypot(ends[:, 1], ends[:, 2] - 3), 0.25)  # every corner on the coil's radius
+        np.testing.assert_allclose(ends[[0, -1], 0], [0, 6]); self.assertTrue((np.diff(ends[:, 0]) > 0).all())
+        np.testing.assert_allclose([m[1] for m in members[:-1]], [m[0] for m in members[1:]])  # one unbroken wire
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], float); base = np.array([[0, 1, 2]])
+        v, n, u, f = convert.with_built(vertices, np.tile([0.0, 0.0, 1.0], (3, 1)), np.full((3, 2), 0.3), base,
+                                        [{'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0.2, 0.2, 0]}])
+        self.assertEqual(len(f), 1 + 12 * len(members)); np.testing.assert_allclose(u, 0.3)
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for part, held in (({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0, 0, 1]}, True),
+                           ({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'picture': [0, 0, 1]}, False),  # no pitch
+                           ({'coil': [[0, 0, 3], [0, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0, 0, 1]}, False),  # no length
+                           ({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 2.0, 'pitch': 0.4, 'picture': [0, 0, 1]}, False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'built': [part], 'measuredAt': 4.0}}}), encoding='utf-8')
+            if held:
+                self.assertEqual(convert.load_models(path)['ek_x']['built'], [part])
+            else:
+                with self.assertRaises(ValueError):
+                    convert.load_models(path)
+
     def test_a_cast_light_is_measured_from_the_model(self):
         """The Ares and Saeder-Krupp gates and the Iron Sight Arms booths (2026-11-14): a light set between their lamps
         hung its flare in the air."""
