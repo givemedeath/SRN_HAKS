@@ -17,7 +17,7 @@ of built fixtures of one hand into one session:
 `capture` waits for another session's client to close if asked, starts the client once and files each item's shots
 in `CAPTURES/<blueprint>/` exactly as `client_capture` does for one fixture. It writes the item table itself, so a
 second run captures only the items that have no finished capture yet, and `--items` picks a subset without a rebuild
-(`--again` with it retakes a finished item whose bursts a busy machine spoiled).
+(`--again` with it retakes a finished item whose shots were rejected).
 
 Session captures are review material, never the client stage's evidence: that evidence names the item's own fixture
 module and HAKs (fixture.validate_evidence), and a session runs another module. Nothing here grants an approval.
@@ -37,20 +37,63 @@ if __package__ in (None, ''):
 
 from tools.headkit.common import pin, read, require, verify, write
 from tools.itemkit import client_capture as cc
-from tools.itemkit.fixture import (HEARTBEAT_ITEM, SHOT_ACTORS, SHOT_CARRY, SHOT_CYCLE, SHOT_OFFSET, SHOT_TOGGLE, SHOTS, field,
-                                   link_or_copy, shot_script)
+from tools.itemkit.fixture import (HEARTBEAT_ITEM, SHOT_ACTORS, SHOT_CARRY, SHOT_TOGGLE, field, link_or_copy, shot_script, shouldered)
 from tools.itemkit.publish import Tools, read_erf
 
 REPO = Path(__file__).resolve().parents[2]
 MODULE, SESSION_HAK, ITEMS_TABLE = 'itk_session', 'itk_session', 'itk_items'
 ITEM_LINE, SESSION_DONE, ITEM_DONE = 'ITEMKIT_ITEM ', 'ITEMKIT_SESSION done', 'ITEMKIT_SHOTS done'
 CARRIES = tuple(SHOT_CARRY)                      # a carry's number in the item table is its place here
+# The session's own shots, five a body where a fixture takes sixteen: front, right side, the hand close up, the attack
+# stance, and one long hold over a whole attack round, from which the driver keeps the frames with the muzzle flash.
+# Rows as fixture.SHOTS, each with its own hold: a burst of three pictures overran the fixture's 1.8 s.
+FIRE_CHECK, HOLD, FIRE_HOLD = 'firing', 2.6, 5.0
+SESSION_SHOTS = ((1, 2.0, 'front-rear-sides', 270, 3.2, 80, 1.0, HOLD), (2, 2.0, 'front-rear-sides', 180, 2.4, 80, 1.0, HOLD),
+                 (3, 2.0, 'idle', 180, 1.4, 85, 0.95, HOLD), (11, 3.0, 'attacks', 180, 3.0, 82, 1.1, HOLD),
+                 (12, 0.7, FIRE_CHECK, 180, 2.6, 82, 1.1, FIRE_HOLD))
+SESSION_CARRY = {'hip': SESSION_SHOTS, 'shoulder': shouldered(SESSION_SHOTS)}
+SESSION_CHECKS = tuple(dict.fromkeys(row[2] for row in SESSION_SHOTS))
+# The female starts four steps behind the male, so her three still shots fall in his unshot steps 5 to 7 and her attack
+# steps after his: an item is over when she has finished step 12, his step 16.
+SESSION_OFFSET, SESSION_STEPS = 36, 17
+PARK = 1 + max(row[0] for row in SESSION_SHOTS)   # the step after an actor's last shot
+FIRE_CLIPS = {61: 'fire_pst', 6: 'fire_rfl'}     # the firing clip of a carrier base item unless the build names another
+FIRE_CODE = re.compile(r'fire_[a-z0-9]{1,8}')
+KEEP, BRIGHT = 3, 215                            # flash frames kept of a firing burst; the grey level that counts as flash
 CURRENT = 'GetLocalString(GetModule(),"ITK_ITEM")'
 PLAN_LINE = re.compile(r'(?m)^  if\(n==\d+\) DelayCommand\([0-9.]+,ItkTry\(.*\n?')
 TYPES = {'uti': 2025, 'nss': 2009, '2da': 2017}
 
 NEXT = '''void ItkWatch(object pc); void ItkBare(object t); void ItkGive(object actor);
 void ItkDrop(object actor,string old) { if(old!="") DestroyObject(GetItemPossessedBy(actor,old)); }
+// An attacking actor has turned to its target: its attack and firing shots are framed from where it faces now,
+// as the plan's facing frames an actor that faces north.
+float ItkFacing(object t,string check,float facing) {
+  if(check!="attacks" && check!="@FIRE@") return facing;
+  // Where the target is, not GetFacing: mid-attack that gave a view from the front where the side was asked for.
+  object target=GetLocalObject(t,"TARGET"); if(!GetIsObjectValid(target)) return facing;
+  float aim=VectorToAngle(GetPosition(target)-GetPosition(t));
+  float f=aim+facing-90.0; while(f>=360.0) f-=360.0; while(f<0.0) f+=360.0;
+  WriteTimestampedLogEntry("ITEMKIT_AIM actor="+GetTag(t)+" aim="+FloatToString(aim,0,1)+" facing="+FloatToString(GetFacing(t),0,1)+" camera="+FloatToString(f,0,1));
+  return f;
+}
+// An actor whose shots are taken stops and idles through the cycle's empty steps: left attacking, its muzzle flash
+// was the brightest thing in the other actor's firing shot.
+void ItkPark(object t) { AssignCommand(t,ClearAllActions(TRUE)); SetLocalInt(t,"STEP",30); SetLocalInt(t,"ITK_SEEN",30); }
+void ItkAmmoIn(object t,int slot,string r) {
+  if(GetIsObjectValid(GetItemInSlot(slot,t))) return;
+  object a=GetLocalObject(t,"ITK_"+r); if(!GetIsObjectValid(a)) { a=CreateItemOnObject(r,t,99); SetLocalObject(t,"ITK_"+r,a); }
+  AssignCommand(t,ActionEquipItem(a,slot));
+}
+// A firearm on the sling row shoots bullets and one on the crossbow row bolts; without them an attack is a punch.
+void ItkAmmo(object t) { ItkAmmoIn(t,INVENTORY_SLOT_BULLETS,"nw_wambu001"); ItkAmmoIn(t,INVENTORY_SLOT_BOLTS,"nw_wambo001"); }
+// The item's firing clip in place of the stock shot of either row; the weapon model plays its own clip of that name.
+void ItkClip(object a,string fire) {
+  ReplaceObjectAnimation(a,"throwr",""); ReplaceObjectAnimation(a,"xbowshot",""); if(fire=="") return;
+  int female=GetGender(a)==GENDER_FEMALE;
+  string clip=fire+"_h"+(female ? "f" : "m")+(female && GetPhenoType(a)==2 ? "l" : "");
+  ReplaceObjectAnimation(a,"throwr",clip); ReplaceObjectAnimation(a,"xbowshot",clip);
+}
 void ItkStart(int index) {
   object m=GetModule(); string item=Get2DAString("@TABLE@","Item",index);
   if(item=="") { WriteTimestampedLogEntry("@SESSION_DONE@"); return; }
@@ -64,6 +107,7 @@ void ItkStart(int index) {
   SetLocalInt(male,"STEP",0); SetLocalInt(female,"STEP",@OFFSET@);
   SetLocalInt(male,"ITK_SEEN",0); SetLocalInt(female,"ITK_SEEN",@OFFSET@);
   ItkBare(male); ItkBare(female);
+  string fire=Get2DAString("@TABLE@","Fire",index); ItkClip(male,fire); ItkClip(female,fire);
   DelayCommand(0.5,ItkGive(pc)); DelayCommand(0.5,ItkGive(male)); DelayCommand(0.5,ItkGive(female));
   WriteTimestampedLogEntry("@ITEM_LINE@index="+IntToString(index)+" item="+item);
   DelayCommand(4.0,ItkWatch(pc));
@@ -109,19 +153,22 @@ def fill(text, **values):
 def session_script(slot='right', previous=''):
     """The fixture's shot script with the reviewed item, its carry and the next item read at run time."""
     names = dict(TABLE=ITEMS_TABLE, MALE=SHOT_ACTORS[0][0], FEMALE=SHOT_ACTORS[1][0], SLOT=slot.upper() + 'HAND')
-    base = shot_script(SHOTS, slot); plans = []
+    base = shot_script(SESSION_SHOTS, slot, SESSION_CHECKS); plans = []
     for number, carry in enumerate(CARRIES):
-        lines = PLAN_LINE.findall(shot_script(SHOT_CARRY[carry], slot))
-        require(len(lines) == len(SHOTS), 'Every carry frames the same shots')
+        lines = PLAN_LINE.findall(shot_script(SESSION_CARRY[carry], slot, SESSION_CHECKS))
+        require(len(lines) == len(SESSION_SHOTS), 'Every carry frames the same shots')
         plans.append(f'  if(GetLocalInt(GetModule(),"ITK_CARRY")=={number}) {{\n' + ''.join(lines).rstrip('\n') + '\n  }\n')
     found = PLAN_LINE.findall(base); start = base.index(found[0]); end = base.index(found[-1]) + len(found[-1])
-    text = base[:start] + ''.join(plans) + base[end:]
+    # Ammunition goes in while an actor stands idle after its still shots, and again before its attack steps.
+    text = base[:start] + f'  if(n==4 || n==10) ItkAmmo(t);\n  if(n=={PARK}) ItkPark(t);\n' + ''.join(plans) + base[end:]
+    camera = 'AssignCommand(pc,SetCameraFacing(facing,'; require(text.count(camera) == 1, 'The fixture shot script changed shape')
+    text = text.replace(camera, 'AssignCommand(pc,SetCameraFacing(ItkFacing(t,check,facing),')
     done = 'void ItkDone() { WriteTimestampedLogEntry("ITEMKIT_SHOTS done"); }\n'; watch = '  DelayCommand(4.0,ItkWatch(pc));\n}\n'
     require(text.count(done) == 1 and text.count(watch) == 1 and '"ITEM_RESREF"' in text, 'The fixture shot script changed shape')
     # ItkBegin hands over to the first item before the next-item routine is put in: that routine ends on the same line.
     text = text.replace(watch, '  ItkStart(0);\n}\n')
-    text = text.replace(done, fill(NEXT, **names, TOTAL=len(SHOTS) * len(SHOT_ACTORS), OFFSET=SHOT_OFFSET, SESSION_DONE=SESSION_DONE,
-                                   ITEM_LINE=ITEM_LINE, ITEM_DONE=ITEM_DONE))
+    text = text.replace(done, fill(NEXT, **names, TOTAL=len(SESSION_SHOTS) * len(SHOT_ACTORS), OFFSET=SESSION_OFFSET, SESSION_DONE=SESSION_DONE,
+                                   ITEM_LINE=ITEM_LINE, ITEM_DONE=ITEM_DONE, FIRE=FIRE_CHECK))
     entry = fill(ENTRY, **names, PRIOR=f'ExecuteScript("{previous}",GetModule());' if previous else '')
     return (text + entry).replace('"ITEM_RESREF"', CURRENT)
 
@@ -133,8 +180,8 @@ def session_heartbeat(script):
 
 
 def items_table(items):
-    rows = ''.join(f'{index}  {row["item"]}  {CARRIES.index(row["carry"])}\n' for index, row in enumerate(items))
-    return ('2DA V2.0\n\n   Item  Carry\n' + rows).encode('ascii')
+    rows = ''.join(f'{index}  {row["item"]}  {CARRIES.index(row["carry"])}  {row.get("fire") or "****"}\n' for index, row in enumerate(items))
+    return ('2DA V2.0\n\n   Item  Carry  Fire\n' + rows).encode('ascii')
 
 
 def fixture_item(fixture_dir):
@@ -172,9 +219,17 @@ def merged_baseitems(tables):
     return ('\r\n'.join(out) + '\r\n').encode('latin-1')
 
 
-def build(session, fixtures, nwn_root, repo=REPO):
+def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
+    """`resources`: a folder of files that win over every HAK (models with firing effects a bound pack predates).
+    `fire`: {blueprint: firing clip code, or '' for none} where the carrier's usual clip is not the item's."""
     session = Path(session).resolve(); require(fixtures, 'A session needs at least one built fixture')
-    items = [fixture_item(folder) for folder in fixtures]
+    items = [fixture_item(folder) for folder in fixtures]; fire = dict(fire or {})
+    unknown = sorted(set(fire) - {row['item'] for row in items}); require(not unknown, f'No fixture reviews {unknown}')
+    require(all(code == '' or FIRE_CODE.fullmatch(code) for code in fire.values()), 'A firing clip is named like fire_pst')
+    extra = sorted(path for path in Path(resources).iterdir() if path.is_file()) if resources else []
+    require(not resources or extra, f'No files in {resources}')
+    require(len({path.name.lower() for path in extra}) == len(extra) and 'baseitems.2da' not in {path.name.lower() for path in extra},
+            'Session resources are named once each, and the base-item table is merged from the fixtures')
     require(len({row['item'] for row in items}) == len(items), 'Two fixtures review the same blueprint')
     require(len({row['slot'] for row in items}) == 1, 'A session holds items of one hand: build shields in their own session')
     require(len({row['previous'] for row in items}) == 1, 'The fixtures come from different templates')
@@ -196,11 +251,15 @@ def build(session, fixtures, nwn_root, repo=REPO):
             if name not in order: order.append(name)
     own = [row['hak'] for row in items]; order = [name for name in order if name not in own] + own
     private = [(row, read_erf(bound[row['hak']]['path']).get(('baseitems', TYPES['2da']))) for row in items]
+    for row in items: row['fire'] = fire.get(row['item'], FIRE_CLIPS.get(carrier(row, bound), ''))
     tables = [(carrier(row, bound), body) for row, body in private if body is not None]
     with tempfile.TemporaryDirectory() as work:
-        if len({body for _, body in tables}) > 1:
+        merge = len({body for _, body in tables}) > 1
+        if merge or extra:
             require(SESSION_HAK not in order, 'A fixture HAK already has the session HAK name')
-            folder = Path(work)/'hak'; folder.mkdir(); (folder/'baseitems.2da').write_bytes(merged_baseitems(tables))
+            folder = Path(work)/'hak'; folder.mkdir()
+            if merge: (folder/'baseitems.2da').write_bytes(merged_baseitems(tables))
+            for path in extra: link_or_copy(path, folder/path.name.lower())
             tools.run('erf', '-c', '-e', 'HAK', '-f', user/'hak'/f'{SESSION_HAK}.hak', folder)
             order.insert(0, SESSION_HAK)        # the first HAK of the list wins a shared resource
         ifo = tools.to_json(resources/'module.ifo', work)
@@ -216,9 +275,10 @@ def build(session, fixtures, nwn_root, repo=REPO):
     module = user/'modules'/f'{MODULE}.mod'; tools.run('erf', '-c', '-e', 'MOD', '-f', module, resources)
     for name in order:
         if name != SESSION_HAK: link_or_copy(bound[name]['path'], user/'hak'/f'{name}.hak')
-    record = {'schemaVersion': 1, 'kind': 'itemkit-review-session', 'module': pin(module), 'userDirectory': str(user),
+    record = {'schemaVersion': 2, 'kind': 'itemkit-review-session', 'module': pin(module), 'userDirectory': str(user),
               'haks': [pin(user/'hak'/f'{name}.hak') for name in order], 'hakOrder': order, 'slot': first['slot'],
-              'items': [{key: row[key] for key in ('item', 'carry', 'fixture')} for row in items],
+              'items': [{key: row[key] for key in ('item', 'carry', 'fire', 'fixture')} for row in items],
+              'resources': [pin(path) for path in extra],
               'clientValidated': False, 'productionAccepted': False}
     write(session/'session.json', record, fresh=True)
     return record
@@ -237,9 +297,37 @@ def finished(folder):
     return record.is_file() and read(record).get('finished') is True
 
 
+def flash_score(image, base):
+    """(how much of a picture is bright where the burst's first picture was not, its bright mask): the muzzle flash."""
+    from PIL import ImageChops
+    mask = image.convert('L').resize((640, 360)).point(lambda value: 255 if value >= BRIGHT else 0)
+    return (ImageChops.subtract(mask, base).histogram()[255] if base else 0), mask
+
+
+def fire_burst(client, process, user, folder, row, previous_read, hold=FIRE_HOLD):
+    """Watch one firing shot for its whole hold and keep the pictures with the most flash: the brightest is frame 1,
+    the one the contact sheet shows. A flash lasts a tenth of a second, so the pictures are scored as they are taken
+    and only the kept ones are written."""
+    body = cc.BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
+    ends = previous_read + hold - .4; base = None; kept = []; taken = 0
+    while time.monotonic() < ends:
+        image = client.grab(process.pid); score, mask = flash_score(image, base); base = base or mask; taken += 1
+        kept = sorted(kept + [(score, -taken, image)], key=lambda entry: entry[:2], reverse=True)[:KEEP]
+    late = time.monotonic() > previous_read + hold
+    order = [kept[at] for at in (1, 0, 2) if at < len(kept)] if len(kept) > 1 else kept      # the best is frame 1
+    names = []
+    for frame, (_, _, image) in enumerate(order):
+        name = f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"; client.save(image, Path(folder)/name); names.append(name)
+    newest = cc.shot_rows(client.log_lines(user, cc.PREFIX))[-1]['shot']
+    rejected = 'next shot began' if newest != row['shot'] else 'burst overran the shot hold' if late else None
+    return {**row, 'body': body, 'captures': names, 'pictures': taken, 'flash': kept[0][0] if kept else 0,
+            **({'rejected': rejected} if rejected else {})}
+
+
 def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, timeout=None, frames=cc.FRAMES, gap=cc.GAP, settle=cc.SETTLE):
     from tools.armorkit import client
     session = Path(session).resolve(); captures = Path(captures).resolve(); record = read(session/'session.json')
+    require(record.get('schemaVersion') == 2, 'This session was built for the longer shot list: build it again')
     verify([record['module'], *record['haks']]); user = Path(record['userDirectory'])
     known = {row['item']: row for row in record['items']}
     unknown = sorted(set(only or ()) - set(known)); require(not unknown, f'Not in this session: {unknown}')
@@ -247,7 +335,7 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
     todo = [row for row in record['items'] if (not only or row['item'] in only) and (again or not finished(captures/row['item']))]
     skipped = [row['item'] for row in record['items'] if (not only or row['item'] in only) and row not in todo]
     if not todo: return {'captured': [], 'alreadyCaptured': skipped, 'unfinished': []}
-    per_item = 60 + 3 * SHOT_CYCLE * 6 if timeout is None else timeout; total = len(SHOTS) * len(SHOT_ACTORS)
+    per_item = 60 + 3 * SESSION_STEPS * 6 if timeout is None else timeout; total = len(SESSION_SHOTS) * len(SHOT_ACTORS)
     toggle = user/'override'/f'{SHOT_TOGGLE}.2da'; table = user/'override'/f'{ITEMS_TABLE}.2da'
     require(not toggle.exists(), 'A scripted-shot toggle is already in this session; another capture may be running')
     if wait: client.wait_free(wait)
@@ -264,9 +352,12 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
                   'haks': record['haks'], 'finished': complete, 'shotsExpected': total, 'shots': shots,
                   'failures': [line for line in lines if 'FAILED' in line], 'clientValidated': False, 'productionAccepted': False}
         write(folder/'capture.json', result)
-        write(folder/'evidence-draft.json', {'session': result['session'], 'reviewMaterialOnly': True, **cc.evidence_draft(shots, 'nwclientLog1.txt')})
+        write(folder/'evidence-draft.json', {'session': result['session'], 'reviewMaterialOnly': True,
+                                             **cc.evidence_draft(shots, 'nwclientLog1.txt', SESSION_CHECKS)})
         cc.contact_sheets(folder)
-        done.append({'item': item, 'finished': complete, 'shots': len(shots), 'rejected': [shot['shot'] for shot in shots if shot.get('rejected')]})
+        flash = {shot['body']: shot['flash'] for shot in shots if 'flash' in shot and not shot.get('rejected')} if known[item].get('fire') else None
+        done.append({'item': item, 'finished': complete, 'shots': len(shots), 'rejected': [shot['shot'] for shot in shots if shot.get('rejected')],
+                     **({'flash': flash} if flash is not None else {})})
 
     try:
         process = client.start(nwn_root, user, MODULE)
@@ -286,12 +377,16 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
                     if line.startswith(ITEM_LINE):
                         current = client.parse_line(line)['item']; shots = []; folder = captures/current
                         if folder.exists(): shutil.rmtree(folder)      # an unfinished earlier attempt of this item
-                        folder.mkdir(); deadline = time.monotonic() + per_item
-                    elif line.startswith('ITEMKIT_SHOT ') and current: fired += cc.shot_rows([line])
+                        folder.mkdir(); deadline = time.monotonic() + per_item; began = read_at
+                    # `seen`: seconds from the item's start to the read that found the shot, to set against the log's own times.
+                    elif line.startswith('ITEMKIT_SHOT ') and current: fired += [{**row, 'seen': round(read_at - began, 1)} for row in cc.shot_rows([line])]
                     elif line.startswith(ITEM_DONE) and current: close(current, True, lines); current = None
                     elif line.startswith(SESSION_DONE): over = True
-                if current and fired:
-                    shots += cc.file_shots(client, process, user, captures/current, fired, previous_read, frames, gap, settle)
+                if current and fired and fired[-1]['check'] == FIRE_CHECK:
+                    shots += [{**row, 'body': cc.BODIES.get(row['target']), 'captures': [], 'rejected': 'next shot began'} for row in fired[:-1]]
+                    shots.append(fire_burst(client, process, user, captures/current, fired[-1], previous_read))
+                elif current and fired:
+                    shots += cc.file_shots(client, process, user, captures/current, fired, previous_read, frames, gap, settle, HOLD)
                 seen = len(lines); previous_read = read_at
             if current: close(current, False, client.log_lines(user, cc.PREFIX))
         finally:
@@ -308,16 +403,21 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0]); commands = parser.add_subparsers(dest='command', required=True)
     b = commands.add_parser('build'); b.add_argument('session', type=Path); b.add_argument('fixtures', type=Path, nargs='+')
+    b.add_argument('--resources', type=Path, help='folder of files that win over every HAK, such as models with firing effects')
+    b.add_argument('--fire', action='append', default=[], metavar='BLUEPRINT=CLIP',
+                   help='firing clip of one item (fire_smg, fire_sg; empty for none) where its base item\'s usual one is wrong')
     c = commands.add_parser('capture'); c.add_argument('session', type=Path); c.add_argument('captures', type=Path)
     c.add_argument('--wait', type=float, default=0, help="seconds to wait for another session's client to close first")
     c.add_argument('--items', type=lambda text: [name for name in text.split(',') if name], help='blueprints to capture, of the session')
-    c.add_argument('--again', action='store_true', help='capture the named items again although they are finished (shots lost to a busy machine)')
+    c.add_argument('--again', action='store_true', help='capture the named items again although they are finished (rejected shots)')
     c.add_argument('--timeout', type=float, help='seconds allowed per item')
     for command in (b, c): command.add_argument('--nwn-root', type=Path, required=True, help='game install folder (holds bin/win32/nwmain.exe)')
     a = parser.parse_args(argv)
     if a.command == 'build':
-        record = build(a.session, a.fixtures, a.nwn_root)
-        result = {'session': str(a.session), 'module': record['module']['path'], 'items': [row['item'] for row in record['items']], 'haks': record['hakOrder']}
+        require(all('=' in entry for entry in a.fire), '--fire takes BLUEPRINT=CLIP')
+        record = build(a.session, a.fixtures, a.nwn_root, resources=a.resources, fire=dict(entry.split('=', 1) for entry in a.fire))
+        result = {'session': str(a.session), 'module': record['module']['path'], 'haks': record['hakOrder'],
+                  'items': {row['item']: row['fire'] for row in record['items']}}
     else:
         result = capture(a.session, a.captures, a.nwn_root, wait=a.wait, only=a.items, again=a.again, timeout=a.timeout)
     print(json.dumps(result, indent=2))

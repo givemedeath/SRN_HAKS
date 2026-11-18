@@ -77,7 +77,7 @@ def contact_sheets(captures, columns=4, size=(480, 270)):
     return sheets
 
 
-def file_shots(client, process, user, captures, rows, previous_read, frames=FRAMES, gap=GAP, settle=SETTLE):
+def file_shots(client, process, user, captures, rows, previous_read, frames=FRAMES, gap=GAP, settle=SETTLE, hold=SHOT_HOLD):
     """Capture the newest shot of one log read into `captures`; the shots that read already passed are filed as rejected."""
     shots = []
     for index, row in enumerate(rows):
@@ -87,17 +87,21 @@ def file_shots(client, process, user, captures, rows, previous_read, frames=FRAM
             shots.append({**row, 'body': body, 'captures': [], 'rejected': 'next shot began'}); continue
         # The shot fired after the previous log read, and the camera is free for the next one SHOT_HOLD after
         # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
-        hold_ends = previous_read + SHOT_HOLD
-        time.sleep(settle); names = []
+        hold_ends = previous_read + hold
+        # The pictures are taken first and written afterwards: writing three PNGs inside the hold is what overran it.
+        time.sleep(settle); names = []; images = []; started = time.monotonic()
         for frame in range(frames):
-            name = f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"
-            client.capture(process.pid, Path(captures) / name); names.append(name)
+            names.append(f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"); images.append(client.grab(process.pid))
             if frame < frames - 1: time.sleep(gap)
+        took = round(time.monotonic() - started, 2)
         # A burst that ran into the next shot shows the wrong thing: keep the files, never file them.
         newest = shot_rows(client.log_lines(user, PREFIX))[-1]['shot']
         rejected = ('next shot began' if newest != row['shot'] else
                     'burst overran the shot hold' if time.monotonic() > hold_ends else None)
-        shots.append({**row, 'body': body, 'captures': names, **({'rejected': rejected} if rejected else {})})
+        started = time.monotonic()
+        for name, image in zip(names, images): client.save(image, Path(captures) / name)
+        shots.append({**row, 'body': body, 'captures': names, 'grabSeconds': took, 'saveSeconds': round(time.monotonic() - started, 2),
+                      **({'rejected': rejected} if rejected else {})})
     return shots
 
 

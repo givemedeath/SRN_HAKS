@@ -7,7 +7,7 @@ from unittest import mock
 
 from tools.headkit.common import pin
 from tools.itemkit import review_session as R
-from tools.itemkit.fixture import SHOTS, entry_script
+from tools.itemkit.fixture import SHOTS, entry_script, shot_script
 
 TABLE = ('2DA V2.0\n\n     label  MaxRange  ItemClass\n'
          '6    xbow   {xbow}  WBwXh\n22   dagger 100  WSwDg\n61   sling  {sling}  {klass}\n')
@@ -19,7 +19,12 @@ class ScriptTests(unittest.TestCase):
         self.assertNotIn('ITEM_RESREF', text); self.assertNotIn('@', text.replace('"@"', ''))
         self.assertIn('GetItemPossessedBy(t,GetLocalString(GetModule(),"ITK_ITEM"))', text)
         for number in range(len(R.CARRIES)): self.assertIn(f'if(GetLocalInt(GetModule(),"ITK_CARRY")=={number}) {{', text)
-        self.assertEqual(len(R.PLAN_LINE.findall(text)), len(SHOTS) * len(R.CARRIES))
+        self.assertEqual(len(R.PLAN_LINE.findall(text)), len(R.SESSION_SHOTS) * len(R.CARRIES))
+        self.assertLess(len(R.SESSION_SHOTS) * 3, len(SHOTS))                                  # a third of a fixture's shots, or fewer
+        self.assertEqual(text.count('"firing",n,'), len(R.CARRIES)); self.assertIn(',6,5.0));', text)   # one long hold a carry
+        self.assertIn('if(n==4 || n==10) ItkAmmo(t);', text); self.assertIn('ItkClip(male,fire); ItkClip(female,fire);', text)
+        self.assertIn('SetLocalInt(female,"STEP",36);', text); self.assertIn('if(n==13) ItkPark(t);', text)
+        self.assertIn('SetCameraFacing(ItkFacing(t,check,facing),', text); self.assertIn('check!="firing"', text)
         self.assertEqual(text.count('ItkStart(0);'), 1); self.assertEqual(text.count('DelayCommand(4.0,ItkWatch(pc));'), 1)   # the routine does not call itself
         self.assertIn('  ItkStart(0);\n}', text); self.assertIn('ExecuteScript("sr_it_prior",GetModule());', text)
         self.assertEqual(text.count('void ItkDone()'), 1); self.assertIn('WriteTimestampedLogEntry("ITEMKIT_SESSION done")', text)
@@ -31,9 +36,22 @@ class ScriptTests(unittest.TestCase):
         self.assertEqual(R.session_heartbeat(script), 'void main(){ object blade=GetItemPossessedBy(OBJECT_SELF,GetLocalString(GetModule(),"ITK_ITEM")); }')
         with self.assertRaises(ValueError): R.session_heartbeat('void main(){}')
 
-    def test_the_item_table_numbers_the_carries(self):
-        table = R.items_table([{'item': 'sr_a', 'carry': 'hip'}, {'item': 'sr_b', 'carry': 'shoulder'}]).decode('ascii')
-        self.assertEqual(table, '2DA V2.0\n\n   Item  Carry\n0  sr_a  0\n1  sr_b  1\n')
+    def test_the_item_table_numbers_the_carries_and_names_the_firing_clip(self):
+        table = R.items_table([{'item': 'sr_a', 'carry': 'hip', 'fire': 'fire_pst'}, {'item': 'sr_b', 'carry': 'shoulder', 'fire': ''}]).decode('ascii')
+        self.assertEqual(table, '2DA V2.0\n\n   Item  Carry  Fire\n0  sr_a  0  fire_pst\n1  sr_b  1  ****\n')
+
+    def test_the_session_shots_leave_the_two_bodies_apart_and_fit_the_item_time(self):
+        # The female's step s falls in the male's step s + 40 - offset: no step of his may be shot then.
+        male = {row[0] for row in R.SESSION_SHOTS}; shift = 40 - R.SESSION_OFFSET
+        self.assertFalse(male & {step + shift for step in male})
+        self.assertEqual(max(male) + shift + 1, R.SESSION_STEPS)
+        self.assertEqual(R.SESSION_SHOTS[-1][2], R.FIRE_CHECK)
+
+    def test_a_fixture_shot_keeps_its_line_and_a_row_may_hold_longer(self):
+        # Built fixtures are told apart by these lines: a row without its own hold must be written as it always was.
+        self.assertIn('  if(n==1) DelayCommand(1.3,ItkTry(pc,t,base+0,"front-rear-sides",n,270.0,3.2,80.0,1.00));', shot_script())
+        with self.assertRaisesRegex(ValueError, 'holds inside its own step'): shot_script(((1, 2.0, 'idle', 0, 2, 80, 1, 4.5),), checks=('idle',))
+        with self.assertRaisesRegex(ValueError, 'every melee client check'): shot_script(R.SESSION_SHOTS)
 
     def test_a_fixture_entry_script_names_its_item_hand_and_carry(self):
         # fixture_item reads these from a built module; the same expressions on the script the fixture stage writes.
@@ -63,7 +81,7 @@ class ResumeTests(unittest.TestCase):
             root = Path(folder); session = root/'session'; user = session/'userdir'; (user/'override').mkdir(parents=True)
             module = user/'itk.mod'; module.write_bytes(b'mod'); fixture = root/'fixture.json'; fixture.write_bytes(b'{}')
             record = {'module': pin(module), 'haks': [], 'userDirectory': str(user),
-                      'items': [{'item': name, 'carry': 'hip', 'fixture': pin(fixture)} for name in ('sr_a', 'sr_b')]}
+                      'schemaVersion': 2, 'items': [{'item': name, 'carry': 'hip', 'fire': 'fire_pst', 'fixture': pin(fixture)} for name in ('sr_a', 'sr_b')]}
             (session/'session.json').write_text(json.dumps(record), encoding='utf-8'); captures = root/'captures'
             for name in ('sr_a', 'sr_b'):
                 (captures/name).mkdir(parents=True); (captures/name/'capture.json').write_text(json.dumps({'finished': name == 'sr_a'}), encoding='utf-8')
@@ -75,8 +93,25 @@ class ResumeTests(unittest.TestCase):
                 with self.assertRaisesRegex(AssertionError, 'no client'): R.capture(session, captures, root, only=['sr_a'], again=True)
                 with self.assertRaisesRegex(AssertionError, 'no client'): R.capture(session, captures, root)
             # the unfinished item alone was put in the table, and the toggle did not outlive the failed start
-            self.assertEqual((user/'override'/'itk_items.2da').read_bytes(), R.items_table([{'item': 'sr_b', 'carry': 'hip'}]))
+            self.assertEqual((user/'override'/'itk_items.2da').read_bytes(), R.items_table([{'item': 'sr_b', 'carry': 'hip', 'fire': 'fire_pst'}]))
             self.assertFalse((user/'override'/'itk_shots.2da').exists())
+
+
+class FlashTests(unittest.TestCase):
+    def test_the_brightest_picture_of_a_burst_is_the_sheet_frame(self):
+        from PIL import Image
+        dark = Image.new('RGB', (640, 360), (40, 40, 40)); lit = dark.copy(); lit.paste((255, 250, 200), (100, 80, 120, 95))
+        faint = dark.copy(); faint.paste((255, 250, 200), (100, 80, 104, 84)); pictures = iter([dark, dark, faint, lit, dark] + [dark] * 500)
+        client = mock.Mock(); client.grab.side_effect = lambda pid: next(pictures); saved = {}
+        client.save.side_effect = lambda image, path: saved.__setitem__(Path(path).name, image)
+        client.log_lines.return_value = ['ITEMKIT_SHOT shot=4 target=sr_it_male check=firing step=12 valid=1']
+        row = {'shot': 4, 'target': 'sr_it_male', 'check': 'firing', 'step': 12, 'valid': True}
+        clock = iter(range(10 ** 6))
+        with mock.patch.object(R.time, 'monotonic', side_effect=lambda: next(clock) * .1):
+            shot = R.fire_burst(client, mock.Mock(pid=1), 'user', 'folder', row, previous_read=0.0)
+        self.assertNotIn('rejected', shot); self.assertGreater(shot['flash'], 0); self.assertGreaterEqual(shot['pictures'], 5)
+        self.assertEqual(shot['captures'], ['human-male-firing-04-0.png', 'human-male-firing-04-1.png', 'human-male-firing-04-2.png'])
+        self.assertIs(saved['human-male-firing-04-1.png'], lit); self.assertIs(saved['human-male-firing-04-0.png'], faint)
 
 
 if __name__ == '__main__':
