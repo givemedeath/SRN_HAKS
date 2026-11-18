@@ -199,6 +199,9 @@ def survey_firearm(item, run):
     blueprint = native['identity']['blueprint']; resources = read_erf(hak_bytes)
     uti = resources.get((blueprint, 2025))
     require(uti is not None, f'{item}: {hak.name} has no blueprint {blueprint}.uti')
+    # One blueprint per published item: the record, the reviewers and the carrier row are planned from this one alone.
+    others = sorted(resref for resref, kind in resources if kind == 2025 and resref != blueprint)
+    require(not others, f'{item}: the package carries more colour variants ({others}) than this command publishes; package each finish on its own')
     fields = crm.parse_gff(uti); prefix = native['allocation']['itemClass']
     require(fields.get('BaseItem') == native['baseItem'], f'{item}: blueprint base item {fields.get("BaseItem")} != package {native["baseItem"]}')
     parts = [fields.get(f'ModelPart{i}') for i in (1, 2, 3)]

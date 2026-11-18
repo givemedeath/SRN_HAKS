@@ -47,6 +47,10 @@ class FirearmSurveyTests(unittest.TestCase):
             (run/'native/srgunh.hak').write_bytes(hak); native['hak']['sha256'] = hashlib.sha256(hak).hexdigest()
             (run/'native/native.json').write_text(json.dumps(native))
             with self.assertRaisesRegex(P.PublishError, 'lacks a ModelPart'): P.survey('pistol', run)
+            hak = erf(b'HAK ', {('srgun_6', 2025): b'x', ('srgun_7', 2025): b'x'})        # a second finish would ship unrecorded
+            (run/'native/srgunh.hak').write_bytes(hak); native['hak']['sha256'] = hashlib.sha256(hak).hexdigest()
+            (run/'native/native.json').write_text(json.dumps(native))
+            with self.assertRaisesRegex(P.PublishError, 'more colour variants'): P.survey('pistol', run)
 
     def test_a_firearm_is_planned_and_its_carrier_row_reaches_the_shown_part(self):
         with tempfile.TemporaryDirectory() as folder:
