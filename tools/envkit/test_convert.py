@@ -134,6 +134,14 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(convert.retouch(picture, points, texture, faces, tone=[0.5, 1.0, 2.0])[0].getpixel((5, 5)), (100, 100, 100))  # a tone for each of red, green and blue
         painted, flat, _ = convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3]}])
         self.assertIsNone(flat); self.assertEqual(painted.getpixel((32, 8)), (1, 2, 3)); self.assertEqual(painted.getpixel((32, 56)), (200, 100, 50))  # the top half only
+        # With `facing`, only the faces that look that way are painted: a lamp's lens and not the housing round it.
+        results = []
+        for way in ([0, 1, 0], [0, -1, 0]):
+            try:
+                results.append(convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3], 'facing': way}])[0].getpixel((32, 8)))
+            except ValueError as refused:
+                self.assertIn('faces the way', str(refused)); results.append(None)
+        self.assertEqual(sorted(results, key=str), [(1, 2, 3), None])  # the wall looks one way along Y and is painted from that side alone
         # A wall is copied over what the generator left blank beside it, height for height: the left half of a wall that
         # is red below and blue above, laid over its plain right half.
         banded = np.zeros((64, 64, 3), np.uint8); banded[:, :32] = (0, 0, 255); banded[32:, :32] = (255, 0, 0); banded[:, 32:] = (90, 90, 90)

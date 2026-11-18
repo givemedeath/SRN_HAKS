@@ -665,6 +665,18 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   faces, so `paint` misses some of it (the rail yard's office module, 2026-11-13). Cover each pane with a thin built
   bar (`built`, `bar`, coloured from a dark glass point) just in front of the layers, inside its frame, measured from
   the frame's profile across the window; build a frame-grey bar over a mullion drawn light. Check both faces.
+- **A building's floodlight is dark at night, or glows over dark ground** (the power station's five lamp heads;
+  user, 2026-11-18: "the tower lights on the tile group aren't lit", "those lamp heads need actual lights"). A
+  generator draws a lens dark, and a lit part with a `value` test then lights a tenth of its box (`view --lit`:
+  `lit` far under `held`). Paint the lens first: a `paint` entry with the head's box, a warm white and `"facing":
+  [0, 0, -1]` takes only the faces that look within 60 degrees of that way, the lens and the head's underside and
+  not its housing. Then give the head a light: `tiles.lamps`, `[{"part", "at": [x, y, z], "colour": [r, g, b],
+  "radius": metres}]` on the finished model, is a light node of that colour in the tile the place lies in
+  (`<tile>_lamp<n>`, three times a main light's strength: at one it hardly showed from seven metres up). A tile's two
+  main lights stay dark until a builder colours them; a lamp's own light is on wherever the group is painted, and a
+  script that puts the group's lights out does not reach it. Look for every head, roof gear included, before stating
+  them: two of the five were on the roof and had no lit part. See it in `check group --mode night`: the ground
+  under each head lit in the lamp's colour.
 - **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
   own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
   its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",

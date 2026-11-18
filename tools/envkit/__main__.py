@@ -183,7 +183,7 @@ def command_tiles(args):
             part, part_maps, part_colour = shapes[name]
             files += convert.skin(texture, part_maps, folder / 'shared', crunch, part, colour=models[name].get('colour', 1024))
             placed += [(texture, convert.place(part, stand['at'], stand.get('turn', 0)), part_colour) for stand in tiles['parts'] if stand['model'] == name]
-        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'), nodes=tiles.get('nodes'),
+        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'), nodes=tiles.get('nodes'), lamps=tiles.get('lamps', ()),
                             ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']),
                             parts=placed)  # a model placed twice is joined there into one model of the group
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')

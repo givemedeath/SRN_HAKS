@@ -1719,6 +1719,9 @@ def _copied(colour, where, covered, target, source, part, kept=None):
     return colour
 
 
+PAINT_FACING = 0.5  # a painted part with `facing` takes the faces that look within 60 degrees of that way
+
+
 def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth=(), mesh=(), size=RETOUCH, placed=None):
     """(colour, flat, plain): a model's colour picture as it ships, where its relief is to be flattened, and where its
     other maps are to be smoothed as its colour was: [(texels, reach in texels)] for each smoothed part, with its marked
@@ -1728,7 +1731,9 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth
     `tone` multiplies the whole picture (a model that came back paler than its reference), by one number or by one
     each for red, green and blue (a building's piece that came back another shade than the piece it stands against:
     the Iron Sight Arms range wing, paler and greyer than its shop; user, 2026-11-14). `paint` covers what a
-    generator invented: [{box, colour}], every texel within the box in one colour (0-255). `copy` covers it with the
+    generator invented: [{box, colour}], every texel within the box in one colour (0-255), or with `facing` ([x, y, z])
+    only those on faces that look within 60 degrees of that way (a floodlight's lens, drawn dark, and not its housing:
+    the power station's, user, 2026-11-18). `copy` covers it with the
     wall beside it instead: [{box, from}], the texels within `box` showing the wall within the box `from`, height for
     height, or its mirror image with `mirror` (`_copied`), after the painting and before the smoothing. `mesh` makes a panel a
     chain-link fence: [{box, pitch, wire, colour}], the texels within the box in the wire's colour and see-through
@@ -1760,11 +1765,18 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth
     if mesh:
         alpha = np.ones(colour.shape[:2], bool)
     if paint or copy or smooth or mesh:
-        where, covered = placed if placed is not None else glow.position_map(vertices, uvs, faces, grain)
+        faced = any('facing' in part for part in paint)
+        if placed is None or (faced and len(placed) < 3):
+            placed = glow.position_map(vertices, uvs, faces, grain, facing=faced)
+        where, covered = placed[:2]
         require(covered.shape == (grain, grain), f'The position map handed to the retouching is {grain} texels across')
         full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
         for part in paint:
-            colour[full(glow.held(where, covered, part, 'painted'))] = np.asarray(part['colour'], float) / 255
+            chosen = glow.held(where, covered, part, 'painted')
+            if 'facing' in part:  # only what looks that way: a lamp's lens and not the housing round it
+                way = np.asarray(part['facing'], float); chosen = chosen & (placed[2] @ (way / np.linalg.norm(way)) >= PAINT_FACING)
+                require(chosen.any(), 'Nothing in the box of a painted part faces the way it states: ' + str(part.get('part', part['box'])))
+            colour[full(chosen)] = np.asarray(part['colour'], float) / 255
         places = {}
         for part in copy:
             colour = _copied(colour, where, covered, glow.held(where, covered, part, 'copied-over'),
@@ -1921,8 +1933,9 @@ def load_models(path):
         require(all(number(tone) and 0.2 <= tone <= 2 for tone in tones), 'A tone is 0.2 to 2 times the colour, one number or one each for red, green and blue: ' + name)
         shade = lambda value: isinstance(value, list) and len(value) == 3 and all(type(part) is int and 0 <= part <= 255 for part in value)
         for part in model.get('paint', []):
-            require(isinstance(part, dict) and {'box', 'colour'} <= set(part) <= {'part', 'box', 'colour'} and box(part) and shade(part['colour']),
-                    'A painted part needs a box and a colour of three 0-255 values: ' + name)
+            require(isinstance(part, dict) and {'box', 'colour'} <= set(part) <= {'part', 'box', 'colour', 'facing'} and box(part) and shade(part['colour'])
+                    and ('facing' not in part or (isinstance(part['facing'], list) and len(part['facing']) == 3 and all(number(one) for one in part['facing']) and any(part['facing']))),
+                    'A painted part needs a box and a colour of three 0-255 values (facing: the way its faces look, [x, y, z]): ' + name)
         for part in model.get('copy', []):
             require(isinstance(part, dict) and {'box', 'from'} <= set(part) <= {'part', 'box', 'from', 'mirror', 'rise'} and box(part) and box({'box': part['from']})
                     and type(part.get('mirror', False)) is bool and number(part.get('rise', 0.0)),
@@ -2061,12 +2074,16 @@ def load_models(path):
                 'underfoot is true, for a model laid on the ground of the groups it is placed in, and that is no group itself: ' + name)
         require(model.get('walkUnder', True) is True and not ('walkUnder' in model and (tiles or not placed or model.get('underfoot'))),
                 'walkUnder is true, for a placeable on legs that is walked under between them, and that is neither a group nor laid underfoot: ' + name)
-        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
+        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes', 'lamps'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
         require(tiles is None or len(name) <= TILE_NAME_LENGTH, f'A tile group model is named in at most {TILE_NAME_LENGTH} characters: {name}')
         # A tile group stands on the ground: `tiles` builds it there, and a lift would only move its boxes off it.
         require(tiles is None or not model.get('lift'), 'A tile group stands on the ground and takes no lift: ' + name)
+        for lamp in (tiles or {}).get('lamps', []):  # a lamp head's own light, where a glow alone leaves the ground dark
+            require(isinstance(lamp, dict) and {'at', 'colour', 'radius'} <= set(lamp) <= {'part', 'at', 'colour', 'radius'} and point(lamp['at']) and shade(lamp['colour'])
+                    and number(lamp['radius']) and 2 <= lamp['radius'] <= 20,
+                    'The lamp of a tile group is a place on the finished model, a colour of three 0-255 values and a radius of 2 to 20 metres: ' + name)
         door = (tiles or {}).get('door')
         require(not (isinstance(door, dict) and 'measuredAt' in door), 'measuredAt is stated on the model, beside its height, and covers its door: take it off the door of ' + name)
         require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type', 'leaf'} and np.asarray(door['at'], float).shape == (3,)),
@@ -2309,7 +2326,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         with Image.open(maps['base_color']) as picture:
             same = placed is not None and size == min(RETOUCH, picture.width)  # the glow's map of places serves the retouching where their sizes agree
             shown, flat, plain = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), copy=copy or (), smooth=smooth or (), mesh=mesh or (),
-                                         placed=placed[:2] if same else None)
+                                         placed=placed if same else None)
     if lit:  # by the picture as it ships: what was painted over or toned down does not shine through by night as it was
         with Image.open(maps['base_color']) as picture:
             base = np.asarray((shown if shown is not None else picture).convert('RGB').resize((size, size)), float) / 255

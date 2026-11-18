@@ -1500,7 +1500,12 @@ model's own picture at a stated point (the first build's posts were square bars 
 door, without gate leaves. Seven faces of 0.1 square metres or more came back showing a sliver of the picture drawn out
 across them, the largest a square metre of the slab at the wider gateway (operator, 2026-11-17: "what is this
 smear?"): each was cut into pieces and drawn with the sound surface of its own plane beside it (`convert.relaid`); one
-of 0.26 square metres low on the slab's front edge found none and is as generated. Nothing else was retouched. The
+of 0.26 square metres low on the slab's front edge found none and is as generated. The five floodlight heads (three
+on poles, two on the roof) came back with their lenses drawn dark and stayed dark at night (user, 2026-11-18: "the
+tower lights on the tile group aren't lit", "those lamp heads need actual lights"): the faces of each head that look
+downward were painted a warm white and lit, and each head has a light of its own in its tile (warm white, 12 metres),
+lit without a builder colouring a main light. A script that puts the group's lights out darkens the lenses and leaves
+these five lights on. Nothing else was retouched. The
 mesh (198,529 triangles with the fence) was shared out over
 four tiles (17,689 to 84,311 faces each) with a ground square, a map picture and two main lights each; what stands
 above 4.2 metres carries `tilefade`; and a walkmesh was generated from its shape (402 to 1,720 faces a tile, where
@@ -1516,6 +1521,8 @@ view from above was late in both and is not kept); by night, where the lit parts
 brought back; and with walkers in both tilesets sent from the far corners to the door, the roller door, both halves
 of the yard, a corner of it and each side of the building, and from the next tile onto the yard: all arrived. Not
 yet painted in the Toolset, and its door has not been clicked through.
+
+<!-- srn-size-exception {"path":"srn_t_common/ek_sb_power_n.dds","reason":"The power station's relief map at 4096, as its colour is (user, 2026-11-17: \"Yes, full 4K normals\"); 22,369,776 bytes, below GitHub's hard limit."} -->
 
 ## Shiawase Barrens props (`srn_placeable`, `srn_2da`; 2026-11-18)
 

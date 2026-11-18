@@ -133,6 +133,10 @@ class TileTests(unittest.TestCase):
         part = (np.array([[0.0, 0, 0], [1, 0, 0], [0, 0, 1]]), np.tile([0, 1.0, 0], (3, 1)), np.zeros((3, 2)), np.array([[0, 1, 2]]))
         card = [((1.0, 0.5, 0.0), (0.0, 1.0)), ((-1.0, 0.5, 0.0), (1.0, 1.0)), ((-1.0, 0.5, 1.0), (1.0, 0.0)), ((1.0, 0.5, 1.0), (0.0, 0.0))]
         text = tile.model_text('ek_test_t00', [part], 'ek_test', 'pavement', [card], walk)
+        # A lamp's own light is a light node of its colour, beside the main lights a builder colours.
+        lamped = tile.model_text('ek_test_t00', [part], 'ek_test', 'pavement', [card], walk, lamps=[((1.0, 2.0, 6.0), (1.0, 0.5, 0.25), 12)])
+        self.assertNotIn('_lamp', text); lamp = lamped.split('node light ek_test_t00_lamp1')[1].split('endnode')[0]
+        self.assertIn('  position 1.00000 2.00000 6.00000', lamp); self.assertIn('  color 1.000 0.500 0.250', lamp); self.assertIn('  radius 12', lamp)
         for line in ('classification TILE', 'node trimesh ek_test_t00_g', '  bitmap pavement', 'node trimesh ek_test_t00_m0', '  bitmap ek_test', '  tilefade 0',
                      'node trimesh ek_test_t00_halo0', '  bitmap ek_test_h', 'node aabb ek_test_t00_wm', '    2 0 3  1  0 0 0  4',
                      '  aabb -5.00000 -5.00000 0.00000 5.00000 5.00000 0.00000 -1', 'donemodel ek_test_t00'):

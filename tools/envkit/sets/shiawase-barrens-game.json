@@ -119,6 +119,38 @@
       ]
      ],
      "value": 0.75
+    },
+    {
+     "part": "roof floodlight over the roller door",
+     "box": [
+      [
+       -7.47,
+       -3.58,
+       6.88
+      ],
+      [
+       -6.46,
+       -2.67,
+       7.49
+      ]
+     ],
+     "value": 0.75
+    },
+    {
+     "part": "roof floodlight at the back",
+     "box": [
+      [
+       -9.02,
+       0.16,
+       6.75
+      ],
+      [
+       -7.95,
+       1.04,
+       7.25
+      ]
+     ],
+     "value": 0.75
     }
    ],
    "halo": {
@@ -195,8 +227,207 @@
      "facing": 90.0,
      "type": 58,
      "leaf": 2.1
+    },
+    "lamps": [
+     {
+      "part": "west floodlight",
+      "at": [
+       -9.0,
+       -4.18,
+       6.98
+      ],
+      "colour": [
+       255,
+       236,
+       196
+      ],
+      "radius": 12
+     },
+     {
+      "part": "transformer floodlight",
+      "at": [
+       8.26,
+       -2.75,
+       5.45
+      ],
+      "colour": [
+       255,
+       236,
+       196
+      ],
+      "radius": 12
+     },
+     {
+      "part": "east floodlight",
+      "at": [
+       9.19,
+       0.69,
+       3.97
+      ],
+      "colour": [
+       255,
+       236,
+       196
+      ],
+      "radius": 12
+     },
+     {
+      "part": "roof floodlight over the roller door",
+      "at": [
+       -6.96,
+       -3.12,
+       6.98
+      ],
+      "colour": [
+       255,
+       236,
+       196
+      ],
+      "radius": 12
+     },
+     {
+      "part": "roof floodlight at the back",
+      "at": [
+       -8.48,
+       0.6,
+       6.85
+      ],
+      "colour": [
+       255,
+       236,
+       196
+      ],
+      "radius": 12
+     }
+    ]
+   },
+   "paint": [
+    {
+     "part": "west floodlight lenses",
+     "box": [
+      [
+       -9.5,
+       -4.68,
+       6.88
+      ],
+      [
+       -8.5,
+       -3.68,
+       7.35
+      ]
+     ],
+     "colour": [
+      255,
+      244,
+      214
+     ],
+     "facing": [
+      0,
+      0,
+      -1
+     ]
+    },
+    {
+     "part": "transformer floodlight lenses",
+     "box": [
+      [
+       7.88,
+       -3.34,
+       5.35
+      ],
+      [
+       8.64,
+       -2.15,
+       5.83
+      ]
+     ],
+     "colour": [
+      255,
+      244,
+      214
+     ],
+     "facing": [
+      0,
+      0,
+      -1
+     ]
+    },
+    {
+     "part": "east floodlight lenses",
+     "box": [
+      [
+       8.69,
+       0.19,
+       3.87
+      ],
+      [
+       9.69,
+       1.19,
+       4.3
+      ]
+     ],
+     "colour": [
+      255,
+      244,
+      214
+     ],
+     "facing": [
+      0,
+      0,
+      -1
+     ]
+    },
+    {
+     "part": "roof floodlight over the roller door lenses",
+     "box": [
+      [
+       -7.47,
+       -3.58,
+       6.88
+      ],
+      [
+       -6.46,
+       -2.67,
+       7.49
+      ]
+     ],
+     "colour": [
+      255,
+      244,
+      214
+     ],
+     "facing": [
+      0,
+      0,
+      -1
+     ]
+    },
+    {
+     "part": "roof floodlight at the back lenses",
+     "box": [
+      [
+       -9.02,
+       0.16,
+       6.75
+      ],
+      [
+       -7.95,
+       1.04,
+       7.25
+      ]
+     ],
+     "colour": [
+      255,
+      244,
+      214
+     ],
+     "facing": [
+      0,
+      0,
+      -1
+     ]
     }
-   }
+   ]
   },
   "ek_sb_trafo": {
    "source": "meshy/models/sb-transformer-a1",

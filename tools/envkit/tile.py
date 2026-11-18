@@ -675,7 +675,10 @@ def _level_cut(card, height, light=None):
     return [([card[0], card[1], right, left], False), ([left, right, card[2], card[3]], True)]
 
 
-def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=None, cap=(), card_light=None, card_bitmaps=None):
+LAMP_MULTIPLIER = 3  # how strong a lamp's own light is: at 1, seven metres up, it hardly showed on the ground (client, 2026-11-18)
+
+
+def model_text(name, parts, material, ground, cards, walk, *, lights=(), lamps=(), fade=None, cap=(), card_light=None, card_bitmaps=None):
     """One tile's ASCII model. parts: [(vertices, normals, uvs, faces)] of the building, in the tile's space; a fifth
     value, true, marks a part the game may hide (`tilefade`), and a sixth names the picture a part shows where that is not
     `material` (a fence's sheets). ground: the texture of the ten-metre square under it, laid
@@ -722,6 +725,12 @@ def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=No
     for index, (x, y, z) in enumerate(lights, 1):
         lines += [f'node light {name}ml{index}', f'  parent {name}', f'  position {x:.5f} {y:.5f} {z:.5f}', '  orientation 1 0 0 0', '  color 1 1 1', '  radius 14',
                   '  multiplier 1', '  ambientonly 0', '  nDynamicType 1', '  affectdynamic 1', '  shadow 0', '  lightpriority 5', '  fadinglight 1', 'endnode']
+    # A lamp's own light: a main light is dark until a builder colours it, and a floodlight that glows over dark
+    # ground is not lit (the power station's lamp heads; user, 2026-11-18: "those lamp heads need actual lights").
+    for index, ((x, y, z), (red, green, blue), radius) in enumerate(lamps, 1):
+        lines += [f'node light {name}_lamp{index}', f'  parent {name}', f'  position {x:.5f} {y:.5f} {z:.5f}', '  orientation 1 0 0 0',
+                  f'  color {red:.3f} {green:.3f} {blue:.3f}', f'  radius {radius:g}', f'  multiplier {LAMP_MULTIPLIER}', '  ambientonly 0', '  nDynamicType 1', '  affectdynamic 1',
+                  '  shadow 0', '  lightpriority 4', '  fadinglight 1', 'endnode']
     lines += _walk_node(name, name, *walk) + [f'endmodelgeom {name}']
     if cards:
         lines += _daylight(name, [f'{name}_halo{index}' for index in range(len(cards))])
@@ -903,7 +912,7 @@ def walk_targets(roomy, planned=None):
     return targets
 
 
-def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=(), nodes=None):
+def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=(), nodes=None, lamps=()):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
     {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}], notes} with the tiles
     in the set file's order. notes: what to look at before the group is installed, in words: ground no exit of its tile
@@ -916,7 +925,8 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     picture, halo and fence sheets, and with the building one ground to walk on, cut into the same tiles; a model placed
     more than once comes once for each place, and they are joined (`merge_parts`). A part marked `underfoot` (railway
     track) is drawn but not surveyed: the ground is walked flat across it, and it may run off the group's edges, where
-    a raised slab may not. It stands no higher than the knee."""
+    a raised slab may not. It stands no higher than the knee. lamps: [{at: [x, y, z], colour: [r, g, b] (0-255), radius}]
+    on the finished model, each a light of its own colour in the tile it stands in, lit without a builder's doing."""
     require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     parts = merge_parts(parts); meshes = [(name, made, colour), *parts]
@@ -964,12 +974,14 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                         shown.append((one['vertices'][used] - centre, one['normals'][used], one['uvs'][used], local.reshape(-1, 3), hidden, texture))
             walk = walkmesh(found, row, column); lights = light_places(found, row, column)
             halos = cards.get((row, column), [])
-            text = model_text(model, shown, name, ground, [card for card, _, _ in halos], walk, lights=lights, fade=fade, card_light=[light for _, light, _ in halos],
+            mine = [(np.asarray(lamp['at'], float) - centre, np.asarray(lamp['colour'], float) / 255, float(lamp['radius'])) for lamp in lamps
+                    if tuple(np.clip(((np.asarray(lamp['at'][:2], float) - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])) == (column, row)]
+            text = model_text(model, shown, name, ground, [card for card, _, _ in halos], walk, lights=lights, lamps=mine, fade=fade, card_light=[light for _, light, _ in halos],
                               card_bitmaps=[bitmap for _, _, bitmap in halos], cap=lid(found, row, column) if fade is not None else ())
             (folder / f'{model}.mdl').write_text(text, encoding='cp1252', newline='\n')
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')
             one = {'model': model, 'row': row, 'column': column, 'faces': counts['faces'], 'fadingFaces': counts['fading'], 'walkFaces': int(len(walk[1])),
-                   'path': nodes[(row, column)], 'lights': len(lights), 'doors': []}
+                   'path': nodes[(row, column)], 'lights': len(lights), 'lamps': len(mine), 'doors': []}
             if one['path']['offPath']:
                 notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no walk from round the group is planned onto (`path_nodes`)')
             for sides in [sides for at_row, at_column, sides in cut if (at_row, at_column) == (row, column)]:
