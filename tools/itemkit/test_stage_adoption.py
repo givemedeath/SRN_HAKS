@@ -10,9 +10,9 @@ from unittest.mock import patch
 import numpy as np
 
 from tools.headkit.common import pin, read, write
-from . import miss_patch
-from .runner import BEFORE_BAKE, Runner, geometry_hashes, recovery_proofs, stage_manifest_hash
-from .test_itemkit import Fixture
+from tools.itemkit import miss_patch
+from tools.itemkit.runner import BEFORE_BAKE, Runner, geometry_hashes, recovery_proofs, stage_manifest_hash
+from tools.itemkit.test_itemkit import Fixture
 
 POLICY = {'method': 'nearest-finished-donor', 'maximumDistance': .003, 'minimumNormalAlignment': .5}
 
