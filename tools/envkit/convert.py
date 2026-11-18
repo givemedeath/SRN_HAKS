@@ -39,7 +39,7 @@ MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear',
 FILL_NEAR, FILL_WELD, FILL_MOST = 0.1, 0.002, 64  # metres from a stated point to a hole's rim; how near two corners are one place; a hole's most corners
 STEP_RISE, RAIL_HEIGHT, POST_EVERY = 0.19, 0.95, 1.2  # metres: a built stair's most rise a step, its handrail's height over the nosings, posts at most this far apart
 STAIR_STEEPEST = 1.2  # a built stair flight's most rise over its run (about 50 degrees): steeper, it is a ladder
-COIL, COIL_SIDES = (0.03, 0.03), 6  # a built coil of barbed wire: its wire's section, metres (thicker than wire, to be seen from the yard), and the straight lengths to a turn
+COIL, COIL_SIDES = 0.03, 10  # a built coil of barbed wire: its wire's thickness, metres (thicker than wire, to be seen from the yard), and the straight lengths to a turn
 TREAD, STRINGER, RAIL, POST = (0.04,), (0.05, 0.22), (0.045, 0.045), (0.045, 0.045)  # built stair members' sections, metres: tread thickness, stringer, rails, posts
 GLASS_COLOUR, GLASS_STRENGTH, GLASS_FLAT, GLASS_MOST, GLASS_PICTURE = (150, 170, 185), 0.25, 0.02, 8, 64  # a pane's colour and how much of it is added to what stands behind; metres its corners may stand off its plane; its most corners; its picture's width
 LIGHT_NEAR = 0.3  # metres a placeable's cast light may stand from the model: the game draws a flare where it stands
@@ -354,15 +354,31 @@ def railing(path, height=RAIL_HEIGHT, below=0.0):
 
 
 def coil(start, end, radius, pitch):
-    """The members of a coil of barbed wire along the line from `start` to `end`, its axis: a turn of `radius` every
-    `pitch` metres, each turn COIL_SIDES straight lengths of wire: [(start, end, size, kind)]. A fence built after
-    generation is topped with one (user, 2026-11-17: "Fences will generally need to be topped with spiral barbed
-    wire"); a generator's own smudges what stands behind it (`smears`)."""
+    """A coil of barbed wire along the line from `start` to `end`, its axis: (vertices, normals, faces). Two strands of
+    `radius`, each a turn every `pitch` metres, wound opposite ways from one point, so that they cross twice a turn as
+    the clipped loops of concertina wire do; seen from the side one strand alone is a wave, not a coil (the first
+    built, of six straight bars a turn, read in the client as a row of pointed arches: user, 2026-11-17, "Fix the fence
+    razor wire first"). Each strand is a three-sided wire COIL thick, COIL_SIDES lengths to a turn, shaded round. A
+    fence built after generation is topped with one (user, 2026-11-17: "Fences will generally need to be topped with
+    spiral barbed wire"); a generator's own smudges what stands behind it (`smears`)."""
     start, end = np.asarray(start, float), np.asarray(end, float); along = end - start; length = float(np.linalg.norm(along)); along = along / length
     level = np.cross(along, [0.0, 0.0, 1.0]); level = level / np.linalg.norm(level) if np.linalg.norm(level) > 1e-6 else np.array([1.0, 0.0, 0.0])
     upright = np.cross(level, along); steps = max(int(round(length / pitch)), 1) * COIL_SIDES
-    at = lambda k: start + along * length * k / steps + radius * (np.cos(2 * np.pi * k / COIL_SIDES) * level + np.sin(2 * np.pi * k / COIL_SIDES) * upright)
-    return [(at(k), at(k + 1), COIL, 'coil') for k in range(steps)]
+    k = np.arange(steps + 1); angle = 2 * np.pi * k / COIL_SIDES; points, normals, faces = [], [], []
+    for hand in (1.0, -1.0):
+        out = np.cos(angle)[:, None] * level + hand * np.sin(angle)[:, None] * upright
+        centre = start + along * (length * k / steps)[:, None] + radius * out; base = 3 * (steps + 1) * len(points)
+        ring = [np.cos(turn) * out + np.sin(turn) * along for turn in 2 * np.pi * np.arange(3) / 3]  # across the wire: out from the axis, and along it
+        points.append(np.stack([centre + COIL / 2 * one for one in ring], 1).reshape(-1, 3)); normals.append(np.stack(ring, 1).reshape(-1, 3))
+        for j in range(3):
+            a, b = base + 3 * k[:-1] + j, base + 3 * k[:-1] + (j + 1) % 3
+            quads = np.concatenate([np.stack([a, b, b + 3], 1), np.stack([a, b + 3, a + 3], 1)])
+            faces.append(quads if hand > 0 else quads[:, ::-1])
+    points, normals, faces = np.vstack(points), np.vstack(normals), np.vstack(faces)
+    across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+    if float((across * normals[faces[:, 0]]).sum()) < 0:  # wound outward, whichever way the axis runs
+        faces = faces[:, ::-1]
+    return points, normals, faces
 
 
 def with_built(vertices, normals, uvs, faces, parts):
@@ -380,7 +396,8 @@ def with_built(vertices, normals, uvs, faces, parts):
         elif 'railing' in part:
             members = railing(part['railing'], part.get('height', RAIL_HEIGHT))
         elif 'coil' in part:
-            members = coil(part['coil'][0], part['coil'][1], part['radius'], part['pitch'])
+            points, outward, local = coil(part['coil'][0], part['coil'][1], part['radius'], part['pitch']); count = len(vertices); members = []
+            vertices = np.vstack([vertices, points]); normals = np.vstack([normals, outward]); uvs = np.vstack([uvs, np.tile(place, (len(points), 1))]); faces = np.vstack([faces, local + count])
         else:
             stairs = part['stairs']; members = flight(stairs['foot'], stairs['top'], stairs['width'], stairs.get('sides', ('left', 'right')))
         for start, end, size, kind in members:

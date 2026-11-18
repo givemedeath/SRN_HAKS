@@ -631,16 +631,20 @@ class ConvertTests(unittest.TestCase):
 
     def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
         """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""
-        members = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.4)
-        self.assertEqual(len(members), 15 * convert.COIL_SIDES); self.assertTrue(all(kind == 'coil' for *_, kind in members))
-        ends = np.array([m[0] for m in members] + [members[-1][1]])
-        np.testing.assert_allclose(np.hypot(ends[:, 1], ends[:, 2] - 3), 0.25)  # every corner on the coil's radius
-        np.testing.assert_allclose(ends[[0, -1], 0], [0, 6]); self.assertTrue((np.diff(ends[:, 0]) > 0).all())
-        np.testing.assert_allclose([m[1] for m in members[:-1]], [m[0] for m in members[1:]])  # one unbroken wire
+        points, normals, faces = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.5)
+        steps = 12 * convert.COIL_SIDES; self.assertEqual((len(points), len(faces)), (2 * 3 * (steps + 1), 2 * 6 * steps))  # two strands, three-sided
+        away = np.hypot(points[:, 1], points[:, 2] - 3); self.assertLessEqual(np.abs(away - 0.25).max(), convert.COIL / 2 + 1e-9)  # on the coil's radius
+        self.assertAlmostEqual(points[:, 0].min(), -convert.COIL / 2, places=2); self.assertAlmostEqual(points[:, 0].max(), 6 + convert.COIL / 2, places=2)
+        across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue(((across * normals[faces].sum(1)).sum(1) > 0).all())  # every face wound outward, both strands
+        one, other = points[:len(points) // 2].reshape(-1, 3, 3).mean(1), points[len(points) // 2:].reshape(-1, 3, 3).mean(1)
+        np.testing.assert_allclose(one[:, 1], other[:, 1], atol=1e-9); np.testing.assert_allclose(one[:, 2] - 3, 3 - other[:, 2], atol=1e-9)  # wound opposite ways
+        back = convert.coil([6, 0, 3], [0, 0, 3], 0.25, 0.5); flipped = np.cross(back[0][back[2][:, 1]] - back[0][back[2][:, 0]], back[0][back[2][:, 2]] - back[0][back[2][:, 0]])
+        self.assertTrue(((flipped * back[1][back[2]].sum(1)).sum(1) > 0).all())
         vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], float); base = np.array([[0, 1, 2]])
         v, n, u, f = convert.with_built(vertices, np.tile([0.0, 0.0, 1.0], (3, 1)), np.full((3, 2), 0.3), base,
-                                        [{'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0.2, 0.2, 0]}])
-        self.assertEqual(len(f), 1 + 12 * len(members)); np.testing.assert_allclose(u, 0.3)
+                                        [{'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.5, 'picture': [0.2, 0.2, 0]}])
+        self.assertEqual(len(f), 1 + len(faces)); np.testing.assert_allclose(u, 0.3)
         path = Path(tempfile.mkdtemp()) / 'set.json'
         for part, held in (({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0, 0, 1]}, True),
                            ({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'picture': [0, 0, 1]}, False),  # no pitch

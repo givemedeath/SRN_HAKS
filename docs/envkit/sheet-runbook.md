@@ -50,8 +50,8 @@ gate, gate posts and razor wire, and any chain-link, railing or wire standing in
 building subject or notes ask for one is refused (a note may say to remove it). The fence is built afterwards: the
 game set's `fence` parts, or fence sections placed in the group. Where the model has no posts the game set builds
 them (`built` bars for posts and rails; the `fence` sheets hang between them), and a built fence is generally topped
-with spiral barbed wire (user, 2026-11-17): a `built` `{"coil": [from, to], "radius": 0.22, "pitch": 0.4}` along each
-run, its axis its radius over the top rail. The Shiawase Barrens power station was generated with
+with spiral barbed wire (user, 2026-11-17): a `built` `{"coil": [from, to], "radius": 0.25, "pitch": 0.5}` along each
+run, its axis its radius over the top rail: two strands wound opposite ways, which cross as concertina wire's loops do. The Shiawase Barrens power station was generated with
 its fence in both views: the fence came back as open frames, its chain-link printed on the rear wall, the transformers
 and the roller door, and the surface behind its razor wire smudged. Look at each chosen building reference for a fence
 before selecting it.
