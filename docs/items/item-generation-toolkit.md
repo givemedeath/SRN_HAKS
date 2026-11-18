@@ -491,6 +491,62 @@ higher and a metre further off, with the close-ups aimed at the chest where the 
 route's `carry` (`fixture.carry_for`): the greataxe, halberd and scythe carriers are also shouldered. Other carries
 (staff, bow) still use the hip framing until their own is measured.
 
+`--wait SECONDS` waits for another session's client to close before starting. A refused start writes nothing, so the
+same captures folder can be named again.
+
+### Several items in one client start
+
+    python -m tools.itemkit.review_session build SESSION FIXTURE_DIR [FIXTURE_DIR ...] --nwn-root GAME_INSTALL
+        [--resources FOLDER] [--fire BLUEPRINT=CLIP ...]
+    python -m tools.itemkit.review_session capture SESSION CAPTURES --nwn-root GAME_INSTALL [--wait SECONDS] [--items A,B]
+
+A fixture is one item with its own module, user directory and copy of the shared packs. `build` joins any number of
+built fixtures of one hand in a session:
+
+- **One user directory.** Its HAKs are hard links to the fixtures' pinned files, so a session adds no pack copies.
+  New fixtures link their shared packs to the bound files the same way (`fixture.link_or_copy`); the pins are verified
+  before every use as before.
+- **One module.** It is the first fixture's module with every item's blueprint. Its entry script reads the reviewed
+  item and its carry from `itk_items.2da` in the session's override folder, and when an item's shots are done it
+  takes that item from the actors, hands them the next one and restarts the motion sequence. The motion heartbeat
+  re-equips the current item. Without the capture toggle the session shows the table's first item for a look by hand.
+- **One table of base items.** Firearm packages carry a private `baseitems.2da`. When they differ, a small HAK listed
+  first holds one merged table: each carrier row as the packages that use it have it, with the widest appearance range.
+  Packages that disagree on a row beyond that range are refused.
+- **Five shots a body, not sixteen.** A session takes the front, the right side, the hand close up, the attack stance
+  and the firing (`review_session.SESSION_SHOTS`); rear, left side, shadow, equip, walk, run, shield, off hand and
+  armour stay with the single-fixture capture. The female runs four steps behind the male, so an item takes 17 steps
+  (about 100 seconds) where the full list took 40. Each still shot holds 2.6 s for its three pictures.
+- **Firing.** The actors are given bullets and bolts, and each item's firing clip replaces the stock shot: `fire_pst`
+  on the sling row and `fire_rfl` on the crossbow row unless `--fire BLUEPRINT=CLIP` names another (`fire_smg`,
+  `fire_sg`; empty for none). The firing shot holds five seconds of an attack round. The driver takes pictures the
+  whole time, scores each by how much of it is bright, and writes the three best; frame 1, the one on the contact
+  sheet, is the brightest. `capture.json` records `flash` per shot (the brightest picture's bright area over the
+  burst's dimmest) and the run prints it per body: a firearm whose flash is 0 showed no muzzle flash. A burst that
+  took no picture for half a second (`longestGap`) may have missed the flash and is rejected as `burst stalled`.
+  The attack and firing shots are framed from the direction of the actor's target (an attacking actor has turned,
+  and `GetFacing` did not say where to), so they stay side views. An actor stops attacking after its own firing
+  shot: left shooting, its flash was the brightest thing in the other actor's burst.
+- **Lost shots.** About one shot in ten is still rejected (`next shot began`, `burst overran the shot hold`): the
+  capture process stops for several seconds now and then, cause unknown. It is not the pictures (each shot records
+  `grabSeconds` and `saveSeconds`, steady at about 1.0 and 0.2) and not a late log (extra log lines after each shot
+  changed nothing). `seen` is when the driver found the shot, in seconds from the item's start, to set against the
+  log's own times. `--again` retakes an item.
+- **Effect models.** `--resources FOLDER` puts a folder's files in the first-listed session HAK, where they win over
+  every pack: the compiled models with firing effects, when a fixture's bound `srn_weapon.hak` predates them.
+
+`capture` starts the client once and files each item under `CAPTURES/<blueprint>/` in the single-fixture layout
+(`capture.json`, `evidence-draft.json`, contact sheets). It writes the item table itself: items with a finished
+capture are left out, so a second run takes up where a stopped one ended, and `--items` picks a subset without a
+rebuild; with `--again` it retakes finished items whose shots were rejected. When it ends it puts every item back
+in the table. It exits 1 while any item is unfinished. A session built before the shot list was shortened is
+refused: build it again. A build that fails removes the session folder it began; every blueprint's tag must be its
+resref, which is how the scripts find the item on an actor.
+
+Session captures are review material. The client stage's evidence names the item's own fixture module and HAKs
+(`fixture.validate_evidence`), which a session does not run, so the single-fixture capture stays the route to that
+evidence. Shields (the left hand) go in a session of their own.
+
 `capture.json` records the shots and equip lines. `evidence-draft.json` groups the pictures by body and required
 check with `result: "unreviewed"` and lists any check without a picture. It is material for the client evidence, not
 the evidence: a person still looks, judges and writes the review. The fixture area keeps only the two review actors;

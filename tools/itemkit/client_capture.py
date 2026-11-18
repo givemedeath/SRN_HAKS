@@ -1,11 +1,12 @@
 """Run a built itemkit fixture in the game client unattended and file what its scripted shots showed.
 
-    python -m tools.itemkit.client_capture FIXTURE_DIR CAPTURES --nwn-root GAME_INSTALL
+    python -m tools.itemkit.client_capture FIXTURE_DIR CAPTURES --nwn-root GAME_INSTALL [--wait SECONDS]
 
 FIXTURE_DIR is the folder holding `fixture.json` (the fixture stage's output). The fixture's entry script carries a
 dormant shot sequence (fixture.SHOTS): this driver switches it on with a 2DA in the fixture's own override folder,
 starts the client through armorkit's client module, saves a short burst of window captures after every
-`ITEMKIT_SHOT` line and stops the client it started. A client that is already running blocks the run.
+`ITEMKIT_SHOT` line and stops the client it started. A client that is already running blocks the run; `--wait`
+waits that long for it to close first. `review_session` runs many fixtures in one client start.
 
 The result is evidence to review, never a review: `evidence-draft.json` lists the captures and log per body and
 required check with `result: "unreviewed"`. A person looks at the pictures and writes the client evidence.
@@ -77,7 +78,42 @@ def contact_sheets(captures, columns=4, size=(480, 270)):
     return sheets
 
 
-def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP, settle=SETTLE):
+def actor(row):
+    """The body a shot looks at; a shot without one is refused, never filed."""
+    body = BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
+    return body
+
+
+def passed(rows):
+    """Shots a later line of the same log read overtook: their views are gone, and capturing them would spend the
+    live shot's hold."""
+    return [{**row, 'body': actor(row), 'captures': [], 'rejected': 'next shot began'} for row in rows]
+
+
+def file_shots(client, process, user, captures, rows, previous_read, frames=FRAMES, gap=GAP, settle=SETTLE, hold=SHOT_HOLD):
+    """Capture the newest shot of one log read into `captures`; the shots that read already passed are filed as rejected."""
+    if not rows: return []
+    row = rows[-1]; body = actor(row)
+    # The shot fired after the previous log read, and the camera is free for the next one `hold` seconds after
+    # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
+    hold_ends = previous_read + hold
+    # The pictures are taken first and written afterwards, so the writing is outside the hold.
+    time.sleep(settle); names = []; images = []; started = time.monotonic()
+    for frame in range(frames):
+        names.append(f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"); images.append(client.grab(process.pid))
+        if frame < frames - 1: time.sleep(gap)
+    took = round(time.monotonic() - started, 2)
+    # A burst that ran into the next shot shows the wrong thing: keep the files, never file them.
+    newest = shot_rows(client.log_lines(user, PREFIX))[-1]['shot']
+    rejected = ('next shot began' if newest != row['shot'] else
+                'burst overran the shot hold' if time.monotonic() > hold_ends else None)
+    started = time.monotonic()
+    for name, image in zip(names, images): client.save(image, Path(captures) / name)
+    return [*passed(rows[:-1]), {**row, 'body': body, 'captures': names, 'grabSeconds': took,
+                                 'saveSeconds': round(time.monotonic() - started, 2), **({'rejected': rejected} if rejected else {})}]
+
+
+def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP, settle=SETTLE, wait=0):
     from tools.armorkit import client
     fixture_dir = Path(fixture_dir); captures = Path(captures)
     record = read(fixture_dir / 'fixture.json'); verify([record['module'], record['hak'], *record['fixtureHaks']])
@@ -86,9 +122,12 @@ def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP
     total = len(SHOTS) * len(SHOT_ACTORS)
     # Two full motion cycles reach every shot unless the camera was contended twice; allow a third.
     timeout = 60 + 3 * SHOT_CYCLE * 6 if timeout is None else timeout
-    captures.mkdir(parents=True, exist_ok=False)
+    # Before anything is written: a refused start must not leave an empty captures folder to block the next attempt.
+    if wait: client.wait_free(wait)
+    require(not client.running(), 'A game client is already running; it is not ours to reuse or close (--wait SECONDS waits for it)')
     toggle = user / 'override' / (SHOT_TOGGLE + '.2da'); toggle.parent.mkdir(exist_ok=True)
     require(not toggle.exists(), 'A scripted-shot toggle is already in this fixture; another capture may be running')
+    captures.mkdir(parents=True, exist_ok=False)
     (user / 'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
     toggle.write_text(TOGGLE_TABLE, encoding='ascii')
     shots, seen, finished = [], 0, False
@@ -100,25 +139,7 @@ def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP
                 time.sleep(.05)          # a short poll keeps the hold deadline below close to the shot's real firing time
                 require(process.poll() is None, 'The client exited before the fixture finished')
                 read_at = time.monotonic(); lines = client.log_lines(user, PREFIX)
-                rows = shot_rows(lines[seen:])
-                for index, row in enumerate(rows):
-                    body = BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
-                    if index < len(rows) - 1:
-                        # A later shot is already in this read: this one's view is gone, and capturing it would spend the live shot's hold.
-                        shots.append({**row, 'body': body, 'captures': [], 'rejected': 'next shot began'}); continue
-                    # The shot fired after the previous log read, and the camera is free for the next one SHOT_HOLD after
-                    # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
-                    hold_ends = previous_read + SHOT_HOLD
-                    time.sleep(settle); names = []
-                    for frame in range(frames):
-                        name = f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"
-                        client.capture(process.pid, captures / name); names.append(name)
-                        if frame < frames - 1: time.sleep(gap)
-                    # A burst that ran into the next shot shows the wrong thing: keep the files, never file them.
-                    newest = shot_rows(client.log_lines(user, PREFIX))[-1]['shot']
-                    rejected = ('next shot began' if newest != row['shot'] else
-                                'burst overran the shot hold' if time.monotonic() > hold_ends else None)
-                    shots.append({**row, 'body': body, 'captures': names, **({'rejected': rejected} if rejected else {})})
+                shots += file_shots(client, process, user, captures, shot_rows(lines[seen:]), previous_read, frames, gap, settle)
                 seen = len(lines); finished = DONE in lines; previous_read = read_at
         finally:
             client.stop(process)
@@ -144,8 +165,9 @@ def main(argv=None):
     parser.add_argument('fixture', type=Path); parser.add_argument('captures', type=Path)
     parser.add_argument('--nwn-root', type=Path, required=True, help='game install folder (holds bin/win32/nwmain.exe)')
     parser.add_argument('--timeout', type=float)
+    parser.add_argument('--wait', type=float, default=0, help="seconds to wait for another session's client to close first")
     a = parser.parse_args(argv)
-    result = run(a.nwn_root, a.fixture, a.captures, timeout=a.timeout)
+    result = run(a.nwn_root, a.fixture, a.captures, timeout=a.timeout, wait=a.wait)
     rejected = [shot['shot'] for shot in result['shots'] if shot.get('rejected')]
     print(json.dumps({'captures': str(a.captures), 'shots': len(result['shots']), 'expected': result['shotsExpected'],
                       'rejected': rejected, 'equipped': result['equipped'], 'failures': result['failures'],

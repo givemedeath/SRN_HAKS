@@ -2198,6 +2198,16 @@
       "tools/headkit/common.py",
       "tools/itemkit/blender_worker.py"
     ],
+    "tools/itemkit/review_session.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/combat_release_manifest.py",
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/client_capture.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/publish.py"
+    ],
     "tools/itemkit/routes.py": [],
     "tools/itemkit/run_itemkit.py": [
       "tools/itemkit/__main__.py"
@@ -2459,6 +2469,12 @@
     "tools/itemkit/test_review.py": [
       "tools/headkit/common.py",
       "tools/itemkit/review.py"
+    ],
+    "tools/itemkit/test_review_session.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/review_session.py"
     ],
     "tools/itemkit/test_rigged_contracts.py": [
       "tools/headkit/common.py",
@@ -5909,6 +5925,7 @@
     "tools/itemkit/test_reduction.py",
     "tools/itemkit/test_reference_conditioning.py",
     "tools/itemkit/test_review.py",
+    "tools/itemkit/test_review_session.py",
     "tools/itemkit/test_rigged_contracts.py",
     "tools/itemkit/test_routes.py",
     "tools/itemkit/test_shadow.py",
