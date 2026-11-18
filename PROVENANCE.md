@@ -1497,9 +1497,13 @@ two strands wound opposite ways. The fence shows one picture of its own, drawn b
 column of galvanised steel, streaked and rusted at the foot, and a column of pitted concrete, each in the tone of the
 model's own picture at a stated point (the first build's posts were square bars in one flat colour; operator,
 2026-11-17: "the posts for the fences needs to be better than a square pole"). It has two gateways in its front, 5 metres before the roller door and 3 metres before the tunnel
-door, without gate leaves. Nothing else was retouched. The mesh (196,905 triangles with the fence) was shared out over
-four tiles (17,626 to 84,311 faces each) with a ground square, a map picture and two main lights each; what stands
-above 4.2 metres carries `tilefade`; and a walkmesh was generated from its shape (366 to 1,720 faces a tile, where
+door, without gate leaves. Seven faces of 0.1 square metres or more came back showing a sliver of the picture drawn out
+across them, the largest a square metre of the slab at the wider gateway (operator, 2026-11-17: "what is this
+smear?"): each was cut into pieces and drawn with the sound surface of its own plane beside it (`convert.relaid`); one
+of 0.26 square metres low on the slab's front edge found none and is as generated. Nothing else was retouched. The
+mesh (198,529 triangles with the fence) was shared out over
+four tiles (17,689 to 84,311 faces each) with a ground square, a map picture and two main lights each; what stands
+above 4.2 metres carries `tilefade`; and a walkmesh was generated from its shape (402 to 1,720 faces a tile, where
 the stock tiles of these two tilesets have at most 500). The path nodes of three tiles are stated in the set: each
 front tile is entered by its own gateway only (`N`), since a planned walk did not cross from tile to tile inside the
 fence. The strip behind the building is fenced off and is not reached. The front east tile has a door record of type

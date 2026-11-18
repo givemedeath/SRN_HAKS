@@ -193,6 +193,10 @@ def command_tiles(args):
         report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '
                             f'with `view --eye`; a stray face over an opening takes `clear`' for name, found in report['veils'].items() for one in found]
         report['blankPanels'] = report_blank
+        every = {args.model: made, **{name: shapes[name][0] for name in textures}}
+        report['relaid'] = {name: len(one['relaid']) for name, one in every.items() if one.get('relaid')}
+        report['notes'] += [f'{name}: a face of {face["m2"]} m² at {face["at"]} shows its picture drawn out, and no sound surface of its plane was found to draw it with: '
+                            'look at it close up with `view --eye`' for name, one in every.items() for face in one.get('drawnOut') or []]
         report['notes'] += [note for name, found in report['blankPanels'].items() for note in convert.blank_notes(name, found)]
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')

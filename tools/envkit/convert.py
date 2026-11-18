@@ -752,6 +752,127 @@ def closed(vertices, normals, uvs, faces, parts):
     return faces
 
 
+# A face whose picture is drawn out (`relaid`): its least area, metres squared; the share of the model's usual grain
+# under which its picture counts as drawn out; and how far along its plane, metres, sound surface is looked for.
+STRETCH_AREA, STRETCH_SHARE, RELAY_REACH = 0.1, 1 / 6, (0.3, 0.6, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0)
+RELAY_PIECE, RELAY_TONE = 0.15, 40  # metres: the longest side of a piece a drawn-out face is cut into; and how far, of 255, what a piece takes may lie from the face's own tone
+RELAY_SAME = (0.96, 0.12)  # faces of one surface: how nearly they face one way, and how far, metres, one may lie off the other's plane
+
+
+def picture_grain(vertices, uvs, faces):
+    """(least, most, area, normal) of each face: how much of the picture (its whole width 1) a metre of the face shows
+    along the way it shows least and the way it shows most, its area in metres squared and the way it faces."""
+    corner = np.asarray(vertices, float)[faces]; spot = np.asarray(uvs, float)[faces]
+    e1, e2 = corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]; d1, d2 = spot[:, 1] - spot[:, 0], spot[:, 2] - spot[:, 0]
+    across = np.cross(e1, e2); size = np.linalg.norm(across, axis=1); normal = across / np.maximum(size, 1e-18)[:, None]
+    long = np.maximum(np.linalg.norm(e1, axis=1), 1e-18); x = e1 / long[:, None]; y = np.cross(normal, x)
+    a, b, c = long, (e2 * x).sum(1), (e2 * y).sum(1)  # the face in its own plane: [[a, b], [0, c]]
+    safe = np.where(np.abs(a * c) > 1e-18, a * c, 1.0)
+    first = d1 / a[:, None]; second = (d2 - first * b[:, None]) * (a / safe)[:, None]  # the columns of the map from metres to the picture
+    grain = np.linalg.svd(np.stack([first, second], 2), compute_uv=False)
+    return grain[:, 1], grain[:, 0], size / 2, normal
+
+
+import contextlib
+
+
+@contextlib.contextmanager
+def _picture(maps, size=1024):
+    """A model's colour picture brought down to `size`, as an array, or None where it has none to read."""
+    path = (maps or {}).get('base_color')
+    if not path or not Path(path).is_file():
+        yield None; return
+    from PIL import Image
+    with Image.open(path) as picture:
+        yield np.asarray(picture.convert('RGB').resize((size, size)))
+
+
+def relaid(vertices, normals, uvs, faces, picture=None):
+    """The model with each face whose picture is drawn out showing the sound surface beside it instead: (vertices,
+    normals, uvs, faces, mended, left), `mended` and `left` [{m2, at, share}] of the faces relaid and of those sound
+    surface was found for under half of (`share`).
+
+    A generator gives some faces a sliver of the picture, a few texels wide, and the game draws those texels out
+    across the whole face: the Shiawase Barrens power station's slab showed a square metre of streaks at its gateway
+    (user, 2026-11-17: "what is this smear?"). Such a face is one of STRETCH_AREA or more that shows, the way it shows
+    least, under STRETCH_SHARE of what the model's faces usually show. It is cut into pieces at most RELAY_PIECE
+    along a side, since the surface beside it is drawn on many small stretches of the picture, and the pieces are
+    moved along the face's plane, all the same way where they can be, so that together they show one stretch of the
+    surface: the least way in RELAY_REACH that lands most of them on faces of the same surface that are drawn soundly.
+    A piece shows what those faces show where it lands if they show it on one stretch of the picture; one that lands
+    across two stretches is moved another way by itself, and one that lands nowhere stays as it was. Its edges then
+    meet their neighbours with another part of the same surface, which cracked concrete and plain walls bear.
+
+    `picture` is the model's colour picture (rows by columns by red, green and blue, 0-255). With it a piece takes
+    only what is within RELAY_TONE of the tone the face itself shows: a drawn-out face of the power station's dark
+    roller door took a stretch of the red and white wall beside it at first, which lies in the same plane."""
+    vertices, normals, uvs, faces = (np.array(one) for one in (vertices, normals, uvs, faces))
+    least, _, area, normal = picture_grain(vertices, uvs, faces); sound = area > 1e-8; mended, left = [], []
+    usual = float(np.median(least[sound])) if sound.any() else 0.0
+    if usual <= 0:
+        return vertices, normals, uvs, faces, mended, left
+    thin = sound & (area >= STRETCH_AREA) & (least < usual * STRETCH_SHARE); middle = vertices[faces].mean(1)
+    if picture is not None:
+        picture = np.asarray(picture, float); high, wide = picture.shape[:2]
+        tone = lambda spots: picture[np.clip((spots[..., 1] * high).astype(int), 0, high - 1), np.clip((spots[..., 0] * wide).astype(int), 0, wide - 1)]
+    shifts = [reach * np.array([np.cos(turn * np.pi / 4), np.sin(turn * np.pi / 4)]) for reach in RELAY_REACH for turn in range(8)]
+    added = {'vertices': [], 'normals': [], 'uvs': []}; gone = []
+    for one in np.nonzero(thin)[0]:
+        corners = vertices[faces[one]]; way = normal[one]; centre = corners.mean(0)
+        sides = np.linalg.norm(corners - np.roll(corners, -1, 0), axis=1); told = {'m2': round(float(area[one]), 3), 'at': centre.round(2).tolist()}
+        donors = np.nonzero(sound & ~thin & (np.abs(normal @ way) > RELAY_SAME[0]) & (np.abs((middle - centre) @ way) < RELAY_SAME[1])
+                            & (np.linalg.norm(middle - centre, axis=1) < RELAY_REACH[-1] + sides.max() + 1.0))[0]  # of its surface, though it lie a little askew
+        if not len(donors):
+            left.append({**told, 'share': 0.0}); continue
+        cuts = int(min(max(np.ceil(sides.max() / RELAY_PIECE), 1), 40)); at = lambda i, j: [1 - (i + j) / cuts, i / cuts, j / cuts]
+        weights = np.array([[at(i, j), at(i + 1, j), at(i, j + 1)] for i in range(cuts) for j in range(cuts - i)]
+                           + [[at(i + 1, j), at(i + 1, j + 1), at(i, j + 1)] for i in range(cuts) for j in range(cuts - i - 1)])  # (pieces, 3, 3)
+        piece = weights @ corners; own = weights @ uvs[faces[one]]; facing = weights @ normals[faces[one]]
+        x = corners[1] - corners[0]; x = x / np.linalg.norm(x); y = np.cross(way, x)
+        flat = lambda points: np.stack([(points - corners[0]) @ x, (points - corners[0]) @ y], -1)
+        marks = flat(np.concatenate([piece, (piece + np.roll(piece, -1, 1)) / 2, piece.mean(1, keepdims=True)], 1))  # (pieces, 7, 2): corners, the middles of the sides, the middle
+        held = flat(vertices[faces[donors]]); a, v0, v1 = held[:, 0], held[:, 1] - held[:, 0], held[:, 2] - held[:, 0]
+        span = v0[:, 0] * v1[:, 1] - v0[:, 1] * v1[:, 0]; span = np.where(np.abs(span) > 1e-12, span, 1e-12); shown = uvs[faces[donors]]
+        theirs = float(np.median(least[donors]))  # a slab is drawn coarser than a wall
+        its = tone(np.concatenate([own, own.mean(1, keepdims=True)], 1)).mean((0, 1)) if picture is not None else None
+
+        def drawn(points):
+            """What the sound faces show at each point, and whether any holds it."""
+            got = np.zeros((len(points), 2)); landed = np.zeros(len(points), bool)
+            for begin in range(0, len(points), 512):
+                some = points[begin:begin + 512]; off = some[:, None, :] - a[None]
+                s = (off[..., 0] * v1[:, 1] - off[..., 1] * v1[:, 0]) / span; t = (v0[:, 0] * off[..., 1] - v0[:, 1] * off[..., 0]) / span
+                inside = (s >= -1e-6) & (t >= -1e-6) & (s + t <= 1 + 1e-6); pick = inside.argmax(1); rows = np.arange(len(some)); s, t = s[rows, pick], t[rows, pick]; three = shown[pick]
+                got[begin:begin + 512] = (1 - s - t)[:, None] * three[:, 0] + s[:, None] * three[:, 1] + t[:, None] * three[:, 2]; landed[begin:begin + 512] = inside.any(1)
+            return got, landed
+        tried = []
+        for shift in shifts:
+            got, landed = drawn((marks + shift).reshape(-1, 2)); got = got.reshape(-1, 7, 2); landed = landed.reshape(-1, 7).all(1)
+            straight = np.concatenate([(got[:, :3] + np.roll(got[:, :3], -1, 1)) / 2, got[:, :3].mean(1, keepdims=True)], 1)  # one stretch of the picture shows the middles where the corners say
+            grain = picture_grain(piece.reshape(-1, 3), got[:, :3].reshape(-1, 2), np.arange(len(piece) * 3).reshape(-1, 3))[0]
+            passed = landed & (np.abs(straight - got[:, 3:]).max((1, 2)) <= 0.03 * theirs) & (grain >= theirs / 2)
+            if its is not None:
+                passed &= np.abs(tone(got).mean(1) - its).max(1) <= RELAY_TONE
+            tried.append((passed, got[:, :3]))
+            if passed.all():
+                break
+        best = max(range(len(tried)), key=lambda index: int(tried[index][0].sum())); done = np.zeros(len(piece), bool); spots = own.copy()
+        for passed, got in [tried[best], *tried]:  # together where they can be, then each by itself
+            take = passed & ~done; spots[take] = got[take]; done |= take
+        parts = np.linalg.norm(np.cross(piece[:, 1] - piece[:, 0], piece[:, 2] - piece[:, 0]), axis=1); share = float(parts[done].sum() / max(parts.sum(), 1e-12))
+        told['share'] = round(share, 2)
+        if share < 0.5:
+            left.append(told); continue
+        added['vertices'].append(piece.reshape(-1, 3)); added['normals'].append(facing.reshape(-1, 3)); added['uvs'].append(spots.reshape(-1, 2)); gone.append(one); mended.append(told)
+    if gone:
+        count = len(vertices); more = np.vstack(added['vertices']); kept = np.ones(len(faces), bool); kept[gone] = False
+        facing = np.vstack(added['normals']); facing = facing / np.maximum(np.linalg.norm(facing, axis=1, keepdims=True), 1e-12)
+        vertices = np.vstack([vertices, more]); normals = np.vstack([normals, facing]); uvs = np.vstack([uvs, np.vstack(added['uvs'])])
+        faces = np.vstack([faces[kept], np.arange(len(more)).reshape(-1, 3) + count])
+    used, local = np.unique(faces, return_inverse=True)
+    return vertices[used], normals[used], uvs[used], local.reshape(-1, 3), mended, left
+
+
 def moved(vertices, normals, uvs, faces, parts):
     """The model with each of `parts` ([{box, by}], metres on the finished model) moved: the faces wholly in the box are
     carried `by` on copies of their corners, and the faces that tied them to the rest (some corners in the box, some
@@ -2140,6 +2261,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if level is not None:  # a floor marking that came back a wedge, laid flat (`levelled`): after its faces are wound right, before anything is measured on it
         vertices, normals = levelled(vertices, faces, float(level))
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
+    with _picture(maps) as seen_first:  # before anything is measured or built on it
+        vertices, normals, uvs, faces, mended, drawn_out = relaid(vertices, normals, uvs, faces, seen_first)
     if wheels:
         vertices, normals = gauged(vertices, normals, wheels)
     if move:
@@ -2198,6 +2321,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     panes = glazed(glass) if glass else None
     return {'embers': ember_beds(embers) if embers else None, 'emberBeds': len(embers or []), 'glass': panes, 'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire, 'behind': behind,
+            'relaid': mended, 'drawnOut': drawn_out,  # the faces whose picture was drawn out, relaid and left (`relaid`)
             'placed': placed}  # the map of the model's places its lit parts were found by, None where it has none: `shipped_blank_panels` reads by it
 
 

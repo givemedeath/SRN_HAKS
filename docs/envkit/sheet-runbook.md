@@ -69,6 +69,13 @@ its fence in both views: the fence came back as open frames, its chain-link prin
 and the roller door, and the surface behind its razor wire smudged. Look at each chosen building reference for a fence
 before selecting it.
 
+A generator gives some faces a sliver of the picture, which the game draws out across the whole face as streaks (the
+power station's slab showed a square metre of them at its gateway; user, 2026-11-17: "what is this smear?"). Every
+build mends them by itself (`convert.relaid`): a face of 0.1 square metres or more that shows under a sixth of the
+model's usual grain is cut into pieces and drawn with the sound surface of its own plane beside it, of its own tone.
+A build's report counts them (`relaid`) and notes each one it found no surface for; look at those with `view --eye`.
+A model built before 2026-11-17 is mended when it is next built and installed from its kept source.
+
 A building's views can be drawn without its slab: state `"slab": false` on each of them. The slab shares the
 building's one picture (about a fifth of the power station's surface) and a planned walk did not cross from tile to
 tile on it; the default stays the slab with its street furniture (user, 2026-11-10: "we should keep the slab"), so

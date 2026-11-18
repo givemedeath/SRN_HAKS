@@ -720,6 +720,30 @@ class ConvertTests(unittest.TestCase):
         made = wire['uvs'][count:]; self.assertTrue(((made[:, 0] >= 0.3125) & (made[:, 0] <= 0.9375) & (made[:, 1] >= 0) & (made[:, 1] <= 1)).all())  # none of the frame shows the wires
         self.assertEqual(len(wire['vertices']), len(wire['normals'])); self.assertEqual(len(wire['vertices']), len(wire['uvs'])); self.assertLess(wire['faces'].max(), len(wire['vertices']))
 
+    def test_a_face_whose_picture_is_drawn_out_is_drawn_with_the_sound_surface_beside_it(self):
+        """The power station's slab showed a square metre of streaks at its gateway (user, 2026-11-17: "what is this smear?")."""
+        side = np.arange(7.0); x, y = np.meshgrid(side, side); grid = np.stack([x.ravel(), y.ravel(), np.zeros(49)], 1); uvs = grid[:, :2] / 12  # a floor six metres square on half the picture
+        cell = lambda i, j: [[j * 7 + i, j * 7 + i + 1, (j + 1) * 7 + i + 1], [j * 7 + i, (j + 1) * 7 + i + 1, (j + 1) * 7 + i]]
+        faces = np.array([face for j in range(6) for i in range(6) for face in cell(i, j)]); normals = np.tile([0.0, 0.0, 1.0], (49, 1))
+        same = convert.relaid(grid, normals, uvs, faces); self.assertEqual((same[4], same[5]), ([], [])); np.testing.assert_array_equal(same[3], faces)
+        extra = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0]]); sliver = np.array([[0.9, 0.9], [0.9, 0.9004], [0.9, 0.9008]])  # the first face, on a line of the picture
+        vertices = np.vstack([grid, extra]); spots = np.vstack([uvs, sliver]); drawn = faces.copy(); drawn[0] = [49, 50, 51]
+        made = convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn); self.assertEqual((made[4], made[5]), ([{'m2': 0.5, 'at': [0.67, 0.33, 0.0], 'share': 1.0}], []))
+        least, most, area, _ = convert.picture_grain(made[0], made[2], made[3]); np.testing.assert_allclose(least, 1 / 12); np.testing.assert_allclose(most, 1 / 12)  # drawn as the floor is
+        self.assertAlmostEqual(float(area.sum()), 36.0); pieces = made[3][len(faces) - 1:]; self.assertEqual(len(pieces), 100)  # cut into pieces, where it was
+        self.assertLessEqual(float(area[len(faces) - 1:].max()), convert.RELAY_PIECE ** 2 / 2 + 1e-9); self.assertAlmostEqual(float(area[len(faces) - 1:].sum()), 0.5)
+        inside = made[0][pieces].reshape(-1, 3); self.assertTrue(((inside[:, 0] <= 1 + 1e-9) & (inside[:, 1] <= inside[:, 0] + 1e-9) & (inside[:, 1] >= -1e-9)).all())
+        shift = made[2][pieces].reshape(-1, 2) - inside[:, :2] / 12; np.testing.assert_allclose(shift, np.tile(shift[0], (len(shift), 1)), atol=1e-9)  # one stretch of the floor, all together
+        self.assertGreater(float(np.abs(shift[0]).max()), 0.02)  # another part of it
+        self.assertTrue(((made[2] >= 0) & (made[2] <= 0.5 + 1e-9)).all()); self.assertEqual(len(made[0]), len(made[1]))
+        picture = np.full((120, 120, 3), 200, np.uint8); picture[108:, 108:] = 30  # the face is dark where the floor is pale: it takes none of it
+        dark = convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn, picture); self.assertEqual((dark[4], [one['share'] for one in dark[5]]), ([], [0.0]))
+        picture[108:, 108:] = 190; self.assertEqual(len(convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn, picture)[4]), 1)
+        alone = convert.relaid(extra, normals[:3], sliver, np.array([[0, 1, 2]])); self.assertEqual((alone[4], alone[5]), ([], []))  # nothing to tell it by
+        wall = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 1.0]])  # a face of another plane, where no sound surface is
+        left = convert.relaid(np.vstack([grid, wall]), np.vstack([normals, np.tile([1.0, 0, 0], (3, 1))]), spots, np.vstack([faces, [[49, 50, 51]]]))
+        self.assertEqual((left[4], [(one['m2'], one['share']) for one in left[5]]), ([], [(0.5, 0.0)]))
+
     def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
         """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""
         points, normals, faces = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.5)
