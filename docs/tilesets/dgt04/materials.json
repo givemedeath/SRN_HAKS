@@ -9,7 +9,8 @@
     "walkway": {"saturation": 0.4, "contrast": 1.15, "gain": 0.68, "tint": [0.94, 0.98, 1.06]},
     "lit": {"saturation": 1.15, "contrast": 1.15, "gain": 1.0, "tint": [0.85, 1.0, 1.1]},
     "lit_warm": {"saturation": 1.15, "contrast": 1.15, "gain": 1.0, "tint": [1.08, 1.0, 0.85]},
-    "roof": {"saturation": 0.5, "contrast": 1.1, "gain": 0.5, "tint": [1.0, 0.98, 0.95]}
+    "roof": {"saturation": 0.5, "contrast": 1.1, "gain": 0.5, "tint": [1.0, 0.98, 0.95]},
+    "sign": {"saturation": 0.9, "contrast": 1.05, "gain": 0.8}
   },
   "textures": {
     "brick_tex19": {"route": "master", "master": "Bricks097", "repeat": 1, "tone": 0.9, "grade": "barrens", "size": [1024, 1024]},
@@ -22,13 +23,12 @@
     "asphalt_road01": {"route": "layout", "master": "Asphalt033", "repeat": 2, "keep": 6, "grade": "road", "size": [1024, 1024]},
     "pavement": {"route": "master", "master": "Road012A", "repeat": 1, "tone": 1.0, "grade": "street", "size": [1024, 1024]},
     "roof_gravel1": {"route": "master", "master": "Gravel043", "repeat": 1, "tone": 0.8, "grade": "roof", "size": [1024, 1024]},
-    "hrise_06_wall2": {"route": "upscale", "size": [1024, 1024], "roughness": 0.5, "relief": 0.5, "grade": "corporate"},
-    "hrise_05_wall": {"route": "upscale", "size": [512, 1024], "roughness": 0.5, "relief": 0.5, "grade": "corporate"},
+    "hrise_06_wall2": {"route": "upscale", "size": [1024, 1024], "relief": 1.0, "roughness": 0.5, "grade": "corporate", "redrawn": true},
+    "hrise_05_wall": {"route": "upscale", "size": [512, 1024], "relief": 1.0, "roughness": 0.5, "grade": "corporate", "redrawn": true},
     "hrise_06_wall2_g": {"route": "upscale", "size": [1024, 1024], "roughness": 0.5, "relief": 0.5, "grade": "lit", "stem": "hrise_06_w2g"},
     "hrise_05_wall_g": {"route": "upscale", "size": [512, 1024], "roughness": 0.5, "relief": 0.5, "grade": "lit", "stem": "hrise_05_wg"},
-    "win001_unbrknd": {"route": "upscale", "size": [512, 512], "roughness": 0.6, "doubled": 2},
-    "win003_unbrknd": {"route": "upscale", "size": [512, 512], "roughness": 0.6, "doubled": 2},
-
+    "win001_unbrknd": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
+    "win003_unbrknd": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
     "asphalt_road01a": {"route": "layout", "master": "Asphalt033", "repeat": 2, "keep": 6, "grade": "road", "size": [1024, 1024], "stem": "asph_road01a"},
     "asphalt_road01b": {"route": "layout", "master": "Asphalt033", "repeat": 2, "keep": 6, "grade": "road", "size": [1024, 1024], "stem": "asph_road01b"},
     "asphalt_road02": {"route": "layout", "master": "Asphalt033", "repeat": 2, "keep": 6, "grade": "road", "size": [1024, 1024]},
@@ -70,7 +70,6 @@
     "white_tile_f": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.5, "grade": "walkway", "doubled": 2},
     "manhole_tex2": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "street", "doubled": 2},
     "traffic_light": {"route": "upscale", "size": [512, 1024], "relief": 0.5, "roughness": 0.5, "doubled": 1},
-
     "hrise_06_wall3": {"route": "master", "master": "Concrete034", "repeat": 1, "tone": 1.0, "grade": "corporate", "size": [1024, 1024]},
     "pavement_dirty05": {"route": "layout", "master": "Road012A", "repeat": 1, "keep": 16, "grade": "barrens", "size": [512, 512], "stem": "pave_dirty05"},
     "pavement_dirty04": {"route": "layout", "master": "Road012A", "repeat": 1, "keep": 16, "grade": "barrens", "size": [512, 512], "stem": "pave_dirty04"},
@@ -87,14 +86,29 @@
     "fire_escape3": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.5, "grade": "industrial"},
     "barbed_wire5": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.5, "grade": "industrial"},
     "fence_iron_02": {"route": "upscale", "size": [1024, 512], "relief": 0.5, "roughness": 0.5, "grade": "industrial", "doubled": 1},
-    "win_unbrkn_002a": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.6, "grade": "barrens", "doubled": 2, "stem": "win_unbrk002a"},
+    "win_unbrkn_002a": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true, "stem": "win_unbrk002a"},
     "win001_unbrknn": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.6, "grade": "lit_warm", "doubled": 2},
     "win002_unbrknn": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.6, "grade": "lit_warm", "doubled": 2},
     "win003_unbrknn": {"route": "upscale", "size": [512, 512], "relief": 0.5, "roughness": 0.6, "grade": "lit_warm", "doubled": 2},
     "window_tex07": {"route": "upscale", "size": [1024, 512], "relief": 0.5, "roughness": 0.5, "grade": "corporate", "doubled": 1},
     "window_tex24": {"route": "upscale", "size": [1024, 512], "relief": 0.5, "roughness": 0.5, "grade": "corporate", "doubled": 1},
     "window_store003": {"route": "upscale", "size": [1024, 512], "relief": 0.5, "roughness": 0.6, "doubled": 1, "stem": "win_store003"},
-    "slumbrd2": {"route": "upscale", "size": [512, 512], "relief": 0.5, "grade": "barrens", "doubled": 2},
-    "slumbrd4": {"route": "upscale", "size": [512, 512], "relief": 0.5, "grade": "barrens", "doubled": 2}
+    "slumbrd2": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
+    "slumbrd4": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
+    "build_01": {"route": "upscale", "size": [1024, 1024], "relief": 1.0, "roughness": 0.5, "grade": "corporate", "redrawn": true},
+    "dumpster_sign": {"route": "upscale", "size": [256, 128], "relief": 1.0, "roughness": 0.6, "grade": "sign", "redrawn": true},
+    "hosp_emergency": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "sign", "redrawn": true},
+    "hosp_win01": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "industrial", "redrawn": true},
+    "j_sign": {"route": "upscale", "size": [512, 128], "relief": 1.0, "roughness": 0.6, "grade": "sign", "redrawn": true},
+    "j_wall1": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
+    "pd_sign1": {"route": "upscale", "size": [256, 128], "relief": 1.0, "roughness": 0.6, "grade": "sign", "redrawn": true},
+    "pd_sign2": {"route": "upscale", "size": [512, 128], "relief": 1.0, "roughness": 0.6, "grade": "sign", "redrawn": true},
+    "pharmwin1": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
+    "police2": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "industrial", "redrawn": true},
+    "sign_delivery": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "sign", "redrawn": true},
+    "win_pawn": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
+    "win005_unbrknd": {"route": "upscale", "size": [256, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
+    "win2": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true},
+    "window_01": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "barrens", "redrawn": true}
   }
 }
