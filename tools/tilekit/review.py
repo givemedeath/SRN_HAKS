@@ -3,8 +3,7 @@
 A restyle is judged in the game, from the same places before and after. Three kinds of area are laid: a `block` of
 every building terrain as a builder would paint it, with streets between; a `grid` of every tile of the set, row on
 row with plain ground between the rows; and any area someone built with the tileset. Each is laid once for every
-lighting it is looked at in (the game's own Exterior, Clear by day and by night, and Exterior, Overcast), since an
-area's lighting is the area's.
+lighting it is looked at in (day, night and overcast: LIGHTS), since an area's lighting is the area's.
 
 The block is worked out from the set file the way the Toolset paints: every corner of the area is given a terrain, and
 each cell takes a tile whose four corners and four crossers agree with it, turned as needed (`solve`). The module
@@ -38,14 +37,17 @@ def colour(red, green, blue):
     return red | green << 8 | blue << 16
 
 
-# environment.2da rows 0 (Exterior, Clear) and 1 (Exterior, Overcast): what a builder gets who picks them in the Toolset.
+# Day and night are envkit's check lighting (client_fixture's area, prop_fixture's night), so a restyled tile is seen
+# as the envkit buildings beside it were when they were approved. Overcast is the same day with the weaker, greyer sun
+# of environment.2da's Exterior, Overcast. The game's own Exterior, Clear numbers (ambient 50/50/100, sun 255) were
+# tried first and left these areas lit by little but the ambient light, too dark to judge a texture by (2026-11-18).
 LIGHTS = {
-    'day': {'IsNight': 0, 'SunAmbientColor': colour(50, 50, 100), 'SunDiffuseColor': colour(255, 255, 255), 'SunFogColor': colour(104, 126, 145),
-            'SunFogAmount': 0, 'SunShadows': 1, 'ShadowOpacity': 50},
-    'overcast': {'IsNight': 0, 'SunAmbientColor': colour(69, 73, 80), 'SunDiffuseColor': colour(168, 166, 147), 'SunFogColor': colour(122, 122, 122),
-                 'SunFogAmount': 0, 'SunShadows': 1, 'ShadowOpacity': 30},
-    'night': {'IsNight': 1, 'MoonAmbientColor': colour(0, 0, 0), 'MoonDiffuseColor': colour(100, 100, 200), 'MoonFogColor': colour(50, 50, 100),
-              'MoonFogAmount': 0, 'MoonShadows': 1, 'ShadowOpacity': 50},
+    'day': {'IsNight': 0, 'SunAmbientColor': colour(176, 176, 176), 'SunDiffuseColor': colour(238, 238, 238), 'SunFogColor': colour(104, 126, 145),
+            'SunFogAmount': 0, 'SunShadows': 1, 'ShadowOpacity': 20},
+    'overcast': {'IsNight': 0, 'SunAmbientColor': colour(120, 124, 130), 'SunDiffuseColor': colour(168, 166, 147), 'SunFogColor': colour(122, 122, 122),
+                 'SunFogAmount': 0, 'SunShadows': 1, 'ShadowOpacity': 20},
+    'night': {'IsNight': 1, 'MoonAmbientColor': 0x302820, 'MoonDiffuseColor': 0x504840, 'MoonFogColor': colour(20, 20, 40),
+              'MoonFogAmount': 0, 'MoonShadows': 1, 'ShadowOpacity': 20},
 }
 KINDS = {'IsNight': 'byte', 'SunFogAmount': 'byte', 'MoonFogAmount': 'byte', 'SunShadows': 'byte', 'MoonShadows': 'byte', 'ShadowOpacity': 'byte'}
 
@@ -340,3 +342,17 @@ def sheet(pictures, output, *, columns=4, wide=480):
         page.paste(cell, (index % columns * wide, index // columns * high))
     Path(output).parent.mkdir(parents=True, exist_ok=True); page.save(output, quality=88)
     return len(cells)
+
+
+def sheets(folder, *, most=48):
+    """Contact sheets of a review's captures in `folder/sheets`: one for each part and lighting (block-day, ...), in
+    pages of `most` views. Returns {sheet name: views}."""
+    folder = Path(folder); groups = {}
+    for path in sorted((folder / 'captures').glob('shot-*.png')):
+        groups.setdefault('-'.join(path.stem.split('-')[2:4]), []).append(path)
+    made = {}
+    for name, pictures in groups.items():
+        for start in range(0, len(pictures), most):
+            page = name + (f'-{start // most + 1}' if len(pictures) > most else '')
+            made[page + '.jpg'] = sheet(pictures[start:start + most], folder / 'sheets' / (page + '.jpg'), columns=6 if len(pictures) > 24 else 4)
+    return made

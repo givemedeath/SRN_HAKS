@@ -33,7 +33,7 @@ def review_command(chosen):
     told = {'module': record['module'], 'areas': [area['tag'] for area in areas], 'views': len(shots), 'overlay': record['overlay']}
     if not chosen.no_run:
         told.update(review.capture(chosen.game, record, chosen.out))
-        told['captures'] = len(told['captures'])
+        told['captures'] = len(told['captures']); told['sheets'] = review.sheets(chosen.out)
     print(json.dumps(told, indent=2))
     return 0
 

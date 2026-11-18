@@ -133,6 +133,36 @@ authored one at a time; any that then stands out is promoted.
 - Unit times recorded from here on.
 - **Gate:** confirmations pass, or the mechanism changes before any authoring.
 
+**Result (2026-11-18): gate passed.** Tools: `tools/tilekit` (`inventory`, `walkmesh`, `review`). Review spec:
+`docs/tilesets/dgt04/review.json`.
+
+- Baseline: 270 views of the packs at commit `a0522e84` (block of 16 building terrains by day, overcast and
+  night; every tile by day; `moderntestoutsid` by day, overcast and night), none captured late, 29 minutes in
+  the client (6.5 s a view). Pictures and contact sheets are in the ignored `output/tilekit/tkbase1`; they are
+  made again from that commit with `python -B -m tools.tilekit review --spec docs/tilesets/dgt04/review.json
+  --game <game> --built <built packs> --out <folder> --name <name> --area <moderntestoutsid.are>`.
+- Review lighting is envkit's check lighting (day ambient 176 grey, sun 238; night as envkit's prop night),
+  with overcast between. The game's own "Exterior, Clear" numbers left these areas lit by the ambient light
+  alone and too dark to judge a texture by. The sun in such an area stands low in the south, so the ground gets
+  little direct light: a ground material is read by its colour and glow far more than by its normal map.
+- Material file: a `.mtr` named like the texture is picked up on tile models with no model edit, on all three
+  textures, over both the TGA and the DDS copy in the pack below.
+- Normal map: a lattice of raised domes on `sidewalk10` is lit on the same (sun) side on the four turned
+  corner tiles and the straight tiles round a crossing. Mirrored UVs were not singled out; a mirrored face
+  would show at the pilot as a reversed dome and is checked there on the brick and facade textures.
+- Glow: an illumination map (`texture5`) on the same material shows at full brightness at night on the ground
+  and on the `hrise_05_wall` facade, with the normal map in place.
+- TGA or DDS: with both copies of a name in one pack the client shows the DDS; a TGA in a pack above does
+  **not** beat a DDS in a pack below (`roof_gravel1` stayed as it was). So "before" is the DDS copy for all 131
+  textures that have one, and replacing a texture means removing or replacing its DDS, as already decided.
+- A DDS needs its whole mip chain: one written with the top level alone drew as black with speckles at any
+  distance. The material build tool writes mips with envkit's writer and checks for them.
+- Framing to improve before the pilot review: two of the sixteen block views look into a roof or a wall, and
+  the every-tile views are crowded; both are fixed in the spec, and the baseline is captured again from the
+  commit above when it changes.
+- Time: under two hours against 6–9 estimated. Unit times so far: tool with tests 15–30 minutes; client
+  capture 6.5 s a view plus about a minute to build and load (a 50-view check is 6 minutes, the full set 30).
+
 ### 1 — Material standard and pilot block
 
 - A material build tool on envkit's texture and material writer: source image and maps in, DDS set and

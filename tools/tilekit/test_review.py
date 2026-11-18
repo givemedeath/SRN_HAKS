@@ -87,9 +87,9 @@ class ReviewTests(unittest.TestCase):
         made = review.area_documents('tkbn', 'Block, night', 'tst01', 2, 3, laid, 'night'); are = made['tkbn.are']
         self.assertEqual(sorted(made), ['tkbn.are', 'tkbn.git']); self.assertEqual((are['Tileset']['value'], are['Width']['value'], are['Height']['value'], are['Tag']['value']), ('tst01', 2, 3, 'tkbn'))
         self.assertEqual([(one['Tile_ID']['value'], one['Tile_Orientation']['value']) for one in are['Tile_List']['value']], [(0, 0), (1, 0), (2, 1), (3, 1), (4, 2), (5, 2)])  # row by row from the south-west
-        self.assertEqual((are['IsNight'], are['MoonDiffuseColor'], are['MoonAmbientColor']), ({'type': 'byte', 'value': 1}, {'type': 'dword', 'value': 100 | 100 << 8 | 200 << 16}, {'type': 'dword', 'value': 0}))
+        self.assertEqual((are['IsNight'], are['MoonDiffuseColor'], are['MoonAmbientColor']), ({'type': 'byte', 'value': 1}, {'type': 'dword', 'value': 0x504840}, {'type': 'dword', 'value': 0x302820}))
         day = review.area_documents('tkbd', 'Block, day', 'tst01', 2, 3, laid, 'day')['tkbd.are']
-        self.assertEqual((day['IsNight']['value'], day['SunAmbientColor']['value'], day['DayNightCycle']['value']), (0, 50 | 50 << 8 | 100 << 16, 0))  # Exterior, Clear, and no clock to change it
+        self.assertEqual((day['IsNight']['value'], day['SunAmbientColor']['value'], day['DayNightCycle']['value']), (0, 11579568, 0))  # envkit's check lighting, and no clock to change it
         with self.assertRaisesRegex(ValueError, 'every cell'):
             review.area_documents('tkbd', 'Block', 'tst01', 2, 4, laid, 'day')
         with self.assertRaisesRegex(ValueError, 'lit by'):
@@ -122,6 +122,15 @@ class ReviewTests(unittest.TestCase):
                 self.assertEqual(page.size, (160, (45 + 16) * 3))
             with self.assertRaisesRegex(ValueError, 'No captures'):
                 review.sheet([], Path(folder) / 'none.jpg')
+
+    def test_sheets_are_made_for_each_part_and_lighting_in_pages(self):
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as folder:
+            captures = Path(folder) / 'captures'; captures.mkdir()
+            for index, label in enumerate(['block-day-x03y03-ne', 'block-night-x03y03-ne', 'grid-day-r00-c00-s', 'grid-day-r00-c00-n', 'grid-day-r01-c00-s']):
+                Image.new('RGB', (160, 90)).save(captures / f'shot-{index:02d}-{label}.png')
+            self.assertEqual(review.sheets(folder, most=2), {'block-day.jpg': 1, 'block-night.jpg': 1, 'grid-day-1.jpg': 2, 'grid-day-2.jpg': 1})
+            self.assertTrue((Path(folder) / 'sheets' / 'grid-day-2.jpg').is_file())
 
 
 def review_tile(turned):
