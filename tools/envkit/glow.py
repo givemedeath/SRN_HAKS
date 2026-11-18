@@ -11,6 +11,8 @@ same), so the light around a sign is drawn: `halo` blurs the model's glow, seen 
 onto a card that stands just in front of it and is added to the picture behind."""
 from typing import NamedTuple
 
+from pathlib import Path
+
 import numpy as np
 
 from . import require
@@ -24,7 +26,13 @@ def position_map(points, uvs, faces, size, *, facing=False):
     """((size, size, 3) positions, (size, size) covered): the place on the model each texel shows. Rows run down the
     image as v runs up from 0, the way glTF and the game both read a texture. Each triangle also covers the texels
     just outside its edges, so the gutter the smaller mips blend in is lit like its island. With `facing`, a third
-    value: the way each texel's surface faces, as a unit vector."""
+    value: the way each texel's surface faces, as a unit vector. A large model's is kept for its next build (`cache`)."""
+    from . import cache
+    points, uvs, faces = np.asarray(points, float), np.asarray(uvs, float), np.asarray(faces)
+    return cache.arrays('places', (points, uvs, faces, size, facing, Path(__file__)), lambda: _position_map(points, uvs, faces, size, facing), faces=len(faces))
+
+
+def _position_map(points, uvs, faces, size, facing):
     where = np.zeros((size, size, 3)); covered = np.zeros((size, size), bool); toward = np.zeros((size, size, 3))
     pixel = np.asarray(uvs, float) * size - 0.5
     for face in np.asarray(faces):

@@ -629,6 +629,26 @@ class ConvertTests(unittest.TestCase):
         np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind in ('rail', 'post')]], 0.9)
         np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind == 'tread']], 0.1)
 
+    def test_a_map_compressed_before_is_copied_not_compressed_again(self):
+        """A group built again for its fence or its nodes compressed every map again (2026-11-17)."""
+        from unittest import mock
+        from PIL import Image
+        folder = Path(tempfile.mkdtemp()); runs = []
+        def run(command, **said):
+            runs.append(command); Path(command[command.index('-out') + 1]).write_bytes(b'DDS ' + str(len(runs)).encode())
+            return mock.Mock(returncode=0, stdout='', stderr='')
+        picture = Image.new('RGB', (8, 8), (10, 20, 30))
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'kept'), mock.patch.object(convert.subprocess, 'run', side_effect=run), mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            first = convert._compress(picture, folder / 'a.dds', '-DXT1', 8, 'crunch', data=False).read_bytes()
+            again = convert._compress(picture, folder / 'b.dds', '-DXT1', 8, 'crunch', data=False).read_bytes()
+            self.assertEqual((first, again, len(runs)), (b'DDS 1', b'DDS 1', 1))
+            convert._compress(picture, folder / 'c.dds', '-DXT1', 8, 'crunch', data=True); self.assertEqual(len(runs), 2)  # another gamma is another map
+            convert._compress(Image.new('RGB', (8, 8), (10, 20, 31)), folder / 'd.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 3)
+            environment['ENVKIT_NO_CACHE'] = '1'
+            convert._compress(picture, folder / 'e.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 4)
+        self.assertFalse(list(folder.glob('*.png')))
+
     def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
         """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""
         points, normals, faces = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.5)

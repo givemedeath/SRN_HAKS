@@ -166,6 +166,28 @@ def _masses(closed):
     return labels, count
 
 
+def across_seams(walk, raised, rows, columns, least=16):
+    """Raised ground of a tile that is reached only across the line from another tile of the group: [(row, column,
+    cells)], each a joined patch of at least `least` walk cells, most of it on the slab or a deck, that touches no side
+    of its tile on the group's rim. walk: the cells one can walk on; raised: those on the slab or a deck.
+
+    A planned walk has not crossed from tile to tile on a slab. The Shiawase Barrens power station's fenced yard stood
+    on its slab: with one gateway, walkers arrived in the tile that held it and gave up in the next, in five builds of
+    two layouts, whatever nodes were stated, and all arrived once each yard tile had a gateway of its own (client,
+    2026-11-17); Aurora Warrens' west walker gave up at a strip of slab on the line between two tiles (2026-11-16).
+    Ground level with the terrain is crossed: the rail depot's inner tiles are reached."""
+    reached = _outside(walk); found = []
+    for row in range(rows):
+        for column in range(columns):
+            span = (slice(row * CELLS, (row + 1) * CELLS), slice(column * CELLS, (column + 1) * CELLS)); here = reached[span]; rim = np.zeros_like(here)
+            rim[0] |= row == 0; rim[-1] |= row == rows - 1; rim[:, 0] |= column == 0; rim[:, -1] |= column == columns - 1
+            labels, count = _masses(here)
+            for patch in (labels == index for index in range(1, count + 1)):
+                if patch.sum() >= least and not (patch & rim).any() and raised[span][patch].mean() > 0.5:
+                    found.append((row, column, int(patch.sum())))
+    return found
+
+
 def _decks(points, place, standing, shape):
     """(deck, stairs): the height of the deck each survey sample lies on, 0 off any deck, and of the stairs up to one,
     0 off any. A deck is a flat floor past the knee of DECK_AREA at least, and its rim, the samples beside it where the
@@ -962,6 +984,9 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                 x, y, z = (at - centre).round(2).tolist()
                 one['doors'].append({'type': int(door['type']), 'x': x, 'y': y, 'z': z, 'orientation': orientation, 'drawnOut': drawn})
             tiles.append(one)
+    for row, column, cells in across_seams(found['material'] == STONE, found['raised'] | (found['deck'] > 0), rows, columns):
+        notes.append(f'{name}_t{row}{column}: {cells * (SIZE / CELLS) ** 2:.0f} m² of raised ground is reached only across the line from the next tile, which a planned walk '
+                     'has not crossed on a slab (`across_seams`): give this tile a way in of its own on a side that faces out, or the building no slab')
     walk_picture(found, unplanned).save(folder / WALK_PICTURE)
     return {'rows': rows, 'columns': columns, 'slab': round(found['slab'], 3), 'roof': round(found['roof'], 3), 'fade': fade, 'tiles': tiles, 'notes': notes}
 

@@ -509,6 +509,19 @@ class TileTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'its own light'):
             tile.share_cards(made.cards, 1, 1, np.array([-5.0, -5.0]), [])
 
+    def test_raised_ground_reached_only_across_a_tile_line_is_found(self):
+        """The power station's yard on its slab: walkers arrived in the tile with the gateway and gave up in the next (2026-11-17)."""
+        cells = tile.CELLS; walk = np.ones((cells, 2 * cells), bool); raised = np.zeros_like(walk)
+        walk[4, 4:-4] = walk[-5, 4:-4] = False; walk[4:-4, 4] = walk[4:-4, -5] = False  # a fence round a yard over both tiles
+        raised[5:-5, 5:-5] = True; walk[-5, 10:20] = True  # on a slab, with a gateway in the west tile's north side
+        self.assertEqual(tile.across_seams(walk, raised, 1, 2), [(0, 1, (cells - 10) * (cells - 5))])
+        walk[-5, cells + 10:cells + 20] = True  # a gateway for the east tile too
+        self.assertEqual(tile.across_seams(walk, raised, 1, 2), [])
+        walk[-5, cells + 10:cells + 20] = False
+        self.assertEqual(tile.across_seams(walk, np.zeros_like(walk), 1, 2), [])  # level ground is crossed
+        walk[-5, 10:20] = False
+        self.assertEqual(tile.across_seams(walk, raised, 1, 2), [])  # a yard with no way in at all is another note's
+
     def test_a_built_group_notes_ground_no_exit_reaches(self):
         import tempfile
         # The walled yard on a slab two tiles wide, its only gap three quarters of a metre: the yard's ground is in the west tile and no exit reaches it.

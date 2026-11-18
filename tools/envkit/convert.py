@@ -210,6 +210,14 @@ def back_to_back(vertices, faces, which):
 
 
 def turn_faces(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
+    """`_turn_faces`, a large model's kept for its next build (`cache`)."""
+    from . import cache
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces)
+    turned, count = cache.arrays('winding', (vertices, faces, cells, views, Path(__file__)), lambda: _turn_faces(vertices, faces, cells, views), faces=len(faces))
+    return np.array(turned), int(count)
+
+
+def _turn_faces(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
     """(faces, turned): a face seen from outside mostly from behind (`seen`: more than twice as much, at least three
     pixels and a fifth of all it would show were nothing in front of it) turned round. The fifth keeps a face hidden
     behind another from being judged by the few pixels where the spots of the face in front miss. The game draws a face only from the side its corners run counter-clockwise on, so such a face
@@ -697,6 +705,14 @@ def _turn(yaw, pitch, roll):
 
 
 def upright(points, faces, *, limit=(45.0, 35.0, 35.0), sample=6000):
+    """`_upright`, a large model's kept for its next build (`cache`)."""
+    from . import cache
+    points, faces = np.asarray(points, float), np.asarray(faces)
+    found = cache.arrays('upright', (points, faces, limit, sample, Path(__file__)), lambda: (np.asarray(_upright(points, faces, limit=limit, sample=sample), float),), faces=len(faces))
+    return tuple(float(angle) for angle in found[0])
+
+
+def _upright(points, faces, *, limit=(45.0, 35.0, 35.0), sample=6000):
     """(yaw, pitch, roll) in degrees that stand a made thing square to the axes, or zeros.
 
     A model generated locally comes back the way the reference was drawn: seen from above and to one side, so it leans
@@ -1212,14 +1228,30 @@ def specular(base, metallic):
     return DIELECTRIC + (luminance - DIELECTRIC) * metallic
 
 
+COMPRESSED = Path(__file__).resolve().parents[2] / 'output' / 'envkit' / 'cache' / 'dds'  # ignored: maps as compressed, by what they were compressed from
+
+
 def _compress(image, target, mode, size, crunch, *, data):
-    """One PNG through the texture compressor to a mipmapped DDS. `data` maps are filtered without gamma."""
-    source = target.with_suffix('.source.png'); image.resize((size, size)).save(source)
-    command = [crunch, '-file', str(source), '-out', str(target), '-fileformat', 'dds', mode, '-mipMode', 'Generate', '-noprogress',
-               '-gamma', '1.0' if data else '2.2'] + (['-renormalize'] if mode == '-DXN' else [])
+    """One PNG through the texture compressor to a mipmapped DDS. `data` maps are filtered without gamma.
+
+    The same picture compressed the same way by the same compressor is copied from COMPRESSED, where each is kept under
+    the hash of all three: a group built again after a change to its fence or its path nodes compressed every map
+    again, about a third of each of the Shiawase Barrens power station's seven builds (2026-11-17). ENVKIT_NO_CACHE
+    set compresses anew."""
+    import hashlib, io, os, shutil
+    pixels = io.BytesIO(); image.resize((size, size)).save(pixels, 'PNG'); tool = Path(crunch)
+    renormal = ['-renormalize'] if mode == '-DXN' else []; settings = [mode, '-mipMode', 'Generate', '-noprogress', '-gamma', '1.0' if data else '2.2', *renormal]
+    stamp = [tool.name, tool.stat().st_size, tool.stat().st_mtime_ns] if tool.is_file() else [str(crunch)]
+    kept = COMPRESSED / (hashlib.sha256(pixels.getvalue() + repr([settings, stamp]).encode()).hexdigest() + '.dds')
+    if kept.is_file() and not os.environ.get('ENVKIT_NO_CACHE'):
+        shutil.copyfile(kept, target); return target
+    source = target.with_suffix('.source.png'); source.write_bytes(pixels.getvalue())
+    command = [crunch, '-file', str(source), '-out', str(target), '-fileformat', 'dds', *settings]
     result = subprocess.run(command, capture_output=True, text=True, check=False, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     source.unlink()
     require(result.returncode == 0 and target.is_file(), f'{target.name} did not compress: {(result.stdout + result.stderr)[-400:]}')
+    if not os.environ.get('ENVKIT_NO_CACHE'):
+        kept.parent.mkdir(parents=True, exist_ok=True); part = kept.with_suffix('.part'); shutil.copyfile(target, part); part.replace(kept)
     return target
 
 

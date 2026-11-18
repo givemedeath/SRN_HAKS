@@ -401,6 +401,7 @@
     "tools/envkit/blueprints.py": [
       "tools/envkit/placeables.py"
     ],
+    "tools/envkit/cache.py": [],
     "tools/envkit/catalog.py": [
       "docs/additions/catalog.json"
     ],
@@ -417,10 +418,13 @@
       "tools/armorkit/__init__.py",
       "tools/armorkit/export.py",
       "tools/armorkit/toolchain.py",
+      "tools/envkit/cache.py",
       "tools/envkit/glow.py",
       "tools/envkit/placeables.py"
     ],
-    "tools/envkit/glow.py": [],
+    "tools/envkit/glow.py": [
+      "tools/envkit/cache.py"
+    ],
     "tools/envkit/local.py": [
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
@@ -459,6 +463,10 @@
       "tools/armorkit/__init__.py",
       "tools/armorkit/toolchain.py",
       "tools/envkit/tile.py"
+    ],
+    "tools/envkit/test_cache.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/cache.py"
     ],
     "tools/envkit/test_catalog.py": [
       "tools/envkit/blueprints.py",
@@ -5734,6 +5742,7 @@
     "tools/armorkit/test_texture.py",
     "tools/armorkit/test_toolchain.py",
     "tools/armorkit/test_view.py",
+    "tools/envkit/test_cache.py",
     "tools/envkit/test_catalog.py",
     "tools/envkit/test_checks.py",
     "tools/envkit/test_convert.py",
