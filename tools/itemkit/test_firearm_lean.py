@@ -62,3 +62,31 @@ class SidewaysLeanTests(unittest.TestCase):
     def test_a_flat_sheet_has_no_middle_to_measure(self):
         vertices = np.array([[0, 0, 0], [0, 1, 0], [0, 0, 1], [0, 1, 1]], float); faces = np.array([[0, 1, 2], [1, 3, 2], [0, 2, 1], [1, 2, 3]])
         with self.assertRaisesRegex(ValueError, 'two sides'): sideways_lean(vertices, faces)
+
+
+class StraightenTests(unittest.TestCase):
+    def model(self, vertices, faces, ending='\n'):
+        mesh = lambda name, v, f: (f'node trimesh {name}{ending}  verts {len(v)}{ending}' + ''.join(f'    {x:.7f} {y:.7f} {z:.7f}{ending}' for x, y, z in v)
+                                   + f'  faces {len(f)}{ending}' + ''.join(f'    {a} {b} {c} 1 0 0 0 1{ending}' for a, b, c in f) + f'endnode{ending}')
+        return f'newmodel g{ending}' + mesh('gv', vertices, faces) + mesh('gs', vertices[:8], faces[:12]) + f'donemodel g{ending}'
+
+    def test_the_turn_is_rigid_and_stands_the_gun_upright(self):
+        from .firearm_lean import squaring_turn
+        vertices, faces = gun(); pivot = np.array([0, -.016, 0]); leaning = rolled(vertices, 3.8, 1.5)
+        turn = squaring_turn(leaning, faces, pivot)
+        np.testing.assert_allclose(turn @ turn.T, np.eye(3), atol=1e-12); self.assertAlmostEqual(np.linalg.det(turn), 1)
+        self.assertLess(sideways_lean((leaning - pivot) @ turn.T + pivot, faces)['leanDegrees'], .3)
+        np.testing.assert_allclose(squaring_turn(vertices, faces), np.eye(3), atol=.006)     # an upright gun barely moves
+
+    def test_every_mesh_of_a_model_takes_the_same_turn(self):
+        from .firearm_lean import straightened_model
+        import re
+        vertices, faces = gun(); leaning = rolled(vertices, 2.6)
+        for ending in ('\n', '\r\n'):
+            text = self.model(leaning, faces, ending); done, record = straightened_model(text, (0, -.016, 0))
+            self.assertGreater(record['before']['leanDegrees'], 2.3); self.assertLess(record['after']['leanDegrees'], .3)
+            self.assertEqual(done.count(ending), text.count(ending)); self.assertEqual(re.sub(r'(?m)^ +-?\d+\.\d+ .*\r?\n', '', done), re.sub(r'(?m)^ +-?\d+\.\d+ .*\r?\n', '', text))
+            read = lambda t, i: np.array([[float(v) for v in row.split()] for row in re.findall(r'(?m)^ +(-?\d+\.\d+ +-?\d+\.\d+ +-?\d+\.\d+)\r?$', t)])
+            moved = read(done, 0); pivot = np.array(record['pivot'])
+            np.testing.assert_allclose(moved[:len(leaning)], (leaning - pivot) @ np.array(record['matrix']).T + pivot, atol=1e-6)
+            np.testing.assert_allclose(moved[len(leaning):], moved[:8], atol=1e-6)            # the shadow went with it

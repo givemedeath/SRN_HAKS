@@ -293,6 +293,17 @@ Every firearm fit now measures the lean (`tools/itemkit/firearm_lean.py`, called
 Squaring a gun changes its measured grip thickness, so its scale changes too. Both wave-1 pistols came out slightly
 larger once square (the Fichetti by 5%, the Pulsar by 2.5%).
 
+### Guns published before the check
+
+The Predator (3.8 degrees), Colt L36 (2.6) and Ingram (2.1) shipped before any fit measured its lean, and the Colt's
+and Ingram's fit runs no longer exist. `firearm_lean.straightened_model` turns such a gun's finished shape rigidly
+about the hand's grip point until its middle plane stands upright: every mesh of the part takes the same turn, so
+size, proportions, grip angle and texture mapping stay as approved. The effects build (`firearm_fx_pilot.py`,
+`STRAIGHTEN`) applies it to those three after it reads the pre-effects source, moves each hand-placed ejection port
+with the gun, and writes `<part>.straightened.json` (lean before and after, the matrix) beside the decompiled source.
+The AK-98 (1.2) is inside the limit and is left alone. A new gun is not straightened this way: its frame is squared
+before the fit.
+
 ## Validation scope
 
 New focused regressions cover invalid geometry, blocked openings, UV defects,

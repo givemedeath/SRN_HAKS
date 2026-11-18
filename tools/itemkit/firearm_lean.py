@@ -72,3 +72,42 @@ def reviewed_lean(vertices, faces, review=None):
                     f"toe {report['toeDegrees']:.2f}; limit {LIMIT_DEGREES}): square its frame to its own middle plane before fitting, "
                     'or bind fit.sidewaysLeanReview to this measurement')
     return {**report, 'review': review}
+
+
+def squaring_turn(vertices, faces, pivot=(0, 0, 0), passes=3):
+    """The rotation about `pivot` that stands a native-frame firearm's middle plane at x = constant by the smallest
+    turn. It is rigid: size, proportions, the grip-to-barrel angle and the texture mapping are untouched."""
+    vertices = np.asarray(vertices, float); pivot = np.asarray(pivot, float); total = np.eye(3); moved = vertices
+    for _ in range(passes):
+        report = sideways_lean(moved, faces)
+        normal = np.array([1, -np.tan(np.radians(report['rollDegrees'])), -np.tan(np.radians(report['toeDegrees']))])
+        normal /= np.linalg.norm(normal); axis = np.cross(normal, [1, 0, 0]); sine = np.linalg.norm(axis)
+        if sine < 1e-6: break
+        k = axis / sine; cross = np.array([[0, -k[2], k[1]], [k[2], 0, -k[0]], [-k[1], k[0], 0]])
+        total = (np.eye(3) + sine * cross + (1 - normal[0]) * cross @ cross) @ total
+        moved = (vertices - pivot) @ total.T + pivot
+    return total
+
+
+def straightened_model(text, pivot=(0, 0, 0)):
+    """An ASCII model of one firearm part with every mesh turned by its visible mesh's squaring turn.
+
+    For a published gun whose fit can no longer be rerun: the first trimesh is measured, and all `verts` blocks (the
+    shadow too) take the same turn. Returns (text, record); the record's matrix moves hand-placed points with it."""
+    import re
+    blocks = list(re.finditer(r'(?m)^(\s*)verts\s+(\d+)[^\n]*\n', text)); require(blocks, 'No mesh to straighten')
+    def rows(match, count): return text[match.end():].split('\n', count)[:count]
+    first = blocks[0]; vertices = np.array([[float(v) for v in row.split()[:3]] for row in rows(first, int(first[2]))])
+    faces = re.search(r'(?m)^\s*faces\s+(\d+)[^\n]*\n', text[first.end():]); start = first.end() + faces.end()
+    triangles = np.array([[int(v) for v in row.split()[:3]] for row in text[start:].split('\n', int(faces[1]))[:int(faces[1])]])
+    pivot = np.asarray(pivot, float); turn = squaring_turn(vertices, triangles, pivot); before = sideways_lean(vertices, triangles)
+    after = sideways_lean((vertices - pivot) @ turn.T + pivot, triangles)
+    require(after['leanDegrees'] <= .3, 'The squaring turn did not stand the firearm upright')
+    out, at = [], 0
+    for match in blocks:
+        count = int(match[2]); lines = rows(match, count); end = match.end() + sum(len(line) + 1 for line in lines)
+        points = np.array([[float(v) for v in line.split()[:3]] for line in lines]); points = (points - pivot) @ turn.T + pivot
+        tail = '\r' if lines and lines[0].endswith('\r') else ''
+        out += [text[at:match.end()], ''.join(f'{match[1]}    {x: .7f} {y: .7f} {z: .7f}{tail}\n' for x, y, z in points)]; at = end
+    out.append(text[at:])
+    return ''.join(out), {'before': before, 'after': after, 'matrix': turn.tolist(), 'pivot': pivot.tolist()}
