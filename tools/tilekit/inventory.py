@@ -36,8 +36,9 @@ def sections(text):
 
 
 def read_set(text):
-    """A set file as {default, terrains, crossers, tiles: [{number, model, corners, crossers, doors}], groups:
-    [{name, tiles}]}. Corners are top left, top right, bottom left, bottom right; crossers top, right, bottom, left."""
+    """A set file as {default, terrains, crossers, tiles: [{number, model, corners, heights, crossers, doors}], groups:
+    [{name, tiles}]}. Corners and their heights are top left, top right, bottom left, bottom right; crossers top,
+    right, bottom, left."""
     told = {'default': '', 'terrains': [], 'crossers': [], 'tiles': [], 'groups': []}
     for name, keys in sections(text):
         if name == 'GENERAL':
@@ -49,6 +50,7 @@ def read_set(text):
         elif re.fullmatch(r'TILE\d+', name):
             told['tiles'].append({'number': int(name[4:]), 'model': keys.get('Model', '').lower(),
                                   'corners': [keys.get(key, '') for key in ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')],
+                                  'heights': [int(keys.get(key + 'Height', '0') or 0) for key in ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')],
                                   'crossers': [keys.get(key, '') for key in ('Top', 'Right', 'Bottom', 'Left')],
                                   'doors': int(keys.get('Doors', '0') or 0)})
         elif re.fullmatch(r'GROUP\d+', name):

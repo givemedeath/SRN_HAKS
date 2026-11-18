@@ -1,0 +1,38 @@
+{
+  "tileset": "dgt04",
+  "fill": 0,
+  "block": {
+    "width": 15,
+    "height": 15,
+    "lights": ["day", "night", "overcast"],
+    "patches": [
+      {"terrain": "Highrise_01", "at": [1, 1]},
+      {"terrain": "Highrise_02", "at": [5, 1]},
+      {"terrain": "Highrise_03", "at": [9, 1]},
+      {"terrain": "Highrise_04", "at": [13, 1]},
+      {"terrain": "Highrise_05", "at": [1, 5]},
+      {"terrain": "Highrise_06", "at": [5, 5]},
+      {"terrain": "Highrise_07", "at": [9, 5]},
+      {"terrain": "Apartments", "at": [13, 5]},
+      {"terrain": "Slums1", "at": [1, 9]},
+      {"terrain": "Slums2", "at": [5, 9]},
+      {"terrain": "Slums3", "at": [9, 9]},
+      {"terrain": "Warehouse_01", "at": [13, 9]},
+      {"terrain": "Warehouse_02", "at": [1, 13]},
+      {"terrain": "Police_Station", "at": [5, 13]},
+      {"terrain": "Hospital", "at": [9, 13]},
+      {"terrain": "Lab", "at": [13, 13]}
+    ],
+    "runs": [
+      {"crosser": "Street", "cells": [[3, 0], [3, 14]]},
+      {"crosser": "Street", "cells": [[7, 0], [7, 14]]},
+      {"crosser": "Street", "cells": [[11, 0], [11, 14]]},
+      {"crosser": "Street", "cells": [[0, 3], [14, 3]]},
+      {"crosser": "Street", "cells": [[0, 7], [14, 7]]},
+      {"crosser": "Street", "cells": [[0, 11], [14, 11]]}
+    ],
+    "crossings": [[3, 3], [11, 3], [3, 11], [11, 11]]
+  },
+  "grid": {"across": 32, "lights": ["day"]},
+  "area": {"step": 4, "lights": ["day", "night", "overcast"]}
+}
