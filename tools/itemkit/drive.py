@@ -361,10 +361,10 @@ class Driver:
             receipt = Path(entry['path'])
             if not receipt.is_file(): raise SystemExit(f'{design}: {run/"state.json"} records a donor receipt that is missing: {receipt}')
             return read(receipt).get('state') == 'complete'
-        if not complete(): self.stage(design, 'donor-v1', 'donor')
+        if not complete(): self.stage(design, donor_suffix, 'donor')
         if not complete(): raise SystemExit(f'{design}: the donor stage did not complete; see {run}')
         donor = next(Path(recorded()['path']).parent.rglob('textured-donor.glb'))
-        family = read(self.ws.handoff/read(self.manifest(design, 'donor-v1'))['familyProfile']['path'])['family']
+        family = read(self.ws.handoff/read(self.manifest(design, donor_suffix))['familyProfile']['path'])['family']
         # Each map applies to the previous result, so the maps in --straight must have been measured in this same order:
         # with more than one map, each one's measuring report must show it was measured on the previous one's output.
         kinds = (('straighten', 'straightened'), ('thin', 'thinned'), ('level', 'levelled'))
@@ -378,7 +378,7 @@ class Driver:
         for kind, name in kinds:
             mapping = Path(straight)/f'{kind}-map.npz' if straight else None
             if mapping and mapping.exists():
-                out = self.ws.items/design/f'donor-v1-{name}'
+                out = self.ws.items/design/f'{donor_suffix}-{name}'
                 if out.exists() and not (out/f'{name}.glb').exists():
                     raise SystemExit(f'{out} holds an unfinished {kind} run: move it aside first')
                 if not out.exists():

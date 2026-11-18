@@ -204,10 +204,11 @@ class Runner:
         if self.data.get('processing', {}).get('metal'): return None            # the recovery keeps no metallic layer
         from .recovery import recovery_inputs
         without_policy = lambda values: {key: value for key, value in values.items() if key != 'missCorrection'}
+        current = None
         for path in recovery_proofs(self.run):
             try:
-                proof = read(path); recovery_inputs(proof)
-                if (proof['sourceScene'] == pin(scene) and digest(proof['family']) == digest(self.family)
+                proof = read(path); recovery_inputs(proof); current = current or pin(scene)
+                if (proof['sourceScene'] == current and digest(proof['family']) == digest(self.family)
                         and digest(without_policy(proof['processing'])) == digest(without_policy(self.data.get('processing', {})))):
                     return str(path)
             except (KeyError, OSError, ValueError): continue

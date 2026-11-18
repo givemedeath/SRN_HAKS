@@ -731,6 +731,12 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'receipt that is missing'):
                 d.textured('blade', 'a1', 'src', 'approved')
             stage.assert_not_called()
+            # a re-seeded colouring works in its own donor manifest and run, not the first colouring's
+            (root/'blade/appearance-s1/job').mkdir(parents=True); (root/'blade/appearance-s1/job/collection.json').write_text('{}', encoding='utf-8')
+            (h/'blade.donor-seed1-v1.asset.json').write_bytes((h/'blade.donor-v1.asset.json').read_bytes())
+            with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'did not complete'):
+                d.textured('blade', 'a1', 'src', 'approved', appearance_seed=1)
+            self.assertEqual(stage.call_args[0][:2], ('blade', 'donor-seed1-v1'))
 
     def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
         import hashlib
