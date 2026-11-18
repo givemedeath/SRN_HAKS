@@ -22,13 +22,13 @@
   "weaponBlueprintCopies": 0,
   "releasePublication": {
     "path": "docs/items/approved-weapons-v1.json",
-    "sha256": "559ca7f0de1b1b3332422398ee8dc416873409c82287cdc6b33f289556e0c42e"
+    "sha256": "7c1f819fcb5bdf4499a05a051ec59d4dbdca797bb21e0de9514fea0c5f42440e"
   },
   "resources": [
     {
       "path": "test-modules/weapon-waves/module/c.ncs",
-      "sha256": "2c56fd3881633b5d731375fb2fabc7581d92229631e1c463b17fb06529f826b2",
-      "bytes": 10687
+      "sha256": "c50f5509410208d53e041a187e673334072a658e57620b407f95bd3e46ae2589",
+      "bytes": 10813
     },
     {
       "path": "test-modules/weapon-waves/module/c.nss",
@@ -92,8 +92,8 @@
     },
     {
       "path": "test-modules/weapon-waves/module/sr_it_floor.git",
-      "sha256": "1d531e971b579e4ac7bbb105e9252ba87ea87e2b7bbcdbfae87e7efb583cf387",
-      "bytes": 215796
+      "sha256": "c543e452fee4d88f7c53ec701e2a2930bc15958d9091b3d70aa8e4560bc807bf",
+      "bytes": 241302
     },
     {
       "path": "test-modules/weapon-waves/module/sr_it_hb.ncs",
@@ -212,13 +212,13 @@
     },
     {
       "path": "test-modules/weapon-waves/module/sw2_enter.ncs",
-      "sha256": "be7c0d3bbe916d59088148e62f0c085092727ecff3ab45ea24dfa9bc10fe217f",
-      "bytes": 8802
+      "sha256": "428a8281e0069d7e8d97a921ca5fcb941ca5d8f07fb0dd27807e2f360df2a42c",
+      "bytes": 9759
     },
     {
       "path": "test-modules/weapon-waves/module/sw2_enter.nss",
-      "sha256": "550568798095c520f2e34a3d514e535f4075939b711f283bdac3bdf76436fd71",
-      "bytes": 8856
+      "sha256": "48c6c0c8d355919b2418242ebe830f633a401173783a8163606f6d5f624f7fb5",
+      "bytes": 9778
     },
     {
       "path": "test-modules/weapon-waves/module/sw2_f0.utc",
@@ -332,8 +332,8 @@
     },
     {
       "path": "test-modules/weapon-waves/module/sw_review.ncs",
-      "sha256": "f8162efd917ad799eed4cffaf936ab9e2e90ad25604fd5e171c53c77bd065138",
-      "bytes": 1356
+      "sha256": "30cda3ab76def5495ff1c32efbe03fd242088ebb37d03d824d0119ba322491de",
+      "bytes": 1419
     },
     {
       "path": "test-modules/weapon-waves/module/sw_review.nss",
@@ -487,8 +487,8 @@
     },
     {
       "path": "test-modules/weapon-waves/module/sw_pairs.nss",
-      "sha256": "4472545010fa55b1f5179473b66d8cba803a0d6d93c962adfe243d82ad6c3630",
-      "bytes": 749
+      "sha256": "1b6689f2534228ba3c134e40fdbd0e29dcb89ae88030f843515fa6c0ca76e703",
+      "bytes": 804
     },
     {
       "path": "test-modules/weapon-waves/module/sw7_f0.utc",
@@ -649,10 +649,60 @@
       "path": "test-modules/weapon-waves/module/sw10_m3.utc",
       "sha256": "fde81838111e64662c192da124442e5204669e6d68d70490fb8da55ca0cc7a6a",
       "bytes": 4137
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_f0.utc",
+      "sha256": "38bb8403f9dafd42a29715499ceca39653c62442b7841168dd966a0eda2fe3b4",
+      "bytes": 4148
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_f1.utc",
+      "sha256": "84dd4ed5851b587089540e9e9e3fc7b8ed75a19616c3c4475db42fb0f49c192c",
+      "bytes": 4140
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_f2.utc",
+      "sha256": "2fc6922c7bd27d3d74b9bc0446a82eeefdfc08a8c5a5711651c1269d3d5f2076",
+      "bytes": 4137
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_f3.utc",
+      "sha256": "7e2385bbc454af128b9f275fd851222be0503a2d1bcd15cdb8898c886ae3dc24",
+      "bytes": 4132
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_f4.utc",
+      "sha256": "598c09c23ed851d97848998b2312e95bbc624cef7b732e43413092643725c998",
+      "bytes": 4141
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_m0.utc",
+      "sha256": "7c196dbbf020e43cc1871114df8e8ab3fb862cbfd6feed7632223b2236885ac4",
+      "bytes": 4146
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_m1.utc",
+      "sha256": "d6d669df700e55b6eda7d3a4aa7705199d0dbb5baa35e1945731ccf85c795c68",
+      "bytes": 4138
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_m2.utc",
+      "sha256": "e7b361c7a650f0f7b58686239f00b39f0ef47029e6ffeee7013f009e29f8846a",
+      "bytes": 4135
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_m3.utc",
+      "sha256": "a4c2e7811acba987b8dca9a4ab0299f09b52a1a977ae508004388164c1aabf87",
+      "bytes": 4130
+    },
+    {
+      "path": "test-modules/weapon-waves/module/sw11_m4.utc",
+      "sha256": "754f9f96ae40a70e7708965d358b42d8f584bb376ca74e67d8af6a5bbd0ce59e",
+      "bytes": 4139
     }
   ],
   "originalApprovalCommit": "5b105893bf187529c84bd0a81ebca9fe0d5e4447",
-  "reviewerPairs": 42,
-  "reviewerNPCs": 84,
+  "reviewerPairs": 47,
+  "reviewerNPCs": 94,
   "initialPair": "Cougar Fineblade Knife"
 }

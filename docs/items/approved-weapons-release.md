@@ -19,8 +19,8 @@ describes the complete resource closure.
 | F4 | 13 / WSwGs | Katana; Claymore; Baseball Bat; Combat Axe; Nodachi |
 | F5 | 50 / WDbQs | Staff; Stun Staff; Spear; Pole Arm |
 | F6 | 111 / WWhip | Whip |
-| F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV |
-| F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow |
+| F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV; Fichetti Security 600; Yamaha Pulsar; HK MP-5 TX |
+| F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow; AK-97; Defiance T-250 |
 | F9 | 8 / WBwLn | Bow |
 | F11 | 63 / WThAx | Throwing Knife |
 | F12 | 56 / AShLw | Riot Shield |
@@ -311,6 +311,47 @@ on main since wave 5; this wave changes only `baseitems.2da`.
 No gameplay, price or item-property field changes. The comparison module gained a male/female reviewer pair for each
 in the `sw1_` row (`sw10_`), but those pairs have not been run in its client.
 
+## Firearm wave 1 (2026-11-17)
+
+Five SR4 catalog firearms through the itemkit firearm route, published with `tools.itemkit.publish` from their firearm
+packages (`--effects` for the firing-effect models). Every file but the shown model is the exact bytes of its reviewed
+native HAK. The shown model ships as its firing-effect build: the package model plus the muzzle flash and casing
+emitters and fire clips of `firearm-fx-pilot.md`, compiled by the game's own compiler; the record keeps the package
+model's hash as `preEffectsSha256`.
+
+| Item | Family | Blueprint | Appearance | Size |
+|---|---|---|---|---|
+| Fichetti Security 600 | F7 / row 61 | `sr186f9abc_6` | bottom `076`, others `016` (hidden), diffuse `sr186f9abc_076` | 0.22 m, 14,986 triangles |
+| Yamaha Pulsar | F7 / row 61 | `sr4ec98e3a_7` | bottom `077`, others `017` (hidden), diffuse `sr4ec98e3a_077` | 0.23 m, 14,988 |
+| HK MP-5 TX | F7 / row 61 | `srade01f23_8` | middle `038`, others `018` (hidden), diffuse `srade01f23_038` | 0.44 m, 24,988 |
+| AK-97 | F8 / row 6 | `sr32dc7d7e_7` | top `017`, others `017` (hidden), diffuse `sr32dc7d7e_017` | 0.68 m, 37,488 |
+| Defiance T-250 | F8 / row 6 | `sr65882fcd_8` | top `018`, others `018` (hidden), diffuse `sr65882fcd_018` (+ `.txi`) | 0.75 m, 29,988 |
+
+- **Approval:** the user saw the first fits of all five in unattended client captures on both Human bodies ("Looks
+  good, do effects"). The Fichetti, Pulsar, MP-5 TX and Defiance were then refitted square to their own middle plane
+  (they leaned 2.9 to 6 degrees sideways in the hand), the effects were added, and Claude fired all five in the firing
+  test module on the Human male. The user accepted them without a further in-game look ("accepted, finish everything
+  up"). The Defiance's muzzle flash was not caught on a frame after its refit.
+- **Sizes:** the pistols and the MP-5 TX are sized by grip thickness to the Colt firearm grip standard. The AK-97 and
+  Defiance are two-handed on the Heavy Crossbow carrier; the Defiance is sized by length ("Full, 0.75 m") and its
+  wrist departs from the standard thickness in the user's words.
+- **Colour patches:** MP-5 TX 29 faces (27 approved by the user, "Approve patch (Recommended)"; 2 added on Claude's
+  review), Fichetti 4, Pulsar 8, Defiance 2, all inside the reviewed scope.
+- **Effects:** flash and casing on four guns. The Pulsar is a taser: an electric flash (nine blue-white sprites from
+  stock `fxpa_elect`) and no casing. The Defiance's metal is darkened at bake and its texture carries a reflection
+  mask, so it ships a TXI naming `chrome1`.
+- **Budgets:** the firearm cap is 37,500 visible triangles (user, 2026-11-17: "raise the firearm cap to 37,500").
+
+Table change: F7 `MaxRange` 65 to 77 (appearance picker only). Row 6 already reaches 100.
+
+The same change set stands the published Ares Predator IV, Colt L36 (both finishes) and Ingram Smartgun X upright:
+they leaned 3.8, 2.6 and 2.1 degrees. Each shipped shape is turned rigidly about the grip point by the effects build
+(`STRAIGHTEN`), with the same size, proportions and texture (user: "Refit published"); their records carry
+`sidewaysLeanStraightened`. Fired in game on the Human male from the ASCII build.
+
+No gameplay, price or item-property field changes. The comparison module gained a male/female reviewer pair for each
+(`sw11_`, holding bullets or bolts), but those pairs have not been run in its client. No production acceptance.
+
 ## Publishing a client-approved design
 
 `tools/itemkit/publish.py` publishes designs the user has approved in the client. It replaces the ad-hoc scripts the
@@ -359,7 +400,7 @@ For each item, the command:
    anything is written (and in `--dry-run`, as `plannedReviewers` and `plannedReviewerPositions`) it refuses if no
    row has room for a group (a row past the area's edge, or with any other object within half a step of a spot, is
    skipped), or past group `sw99_`. The selector reads a group up to the tag's first underscore (it read only the
-   first four characters, `sw1_` to `sw9_`, until wave 6 needed `sw10_`). Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
+   first four characters, `sw1_` to `sw9_`, until wave 6 needed `sw10_`). A firearm package (`firearm-package-*`) is published with its carrier's ammunition for the reviewers and, with `--effects ITEM=DIR`, its firing-effect models; other ranged weapons are refused: a bow's equip lines are written by hand.
    So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
    built archive holds exactly its source files and repeats the DDS twin check on every DDS in `srn_weapon`

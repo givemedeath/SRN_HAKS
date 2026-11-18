@@ -23,8 +23,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 118,
-      "sha256": "6839830bf5d632ff13b054176f02ab97f6a134ac2ec6780f622714e9699915fb",
+      "resources": 128,
+      "sha256": "b1072c06e108bbb7f750e098b9139923d33cf5a6ffab167f5551726e56338da3",
       "exactPayload": true
     }
   ],
@@ -32,8 +32,8 @@
   "motionOverlaysTestingOnly": true,
   "newClientAcceptanceClaimed": true,
   "reviewers": {
-    "pairs": 42,
-    "NPCs": 84,
+    "pairs": 47,
+    "NPCs": 94,
     "allWeaponFinishesOnBothHumanBodies": true,
     "initialPair": "Cougar Fineblade Knife",
     "clientReviewPending": false
@@ -120,6 +120,17 @@
       ],
       "moduleSha256": "6839830bf5d632ff13b054176f02ab97f6a134ac2ec6780f622714e9699915fb",
       "note": "Kris, Monofilament Sword, Jupiter Taser Club, Rattan Stick reviewer pairs were added (sw10_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
+    },
+    "extension8": {
+      "date": "2026-11-17",
+      "addedPairs": 5,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Looks good, do effects",
+        "accepted, finish everything up"
+      ],
+      "moduleSha256": "b1072c06e108bbb7f750e098b9139923d33cf5a6ffab167f5551726e56338da3",
+      "note": "Fichetti Security 600, Yamaha Pulsar, HK MP-5 TX, AK-97, Defiance T-250 reviewer pairs were added (sw11_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
     }
   }
 }
