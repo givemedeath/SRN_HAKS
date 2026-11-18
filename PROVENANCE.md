@@ -1504,7 +1504,8 @@ fence. The strip behind the building is fenced off and is not reached. The front
 in ignored `output/envkit/`.
 
 Checked in the game client on 2026-11-17, in areas laid from the converted files: in Modern Exterior by day from all
-four sides, the corners, from above and at the door; by night, where the lit parts were lit, put out by script and
+four sides, the corners and at the door (over two runs: the client stalled in each and some captures came late; the
+view from above was late in both and is not kept); by night, where the lit parts were lit, put out by script and
 brought back; and with walkers in both tilesets sent from the far corners to the door, the roller door, both halves
 of the yard, a corner of it and each side of the building, and from the next tile onto the yard: all arrived. Not
 yet painted in the Toolset, and its door has not been clicked through.
