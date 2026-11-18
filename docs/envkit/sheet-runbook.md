@@ -74,7 +74,10 @@ power station's slab showed a square metre of them at its gateway; user, 2026-11
 build mends them by itself (`convert.relaid`): a face of 0.1 square metres or more that shows under a sixth of the
 model's usual grain is cut into pieces and drawn with the sound surface of its own plane beside it, of its own tone.
 A build's report counts them (`relaid`) and notes each one it found no surface for; look at those with `view --eye`.
-A model built before 2026-11-17 is mended when it is next built and installed from its kept source.
+A model built before 2026-11-17 is mended when it is next built and installed from its kept source. A count is not
+a smear seen: the Aurora Warrens block's seven such faces (one of 6.8 square metres) and the Night Bazaar gate's two
+face into the building, a view with and without the mend showed no difference, and neither was installed again
+(user, 2026-11-18). Look before rebuilding an older building for this alone.
 
 A building's views can be drawn without its slab: state `"slab": false` on each of them. The slab shares the
 building's one picture (about a fifth of the power station's surface) and a planned walk did not cross from tile to
