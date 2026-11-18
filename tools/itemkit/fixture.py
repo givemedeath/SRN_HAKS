@@ -1,6 +1,7 @@
 """Build a private item fixture from a pinned Human test module and UTC donors."""
 from pathlib import Path
 import copy
+import os
 import re
 import shutil
 import struct
@@ -138,9 +139,11 @@ SHOTS = ((1, 2.0, 'front-rear-sides', 270, 3.2, 80, 1.0), (1, 5.0, 'front-rear-s
          (25, 5.4, 'gloves-armor', 225, 2.8, 82, 1.1), (26, 5.0, 'gloves-armor', 180, 1.4, 85, 0.95))
 # A two-handed sword rests on the right shoulder: the hand is at chest height and the blade stands a metre above the
 # head, so the same moments are framed higher, from further off, and the close-ups aim at the chest, not the hip.
-SHOULDER_SHOTS = tuple((step, delay, check, 225 if close else facing, 1.5 if close else round(distance + 1.0, 1), pitch,
-                        1.35 if close else 1.3)
-                       for step, delay, check, facing, distance, pitch, height in SHOTS for close in [distance < 2])
+def shouldered(shots):
+    return tuple((step, delay, check, 225 if close else facing, 1.5 if close else round(distance + 1.0, 1), pitch,
+                  1.35 if close else 1.3, *hold)
+                 for step, delay, check, facing, distance, pitch, height, *hold in shots for close in [distance < 2])
+SHOULDER_SHOTS = shouldered(SHOTS)
 SHOT_CARRY = {'hip': SHOTS, 'shoulder': SHOULDER_SHOTS}
 
 
@@ -152,10 +155,11 @@ SHOT_BARE = 30   # the motion sequence's own unequip of armour and gloves does n
 SHOT_ACTORS = (('sr_it_male', 'human-male'), ('sr_it_female', 'human-female'))
 
 
-def shot_script(shots=SHOTS, slot='right'):
+def shot_script(shots=SHOTS, slot='right', checks=CHECKS):
     """NWScript for the scripted shots: dormant unless the toggle 2DA is present.
 
     `ITEM_RESREF` in the result is the reviewed item, filled in by `entry_script`; `slot` is the hand it is worn in.
+    A row may end with its own hold in seconds (a firing burst needs most of a round); `checks` is what the rows must cover.
 
     The motion heartbeat already walks each actor through equip, walk, run, attacks, shield, off-hand and armour in
     6-second steps. A watcher follows each actor's step and, at a stated time into a step, attaches the hidden
@@ -164,34 +168,36 @@ def shot_script(shots=SHOTS, slot='right'):
     outright at step 30, so the next cycle's bare-hand shots are bare; a shot that finds the camera in use waits
     briefly and is otherwise left for the next cycle, and `ITEMKIT_SHOTS done` is logged when every shot has been taken once."""
     require(slot in ('right', 'left'), 'Unsupported fixture equipment slot')
-    require(shots and {row[2] for row in shots} == set(CHECKS), 'Scripted shots must cover every melee client check')
+    require(shots and {row[2] for row in shots} == set(checks), 'Scripted shots must cover every melee client check')
     by_step = {}
-    for step, delay, *_ in shots:
+    for step, delay, *rest in shots:
+        require(len(rest) == 5 or (len(rest) == 6 and SHOT_HOLD <= rest[5] and delay + rest[5] <= 6), 'A shot holds inside its own step')
         require(type(step) is int and 0 <= step < SHOT_CYCLE - 1 and SHOT_LEAD <= delay <= 6 - .5,
                 'A shot is taken inside its own 6-second step')
-        by_step.setdefault(step, []).append(delay)
-    require(all(b - a >= SHOT_LEAD + SHOT_HOLD + .3 for row in by_step.values() for a, b in zip(sorted(row), sorted(row)[1:])),
+        by_step.setdefault(step, []).append((delay, rest[5] if len(rest) == 6 else SHOT_HOLD))
+    require(all(b - a >= SHOT_LEAD + hold + .3 for row in by_step.values() for (a, hold), (b, _) in zip(sorted(row), sorted(row)[1:])),
             'Shots of one step need time to aim and hold between them')
     plan = []
-    for index, (step, delay, check, facing, distance, pitch, height) in enumerate(shots):
+    for index, (step, delay, check, facing, distance, pitch, height, *hold) in enumerate(shots):
         plan.append(f'  if(n=={step}) DelayCommand({delay - SHOT_LEAD:.1f},ItkTry(pc,t,base+{index},"{check}",n,'
-                    f'{float(facing):.1f},{float(distance):.1f},{float(pitch):.1f},{float(height):.2f}));')
+                    f'{float(facing):.1f},{float(distance):.1f},{float(pitch):.1f},{float(height):.2f}'
+                    + (f',{SHOT_WAITS},{float(hold[0]):.1f}' if hold else '') + '));')
     total = len(shots) * len(SHOT_ACTORS)
     return '''void ItkFree() { SetLocalInt(GetModule(),"ITK_BUSY",0); }
 void ItkDone() { WriteTimestampedLogEntry("ITEMKIT_SHOTS done"); }
-void ItkFire(object pc,object t,int id,string check,int n) {
+void ItkFire(object pc,object t,int id,string check,int n,float hold) {
   object m=GetModule(); SetLocalInt(m,"ITK_D"+IntToString(id),1);
   int fired=GetLocalInt(m,"ITK_FIRED")+1; SetLocalInt(m,"ITK_FIRED",fired);
   WriteTimestampedLogEntry("ITEMKIT_SHOT shot="+IntToString(id)+" target="+GetTag(t)+" check="+check+" step="+IntToString(n)+" valid="+IntToString(GetIsObjectValid(t)));
-  DelayCommand(@HOLD@,ItkFree());
-  if(fired>=@TOTAL@) DelayCommand(@HOLD@+0.5,ItkDone());
+  DelayCommand(hold,ItkFree());
+  if(fired>=@TOTAL@) DelayCommand(hold+0.5,ItkDone());
 }
-void ItkTry(object pc,object t,int id,string check,int n,float facing,float distance,float pitch,float height,int waits=@WAITS@) {
+void ItkTry(object pc,object t,int id,string check,int n,float facing,float distance,float pitch,float height,int waits=@WAITS@,float hold=@HOLD@) {
   object m=GetModule(); if(GetLocalInt(m,"ITK_D"+IntToString(id))) return;
-  if(GetLocalInt(m,"ITK_BUSY")) { if(waits>0) DelayCommand(0.4,ItkTry(pc,t,id,check,n,facing,distance,pitch,height,waits-1)); return; }
+  if(GetLocalInt(m,"ITK_BUSY")) { if(waits>0) DelayCommand(0.4,ItkTry(pc,t,id,check,n,facing,distance,pitch,height,waits-1,hold)); return; }
   SetLocalInt(m,"ITK_BUSY",1); AttachCamera(pc,t); SetCameraHeight(pc,height);
   AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP));
-  DelayCommand(@LEAD@,ItkFire(pc,t,id,check,n));
+  DelayCommand(@LEAD@,ItkFire(pc,t,id,check,n,hold));
 }
 void ItkClear(object t,int slot) {
   object o=GetItemInSlot(slot,t); if(GetIsObjectValid(o) && GetTag(o)!="ITEM_RESREF") DestroyObject(o);
@@ -407,13 +413,14 @@ def build(manifest_path, manifest, native, local, output):
     payload = audit_module_payload(resources, extracted)
     write(output/'module-payload.json', payload, fresh=True)
     shutil.copyfile(native['hak']['path'], userdir/'hak'/(hak_name+'.hak'))
-    # Existing fixture HAKs must be bound copies, not borrowed from a live userdir.
+    # Existing fixture HAKs must be the bound files, not borrowed from a live userdir. A hard link to the bound file is
+    # that file (the shared packs are a gigabyte per fixture as copies); its pin is verified before every use.
     for row in haks[:-1]:
         from .contracts import resref
         name = resref(row['Mod_Hak']['value']); bound = {**local.get('fixtureHaks', {}), **local.get('comparisonHaks', {})}.get(name)
         require(bound is not None, 'Missing bound fixture dependency HAK: '+name); verify([bound]); inputs.append(bound)
         require_unshadowed(native['hak'], bound, name)
-        shutil.copyfile(bound['path'], userdir/'hak'/(name+'.hak'))
+        link_or_copy(bound['path'], userdir/'hak'/(name+'.hak'))
     verify(inputs, fresh=True)
     # Tools resolve once; this records every input the build came to consume.
     tool_runtime.tool('nwn_erf', inputs=[row['path'] for row in inputs])
@@ -429,6 +436,14 @@ def build(manifest_path, manifest, native, local, output):
         result['variantBlueprints'] = [bound for _, bound in variants]
     write(output/'fixture.json', result, fresh=True)
     return result
+
+
+def link_or_copy(source, target):
+    """A hard link where the file system allows one (the same volume), else a copy. Never onto an existing file: a
+    copy onto a hard link would write into the pinned file the link shares."""
+    require(not os.path.lexists(target), f'{target} already exists')
+    try: os.link(source, target)
+    except OSError: shutil.copyfile(source, target)
 
 
 def require_unshadowed(candidate, other, name):
