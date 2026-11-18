@@ -13,7 +13,6 @@ The client run and its captures are envkit's (`prop_fixture.run`), so the same r
 another runs, and a view captured after it had passed is not kept as that view."""
 import copy
 import json
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -29,6 +28,7 @@ HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable'
 TLK = 'srn'
 START, HOLD = 8.0, 6.0  # seconds before the first view, and each view is held
 ARRIVE = 8.0  # seconds given to a view in another area than the last, for the area to load
+STEP = 0.2  # seconds given to a view in the same area as the last, for the player to be stood there
 REACH = 6  # tiles of a grid row one view holds
 NAME = client_fixture.NAME
 
@@ -113,13 +113,15 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
         if number in avoid or any(tile['heights']):
             continue
         for turn in range(4):
-            fits.setdefault(turned(tile, turn), []).append((number, turn))
+            fitting = fits.setdefault(turned(tile, turn), [])
+            if not fitting or fitting[-1][0] != number:  # each tile once, at its first turn that fits, however many do
+                fitting.append((number, turn))
     laid, missing = {}, []
     for row in range(height):
         for column in range(width):
             corners, edges = _cell(column, row)
             want = (tuple(corner.get(key, default) for key in corners), tuple(edge.get(key, '') for key in edges))
-            found = [one for one in fits.get(want, ()) if one[1] == min(turn for number, turn in fits[want] if number == one[0])]  # each tile once, however many turns fit
+            found = fits.get(want)
             if found:
                 laid[(column, row)] = found[(column * 7 + row * 13) % len(found)]
             else:
@@ -169,6 +171,12 @@ def lattice_shots(area, prefix, width, height, *, step=4, distance=30.0, pitch=5
             for name, facing in (('n', 90), ('s', 270))]
 
 
+def waits(shots, arrive=ARRIVE):
+    """Seconds each view waits before its camera is set: `arrive` for the first and for one in another area than the
+    last, STEP for the rest."""
+    return [arrive if index == 0 or shots[index - 1]['area'] != shot['area'] else STEP for index, shot in enumerate(shots)]
+
+
 def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
     """The module's entry script: the player, unseen, is stood at each view in turn, in whichever area it is of, and the
     camera set. Each view writes envkit's shot line a second after its camera is set, which is what a capture waits
@@ -177,8 +185,7 @@ def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
     prefix = prop_fixture.LOG_PREFIX
     lines = ['void Shot(object pc,int n) {', f'  if(n>={len(shots)}) {{ WriteTimestampedLogEntry("{prefix} done"); return; }}',
              '  float x; float y; float facing; float distance; float pitch; float height; float wait; string label; string area;']
-    for index, shot in enumerate(shots):
-        wait = arrive if index == 0 or shots[index - 1]['area'] != shot['area'] else 0.2
+    for index, (shot, wait) in enumerate(zip(shots, waits(shots, arrive))):
         lines.append(f'  if(n=={index}) {{ x={shot["stand"][0]:.3f}; y={shot["stand"][1]:.3f}; facing={float(shot["facing"]):.3f}; distance={float(shot["distance"]):.3f}; '
                      f'pitch={float(shot["pitch"]):.3f}; height={float(shot["height"]):.3f}; wait={wait:.1f}; label="{shot["label"]}"; area="{shot["area"]}"; }}')
     lines += ['  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetObjectByTag(area),Vector(x,y,0.0),facing)));',
@@ -246,10 +253,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
         folder.mkdir(parents=True)
     run = _tools()
     for pack in haks:
-        try:
-            os.link(built / f'{pack}.hak', user / 'hak' / f'{pack}.hak')
-        except OSError:
-            shutil.copyfile(built / f'{pack}.hak', user / 'hak' / f'{pack}.hak')
+        client_fixture.place(built / f'{pack}.hak', user / 'hak' / f'{pack}.hak')
     shutil.copyfile(built / f'{tlk}.tlk', user / 'tlk' / f'{tlk}.tlk')
     (staged / f'{name}.txt').write_text('Review module of a tileset restyle; files beside this one are shown instead of the packs\' own.\n', encoding='ascii')
     held = []
@@ -271,8 +275,8 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     module = user / 'modules' / f'{name}.mod'; run('nwn_erf', ['-c', '-f', module, '-e', 'MOD', binary])
     record = {'name': name, 'userDirectory': str(user), 'module': module.name, 'hak': f'{name}.hak', 'haks': list(haks), 'overlay': held,
               'areas': [{key: area[key] for key in ('tag', 'title', 'tileset', 'width', 'height', 'light')} for area in areas],
-              # `hold` is what a capture is timed against; the time the areas are given to load counts toward the run's start.
-              'shots': [shot['label'] for shot in shots], 'start': start + ARRIVE * len({shot['area'] for shot in shots}), 'hold': hold,
+              # `hold` is what a capture is timed against; what the views wait before it counts toward the run's start.
+              'shots': [shot['label'] for shot in shots], 'start': start + sum(waits(shots)), 'hold': hold,
               'clientValidated': False}
     (output / 'fixture.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
     return record
@@ -293,7 +297,7 @@ PARTS = ('block', 'grid', 'area')
 def plan(set_text, spec, *, parts=PARTS, built_area=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
     patches, runs, crossings, lights}, grid: {across, lights}, area: {step, lights}}. built_area: (width, height, laid)
-    of an area someone built (`read_area`), without which the `area` part is left out. The grid holds every tile that
+    of an area someone built (`read_area`), without which the `area` part is left out, as is a part the spec lacks. The grid holds every tile that
     is not an envkit building's; the block is laid only with tiles outside groups."""
     from . import inventory
     laid = inventory.read_set(set_text); tiles = {tile['number']: tile for tile in laid['tiles']}; tileset, fill = spec['tileset'], spec.get('fill', 0)
@@ -303,20 +307,23 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None):
     areas, shots = [], []
 
     def add(tag, title, width, height, cells, light):
+        require(tag not in {area['tag'] for area in areas}, f'Two lightings of a part begin with the same letter ({light}): an area is named by it')
         areas.append({'tag': tag, 'title': title, 'tileset': tileset, 'width': width, 'height': height, 'laid': cells, 'light': light})
 
-    if 'block' in parts:
+    if 'block' in parts and 'block' in spec:
         block = spec['block']
         cells = solve(tiles, laid['default'], block['width'], block['height'], block['patches'], block.get('runs', ()), avoid=grouped | envkit)
         for light in block['lights']:
             tag = 'tkb' + light[0]; add(tag, f'Block, {light}', block['width'], block['height'], cells, light)
             shots += corner_shots(tag, f'block-{light}', [tuple(cell) for cell in block['crossings']])
-    if 'grid' in parts:
+    if 'grid' in parts and 'grid' in spec:
         width, height, cells, rows = grid([number for number in sorted(tiles) if number not in envkit], fill, spec['grid'].get('across', 32))
         for light in spec['grid']['lights']:
             tag = 'tkg' + light[0]; add(tag, f'Every tile, {light}', width, height, cells, light); shots += grid_shots(tag, f'grid-{light}', width, rows)
-    if 'area' in parts and built_area is not None:
+    if 'area' in parts and 'area' in spec and built_area is not None:
         width, height, cells = built_area
+        unknown = sorted({number for number, _ in cells} - set(tiles))
+        require(not unknown, 'The built area has tiles this set does not: ' + ', '.join(map(str, unknown[:8])))
         wrong = disagreements(width, cells, tiles); require(not wrong, 'The built area does not agree with this set: ' + '; '.join(wrong[:4]))
         cells = {(index % width, index // width): one for index, one in enumerate(cells)}
         for light in spec['area']['lights']:
@@ -348,7 +355,11 @@ def sheets(folder, *, most=48):
     """Contact sheets of a review's captures in `folder/sheets`: one for each part and lighting (block-day, ...), in
     pages of `most` views. Returns {sheet name: views}."""
     folder = Path(folder); groups = {}
-    for path in sorted((folder / 'captures').glob('shot-*.png')):
+
+    def order(path):  # by the view's number, not its name: shot-100 comes after shot-99
+        number = path.stem.split('-')[1]
+        return (int(number) if number.isdigit() else 0, path.name)
+    for path in sorted((folder / 'captures').glob('shot-*.png'), key=order):
         groups.setdefault('-'.join(path.stem.split('-')[2:4]), []).append(path)
     made = {}
     for name, pictures in groups.items():

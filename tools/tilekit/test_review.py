@@ -110,6 +110,16 @@ class ReviewTests(unittest.TestCase):
             review.plan(SET, spec, built_area=(2, 1, [(2, 0), (0, 0)]))  # a tower's side beside plain ground
         with self.assertRaisesRegex(ValueError, 'Nothing to review'):
             review.plan(SET, spec, parts=('area',))
+        with self.assertRaisesRegex(ValueError, 'has tiles this set does not: 77'):
+            review.plan(SET, spec, built_area=(2, 1, [(0, 0), (77, 0)]))
+        with self.assertRaisesRegex(ValueError, r'begin with the same letter \(dusk\)'):
+            review.LIGHTS['dusk'] = review.LIGHTS['overcast']; self.addCleanup(review.LIGHTS.pop, 'dusk')
+            review.plan(SET, {**spec, 'grid': {'across': 4, 'lights': ['day', 'dusk']}}, parts=('grid',))
+        self.assertEqual([area['tag'] for area in review.plan(SET, {key: spec[key] for key in ('tileset', 'grid')})[0]], ['tkgd'])  # a spec of a grid alone
+
+    def test_what_the_views_wait_is_counted_for_every_change_of_area(self):
+        shots = [review._shot(area, 'one', 5, 5, 90, 30, 50) for area in ('tkbd', 'tkbd', 'tkbn', 'tkbd')]
+        self.assertEqual(review.waits(shots), [8.0, 0.2, 8.0, 8.0])  # back to an area is another arrival
 
     def test_a_sheet_shows_every_capture_under_its_name(self):
         from PIL import Image
@@ -131,6 +141,16 @@ class ReviewTests(unittest.TestCase):
                 Image.new('RGB', (160, 90)).save(captures / f'shot-{index:02d}-{label}.png')
             self.assertEqual(review.sheets(folder, most=2), {'block-day.jpg': 1, 'block-night.jpg': 1, 'grid-day-1.jpg': 2, 'grid-day-2.jpg': 1})
             self.assertTrue((Path(folder) / 'sheets' / 'grid-day-2.jpg').is_file())
+
+    def test_sheets_keep_the_order_of_the_views_past_the_hundredth(self):
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as folder:
+            captures = Path(folder) / 'captures'; captures.mkdir()
+            for index in (100, 9, 99, 10):
+                (captures / f'shot-{index:02d}-grid-day-r00-c00-s.png').write_bytes(b'')
+            with mock.patch.object(review, 'sheet', side_effect=lambda pictures, output, **_: len(pictures)) as sheet:
+                review.sheets(folder, most=2)
+            self.assertEqual([[path.name.split('-')[1] for path in call.args[0]] for call in sheet.call_args_list], [['09', '10'], ['99', '100']])
 
 
 def review_tile(turned):

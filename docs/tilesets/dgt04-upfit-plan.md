@@ -158,8 +158,8 @@ authored one at a time; any that then stands out is promoted.
 - A DDS needs its whole mip chain: one written with the top level alone drew as black with speckles at any
   distance. The material build tool writes mips with envkit's writer and checks for them.
 - Framing to improve before the pilot review: two of the sixteen block views look into a roof or a wall, and
-  the every-tile views are crowded; both are fixed in the spec, and the baseline is captured again from the
-  commit above when it changes.
+  the every-tile views are crowded. Neither is fixed yet: the views change first (spec and view code), then
+  the baseline is captured again from the commit above.
 - Time: under two hours against 6–9 estimated. Unit times so far: tool with tests 15–30 minutes; client
   capture 6.5 s a view plus about a minute to build and load (a 50-view check is 6 minutes, the full set 30).
 

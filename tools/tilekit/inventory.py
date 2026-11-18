@@ -62,7 +62,7 @@ def read_set(text):
 
 def edge_models(text):
     """The models an edge table names, lower case, with its row count: (models, rows)."""
-    lines = [line.split() for line in text.replace('\r', '').split('\n') if line.strip()]
+    lines = [line.split() for line in text.replace('\r', '').split('\n') if line.strip() and not line.lstrip().upper().startswith('DEFAULT:')]
     require(len(lines) >= 2 and lines[0][0] == '2DA', 'An edge table is a 2DA file')
     column = lines[1].index('Model') + 1 if 'Model' in lines[1] else None
     require(column is not None, 'The edge table has no Model column')
@@ -161,8 +161,9 @@ def _other_sets(repo, tileset):
     return told
 
 
-def inventory(repo, tileset):
-    """The inventory document of a tileset and its walkmesh baseline: (inventory, walkmesh)."""
+def inventory(repo, tileset, *, walkmesh_only=False):
+    """The inventory document of a tileset and its walkmesh baseline: (inventory, walkmesh). With `walkmesh_only` the
+    other packs are not read and the inventory is None: the tileset's own models are all a walkmesh check needs."""
     repo = Path(repo); own = repo / f'srn_t_{tileset}'; homes = [own, repo / 'srn_t_common']
     require((own / f'{tileset}.set').is_file(), f'No set file for {tileset} in {own.name}')
     laid = read_set((own / f'{tileset}.set').read_bytes().decode('cp1252'))
@@ -189,6 +190,9 @@ def inventory(repo, tileset):
                     terrains.setdefault(texture, set()).update(terrains_of.get(name, ()))
                 walkmesh[name] = marks
         models[name] = entry
+    marked = {'schemaVersion': 1, 'tileset': tileset, 'models': dict(sorted(walkmesh.items()))}
+    if walkmesh_only:
+        return None, marked
 
     # Every copy of each name in every pack, and every model outside this tileset's own that names it.
     packs = _packs(repo); copies = {name: [] for name in surface}
@@ -231,7 +235,7 @@ def inventory(repo, tileset):
             'forms': {form: sum(1 for entry in models.values() if entry['form'] == form) for form in ('uncompiled', 'compiled', 'absent')},
             'surface': round(total, 2), 'coverage': {str(mark): marks.get(mark) for mark in MARKS}, 'textures': textures,
             'models': models, 'unnamedModels': unnamed}
-    return told, {'schemaVersion': 1, 'tileset': tileset, 'models': dict(sorted(walkmesh.items()))}
+    return told, marked
 
 
 def table(told):

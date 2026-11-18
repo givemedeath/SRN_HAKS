@@ -11,7 +11,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     __package__ = 'tools.tilekit'
 
-from . import inventory
+from . import inventory, require
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -22,12 +22,14 @@ def review_parts():
 
 def review_command(chosen):
     from . import review
-    spec = json.loads(chosen.spec.read_text(encoding='utf-8')); tileset = spec['tileset']
+    spec = json.loads(chosen.spec.read_text(encoding='utf-8')); require(isinstance(spec, dict) and spec.get('tileset'), 'A review spec names its tileset')
+    tileset = spec['tileset']
     set_text = (chosen.repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252')
     areas, shots = review.plan(set_text, spec, parts=tuple(part for part in chosen.parts.split(',') if part),
                                built_area=review.read_area(chosen.area) if chosen.area else None)
     if chosen.views:
         shots = [shot for shot in shots if shot['label'].startswith(tuple(chosen.views.split(',')))]
+        require(shots, 'No view begins with ' + ' or '.join(chosen.views.split(',')))
     shots = shots[::max(1, chosen.every)]; kept = {shot['area'] for shot in shots}; areas = [area for area in areas if area['tag'] in kept]
     record = review.build(chosen.name, areas, shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay)
     told = {'module': record['module'], 'areas': [area['tag'] for area in areas], 'views': len(shots), 'overlay': record['overlay']}
@@ -59,7 +61,7 @@ def main(arguments=None):
     try:
         if chosen.command == 'review':
             return review_command(chosen)
-        told, walkmesh = inventory.inventory(chosen.repo, chosen.tileset.lower())
+        told, walkmesh = inventory.inventory(chosen.repo, chosen.tileset.lower(), walkmesh_only=chosen.command == 'walkmesh')
         if chosen.command == 'inventory':
             written = inventory.write(chosen.out, told, walkmesh)
             print(json.dumps({'written': written, 'set': told['set'], 'edge': told['edge'], 'forms': told['forms'], 'textures': len(told['textures']),

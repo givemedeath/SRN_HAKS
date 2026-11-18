@@ -140,6 +140,7 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual((laid['tiles'][1]['corners'], laid['tiles'][0]['crossers']), (['Tower', 'Ground', 'Ground', 'Ground'], ['', 'Fence', '', '']))
         self.assertEqual(laid['groups'], [{'name': 'Yard', 'tiles': [0, 1]}])  # a door's section is no tile, Rows and Columns are no tile numbers
         self.assertEqual(inventory.edge_models(EDGE), (['stock_z02_01', 'tst01_a01_01', 'tst01_z01_01'], 3))
+        self.assertEqual(inventory.edge_models(EDGE.replace('\n', '\nDEFAULT: ****\n', 1)), inventory.edge_models(EDGE))  # a table that states its default
         with self.assertRaisesRegex(ValueError, 'names no tile'):
             inventory.read_set('[GENERAL]\nName=X\n')
         with self.assertRaisesRegex(ValueError, 'no Model column'):
@@ -193,6 +194,7 @@ class InventoryTests(unittest.TestCase):
         text = path.read_text(); at = text.index('node aabb'); path.write_text(text[:at] + text[at:].replace('10.0 10.0 0.0', '10.0 9.0 0.0', 1))
         (own / 'tst01_a01_01.wok').write_bytes(b'walkmesh two'); (own / 'tst01_z01_01.mdl').unlink()
         _, now = inventory.inventory(self.repo, 'tst01')
+        self.assertEqual(inventory.inventory(self.repo, 'tst01', walkmesh_only=True), (None, now))  # the check reads the tileset's own models alone
         self.assertEqual(inventory.moved(json.loads((out / 'walkmesh.json').read_text()), now),
                          ['tst01_a01_01: wok changed', 'tst01_a01_01: aabb changed', 'tst01_z01_01: gone'])
         self.assertEqual(main(baseline), 1)
