@@ -35,7 +35,10 @@ def key(*made_from):
 
 def arrays(kind, made_from, make, *, faces):
     """`make()`'s tuple of arrays, read back if it was kept for the same `made_from` (`key`), else made and kept.
-    `faces` is the model's size: under LEAST nothing is kept."""
+    `faces` is the model's size: under LEAST nothing is kept. Each call stages what it made in a file of its own
+    before renaming it: two builds of one model at once shared a staging file, and the second found it already renamed
+    (review of PR 175, 2026-11-18). The staging file is no `.npz`, so the tidying below never takes another's."""
+    import uuid
     if off() or faces < LEAST:
         return make()
     folder = ROOT / kind; kept = folder / (key(*made_from) + '.npz')
@@ -46,8 +49,13 @@ def arrays(kind, made_from, make, *, faces):
             os.utime(kept); return found
         except Exception:  # half written by a build that was stopped: made again
             kept.unlink(missing_ok=True)
-    made = tuple(make()); folder.mkdir(parents=True, exist_ok=True); part = folder / (kept.stem + '.part.npz')
-    np.savez(part, **{f'a{index}': np.asarray(one) for index, one in enumerate(made)}); part.replace(kept)
+    made = tuple(make()); folder.mkdir(parents=True, exist_ok=True); part = folder / f'{kept.stem}.{uuid.uuid4().hex}.part'
+    try:
+        with open(part, 'wb') as staged:  # a file, not a name: `savez` would add `.npz` to the name
+            np.savez(staged, **{f'a{index}': np.asarray(one) for index, one in enumerate(made)})
+        part.replace(kept)
+    finally:
+        part.unlink(missing_ok=True)
     for old in sorted(folder.glob('*.npz'), key=lambda path: path.stat().st_mtime, reverse=True)[KEPT:]:
         old.unlink(missing_ok=True)
     return made

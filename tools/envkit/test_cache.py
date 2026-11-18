@@ -42,6 +42,17 @@ class CacheTests(unittest.TestCase):
         os.environ['ENVKIT_NO_CACHE'] = '1'
         self.assertEqual(float(cache.arrays('kind', (1,), self.make(7.0), faces=5)[0][0, 0]), 7.0)
 
+    def test_two_builds_of_one_model_at_once_each_stage_a_file_of_their_own(self):
+        rename = Path.replace; second = []
+        def replace(part, kept):  # the second build makes, stages and keeps its own while the first is about to rename
+            if not second:
+                second.append(True); cache.arrays('kind', (1,), self.make(1.0), faces=5)
+            return rename(part, kept)
+        with mock.patch.object(Path, 'replace', autospec=True, side_effect=replace):
+            first = cache.arrays('kind', (1,), self.make(1.0), faces=5)
+        self.assertEqual((float(first[0][0, 0]), self.made, [path.suffix for path in (self.root / 'kind').iterdir()]), (1.0, 2, ['.npz']))
+        self.assertEqual(float(cache.arrays('kind', (1,), self.make(5.0), faces=5)[0][0, 0]), 1.0)  # and what was kept reads back
+
 
 if __name__ == '__main__':
     unittest.main()
