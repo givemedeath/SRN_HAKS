@@ -1,9 +1,9 @@
 {
   "tileset": "dgt04",
   "textures": {
-    "brick_tex19": {"route": "master", "master": "Bricks097", "repeat": 2, "tone": 0.8, "size": [1024, 1024]},
-    "brick7": {"route": "master", "master": "Bricks097", "repeat": 1, "tone": 0.6, "size": [1024, 1024]},
-    "brick10": {"route": "master", "master": "Bricks101", "repeat": 1, "tone": 0.7, "size": [1024, 1024]},
+    "brick_tex19": {"route": "master", "master": "Bricks097", "repeat": 1, "tone": 0.9, "size": [1024, 1024]},
+    "brick7": {"route": "master", "master": "Bricks101", "repeat": 1, "tone": 0.9, "size": [1024, 1024]},
+    "brick10": {"route": "master", "master": "Bricks097", "repeat": 1, "tone": 0.5, "size": [1024, 1024]},
     "concrete_08": {"route": "master", "master": "Concrete034", "repeat": 1, "tone": 1.0, "size": [1024, 1024]},
     "concrete_10": {"route": "master", "master": "Concrete047A", "repeat": 1, "tone": 1.0, "size": [1024, 1024]},
     "concrete_02": {"route": "master", "master": "Concrete046", "repeat": 1, "tone": 1.0, "size": [1024, 1024]},
@@ -11,8 +11,8 @@
     "asphalt_road01": {"route": "layout", "master": "Asphalt033", "repeat": 2, "keep": 6, "size": [1024, 1024]},
     "pavement": {"route": "master", "master": "Road012A", "repeat": 1, "tone": 1.0, "size": [1024, 1024]},
     "roof_gravel1": {"route": "master", "master": "Gravel043", "repeat": 1, "tone": 0.8, "size": [1024, 1024]},
-    "hrise_06_wall2": {"route": "upscale", "size": [1024, 1024], "roughness": 0.5},
-    "hrise_05_wall": {"route": "upscale", "size": [512, 1024], "roughness": 0.5},
+    "hrise_06_wall2": {"route": "upscale", "size": [1024, 1024], "roughness": 0.5, "relief": 0.5},
+    "hrise_05_wall": {"route": "upscale", "size": [512, 1024], "roughness": 0.5, "relief": 0.5},
     "win001_unbrknd": {"route": "upscale", "size": [512, 512], "roughness": 0.6},
     "win003_unbrknd": {"route": "upscale", "size": [512, 512], "roughness": 0.6}
   }

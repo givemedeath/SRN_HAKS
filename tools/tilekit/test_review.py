@@ -118,6 +118,10 @@ class ReviewTests(unittest.TestCase):
             review.LIGHTS['dusk'] = review.LIGHTS['overcast']; self.addCleanup(review.LIGHTS.pop, 'dusk')
             review.plan(SET, {**spec, 'grid': {'across': 4, 'lights': ['day', 'dusk']}}, parts=('grid',))
         self.assertEqual([area['tag'] for area in review.plan(SET, {key: spec[key] for key in ('tileset', 'grid')})[0]], ['tkgd'])  # a spec of a grid alone
+        near = review.plan(SET, {**spec, 'block': {**spec['block'], 'near': {'distance': 15, 'pitch': 64}}}, parts=('block',))[1]
+        self.assertEqual([(shot['label'], shot['area'], shot['distance'], shot['pitch']) for shot in near if shot['label'].startswith('near-night')][0],
+                         ('near-night-x03y03-ne', 'tkbn', 15, 64))  # the same crossings again from a player's distance, in the block's own areas
+        self.assertEqual(len(near), 16)
 
     def test_the_command_refuses_in_words_and_a_refused_overlay_leaves_the_folder_fresh(self):
         import contextlib, io, json

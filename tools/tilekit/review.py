@@ -304,7 +304,7 @@ def elsewhere(lines):
 
 def plan(set_text, spec, *, parts=PARTS, built_area=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
-    patches, runs, crossings, lights}, grid: {across, lights}, area: {step, lights}}. built_area: (width, height, laid)
+    patches, runs, crossings, lights, near: {distance, pitch}}, grid: {across, lights}, area: {step, lights}}. built_area: (width, height, laid)
     of an area someone built (`read_area`), without which the `area` part is left out, as is a part the spec lacks.
     The grid holds every tile that is not an envkit building's; the block is laid only with tiles outside groups."""
     from . import inventory
@@ -324,6 +324,8 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None):
         for light in block['lights']:
             tag = 'tkb' + light[0]; add(tag, f'Block, {light}', block['width'], block['height'], cells, light)
             shots += corner_shots(tag, f'block-{light}', [tuple(cell) for cell in block['crossings']])
+            if 'near' in block:  # the same views from where a player's camera stands: a texture is judged there, a district from afar
+                shots += corner_shots(tag, f'near-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch'])
     if 'grid' in parts and 'grid' in spec:
         width, height, cells, rows = grid([number for number in sorted(tiles) if number not in envkit], fill, spec['grid'].get('across', 32))
         for light in spec['grid']['lights']:
