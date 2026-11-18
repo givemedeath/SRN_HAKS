@@ -1,15 +1,490 @@
 {
-  "models": {
-    "ek_sb_power": {"source": "meshy/models/sb-2view-a2-remesh", "height": 9.55, "measuredAt": 9.55, "colour": 4096, "lit": [
-      {"part": "control room windows", "box": [[0.76, -3.44, 4.39], [5.06, 0.86, 5.92]], "gain": 0.5},
-      {"part": "lamp over the tunnel door", "box": [[1.53, -0.19, 2.63], [2.44, 0.38, 2.94]], "value": 0.75},
-      {"part": "strip lamp over the roller door", "box": [[-7.26, -0.1, 2.96], [-5.16, 0.86, 3.44]], "value": 0.75},
-      {"part": "red lamp beside the roller door", "box": [[-8.4, -0.1, 2.1], [-7.64, 0.48, 2.86]], "gain": 1.5, "saturation": 0.5, "value": 0.35},
-      {"part": "west floodlight", "box": [[-9.5, -4.68, 6.88], [-8.5, -3.68, 7.35]], "value": 0.75},
-      {"part": "transformer floodlight", "box": [[7.88, -3.34, 5.35], [8.64, -2.15, 5.83]], "value": 0.75},
-      {"part": "east floodlight", "box": [[8.69, 0.19, 3.87], [9.69, 1.19, 4.3]], "value": 0.75}
-    ], "halo": {"reach": 0.3, "strength": 0.4},
-      "perimeter": {"box": [[-9.45, -7.0], [9.45, 7.0]], "z": [0.31, 2.81], "steel": [9.22, 0.64, 1.53], "concrete": [0.0, 4.8, 0.31], "gateways": [{"side": "north", "from": -7.5, "to": -2.5}, {"side": "north", "from": 3.5, "to": 6.5}]},
-      "tiles": {"ground": "pavement", "group": "SB_Station", "label": "Shiawase Barrens Power Station 2x2", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"}, "fade": 4.2, "nodes": {"t10": {"node": "N", "turn": 0}, "t11": {"node": "N", "turn": 0}, "t01": {"node": "H", "turn": 90}}, "door": {"at": [1.98, 0.0, 0.48], "facing": 90.0, "type": 58, "leaf": 2.1}}}
+ "models": {
+  "ek_sb_power": {
+   "source": "meshy/models/sb-2view-a2-remesh",
+   "height": 9.55,
+   "measuredAt": 9.55,
+   "colour": 4096,
+   "lit": [
+    {
+     "part": "control room windows",
+     "box": [
+      [
+       0.76,
+       -3.44,
+       4.39
+      ],
+      [
+       5.06,
+       0.86,
+       5.92
+      ]
+     ],
+     "gain": 0.5
+    },
+    {
+     "part": "lamp over the tunnel door",
+     "box": [
+      [
+       1.53,
+       -0.19,
+       2.63
+      ],
+      [
+       2.44,
+       0.38,
+       2.94
+      ]
+     ],
+     "value": 0.75
+    },
+    {
+     "part": "strip lamp over the roller door",
+     "box": [
+      [
+       -7.26,
+       -0.1,
+       2.96
+      ],
+      [
+       -5.16,
+       0.86,
+       3.44
+      ]
+     ],
+     "value": 0.75
+    },
+    {
+     "part": "red lamp beside the roller door",
+     "box": [
+      [
+       -8.4,
+       -0.1,
+       2.1
+      ],
+      [
+       -7.64,
+       0.48,
+       2.86
+      ]
+     ],
+     "gain": 1.5,
+     "saturation": 0.5,
+     "value": 0.35
+    },
+    {
+     "part": "west floodlight",
+     "box": [
+      [
+       -9.5,
+       -4.68,
+       6.88
+      ],
+      [
+       -8.5,
+       -3.68,
+       7.35
+      ]
+     ],
+     "value": 0.75
+    },
+    {
+     "part": "transformer floodlight",
+     "box": [
+      [
+       7.88,
+       -3.34,
+       5.35
+      ],
+      [
+       8.64,
+       -2.15,
+       5.83
+      ]
+     ],
+     "value": 0.75
+    },
+    {
+     "part": "east floodlight",
+     "box": [
+      [
+       8.69,
+       0.19,
+       3.87
+      ],
+      [
+       9.69,
+       1.19,
+       4.3
+      ]
+     ],
+     "value": 0.75
+    }
+   ],
+   "halo": {
+    "reach": 0.3,
+    "strength": 0.4
+   },
+   "perimeter": {
+    "box": [
+     [
+      -9.45,
+      -7.0
+     ],
+     [
+      9.45,
+      7.0
+     ]
+    ],
+    "z": [
+     0.31,
+     2.81
+    ],
+    "steel": [
+     9.22,
+     0.64,
+     1.53
+    ],
+    "concrete": [
+     0.0,
+     4.8,
+     0.31
+    ],
+    "gateways": [
+     {
+      "side": "north",
+      "from": -7.5,
+      "to": -2.5
+     },
+     {
+      "side": "north",
+      "from": 3.5,
+      "to": 6.5
+     }
+    ]
+   },
+   "tiles": {
+    "ground": "pavement",
+    "group": "SB_Station",
+    "label": "Shiawase Barrens Power Station 2x2",
+    "sets": {
+     "dgt04": "Concrete",
+     "udp1": "Asphalt"
+    },
+    "fade": 4.2,
+    "nodes": {
+     "t10": {
+      "node": "N",
+      "turn": 0
+     },
+     "t11": {
+      "node": "N",
+      "turn": 0
+     },
+     "t01": {
+      "node": "H",
+      "turn": 90
+     }
+    },
+    "door": {
+     "at": [
+      1.98,
+      0.0,
+      0.48
+     ],
+     "facing": 90.0,
+     "type": 58,
+     "leaf": 2.1
+    }
+   }
+  },
+  "ek_sb_trafo": {
+   "source": "meshy/models/sb-transformer-a1",
+   "height": 2.6,
+   "colour": 2048,
+   "placeable": {
+    "label": "Shiawase Barrens, Power Transformer",
+    "sound": 28,
+    "category": 161
+   }
+  },
+  "ek_sb_switch": {
+   "source": "meshy/models/sb-switchgear-cabinet-a1",
+   "height": 2.1,
+   "colour": 2048,
+   "inside": true,
+   "measuredAt": 2.1,
+   "lit": [
+    {
+     "part": "first indicator panel",
+     "box": [
+      [
+       0.1,
+       0.35,
+       1.06
+      ],
+      [
+       0.46,
+       0.7,
+       1.56
+      ]
+     ],
+     "saturation": 0.4
+    },
+    {
+     "part": "second indicator panel",
+     "box": [
+      [
+       -0.45,
+       0.35,
+       1.06
+      ],
+      [
+       -0.09,
+       0.7,
+       1.56
+      ]
+     ],
+     "saturation": 0.4
+    },
+    {
+     "part": "third indicator panel",
+     "box": [
+      [
+       -1.07,
+       0.35,
+       1.06
+      ],
+      [
+       -0.7,
+       0.7,
+       1.56
+      ]
+     ],
+     "saturation": 0.4
+    }
+   ],
+   "halo": {
+    "reach": 0.06,
+    "strength": 0.3
+   },
+   "placeable": {
+    "label": "Shiawase Barrens, Switchgear Cabinet",
+    "sound": 28,
+    "category": 161,
+    "light": null
+   }
+  },
+  "ek_sb_hatch": {
+   "source": "meshy/models/sb-tunnel-hatch-a1",
+   "height": 0.25,
+   "colour": 1024,
+   "placeable": {
+    "label": "Shiawase Barrens, Tunnel Hatch",
+    "sound": 26,
+    "category": 161
+   }
+  },
+  "ek_sb_drum": {
+   "source": "meshy/models/sb-cable-drum-a1",
+   "height": 1.9,
+   "colour": 2048,
+   "placeable": {
+    "label": "Shiawase Barrens, Cable Drum",
+    "sound": 27,
+    "category": 164
+   }
+  },
+  "ek_sb_tap": {
+   "source": "meshy/models/sb-power-tap-a1",
+   "height": 3.6,
+   "colour": 2048,
+   "placeable": {
+    "label": "Shiawase Barrens, Power Tap Pole",
+    "sound": 28,
+    "category": 161
+   }
+  },
+  "ek_sb_vent": {
+   "source": "meshy/models/sb-vent-stack-a1",
+   "height": 2.2,
+   "colour": 2048,
+   "placeable": {
+    "label": "Shiawase Barrens, Tunnel Vent Stack",
+    "sound": 28,
+    "category": 161
+   }
+  },
+  "ek_sb_trench": {
+   "source": "meshy/models/sb-trench-cover-a1",
+   "height": 0.12,
+   "colour": 1024,
+   "placeable": {
+    "label": "Shiawase Barrens, Cable Trench Cover",
+    "sound": 26,
+    "category": 161
+   }
+  },
+  "ek_sb_sign": {
+   "source": "meshy/models/sb-wall-sign-a1",
+   "height": 1.4,
+   "colour": 1024,
+   "lift": 1.6,
+   "measuredAt": {
+    "height": 1.4,
+    "lift": 1.6
+   },
+   "placeable": {
+    "label": "Shiawase Barrens, Station Wall Sign",
+    "sound": 27,
+    "category": 156
+   }
+  },
+  "ek_sb_battery": {
+   "source": "meshy/models/sb-battery-bank-a1",
+   "height": 1.8,
+   "colour": 2048,
+   "measuredAt": 1.8,
+   "lit": [
+    {
+     "part": "upper green charge light",
+     "box": [
+      [
+       0.55,
+       0.0,
+       1.31
+      ],
+      [
+       0.8,
+       0.7,
+       1.48
+      ]
+     ],
+     "saturation": 0.4
+    },
+    {
+     "part": "amber charge light",
+     "box": [
+      [
+       0.55,
+       0.0,
+       0.56
+      ],
+      [
+       0.78,
+       0.7,
+       0.71
+      ]
+     ],
+     "saturation": 0.4
+    },
+    {
+     "part": "lower green charge light",
+     "box": [
+      [
+       -0.86,
+       0.0,
+       0.46
+      ],
+      [
+       -0.52,
+       0.7,
+       0.61
+      ]
+     ],
+     "saturation": 0.4
+    }
+   ],
+   "halo": {
+    "reach": 0.06,
+    "strength": 0.3
+   },
+   "placeable": {
+    "label": "Shiawase Barrens, Battery Bank",
+    "sound": 28,
+    "category": 164,
+    "light": null
+   }
+  },
+  "ek_sb_cart": {
+   "source": "meshy/models/sb-tool-cart-a1",
+   "height": 1.1,
+   "colour": 2048,
+   "placeable": {
+    "label": "Shiawase Barrens, Tool Cart",
+    "sound": 28,
+    "category": 164
+   }
+  },
+  "ek_sb_bulkhead": {
+   "source": "meshy/models/sb-bulkhead-door-a1",
+   "height": 2.5,
+   "colour": 2048,
+   "measuredAt": 2.5,
+   "lit": [
+    {
+     "part": "amber lamp over the door",
+     "box": [
+      [
+       -0.33,
+       0.05,
+       2.11
+      ],
+      [
+       0.31,
+       0.6,
+       2.29
+      ]
+     ]
+    }
+   ],
+   "halo": {
+    "reach": 0.2,
+    "strength": 0.4
+   },
+   "placeable": {
+    "label": "Shiawase Barrens, Bulkhead Door",
+    "sound": 28,
+    "category": 159,
+    "light": {
+     "colour": 5,
+     "at": [
+      0.0,
+      0.6,
+      2.2
+     ]
+    }
+   }
+  },
+  "ek_sb_pipes": {
+   "source": "meshy/models/sb-pipe-run-a1",
+   "height": 1.2,
+   "colour": 2048,
+   "placeable": {
+    "label": "Shiawase Barrens, Pipe Run",
+    "sound": 28,
+    "category": 161
+   }
+  },
+  "ek_sb_insul": {
+   "source": "meshy/models/sb-insulator-stack-a1",
+   "height": 2.0,
+   "colour": 1024,
+   "placeable": {
+    "label": "Shiawase Barrens, Insulator Stack",
+    "sound": 28,
+    "category": 161
+   }
+  },
+  "ek_sb_sandbag": {
+   "source": "meshy/models/sb-sandbag-barrier-a1",
+   "height": 1.1,
+   "colour": 2048,
+   "placeable": {
+    "label": "Shiawase Barrens, Sandbag Barrier",
+    "sound": 26,
+    "category": 158
+   }
   }
+ }
 }
