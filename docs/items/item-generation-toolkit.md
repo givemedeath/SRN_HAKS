@@ -523,10 +523,10 @@ built fixtures of one hand in a session:
   whole time, scores each by how much of it is bright, and writes the three best; frame 1, the one on the contact
   sheet, is the brightest. `capture.json` records `flash` per shot (the brightest picture's bright area over the
   burst's dimmest) and the run prints it per body: a firearm whose flash is 0 showed no muzzle flash. A burst that
-  took no picture for half a second (`longestGap`) may have missed the flash and is rejected as `burst stalled`. The attack and firing shots are framed from
-  the direction of the actor's target (an attacking actor has turned, and `GetFacing` did not say where to), so they
-  stay side views. An actor stops attacking after its own firing shot: left shooting, its flash was the brightest
-  thing in the other actor's burst.
+  took no picture for half a second (`longestGap`) may have missed the flash and is rejected as `burst stalled`.
+  The attack and firing shots are framed from the direction of the actor's target (an attacking actor has turned,
+  and `GetFacing` did not say where to), so they stay side views. An actor stops attacking after its own firing
+  shot: left shooting, its flash was the brightest thing in the other actor's burst.
 - **Lost shots.** About one shot in ten is still rejected (`next shot began`, `burst overran the shot hold`): the
   capture process stops for several seconds now and then, cause unknown. It is not the pictures (each shot records
   `grabSeconds` and `saveSeconds`, steady at about 1.0 and 0.2) and not a late log (extra log lines after each shot
@@ -538,8 +538,10 @@ built fixtures of one hand in a session:
 `capture` starts the client once and files each item under `CAPTURES/<blueprint>/` in the single-fixture layout
 (`capture.json`, `evidence-draft.json`, contact sheets). It writes the item table itself: items with a finished
 capture are left out, so a second run takes up where a stopped one ended, and `--items` picks a subset without a
-rebuild; with `--again` it retakes finished items whose shots were rejected. It exits 1 while any item
-is unfinished. A session built before the shot list was shortened is refused: build it again.
+rebuild; with `--again` it retakes finished items whose shots were rejected. When it ends it puts every item back
+in the table. It exits 1 while any item is unfinished. A session built before the shot list was shortened is
+refused: build it again. A build that fails removes the session folder it began; every blueprint's tag must be its
+resref, which is how the scripts find the item on an actor.
 
 Session captures are review material. The client stage's evidence names the item's own fixture module and HAKs
 (`fixture.validate_evidence`), which a session does not run, so the single-fixture capture stays the route to that

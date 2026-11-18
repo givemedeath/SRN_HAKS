@@ -1,7 +1,9 @@
 """One client start for many built item fixtures: a shared review session.
 
     python -m tools.itemkit.review_session build SESSION FIXTURE_DIR [FIXTURE_DIR ...] --nwn-root GAME_INSTALL
-    python -m tools.itemkit.review_session capture SESSION CAPTURES --nwn-root GAME_INSTALL [--wait SECONDS] [--items A,B]
+        [--resources FOLDER] [--fire BLUEPRINT=CLIP ...]
+    python -m tools.itemkit.review_session capture SESSION CAPTURES --nwn-root GAME_INSTALL [--wait SECONDS]
+        [--items A,B [--again]] [--timeout SECONDS]
 
 A fixture (the fixture stage's `fixture.json`) is one item in its own module and user directory, with its own copy of
 the shared packs: a client start, a full motion cycle and a gigabyte of HAK copies per item. `build` puts any number
@@ -12,7 +14,10 @@ of built fixtures of one hand into one session:
   table (`itk_items.2da` in the session's override folder) and, when an item's scripted shots are done, swaps the
   next item into the same actors' hands;
 - one small HAK on top when the item HAKs carry private base-item tables: each carrier row from the package that
-  uses it, with the widest appearance range.
+  uses it, with the widest appearance range. `--resources` adds a folder's files to it (models with firing effects).
+
+A session takes five shots a body (SESSION_SHOTS), the last a firing shot: the actors get ammunition and the item's
+firing clip (`--fire` where the carrier's usual clip is wrong), and the driver keeps the pictures with the muzzle flash.
 
 `capture` waits for another session's client to close if asked, starts the client once and files each item's shots
 in `CAPTURES/<blueprint>/` exactly as `client_capture` does for one fixture. It writes the item table itself, so a
@@ -255,9 +260,19 @@ def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
     tables = [(row['carrier'], row['baseitems']) for row in items if row['baseitems'] is not None]
     merged = merged_baseitems(tables) if len({body for _, body in tables}) > 1 else None
     require(not (merged or extra) or SESSION_HAK not in order, 'A fixture HAK already has the session HAK name')
-    session.mkdir(parents=True); staged = session/'module-resources'; staged.mkdir()
+    tools = Tools(repo, nwn_root); session.mkdir(parents=True)
+    try: return assemble(session, items, order, bound, blueprints, merged, extra, tools)
+    except BaseException:
+        # A tool that fails (a wrong game folder, a script that does not compile) leaves no half-built session to
+        # block the next attempt. The HAKs in it are links: removing them leaves the pinned files as they are.
+        shutil.rmtree(session, ignore_errors=True); raise
+
+
+def assemble(session, items, order, bound, blueprints, merged, extra, tools):
+    """The session's module, HAKs, item table and record, in the new folder `build` made after its checks."""
+    staged = session/'module-resources'; staged.mkdir()
     user = session/'userdir'; (user/'hak').mkdir(parents=True); (user/'modules').mkdir(); (user/'override').mkdir()
-    tools = Tools(repo, nwn_root); first = items[0]
+    first = items[0]
     tools.run('erf', '-x', '-f', first['module']['path'], cwd=staged)
     for resref, body in blueprints.items(): (staged/f'{resref}.uti').write_bytes(body)
     with tempfile.TemporaryDirectory() as work:
@@ -296,7 +311,10 @@ def carrier(row, archive):
     from tools import combat_release_manifest as crm
     body = archive.get((row['item'], TYPES['uti'])) or row['resources'].get((row['item'], TYPES['uti']))
     require(body is not None, f"No blueprint {row['item']} in its fixture")
-    return crm.parse_gff(body).get('BaseItem')
+    blueprint = crm.parse_gff(body)
+    # The scripts give, re-equip and take away the item by GetItemPossessedBy, which goes by tag.
+    require(blueprint.get('Tag') == row['item'], f"The tag of blueprint {row['item']} is not its resref: {blueprint.get('Tag')!r}")
+    return blueprint.get('BaseItem')
 
 
 def finished(folder):
@@ -335,6 +353,7 @@ def fire_burst(client, process, user, folder, row, previous_read, hold=FIRE_HOLD
 
 def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, timeout=None, frames=cc.FRAMES, gap=cc.GAP, settle=cc.SETTLE):
     from tools.armorkit import client
+    require(settle + (frames - 1) * gap + .3 <= HOLD, 'The capture burst must end inside a shot')
     session = Path(session).resolve(); captures = Path(captures).resolve(); record = read(session/'session.json')
     require(record.get('schemaVersion') == 2, 'This session was built for the longer shot list: build it again')
     verify([record['module'], *record['haks']]); user = Path(record['userDirectory'])

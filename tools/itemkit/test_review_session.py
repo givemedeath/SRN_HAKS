@@ -75,6 +75,32 @@ class BaseItemTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'different rows or columns'): R.merged_baseitems([(61, one), (61, one + b'70 new 1 X\n')])
 
 
+class BuildTests(unittest.TestCase):
+    def test_a_blueprint_is_carried_on_its_base_item_and_tagged_with_its_resref(self):
+        parsed = {'Tag': 'sr_a', 'BaseItem': 61}; row = {'item': 'sr_a', 'resources': {}}
+        with mock.patch('tools.combat_release_manifest.parse_gff', side_effect=lambda body: parsed):
+            self.assertEqual(R.carrier(row, {('sr_a', 2025): b'uti'}), 61)
+            self.assertEqual(R.carrier({'item': 'sr_a', 'resources': {('sr_a', 2025): b'uti'}}, {}), 61)     # from the module
+            parsed['Tag'] = 'SR_OTHER'
+            with self.assertRaisesRegex(ValueError, 'is not its resref'): R.carrier(row, {('sr_a', 2025): b'uti'})
+            with self.assertRaisesRegex(ValueError, 'No blueprint sr_a'): R.carrier(row, {})
+
+    def test_a_build_that_fails_after_its_checks_leaves_no_session_folder(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); hak = root/'own.hak'; hak.write_bytes(b'hak'); bound = pin(hak)
+            item = {'item': 'sr_a', 'slot': 'right', 'carry': 'hip', 'previous': '', 'hak': 'own', 'haks': {'own': bound},
+                    'resources': {}, 'module': bound, 'fixture': bound}
+            with mock.patch.object(R, 'fixture_item', return_value=item), mock.patch.object(R, 'read_erf', return_value={}), \
+                 mock.patch.object(R, 'carrier', return_value=61), mock.patch.object(R, 'Tools'), \
+                 mock.patch.object(R, 'assemble', side_effect=ValueError('script_comp failed')):
+                with self.assertRaisesRegex(ValueError, 'script_comp failed'): R.build(root/'session', [root], root)
+                self.assertFalse((root/'session').exists())
+                (root/'odd').mkdir(); (root/'odd'/'a_name_longer_than_sixteen.mdl').write_bytes(b'x')
+                with self.assertRaisesRegex(ValueError, 'Not resource file names'): R.build(root/'session', [root], root, resources=root/'odd')
+            with mock.patch('tools.armorkit.client.running', return_value=[]):
+                with self.assertRaisesRegex(ValueError, 'burst must end inside a shot'): R.capture(root, root, root, frames=5, gap=.6)
+
+
 class ResumeTests(unittest.TestCase):
     def test_a_session_whose_items_are_all_captured_starts_no_client(self):
         with tempfile.TemporaryDirectory() as folder:

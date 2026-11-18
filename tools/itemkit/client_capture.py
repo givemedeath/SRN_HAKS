@@ -1,11 +1,12 @@
 """Run a built itemkit fixture in the game client unattended and file what its scripted shots showed.
 
-    python -m tools.itemkit.client_capture FIXTURE_DIR CAPTURES --nwn-root GAME_INSTALL
+    python -m tools.itemkit.client_capture FIXTURE_DIR CAPTURES --nwn-root GAME_INSTALL [--wait SECONDS]
 
 FIXTURE_DIR is the folder holding `fixture.json` (the fixture stage's output). The fixture's entry script carries a
 dormant shot sequence (fixture.SHOTS): this driver switches it on with a 2DA in the fixture's own override folder,
 starts the client through armorkit's client module, saves a short burst of window captures after every
-`ITEMKIT_SHOT` line and stops the client it started. A client that is already running blocks the run.
+`ITEMKIT_SHOT` line and stops the client it started. A client that is already running blocks the run; `--wait`
+waits that long for it to close first. `review_session` runs many fixtures in one client start.
 
 The result is evidence to review, never a review: `evidence-draft.json` lists the captures and log per body and
 required check with `result: "unreviewed"`. A person looks at the pictures and writes the client evidence.
@@ -91,27 +92,25 @@ def passed(rows):
 
 def file_shots(client, process, user, captures, rows, previous_read, frames=FRAMES, gap=GAP, settle=SETTLE, hold=SHOT_HOLD):
     """Capture the newest shot of one log read into `captures`; the shots that read already passed are filed as rejected."""
-    shots = passed(rows[:-1])
-    for row in rows[-1:]:
-        body = actor(row)
-        # The shot fired after the previous log read, and the camera is free for the next one SHOT_HOLD after
-        # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
-        hold_ends = previous_read + hold
-        # The pictures are taken first and written afterwards: writing three PNGs inside the hold is what overran it.
-        time.sleep(settle); names = []; images = []; started = time.monotonic()
-        for frame in range(frames):
-            names.append(f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"); images.append(client.grab(process.pid))
-            if frame < frames - 1: time.sleep(gap)
-        took = round(time.monotonic() - started, 2)
-        # A burst that ran into the next shot shows the wrong thing: keep the files, never file them.
-        newest = shot_rows(client.log_lines(user, PREFIX))[-1]['shot']
-        rejected = ('next shot began' if newest != row['shot'] else
-                    'burst overran the shot hold' if time.monotonic() > hold_ends else None)
-        started = time.monotonic()
-        for name, image in zip(names, images): client.save(image, Path(captures) / name)
-        shots.append({**row, 'body': body, 'captures': names, 'grabSeconds': took, 'saveSeconds': round(time.monotonic() - started, 2),
-                      **({'rejected': rejected} if rejected else {})})
-    return shots
+    if not rows: return []
+    row = rows[-1]; body = actor(row)
+    # The shot fired after the previous log read, and the camera is free for the next one `hold` seconds after
+    # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
+    hold_ends = previous_read + hold
+    # The pictures are taken first and written afterwards, so the writing is outside the hold.
+    time.sleep(settle); names = []; images = []; started = time.monotonic()
+    for frame in range(frames):
+        names.append(f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"); images.append(client.grab(process.pid))
+        if frame < frames - 1: time.sleep(gap)
+    took = round(time.monotonic() - started, 2)
+    # A burst that ran into the next shot shows the wrong thing: keep the files, never file them.
+    newest = shot_rows(client.log_lines(user, PREFIX))[-1]['shot']
+    rejected = ('next shot began' if newest != row['shot'] else
+                'burst overran the shot hold' if time.monotonic() > hold_ends else None)
+    started = time.monotonic()
+    for name, image in zip(names, images): client.save(image, Path(captures) / name)
+    return [*passed(rows[:-1]), {**row, 'body': body, 'captures': names, 'grabSeconds': took,
+                                 'saveSeconds': round(time.monotonic() - started, 2), **({'rejected': rejected} if rejected else {})}]
 
 
 def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP, settle=SETTLE, wait=0):
