@@ -662,6 +662,13 @@ class ConvertTests(unittest.TestCase):
             environment['ENVKIT_NO_CACHE'] = '1'
             convert._compress(picture, folder / 'e.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 4)
         self.assertFalse(list(folder.glob('*.png')))
+        # All but the last used are taken away: every retouched colour map of a building is another 11 to 22 MB.
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'few'), mock.patch.object(convert, 'COMPRESSED_KEPT', 2), mock.patch.object(convert.subprocess, 'run', side_effect=run), \
+                mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            for shade in range(3):
+                convert._compress(Image.new('RGB', (8, 8), (shade, 0, 0)), folder / f'f{shade}.dds', '-DXT1', 8, 'crunch', data=False)
+        self.assertEqual(len(list((folder / 'few').iterdir())), 2)
         # Two workers that compress the same picture the same way each stage their copy in a file of their own: here
         # the second stages and keeps its copy while the first is about to rename its own.
         folder = Path(tempfile.mkdtemp()); runs.clear(); rename = Path.replace; nested = []
@@ -689,6 +696,9 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual({one['radius'] for one in posts if one['tube'][0][:2] in ([-9.45, 7.0], [9.45, -7.0])}, {convert.PERIMETER_END})  # stouter at a corner
         self.assertEqual(sorted(one['block'][0][0] for one in gate), [-7.5, -2.5, 3.5, 6.5]); self.assertTrue(all(one['picture'] == spec['concrete'] and one['size'] == 0.35 for one in gate))
         self.assertFalse(any(one['tube'][0][:2] == [-7.5, 7.0] for one in posts))  # a gateway's end is its concrete post
+        finer = convert.perimeter({**spec, 'gateways': [{'side': 'north', 'from': -7.455, 'to': -2.5}]})  # and where its edge is stated finer than the fence is built
+        self.assertFalse(any(one['tube'][0][:2] == [-7.46, 7.0] for one in finer[0] if 'tube' in one and one['part'].endswith('fence post')))
+        self.assertEqual((finer[1][0]['to'], [one['block'][0][0] for one in finer[0] if 'block' in one]), ([-7.46, 7.0], [-7.46, -2.5]))
         self.assertEqual(sum('coil' in one for one in built), 6); self.assertEqual(sum(one['part'].endswith('rail') for one in built), 12)
         self.assertTrue(all(one['coil'][0][2] == 2.81 + 0.25 for one in built if 'coil' in one))
         spans = [np.hypot(*np.subtract(b['tube'][0][:2], a['tube'][0][:2])) for a, b in zip(posts, posts[1:]) if a['part'] == b['part']]
@@ -697,6 +707,10 @@ class ConvertTests(unittest.TestCase):
         path = Path(tempfile.mkdtemp()) / 'set.json'
         path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'perimeter': spec, 'measuredAt': 4.0}}}), encoding='utf-8')
         loaded = convert.load_models(path)['ek_x']; self.assertEqual((loaded['frame'], loaded['fence']), (built, fence)); self.assertNotIn('built', loaded)
+        mixed = {'source': 'a', 'height': 4.0, 'measuredAt': 4.0, 'fence': fence[:1], 'frame': [built[0], {**built[1], 'picture': [0.0, 0.0, 1.0]}]}  # `shape` tones all its steel from one point
+        path.write_text(json.dumps({'models': {'ek_x': mixed}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'toned from one point'):
+            convert.load_models(path)
         for wrong in ({**spec, 'gateways': [{'side': 'north', 'from': -12.0, 'to': -8.0}]}, {**spec, 'gateways': [{'side': 'up', 'from': 0, 'to': 2}]},
                       {key: value for key, value in spec.items() if key != 'concrete'}, {**spec, 'z': [0.3, 0.5]}, {**spec, 'height': 2}):
             with self.assertRaises(ValueError):
@@ -752,6 +766,8 @@ class ConvertTests(unittest.TestCase):
         cell = lambda i, j: [[j * 7 + i, j * 7 + i + 1, (j + 1) * 7 + i + 1], [j * 7 + i, (j + 1) * 7 + i + 1, (j + 1) * 7 + i]]
         faces = np.array([face for j in range(6) for i in range(6) for face in cell(i, j)]); normals = np.tile([0.0, 0.0, 1.0], (49, 1))
         same = convert.relaid(grid, normals, uvs, faces); self.assertEqual((same[4], same[5]), ([], [])); np.testing.assert_array_equal(same[3], faces)
+        unread = lambda: self.fail('the picture of a model with no drawn-out face is not read')
+        self.assertEqual(convert.relaid(grid, normals, uvs, faces, unread)[4:], ([], []))
         extra = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0]]); sliver = np.array([[0.9, 0.9], [0.9, 0.9004], [0.9, 0.9008]])  # the first face, on a line of the picture
         vertices = np.vstack([grid, extra]); spots = np.vstack([uvs, sliver]); drawn = faces.copy(); drawn[0] = [49, 50, 51]
         made = convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn); self.assertEqual((made[4], made[5]), ([{'m2': 0.5, 'at': [0.67, 0.33, 0.0], 'share': 1.0}], []))

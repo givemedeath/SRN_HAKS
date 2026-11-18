@@ -76,6 +76,12 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(checks.retaken(views, ['out-behind'], tail), tail)  # the lights go out before they are seen from behind
         self.assertEqual(checks.retaken(views, ['door'], tail), [views[1]])
         self.assertEqual((checks.retake_name('sbday1'), checks.retake_name('abcdefghijk'), checks.retake_name('abcdefghijr')), ('sbday1r', 'abcdefghijr', 'abcdefghijs'))
+        # The folder they are taken again in is looked for before the client is run, not after its first run.
+        import tempfile
+        from pathlib import Path
+        base = Path(tempfile.mkdtemp()); (base / 'fixtures' / 'sbday1r').mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, 'taken again in'):
+            checks.group('game', base, base, 'sbday1', base / 'none.json', base, 'ek_x', next(iter(checks.FILL)))
 
     def test_a_check_refuses_a_mode_it_does_not_run(self):
         from argparse import Namespace

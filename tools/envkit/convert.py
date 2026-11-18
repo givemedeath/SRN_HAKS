@@ -509,7 +509,9 @@ def perimeter(spec):
     built, fence, stood, gateposts = [], [], set(), []
     for side in PERIMETER_SIDES:
         start, end = (np.array(one, float) for one in ends[side]); axis = 0 if side in ('north', 'south') else 1; low, high = sorted((start[axis], end[axis]))
-        openings = sorted((float(one['from']), float(one['to'])) for one in gateways if one['side'] == side)
+        # To the centimetre, as every place of the fence is stated: a post is left out where a gateway's own stands,
+        # and an edge stated finer left a steel post inside the concrete one (review of PR 175, 2026-11-18).
+        openings = sorted((round(float(one['from']), 2), round(float(one['to']), 2)) for one in gateways if one['side'] == side)
         require(all(low < a and b < high for a, b in openings) and all(first[1] < second[0] for first, second in zip(openings, openings[1:])),
                 f'The gateways of the {side} side lie within it, from {low} to {high}, and apart from one another')
         cuts = [low, *(value for opening in openings for value in opening), high]; runs = list(zip(cuts[::2], cuts[1::2]))
@@ -773,18 +775,14 @@ def picture_grain(vertices, uvs, faces):
     return grain[:, 1], grain[:, 0], size / 2, normal
 
 
-import contextlib
-
-
-@contextlib.contextmanager
 def _picture(maps, size=1024):
     """A model's colour picture brought down to `size`, as an array, or None where it has none to read."""
     path = (maps or {}).get('base_color')
     if not path or not Path(path).is_file():
-        yield None; return
+        return None
     from PIL import Image
     with Image.open(path) as picture:
-        yield np.asarray(picture.convert('RGB').resize((size, size)))
+        return np.asarray(picture.convert('RGB').resize((size, size)))
 
 
 def relaid(vertices, normals, uvs, faces, picture=None):
@@ -803,7 +801,8 @@ def relaid(vertices, normals, uvs, faces, picture=None):
     across two stretches is moved another way by itself, and one that lands nowhere stays as it was. Its edges then
     meet their neighbours with another part of the same surface, which cracked concrete and plain walls bear.
 
-    `picture` is the model's colour picture (rows by columns by red, green and blue, 0-255). With it a piece takes
+    `picture` is the model's colour picture (rows by columns by red, green and blue, 0-255), or what reads it when
+    called: it is read only where a face is drawn out, which on most models none is. With it a piece takes
     only what is within RELAY_TONE of the tone the face itself shows: a drawn-out face of the power station's dark
     roller door took a stretch of the red and white wall beside it at first, which lies in the same plane."""
     vertices, normals, uvs, faces = (np.array(one) for one in (vertices, normals, uvs, faces))
@@ -812,6 +811,8 @@ def relaid(vertices, normals, uvs, faces, picture=None):
     if usual <= 0:
         return vertices, normals, uvs, faces, mended, left
     thin = sound & (area >= STRETCH_AREA) & (least < usual * STRETCH_SHARE); middle = vertices[faces].mean(1)
+    if callable(picture):
+        picture = picture() if thin.any() else None
     if picture is not None:
         picture = np.asarray(picture, float); high, wide = picture.shape[:2]
         tone = lambda spots: picture[np.clip((spots[..., 1] * high).astype(int), 0, high - 1), np.clip((spots[..., 0] * wide).astype(int), 0, wide - 1)]
@@ -1497,6 +1498,7 @@ def specular(base, metallic):
 
 
 COMPRESSED = Path(__file__).resolve().parents[2] / 'output' / 'envkit' / 'cache' / 'dds'  # ignored: maps as compressed, by what they were compressed from
+COMPRESSED_KEPT = 400  # maps: the least lately used go (a sheet's fifteen models are some 90, 200 MB)
 
 
 def _compress(image, target, mode, size, crunch, *, data):
@@ -1505,30 +1507,28 @@ def _compress(image, target, mode, size, crunch, *, data):
     The same picture compressed the same way by the same compressor is copied from COMPRESSED, where each is kept under
     the hash of all three: a group built again after a change to its fence or its path nodes compressed every map
     again, about a third of each of the Shiawase Barrens power station's seven builds (2026-11-17). ENVKIT_NO_CACHE
-    set compresses anew. Each call stages its copy for the cache in a file of its own: two maps that are the same
+    set compresses anew. Each call stages its copy in a file of its own (`cache.keep`): two maps that are the same
     picture compressed the same way (a model's shine and roughness, both plain white) are compressed side by side,
     and with one staging file between them the second found it already renamed and the build stopped (review of PR
-    175, 2026-11-18)."""
-    import hashlib, io, os, shutil, uuid
+    175, 2026-11-18). All but the COMPRESSED_KEPT last used are taken away."""
+    import hashlib, io, shutil
+    from . import cache
     pixels = io.BytesIO(); image.resize((size, size)).save(pixels, 'PNG'); tool = Path(crunch)
     renormal = ['-renormalize'] if mode == '-DXN' else []; settings = [mode, '-mipMode', 'Generate', '-noprogress', '-gamma', '1.0' if data else '2.2', *renormal]
     stamp = [tool.name, tool.stat().st_size, tool.stat().st_mtime_ns] if tool.is_file() else [str(crunch)]
     kept = COMPRESSED / (hashlib.sha256(pixels.getvalue() + repr([settings, stamp]).encode()).hexdigest() + '.dds')
-    if kept.is_file() and not os.environ.get('ENVKIT_NO_CACHE'):
-        shutil.copyfile(kept, target); return target
+    if not cache.off():
+        try:
+            shutil.copyfile(kept, target); cache.used(kept); return target
+        except OSError:  # not kept, or taken away by another build's tidying: compressed here
+            pass
     source = target.with_suffix('.source.png'); source.write_bytes(pixels.getvalue())
     command = [crunch, '-file', str(source), '-out', str(target), '-fileformat', 'dds', *settings]
     result = subprocess.run(command, capture_output=True, text=True, check=False, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     source.unlink()
     require(result.returncode == 0 and target.is_file(), f'{target.name} did not compress: {(result.stdout + result.stderr)[-400:]}')
-    if not os.environ.get('ENVKIT_NO_CACHE'):
-        kept.parent.mkdir(parents=True, exist_ok=True); part = kept.with_suffix(f'.{uuid.uuid4().hex}.part')
-        try:
-            shutil.copyfile(target, part); part.replace(kept)
-        except OSError:  # another build is reading the kept copy, or the disk is full: the map itself is made
-            pass
-        finally:
-            part.unlink(missing_ok=True)
+    if not cache.off():
+        cache.keep(kept, lambda staged: staged.write(target.read_bytes())); cache.tidy(COMPRESSED, COMPRESSED_KEPT, '*.dds')
     return target
 
 
@@ -2031,6 +2031,9 @@ def load_models(path):
                 require(set(part) <= {'part', 'coil', 'radius', 'pitch', 'picture'} and number(part.get('radius')) and 0.1 <= part['radius'] <= 0.6 and number(part.get('pitch')) and 0.1 <= part['pitch'] <= 1.0,
                         "A frame's coil of barbed wire has a radius of 0.1 to 0.6 metres and a pitch of 0.1 to 1 metre a turn: " + name)
         require(not model.get('frame') or model.get('fence'), "A fence's frame stands with its fence, whose picture it shows: " + name)
+        for what, kinds in (('steel (its tubes and coils)', ('tube', 'coil')), ('concrete (its blocks)', ('block',))):  # `shape` tones each from one point
+            require(len({tuple(part['picture']) for part in model.get('frame', []) if any(kind in part for kind in kinds)}) <= 1,
+                    f"The {what} of a fence's frame is toned from one point of the model's picture, the same for every part: " + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
         for part in model.get('fence', []):
             require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}
@@ -2125,7 +2128,7 @@ def load_models(path):
         # part of it (found in review, 2026-11-12); so would the boxes of a sign hung at another lift or turned since
         # they were read. So a model that states any measurement says how it stood when they were made, and standing
         # otherwise they are made again.
-        measured = any(model.get(key) for key in MEASURED) or bool(model.get('fire')) or isinstance(model.get('inside'), list) or door is not None or fade is not None or bool(parts)
+        measured = any(model.get(key) for key in MEASURED) or bool(model.get('fire')) or isinstance(model.get('inside'), list) or door is not None or fade is not None or bool(parts) or bool((tiles or {}).get('lamps'))
         stands = {'height': model['height'], **{key: model[key] for key in PLACING if key in model}}
         told = lambda at: ', '.join(f'{key} {value}' for key, value in at.items())
         require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says how it stood when they were measured '
@@ -2287,8 +2290,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if level is not None:  # a floor marking that came back a wedge, laid flat (`levelled`): after its faces are wound right, before anything is measured on it
         vertices, normals = levelled(vertices, faces, float(level))
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
-    with _picture(maps) as seen_first:  # before anything is measured or built on it
-        vertices, normals, uvs, faces, mended, drawn_out = relaid(vertices, normals, uvs, faces, seen_first)
+    vertices, normals, uvs, faces, mended, drawn_out = relaid(vertices, normals, uvs, faces, lambda: _picture(maps))  # before anything is measured or built on it
     if wheels:
         vertices, normals = gauged(vertices, normals, wheels)
     if move:

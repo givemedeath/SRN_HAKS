@@ -63,6 +63,14 @@ class CacheTests(unittest.TestCase):
             self.assertEqual(float(cache.arrays('kind', (3,), self.make(3.0), faces=5)[0][0, 0]), 3.0)
         self.assertEqual(sorted(path.suffix for path in folder.iterdir()), ['.npz', '.npz'])
 
+    def test_arrays_read_back_are_not_made_again_where_their_file_cannot_be_marked_or_taken_away(self):
+        cache.arrays('kind', (1,), self.make(1.0), faces=5)
+        with mock.patch.object(cache.os, 'utime', side_effect=FileNotFoundError('tidied away by another build')):
+            self.assertEqual((float(cache.arrays('kind', (1,), self.make(2.0), faces=5)[0][0, 0]), self.made), (1.0, 1))
+        kept = next((self.root / 'kind').glob('*.npz')); kept.write_bytes(b'half')
+        with mock.patch.object(Path, 'unlink', autospec=True, side_effect=PermissionError('held open by another build')):  # unreadable, and open elsewhere
+            self.assertEqual(float(cache.arrays('kind', (1,), self.make(3.0), faces=5)[0][0, 0]), 3.0)
+
 
 if __name__ == '__main__':
     unittest.main()

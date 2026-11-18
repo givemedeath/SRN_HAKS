@@ -331,6 +331,12 @@ class TileTests(unittest.TestCase):
             geometry = text.split('endmodelgeom')[0]; self.assertEqual(geometry.count('node trimesh ek_shop_t00_halo'), 2); self.assertIn('    2.00000 -2.04000 2.00000', geometry)
             with self.assertRaisesRegex(ValueError, 'between the slab and the roof'):
                 tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
+            # A lamp is a light of the tile it stands in, at the model: one stated in the air is refused, as a placeable's light is.
+            lamp = {'part': 'door lamp', 'at': [0.0, -2.0, 2.5], 'colour': [255, 236, 196], 'radius': 10}
+            lamped = tile.group('ek_shop', made, Path(scratch) / 'lamped', ground='pavement', lamps=[lamp])
+            self.assertEqual(lamped['tiles'][0]['lamps'], 1); self.assertIn('node light ek_shop_t00_lamp1', (Path(scratch) / 'lamped' / 'ek_shop_t00.mdl').read_text(encoding='cp1252'))
+            with self.assertRaisesRegex(ValueError, 'door lamp'):
+                tile.group('ek_shop', made, Path(scratch) / 'hung', ground='pavement', lamps=[{**lamp, 'at': [0.0, -4.0, 6.0]}])
 
 
     def test_a_fence_is_shared_out_among_the_tiles_it_stands_in_and_shows_its_own_picture(self):

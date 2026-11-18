@@ -396,7 +396,10 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
     was busy, and a walk check by one late picture of a walker (2026-11-17)."""
     require(tileset in FILL, 'A check area is laid in ' + ' or '.join(FILL)); require(mode in ('day', 'night', 'near', 'walk'), 'mode is day, night, near or walk')
     require(not targets or mode == 'walk', 'Targets are where a walk check sends walkers: give them with --mode walk')
-    repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path)
+    repo, base = Path(repo).resolve(), Path(base).resolve(); second = retake_name(name)
+    # Before the client is run: found only when a view came late, a taken folder threw the whole first run away.
+    require(mode == 'near' or not (base / 'fixtures' / second).exists(), f'A view that comes late is taken again in {base / "fixtures" / second}, which is there already: give the check another --name')
+    models = convert.load_models(models_path)
     require(model in models and models[model].get('tiles'), model + ' is not a tile group of the game set')
     resources = _fresh(base, name)
     folder = Path(built) / model; made = json.loads((folder / 'report.json').read_text(encoding='utf-8'))
@@ -445,7 +448,6 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
                  for one in result['walkers'] if one['short'] > REACHED or one['walled']]
         require(not short, 'Walkers did not arrive: ' + '; '.join(short) + f'. See {captures}')
     if again and mode != 'near':  # `near` frees the player in its first shot: its views are not taken out of their order
-        second = retake_name(name); require(not (base / 'fixtures' / second).exists(), f'The views to take again need a fresh folder: {base / "fixtures" / second} is there')
         more = run(second, again, [], 6.0); kept = base / 'fixtures' / name / 'captures'
         require(not more['late'], 'Captures came after their shot had passed, twice over: ' + ', '.join(more['late']) + f'. The client stalled; see {base / "fixtures" / second / "captures"}. Run the check again')
         for path in map(Path, more['captures']):

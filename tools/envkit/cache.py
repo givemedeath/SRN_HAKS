@@ -33,11 +33,11 @@ def key(*made_from):
     return found.hexdigest()
 
 
-def _newest_first(folder):
+def _newest_first(folder, pattern='*.npz'):
     """The kept files of a folder, the newest first. One that another build takes away while they are listed is left
     out: its `stat` failed and stopped a build whose own arrays were already kept (review of PR 175, 2026-11-18)."""
     aged = []
-    for path in folder.glob('*.npz'):
+    for path in folder.glob(pattern):
         try:
             aged.append((path.stat().st_mtime, path))
         except OSError:
@@ -45,12 +45,49 @@ def _newest_first(folder):
     return [path for _, path in sorted(aged, key=lambda one: one[0], reverse=True)]
 
 
-def arrays(kind, made_from, make, *, faces):
-    """`make()`'s tuple of arrays, read back if it was kept for the same `made_from` (`key`), else made and kept.
-    `faces` is the model's size: under LEAST nothing is kept. Each call stages what it made in a file of its own
-    before renaming it: two builds of one model at once shared a staging file, and the second found it already renamed
-    (review of PR 175, 2026-11-18). The staging file is no `.npz`, so the tidying below never takes another's."""
+def _gone(path):
+    """Take a file away, if it can be: one open in another build stays, and goes at the next tidying."""
+    try:
+        path.unlink(missing_ok=True)
+    except OSError:
+        pass
+
+
+def keep(kept, write):
+    """Keep a file as `kept`: `write(staged)` fills an open file of this call's own beside it, which is then renamed.
+    Two builds that kept the same thing at once shared a staging file, and the second found it already renamed
+    (review of PR 175, 2026-11-18); the staging file has another suffix, so no tidying takes another's. Where the
+    kept file cannot be written (another build holds it open, the disk is full) nothing is kept and nothing stops:
+    what was made is the caller's already."""
     import uuid
+    kept.parent.mkdir(parents=True, exist_ok=True); part = kept.with_name(f'{kept.stem}.{uuid.uuid4().hex}.part')
+    try:
+        with open(part, 'wb') as staged:
+            write(staged)
+        part.replace(kept)
+    except OSError:
+        pass
+    finally:
+        _gone(part)
+
+
+def used(kept):
+    """Mark a kept file as read now, so the tidying keeps it; one taken away meanwhile was read all the same."""
+    try:
+        os.utime(kept)
+    except OSError:
+        pass
+
+
+def tidy(folder, most, pattern='*.npz'):
+    """Take away all but the `most` newest kept files of a folder."""
+    for old in _newest_first(folder, pattern)[most:]:
+        _gone(old)
+
+
+def arrays(kind, made_from, make, *, faces):
+    """`make()`'s tuple of arrays, read back if it was kept for the same `made_from` (`key`), else made and kept
+    (`keep`). `faces` is the model's size: under LEAST nothing is kept."""
     if off() or faces < LEAST:
         return make()
     folder = ROOT / kind; kept = folder / (key(*made_from) + '.npz')
@@ -58,21 +95,11 @@ def arrays(kind, made_from, make, *, faces):
         try:
             with np.load(kept) as held:
                 found = tuple(held[f'a{index}'] for index in range(len(held.files)))
-            os.utime(kept); return found
-        except Exception:  # half written by a build that was stopped: made again
-            kept.unlink(missing_ok=True)
-    made = tuple(make()); folder.mkdir(parents=True, exist_ok=True); part = folder / f'{kept.stem}.{uuid.uuid4().hex}.part'
-    try:
-        with open(part, 'wb') as staged:  # a file, not a name: `savez` would add `.npz` to the name
-            np.savez(staged, **{f'a{index}': np.asarray(one) for index, one in enumerate(made)})
-        part.replace(kept)
-    except OSError:  # another build holds the kept file open, or the disk is full: what was made is still returned
-        pass
-    finally:
-        part.unlink(missing_ok=True)
-    for old in _newest_first(folder)[KEPT:]:
-        try:
-            old.unlink(missing_ok=True)
-        except OSError:  # open in another build: it goes at the next tidying
-            pass
+        except Exception:  # half written by a build that was stopped, or taken away by another: made again
+            _gone(kept)
+        else:
+            used(kept); return found
+    made = tuple(make())
+    keep(kept, lambda staged: np.savez(staged, **{f'a{index}': np.asarray(one) for index, one in enumerate(made)}))  # a file, not a name: `savez` would add `.npz` to the name
+    tidy(folder, KEPT)
     return made

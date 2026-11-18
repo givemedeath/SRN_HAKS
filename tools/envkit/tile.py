@@ -941,6 +941,12 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     barrier = tuple(join([wire for _, wire in wires], ('vertices', 'faces')).values()) if wires else None
     rows, columns, corner = layout(vertices); found = survey(walked['vertices'], walked['faces'], rows, columns, corner, barrier=barrier)
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
+    if lamps:  # each at its lamp head, as a placeable's light is (`convert.light_gap`): one mistyped, or left from before a turn, lit the ground from the air
+        surface = np.vstack([convert.scatter(np.asarray(one['vertices'], float), np.asarray(one['faces']), spacing=0.03) for one in shaped])
+        for lamp in lamps:
+            away = float(np.linalg.norm(surface - np.asarray(lamp['at'], float), axis=1).min())
+            require(away <= convert.LIGHT_NEAR, f'A lamp of {name} stands {away:.2f} metres from the model, in the air: state it on the finished model, at the lens of '
+                    f'its lamp head, within {convert.LIGHT_NEAR} metres: ' + str(lamp.get('part', lamp['at'])))
 
     def shared(points, polygons):  # each face's tile, by its middle, and whether it is above the fade height
         middle = points[polygons].mean(1)
