@@ -123,6 +123,20 @@ def toned(colour, like, amount=1.0):
     return np.uint8(np.clip(colour * scale, 0, 255) + 0.5)
 
 
+def graded(colour, grade):
+    """`colour` (uint8 RGB array) as a district's grade leaves it. grade: {saturation (1 keeps it, 0 is grey), contrast
+    (about the picture's own mean brightness, 1 keeps it), gain (brightness, 1 keeps it), tint ([red, green, blue]
+    multipliers)}, each optional. Nothing here depends on where in the picture a pixel is, so a tiling picture still tiles
+    and no stain is added to read as a repeat."""
+    unknown = set(grade) - {'saturation', 'contrast', 'gain', 'tint'}; require(not unknown, 'A grade has no ' + ', '.join(sorted(unknown)))
+    values = np.asarray(colour, np.float64)[..., :3]
+    grey = (values @ np.array([0.2126, 0.7152, 0.0722]))[..., None]
+    values = grey + (values - grey) * float(grade.get('saturation', 1.0))
+    middle = float(grey.mean()); values = middle + (values - middle) * float(grade.get('contrast', 1.0))
+    tint = np.asarray(grade.get('tint', (1.0, 1.0, 1.0)), np.float64); require(tint.shape == (3,), 'A grade\'s tint is red, green and blue')
+    return np.uint8(np.clip(values * float(grade.get('gain', 1.0)) * tint, 0, 255) + 0.5)
+
+
 def offset_seams(colour):
     """How much a picture jumps where it wraps, against how much it changes from pixel to pixel within: about 1 for a
     picture that tiles, far above for one that does not. Left to right, then top to bottom."""

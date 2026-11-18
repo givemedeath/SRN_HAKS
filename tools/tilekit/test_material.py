@@ -69,6 +69,16 @@ class PictureTests(unittest.TestCase):
         self.assertGreater(pictures.offset_seams(ramp)[0], 20); self.assertLess(pictures.offset_seams(np.tile(colour, (2, 2, 1)))[0], 2)
         self.assertEqual((pictures.whole_chain(1024, 512), pictures.whole_chain(4, 4)), (11, 3))
 
+    def test_a_grade_changes_every_pixel_alike(self):
+        colour = np.zeros((2, 2, 3), np.uint8); colour[0, 0] = (200, 100, 50); colour[1, 1] = (200, 100, 50)
+        self.assertTrue(np.array_equal(pictures.graded(colour, {}), colour))
+        grey = pictures.graded(colour, {'saturation': 0.0})[0, 0]; self.assertEqual(len(set(int(value) for value in grey)), 1)
+        made = pictures.graded(colour, {'gain': 0.5, 'tint': [1.0, 1.0, 2.0]})
+        self.assertEqual((tuple(made[0, 0]), tuple(made[1, 1]), tuple(made[0, 1])), ((100, 50, 50), (100, 50, 50), (0, 0, 0)))
+        self.assertGreater(int(pictures.graded(colour, {'contrast': 2.0})[0, 0, 0]), 200 - 1); self.assertEqual(int(pictures.graded(colour, {'contrast': 2.0})[0, 1, 1]), 0)
+        with self.assertRaisesRegex(ValueError, 'A grade has no grime'):
+            pictures.graded(colour, {'grime': 1})
+
 
 class MaterialTests(unittest.TestCase):
     def setUp(self):
@@ -116,12 +126,25 @@ class MaterialTests(unittest.TestCase):
         self.assertEqual((asked('wall.dds'), asked('wall_n.dds'), asked('wall_r.dds')), ("-DXT1 (64, 128) RGB False", "-DXN (64, 64) RGB True", "-DXT5A (64, 64) RGBA True"))
         made = material.make(np.asarray(material.current(self.root, 'wall').convert('RGB')), spec['textures']['wall'], material.master(self.root / 'masters' / 'Brick1'))
         self.assertGreater(made['colour'][..., 0].mean(), 200); self.assertLess(made['colour'][..., 2].mean(), 30)  # toned to the DDS copy, the one the game draws
+        dark = {'grades': {'dim': {'gain': 0.5}}, 'textures': {'wall': {**spec['textures']['wall'], 'grade': 'dim'}}}
+        self.assertEqual(material.build(dark, self.root, self.root / 'masters', self.root / 'dim', 'crunch', compress=fake_compress)['wall']['grade'], 'dim')
+        with self.assertRaisesRegex(ValueError, 'wall: the spec has no grade dim'):
+            material.build({'textures': dark['textures']}, self.root, self.root / 'masters', self.root / 'dim', 'crunch', compress=fake_compress)
         with self.assertRaisesRegex(ValueError, 'Not in the spec: nope'):
             material.build(spec, self.root, self.root / 'masters', self.root / 'out', 'crunch', only=['nope'], compress=fake_compress)
         with self.assertRaisesRegex(ValueError, 'need a `stem`'):
             material.build({'textures': {'a_long_texture_g': {'route': 'upscale', 'size': [64, 64]}}}, self.root, self.root / 'masters', self.root / 'out', 'crunch', compress=fake_compress)
         with self.assertRaisesRegex(ValueError, 'No pack holds a picture of gone'):
             material.build({'textures': {'gone': {'route': 'upscale', 'size': [64, 64]}}}, self.root, self.root / 'masters', self.root / 'out', 'crunch', compress=fake_compress)
+
+    def test_every_map_is_stored_bottom_row_first(self):
+        made = material.make(np.zeros((16, 16, 3), np.uint8), {'route': 'upscale', 'size': [64, 64]}); made['colour'] = made['colour'].copy(); made['colour'][:8] = (255, 0, 0)  # red along the top
+        seen = {}
+
+        def keep(image, target, mode, size, crunch, *, data):
+            seen[Path(target).name] = np.asarray(image.convert('RGB')); return fake_compress(image, target, mode, size, crunch, data=data)
+        material.write('wall', made, self.root / 'turned', 'crunch', compress=keep)
+        self.assertEqual((tuple(seen['wall.dds'][0, 0]), tuple(seen['wall.dds'][-1, 0])), ((0, 0, 0), (255, 0, 0)))
 
     def test_a_map_without_its_mip_chain_is_refused_and_a_glow_is_named(self):
         made = material.make(np.zeros((16, 16, 3), np.uint8), {'route': 'upscale', 'size': [64, 64]})
@@ -132,6 +155,15 @@ class MaterialTests(unittest.TestCase):
             material.write('wall', made, self.root / 'bad', 'crunch', compress=top_only)
         files = material.write('wall', made, self.root / 'lit', 'crunch', glow=np.zeros((64, 64, 3), np.uint8), compress=fake_compress)
         self.assertIn('wall_i.dds', files); self.assertIn('texture5 wall_i\n', (self.root / 'lit' / 'wall.mtr').read_text())
+        holed = np.zeros((16, 16, 4), np.uint8); holed[:, :8] = (200, 220, 240, 255)  # lit windows on the left, a hole on the right
+        lit = material.make(holed, {'route': 'upscale', 'size': [64, 64], 'glow': {'gain': 0.5, 'tint': [1.0, 1.0, 2.0]}})
+        self.assertEqual((int(lit['alpha'][8, 8]), int(lit['alpha'][8, 56])), (255, 0))
+        self.assertEqual((tuple(int(value) for value in lit['glow'][8, 8]), tuple(int(value) for value in lit['glow'][8, 56])), ((100, 110, 240), (0, 0, 0)))
+        files = material.write('panes_g', lit, self.root / 'panes', 'crunch', compress=fake_compress)
+        self.assertIn('panes_g_i.dds', files); self.assertTrue((self.root / 'panes' / 'panes_g.dds').read_bytes()[128:].startswith(b'-DXT5 (64, 64) RGBA'))
+        self.assertNotIn('alpha', made); self.assertNotIn('glow', made)
+        with self.assertRaisesRegex(ValueError, 'A glow has no colour'):
+            material.make(holed, {'route': 'upscale', 'size': [64, 64], 'glow': {'colour': 1}})
         self.assertAlmostEqual(float(material.shine(np.full((1, 1, 3), 255, np.uint8), np.array([[1.0]]))[0, 0]), 1.0)
         self.assertAlmostEqual(float(material.shine(np.full((1, 1, 3), 255, np.uint8), np.array([[0.0]]))[0, 0]), 0.04)
 

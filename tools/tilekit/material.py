@@ -66,11 +66,33 @@ def make(old, how, scan=None):
     route: repeat (times the scan tiles across the texture, default 1), tone (0-1 of the way the scan's mean colour moves
     to the old one's, default 1), grain (how strongly a scan's fine detail is laid on a kept layout, default 1), keep
     (pixels of the old picture, as enlarged, below which its detail is given up to the scan's, default 12), relief
-    (pixels of rise guessed relief stands, default 2), roughness (0-1, an upscale's, default 0.8)}."""
+    (pixels of rise guessed relief stands, default 2), roughness (0-1, an upscale's, default 0.8), glow (`glow`)}. An
+    old picture with holes in it (an alpha channel in use) gives `alpha` too, and a glow asked for gives `glow`."""
     route = how.get('route'); require(route in ROUTES, 'A texture\'s route is one of ' + ', '.join(ROUTES))
     size = tuple(how.get('size', ())); require(len(size) == 2 and all(side in SIZES for side in size), f'A texture\'s size is two of {SIZES}')
     require(route == 'upscale' or scan is not None, f'The {route} route needs a scan')
-    old = np.asarray(old)[..., :3]
+    old = np.asarray(old); made = _routed(old[..., :3], how, route, size, scan)
+    if old.shape[2] == 4 and int(old[..., 3].min()) < 250:  # a picture with holes in it keeps them, where it had them
+        from PIL import Image
+        made['alpha'] = np.asarray(Image.fromarray(old[..., 3]).resize(size, Image.LANCZOS))
+    if how.get('glow') is not None:
+        made['glow'] = glow(made, how['glow'])
+    return made
+
+
+def glow(made, lit):
+    """The glow map of a made texture (uint8 RGB): its own colour where it is lit, black elsewhere. lit: {gain (how
+    bright, default 1), tint ([red, green, blue] multipliers), above (0-255: only pixels at least this bright are lit;
+    default 0)}. A picture with holes glows only where it is not a hole: a facade's lit windows are such a picture."""
+    unknown = set(lit) - {'gain', 'tint', 'above'}; require(not unknown, 'A glow has no ' + ', '.join(sorted(unknown)))
+    colour = made['colour'].astype(np.float64); tint = np.asarray(lit.get('tint', (1.0, 1.0, 1.0)), np.float64); require(tint.shape == (3,), 'A glow\'s tint is red, green and blue')
+    shown = colour.max(axis=2) >= float(lit.get('above', 0))
+    if 'alpha' in made:
+        shown &= made['alpha'] >= 128
+    return np.uint8(np.clip(colour * float(lit.get('gain', 1.0)) * tint, 0, 255) * shown[..., None] + 0.5)
+
+
+def _routed(old, how, route, size, scan):
     if route == 'master':
         repeat = int(how.get('repeat', 1)); require(1 <= repeat <= 8, 'A scan tiles one to eight times across a texture')
         colour = pictures.toned(_sized(scan['colour'], size, repeat=repeat), old, float(how.get('tone', 1.0)))
@@ -111,7 +133,7 @@ def stem_of(name, how):
 
 def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None):
     """Write a texture's material file and maps into `folder`: <stem>.dds (colour), _n (relief, half size as envkit's),
-    _s (shine), _r (roughness), _i (glow, a uint8 RGB array, where given), and <name>.mtr. Every map must come out with
+    _s (shine), _r (roughness), _i (glow, where the texture was made with one or one is given), and <name>.mtr. Every map must come out with
     its whole mip chain: one written with its largest level alone drew black in the game (plan, stratum 0). Returns the
     file names written."""
     from concurrent.futures import ThreadPoolExecutor
@@ -123,13 +145,18 @@ def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None):
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); height, width = made['colour'].shape[:2]
     half = (max(width // 2, 64), max(height // 2, 64))
     channel = lambda values: Image.fromarray(np.repeat(np.uint8(np.clip(values, 0, 1) * 255 + 0.5)[..., None], 4, axis=2), 'RGBA')
-    wanted = [(Image.fromarray(made['colour'], 'RGB'), f'{stem}.dds', '-DXT1', (width, height), False),
+    shown = Image.fromarray(np.dstack([made['colour'], made['alpha']]), 'RGBA') if 'alpha' in made else Image.fromarray(made['colour'], 'RGB')
+    glow = made.get('glow') if glow is None else glow
+    wanted = [(shown, f'{stem}.dds', '-DXT5' if 'alpha' in made else '-DXT1', (width, height), False),
               (Image.fromarray(made['normal'], 'RGB'), f'{stem}_n.dds', '-DXN', half, True),
               (channel(shine(made['colour'], made['metal'])), f'{stem}_s.dds', '-DXT5A', half, True), (channel(made['roughness']), f'{stem}_r.dds', '-DXT5A', half, True)]
     if glow is not None:
         wanted.append((Image.fromarray(np.asarray(glow)[..., :3], 'RGB'), f'{stem}_i.dds', '-DXT1', half, False))
+    # The game takes the first row of a DDS for the bottom of the picture, as it does a BioWare DDS's: written top row
+    # first, a facade's lit windows came out upside down (pilot, 2026-11-18; no brick or asphalt showed it). So every
+    # map is stored turned over. Its relief needs no other change: turned back by the game, it is the same picture.
     with ThreadPoolExecutor(max_workers=4) as pool:
-        list(pool.map(lambda one: compress(one[0], folder / one[1], one[2], one[3], crunch, data=one[4]), wanted))
+        list(pool.map(lambda one: compress(one[0].transpose(Image.FLIP_TOP_BOTTOM), folder / one[1], one[2], one[3], crunch, data=one[4]), wanted))
     for _, file, _, size, _ in wanted:
         require(pictures.levels(folder / file) >= pictures.whole_chain(*size) - 2, f'{file} was written without its mip chain')
     (folder / f'{name}.mtr').write_text(material_text(stem, glow is not None), encoding='ascii', newline='\n')
@@ -147,17 +174,23 @@ def current(repo, name, packs=('srn_t_common', 'srn_door', 'srn_placeable')):
 
 
 def build(spec, repo, masters, folder, crunch, *, only=None, compress=None):
-    """Make and write every texture of a material spec ({textures: {name: how}}; how['master'] names a scan's folder in
-    `masters`) into `folder`. Returns {name: {route, size, files}}."""
+    """Make and write every texture of a material spec ({grades: {name: grade}, textures: {name: how}}; how['master']
+    names a scan's folder in `masters`, how['grade'] one of the spec's grades, `pictures.graded`) into `folder`.
+    Returns {name: {route, size, grade, files}}."""
     textures = spec.get('textures'); require(isinstance(textures, dict) and textures, 'A material spec lists its textures')
     chosen = sorted(textures) if only is None else list(only); require(set(chosen) <= set(textures), 'Not in the spec: ' + ', '.join(sorted(set(chosen) - set(textures))))
-    scans, told = {}, {}
+    scans, told, grades = {}, {}, spec.get('grades', {})
     for name in chosen:
         how = textures[name]; scan = None
         if how.get('master'):
             if how['master'] not in scans:
                 scans[how['master']] = master(Path(masters) / how['master'])
             scan = scans[how['master']]
-        made = make(np.asarray(current(repo, name).convert('RGB')), how, scan)
-        told[name] = {'route': how['route'], 'size': list(how['size']), 'files': write(name, made, folder, crunch, stem=stem_of(name, how), compress=compress)}
+        made = make(np.asarray(current(repo, name)), how, scan)
+        if how.get('grade'):  # the district's look, laid on whatever route made the picture
+            require(how['grade'] in grades, f'{name}: the spec has no grade {how["grade"]}')
+            made['colour'] = pictures.graded(made['colour'], grades[how['grade']])
+            if how.get('glow') is not None:  # a glow is of the picture as graded
+                made['glow'] = glow(made, how['glow'])
+        told[name] = {'route': how['route'], 'size': list(how['size']), **({'grade': how['grade']} if how.get('grade') else {}), 'files': write(name, made, folder, crunch, stem=stem_of(name, how), compress=compress)}
     return told
