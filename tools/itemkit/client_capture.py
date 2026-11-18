@@ -77,14 +77,23 @@ def contact_sheets(captures, columns=4, size=(480, 270)):
     return sheets
 
 
+def actor(row):
+    """The body a shot looks at; a shot without one is refused, never filed."""
+    body = BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
+    return body
+
+
+def passed(rows):
+    """Shots a later line of the same log read overtook: their views are gone, and capturing them would spend the
+    live shot's hold."""
+    return [{**row, 'body': actor(row), 'captures': [], 'rejected': 'next shot began'} for row in rows]
+
+
 def file_shots(client, process, user, captures, rows, previous_read, frames=FRAMES, gap=GAP, settle=SETTLE, hold=SHOT_HOLD):
     """Capture the newest shot of one log read into `captures`; the shots that read already passed are filed as rejected."""
-    shots = []
-    for index, row in enumerate(rows):
-        body = BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
-        if index < len(rows) - 1:
-            # A later shot is already in this read: this one's view is gone, and capturing it would spend the live shot's hold.
-            shots.append({**row, 'body': body, 'captures': [], 'rejected': 'next shot began'}); continue
+    shots = passed(rows[:-1])
+    for row in rows[-1:]:
+        body = actor(row)
         # The shot fired after the previous log read, and the camera is free for the next one SHOT_HOLD after
         # firing; the next shot moves the camera before it logs, so the log alone cannot show a late burst.
         hold_ends = previous_read + hold

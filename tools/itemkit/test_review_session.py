@@ -85,7 +85,10 @@ class ResumeTests(unittest.TestCase):
             (session/'session.json').write_text(json.dumps(record), encoding='utf-8'); captures = root/'captures'
             for name in ('sr_a', 'sr_b'):
                 (captures/name).mkdir(parents=True); (captures/name/'capture.json').write_text(json.dumps({'finished': name == 'sr_a'}), encoding='utf-8')
-            with mock.patch('tools.armorkit.client.start', side_effect=AssertionError('no client')), \
+            tables = []
+            def start(*_):
+                tables.append((user/'override'/'itk_items.2da').read_bytes()); raise AssertionError('no client')
+            with mock.patch('tools.armorkit.client.start', side_effect=start), \
                  mock.patch('tools.armorkit.client.running', return_value=[]):
                 self.assertEqual(R.capture(session, captures, root, only=['sr_a']), {'captured': [], 'alreadyCaptured': ['sr_a'], 'unfinished': []})
                 with self.assertRaisesRegex(ValueError, 'Not in this session'): R.capture(session, captures, root, only=['sr_c'])
@@ -93,7 +96,8 @@ class ResumeTests(unittest.TestCase):
                 with self.assertRaisesRegex(AssertionError, 'no client'): R.capture(session, captures, root, only=['sr_a'], again=True)
                 with self.assertRaisesRegex(AssertionError, 'no client'): R.capture(session, captures, root)
             # the unfinished item alone was put in the table, and the toggle did not outlive the failed start
-            self.assertEqual((user/'override'/'itk_items.2da').read_bytes(), R.items_table([{'item': 'sr_b', 'carry': 'hip', 'fire': 'fire_pst'}]))
+            self.assertEqual(tables[-1], R.items_table([{'item': 'sr_b', 'carry': 'hip', 'fire': 'fire_pst'}]))
+            self.assertEqual((user/'override'/'itk_items.2da').read_bytes(), R.items_table(record['items']))   # every item again afterwards
             self.assertFalse((user/'override'/'itk_shots.2da').exists())
 
 

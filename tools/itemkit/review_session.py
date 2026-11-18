@@ -58,6 +58,7 @@ SESSION_OFFSET, SESSION_STEPS = 36, 17
 PARK = 1 + max(row[0] for row in SESSION_SHOTS)   # the step after an actor's last shot
 FIRE_CLIPS = {61: 'fire_pst', 6: 'fire_rfl'}     # the firing clip of a carrier base item unless the build names another
 FIRE_CODE = re.compile(r'fire_[a-z0-9]{1,8}')
+RESOURCE_NAME = re.compile(r'[a-z0-9_]{1,16}\.[a-z0-9]{3}')     # a longer name is cut short in the archive and overrides nothing
 KEEP, BRIGHT = 3, 215                            # flash frames kept of a firing burst; the grey level that counts as flash
 STALL = 0.5                                      # a burst that took no picture for this long may have missed the flash
 CURRENT = 'GetLocalString(GetModule(),"ITK_ITEM")'
@@ -230,19 +231,17 @@ def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
     require(not resources or extra, f'No files in {resources}')
     require(len({path.name.lower() for path in extra}) == len(extra) and 'baseitems.2da' not in {path.name.lower() for path in extra},
             'Session resources are named once each, and the base-item table is merged from the fixtures')
+    odd = [path.name for path in extra if not RESOURCE_NAME.fullmatch(path.name.lower())]
+    require(not odd, f'Not resource file names (16 characters, then a type): {odd}')
     require(len({row['item'] for row in items}) == len(items), 'Two fixtures review the same blueprint')
     require(len({row['slot'] for row in items}) == 1, 'A session holds items of one hand: build shields in their own session')
     require(len({row['previous'] for row in items}) == 1, 'The fixtures come from different templates')
-    session.mkdir(parents=True); staged = session/'module-resources'; staged.mkdir()
-    user = session/'userdir'; (user/'hak').mkdir(parents=True); (user/'modules').mkdir(); (user/'override').mkdir()
-    tools = Tools(repo, nwn_root); first = items[0]
-    tools.run('erf', '-x', '-f', first['module']['path'], cwd=staged)
-    for row in items[1:]:
+    # Everything that can refuse the fixtures is checked before the session folder is made: a refused build leaves nothing.
+    blueprints = {}
+    for row in items:
         for (resref, kind), body in row['resources'].items():
-            if kind != TYPES['uti']: continue
-            target = staged/f'{resref}.uti'
-            require(not target.exists() or target.read_bytes() == body, f'Two fixtures carry different blueprints named {resref}')
-            target.write_bytes(body)
+            if kind == TYPES['uti']:
+                require(blueprints.setdefault(resref, body) == body, f'Two fixtures carry different blueprints named {resref}')
     # HAKs by name: the shared packs once, then every item's own. The same name must be the same bytes.
     order, bound = [], {}
     for row in items:
@@ -254,12 +253,17 @@ def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
         archive = read_erf(bound[row['hak']]['path']); row['carrier'] = carrier(row, archive)
         row['baseitems'] = archive.get(('baseitems', TYPES['2da'])); row['fire'] = fire.get(row['item'], FIRE_CLIPS.get(row['carrier'], ''))
     tables = [(row['carrier'], row['baseitems']) for row in items if row['baseitems'] is not None]
+    merged = merged_baseitems(tables) if len({body for _, body in tables}) > 1 else None
+    require(not (merged or extra) or SESSION_HAK not in order, 'A fixture HAK already has the session HAK name')
+    session.mkdir(parents=True); staged = session/'module-resources'; staged.mkdir()
+    user = session/'userdir'; (user/'hak').mkdir(parents=True); (user/'modules').mkdir(); (user/'override').mkdir()
+    tools = Tools(repo, nwn_root); first = items[0]
+    tools.run('erf', '-x', '-f', first['module']['path'], cwd=staged)
+    for resref, body in blueprints.items(): (staged/f'{resref}.uti').write_bytes(body)
     with tempfile.TemporaryDirectory() as work:
-        merge = len({body for _, body in tables}) > 1
-        if merge or extra:
-            require(SESSION_HAK not in order, 'A fixture HAK already has the session HAK name')
+        if merged or extra:
             folder = Path(work)/'hak'; folder.mkdir()
-            if merge: (folder/'baseitems.2da').write_bytes(merged_baseitems(tables))
+            if merged: (folder/'baseitems.2da').write_bytes(merged)
             for path in extra: link_or_copy(path, folder/path.name.lower())
             tools.run('erf', '-c', '-e', 'HAK', '-f', user/'hak'/f'{SESSION_HAK}.hak', folder)
             order.insert(0, SESSION_HAK)        # the first HAK of the list wins a shared resource
@@ -318,11 +322,11 @@ def fire_burst(client, process, user, folder, row, previous_read, hold=FIRE_HOLD
         score = bright(image); least = score if least is None else min(least, score); taken += 1
         kept = sorted(kept + [(score, -taken, image)], key=lambda entry: entry[:2], reverse=True)[:KEEP]
     late = time.monotonic() > previous_read + hold
+    newest = cc.shot_rows(client.log_lines(user, cc.PREFIX))[-1]['shot']      # before the pictures are written, as file_shots does
     order = [kept[at] for at in (1, 0, 2) if at < len(kept)] if len(kept) > 1 else kept      # the best is frame 1
     names = []
     for frame, (_, _, image) in enumerate(order):
         name = f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"; client.save(image, Path(folder)/name); names.append(name)
-    newest = cc.shot_rows(client.log_lines(user, cc.PREFIX))[-1]['shot']
     rejected = ('next shot began' if newest != row['shot'] else 'burst overran the shot hold' if late else
                 'burst stalled' if gap > STALL or not kept else None)
     return {**row, 'body': body, 'captures': names, 'pictures': taken, 'longestGap': round(gap, 2), 'flash': kept[0][0] - least if kept else 0,
@@ -375,9 +379,7 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
                 fired = []          # this read's shots of the current item, in order; only the last can still be on screen
                 for line in lines[seen:]:
                     if line.startswith(ITEM_LINE) or line.startswith(ITEM_DONE) or line.startswith(SESSION_DONE):
-                        if current:
-                            # The item moved on within this read: its shots' views are gone.
-                            shots += [{**row, 'body': cc.BODIES.get(row['target']), 'captures': [], 'rejected': 'next shot began'} for row in fired]
+                        if current: shots += cc.passed(fired)       # the item moved on within this read
                         fired = []
                     if line.startswith(ITEM_LINE):
                         current = client.parse_line(line)['item']; shots = []; folder = captures/current
@@ -388,7 +390,7 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
                     elif line.startswith(ITEM_DONE) and current: close(current, True, lines); current = None
                     elif line.startswith(SESSION_DONE): over = True
                 if current and fired and fired[-1]['check'] == FIRE_CHECK:
-                    shots += [{**row, 'body': cc.BODIES.get(row['target']), 'captures': [], 'rejected': 'next shot began'} for row in fired[:-1]]
+                    shots += cc.passed(fired[:-1])
                     shots.append(fire_burst(client, process, user, captures/current, fired[-1], previous_read))
                 elif current and fired:
                     shots += cc.file_shots(client, process, user, captures/current, fired, previous_read, frames, gap, settle, HOLD)
@@ -398,6 +400,7 @@ def capture(session, captures, nwn_root, *, wait=0, only=None, again=False, time
             client.stop(process)
     finally:
         toggle.unlink(missing_ok=True)
+        table.write_bytes(items_table(record['items']))       # every item again, for a look by hand
     log = user/'logs'/'nwclientLog1.txt'
     for row in done:
         if log.is_file(): shutil.copyfile(log, captures/row['item']/'nwclientLog1.txt')
