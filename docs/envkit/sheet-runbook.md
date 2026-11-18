@@ -48,10 +48,19 @@ A building is drawn without its perimeter fence (user, 2026-11-17: "we need to m
 perimeter fences via meshy and add them in post processing"). Every building prompt says to leave out the fence, its
 gate, gate posts and razor wire, and any chain-link, railing or wire standing in front of a wall, and a set whose
 building subject or notes ask for one is refused (a note may say to remove it). The fence is built afterwards: the
-game set's `fence` parts, or fence sections placed in the group. Where the model has no posts the game set builds
-them (`built` bars for posts and rails; the `fence` sheets hang between them), and a built fence is generally topped
-with spiral barbed wire (user, 2026-11-17): a `built` `{"coil": [from, to], "radius": 0.25, "pitch": 0.5}` along each
-run, its axis its radius over the top rail: two strands wound opposite ways, which cross as concertina wire's loops do. The Shiawase Barrens power station was generated with
+game set's `fence` parts, or fence sections placed in the group. State it as a `perimeter` on the model, which builds the posts, rails, chain-link sheets
+and a coil of barbed wire along the top of every run (user, 2026-11-17: "Fences will generally need to be topped with
+spiral barbed wire"):
+
+```
+"perimeter": {"box": [[x0, y0], [x1, y1]], "z": [foot, top], "steel": [x, y, z], "concrete": [x, y, z],
+              "gateways": [{"side": "north", "from": -7.5, "to": -2.5}]}
+```
+
+in metres on the finished model: `steel` and `concrete` are points of the model whose colour the fence and the
+gateway posts take, a gateway is an opening in the north, east, south or west side between two places along it, and
+`"coil": false` leaves the wire off. `built` bars and coils and `fence` sheets can still be stated one by one, for a
+fence that is no rectangle. The Shiawase Barrens power station was generated with
 its fence in both views: the fence came back as open frames, its chain-link printed on the rear wall, the transformers
 and the roller door, and the surface behind its razor wire smudged. Look at each chosen building reference for a fence
 before selecting it.
@@ -166,7 +175,8 @@ again at 9.55 (2 by 2). A `--probe` box tells what of the model it holds, for a 
 A group is built many times while its fence, lit boxes and path nodes are settled. What a build works out from the
 model alone (the map of its places, the winding of its faces, how it is squared up) and every compressed map are
 kept in ignored `output/envkit/cache` and read back by the next build of the same model: the power station's
-build fell from 197 seconds to 35, to the same bytes. `ENVKIT_NO_CACHE=1` works everything out anew.
+build fell from 197 seconds to 35, to the same bytes, and a first build to 115 (the map of places is drawn many
+faces at a time and the maps are compressed four at a time). `ENVKIT_NO_CACHE=1` works everything out anew.
 
 `envkit tiles` notes raised ground (a slab, a deck) of a tile that is reached only across the line from the next
 tile: a planned walk has not crossed there (see the troubleshooting row on fenced yards). Act on the note before
@@ -271,7 +281,11 @@ Both read the packs, so they follow step 5. `group` lays the pack's tile numbers
 refuses where the pack holds another build: a building built again is installed again first. `walk` also takes the
 day's views once its walkers have arrived, so one run of the client checks both, and `day` alone is seldom needed. A
 view captured after its shot had passed is taken again once, in a second short run (`retake-<label>.png`), and the
-check is refused only if it is late again; a walk is judged by its log, so a late picture of a walker refuses nothing. `near` frees the
+check is refused only if it is late again; a walk is judged by its log, so a late picture of a walker refuses nothing.
+One run is about a minute of starting and stopping the client and eight seconds a shot; a run that takes much longer
+is waiting for another session's client to close or stalling under another session's GPU work (the power station's
+runs took 6 to 11 minutes while the head batch's geometry jobs ran). Day, night and both tilesets in one start of the
+client would save two minutes of twenty and were not built. `near` frees the
 player to show which storeys the client hides; `night` also puts out every lit model of the group, its own and its
 parts', and brings them back (`out`, `out-behind`, `lit-again`). `walk` sends walkers from the far corners of the
 area to the door, to each side of the building and onto the ground a walk must go furthest round to reach (a fenced
