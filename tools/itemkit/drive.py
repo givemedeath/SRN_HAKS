@@ -201,8 +201,12 @@ class Driver:
         if stage in ('geometry', 'appearance'):
             # The same workflow and seeds return the same result byte for byte (Defiance T-250 a2, 2026-11-17: an attempt
             # spent for nothing). Refused after the free request and before the submit that the ledger counts.
+            new = workflow_key(read(run/'request'))
+            def repeats(earlier):
+                try: return workflow_key(read(earlier)) == new
+                except (KeyError, OSError, ValueError): return False       # an unreadable earlier request proves no repeat
             same = [p.parent.name for p in sorted((self.ws.items/design).glob(f'{stage}-*/request'))
-                    if p.parent != run and (p.parent/'job/submission.json').exists() and workflow_key(read(p)) == workflow_key(read(run/'request'))]
+                    if p.parent != run and (p.parent/'job/submission.json').exists() and repeats(p)]
             if same: raise SystemExit(f'{design} {stage}-{attempt} repeats the workflow and seeds of {", ".join(same)} and would return the same result: '
                                       "set geometrySeedOffset in a new manifest or change the reference (geometry); use textured --appearance-seed (appearance)")
         # submit waits in headkit.shared_comfy.slot for the GPU lease and an idle queue, before any ledger record.
@@ -840,7 +844,8 @@ def main(argv=None):
         if a.command not in ('publish', 'screen', 'patch-measure', 'patch-add', 'opening-probes', 'retire-contracts'): raise
         raise SystemExit(f'{a.command}: {error}')
     print(json.dumps(result, indent=1, default=str))
-    return 0
+    # A chain that stopped at its donor screen or failed after it reports that in its result: the exit code says so too.
+    return 1 if a.command == 'chain' and isinstance(result, dict) and result.get('failed') else 0
 
 
 if __name__ == '__main__':

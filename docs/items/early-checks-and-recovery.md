@@ -230,7 +230,7 @@ in the runner and the driver now avoid that. None of them changes a gate.
 - **A patched manifest keeps the earlier stages.** Each stage receipt records `stageManifestHash`: for the stages before
   the bake that is the manifest without `processing.missCorrection`, which only the bake reads. `patch-add` then calls
   `adopt` (`drive adopt ID SUFFIX SOURCE_SUFFIX`, `run_itemkit.py adopt`): the new run's state names the source run's
-  approved fit, reduce, unwrap and finish receipts and reviews, and writes `adopted.json`. Nothing is copied. Each
+  approved fit, reduce, unwrap and finish receipts and reviews, and writes `adopted.json`. Nothing is copied, so a source run named in `adopted.json` (and any run that one adopted from) must stay on disk for as long as the adopting run is used: check `adopted.json` before deleting a superseded run. Each
   adopted receipt is verified on every use exactly like the run's own (bytes, bindings, code version, parents), and
   the reduce stage's one use of the policy, that a patch names the reduced geometry, is checked again against that
   receipt. Any other manifest difference, an unapproved stage or an older receipt without the field adopts nothing

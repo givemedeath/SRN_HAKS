@@ -128,7 +128,7 @@ def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *
             # The other direction is recorded for the visual review, not gated: a shadow simplifies by design, but a
             # large gap points at a fin or spike the collapse removed.
             gap=float(np.sqrt(igl.point_mesh_squared_distance(p,v,t)[0]).max());row['sourceToShadowDistance']=gap
-            opening=protected_checks(v,t,processing)
+            opening=protected_checks(v,t,processing,'shadow')
             accepted=(v,t,report,opening,distance,surface,gap);break
         except ValueError as exc:row['error']=str(exc)
     if diagnostics is not None:write(diagnostics/'attempts.json',attempts,fresh=True)
@@ -285,7 +285,7 @@ def silhouette_proxy(vertices, faces, processing, budget, settings, *, diagnosti
         try:
             require(len(faces)<=budget and report['closedWound'],'Invalid shadow topology/budget')
             world=vertices@basis.T+origin
-            opening=protected_checks(world,faces,processing)
+            opening=protected_checks(world,faces,processing,'shadow')
             check=Image.new('1',(resolution,resolution));d=ImageDraw.Draw(check)
             for tri in points[triangles]:d.polygon([tuple(v) for v in tri],fill=1)
             silhouette=np.asarray(check);iou=float(np.count_nonzero(silhouette&mask)/np.count_nonzero(silhouette|mask));row['sideSilhouetteIoU']=iou

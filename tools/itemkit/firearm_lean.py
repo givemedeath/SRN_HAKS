@@ -96,6 +96,9 @@ def straightened_model(text, pivot=(0, 0, 0)):
     shadow too) take the same turn. Returns (text, record); the record's matrix moves hand-placed points with it."""
     import re
     blocks = list(re.finditer(r'(?m)^(\s*)verts\s+(\d+)[^\n]*\n', text)); require(blocks, 'No mesh to straighten')
+    # Only vertex rows are turned: a mesh node set off from the origin, or an emitter already placed, would stay behind.
+    placed = [m[0].strip() for m in re.finditer(r'(?m)^\s*(?:position|orientation)\s+([^\n]+)', text) if any(float(v) for v in m[1].split())]
+    require(not placed, 'Only a model whose nodes all sit at the origin is straightened; this one places a node: ' + (placed or [''])[0])
     def rows(match, count): return text[match.end():].split('\n', count)[:count]
     first = blocks[0]; vertices = np.array([[float(v) for v in row.split()[:3]] for row in rows(first, int(first[2]))])
     faces = re.search(r'(?m)^\s*faces\s+(\d+)[^\n]*\n', text[first.end():]); start = first.end() + faces.end()

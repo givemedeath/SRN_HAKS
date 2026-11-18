@@ -90,3 +90,5 @@ class StraightenTests(unittest.TestCase):
             moved = read(done, 0); pivot = np.array(record['pivot'])
             np.testing.assert_allclose(moved[:len(leaning)], (leaning - pivot) @ np.array(record['matrix']).T + pivot, atol=1e-6)
             np.testing.assert_allclose(moved[len(leaning):], moved[:8], atol=1e-6)            # the shadow went with it
+            placed = text.replace(f'donemodel g{ending}', f'node emitter flash{ending}  position 0 0.1 -0.3{ending}endnode{ending}donemodel g{ending}')
+            with self.assertRaisesRegex(ValueError, 'places a node'): straightened_model(placed, (0, -.016, 0))   # it would stay behind

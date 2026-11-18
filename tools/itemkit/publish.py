@@ -60,8 +60,9 @@ PAIRS_INCLUDE = 'sw_pairs.nss'
 SCRIPTS = ('c.nss', 'sw_review.nss', 'sw2_enter.nss')
 EXT = {3: 'tga', 2002: 'mdl', 2022: 'txi', 2025: 'uti', 2033: 'dds'}      # dds: the BioWare DDS twins of the package's TGAs; txi: a reflection-masked diffuse's environment map
 TYPE = {v: k for k, v in EXT.items()}
-# The ammunition a firearm reviewer holds, by carrier base item: (the name in the equip script, blueprint, slot).
-FIREARM_AMMO = {61: ('bullets', 'nw_wambu001', 'INVENTORY_SLOT_BULLETS'), 6: ('bolts', 'nw_wambo001', 'INVENTORY_SLOT_BOLTS')}
+# The ammunition a firearm reviewer holds, by carrier base item: the variable sw2_enter.nss's Equip() creates it in.
+# The script owns the ammunition blueprint and slot; publishing only adds the new blueprint to that line's condition.
+FIREARM_AMMO = {61: 'bullets', 6: 'bolts'}
 FIREARM_EFFECTS = 'docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips)'
 GROUP_SIZE = 5                 # reviewer tags end in one digit 0-4 (sw<N>_m<i>)
 # Reviewer rows of the comparison area, (male y, female y): the southern row (sw3_ to sw7_), then the sw1_ and sw2_
@@ -201,6 +202,7 @@ def survey_firearm(item, run):
     fields = crm.parse_gff(uti); prefix = native['allocation']['itemClass']
     require(fields.get('BaseItem') == native['baseItem'], f'{item}: blueprint base item {fields.get("BaseItem")} != package {native["baseItem"]}')
     parts = [fields.get(f'ModelPart{i}') for i in (1, 2, 3)]
+    require(all(type(number) is int for number in parts), f'{item}: blueprint {blueprint} lacks a ModelPart field: {parts}')
     missing = [f'{prefix}_{slot}_{number:03}' for slot, number in zip('bmt', parts) if (f'{prefix}_{slot}_{number:03}', 2002) not in resources]
     require(not missing, f'{item}: the blueprint shows models the package does not carry: {missing}')
     package = Package(item, run, native['identity']['displayName'], blueprint, native['baseItem'], max(parts), hak, module,
@@ -405,7 +407,7 @@ def enter_script(text, pairs, total):
     for p in pairs:
         if not p['package'].firearm: continue
         # Equip() hands out ammunition by blueprint name: add this one to its carrier's condition.
-        kind = FIREARM_AMMO[p['package'].base_item][0]
+        kind = FIREARM_AMMO[p['package'].base_item]
         text, count = re.subn(r'(name=="[^"]+")(\) \{object ' + kind + '=)', lambda m: f'{m[1]}||name=="{p["package"].blueprint}"{m[2]}', text)
         require(count == 1, f'sw2_enter.nss: the line that hands out {kind} was not found once')
     text, count = re.subn(r'SendMessageToPC\(pc,"[A-Za-z-]+ weapon/finish NPC pairs',

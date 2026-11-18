@@ -56,9 +56,10 @@ def nwn_dds(tga, target, compression='DXT5', *, crunch=None):
 
 def package_names_ok(names, twins):
     """Models, TGAs and, for a preparation made with nwn_dds (`twins`), exactly one DDS twin per TGA; an earlier
-    preparation has no DDS."""
+    preparation has no DDS. A TXI belongs to a TGA of its own name (reflection_txi)."""
     stems = lambda suffix: {Path(n).stem for n in names if Path(n).suffix == suffix}
-    return all(Path(n).suffix in ('.mdl', '.tga', '.dds') for n in names) and stems('.dds') == (stems('.tga') if twins else set())
+    return (all(Path(n).suffix in ('.mdl', '.tga', '.dds', '.txi') for n in names) and stems('.dds') == (stems('.tga') if twins else set())
+            and stems('.txi') <= stems('.tga'))
 
 
 def archive_helpers():

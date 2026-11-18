@@ -43,6 +43,10 @@ class FirearmSurveyTests(unittest.TestCase):
             (run/'native/srgunh.hak').write_bytes(hak); native['hak']['sha256'] = hashlib.sha256(hak).hexdigest()
             (run/'native/native.json').write_text(json.dumps(native))
             with self.assertRaisesRegex(P.PublishError, 'does not carry'): P.survey('pistol', run)
+            hak = erf(b'HAK ', {('srgun_6', 2025): gff(b'UTI ', [('BaseItem', 4, 61), ('ModelPart1', 0, 76)])})
+            (run/'native/srgunh.hak').write_bytes(hak); native['hak']['sha256'] = hashlib.sha256(hak).hexdigest()
+            (run/'native/native.json').write_text(json.dumps(native))
+            with self.assertRaisesRegex(P.PublishError, 'lacks a ModelPart'): P.survey('pistol', run)
 
     def test_a_firearm_is_planned_and_its_carrier_row_reaches_the_shown_part(self):
         with tempfile.TemporaryDirectory() as folder:

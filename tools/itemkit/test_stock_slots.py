@@ -158,6 +158,8 @@ class PackageNamesTests(unittest.TestCase):
         self.assertTrue(package_names_ok(old, False)); self.assertTrue(package_names_ok(new, True))
         self.assertFalse(package_names_ok(old, True)); self.assertFalse(package_names_ok(new, False))
         self.assertFalse(package_names_ok(new + ['iwswls_m_101.dds'], True)); self.assertFalse(package_names_ok(new + ['x.mtr'], True))
+        tga = next(n for n in new if n.endswith('.tga'))        # a reflection-masked diffuse ships its TXI; a TXI alone does not
+        self.assertTrue(package_names_ok(new + [tga[:-4] + '.txi'], True)); self.assertFalse(package_names_ok(new + ['other.txi'], True))
 
 
 class DriverFlagTests(unittest.TestCase):
