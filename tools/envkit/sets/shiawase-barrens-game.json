@@ -241,7 +241,7 @@
        236,
        196
       ],
-      "radius": 12
+      "radius": 10
      },
      {
       "part": "transformer floodlight",
@@ -255,7 +255,7 @@
        236,
        196
       ],
-      "radius": 12
+      "radius": 10
      },
      {
       "part": "east floodlight",
@@ -269,7 +269,7 @@
        236,
        196
       ],
-      "radius": 12
+      "radius": 10
      },
      {
       "part": "roof floodlight over the roller door",
@@ -283,7 +283,7 @@
        236,
        196
       ],
-      "radius": 12
+      "radius": 10
      },
      {
       "part": "roof floodlight at the back",
@@ -297,7 +297,7 @@
        236,
        196
       ],
-      "radius": 12
+      "radius": 10
      }
     ]
    },
@@ -569,7 +569,52 @@
     "label": "Shiawase Barrens, Station Wall Sign",
     "sound": 27,
     "category": 156
-   }
+   },
+   "paint": [
+    {
+     "part": "back of the sign, drawn with the front's lettering mirrored",
+     "box": [
+      [
+       -1.2,
+       -0.05,
+       1.55
+      ],
+      [
+       1.2,
+       -0.004,
+       3.05
+      ]
+     ],
+     "colour": [
+      124,
+      118,
+      110
+     ]
+    }
+   ],
+   "smooth": [
+    {
+     "part": "back of the sign, its relief levelled",
+     "box": [
+      [
+       -1.2,
+       -0.05,
+       1.55
+      ],
+      [
+       1.2,
+       -0.004,
+       3.05
+      ]
+     ],
+     "radius": 0.1,
+     "colour": [
+      124,
+      118,
+      110
+     ]
+    }
+   ]
   },
   "ek_sb_battery": {
    "source": "meshy/models/sb-battery-bank-a1",

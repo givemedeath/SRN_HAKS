@@ -635,7 +635,9 @@ def path_nodes(found, rows, columns, stated=None, *, unplanned=False):
 
 def _daylight(name, halos):
     """The four animations the game plays on a tile as the hour turns, with the halo sheets clear by day and full by
-    night. Lengths and the quarter-second blend are the stock city tiles'."""
+    night. Lengths and the quarter-second blend are the stock city tiles'. A lamp's light is not keyed here: colour
+    and multiplier keys on its node changed nothing by day in the client (2026-11-18), a tile's lighting being worked
+    out when the area loads, so it shines by day as a coloured main light does."""
     lines = []
     for anim, (start, finish, length) in {'day': (0, 0, 1 / 30), 'day2night': (0, 1, 0.56667), 'night': (1, 1, 1 / 30), 'night2day': (1, 0, 0.6)}.items():
         lines += [f'newanim {anim} {name}', f'  length {length:.5f}', '  transtime 0.25', f'  animroot {name}', f'  node dummy {name}', '    parent NULL', '  endnode']
@@ -675,7 +677,7 @@ def _level_cut(card, height, light=None):
     return [([card[0], card[1], right, left], False), ([left, right, card[2], card[3]], True)]
 
 
-LAMP_MULTIPLIER = 3  # how strong a lamp's own light is: at 1, seven metres up, it hardly showed on the ground (client, 2026-11-18)
+LAMP_MULTIPLIER = 2  # how strong a lamp's own light is: at 1, seven metres up, it hardly showed on the ground, and at 3 over 12 metres it washed the ground pale by day (client, 2026-11-18)
 
 
 def model_text(name, parts, material, ground, cards, walk, *, lights=(), lamps=(), fade=None, cap=(), card_light=None, card_bitmaps=None):

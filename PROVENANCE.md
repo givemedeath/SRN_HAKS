@@ -1503,9 +1503,10 @@ smear?"): each was cut into pieces and drawn with the sound surface of its own p
 of 0.26 square metres low on the slab's front edge found none and is as generated. The five floodlight heads (three
 on poles, two on the roof) came back with their lenses drawn dark and stayed dark at night (user, 2026-11-18: "the
 tower lights on the tile group aren't lit", "those lamp heads need actual lights"): the faces of each head that look
-downward were painted a warm white and lit, and each head has a light of its own in its tile (warm white, 12 metres),
-lit without a builder colouring a main light. A script that puts the group's lights out darkens the lenses and leaves
-these five lights on. Nothing else was retouched. The
+downward were painted a warm white and lit, and each head has a light of its own in its tile (warm white, 10 metres),
+lit without a builder colouring a main light, by day as well as by night. A script that puts the group's lights out
+darkens the lenses and leaves these five lights on: nothing was found that puts a tile's own light out. The face of
+0.26 square metres named above looks into the slab and is not seen. Nothing else was retouched. The
 mesh (198,529 triangles with the fence) was shared out over
 four tiles (17,689 to 84,311 faces each) with a ground square, a map picture and two main lights each; what stands
 above 4.2 metres carries `tilefade`; and a walkmesh was generated from its shape (402 to 1,720 faces a tile, where
@@ -1520,10 +1521,11 @@ four sides, the corners and at the door (over two runs: the client stalled in ea
 view from above was late in both and is not kept); by night, where the lit parts were lit, put out by script and
 brought back; and with walkers in both tilesets sent from the far corners to the door, the roller door, both halves
 of the yard, a corner of it and each side of the building, and from the next tile onto the yard: all arrived. On
-2026-11-18 the build with the round fence posts and the redrawn faces was checked again by day and with the same
-walkers in both tilesets (all arrived). The lamp lights came after it and changed the picture and the tiles' light
-nodes only; that build was checked by night in Modern Exterior, where the five lamp heads glow and light the yard and
-the roof round them, and was not walked again.
+2026-11-18 the build as it ships, with the round fence posts, the redrawn faces and the lamp lights, was checked
+again: by day and with the same walkers in both tilesets (all arrived, every view on time), and by night in Modern
+Exterior, where the five lamp heads glow and light the yard and the roof round them. The round gap seen in the fence
+nearest the camera in close views is the client's own: it stands at the same place on the screen in views of
+different parts of the fence.
 
 Painted in the Toolset on 2026-11-18 from the built packs, in two user folders: straight in Modern Exterior and a
 quarter turn in Suburbs in the first, a half turn in Modern Exterior and straight in Suburbs in the second. Each
@@ -1553,7 +1555,8 @@ third-party mesh or texture was used. The station's name and the wording of its 
 
 Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
 scaled to a stated height, and its textures were recompressed. The wall sign hangs 1.6 metres up; it is one sheet,
-and its back shows its lettering mirrored, as it came. The switchgear cabinet came back with two wedges of its front
+and its back came with the front's lettering mirrored: the back half of the sheet was painted a plain steel grey and
+its relief levelled, and the lettering stays as a faint stamped outline in the mesh. The switchgear cabinet came back with two wedges of its front
 wound inside out, dark holes in the client, and has a back to every face. Three props have a glow map for their lit
 parts and a lights-out material (`<name>_o`) as `docs/envkit/lights.md` describes: the switchgear cabinet's three
 indicator panels, the battery bank's two green charge lights and its amber one, and the amber lamp over the bulkhead

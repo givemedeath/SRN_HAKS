@@ -672,9 +672,12 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   [0, 0, -1]` takes only the faces that look within 60 degrees of that way, the lens and the head's underside and
   not its housing. Then give the head a light: `tiles.lamps`, `[{"part", "at": [x, y, z], "colour": [r, g, b],
   "radius": metres}]` on the finished model, is a light node of that colour in the tile the place lies in
-  (`<tile>_lamp<n>`, three times a main light's strength: at one it hardly showed from seven metres up). A tile's two
-  main lights stay dark until a builder colours them; a lamp's own light is on wherever the group is painted, and a
-  script that puts the group's lights out does not reach it. Look for every head, roof gear included, before stating
+  (`<tile>_lamp<n>`, twice a main light's strength: at one it hardly showed from seven metres up, and at three over
+  12 metres it washed the ground pale by day). A tile's two main lights stay dark until a builder colours them, as
+  the Toolset leaves every light of a tile it paints at 0; a lamp's own light is on wherever the group is painted,
+  by day as well as by night, as a coloured main light is. Nothing puts it out: colour and multiplier keys on its
+  node in the tile's day animation changed nothing in the client, a script that puts the group's lights out swaps
+  pictures and does not reach it, and as a source light it would be dark until a builder coloured it. Look for every head, roof gear included, before stating
   them: two of the five were on the roof and had no lit part. See it in `check group --mode night`: the ground
   under each head lit in the lamp's colour.
 - **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
