@@ -36,7 +36,8 @@ Revision 3 adds the authoring routes and time savers and redoes the desk-time ta
 | Fact | Value |
 |---|---|
 | `dgt04.set` | 22 terrains, 14 crossers, 556 tiles (555 models), 68 groups |
-| Edge tiles (`srn_2da/dgt04_edge.2da`) | 155 rows naming 60 models; 43 are not in the set; 9 of those are base-game models |
+| Edge tiles (`srn_2da/dgt04_edge.2da`) | 129 rows naming 60 models; 43 are not in the set. Nine of those are in no pack: three are base-game (`tcn01_z*`), six are absent upstream (8 rows; known, `docs/imports/mdrnee_tile-deferred-work.md`) |
+| Tracked inventory | `docs/tilesets/dgt04/` (`inventory.json`, `textures.csv`, `walkmesh.json`), written by `python -m tools.tilekit inventory --tileset dgt04 --out docs/tilesets/dgt04` |
 | Models in scope | 467 ASCII: 433 set tiles (428 original + 5 arcology `srt04_*`) and 34 edge tiles |
 | Envkit tiles (`ek_*`) | 122 compiled models with their own materials; out of scope, and the look to match |
 | Textures on rendered faces | 224, over about 224,000 m² of surface |

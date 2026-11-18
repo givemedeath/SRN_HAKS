@@ -5634,6 +5634,15 @@
     ],
     "tools/test_test_impact.py": [
       "tools/test_impact.py"
+    ],
+    "tools/tilekit/__init__.py": [],
+    "tools/tilekit/__main__.py": [
+      "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/inventory.py": [],
+    "tools/tilekit/test_inventory.py": [
+      "tools/tilekit/__main__.py",
+      "tools/tilekit/inventory.py"
     ]
   },
   "unresolved": [],
@@ -5833,6 +5842,15 @@
       "srn_body",
       "srn_body_tex",
       "srn_weapon"
+    ],
+    "tools/tilekit/inventory.py": [
+      "srn_2da",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_inventory.py": [
+      "srn_2da",
+      "srn_placeable",
+      "srn_t_common"
     ]
   },
   "tests": [
@@ -6150,6 +6168,7 @@
     "tools/test_combat_release_manifest.py",
     "tools/test_hak_copies.py",
     "tools/test_shared_tools.py",
-    "tools/test_test_impact.py"
+    "tools/test_test_impact.py",
+    "tools/tilekit/test_inventory.py"
   ]
 }
