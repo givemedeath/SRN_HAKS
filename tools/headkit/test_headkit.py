@@ -1074,7 +1074,13 @@ class MeshTests(Temporary):
         for value,outward,policy in ((.02,.003,{}),(.009,.005,{}),(.009,.003,False),(.009,.003,{'maximumError':.008})):
             with self.subTest(value=value,outward=outward,policy=policy):
                 deep=error.copy();deep[strands]=value;self.assertFalse(fine_relief(p,f,deep,outward,.004,policy)['passed'])
-        for bad in ({'maximumExtent':.05},{'other':.01},{'maximumError':0},True):
+        # a long shallow braid groove (Copperleaf, 2026-11-18) passes only under a per-head extent bound; deeper than the error bound fails
+        groove=error.copy();groove[np.linalg.norm(p-p[0],axis=1)<.028*diagonal]=.009
+        self.assertFalse(fine_relief(p,f,groove,.003,.004,{})['passed'])
+        wide={'maximumExtent':.06,'maximumAreaShare':.0075}  # Copperleaf's reviewed bounds; the strands above add to the area share
+        long=fine_relief(p,f,groove,.003,.004,wide);self.assertTrue(long['passed']);self.assertGreater(long['measured']['extent'],.03)
+        groove[groove>.004]=.02;self.assertFalse(fine_relief(p,f,groove,.003,.004,wide)['passed'])
+        for bad in ({'maximumExtent':.07},{'other':.01},{'maximumError':0},True):
             with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'fineRelief'):fine_relief(p,f,error,.003,.004,bad)
     def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
         from headkit import neck as mesh_module

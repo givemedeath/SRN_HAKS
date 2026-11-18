@@ -575,8 +575,10 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
 # (extent), shallow (error) and rare (area share), all relative to the master diagonal. On race heads v1 every reduction
 # failure was hair-strand relief (<=11 vertices, extent <=1.1%, error <=1.16%, area <=0.17%; reduced->master <=0.29%);
 # a flattened tusk or horn is several % long and deep and still fails. fineRelief: false keeps the strict maximum.
+# Supported extent 6% (2026-11-18, orc-female-e Copperleaf): braid strand grooves 3.8-5.75% long but at most 1.41% deep, with the
+# user's per-head approval; the depth (error) cap keeps a flattened tusk or horn failing however long the bound.
 FINE_RELIEF={'maximumExtent':.015,'maximumError':.015,'maximumAreaShare':.0025}
-FINE_RELIEF_SUPPORTED={'maximumExtent':.03,'maximumError':.025,'maximumAreaShare':.01}
+FINE_RELIEF_SUPPORTED={'maximumExtent':.06,'maximumError':.025,'maximumAreaShare':.01}
 
 
 def fine_relief(vertices, faces, error, outward, limit, policy):
