@@ -16,6 +16,12 @@ generated sw_pairs.nss selector table), recompiles the module scripts, rebuilds 
 checks every built payload against its source file, refreshes the validation records and regenerates the combat
 release manifest. --dry-run surveys and prints the plan without writing anything.
 
+A firearm is published from its package folder (firearm-package-*: native/native.json, its HAK and
+fixture/userdir/modules/*.mod). Its reviewers are given the carrier's ammunition (FIREARM_AMMO). --effects ITEM=DIR
+replaces the package's models that DIR holds under the same names with their firing-effect builds (binary, the package
+model plus the srn_flash/srn_casing emitters and fire clips); the record keeps the package model's hash as
+preEffectsSha256.
+
 Publishing grants no production acceptance. The user's own words go in --statement; the client-review sentence in --review.
 """
 import argparse
@@ -54,6 +60,9 @@ PAIRS_INCLUDE = 'sw_pairs.nss'
 SCRIPTS = ('c.nss', 'sw_review.nss', 'sw2_enter.nss')
 EXT = {3: 'tga', 2002: 'mdl', 2022: 'txi', 2025: 'uti', 2033: 'dds'}      # dds: the BioWare DDS twins of the package's TGAs; txi: a reflection-masked diffuse's environment map
 TYPE = {v: k for k, v in EXT.items()}
+# The ammunition a firearm reviewer holds, by carrier base item: (the name in the equip script, blueprint, slot).
+FIREARM_AMMO = {61: ('bullets', 'nw_wambu001', 'INVENTORY_SLOT_BULLETS'), 6: ('bolts', 'nw_wambo001', 'INVENTORY_SLOT_BOLTS')}
+FIREARM_EFFECTS = 'docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips)'
 GROUP_SIZE = 5                 # reviewer tags end in one digit 0-4 (sw<N>_m<i>)
 # Reviewer rows of the comparison area, (male y, female y): the southern row (sw3_ to sw7_), then the sw1_ and sw2_
 # rows, which hold five pairs each and have room for more. New groups fill them in this order (user, 2026-11-13:
@@ -126,6 +135,8 @@ class Package:
     files: dict = field(default_factory=dict)     # srn_weapon file name -> (bytes, source archive)
     replaces_stock: list = field(default_factory=list)   # base-game names the contract's stock slot overrides
     archives: dict = field(default_factory=dict)  # source archive name -> sha256, hashed once by survey
+    firearm: bool = False                         # published from a firearm package; its reviewers hold ammunition
+    effects: dict = field(default_factory=dict)   # file name -> the firing-effect build that ships in its place
 
 
 def one(paths, what):
@@ -137,6 +148,7 @@ def one(paths, what):
 def survey(item, run):
     """The approved package of one run: verified HAK, its resources and the blueprint from the fixture module."""
     run = Path(run)
+    if (run/'native/native.json').is_file(): return survey_firearm(item, run)
     native_path = one(run.glob('native/attempt-*/native/native.json'), f'native.json under {run}')
     native = json.loads(native_path.read_text(encoding='utf-8'))
     hak = native_path.parent/Path(native['hak']['path']).name
@@ -169,6 +181,49 @@ def survey(item, run):
     require(not alone, f'{item}: a DDS file is published only as the twin of the package\'s own TGA: {alone}')
     bad = dds_problems({n: body for n, (body, _) in package.files.items()})
     require(not bad, f'{item}: DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
+    return package
+
+
+def survey_firearm(item, run):
+    """The approved firearm package: its verified HAK (the private base-item table left out) and its own blueprint.
+    A firearm shows one part and hides two placeholders, so its three part numbers differ; the highest is the
+    appearance its carrier row must reach."""
+    native = json.loads((run/'native/native.json').read_text(encoding='utf-8'))
+    hak = run/'native'/Path(native['hak']['path']).name
+    require(hak.is_file(), f'{item}: native HAK missing: {hak}')
+    hak_bytes = hak.read_bytes()
+    require(sha(hak_bytes) == native['hak']['sha256'], f'{item}: native HAK missing or changed: {hak}')
+    require(native['baseItem'] in FIREARM_AMMO, f'{item}: no ammunition is known for carrier base item {native["baseItem"]}')
+    module = one(run.glob('fixture/userdir/modules/*.mod'), f'fixture module under {run}')
+    blueprint = native['identity']['blueprint']; resources = read_erf(hak_bytes)
+    uti = resources.get((blueprint, 2025))
+    require(uti is not None, f'{item}: {hak.name} has no blueprint {blueprint}.uti')
+    fields = crm.parse_gff(uti); prefix = native['allocation']['itemClass']
+    require(fields.get('BaseItem') == native['baseItem'], f'{item}: blueprint base item {fields.get("BaseItem")} != package {native["baseItem"]}')
+    parts = [fields.get(f'ModelPart{i}') for i in (1, 2, 3)]
+    missing = [f'{prefix}_{slot}_{number:03}' for slot, number in zip('bmt', parts) if (f'{prefix}_{slot}_{number:03}', 2002) not in resources]
+    require(not missing, f'{item}: the blueprint shows models the package does not carry: {missing}')
+    package = Package(item, run, native['identity']['displayName'], blueprint, native['baseItem'], max(parts), hak, module,
+                      archives={hak.name: sha(hak_bytes)}, firearm=True)
+    for (resref, kind), body in resources.items():
+        if kind == 2017 and resref == 'baseitems': continue         # the package's private table; the release has its own
+        require(kind in EXT, f'{item}: unexpected resource type {kind} in {hak.name}')
+        package.files[f'{resref}.{EXT[kind]}'] = (body, hak.name)
+    alone = sorted(n for n in package.files if n.endswith('.dds') and n[:-4]+'.tga' not in package.files)
+    require(not alone, f'{item}: a DDS file is published only as the twin of the package\'s own TGA: {alone}')
+    bad = dds_problems({n: body for n, (body, _) in package.files.items()})
+    require(not bad, f'{item}: DDS twins that are not sound BioWare DDS copies of their TGA: {bad}')
+    return package
+
+
+def with_effects(package, folder):
+    """Bind the firing-effect builds in `folder` to the package models of the same names."""
+    found = {f.name: f.read_bytes() for f in sorted(Path(folder).glob('*.mdl')) if f.name in package.files}
+    require(package.firearm and found, f'{package.item}: --effects needs a firearm package and a model of its own in {folder}')
+    for name, body in found.items():
+        require(body.startswith(b'\0\0\0\0') and b'srn_flash' in body and b'srp_' not in body,
+                f'{package.item}: {name} is not a compiled firing-effect model')
+    package.effects = found
     return package
 
 
@@ -347,6 +402,12 @@ def enter_script(text, pairs, total):
     require(equips, 'sw2_enter.nss: no reviewer Equip lines were found'); tell = equips[-1] + 1
     lines[tell:tell] = [f'Equip("{p["prefix"]}{s}{p["index"]}","{p["package"].blueprint}",INVENTORY_SLOT_RIGHTHAND,0);' for p in pairs for s in 'mf']
     text = eol.join(lines)
+    for p in pairs:
+        if not p['package'].firearm: continue
+        # Equip() hands out ammunition by blueprint name: add this one to its carrier's condition.
+        kind = FIREARM_AMMO[p['package'].base_item][0]
+        text, count = re.subn(r'(name=="[^"]+")(\) \{object ' + kind + '=)', lambda m: f'{m[1]}||name=="{p["package"].blueprint}"{m[2]}', text)
+        require(count == 1, f'sw2_enter.nss: the line that hands out {kind} was not found once')
     text, count = re.subn(r'SendMessageToPC\(pc,"[A-Za-z-]+ weapon/finish NPC pairs',
                           f'SendMessageToPC(pc,"{number_word(total).capitalize()} weapon/finish NPC pairs', text)
     require(count == 1, 'sw2_enter.nss: the pair-count message was not found once')
@@ -427,9 +488,11 @@ def update_publication(repo, packages, needs, statements, review, policy, overri
         # The record's order: the item's package files by name, then its blueprint.
         replaced = set((overrides or {}).get(p.item, ()))
         for name, (body, archive) in sorted(p.files.items(), key=lambda f: (f[0].endswith('.uti'), f[0])):
+            shipped = p.effects.get(name, body)
             pub['resources'].append({'item': p.item, 'sourceArchive': archive, 'sourceResource': name, 'approvedSourceSha256': sha(body),
-                                     'path': f'{WEAPONS.as_posix()}/{name}', 'sha256': sha(body), 'bytes': len(body),
-                                     'resourceType': TYPE[name.rsplit('.', 1)[1]], **({'replacesStock': True} if name in replaced else {})})
+                                     'path': f'{WEAPONS.as_posix()}/{name}', 'sha256': sha(shipped), 'bytes': len(shipped),
+                                     'resourceType': TYPE[name.rsplit('.', 1)[1]], **({'replacesStock': True} if name in replaced else {}),
+                                     **({'preEffectsSha256': sha(body), 'firearmEffects': FIREARM_EFFECTS} if name in p.effects else {})})
         pub['items'].append({'id': p.item, 'name': p.name, 'blueprints': [p.blueprint], 'sourceArchive': p.hak.name,
                              'status': 'user-approved', 'family': families[p.base_item],
                              **({'replacesStock': p.replaces_stock} if p.replaces_stock else {})})
@@ -453,7 +516,7 @@ def update_publication(repo, packages, needs, statements, review, policy, overri
 
 def update_records(repo, packages, needs, statements, tags, total, today):
     weapons = repo/WEAPONS; built = {}
-    for archive, folder, suffixes in ((repo/BUILT/'srn_weapon.hak', weapons, ('.tga', '.mdl', '.uti', '.dds')),
+    for archive, folder, suffixes in ((repo/BUILT/'srn_weapon.hak', weapons, ('.tga', '.mdl', '.uti', '.dds', '.txi')),
                                       (repo/BUILT/'srn_2da.hak', repo/'srn_2da', ('.2da',)),
                                       (repo/MODULE_BUILT, repo/MODULE, None)):
         if suffixes is None: suffixes = tuple({p.suffix.lower() for p in Path(folder).iterdir() if p.is_file()})
@@ -476,7 +539,9 @@ def update_records(repo, packages, needs, statements, tags, total, today):
         if entry['archive'] in built: entry.update(built[entry['archive']])
     for row, (current, required) in needs.items():
         rv['baseitemTableChanges'].setdefault(str(row), {'MaxRange': [str(current), str(required)]})['MaxRange'][1] = str(required)
-    rv.setdefault('additions', []).append({'date': today, 'items': [p.item for p in packages], 'payloadsByteIdenticalToNativePackages': True,
+    rv.setdefault('additions', []).append({'date': today, 'items': [p.item for p in packages],
+                                           'payloadsByteIdenticalToNativePackages': not any(p.effects for p in packages),
+                                           **({'firingEffectModels': sorted(n for p in packages for n in p.effects)} if any(p.effects for p in packages) else {}),
                                            'rebuiltArchivesPayloadExact': True, 'baseitemTableChanged': bool(needs), 'comparisonReviewers': tags,
                                            'note': 'Published with tools.itemkit.publish. The new comparison reviewers were not run in that module\'s client.'})
     dump(path, rv, ascii_only)
@@ -524,9 +589,9 @@ def plan(repo, items, stock=None):
     _, rows = crm.parse_2da((repo/BASEITEMS).read_text(encoding='latin-1'))
     missing = [p.item for p in packages if p.base_item not in rows]
     require(not missing, f'Base items not in {BASEITEMS.as_posix()}: {missing}')
-    ranged = [p.item for p in packages if rows[p.base_item].get('RangedWeapon', '****') != '****']
-    # The reviewer equip lines are melee lines (right hand, no ammunition); bows and firearms need theirs written by hand.
-    require(not ranged, f'Ranged weapons are not published by this command: {ranged}')
+    ranged = [p.item for p in packages if rows[p.base_item].get('RangedWeapon', '****') != '****' and not p.firearm]
+    # The reviewer equip lines are right-hand lines; a firearm package adds its carrier's ammunition, a bow is written by hand.
+    require(not ranged, f'Ranged weapons other than firearm packages are not published by this command: {ranged}')
     slots = {p.item: rows[p.base_item].get('EquipableSlots', '****') for p in packages}
     left = [item for item, value in slots.items() if value != '****' and not int(value, 16) & 0x10]
     require(not left, f'Items that cannot go in the right hand are not published by this command: {left}')   # 0x10: right hand
@@ -534,7 +599,7 @@ def plan(repo, items, stock=None):
     return packages, maxrange_needs(repo, packages), overrides
 
 
-def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False):
+def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False, effects=None):
     repo = Path(repo).resolve(); today = today or Date.today().isoformat()
     require(statements and all(isinstance(s, str) and s.strip() for s in statements) and isinstance(review, str) and review.strip(),
             "Publishing needs the user's words (--statement) and the review sentence (--review)")
@@ -542,8 +607,13 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
     except ValueError: raise PublishError(f'--date {today} is not a YYYY-MM-DD date') from None
     stock = stock_names(nwn_root) if nwn_root else None
     packages, needs, overrides = plan(repo, items, stock)
+    unknown = sorted(set(effects or {}) - {p.item for p in packages})
+    require(not unknown, f'--effects names items that are not being published: {unknown}')
+    for p in packages:
+        if p.item in (effects or {}): with_effects(p, effects[p.item])
     summary = {'items': [{'id': p.item, 'name': p.name, 'blueprint': p.blueprint, 'baseItem': p.base_item, 'appearance': p.appearance,
-                          'files': sorted(p.files), **({'replacesStock': overrides[p.item]} if p.item in overrides else {})}
+                          'files': sorted(p.files), **({'replacesStock': overrides[p.item]} if p.item in overrides else {}),
+                          **({'firingEffectModels': sorted(p.effects)} if p.effects else {})}
                          for p in packages],
                'maxRange': {str(r): {'before': c, 'after': n} for r, (c, n) in needs.items()},
                'stockCheck': 'checked against the installed KEY indexes' if stock is not None else 'skipped: no --nwn-root'}
@@ -558,9 +628,11 @@ def publish(repo, items, statements, review, nwn_root, today=None, dry_run=False
     restore = snapshot(repo, packages)
     try:
         for p in packages:
-            for name, (body, _) in p.files.items(): (repo/WEAPONS/name).write_bytes(body)
+            for name, (body, _) in p.files.items(): (repo/WEAPONS/name).write_bytes(p.effects.get(name, body))
         if needs: (repo/BASEITEMS).write_bytes(extend_maxrange((repo/BASEITEMS).read_bytes(), needs))
+        fired = [p.name for p in packages if p.effects]
         policy = (f'{", ".join(p.name for p in packages)}: blueprints and resources byte-identical to the approved itemkit packages'
+                  + (f' ({", ".join(fired)}: the shown model ships as its firing-effect build, the package model kept as preEffectsSha256)' if fired else '')
                   + (''.join(f'; row {r} MaxRange {c}->{n}' for r, (c, n) in sorted(needs.items())) if needs else '; no table change')
                   + ''.join(f'; {p.name} replaces base-game {", ".join(overrides[p.item])}' for p in packages if p.item in overrides) + '.')
         update_publication(repo, packages, needs, statements, review, policy, overrides)
@@ -604,9 +676,10 @@ def main(argv=None):
     p.add_argument('--review', help='the client-review sentence for the publication record')
     p.add_argument('--nwn-root', help='NWN:EE install (for the script compiler); not needed with --dry-run')
     p.add_argument('--date'); p.add_argument('--dry-run', action='store_true')
+    p.add_argument('--effects', action='append', default=[], type=parse_item, help="ITEM=DIR of a firearm's compiled firing-effect models")
     a = p.parse_args(argv)
     if not a.dry_run and not a.nwn_root: p.error('--nwn-root is required unless --dry-run')
-    result = publish(REPO, a.items, a.statement, a.review, a.nwn_root, a.date, a.dry_run)
+    result = publish(REPO, a.items, a.statement, a.review, a.nwn_root, a.date, a.dry_run, dict(a.effects))
     print(json.dumps(result, indent=1, default=str))
     return 0
 
