@@ -359,6 +359,10 @@ class ComfyStopTests(unittest.TestCase):
         request = lambda token, seed: {'token': token, 'outputNamespace': 'itemkit', 'prompt': {'3': {'inputs': {'seed': seed, 'prefix': 'itemkit/' + token}}}}
         self.assertEqual(workflow_key(request('aa', 57)), workflow_key(request('bb', 57)))
         self.assertNotEqual(workflow_key(request('aa', 57)), workflow_key(request('bb', 58)))
+        # The workflow names an uploaded image by the token alone: another clay under the same seeds is another job.
+        clay = lambda sha: {**request('aa', 57), 'inputs': [{'path': 'inputs/' + sha + '.png', 'sha256': sha}, {'path': 'tools/x.py', 'sha256': sha}]}
+        self.assertNotEqual(workflow_key(clay('1' * 64)), workflow_key(clay('2' * 64)))
+        self.assertEqual(workflow_key(clay('1' * 64)), workflow_key({**clay('1' * 64), 'inputs': clay('1' * 64)['inputs'][:1]}))    # code pins do not count
         with tempfile.TemporaryDirectory() as tmp:
             items = Path(tmp); first = items/'gun/geometry-a1'; (first/'job').mkdir(parents=True)
             (first/'request').write_bytes(json.dumps(request('aa', 57)).encode()); (first/'job/submission.json').write_bytes(b'{}')

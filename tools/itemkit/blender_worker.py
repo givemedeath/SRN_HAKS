@@ -685,8 +685,8 @@ def bake(cfg, out):
         # pass above is untouched; a texel this pass misses is left for the CPU padding (NaN), as it only feeds a mask.
         source = bpy.data.images.load(cfg['metallic']); source.colorspace_settings.name = 'Non-Color'
         for slot in donor.material_slots:
-            nodes = slot.material.node_tree.nodes; emission = next(n for n in nodes if n.type == 'EMISSION')
-            link = emission.inputs['Color'].links; require(link and link[0].from_node.type == 'TEX_IMAGE', 'The metallic pass needs an image-textured donor')
+            nodes = slot.material.node_tree.nodes; emission = next((n for n in nodes if n.type == 'EMISSION'), None)
+            link = emission.inputs['Color'].links if emission else (); require(link and link[0].from_node.type == 'TEX_IMAGE', 'The metallic pass needs an image-textured donor')
             link[0].from_node.image = source
         second = bpy.data.images.new('item-metallic-4k', width=size, height=size, alpha=False, float_buffer=True)
         second.generated_color = (1, 0, 1, 1); second.colorspace_settings.name = 'Non-Color'; texture.image = second

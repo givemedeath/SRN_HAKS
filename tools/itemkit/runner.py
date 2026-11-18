@@ -50,8 +50,14 @@ def adoption_records(run):
 
 
 def recovery_proofs(run):
-    """Retained proofs of completed bakes in the runs this one adopted stages from, newest first."""
-    found = [proof for source in adoption_records(run) for proof in Path(source['run']).glob('bake/attempt-*/worker/bake-recovery.json')]
+    """Retained proofs of completed bakes in the runs this one adopted stages from, and the runs those adopted from
+    (a second patch adopts the first patch's run, while the bake was retained by the run before it), newest first."""
+    seen, queue, found = set(), [Path(run)], []
+    while queue:
+        for source in adoption_records(queue.pop()):
+            path = Path(source['run'])
+            if path in seen: continue
+            seen.add(path); queue.append(path); found += path.glob('bake/attempt-*/worker/bake-recovery.json')
     return sorted(found, key=lambda proof: proof.stat().st_mtime, reverse=True)
 
 
@@ -168,13 +174,14 @@ class Runner:
         source = Path(source).resolve()
         require(source != self.run and (source/'state.json').exists(), 'Adopt from another run of this item that has a state')
         other = read(source/'state.json'); require(other['id'] == self.data['id'], 'Run belongs to another item')
-        adopted = []
+        adopted = []; version = source_version()
         for stage in BEFORE_BAKE:
             if stage in self.state['stages'] or stage not in other['stages']: continue
             row = other['stages'][stage]; review = other.get('reviews', {}).get(stage)
             try:
                 verify([row]); receipt = read(row['path'])
                 fits = (receipt['state'] == 'complete' and receipt['bindingsHash'] == digest(self.local) and review is not None
+                        and receipt['codeVersion'] == version      # every later use would refuse another version as stale
                         and all(self.state['stages'].get(parent) == expected for parent, expected in receipt['dependencies'].items())
                         and self._stage_view_holds(stage, receipt))
                 if fits:
@@ -391,6 +398,11 @@ class Runner:
                 values['visibleCandidates'] = self.constrained_candidates(parent, folder)
             if stage=='shadow' and self.data.get('processing',{}).get('shadowProxies'):
                 values['shadowCandidates']=parent_result('reduce')['shadowPreflight']
+            if stage == 'bake':
+                # Before Cycles runs: finish_bake reads these only after the bake, when a refusal costs the attempt.
+                from .textures import metal_policy, sharpen_policy
+                for key, policy in (('textureSharpen', sharpen_policy), ('metal', metal_policy)):
+                    if self.data.get('processing', {}).get(key) is not None: policy(self.data['processing'][key])
             proof = self.recoverable_bake(values['scene']) if stage == 'bake' else None
             result = self.worker('recover-bake', folder, **values, recoveryProof=proof) if proof else self.worker(stage, folder, **values)
             if stage=='reduce' and self.data.get('processing',{}).get('shadowProxies'):

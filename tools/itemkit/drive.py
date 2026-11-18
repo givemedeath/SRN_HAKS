@@ -83,11 +83,16 @@ def write_new(path, data):
     path.write_text(json.dumps(data, indent=2), encoding='utf-8'); return path
 
 
+DATA_INPUTS = ('.png', '.jpg', '.jpeg', '.webp', '.glb', '.npz', '.npy', '.latent')     # a request's reference, clay and shape pins
+
+
 def workflow_key(request):
-    """What decides a generation job's output: its workflow with the per-job token and output namespace taken out."""
+    """What decides a generation job's output: its workflow with the per-job token and output namespace taken out, and
+    the content of the images and shapes it uploads (the workflow names them by the token alone)."""
     text = json.dumps(request['prompt'], sort_keys=True)
     for value in (request['token'], str(request['outputNamespace'])): text = text.replace(value, '')
-    return hashlib.sha256(text.encode('utf-8')).hexdigest()
+    data = sorted({row['sha256'] for row in request.get('inputs', ()) if isinstance(row, dict) and str(row.get('path', '')).lower().endswith(DATA_INPUTS)})
+    return hashlib.sha256((text + json.dumps(data)).encode('utf-8')).hexdigest()
 
 
 class Driver:

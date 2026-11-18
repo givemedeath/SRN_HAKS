@@ -79,4 +79,5 @@ class Workspace:
         # As headbatch does: a launch freezes thousands of tool files before and after its run, and so does every
         # Blender worker launch inside a stage. A caller's own setting wins.
         if self.hash_cache: env.setdefault('SRN_LAUNCH_HASH_CACHE', str(self.hash_cache))
+        env[ENVIRONMENT] = str(self.file)       # a driver started from here (the donor screen) works in this workspace, not the default
         return env
