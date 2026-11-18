@@ -17,5 +17,5 @@
     "insulator-stack": {"triangles": 4000},
     "sandbag-barrier": {"triangles": 6000}
   },
-  "building": {"views": ["building-front", "building-rear"], "triangles": 200000, "key": "sb-2view-a1"}
+  "building": {"views": ["building-front", "building-rear"], "triangles": 200000, "key": "sb-2view-a2"}
 }
