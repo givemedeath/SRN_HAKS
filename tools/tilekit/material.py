@@ -60,18 +60,20 @@ def _enlarged(old, size):
     return np.asarray(picture.filter(ImageFilter.UnsharpMask(radius=1.5, percent=60, threshold=2)) if size[0] > np.asarray(old).shape[1] else picture)
 
 
-def make(old, how, scan=None):
+def make(old, how, scan=None, *, enlarged=None):
     """The pictures of a restyled texture: {colour, normal: uint8 RGB arrays, roughness, metal: 0-1 arrays}, at
     how['size'] ([width, height]). old: the texture as the game draws it now (uint8 array). how: {route, size, and by
     route: repeat (times the scan tiles across the texture, default 1), tone (0-1 of the way the scan's mean colour moves
     to the old one's, default 1), grain (how strongly a scan's fine detail is laid on a kept layout, default 1), keep
     (pixels of the old picture, as enlarged, below which its detail is given up to the scan's, default 12), relief
     (pixels of rise guessed relief stands, default 2), roughness (0-1, an upscale's, default 0.8), glow (`glow`)}. An
-    old picture with holes in it (an alpha channel in use) gives `alpha` too, and a glow asked for gives `glow`."""
+    old picture with holes in it (an alpha channel in use) gives `alpha` too, and a glow asked for gives `glow`.
+    enlarged: the old picture as an upscaling model enlarged it (`enlarge`), which an upscale then starts from."""
     route = how.get('route'); require(route in ROUTES, 'A texture\'s route is one of ' + ', '.join(ROUTES))
     size = tuple(how.get('size', ())); require(len(size) == 2 and all(side in SIZES for side in size), f'A texture\'s size is two of {SIZES}')
     require(route == 'upscale' or scan is not None, f'The {route} route needs a scan')
-    old = np.asarray(old); made = _routed(old[..., :3], how, route, size, scan)
+    require(enlarged is None or route == 'upscale', 'Only an upscale starts from an enlarged picture')
+    old = np.asarray(old); made = _routed(old[..., :3] if enlarged is None else np.asarray(enlarged)[..., :3], how, route, size, scan)
     if old.shape[2] == 4 and int(old[..., 3].min()) < 250:  # a picture with holes in it keeps them, where it had them
         from PIL import Image
         made['alpha'] = np.asarray(Image.fromarray(old[..., 3]).resize(size, Image.LANCZOS))
@@ -173,10 +175,12 @@ def current(repo, name, packs=('srn_t_common', 'srn_door', 'srn_placeable')):
     raise ValueError(f'No pack holds a picture of {name}')
 
 
-def build(spec, repo, masters, folder, crunch, *, only=None, compress=None):
+def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enlarged=None):
     """Make and write every texture of a material spec ({grades: {name: grade}, textures: {name: how}}; how['master']
-    names a scan's folder in `masters`, how['grade'] one of the spec's grades, `pictures.graded`) into `folder`.
+    names a scan's folder in `masters`, how['grade'] one of the spec's grades, `pictures.graded`) into `folder`. A
+    texture that is `doubled` starts from its picture in `enlarged`, the folder `enlarge.enlarge` filled.
     Returns {name: {route, size, grade, files}}."""
+    from . import enlarge
     textures = spec.get('textures'); require(isinstance(textures, dict) and textures, 'A material spec lists its textures')
     chosen = sorted(textures) if only is None else list(only); require(set(chosen) <= set(textures), 'Not in the spec: ' + ', '.join(sorted(set(chosen) - set(textures))))
     scans, told, grades = {}, {}, spec.get('grades', {})
@@ -186,7 +190,7 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None):
             if how['master'] not in scans:
                 scans[how['master']] = master(Path(masters) / how['master'])
             scan = scans[how['master']]
-        made = make(np.asarray(current(repo, name)), how, scan)
+        made = make(np.asarray(current(repo, name)), how, scan, enlarged=enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
         if how.get('grade'):  # the district's look, laid on whatever route made the picture
             require(how['grade'] in grades, f'{name}: the spec has no grade {how["grade"]}')
             made['colour'] = pictures.graded(made['colour'], grades[how['grade']])

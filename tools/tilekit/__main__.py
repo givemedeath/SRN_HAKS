@@ -45,8 +45,17 @@ def material_command(chosen):
     spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
     masters = chosen.masters or shared_tools.tools_root(chosen.repo)[0] / 'tilekit' / 'masters'
     crunch = shared_tools.resolve_tool('crunch', chosen.repo)['path']
-    told = material.build(spec, chosen.repo, masters, chosen.out, crunch, only=chosen.only.split(',') if chosen.only else None)
+    told = material.build(spec, chosen.repo, masters, chosen.out, crunch, only=chosen.only.split(',') if chosen.only else None, enlarged=chosen.enlarged)
     print(json.dumps(told, indent=2))
+    return 0
+
+
+def enlarge_command(chosen):
+    from tools.headkit.comfy import Client
+    from . import enlarge
+    spec = json.loads(chosen.spec.read_text(encoding='utf-8')); local = json.loads(chosen.bindings.read_text(encoding='utf-8'))
+    told = enlarge.enlarge(Client(chosen.url), local, chosen.bindings, chosen.repo, spec, chosen.out, only=chosen.only.split(',') if chosen.only else None)
+    print(json.dumps({state: sum(one == state for one in told.values()) for state in ('enlarged', 'kept')}))
     return 0
 
 
@@ -72,8 +81,15 @@ def main(arguments=None):
     four.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay, until a texture is accepted')
     four.add_argument('--masters', type=Path, help='the folder of tiling scans (default: tilekit/masters in the shared tool root)')
     four.add_argument('--only', help='only these textures, comma separated'); four.add_argument('--repo', type=Path, default=REPO)
+    four.add_argument('--enlarged', type=Path, help='the folder `enlarge` filled, for the textures the spec has `doubled`')
+    five = commands.add_parser('enlarge', help='enlarge the textures a material spec has `doubled` with the upscaling model of the shared ComfyUI')
+    five.add_argument('--spec', required=True, type=Path); five.add_argument('--out', required=True, type=Path, help='the folder the enlarged pictures are kept in')
+    five.add_argument('--bindings', required=True, type=Path, help='local JSON with absolute comfyInput and comfyOutput')
+    five.add_argument('--url', default='http://127.0.0.1:8188'); five.add_argument('--only', help='only these textures, comma separated'); five.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
+        if chosen.command == 'enlarge':
+            return enlarge_command(chosen)
         if chosen.command == 'review':
             return review_command(chosen)
         if chosen.command == 'material':
