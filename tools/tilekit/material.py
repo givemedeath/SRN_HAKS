@@ -18,7 +18,7 @@ from . import pictures, require
 
 ROUTES = ('master', 'layout', 'upscale')
 STEM = 14  # a resref is 16 characters and a map adds two
-SIZES = (64, 128, 256, 512, 1024, 2048)
+SIZES = (4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048)  # a block of a compressed map is four pixels
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on (envkit's)
 MASTER_MAPS = {'colour': 'Color', 'normal': 'NormalGL', 'roughness': 'Roughness', 'metal': 'Metalness'}  # ambientCG's names; +Y up, as the game reads relief
 

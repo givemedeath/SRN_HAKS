@@ -1,12 +1,13 @@
 {
   "tileset": "dgt04",
   "grades": {
-    "corporate": {"saturation": 0.55, "contrast": 1.1, "gain": 0.72, "tint": [0.93, 0.98, 1.08]},
-    "barrens": {"saturation": 0.8, "contrast": 1.2, "gain": 0.7, "tint": [1.04, 0.97, 0.9]},
-    "street": {"saturation": 0.5, "contrast": 1.15, "gain": 0.7, "tint": [0.95, 0.98, 1.06]},
-    "walkway": {"saturation": 0.5, "contrast": 1.1, "gain": 0.8, "tint": [0.96, 0.98, 1.04]},
-    "lit": {"saturation": 0.7, "contrast": 1.1, "gain": 1.0, "tint": [0.9, 1.0, 1.08]},
-    "roof": {"saturation": 0.6, "contrast": 1.1, "gain": 0.65, "tint": [1.0, 0.98, 0.95]}
+    "corporate": {"saturation": 0.4, "contrast": 1.2, "gain": 0.6, "tint": [0.88, 0.97, 1.12]},
+    "barrens": {"saturation": 0.7, "contrast": 1.3, "gain": 0.58, "tint": [1.06, 0.96, 0.86]},
+    "industrial": {"saturation": 0.6, "contrast": 1.2, "gain": 0.6, "tint": [1.0, 0.97, 0.92]},
+    "street": {"saturation": 0.4, "contrast": 1.2, "gain": 0.55, "tint": [0.92, 0.98, 1.1]},
+    "walkway": {"saturation": 0.4, "contrast": 1.15, "gain": 0.68, "tint": [0.94, 0.98, 1.06]},
+    "lit": {"saturation": 1.15, "contrast": 1.15, "gain": 1.0, "tint": [0.85, 1.0, 1.1]},
+    "roof": {"saturation": 0.5, "contrast": 1.1, "gain": 0.5, "tint": [1.0, 0.98, 0.95]}
   },
   "textures": {
     "brick_tex19": {"route": "master", "master": "Bricks097", "repeat": 1, "tone": 0.9, "grade": "barrens", "size": [1024, 1024]},
