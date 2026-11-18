@@ -658,17 +658,19 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual((fence[0]['from'], fence[0]['to'], fence[0]['z']), ([-9.45, 7.0], [-7.5, 7.0], [0.41, 2.81]))
         self.assertEqual((fence[3]['from'], fence[3]['to']), ([9.45, 7.0], [9.45, -7.0])); self.assertEqual((fence[0]['pitch'], fence[0]['wire']), (0.09, 0.016))
         posts = [one for one in built if one['part'].endswith('fence post')]; gate = [one for one in built if one['part'] == 'gateway post']
-        self.assertEqual(len({tuple(one['bar'][0]) for one in posts}), len(posts))  # a corner has one post, not one for each side
-        self.assertEqual(sorted(one['bar'][0][0] for one in gate), [-7.5, -2.5, 3.5, 6.5]); self.assertTrue(all(one['picture'] == spec['concrete'] and one['size'] == [0.35, 0.35] for one in gate))
-        self.assertFalse(any(one['bar'][0][:2] == [-7.5, 7.0] for one in posts))  # a gateway's end is its concrete post
+        self.assertEqual(len({tuple(one['tube'][0]) for one in posts}), len(posts))  # a corner has one post, not one for each side
+        self.assertTrue(all(one['cap'] and one['radius'] in (convert.PERIMETER_POST, convert.PERIMETER_END) for one in posts))
+        self.assertEqual({one['radius'] for one in posts if one['tube'][0][:2] in ([-9.45, 7.0], [9.45, -7.0])}, {convert.PERIMETER_END})  # stouter at a corner
+        self.assertEqual(sorted(one['block'][0][0] for one in gate), [-7.5, -2.5, 3.5, 6.5]); self.assertTrue(all(one['picture'] == spec['concrete'] and one['size'] == 0.35 for one in gate))
+        self.assertFalse(any(one['tube'][0][:2] == [-7.5, 7.0] for one in posts))  # a gateway's end is its concrete post
         self.assertEqual(sum('coil' in one for one in built), 6); self.assertEqual(sum(one['part'].endswith('rail') for one in built), 12)
-        self.assertTrue(all(one['coil'][0][2] == 3.06 for one in built if 'coil' in one))
-        spans = [np.hypot(*np.subtract(b['bar'][0][:2], a['bar'][0][:2])) for a, b in zip(posts, posts[1:]) if a['part'] == b['part']]
+        self.assertTrue(all(one['coil'][0][2] == 2.81 + 0.25 for one in built if 'coil' in one))
+        spans = [np.hypot(*np.subtract(b['tube'][0][:2], a['tube'][0][:2])) for a, b in zip(posts, posts[1:]) if a['part'] == b['part']]
         self.assertLessEqual(max(spans), convert.PERIMETER_POSTS + 1e-6)
         self.assertEqual(sum('coil' in one for one in convert.perimeter({**spec, 'coil': False})[0]), 0)
         path = Path(tempfile.mkdtemp()) / 'set.json'
         path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'perimeter': spec, 'measuredAt': 4.0}}}), encoding='utf-8')
-        loaded = convert.load_models(path)['ek_x']; self.assertEqual((loaded['built'], loaded['fence']), (built, fence))
+        loaded = convert.load_models(path)['ek_x']; self.assertEqual((loaded['frame'], loaded['fence']), (built, fence)); self.assertNotIn('built', loaded)
         for wrong in ({**spec, 'gateways': [{'side': 'north', 'from': -12.0, 'to': -8.0}]}, {**spec, 'gateways': [{'side': 'up', 'from': 0, 'to': 2}]},
                       {key: value for key, value in spec.items() if key != 'concrete'}, {**spec, 'z': [0.3, 0.5]}, {**spec, 'height': 2}):
             with self.assertRaises(ValueError):
@@ -687,6 +689,36 @@ class ConvertTests(unittest.TestCase):
         with mock.patch.object(convert, '_compress', side_effect=packed):
             convert.textures('ek_x', maps, folder / 'out', 'crunch', colour=4096)
         self.assertEqual(sizes, {'ek_x.dds': 4096, 'ek_x_n.dds': 4096, 'ek_x_s.dds': 2048, 'ek_x_r.dds': 2048})
+
+    def test_a_fences_frame_is_round_posts_and_capped_blocks_on_a_picture_of_steel_and_concrete(self):
+        """The first perimeter's posts were square bars in one flat colour (user, 2026-11-17: "the posts for the fences
+        needs to be better than a square pole and they don't even look like they have any texture applied")."""
+        points, normals, uvs, faces = convert.tube([1.0, 2.0, 0.0], [1.0, 2.0, 2.5], 0.05, cap=True)
+        middle = points.mean(0); out = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue((((points[faces].mean(1) - [1.0, 2.0, middle[2]]) * out).sum(1) > 0).all())  # every face looks outward
+        self.assertTrue((np.linalg.norm(out, axis=1) > 0).all()); np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0)
+        side = points[:, 2] <= 2.5 + 1e-9; np.testing.assert_allclose(np.hypot(points[side, 0] - 1.0, points[side, 1] - 2.0), 0.05)  # round
+        self.assertGreater(points[:, 2].max(), 2.5); self.assertEqual(len(faces), convert.FRAME_SIDES * 5)  # its side, and a dome over it
+        self.assertEqual((float(uvs.min()), float(uvs.max())), (0.0, 1.0)); self.assertEqual(len(convert.tube([0, 0, 1], [3, 0, 1], 0.02)[3]), convert.FRAME_SIDES * 2)
+        points, normals, uvs, faces = convert.block([0.0, 0.0, 0.3], [0.0, 0.0, 2.9], 0.35)
+        out = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue(((out * normals[faces[:, 0]]).sum(1) > 0).all()); self.assertAlmostEqual(float(np.abs(points[:, 0]).max()), 0.175 + convert.FRAME_CAP[0])
+        self.assertAlmostEqual(float(points[:, 2].max()), 2.9 + convert.FRAME_CAP[1] + convert.FRAME_CAP[2])
+        fences = [{'from': [0.0, 0.0], 'to': [2.0, 0.0], 'z': [0.0, 2.0], 'pitch': 0.09, 'wire': 0.016}]
+        frame = [{'tube': [[0.0, 0.0, 0.0], [0.0, 0.0, 2.1]], 'radius': 0.05, 'cap': True, 'picture': [0, 0, 0]}, {'tube': [[0.0, 0.0, 2.0], [2.0, 0.0, 2.0]], 'radius': 0.02, 'picture': [0, 0, 0]},
+                 {'coil': [[0.0, 0.0, 2.3], [2.0, 0.0, 2.3]], 'radius': 0.25, 'pitch': 0.5, 'picture': [0, 0, 0]}, {'block': [[2.0, 0.0, 0.0], [2.0, 0.0, 2.2]], 'size': 0.35, 'picture': [0, 0, 0]}]
+        bare = convert.sheets(fences); wire = convert.sheets(fences, frame=frame, colours={'steel': (120, 124, 128)})
+        image = np.asarray(wire['image']); size = convert.WIRE_PICTURE * convert.FRAME_SHEET; self.assertEqual(image.shape, (size, size, 4))
+        np.testing.assert_array_equal(image[:convert.WIRE_PICTURE, :convert.WIRE_PICTURE], np.asarray(bare['image']))  # the wires in its first corner, as they were
+        count = len(bare['vertices']); np.testing.assert_allclose(wire['uvs'][:count], bare['uvs'] / convert.FRAME_SHEET); np.testing.assert_allclose(wire['vertices'][:count], bare['vertices'])
+        for kind, (u0, u1) in convert.FRAME_COLUMNS.items():
+            column = image[:, int(u0 * size):int(u1 * size)]; self.assertTrue((column[..., 3] == 255).all())
+            self.assertGreater(float(column[..., :3].astype(float).std(axis=(0, 1)).mean()), 4.0)  # a texture, not one flat colour
+        steel = image[:, int(0.3125 * size):int(0.625 * size), :3].astype(float); foot, shaft = steel[:size // 16].mean((0, 1)), steel[size // 4:].mean((0, 1))
+        self.assertGreater(foot[0] - foot[2], shaft[0] - shaft[2] + 15)  # rust at the foot of a post
+        np.testing.assert_allclose(shaft, (120, 124, 128), atol=12)
+        made = wire['uvs'][count:]; self.assertTrue(((made[:, 0] >= 0.3125) & (made[:, 0] <= 0.9375) & (made[:, 1] >= 0) & (made[:, 1] <= 1)).all())  # none of the frame shows the wires
+        self.assertEqual(len(wire['vertices']), len(wire['normals'])); self.assertEqual(len(wire['vertices']), len(wire['uvs'])); self.assertLess(wire['faces'].max(), len(wire['vertices']))
 
     def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
         """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""

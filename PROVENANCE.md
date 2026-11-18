@@ -1488,15 +1488,18 @@ records. The Shiawase name and mark on its wall are the sheet's.
 
 Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes and
 scaled to 9.55 metres, which gives its door a leaf of about 2.0 metres and its slab a width that two tiles hold, and
-its textures were recompressed (colour 4096 DXT1, the other maps 2048). Glow maps were made from the model's own
+its textures were recompressed (colour 4096 DXT1, the relief map 4096 too, the other maps 2048). Glow maps were made from the model's own
 colour for seven parts (the control room windows, the lamp over the tunnel door, the strip lamp and the red lamp at
-the roller door, and three floodlights), each with a halo sheet. The perimeter fence is built, not generated: steel
-posts, top and bottom rails and concrete gateway posts as square-cut bars coloured from the model's own picture,
-chain-link sheets hung between them, and a coil of barbed wire along the top of every run, two strands wound
-opposite ways. It has two gateways in its front, 5 metres before the roller door and 3 metres before the tunnel
-door, without gate leaves. Nothing else was retouched. The mesh (195,857 triangles with the fence) was shared out over
-four tiles (17,365 to 84,028 faces each) with a ground square, a map picture and two main lights each; what stands
-above 4.2 metres carries `tilefade`; and a walkmesh was generated from its shape (728 to 1,912 faces a tile, where
+the roller door, and three floodlights), each with a halo sheet. The perimeter fence is built, not generated: round
+steel posts with domed caps, stouter at the corners and the ends of a run, round top and bottom rails, concrete gateway
+posts under pointed caps, chain-link sheets hung between them, and a coil of barbed wire along the top of every run,
+two strands wound opposite ways. The fence shows one picture of its own, drawn by `tools/envkit`: the wire mesh, a
+column of galvanised steel, streaked and rusted at the foot, and a column of pitted concrete, each in the tone of the
+model's own picture at a stated point (the first build's posts were square bars in one flat colour; operator,
+2026-11-17: "the posts for the fences needs to be better than a square pole"). It has two gateways in its front, 5 metres before the roller door and 3 metres before the tunnel
+door, without gate leaves. Nothing else was retouched. The mesh (196,905 triangles with the fence) was shared out over
+four tiles (17,626 to 84,311 faces each) with a ground square, a map picture and two main lights each; what stands
+above 4.2 metres carries `tilefade`; and a walkmesh was generated from its shape (366 to 1,720 faces a tile, where
 the stock tiles of these two tilesets have at most 500). The path nodes of three tiles are stated in the set: each
 front tile is entered by its own gateway only (`N`), since a planned walk did not cross from tile to tile inside the
 fence. The strip behind the building is fenced off and is not reached. The front east tile has a door record of type

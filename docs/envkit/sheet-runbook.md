@@ -57,10 +57,14 @@ spiral barbed wire"):
               "gateways": [{"side": "north", "from": -7.5, "to": -2.5}]}
 ```
 
-in metres on the finished model: `steel` and `concrete` are points of the model whose colour the fence and the
+in metres on the finished model: `steel` and `concrete` are points of the model whose tone the fence and the
 gateway posts take, a gateway is an opening in the north, east, south or west side between two places along it, and
-`"coil": false` leaves the wire off. `built` bars and coils and `fence` sheets can still be stated one by one, for a
-fence that is no rectangle. The Shiawase Barrens power station was generated with
+`"coil": false` leaves the wire off. The posts are round tubes with caps, the gateway posts capped concrete blocks,
+and all of it shows the fence's own picture (`<name>_w`: the wires, galvanised steel rusted at the foot, and pitted
+concrete), not one flat colour of the model's (user, 2026-11-17: "the posts for the fences needs to be better than a
+square pole and they don't even look like they have any texture applied"). The same parts can be stated one by one as
+a `frame` beside `fence` sheets, for a fence that is no rectangle: `{"tube": [from, to], "radius", "cap"}`,
+`{"block": [foot, top], "size"}` or `{"coil": [from, to], "radius", "pitch"}`, each with a `picture` point. The Shiawase Barrens power station was generated with
 its fence in both views: the fence came back as open frames, its chain-link printed on the rear wall, the transformers
 and the roller door, and the surface behind its razor wire smudged. Look at each chosen building reference for a fence
 before selecting it.
