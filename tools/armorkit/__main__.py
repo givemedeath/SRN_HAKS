@@ -138,6 +138,49 @@ def command_bake(args):
         sys.exit(1)
 
 
+def over_outfit(value):
+    """(pack folder, number) of an `--over PACK=NUMBER`, or None without one."""
+    if not value:
+        return None
+    pack, _, number = value.rpartition('=')
+    registry.require(pack and number.isdigit(), '--over is PACK=NUMBER')
+    return pack, int(number)
+
+
+def command_accessory(args):
+    from . import accessory, brief
+    document = brief.load(args.brief)
+    if args.step == 'prepare':
+        registry.require(all(given for given in (args.mesh, args.colours, args.raw, args.xatlas)), 'prepare takes --mesh, --colours, --raw and --xatlas')
+        piece, whole = accessory.prepare(document, args.mesh, args.colours, args.raw, layout_library(args.xatlas), say=lambda *said: print(*said, flush=True))
+        accessory.store(piece, args.folder, whole)
+        print(json.dumps({'kept': args.folder, 'triangles': int(len(piece['f'])), 'texels': int(len(piece['rgb'])), 'surface': whole}))
+        return
+    registry.require(args.output and args.number and args.body_pack, 'fit takes --output, --number and --body-pack')
+    record = accessory.fit(document, args.folder, args.output, args.body_pack, args.number, body=args.body, outfit=over_outfit(args.over),
+                           drop=accessory.DROP if args.drop is None else args.drop, turn=args.turn, tier=args.tier, packs=args.pack, game=args.nwn_root, resources=args.resources, say=lambda *said: print(*said, flush=True))
+    print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'fit', 'gates', 'compiled') if key in record}))
+    if not record['gates']['passed']:
+        raise SystemExit(1)
+
+
+def command_brassard(args):
+    from . import brassard
+    record = brassard.run(args.output, args.body_pack, args.number, body=args.body, outfit=over_outfit(args.over), packs=args.pack, game=args.nwn_root, resources=args.resources)
+    print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'gates', 'compiled') if key in record}))
+    if not record['gates']['passed']:
+        raise SystemExit(1)
+
+
+def command_headgear(args):
+    from . import brief, headgear
+    record = headgear.fit(brief.load(args.brief), args.folder, args.output, args.body_pack, args.body_textures, args.number, body=args.body, cover=args.cover,
+                          packs=args.pack, game=args.nwn_root, resources=args.resources, say=lambda *said: print(*said, flush=True))
+    print(json.dumps({key: record[key] for key in ('model', 'body', 'number', 'models', 'fit', 'gates', 'compiled') if key in record}))
+    if not record['gates']['passed']:
+        raise SystemExit(1)
+
+
 def command_split(args):
     from . import bake
     parts, report = bake.resplit(args.capture, body_pack=args.body_pack)
@@ -173,8 +216,17 @@ def command_render(args):
 
 def command_poses(args):
     from . import client, poses
+    under = None
+    if args.under:
+        from . import bodies
+        source, _, number = args.under.rpartition('=')
+        registry.require(source and number.isdigit(), '--under is REGISTRY=NUMBER')
+        filled = bodies.published(registry.load(source), int(number))[0]
+        mine = {poses.slot_of(token) for token in json.loads((Path(args.bake) / 'bake.json').read_text(encoding='utf-8'))['models']}
+        under = {slot: int(number) for slot in filled if slot not in mine}
     spec, labels = poses.spec(args.bake, args.output, args.stock, args.hak, tlk=args.tlk, preset=args.preset, without=args.without,
-                              colours=json.loads(args.colours) if args.colours else None)
+                              colours=json.loads(args.colours) if args.colours else None, under=under,
+                              cells=[int(cell) for cell in listed(args.cells)] if args.cells else (), body_pack=args.body_pack)
     if args.hold:
         spec['hold'] = args.hold  # seconds the game stays on each shot: longer where the machine is busy and the capture falls behind
     record = poses.build(spec, labels, args.output, args.nwn_root)
@@ -224,6 +276,13 @@ def command_fixture(args):
 def command_publish(args):
     from . import publish
     code = publish.command(args)
+    if code:
+        sys.exit(code)
+
+
+def command_logos(args):
+    from . import publish
+    code = publish.command_logos(args)
     if code:
         sys.exit(code)
 
@@ -288,6 +347,33 @@ def main(argv=None):
     p.add_argument('--capture', help='file to keep what the split is given in, for `split` to run it again')
     p.add_argument('--tint-cache', help='folder that keeps each part\'s tint texture, read again while nothing it is drawn from has changed')
     p.set_defaults(handler=command_bake)
+    p = commands.add_parser('accessory', help='prepare a generated accessory piece once, then fit it on a body over an outfit')
+    p.add_argument('step', choices=('prepare', 'fit')); p.add_argument('brief')
+    p.add_argument('folder', help='the folder the prepared piece is kept in')
+    p.add_argument('--mesh'); p.add_argument('--colours'); p.add_argument('--raw'); p.add_argument('--xatlas')
+    p.add_argument('--output', help='fit: the folder the models are written to'); p.add_argument('--number', type=int)
+    p.add_argument('--body-pack'); p.add_argument('--body', default='pmh0')
+    p.add_argument('--over', help='fit: PACK=NUMBER, the outfit the piece is fitted over, as compiled models in a pack folder')
+    p.add_argument('--drop', type=float, help="fit: metres below the waist joint a belt's band is centred (default: accessory.DROP, 3 cm)")
+    p.add_argument('--tier', type=int, default=2, choices=registry.TIERS, help="fit: the tier of the set the piece belongs to, as its registry part gives it")
+    p.add_argument('--turn', type=float, default=0.0, help="fit: degrees the piece is turned about the body's axis first")
+    p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root'); p.add_argument('--resources', action='append', default=[])
+    p.set_defaults(handler=command_accessory)
+
+    p = commands.add_parser('brassard', help="build the brassard, a band on the upper arm with the logo badge, for one body's shoulder slot")
+    p.add_argument('output'); p.add_argument('--number', type=int, required=True); p.add_argument('--body-pack', required=True)
+    p.add_argument('--body', default='pmh0'); p.add_argument('--over', help='PACK=NUMBER: the outfit whose sleeve the band goes round')
+    p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root'); p.add_argument('--resources', action='append', default=[])
+    p.set_defaults(handler=command_brassard)
+
+    p = commands.add_parser('headgear', help="fit a prepared piece of headgear to a body's head envelope, in a neck part that keeps the neck")
+    p.add_argument('brief'); p.add_argument('folder', help='the folder `accessory prepare` kept the piece in'); p.add_argument('output')
+    p.add_argument('--number', type=int, required=True); p.add_argument('--body-pack', required=True); p.add_argument('--body-textures', required=True)
+    p.add_argument('--body', default='pmh0'); p.add_argument('--pack', action='append', default=[]); p.add_argument('--nwn-root')
+    p.add_argument('--resources', action='append', default=[])
+    p.add_argument('--cover', choices=('face', 'head'), default='face', help='cut the piece down to the face (the default), or keep it whole')
+    p.set_defaults(handler=command_headgear)
+
     p = commands.add_parser('split', help="run a bake's split again, in seconds, on what `bake --capture` kept")
     p.add_argument('capture', help='the file `bake --capture` wrote')
     p.add_argument('--output', help='.npz file to write the parts to, for `render`')
@@ -324,8 +410,11 @@ def main(argv=None):
     p.add_argument('--stock', required=True, help='folder of the stock parts tables the outfit is added to')
     p.add_argument('--hak', action='append', default=[], required=True, help='built pack the fixture loads, highest priority first')
     p.add_argument('--tlk', help='talk table the fixture loads')
-    p.add_argument('--preset', default='body', choices=('body', 'shoulders'), help='where the camera looks')
+    p.add_argument('--preset', default='body', choices=('body', 'shoulders', 'waist', 'head'), help='where the camera looks')
     p.add_argument('--without', action='append', default=[], help='also pose a second actor without the part in this slot (shoulder: no pads)')
+    p.add_argument('--body-pack', help="folder of the bodies' models: the camera is then set for the body's height")
+    p.add_argument('--cells', help='comma-separated logo cells the actors are set to in turn, for a part with a badge')
+    p.add_argument('--under', help='REGISTRY=NUMBER: every actor also wears that published outfit, from the packs in --hak (an accessory is looked at on it)')
     p.add_argument('--colours', help='JSON of colour channels to wear in another colour than the six contrasting ones, e.g. {"cloth1": 22}; no two channels the same')
     p.add_argument('--run', action='store_true', help='start the game client on the fixture and capture its shots')
     p.add_argument('--wait', type=float, help='seconds to wait for another session\'s client to close first')
@@ -384,6 +473,12 @@ def main(argv=None):
     p.add_argument('--build', action='store_true', help='pack srn_parts and srn_2da once written (a trial: into its own output folder)')
     p.add_argument('--report', help='file to write the whole report to; the printed one stops at 40 failures')
     p.set_defaults(handler=command_publish)
+    p = commands.add_parser('logos', help="put the kit's logo strip in place of the published one: a new logo, every published cell kept")
+    p.add_argument('--trial', help='scratch folder to write into whatever the gates say, instead of the repository')
+    p.add_argument('--dry-run', action='store_true', help='run the gates and print the report; write nothing')
+    p.add_argument('--build', action='store_true', help='pack srn_parts and srn_2da once written (a trial: into its own output folder)')
+    p.add_argument('--report', help='file to write the report to')
+    p.set_defaults(handler=command_logos)
     args = parser.parse_args(argv)
     args.handler(args)
 

@@ -1,0 +1,37 @@
+{
+ "schemaVersion": 1,
+ "kind": "srn-armorkit-brief",
+ "model": "respirator-fullface",
+ "accessory": "neck",
+ "wear": 0.3,
+ "materials": [
+  {
+   "name": "shell",
+   "kind": "leather",
+   "channel": 1,
+   "colour": [196, 160, 110],
+   "suggested": [40, 40, 42],
+   "look": "WARM TAN, like tan rubber",
+   "wears": "the face piece itself: one smooth moulded shell that covers a whole face, from the top of the forehead to under the chin, and wraps round both sides as far as the ears. Its rim is a thick, plain rolled edge all the way round."
+  },
+  {
+   "name": "visor",
+   "kind": "metal",
+   "channel": 1,
+   "colour": [120, 170, 230],
+   "suggested": [18, 20, 24],
+   "look": "BRIGHT LIGHT SKY BLUE hard plastic, a saturated baby blue (hex #78AAE6)",
+   "wears": "exactly one thing: the visor, a single wide curved lens across the eyes, from temple to temple, as tall as three fingers. It is solid and opaque, plainly sky blue all over, with nothing seen through it."
+  },
+  {
+   "name": "filters",
+   "kind": "metal",
+   "channel": 2,
+   "colour": [130, 220, 160],
+   "suggested": [70, 74, 78],
+   "look": "LIGHT MINT GREEN hard plastic, a clear pastel green (hex #82DCA0)",
+   "wears": "exactly three things, all below the visor: two round filter canisters, one on each cheek, each a short thick drum as wide as a fist, pointing forward and a little outward, and one small round valve cover over the mouth between them."
+  }
+ ],
+ "prompt": "Product image of one full-face respirator mask for a near-future corporate security guard, shown by itself, floating in the air with nobody wearing it. Nothing else is in the image: no head, no face, no mannequin, no neck, no stand, no straps.\n\nShape, the most important thing in this image: the mask is one deep, rounded shell the size and shape of the front half of a head, tall as a face and as wide as a head. It is a single closed, solid-looking object with a smooth outside.\n\n{materials}\nThe tan shell, the blue visor and the green filters are three clearly different colours. Every part of the mask is one of these three colours.\n\nThe mask holds itself on: there are no straps, no harness, no hoses and no cables. Everything on it is a simple chunky shape set firmly into the shell.\n\nSmooth clean surfaces like a painted sculpt: plain colour on every part, clean and new, matte plastic and smooth rubber, simple chunky shapes, clean edges between parts.\n\nCamera: straight front view, camera level with the middle of the mask, long lens with almost no perspective. The mask is upright, centred and symmetrical left to right.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole mask in frame with margin on all sides, plain white background."
+}

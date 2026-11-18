@@ -1,10 +1,14 @@
 """The credit cap holds across paid calls, and only a triangle-bounded model at or under its ceiling (100k, or 200k for a
 remeshed building) is taken off Meshy."""
+import argparse
+import contextlib
+import io
 import json
 import struct
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from . import meshy
 
@@ -46,6 +50,50 @@ class MeshyTests(unittest.TestCase):
         self.folder = tempfile.TemporaryDirectory(); self.addCleanup(self.folder.cleanup); self.root = Path(self.folder.name)
         self.image = self.root / 'ref.png'; self.image.write_bytes(b'png')
         self.ledger = meshy.Ledger.create(self.root / 'ledger.json', 50)
+
+    def test_the_shared_ledger_lies_in_the_tool_root_and_every_change_leaves_the_days_copy(self):
+        self.assertEqual(meshy.shared_ledger(root=self.root / 'tools'), (self.root / 'tools').resolve() / 'envkit' / 'meshy-ledger.json')
+        self.ledger.reserve('a-prop', 'crate', 'prop', [])
+        with self.ledger.changing():
+            self.ledger.data['cap'] = 60; self.ledger.save(today='2000-01-01')  # a day that is never today
+        copies = meshy.copies(self.ledger.path)
+        self.assertEqual(copies, self.root / 'ledger-copies')
+        self.assertEqual(json.loads((copies / '2000-01-01.json').read_text(encoding='utf-8')), json.loads(self.ledger.path.read_text(encoding='utf-8')))
+        self.assertEqual(len(list(copies.iterdir())), 2)  # the reservation wrote today's
+
+    def test_a_copy_that_cannot_be_written_does_not_undo_the_change_it_copies(self):
+        meshy.copies(self.ledger.path).write_text('in the way', encoding='utf-8')  # a file where the folder goes
+        said = io.StringIO()
+        with contextlib.redirect_stderr(said):
+            self.ledger.reserve('a-prop', 'crate', 'prop', [])
+        self.assertIn('not its copy', said.getvalue())
+        self.assertEqual(meshy.Ledger(self.ledger.path).entry('a-prop')['state'], 'reserved')
+
+    def test_a_lost_ledger_is_read_back_from_its_copies_and_not_started_empty(self):
+        self.ledger.reserve('a-prop', 'crate', 'prop', [])
+        self.ledger.path.unlink()
+        with self.assertRaisesRegex(ValueError, 'No ledger at .*read it back from the latest copy'):
+            meshy.Ledger(self.ledger.path)
+        with self.assertRaisesRegex(ValueError, 'No new ledger at .*read it back.*moved away'):
+            meshy.Ledger.create(self.ledger.path, 50)
+        with self.assertRaisesRegex(ValueError, r'never\.json$'):
+            meshy.Ledger(self.root / 'never.json')
+
+    def test_the_cli_works_under_the_shared_ledger_unless_one_is_named(self):
+        from . import __main__ as cli
+        with mock.patch.object(meshy, 'shared_ledger', return_value=self.root / 'shared.json') as shared:
+            self.assertEqual(cli.ledger_path(argparse.Namespace(ledger=None)), self.root / 'shared.json')
+            self.assertEqual(cli.ledger_path(argparse.Namespace(ledger=str(self.ledger.path))), self.ledger.path)
+            with self.assertRaisesRegex(ValueError, 'leave it out'):
+                cli.ledger_path(argparse.Namespace(ledger=''))  # an unset variable, not the shared cap
+            self.assertEqual(shared.call_count, 1)
+        with mock.patch('tools.shared_tools.tools_root', side_effect=ValueError('Git metadata unavailable; supply an explicit tools root')):
+            with self.assertRaisesRegex(ValueError, 'SRN_TOOLS_ROOT at one, or name the ledger with --ledger'):
+                meshy.shared_ledger()
+        asked = argparse.Namespace(action='status', ledger=None)  # `meshy status` with no ledger named says which one it read
+        with mock.patch.object(meshy, 'shared_ledger', return_value=self.ledger.path), mock.patch('builtins.print') as said:
+            cli.command_meshy(asked)
+        self.assertEqual(json.loads(said.call_args_list[-1].args[0])['ledger'], str(self.ledger.path))
 
     def test_arguments_bound_the_triangles_of_everything_that_can_be_downloaded(self):
         prop = meshy.prop_arguments(self.image, 6000)
@@ -160,6 +208,16 @@ class MeshyTests(unittest.TestCase):
             meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=cut_short)
         self.assertFalse((self.root / 'bank').exists())
         self.assertEqual(list(meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=run).values()), [9000])
+
+    def test_a_download_says_where_the_task_record_lies_when_it_is_not_here(self):
+        run = FakeMeshy()  # one ledger serves every worktree, and the record lies in the one that waited
+        meshy.submit(self.ledger, 'p', 'vending', 'prop', meshy.prop_arguments(self.image, 6000), self.root / 'work', run=run)
+        meshy.wait(self.ledger, 'p', self.root / 'work', run=run)
+        self.assertTrue(Path(self.ledger.entry('p')['task']).is_absolute())  # every worktree reads this ledger
+        Path(self.ledger.entry('p')['task']).unlink()
+        with self.assertRaisesRegex(ValueError, 'task record of p is not here.*worktree that waited'):
+            meshy.download(self.ledger, 'p', self.root / 'work', self.root / 'bank', run=run)
+        self.assertFalse((self.root / 'bank').exists())
 
     def test_a_full_detail_generation_is_never_downloaded_but_its_remesh_is(self):
         run = FakeMeshy(credits=30, triangle_counts=(60000, 31000))

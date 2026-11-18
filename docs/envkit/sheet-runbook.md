@@ -70,14 +70,25 @@ is doubled.
 
 ## 2. Meshy
 
-The ledger (`output/envkit/stuffer-shack/meshy/ledger.json`, shared by every sheet) holds the cap, which is the
-spending the user has approved. A prop costs 15 credits, a building 30 and its remesh 5.
+The ledger holds the cap, which is the spending the user has approved. A prop costs 15 credits, a building 30 and
+its remesh 5. There is one ledger for every sheet, session and worktree: `envkit/meshy-ledger.json` in the shared
+tool root (`SRN_TOOLS_ROOT`, else the primary checkout's `.tools`), which every command finds by itself and which
+stays where it is when a worktree retires. Every change is made under a lock, so sessions may spend against it at
+once, and every change writes the day's copy to `envkit/meshy-ledger-copies/<date>.json` beside it: the tool root
+is in no repository and no archive, so read a lost ledger back from the latest copy: copy that file to
+`envkit/meshy-ledger.json`. Where copies lie beside a missing ledger, every command says so and `meshy init`
+refuses to start an empty one in its place, which would forget every credit counted. `--ledger <file>` names
+another ledger (a trial's own; an empty name is refused); do not keep the shared one in a worktree's output
+again. The paths an entry records (`task`, `downloaded`, the triangle counts) are where the files lay in the
+worktree that made the call, in full since 2026-11-17; older entries hold them as they were given, mostly from
+their worktree's root. A call is waited for and downloaded in one worktree, and a download elsewhere says where
+the task record lies. `status` and every `sheet` command print the `ledger` they worked under.
 
 ```
-envkit sheet status  --plan tools/envkit/sets/<sheet>-meshy.json --ledger <ledger> --root <root>
-envkit meshy cap     --ledger <ledger> --cap <n> --reason "<who approved it, when, for what>"
-envkit sheet submit  --plan ... --ledger <ledger> --root <root>
-envkit sheet collect --plan ... --ledger <ledger> --root <root>
+envkit sheet status  --plan tools/envkit/sets/<sheet>-meshy.json --root <root>
+envkit meshy cap     --cap <n> --reason "<who approved it, when, for what>"
+envkit sheet submit  --plan ... --root <root>
+envkit sheet collect --plan ... --root <root>
 ```
 
 `status` says what the sheet's unsent calls cost (`unsentCredits`) against what the cap has left. Raise the cap only on the
@@ -480,6 +491,15 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   target with something drawn in the way between (`walk.png`) has not arrived, however near: the depot's walker from
   the next tile into the service bay's fenced yard stopped against the fence, half a metre from a target just inside
   it, and passed the check that way until it looked across the gap (`checks.walled`, 2026-11-13).
+- **The `west` or `east` walker of a group two rows deep stops in the middle of the north row, whatever nodes are
+  stated.** Its target is the last open ground straight in from the middle of that side, which in a group of two
+  rows lies on the line between them, and where the building fills its tiles from side to side that ground is a
+  narrow strip at the group's edge. The walker comes from the far north corner, is planned into the north tile by its
+  north side and finds no way down the strip. Before changing nodes, send walkers of your own to the same spot from
+  the next tile out on that side and from the south corner, with the scratch wrapper above. If they arrive, the
+  ground is reached and only the one long walk gives up: say so in the provenance, with the starts that arrived.
+  Aurora Warrens' west walker stopped at the same spot under three settings of its nodes, and Night Bazaar's west and
+  east walkers both stopped so; in each the walkers from beside and from the south corner arrived (2026-11-16).
 - **A walk check that passed fails after a rebuild that changed nothing walkable** (an underfoot part, a `clear`).
   A rebuild can draw every tile's walkmesh faces a little differently, and a walk the engine can only just plan
   comes out either way. The depot's crane rails and the crane's own stub rails taken away left `walk.png` the same,

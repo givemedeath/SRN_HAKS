@@ -848,3 +848,71 @@ the hak did not. The user chose plain git, no LFS, and to make those copies at b
 * **Unchanged.** The handoff records every name and hash, and `publish` and `tools/Test-Repository.ps1` hold a
   copy to it through the file kept. Maps were shared by name already (`shared_maps`). The hak is not smaller:
   an outfit is still about 423 MB there, so `srn_parts` is split into several haks before about ten outfits.
+
+## Revision 2026-11-17: the first three accessories (belt, shoulder brassard, respirator)
+
+Made for corporate security and looked at in the client on the Human pair, worn with Facility Security 6020.
+Nothing here is published; the other 18 bodies, the registry entries and the packs are separate steps.
+
+* **Budget (user decision).** An accessory has up to 4,000 triangles and a texture of up to 1,024 texels
+  (`accessory.BUDGET`), twice the 2,000 of the part rules. A whole worn outfit's 40,000 is unchanged.
+* **Numbers (user decision).** The duty belt takes its outfit's number, 6020, on the belt slot. The brassard is
+  shoulder 1000 and the respirator neck 1000, the first of the standalone numbers.
+* **A brief for an accessory.** `accessory` names the slot (`belt`, `shoulder`, `neck`) in place of a
+  construction; a material may name its colour `channel` (1 or 2 of its kind), and no two materials of one kind
+  share one. An object with depth to the side (a holster) is drawn in three-quarter view: a straight front view
+  generated the holster as a flat slab.
+* **One piece, every body.** A generated piece is prepared once (`accessory prepare`: stood level or centred,
+  laid out, colours and relief read) and fitted per body. A belt is wrapped over the worn outfit's waist,
+  direction by direction (`accessory fit`); headgear is brought to its race's head envelope (`headgear`). A race
+  version cannot scale either (spikes.md, section 13).
+* **The brassard is drawn, not generated.** `brassard` makes a band round the upper arm over the outfit's
+  sleeve, with a curved badge, on both shoulders. It needs no reference image and no generation. The first one
+  took one outline for its whole height and stood off a lifted arm as a loose ring (user, 2026-11-17); the band
+  now follows what is worn ring by ring, about the sleeve's own middle, and is gated on how far it stands off.
+  Refitted on all 20 bodies (nine tenths of the band within 1 cm of the sleeve, nothing through it) and seen in the
+  client on the Human female, Large Orc female and Large Troll male. On the female bodies the published 6020 vest
+  has a piece over the left upper arm that hides the band's upper part with the arm down: the band is fitted to
+  the sleeve, not over the vest, and stays so (user, 2026-11-17: leave it on the sleeve); the cause is in the
+  female cut's vest.
+* **Logo resources.** `logo.write` makes the shared material `srn_logo`, the vertex shader `srn_vslogo` and the
+  strip `srn_logos` of sixteen cells, 128 texels each. Cells (user: the major corporations' logos are in the
+  concept sheets; cut from the corporate security sheet): 0 blank, 1 Ares, 2 Renraku, 3 Saeder-Krupp, 4 Wuxing,
+  5 Mitsuhama. The rest of the major corporations followed (user, 2026-11-17): 6 Aztechnology and 11 Lone Star,
+  cut from the battle armour and magical response sheets, and 7 Evo, 8 Horizon, 9 NeoNET, 10 Shiawase, which are
+  on no sheet and were cut from one image drawn in the sheets' header style (the four designs approved by the
+  user, 2026-11-17). 12 to 15 are blank. A cell once
+  given keeps its number. SR_NWN sets a wearer's logo with
+  `SetMaterialShaderUniformVec4(creature, "srn_logo", "LogoCell", cell)`; an unset wearer shows cell 0.
+  A badge is gated to read the right way round (`logo.reads_right`) and was looked at with all five logos, none
+  of them symmetric, on both shoulders. They are published with the brassard, once for the pack, and the
+  handoff carries the material, parameter and cells as `logo`.
+* **Published (2026-11-17, user: publish the belt and brassard).** Belt 6020 (set `facility-security`) and
+  shoulder 1000 (standalone, badge left and right) are in `srn_parts` on all 20 bodies, with their icons and
+  table rows. `publish` takes a drawn piece (no brief, no material file) and the logo's shared files. The
+  respirator is not published: it is on hold. A new logo means a new strip: `logos` puts the kit's strip in
+  place of the published one and holds every published cell to its name and number. What SR_NWN does with the
+  parts and the logo is in [sr-nwn-instructions.md](sr-nwn-instructions.md).
+* **The respirator (user decision: full face, opaque visor).** A skinned mesh bound whole to the head bone, in
+  a neck part that keeps the body's neck; one tint texture named like the model holds both. Gated to stand no
+  more than 2 mm inside the head envelope and to cover the face. It came out of generation as a whole-head
+  hood, and since it clears every published head of a race it is as roomy as that race's envelope: a Troll's
+  includes the horns. The user then ruled that a respirator covers the front of the face only, not the horns, the
+  side or the top of the head (2026-11-17): `headgear` cuts the fitted piece to a rounded outline from the chin to
+  the brow, short of the ears, and turns the cut edge in, so the head's own hair, ears, horns and skull show (`--cover head` keeps a piece whole, for a hood). The piece's hem hangs below the chin
+  by a share of the piece, so the cut removes its flare on every race.
+  **On hold (user, 2026-11-17):** the respirator is halted, to be tried again later. The face-only cut passes its
+  gates on the six bodies checked and was seen in the client on the Human male only; it is not approved, and it is
+  not part of the step to the other bodies or of any publication until the user takes it up again.
+* **Client check.** `poses` gained `--under REGISTRY=NUMBER` (the actors also wear a published outfit),
+  `--cells` (logo cells in turn), the presets `waist` and `head`, and `--body-pack` (camera set for the body's
+  height). A client check and a generation on the shared ComfyUI are not run at the same time: the shots stall.
+* **The other 18 bodies (2026-11-17, user go-ahead for belt and brassard only).** `accessory fit` and `brassard`
+  were run for each of the 18 remaining bodies over its published 6020; all 36 fits pass their gates. Seen in the
+  client on four of them, both pieces: Large Troll male, Elf female, Large Dwarf male, Large Orc female. No holes,
+  nothing see-through, logos upright and unmirrored. The brassard stands clear of the arm as a loose ring with the
+  arm raised or forward, most on the Large bodies; on the Large Orc female the belt's band runs at a slant across
+  the back. The other 14 bodies were gated, not seen. Not published.
+
+Not checked: motion beyond the six poses, a logo value across a save or in multiplayer, Dwarf and Elf heads,
+Large bodies, publication gates, item icons.
