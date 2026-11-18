@@ -1519,8 +1519,17 @@ Checked in the game client on 2026-11-17, in areas laid from the converted files
 four sides, the corners and at the door (over two runs: the client stalled in each and some captures came late; the
 view from above was late in both and is not kept); by night, where the lit parts were lit, put out by script and
 brought back; and with walkers in both tilesets sent from the far corners to the door, the roller door, both halves
-of the yard, a corner of it and each side of the building, and from the next tile onto the yard: all arrived. Not
-yet painted in the Toolset, and its door has not been clicked through.
+of the yard, a corner of it and each side of the building, and from the next tile onto the yard: all arrived. On
+2026-11-18 the build with the round fence posts, the redrawn faces and the lamp lights was checked again: by day and
+with the same walkers in both tilesets (all arrived), and by night in Modern Exterior, where the five lamp heads glow
+and light the yard and the roof round them.
+
+Painted in the Toolset on 2026-11-18 from the built packs, in two user folders: straight in Modern Exterior and a
+quarter turn in Suburbs in the first, a half turn in Modern Exterior and straight in Suburbs in the second. Each
+palette lists it under Groups; each painting laid the four tiles with their turn and the Toolset made one door of
+appearance 58 at the hook. The bulkhead door, tunnel vent stack and switchgear cabinet were placed from the palette
+in the first folder and saved with their rows. In the client, each folder's two doors were given transitions to each
+other and clicked through: the player came out in front of the other area's door both ways, in both folders.
 
 <!-- srn-size-exception {"path":"srn_t_common/ek_sb_power_n.dds","reason":"The power station's relief map at 4096, as its colour is (user, 2026-11-17: \"Yes, full 4K normals\"); 22,369,776 bytes, below GitHub's hard limit."} -->
 
