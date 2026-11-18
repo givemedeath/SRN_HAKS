@@ -68,6 +68,21 @@ class CheckTests(unittest.TestCase):
         self.assertEqual([sum(one['position'][1] == y for one in props) for y in (62.0, 46.0, 30.0, 14.0)], [2, 2, 2, 1]); self.assertEqual(len(shots), 12)
         self.assertLessEqual(max(one['position'][0] + 6.0 for one in props), checks.ROW_END)
 
+    def test_late_views_are_taken_again_and_a_scene_change_whole(self):
+        """The power station's day check was refused three times running by a few late views (2026-11-17)."""
+        views = [{'label': one} for one in ('front', 'door', 'east-above')]; tail = [{'label': one} for one in ('out', 'out-behind', 'lit-again')]
+        self.assertEqual(checks.retaken(views, []), [])
+        self.assertEqual(checks.retaken(views, ['east-above', 'front', 'w2']), [views[0], views[2]])  # in their order; a walker's shot is no view
+        self.assertEqual(checks.retaken(views, ['out-behind'], tail), tail)  # the lights go out before they are seen from behind
+        self.assertEqual(checks.retaken(views, ['door'], tail), [views[1]])
+        self.assertEqual((checks.retake_name('sbday1'), checks.retake_name('abcdefghijk'), checks.retake_name('abcdefghijr')), ('sbday1r', 'abcdefghijr', 'abcdefghijs'))
+        # The folder they are taken again in is looked for before the client is run, not after its first run.
+        import tempfile
+        from pathlib import Path
+        base = Path(tempfile.mkdtemp()); (base / 'fixtures' / 'sbday1r').mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, 'taken again in'):
+            checks.group('game', base, base, 'sbday1', base / 'none.json', base, 'ek_x', next(iter(checks.FILL)))
+
     def test_a_check_refuses_a_mode_it_does_not_run(self):
         from argparse import Namespace
         from . import __main__ as command
@@ -169,20 +184,23 @@ class CheckTests(unittest.TestCase):
             def shoot(pid, path):
                 Path(path).write_bytes(b'png'); return path
 
-            def go(stamps):
+            def go(stamps, **said):
                 (user / 'logs' / 'nwclientLog1.txt').write_text(''.join(f'[Fri Nov 13 {stamp}] {line}' + chr(10) for stamp, line in zip(
                     stamps, ['ENVKIT shot=0 target=a valid=1', 'ENVKIT shot=1 target=b valid=1', 'ENVKIT done'])), encoding='cp1252')
                 process = mock.Mock(pid=7); process.poll.return_value = None
                 with mock.patch.object(prop_fixture.client, 'start', return_value=process), mock.patch.object(prop_fixture.client, 'stop'), \
                         mock.patch.object(prop_fixture.client, 'capture', side_effect=shoot), mock.patch.object(prop_fixture.time, 'sleep'), \
                         mock.patch.object(prop_fixture, 'clock', return_value=13 * 3600 + 58 * 60 + 25.0):
-                    return prop_fixture.run('game', record, captures)
+                    return prop_fixture.run('game', record, captures, **said)
             self.assertEqual(len(go(['13:58:21', '13:58:23', '13:58:24'])['captures']), 2)
             for path in captures.iterdir():
                 path.unlink()
             with self.assertRaisesRegex(ValueError, r'show a later view: a \(25 s\)'):
                 go(['13:58:00', '13:58:22', '13:58:24'])
             self.assertEqual(sorted(path.name for path in captures.iterdir()), ['shot-00-a-late.png', 'shot-01-b.png'])
+            told = go(['13:58:00', '13:58:22', '13:58:24'], late_ok=True)  # a caller that takes them again is told which
+            self.assertEqual((told['late'], len(told['captures'])), (['a'], 1))
+
 
     def test_a_check_area_holds_the_group_with_ground_all_round(self):
         """The rail freight depot, 8 by 8 (2026-11-13), did not fit the area of 9 tiles that held the 3 by 3 groups."""

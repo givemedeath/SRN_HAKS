@@ -44,6 +44,46 @@ draws the block the front's way round again (Aurora Warrens, user 2026-11-15). B
 pieces, check that each side wall is the same material in every piece that shows it, that the dock doors match, and
 that nothing large (a trailer, a skip) stands in front of the doors: the generator fuses it into the wall.
 
+A building is drawn without its perimeter fence (user, 2026-11-17: "we need to make sure we don't do any more
+perimeter fences via meshy and add them in post processing"). Every building prompt says to leave out the fence, its
+gate, gate posts and razor wire, and any chain-link, railing or wire standing in front of a wall, and a set whose
+building subject or notes ask for one is refused (a note may say to remove it). The fence is built afterwards: the
+game set's `fence` parts, or fence sections placed in the group. State it as a `perimeter` on the model, which builds the posts, rails, chain-link sheets
+and a coil of barbed wire along the top of every run (user, 2026-11-17: "Fences will generally need to be topped with
+spiral barbed wire"):
+
+```
+"perimeter": {"box": [[x0, y0], [x1, y1]], "z": [foot, top], "steel": [x, y, z], "concrete": [x, y, z],
+              "gateways": [{"side": "north", "from": -7.5, "to": -2.5}]}
+```
+
+in metres on the finished model: `steel` and `concrete` are points of the model whose tone the fence and the
+gateway posts take, a gateway is an opening in the north, east, south or west side between two places along it, and
+`"coil": false` leaves the wire off. The posts are round tubes with caps, the gateway posts capped concrete blocks,
+and all of it shows the fence's own picture (`<name>_w`: the wires, galvanised steel rusted at the foot, and pitted
+concrete), not one flat colour of the model's (user, 2026-11-17: "the posts for the fences needs to be better than a
+square pole and they don't even look like they have any texture applied"). The same parts can be stated one by one as
+a `frame` beside `fence` sheets, for a fence that is no rectangle: `{"tube": [from, to], "radius", "cap"}`,
+`{"block": [foot, top], "size"}` or `{"coil": [from, to], "radius", "pitch"}`, each with a `picture` point. The Shiawase Barrens power station was generated with
+its fence in both views: the fence came back as open frames, its chain-link printed on the rear wall, the transformers
+and the roller door, and the surface behind its razor wire smudged. Look at each chosen building reference for a fence
+before selecting it.
+
+A generator gives some faces a sliver of the picture, which the game draws out across the whole face as streaks (the
+power station's slab showed a square metre of them at its gateway; user, 2026-11-17: "what is this smear?"). Every
+build mends them by itself (`convert.relaid`): a face of 0.1 square metres or more that shows under a sixth of the
+model's usual grain is cut into pieces and drawn with the sound surface of its own plane beside it, of its own tone.
+A build's report counts them (`relaid`) and notes each one it found no surface for; look at those with `view --eye`.
+A model built before 2026-11-17 is mended when it is next built and installed from its kept source. A count is not
+a smear seen: the Aurora Warrens block's seven such faces (one of 6.8 square metres) and the Night Bazaar gate's two
+face into the building, a view with and without the mend showed no difference, and neither was installed again
+(user, 2026-11-18). Look before rebuilding an older building for this alone.
+
+A building's views can be drawn without its slab: state `"slab": false` on each of them. The slab shares the
+building's one picture (about a fifth of the power station's surface) and a planned walk did not cross from tile to
+tile on it; the default stays the slab with its street furniture (user, 2026-11-10: "we should keep the slab"), so
+ask before using it on a sheet. Not yet tried through Meshy.
+
 Images that are already clean references on white (made apart from the concept sheets, one object to an image) come
 in as a sheet of their own: compose them on white into `<sheets>/NNb_<what>.png`, give the set a box round each and
 `"drawn": true`, and `reference` takes each crop as it is, with a receipt naming its hash, and sends nothing to ComfyUI.
@@ -133,6 +173,29 @@ vertices a face, read from `envkit view --eye`.
 
 Size a building by its door: scale it until the door leaf is about 2.1 m, then choose the tile group's size.
 Its door hook is door type 58. Screens and signs are lit.
+
+Measure before the game set is written, so nothing is measured twice:
+
+```
+envkit measure --source <root>/meshy/models/<key> --height <metres> [--leaf <metres>] [--probe label=x0,y0,z0,x1,y1,z1 ...]
+```
+
+It prints the footprint and the slab (its top and outline) at that height and, given the door leaf's height as read
+there from one close `view --eye --grid 0.5`, the heights worth standing the building at: the one that gives the door
+2.1 metres with the tiles it then takes, and for each smaller group the tallest that still fits it with the leaf that
+leaves. Choose between them first: the Shiawase Barrens power station was measured at 10 metres (3 by 2 tiles) and
+again at 9.55 (2 by 2). A `--probe` box tells what of the model it holds, for a wall's depth or a lamp's place.
+
+A group is built many times while its fence, lit boxes and path nodes are settled. What a build works out from the
+model alone (the map of its places, the winding of its faces, how it is squared up) and every compressed map are
+kept in ignored `output/envkit/cache` and read back by the next build of the same model: the power station's
+build fell from 197 seconds to 35, to the same bytes, and a first build to 115 (the map of places is drawn many
+faces at a time and the maps are compressed four at a time). `ENVKIT_NO_CACHE=1` works everything out anew. The
+cache tidies itself: the six newest of each kind worked out from a model and the 400 compressed maps last used stay.
+
+`envkit tiles` notes raised ground (a slab, a deck) of a tile that is reached only across the line from the next
+tile: a planned walk has not crossed there (see the troubleshooting row on fenced yards). Act on the note before
+installing and walking.
 
 ### A building in pieces, and a group of several models
 
@@ -230,7 +293,14 @@ envkit check lights --game <game> --models ... --root <root> --name <name> --bui
 ```
 
 Both read the packs, so they follow step 5. `group` lays the pack's tile numbers with the built models, and
-refuses where the pack holds another build: a building built again is installed again first. `near` frees the
+refuses where the pack holds another build: a building built again is installed again first. `walk` also takes the
+day's views once its walkers have arrived, so one run of the client checks both, and `day` alone is seldom needed. A
+view captured after its shot had passed is taken again once, in a second short run (`retake-<label>.png`), and the
+check is refused only if it is late again; a walk is judged by its log, so a late picture of a walker refuses nothing.
+One run is about a minute of starting and stopping the client and eight seconds a shot; a run that takes much longer
+is waiting for another session's client to close or stalling under another session's GPU work (the power station's
+runs took 6 to 11 minutes while the head batch's geometry jobs ran). Day, night and both tilesets in one start of the
+client would save two minutes of twenty and were not built. `near` frees the
 player to show which storeys the client hides; `night` also puts out every lit model of the group, its own and its
 parts', and brings them back (`out`, `out-behind`, `lit-again`). `walk` sends walkers from the far corners of the
 area to the door, to each side of the building and onto the ground a walk must go furthest round to reach (a fenced
@@ -300,10 +370,15 @@ player is; `stages` in what it prints is each place the player came to. Run it o
 
 ## A new sheet, and a review of the sets
 
-All 59 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
-(`56_denver_rail_freight_yard.png`, 2026-11-12) and three street shops (`57_pulse_tech_matrix_gear_shop.png`,
-`58_chop_shop_cyberware_clinic.png` and `59_iron_sight_arms_gun_shop.png`, 2026-11-14) were brought in later with
-`onboard`, as a sheet that comes later is. A sheet from outside the batch is copied into `<sheets>` under its
+All 60 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
+(`56_denver_rail_freight_yard.png`, 2026-11-12), three street shops (`57_pulse_tech_matrix_gear_shop.png`,
+`58_chop_shop_cyberware_clinic.png` and `59_iron_sight_arms_gun_shop.png`, 2026-11-14) and the Barrens power
+station (`60_shiawase_barrens_power_station.png`, 2026-11-17) were brought in later with `onboard`, as a sheet that
+comes later is. Sheet 60 is sheet 6's Shiawase substation drawn again for the Barrens (user, 2026-11-17): the same
+building worn down, on one fenced slab with an open yard, one door (the way down to the utility tunnels) and one
+roller door. It was drawn with the Codex CLI's image tool from sheet 6 and revised from its own drawing; where
+`boxes` joins a hero to the title block or a row of props to its heading, as it did there, state the boxes by hand
+and read them back with `crops`. A sheet from outside the batch is copied into `<sheets>` under its
 `NN_<what>.png` name. `boxes` needs scipy, which the bundled Python lacks: put the pinned itemkit library folder
 (`.tools/itemkit-python-v1` of the shared tool root) on `PYTHONPATH` for it. The same commands review the sets against each other when props are to be reused. `<sheets>` is the folder
 holding the concept sheets, each named `NN_<what>.png`. `boxes` finds drawings on a white sheet; ask for one on
@@ -357,6 +432,26 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
 
 ## When something looks wrong
 
+- **Part of the picture is smudged, or has a mesh printed on it, while the rest is crisp** (the power station: a
+  warning sign crisp below the height of the fence's razor wire and smudged above it; user, 2026-11-17: "most of the
+  texture is crisp and only some parts look smeared. Are those detectable and repairable in a systematic way?"). The
+  generator makes a thing drawn in front of a surface into geometry of its own and invents the surface behind it,
+  which it draws soft; what was seen through a framed mesh it prints onto the surface behind.
+  `envkit smears --source <root>/meshy/models/<key> --height <metres> --view front --view back --output <scratch>`
+  finds both from the model's geometry, seen from each side a reference was drawn from square on (`front`, `back`,
+  `east`, `west`), and lets the picture confirm each point: `smudged` (behind something nearer, and holding less fine
+  detail than the cleanly seen surface), `printed` (inside a frame of nearer things, and holding more) and `plain`
+  (the geometry points at it and the picture shows nothing wrong). It writes `smears.json`, the patches largest first
+  with their boxes in metres on the model as `view` stands it, and `marked`, a copy of the model with the patches
+  painted on (red smudged, yellow printed, blue plain): draw it with `view --source <scratch>/marked --height
+  <metres>`, or `--eye` through a game set of one line. It needs scipy, as `onboard boxes` does. On the power
+  station its red lay on the bands behind the razor wire and its yellow on the fence panels printed on the walls; a
+  bare wall between two pipe runs was marked too, partly yellow, so a patch is a place to look. On a front crowded
+  with balconies, pipes and awnings (Aurora Warrens) most of the wall is behind something and most of it is marked,
+  nearly all `plain`: its `smudged` there has not been checked by eye. Surface no reference saw is invented whole and
+  comes out as detailed as the rest, so it is counted (`shares.unseen`) and not listed. State a `smooth`, `copy` or
+  `paint` from a patch's box; a repair is no sharper than the map (the power station's has 43 texels a metre against
+  108 to 300 on a prop), so a sign or lettering that must read close up wants a piece of its own or a prop.
 - **A lit part does not light.** `envkit view ... --lit` counts for each lit part the texels its box holds and
   the texels it lights (`litParts`). A box that holds much and lights nothing is on the wrong part of the
   model, or on a part too dark to shine.
@@ -500,6 +595,16 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   ground is reached and only the one long walk gives up: say so in the provenance, with the starts that arrived.
   Aurora Warrens' west walker stopped at the same spot under three settings of its nodes, and Night Bazaar's west and
   east walkers both stopped so; in each the walkers from beside and from the south corner arrived (2026-11-16).
+- **Walkers into a fenced yard arrive in the tile that holds its gateway and give up in the next.** A planned walk
+  did not cross from one tile to the next inside the Shiawase Barrens power station's fenced yard, which stands on
+  the building's slab: as a 3 by 2 group with one gateway in the middle tile, walkers to the door and the middle of
+  the yard arrived and those to its east and west ends walked straight at the fence, with the nodes chosen and with
+  the end tiles stated; as a 2 by 2 group with the one gateway in the west tile, the walker to the door in the east
+  tile gave up as well (2026-11-17, both tilesets, five builds). Give every tile of the yard a gateway of its own on
+  the middle of a side that faces out, and state each of those tiles a node of that one side (`N`, turned), so no
+  walk is planned from tile to tile inside the fence: with a vehicle gateway before the roller door and a personnel
+  gateway before the tunnel door, every walker arrived. Fit the site to as few tiles as hold it first: at three tiles
+  wide the fences ran through the middles of the end tiles.
 - **A walk check that passed fails after a rebuild that changed nothing walkable** (an underfoot part, a `clear`).
   A rebuild can draw every tile's walkmesh faces a little differently, and a walk the engine can only just plan
   comes out either way. The depot's crane rails and the crane's own stub rails taken away left `walk.png` the same,
@@ -561,6 +666,26 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   faces, so `paint` misses some of it (the rail yard's office module, 2026-11-13). Cover each pane with a thin built
   bar (`built`, `bar`, coloured from a dark glass point) just in front of the layers, inside its frame, measured from
   the frame's profile across the window; build a frame-grey bar over a mullion drawn light. Check both faces.
+- **A building's floodlight is dark at night, or glows over dark ground** (the power station's five lamp heads;
+  user, 2026-11-18: "the tower lights on the tile group aren't lit", "those lamp heads need actual lights"). A
+  generator draws a lens dark, and a lit part with a `value` test then lights a tenth of its box (`view --lit`:
+  `lit` far under `held`). Paint the lens first: a `paint` entry with the head's box, a warm white and `"facing":
+  [0, 0, -1]` takes only the faces that look within 60 degrees of that way, the lens and the head's underside and
+  not its housing. Then give the head a light: `tiles.lamps`, `[{"part", "at": [x, y, z], "colour": [r, g, b],
+  "radius": metres}]` on the finished model, is a light node of that colour in the tile the place lies in
+  (`<tile>_lamp<n>`, twice a main light's strength: at one it hardly showed from seven metres up, and at three over
+  12 metres it washed the ground pale by day). A tile's two main lights stay dark until a builder colours them, as
+  the Toolset leaves every light of a tile it paints at 0; a lamp's own light is on wherever the group is painted,
+  by day as well as by night, as a coloured main light is. Nothing puts it out: colour and multiplier keys on its
+  node in the tile's day animation changed nothing in the client, a script that puts the group's lights out swaps
+  pictures and does not reach it, and as a source light it would be dark until a builder coloured it. Look for every head, roof gear included, before stating
+  them: two of the five were on the roof and had no lit part. A lamp's `at` is the head's lens: one further than
+  0.3 metres from the model is refused when the group is built, as a placeable's light is. See it in `check group
+  --mode night`: the ground under each head lit in the lamp's colour.
+- **`Test-Repository.ps1` refuses a building's relief map at the PR** (`ek_sb_power_n.dds`, 22 MB, 2026-11-18). A
+  building at `colour` 4096 keeps its relief at 4096 too, and that map is over the 15 MiB the repository takes a
+  file at. `envkit tiles` says so in the report's notes: state a `srn-size-exception` for the file's path in the
+  pack in PROVENANCE.md, with the reason, in the commit that adds it.
 - **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
   own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
   its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",

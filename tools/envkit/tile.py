@@ -166,6 +166,28 @@ def _masses(closed):
     return labels, count
 
 
+def across_seams(walk, raised, rows, columns, least=16):
+    """Raised ground of a tile that is reached only across the line from another tile of the group: [(row, column,
+    cells)], each a joined patch of at least `least` walk cells, most of it on the slab or a deck, that touches no side
+    of its tile on the group's rim. walk: the cells one can walk on; raised: those on the slab or a deck.
+
+    A planned walk has not crossed from tile to tile on a slab. The Shiawase Barrens power station's fenced yard stood
+    on its slab: with one gateway, walkers arrived in the tile that held it and gave up in the next, in five builds of
+    two layouts, whatever nodes were stated, and all arrived once each yard tile had a gateway of its own (client,
+    2026-11-17); Aurora Warrens' west walker gave up at a strip of slab on the line between two tiles (2026-11-16).
+    Ground level with the terrain is crossed: the rail depot's inner tiles are reached."""
+    reached = _outside(walk); found = []
+    for row in range(rows):
+        for column in range(columns):
+            span = (slice(row * CELLS, (row + 1) * CELLS), slice(column * CELLS, (column + 1) * CELLS)); here = reached[span]; rim = np.zeros_like(here)
+            rim[0] |= row == 0; rim[-1] |= row == rows - 1; rim[:, 0] |= column == 0; rim[:, -1] |= column == columns - 1
+            labels, count = _masses(here)
+            for patch in (labels == index for index in range(1, count + 1)):
+                if patch.sum() >= least and not (patch & rim).any() and raised[span][patch].mean() > 0.5:
+                    found.append((row, column, int(patch.sum())))
+    return found
+
+
 def _decks(points, place, standing, shape):
     """(deck, stairs): the height of the deck each survey sample lies on, 0 off any deck, and of the stairs up to one,
     0 off any. A deck is a flat floor past the knee of DECK_AREA at least, and its rim, the samples beside it where the
@@ -613,7 +635,9 @@ def path_nodes(found, rows, columns, stated=None, *, unplanned=False):
 
 def _daylight(name, halos):
     """The four animations the game plays on a tile as the hour turns, with the halo sheets clear by day and full by
-    night. Lengths and the quarter-second blend are the stock city tiles'."""
+    night. Lengths and the quarter-second blend are the stock city tiles'. A lamp's light is not keyed here: colour
+    and multiplier keys on its node changed nothing by day in the client (2026-11-18), a tile's lighting being worked
+    out when the area loads, so it shines by day as a coloured main light does."""
     lines = []
     for anim, (start, finish, length) in {'day': (0, 0, 1 / 30), 'day2night': (0, 1, 0.56667), 'night': (1, 1, 1 / 30), 'night2day': (1, 0, 0.6)}.items():
         lines += [f'newanim {anim} {name}', f'  length {length:.5f}', '  transtime 0.25', f'  animroot {name}', f'  node dummy {name}', '    parent NULL', '  endnode']
@@ -653,7 +677,10 @@ def _level_cut(card, height, light=None):
     return [([card[0], card[1], right, left], False), ([left, right, card[2], card[3]], True)]
 
 
-def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=None, cap=(), card_light=None, card_bitmaps=None):
+LAMP_MULTIPLIER = 2  # how strong a lamp's own light is: at 1, seven metres up, it hardly showed on the ground, and at 3 over 12 metres it washed the ground pale by day (client, 2026-11-18)
+
+
+def model_text(name, parts, material, ground, cards, walk, *, lights=(), lamps=(), fade=None, cap=(), card_light=None, card_bitmaps=None):
     """One tile's ASCII model. parts: [(vertices, normals, uvs, faces)] of the building, in the tile's space; a fifth
     value, true, marks a part the game may hide (`tilefade`), and a sixth names the picture a part shows where that is not
     `material` (a fence's sheets). ground: the texture of the ten-metre square under it, laid
@@ -700,6 +727,12 @@ def model_text(name, parts, material, ground, cards, walk, *, lights=(), fade=No
     for index, (x, y, z) in enumerate(lights, 1):
         lines += [f'node light {name}ml{index}', f'  parent {name}', f'  position {x:.5f} {y:.5f} {z:.5f}', '  orientation 1 0 0 0', '  color 1 1 1', '  radius 14',
                   '  multiplier 1', '  ambientonly 0', '  nDynamicType 1', '  affectdynamic 1', '  shadow 0', '  lightpriority 5', '  fadinglight 1', 'endnode']
+    # A lamp's own light: a main light is dark until a builder colours it, and a floodlight that glows over dark
+    # ground is not lit (the power station's lamp heads; user, 2026-11-18: "those lamp heads need actual lights").
+    for index, ((x, y, z), (red, green, blue), radius) in enumerate(lamps, 1):
+        lines += [f'node light {name}_lamp{index}', f'  parent {name}', f'  position {x:.5f} {y:.5f} {z:.5f}', '  orientation 1 0 0 0',
+                  f'  color {red:.3f} {green:.3f} {blue:.3f}', f'  radius {radius:g}', f'  multiplier {LAMP_MULTIPLIER}', '  ambientonly 0', '  nDynamicType 1', '  affectdynamic 1',
+                  '  shadow 0', '  lightpriority 4', '  fadinglight 1', 'endnode']
     lines += _walk_node(name, name, *walk) + [f'endmodelgeom {name}']
     if cards:
         lines += _daylight(name, [f'{name}_halo{index}' for index in range(len(cards))])
@@ -881,7 +914,7 @@ def walk_targets(roomy, planned=None):
     return targets
 
 
-def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=(), nodes=None):
+def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0.4), fade=None, door=None, parts=(), nodes=None, lamps=()):
     """Write the tile models and walkmeshes of a finished model (`convert.shape`) into `folder`; returns
     {rows, columns, tiles: [{model, row, column, faces, walkFaces, path, image, lights, doors}], notes} with the tiles
     in the set file's order. notes: what to look at before the group is installed, in words: ground no exit of its tile
@@ -894,7 +927,9 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     picture, halo and fence sheets, and with the building one ground to walk on, cut into the same tiles; a model placed
     more than once comes once for each place, and they are joined (`merge_parts`). A part marked `underfoot` (railway
     track) is drawn but not surveyed: the ground is walked flat across it, and it may run off the group's edges, where
-    a raised slab may not. It stands no higher than the knee."""
+    a raised slab may not. It stands no higher than the knee. The group is as many tiles as hold the models, and their
+    fences where those reach past them (a perimeter round a building drawn without its slab). lamps: [{at: [x, y, z], colour: [r, g, b] (0-255), radius}]
+    on the finished model, each a light of its own colour in the tile it stands in, lit without a builder's doing."""
     require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     parts = merge_parts(parts); meshes = [(name, made, colour), *parts]
@@ -905,8 +940,19 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     walked = join([one for one in shaped if not one.get('underfoot')], ('vertices', 'faces'))
     wires = [(texture, one['wire']) for texture, one, _ in meshes if one.get('wire') is not None]
     barrier = tuple(join([wire for _, wire in wires], ('vertices', 'faces')).values()) if wires else None
-    rows, columns, corner = layout(vertices); found = survey(walked['vertices'], walked['faces'], rows, columns, corner, barrier=barrier)
+    rows, columns, corner = layout(vertices)
+    if wires:  # a fence built round a building with no slab reaches past its walls: the group holds the fence too
+        every = np.vstack([vertices, *[wire['vertices'] for _, wire in wires]])
+        if (every[:, :2].min(0) < corner).any() or (every[:, :2].max(0) > corner + np.array([columns, rows]) * SIZE).any():
+            rows, columns, corner = layout(every)
+    found = survey(walked['vertices'], walked['faces'], rows, columns, corner, barrier=barrier)
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
+    if lamps:  # each at its lamp head, as a placeable's light is (`convert.light_gap`): one mistyped, or left from before a turn, lit the ground from the air
+        surface = np.vstack([convert.scatter(np.asarray(one['vertices'], float), np.asarray(one['faces']), spacing=0.03) for one in shaped])
+        for lamp in lamps:
+            away = float(np.linalg.norm(surface - np.asarray(lamp['at'], float), axis=1).min())
+            require(away <= convert.LIGHT_NEAR, f'A lamp of {name} stands {away:.2f} metres from the model, in the air: state it on the finished model, at the lens of '
+                    f'its lamp head, within {convert.LIGHT_NEAR} metres: ' + str(lamp.get('part', lamp['at'])))
 
     def shared(points, polygons):  # each face's tile, by its middle, and whether it is above the fade height
         middle = points[polygons].mean(1)
@@ -942,12 +988,14 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                         shown.append((one['vertices'][used] - centre, one['normals'][used], one['uvs'][used], local.reshape(-1, 3), hidden, texture))
             walk = walkmesh(found, row, column); lights = light_places(found, row, column)
             halos = cards.get((row, column), [])
-            text = model_text(model, shown, name, ground, [card for card, _, _ in halos], walk, lights=lights, fade=fade, card_light=[light for _, light, _ in halos],
+            mine = [(np.asarray(lamp['at'], float) - centre, np.asarray(lamp['colour'], float) / 255, float(lamp['radius'])) for lamp in lamps
+                    if tuple(np.clip(((np.asarray(lamp['at'][:2], float) - corner) // SIZE).astype(int), 0, [columns - 1, rows - 1])) == (column, row)]
+            text = model_text(model, shown, name, ground, [card for card, _, _ in halos], walk, lights=lights, lamps=mine, fade=fade, card_light=[light for _, light, _ in halos],
                               card_bitmaps=[bitmap for _, _, bitmap in halos], cap=lid(found, row, column) if fade is not None else ())
             (folder / f'{model}.mdl').write_text(text, encoding='cp1252', newline='\n')
             (folder / f'{model}.wok').write_text(walk_text(model, walk), encoding='cp1252', newline='\n')
             one = {'model': model, 'row': row, 'column': column, 'faces': counts['faces'], 'fadingFaces': counts['fading'], 'walkFaces': int(len(walk[1])),
-                   'path': nodes[(row, column)], 'lights': len(lights), 'doors': []}
+                   'path': nodes[(row, column)], 'lights': len(lights), 'lamps': len(mine), 'doors': []}
             if one['path']['offPath']:
                 notes.append(f'{model}: {one["path"]["offPath"]} walk cells that no walk from round the group is planned onto (`path_nodes`)')
             for sides in [sides for at_row, at_column, sides in cut if (at_row, at_column) == (row, column)]:
@@ -962,6 +1010,9 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
                 x, y, z = (at - centre).round(2).tolist()
                 one['doors'].append({'type': int(door['type']), 'x': x, 'y': y, 'z': z, 'orientation': orientation, 'drawnOut': drawn})
             tiles.append(one)
+    for row, column, cells in across_seams(found['material'] == STONE, found['raised'] | (found['deck'] > 0), rows, columns):
+        notes.append(f'{name}_t{row}{column}: {cells * (SIZE / CELLS) ** 2:.0f} m² of raised ground is reached only across the line from the next tile, which a planned walk '
+                     'has not crossed on a slab (`across_seams`): give this tile a way in of its own on a side that faces out, or the building no slab')
     walk_picture(found, unplanned).save(folder / WALK_PICTURE)
     return {'rows': rows, 'columns': columns, 'slab': round(found['slab'], 3), 'roof': round(found['roof'], 3), 'fade': fade, 'tiles': tiles, 'notes': notes}
 

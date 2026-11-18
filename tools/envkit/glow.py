@@ -11,6 +11,8 @@ same), so the light around a sign is drawn: `halo` blurs the model's glow, seen 
 onto a card that stands just in front of it and is added to the picture behind."""
 from typing import NamedTuple
 
+from pathlib import Path
+
 import numpy as np
 
 from . import require
@@ -24,7 +26,60 @@ def position_map(points, uvs, faces, size, *, facing=False):
     """((size, size, 3) positions, (size, size) covered): the place on the model each texel shows. Rows run down the
     image as v runs up from 0, the way glTF and the game both read a texture. Each triangle also covers the texels
     just outside its edges, so the gutter the smaller mips blend in is lit like its island. With `facing`, a third
-    value: the way each texel's surface faces, as a unit vector."""
+    value: the way each texel's surface faces, as a unit vector. A large model's is kept for its next build (`cache`)."""
+    from . import cache
+    points, uvs, faces = np.asarray(points, float), np.asarray(uvs, float), np.asarray(faces)
+    return cache.arrays('places', (points, uvs, faces, size, facing, Path(__file__)), lambda: _position_map(points, uvs, faces, size, facing), faces=len(faces))
+
+
+PLACES_BLOCKS, PLACES_BATCH = (4, 8, 16, 32, 64, 128, 256), 1_500_000  # texels across the square a face is drawn in, and texels drawn at once
+
+
+def _position_map(points, uvs, faces, size, facing):
+    """The map as `_position_map_face_by_face` makes it, the faces drawn many at a time: a model of 190,000 faces took
+    42 seconds a map, face by face, and two maps a build (2026-11-17). Which face a texel shows is settled first:
+    the last face it lies inside, else the first whose gutter reaches it; then its place is worked out once."""
+    pixel = uvs * size - 0.5; corner = pixel[faces]; a, b, c = corner[:, 0], corner[:, 1], corner[:, 2]
+    low = np.maximum(np.floor(corner.min(1)).astype(np.int64) - 1, 0); high = np.minimum(np.ceil(corner.max(1)).astype(np.int64) + 1, size - 1)
+    span = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (c[:, 0] - a[:, 0]) * (b[:, 1] - a[:, 1])
+    drawn = (high >= low).all(1) & (np.abs(span) >= 1e-12); extent = (high - low + 1).max(1)
+    margin = 1.0 / np.maximum(np.sqrt(np.abs(span)), 1.0)
+    inside = np.full(size * size, -1, np.int64); beside = np.full(size * size, len(faces), np.int64)
+
+    def weights(chosen, xs, ys):
+        """Each chosen face's three weights at its texels (xs, ys), one row of texels a face."""
+        pick = lambda values: values[chosen].reshape((-1,) + (1,) * (xs.ndim - 1))
+        ax, ay, bx, by, cx, cy, over = (pick(values) for values in (a[:, 0], a[:, 1], b[:, 0], b[:, 1], c[:, 0], c[:, 1], span))
+        second = ((xs - ax) * (cy - ay) - (cx - ax) * (ys - ay)) / over; third = ((bx - ax) * (ys - ay) - (xs - ax) * (by - ay)) / over
+        return np.stack([1 - second - third, second, third], -1)
+
+    def settle(chosen, xs, ys, held):
+        found = weights(chosen, xs, ys); least = found.min(-1); texel = ys * size + xs; face = np.broadcast_to(chosen.reshape((-1,) + (1,) * (xs.ndim - 1)), xs.shape)
+        within = held & (least >= 0); gutter = held & (least < 0) & (least >= -margin[chosen].reshape((-1,) + (1,) * (xs.ndim - 1)))
+        np.maximum.at(inside, texel[within], face[within]); np.minimum.at(beside, texel[gutter], face[gutter])
+    below = 0
+    for block in PLACES_BLOCKS:
+        chosen = np.nonzero(drawn & (extent > below) & (extent <= block))[0]; below = block; reach = np.arange(block)
+        for start in range(0, len(chosen), max(1, PLACES_BATCH // (block * block))):
+            some = chosen[start:start + max(1, PLACES_BATCH // (block * block))]
+            xs = np.broadcast_to(low[some, 0, None, None] + reach[None, None, :], (len(some), block, block)); ys = np.broadcast_to(low[some, 1, None, None] + reach[None, :, None], (len(some), block, block))
+            settle(some, xs, ys, (xs <= high[some, 0, None, None]) & (ys <= high[some, 1, None, None]))
+    for one in np.nonzero(drawn & (extent > below))[0]:  # the few faces larger than any block, each over its own texels
+        xs, ys = np.meshgrid(np.arange(low[one, 0], high[one, 0] + 1), np.arange(low[one, 1], high[one, 1] + 1))
+        settle(np.array([one]), xs[None], ys[None], np.ones((1,) + xs.shape, bool))
+    shown = np.where(inside >= 0, inside, np.where(beside < len(faces), beside, -1)); texel = np.nonzero(shown >= 0)[0]; face = shown[texel]
+    where = np.zeros((size * size, 3)); toward = np.zeros((size * size, 3))
+    nearest = np.clip(weights(face, texel % size, texel // size), 0, 1); nearest /= nearest.sum(-1, keepdims=True)  # a gutter texel shows the edge beside it
+    where[texel] = (nearest[:, :, None] * points[faces[face]]).sum(1)
+    if facing:
+        out = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        toward[texel] = (out / np.maximum(np.linalg.norm(out, axis=1), 1e-12)[:, None])[face]
+    where, covered, toward = where.reshape(size, size, 3), (shown >= 0).reshape(size, size), toward.reshape(size, size, 3)
+    return (where, covered, toward) if facing else (where, covered)
+
+
+def _position_map_face_by_face(points, uvs, faces, size, facing):
+    """The map drawn a face at a time, as it was until 2026-11-17: what `_position_map` is held to in its test."""
     where = np.zeros((size, size, 3)); covered = np.zeros((size, size), bool); toward = np.zeros((size, size, 3))
     pixel = np.asarray(uvs, float) * size - 0.5
     for face in np.asarray(faces):

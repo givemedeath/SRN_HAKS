@@ -97,7 +97,7 @@ def _run(game, record, folder, **more):
     wait_for_clients(); captures = Path(folder) / 'captures'
     result = fixture.run(game, record, captures, **more)
     (captures / 'run.json').write_text(json.dumps(result, indent=1), encoding='utf-8')
-    return {'captures': result['captures'], 'lines': len(result['lines'])}
+    return {'captures': result['captures'], 'lines': len(result['lines']), **({'late': result['late']} if more.get('late_ok') else {})}
 
 
 def props(game, repo, base, name, models_path, built, wanted, *, night=False):
@@ -368,16 +368,38 @@ def laid_tiles(set_text, tileset, model, tiles, column0, row0):
     return laid
 
 
+def retake_name(name):
+    """The fixture a check's late views are taken again in: another resref of at most 11 characters."""
+    return name + 'r' if len(name) < 11 else name[:10] + ('s' if name[10] == 'r' else 'r')
+
+
+def retaken(views, late, tail=()):
+    """The views to take again of `views` (shots) when those labelled `late` came after their shot had passed: each of
+    them, in order, and all of `tail` if any of it was late, since its shots change the scene one after another (a
+    group's lights put out, seen from behind, and on again)."""
+    late = set(late); again = [shot for shot in views if shot['label'] in late]
+    return again + (list(tail) if any(shot['label'] in late for shot in tail) else [])
+
+
 def group(game, repo, base, name, models_path, built, model, tileset, mode='day', *, second_storey='0', size=None, scale_prop='ek_ss_vending', targets=None):
     """A built tile group (`tiles`' folder) laid in an area of `tileset`, which must hold it already (`install`): the
     tile numbers are the pack's, the models and walkmeshes the built ones. mode: day, night (with its lights put out
-    and on again), near or walk (`walk_plan`; refused if a walker stops more than REACHED metres short or with something in the way between (`walled`), after its
+    and on again), near or walk (`walk_plan`; it also takes the day's views, once the walkers have arrived, so one run of the client checks both; refused if a walker stops more than REACHED metres short or with something in the way between (`walled`), after its
     captures and `walks.json` are written). targets: {label: (x, y)} more places a walk sends walkers to, in metres from
     the group's south-west corner as `walk.png` shows them (the Saeder-Krupp yard's bay, which no automatic target
-    reaches). size: tiles across the area, by default as many as hold the group (`area_size`)."""
+    reaches). size: tiles across the area, by default as many as hold the group (`area_size`).
+
+    A view captured after its shot had passed is taken again, once, in a second short run of the same area
+    (`retaken`), and kept as `retake-<label>.png`; the check is refused only if it is late again. A walk's own shots
+    log where the walkers are and are judged by the log, not by their pictures, so a late one refuses nothing. The
+    power station's day check was refused three times running by two to seven late views of eleven while the machine
+    was busy, and a walk check by one late picture of a walker (2026-11-17)."""
     require(tileset in FILL, 'A check area is laid in ' + ' or '.join(FILL)); require(mode in ('day', 'night', 'near', 'walk'), 'mode is day, night, near or walk')
     require(not targets or mode == 'walk', 'Targets are where a walk check sends walkers: give them with --mode walk')
-    repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path)
+    repo, base = Path(repo).resolve(), Path(base).resolve(); second = retake_name(name)
+    # Before the client is run: found only when a view came late, a taken folder threw the whole first run away.
+    require(mode == 'near' or not (base / 'fixtures' / second).exists(), f'A view that comes late is taken again in {base / "fixtures" / second}, which is there already: give the check another --name')
+    models = convert.load_models(models_path)
     require(model in models and models[model].get('tiles'), model + ' is not a tile group of the game set')
     resources = _fresh(base, name)
     folder = Path(built) / model; made = json.loads((folder / 'report.json').read_text(encoding='utf-8'))
@@ -397,17 +419,24 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
         roomy = tile.read_walk(walk_picture); chosen = tile.walk_targets(roomy, tile.read_walk(walk_picture, planned=True))
         own_targets(roomy, targets or {}, chosen); chosen.update(targets or {})
         walkers = walk_plan(made['columns'], made['rows'], door, facing, chosen, column0=column0, row0=row0, size=size)
-        shots = walk_shots(made['columns'], made['rows'], walkers, name, column0=column0, row0=row0, size=size); people = [{'position': one['start'], 'facing': 0.0} for one in walkers]
+        views = group_shots(made['columns'], made['rows'], door, 'day', column0=column0, row0=row0, facing=facing)
+        shots = walk_shots(made['columns'], made['rows'], walkers, name, column0=column0, row0=row0, size=size) + views
+        people = [{'position': one['start'], 'facing': 0.0} for one in walkers]
     else:
-        shots = group_shots(made['columns'], made['rows'], door, mode, column0=column0, row0=row0, facing=facing)
+        shots = views = group_shots(made['columns'], made['rows'], door, mode, column0=column0, row0=row0, facing=facing)
+    tail = []
     if night:
         lit = [(texture, 'halo' in found) for texture in [model, *made.get('parts', {}).values()] if (found := convert.lights(texture, folder / 'shared'))]
-        shots += blackout_shots(made['columns'], made['rows'], lit, column0=column0, row0=row0)
-    record = fixture.build(name, resources, [{'model': scale_prop, 'position': [3.0, 3.0], 'bearing': 0.0, 'static': True}], shots, base / 'fixtures' / name, game,
-                           repo / 'srn_2da/placeables.2da', people=people, night=night, size=size, hold=walk_hold(size) if walkers else 6.0,
-                           ground={'tileset': tileset, 'fill': FILL[tileset], 'tiles': laid, 'lights': {spot: [11, 0] for spot in laid} if night else {}})
+        tail = blackout_shots(made['columns'], made['rows'], lit, column0=column0, row0=row0); shots = shots + tail
     extra = f'[graphics.second-story-tiles]\nmode = {second_storey}\n' if mode == 'near' else ''
-    result = _run(game, record, base / 'fixtures' / name, extra_settings=extra)
+
+    def run(name, shots, people, hold):
+        record = fixture.build(name, resources, [{'model': scale_prop, 'position': [3.0, 3.0], 'bearing': 0.0, 'static': True}], shots, base / 'fixtures' / name, game,
+                               repo / 'srn_2da/placeables.2da', people=people, night=night, size=size, hold=hold,
+                               ground={'tileset': tileset, 'fill': FILL[tileset], 'tiles': laid, 'lights': {spot: [11, 0] for spot in laid} if night else {}})
+        return _run(game, record, base / 'fixtures' / name, extra_settings=extra, late_ok=True)
+    result = run(name, shots, people, walk_hold(size) if walkers else 6.0); again = retaken(views, result['late'], tail)
+    # The walk first: its log is written and judged whatever becomes of the views.
     if walkers:
         captures = base / 'fixtures' / name / 'captures'
         result['walkers'] = walks(json.loads((captures / 'run.json').read_text(encoding='utf-8'))['lines'], walkers)
@@ -418,6 +447,14 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
         short = [f'{one["label"]} stopped {one["short"]} m short of {one["target"]}' + (' with something in the way between' if one['walled'] else '')
                  for one in result['walkers'] if one['short'] > REACHED or one['walled']]
         require(not short, 'Walkers did not arrive: ' + '; '.join(short) + f'. See {captures}')
+    if again and mode != 'near':  # `near` frees the player in its first shot: its views are not taken out of their order
+        more = run(second, again, [], 6.0); kept = base / 'fixtures' / name / 'captures'
+        require(not more['late'], 'Captures came after their shot had passed, twice over: ' + ', '.join(more['late']) + f'. The client stalled; see {base / "fixtures" / second / "captures"}. Run the check again')
+        for path in map(Path, more['captures']):
+            copy = kept / ('retake-' + path.name.split('-', 2)[2]); shutil.copyfile(path, copy); result['captures'].append(str(copy))
+        result['retaken'] = [shot['label'] for shot in again]
+    else:
+        require(not again, 'Captures came after their shot had passed: ' + ', '.join(shot['label'] for shot in again) + '. The client stalled. Run the check again')
     return result
 
 

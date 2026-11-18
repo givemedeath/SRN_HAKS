@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_sb_power
+texture1 ek_sb_power_n
+texture2 ek_sb_power_s
+texture3 ek_sb_power_r
+texture4 null
+texture5 ek_sb_power_i

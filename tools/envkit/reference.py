@@ -26,6 +26,22 @@ RETIRED = {'atm': 'pay-kiosk', 'crate-stack': 'pallet-stack', 'cyberware-cabinet
 # make dressing areas faster; "we should keep the slab").
 SLAB = ('Keep the pavement slab the building stands on, and the fixtures and street furniture on it, such as bollards, bins '
         'and rubbish bags, exactly where they are. Remove the road beyond the slab, the puddles, the reflections and the loose litter.')
+# A perimeter fence is never generated (user, 2026-11-17: "we need to make sure we don't do any more perimeter fences via
+# meshy and add them in post processing"). The Shiawase Barrens power station's came back as open frames, its chain-link
+# printed on the walls, tanks and roller door behind it and the surface behind its razor wire smudged; the Ares Depot's
+# was printed on its side walls. The fence is built afterwards (a game set's `fence`, or fence sections placed in the
+# group), so every building is drawn without it, and `load_set` refuses a building that asks for one.
+FENCE = ('Leave out every perimeter fence with its gate, gate posts and razor wire, and any chain-link, railing or wire '
+         'standing in front of a wall: draw the walls and the ground behind them bare and whole.')
+# A building can be drawn without its slab instead: the asset states `"slab": false`. The slab shares the building's one
+# picture (it took about a fifth of the Shiawase Barrens power station's surface, at 40 texels a metre on its walls
+# where a prop has 100 to 300), and a planned walk did not cross from tile to tile on it (`tile.across_seams`,
+# 2026-11-17). The default stays the slab, with the street furniture on it (user, 2026-11-10).
+BARE = ('Leave out the ground: draw no pavement slab, yard, kerb or road under or round the building, which stands alone on the '
+        'plain white background, its walls running straight down to their foot. Keep what is fixed to its walls or piped to it; '
+        'leave out the bollards, bins, rubbish and street furniture that stand on the ground.' + ' ' + FENCE)
+SLAB = SLAB + ' ' + FENCE
+FENCED = re.compile(r'\b(fenc\w*|razor[- ]wire|chain[- ]link|gate ?posts?)\b', re.I)
 LEAD = {
     'prop': 'Redraw this {subject} as a clean, sharp, high-resolution reference image for 3D modelling. '
             'Keep exactly the same design, colours, proportions, markings and viewing angle.',
@@ -60,18 +76,21 @@ RULES = ('Show the whole object centred with a clear margin on a plain white bac
          'surfaces. No cast shadow, no ground, no people, no captions or text outside the object.')
 
 
-def prompt(kind, subject, notes='', unbranded=False, turn=None):
-    """The edit's text. `turn` says what a turned building view (TURNED) is seen from."""
+def prompt(kind, subject, notes='', unbranded=False, turn=None, slab=True):
+    """The edit's text. `turn` says what a turned building view (TURNED) is seen from; `slab` False draws a building
+    without the ground it stands on (BARE)."""
     require(kind in ('prop', 'building'), 'Asset kind must be one of: building, prop')
     require(isinstance(subject, str) and subject.strip() and '\n' not in subject, 'Subject must be one line of text')
     require(isinstance(notes, str), 'Notes must be text')
     require(unbranded is False or unbranded is True, 'unbranded is true or false')
+    require(slab is True or slab is False and kind == 'building', 'slab is true or false, and only a building is drawn without its slab')
     require(turn is None or kind == 'building' and isinstance(turn, str) and turn.strip() and '\n' not in turn,
             'A turned view is of a building, and says in one line what it is seen from')
     if turn is None:
         lead = LEAD[('unbranded' if kind == 'prop' else 'unbranded-building') if unbranded else kind].format(subject=subject.strip())
     else:
         lead = ' '.join(part for part in (TURNED.format(subject=subject.strip(), to=turn.strip()), NAMELESS if unbranded else '', SLAB) if part)
+    lead = lead if slab else lead.replace(SLAB, BARE)
     return ' '.join(part for part in (lead, WEAR, notes.strip(), RULES) if part)
 
 
@@ -86,9 +105,14 @@ def load_set(path):
     require(isinstance(data['assets'], dict) and data['assets'], 'A set needs assets')
     for name, asset in data['assets'].items():
         require(NAME.fullmatch(name) is not None, 'Asset names must be safe IDs: ' + name)
-        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', 'turn', 'drawn', *KIN},
+        require(isinstance(asset, dict) and {'kind', 'subject', 'box'} <= set(asset) <= {'kind', 'subject', 'box', 'notes', 'cut', 'turn', 'drawn', 'slab', *KIN},
                 'Asset needs kind, subject and box: ' + name)
         require(asset['kind'] == 'prop' or not (KIN - {'unbranded'}) & set(asset), 'Only props have a type: ' + name)
+        require('slab' not in asset or asset['kind'] == 'building' and asset['slab'] is False, 'Only a building states "slab": false, to be drawn without its slab: ' + name)
+        if asset['kind'] == 'building':  # what a note says to remove or leave out is no request for it
+            kept = ' '.join(part for part in re.split(r'(?<=[.:;])\s+', str(asset.get('notes', ''))) if not re.match(r'(remove|leave)\b', part, re.I))
+            require(not FENCED.search(f"{asset['subject']} {kept}"),
+                    f'A building is drawn without its perimeter fence, which is built afterwards: take the fence out of the subject and notes of {name}')
         if 'cut' in asset:  # a piece of a building, drawn from its whole view's chosen reference (`cut_box`)
             cut = asset['cut']; whole = data['assets'].get(cut['from']) if isinstance(cut, dict) and isinstance(cut.get('from'), str) else None
             # `mirror` flips the chosen reference left to right first (user, 2026-11-13: the rail yard's rear was drawn
@@ -108,7 +132,7 @@ def load_set(path):
         # redraw of the flipped front drew the block the front's way round again).
         require(asset.get('drawn', True) is True and not ('drawn' in asset and ('turn' in asset or 'cut' in asset and not asset['cut'].get('mirror'))),
                 'drawn is true, for a crop that is already a reference, and is neither cut nor turned (but for a mirrored cut, another view\'s mirror image): ' + name)
-        prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), turned(asset))
+        prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), turned(asset), asset.get('slab', True))
         if asset['kind'] == 'prop':
             require(NAME.fullmatch(str(asset.get('type'))) is not None, 'A prop needs a type: ' + name)
             require(asset['type'] not in RETIRED, f'Type {asset["type"]} is now {RETIRED.get(asset["type"])}: {name}')

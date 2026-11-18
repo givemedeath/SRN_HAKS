@@ -14,7 +14,8 @@ grid to read a game set's boxes from, `check` looks at props, lights, a tile gro
 Two commands stand beside a sheet's run. `onboard` brings a new concept sheet into the kit and reviews the sets
 against each other: boxes proposed on the sheet, set files written from a spec, pictures of the boxes, the reused
 props and the props of a type, a mechanical audit, and the decisions of a review applied. `study` reads the stock
-tiles of a tileset, for a question about how the engine wants a tile made."""
+tiles of a tileset, for a question about how the engine wants a tile made. `smears` tells where a generated model's
+picture is smudged or printed through, from what stood in front of each surface in its references."""
 import argparse
 import json
 import math
@@ -87,7 +88,7 @@ def command_reference(args):
             if asset.get('drawn'):
                 result = reference.as_drawn(name, source, args.seed, output)
             else:
-                text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset))
+                text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset), asset.get('slab', True))
                 result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         except Exception as failure:
             if not args.keep_going:
@@ -182,18 +183,26 @@ def command_tiles(args):
             part, part_maps, part_colour = shapes[name]
             files += convert.skin(texture, part_maps, folder / 'shared', crunch, part, colour=models[name].get('colour', 1024))
             placed += [(texture, convert.place(part, stand['at'], stand.get('turn', 0)), part_colour) for stand in tiles['parts'] if stand['model'] == name]
-        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'), nodes=tiles.get('nodes'),
+        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'), nodes=tiles.get('nodes'), lamps=tiles.get('lamps', ()),
                             ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']),
                             parts=placed)  # a model placed twice is joined there into one model of the group
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
         report['parts'] = textures; report['buildingTriangles'] = built
+        # The fences built on to the group are drawn by the same tiles and are no part of that count.
+        report['fenceTriangles'] = sum(len(one['wire']['faces']) for one in [made, *[one for _, one, _ in placed]] if one.get('wire'))
+        report['notes'] += convert.fence_notes(args.model, built, report['fenceTriangles'], meshy.BUILDING_TRIANGLES)
         # A stray face across a window hides what was modelled behind it and is passed over in a view of the whole front.
         report['veils'] = {name: found for name, one in {args.model: made, **{name: shapes[name][0] for name in textures}}.items() if (found := convert.veils(one['vertices'], one['faces']))}
         report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '
                             f'with `view --eye`; a stray face over an opening takes `clear`' for name, found in report['veils'].items() for one in found]
         report['blankPanels'] = report_blank
+        every = {args.model: made, **{name: shapes[name][0] for name in textures}}
+        report['relaid'] = {name: len(one['relaid']) for name, one in every.items() if one.get('relaid')}
+        report['notes'] += [f'{name}: a face of {face["m2"]} m² at {face["at"]} shows its picture drawn out, and no sound surface of its plane was found to draw it with: '
+                            'look at it close up with `view --eye`' for name, one in every.items() for face in one.get('drawnOut') or []]
         report['notes'] += [note for name, found in report['blankPanels'].items() for note in convert.blank_notes(name, found)]
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
+        report['notes'] += convert.oversize_notes(report['textures'])
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
     for note in report['notes']:  # beside the report, which stays the only thing on standard output
@@ -329,6 +338,24 @@ def command_onboard(args):
     print(json.dumps(told, indent=1))
 
 
+def command_measure(args):
+    """Measure a generated building before its game set is written (`measure.study`)."""
+    from . import measure
+    boxes = {}
+    for one in args.probe or []:
+        label, _, numbers = one.partition('='); values = [float(value) for value in numbers.split(',')] if numbers else []
+        require(label and len(values) == 6, 'A probe is label=x0,y0,z0,x1,y1,z1 in metres on the model as it stands'); boxes[label] = [values[:3], values[3:]]
+    print(json.dumps(measure.study(Path(args.source) / 'model.glb', args.height, args.leaf, boxes), indent=1))
+
+
+def command_smears(args):
+    """The places a generated model's picture is smudged or printed through, as patches with their boxes."""
+    from . import smears
+    told = smears.study(args.source, args.height, args.view, args.output)
+    print(json.dumps({**{key: told[key] for key in ('surface', 'shares', 'found', 'marked')}, 'patches': len(told['patches']),
+                      'largest': told['patches'][:12]}, indent=1))
+
+
 def command_study(args):
     from . import study
     if args.action == 'pathnodes':
@@ -449,6 +476,15 @@ def main(argv=None):
     sub.add_argument('--grid', type=float, help='with --eye: a measuring grid this many metres apart on the upright plane through each target; the eyes level with their targets')
     sub.add_argument('--page', help='also one picture of every model drawn, side by side under their names')
     sub.set_defaults(run=command_view)
+    sub = commands.add_parser('measure', help='measure a generated building: footprint, slab, the heights that fit its door and its tiles, and its walls')
+    sub.add_argument('--source', required=True, help='a generated model folder'); sub.add_argument('--height', type=float, required=True, help='the height in metres it is stood at')
+    sub.add_argument('--leaf', type=float, help="its door leaf's height in metres as measured at that height")
+    sub.add_argument('--probe', action='append', help='label=x0,y0,z0,x1,y1,z1: what of the model a box holds (repeatable)'); sub.set_defaults(run=command_measure)
+    sub = commands.add_parser('smears', help="where a generated model's picture is smeared: what stood in front of each surface in its references")
+    sub.add_argument('--source', required=True, help='a generated model folder'); sub.add_argument('--height', type=float, required=True, help='the height in metres it is stood at')
+    sub.add_argument('--view', action='append', required=True, choices=['front', 'back', 'east', 'west'], help='a side a reference was drawn from, square on (repeatable)')
+    sub.add_argument('--output', required=True, help='a folder for smears.json and the marked copy of the model')
+    sub.set_defaults(run=command_smears)
     sub = commands.add_parser('track', help='a piece of railway track, built to gauge, as a model folder a game set reads')
     sub.add_argument('--output', required=True, help="a fresh folder under the set's output root"); sub.add_argument('--seed', type=int, default=0, help='the seed of its maps')
     sub.add_argument('--piece', choices=['straight', 'merge', 'crane'], default='straight',

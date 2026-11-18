@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "grey and yellow industrial warehouse with loading docks, an open crane bay and a fenced yard", "box": [0, 96, 865, 600]},
+    "building-hero": {"kind": "building", "subject": "grey and yellow industrial warehouse with loading docks, an open crane bay and a yard", "box": [0, 96, 865, 600]},
     "building-front": {"kind": "building", "subject": "front elevation of a grey and yellow industrial warehouse with loading docks", "box": [867, 119, 1246, 279]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a grey and yellow industrial warehouse", "box": [867, 319, 1247, 497]},
     "building-west-front": {"kind": "building", "subject": "west end block of a grey and yellow industrial warehouse seen from the front: a tall tower bay with a DENVER FRFZ panel, hazard stripes, pipes and a ladder", "box": [874, 119, 934, 279], "cut": {"from": "building-front", "box": [30, 0, 276, 672]}, "notes": "This picture is one section cut from a longer building. Draw only this section as a standalone block of the same height and proportions; where the picture is cut, close the block with a plain grey wall, adding no doors, signs or equipment to it. The top word on the panel is misspelt DOWCR in the source: write DENVER there instead, above FRFZ, in the same letters."},

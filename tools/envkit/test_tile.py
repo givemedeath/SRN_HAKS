@@ -133,6 +133,10 @@ class TileTests(unittest.TestCase):
         part = (np.array([[0.0, 0, 0], [1, 0, 0], [0, 0, 1]]), np.tile([0, 1.0, 0], (3, 1)), np.zeros((3, 2)), np.array([[0, 1, 2]]))
         card = [((1.0, 0.5, 0.0), (0.0, 1.0)), ((-1.0, 0.5, 0.0), (1.0, 1.0)), ((-1.0, 0.5, 1.0), (1.0, 0.0)), ((1.0, 0.5, 1.0), (0.0, 0.0))]
         text = tile.model_text('ek_test_t00', [part], 'ek_test', 'pavement', [card], walk)
+        # A lamp's own light is a light node of its colour, beside the main lights a builder colours.
+        lamped = tile.model_text('ek_test_t00', [part], 'ek_test', 'pavement', [card], walk, lamps=[((1.0, 2.0, 6.0), (1.0, 0.5, 0.25), 12)])
+        self.assertNotIn('_lamp', text); lamp = lamped.split('node light ek_test_t00_lamp1')[1].split('endnode')[0]
+        self.assertIn('  position 1.00000 2.00000 6.00000', lamp); self.assertIn('  color 1.000 0.500 0.250', lamp); self.assertIn('  radius 12', lamp)
         for line in ('classification TILE', 'node trimesh ek_test_t00_g', '  bitmap pavement', 'node trimesh ek_test_t00_m0', '  bitmap ek_test', '  tilefade 0',
                      'node trimesh ek_test_t00_halo0', '  bitmap ek_test_h', 'node aabb ek_test_t00_wm', '    2 0 3  1  0 0 0  4',
                      '  aabb -5.00000 -5.00000 0.00000 5.00000 5.00000 0.00000 -1', 'donemodel ek_test_t00'):
@@ -327,6 +331,12 @@ class TileTests(unittest.TestCase):
             geometry = text.split('endmodelgeom')[0]; self.assertEqual(geometry.count('node trimesh ek_shop_t00_halo'), 2); self.assertIn('    2.00000 -2.04000 2.00000', geometry)
             with self.assertRaisesRegex(ValueError, 'between the slab and the roof'):
                 tile.group('ek_shop', made, Path(scratch) / 'again', ground='pavement', fade=9.0)
+            # A lamp is a light of the tile it stands in, at the model: one stated in the air is refused, as a placeable's light is.
+            lamp = {'part': 'door lamp', 'at': [0.0, -2.0, 2.5], 'colour': [255, 236, 196], 'radius': 10}
+            lamped = tile.group('ek_shop', made, Path(scratch) / 'lamped', ground='pavement', lamps=[lamp])
+            self.assertEqual(lamped['tiles'][0]['lamps'], 1); self.assertIn('node light ek_shop_t00_lamp1', (Path(scratch) / 'lamped' / 'ek_shop_t00.mdl').read_text(encoding='cp1252'))
+            with self.assertRaisesRegex(ValueError, 'door lamp'):
+                tile.group('ek_shop', made, Path(scratch) / 'hung', ground='pavement', lamps=[{**lamp, 'at': [0.0, -4.0, 6.0]}])
 
 
     def test_a_fence_is_shared_out_among_the_tiles_it_stands_in_and_shows_its_own_picture(self):
@@ -339,7 +349,14 @@ class TileTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as scratch:
             fenced = tile.group('ek_long', made, Path(scratch) / 'a', ground='pavement'); plain = tile.group('ek_long', bare, Path(scratch) / 'b', ground='pavement')
             self.assertEqual((fenced['rows'], fenced['columns']), (1, 2))
-            more = [one['faces'] - other['faces'] for one, other in zip(fenced['tiles'], plain['tiles'])]
+            # A fence that reaches past the model is held by the group too: a perimeter round a building with no slab.
+            hut = scene(box((-3, -3, 0), (3, 3, 3))); spec = {'box': [[-7.0, -7.0], [7.0, 7.0]], 'z': [0.0, 2.0], 'steel': [3.0, 0.0, 1.0], 'concrete': [0.0, 3.0, 1.0],
+                                                                'gateways': [{'side': 'north', 'from': -1.5, 'to': 1.5}]}
+            frame, hung = convert.perimeter(spec)
+            yard = {**made, 'vertices': hut[0], 'normals': np.tile([0.0, 0, 1], (len(hut[0]), 1)), 'uvs': np.zeros((len(hut[0]), 2)), 'faces': hut[1], 'wire': convert.sheets(hung, frame=frame)}
+            self.assertEqual([(one['rows'], one['columns']) for one in (tile.group('ek_hut', {**yard, 'wire': None}, Path(scratch) / 'hut', ground='pavement'),
+                                                                         tile.group('ek_hut', yard, Path(scratch) / 'yard', ground='pavement'))], [(1, 1), (2, 2)])
+            more =[one['faces'] - other['faces'] for one, other in zip(fenced['tiles'], plain['tiles'])]
             self.assertEqual(sum(more), len(wire['faces'])); self.assertTrue(all(count > 0 for count in more))  # every square in one tile, some in each
             # A fence closes the ground it stands on, though its sheets are no part of the model's mesh: a generator leaves
             # the frames empty, and without the sheets the walkmesh between two posts would be open (review, 2026-11-12).
@@ -508,6 +525,19 @@ class TileTests(unittest.TestCase):
         self.assertEqual(tile._level_cut(card, 2.2, light), [(card, False)]); self.assertEqual(tile._level_cut(card, 0.0, light), [(card, True)])
         with self.assertRaisesRegex(ValueError, 'its own light'):
             tile.share_cards(made.cards, 1, 1, np.array([-5.0, -5.0]), [])
+
+    def test_raised_ground_reached_only_across_a_tile_line_is_found(self):
+        """The power station's yard on its slab: walkers arrived in the tile with the gateway and gave up in the next (2026-11-17)."""
+        cells = tile.CELLS; walk = np.ones((cells, 2 * cells), bool); raised = np.zeros_like(walk)
+        walk[4, 4:-4] = walk[-5, 4:-4] = False; walk[4:-4, 4] = walk[4:-4, -5] = False  # a fence round a yard over both tiles
+        raised[5:-5, 5:-5] = True; walk[-5, 10:20] = True  # on a slab, with a gateway in the west tile's north side
+        self.assertEqual(tile.across_seams(walk, raised, 1, 2), [(0, 1, (cells - 10) * (cells - 5))])
+        walk[-5, cells + 10:cells + 20] = True  # a gateway for the east tile too
+        self.assertEqual(tile.across_seams(walk, raised, 1, 2), [])
+        walk[-5, cells + 10:cells + 20] = False
+        self.assertEqual(tile.across_seams(walk, np.zeros_like(walk), 1, 2), [])  # level ground is crossed
+        walk[-5, 10:20] = False
+        self.assertEqual(tile.across_seams(walk, raised, 1, 2), [])  # a yard with no way in at all is another note's
 
     def test_a_built_group_notes_ground_no_exit_reaches(self):
         import tempfile
