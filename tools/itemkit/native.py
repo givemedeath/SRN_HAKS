@@ -23,6 +23,16 @@ def dds_converter(inputs):
     return tool('crunch', inputs=[pin(p) for p in inputs])
 
 
+# The game reads a texture's alpha as transparency unless a TXI beside it names an environment map; then alpha is the
+# map's mask (low alpha reflects). chrome1 is the base game's metal map. Its in-game look is unreviewed (2026-11-17).
+ENVIRONMENT_MAP = 'chrome1'
+
+
+def reflection_txi(tga):
+    """The TXI that makes a reflection-masked diffuse (textures.metal_policy) reflect instead of turning see-through."""
+    target = Path(tga).with_suffix('.txi'); target.write_bytes(f'envmaptexture {ENVIRONMENT_MAP}\r\n'.encode('ascii')); return target
+
+
 def nwn_dds(tga, target, compression='DXT5', *, crunch=None):
     """A BioWare DDS of a TGA by the vendored NWN Crunch, with a generated mip chain: DXT5 for an RGBA icon (the base
     game's own part icons), DXT1 for an RGB diffuse. Every package ships these beside its TGAs, as the base game ships
@@ -46,9 +56,10 @@ def nwn_dds(tga, target, compression='DXT5', *, crunch=None):
 
 def package_names_ok(names, twins):
     """Models, TGAs and, for a preparation made with nwn_dds (`twins`), exactly one DDS twin per TGA; an earlier
-    preparation has no DDS."""
+    preparation has no DDS. A TXI belongs to a TGA of its own name (reflection_txi)."""
     stems = lambda suffix: {Path(n).stem for n in names if Path(n).suffix == suffix}
-    return all(Path(n).suffix in ('.mdl', '.tga', '.dds') for n in names) and stems('.dds') == (stems('.tga') if twins else set())
+    return (all(Path(n).suffix in ('.mdl', '.tga', '.dds', '.txi') for n in names) and stems('.dds') == (stems('.tga') if twins else set())
+            and stems('.txi') <= stems('.tga'))
 
 
 def archive_helpers():
@@ -145,7 +156,10 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
     texture_name = allocation['texture']
     with Image.open(texture) as image:
         require(image.size == (profile['runtimeTextureSize'],)*2, 'Runtime texture size differs from family')
-        image.convert('RGB').save(output/'resources'/f'{texture_name}.tga')
+        # A bake with a metal reflection mask carries it as alpha (textures.metal_policy); any other diffuse is RGB.
+        reflective = image.mode == 'RGBA'
+        image.convert('RGBA' if reflective else 'RGB').save(output/'resources'/f'{texture_name}.tga')
+    if reflective: reflection_txi(output/'resources'/f'{texture_name}.tga')
     counts = {'visible': {}, 'shadow': {}}; expected = {}
     for part in PARTS:
         verify([arrays[part], icons[part]])
@@ -169,8 +183,8 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
             image.save(output/'resources'/f"{allocation['icons'][part]}.tga")
         target = output/f'expected-{part}.npz'; shutil.copyfile(arrays[part]['path'], target); expected[part] = pin(target)
     for kind in counts: check_budgets(counts[kind], profile['budgets'], kind)
-    # BioWare DDS twins of the diffuse (DXT1) and every icon (DXT5), from one converter resolution.
-    twins = [(output/'resources'/f'{texture_name}.tga', 'DXT1')] + [(output/'resources'/f"{allocation['icons'][p]}.tga", 'DXT5') for p in PARTS]
+    # BioWare DDS twins of the diffuse (DXT1, or DXT5 with a reflection mask) and every icon (DXT5), from one converter resolution.
+    twins = [(output/'resources'/f'{texture_name}.tga', 'DXT5' if reflective else 'DXT1')] + [(output/'resources'/f"{allocation['icons'][p]}.tga", 'DXT5') for p in PARTS]
     # The converter's pin is frozen before the first conversion and verified after the last, so a binary that changes
     # during the batch invalidates the preparation instead of recording a hash some of its DDS files did not come from.
     crunch = dds_converter([tga for tga, _ in twins]); converter = pin(crunch)

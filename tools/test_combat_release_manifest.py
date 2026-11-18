@@ -147,7 +147,8 @@ class RepositoryManifestTests(unittest.TestCase):
 
     def test_sling_is_flagged_and_loads_table_pack(self):
         sling = [i for i in self.manifest['items'] if i['slingRelevant']]
-        self.assertEqual({i['id'] for i in sling}, {'colt-l36-pistol','ingram-smartgun-x','sr4-ares-predator-iv-3ab64906ed'})
+        self.assertEqual({i['id'] for i in sling}, {'colt-l36-pistol','ingram-smartgun-x','sr4-ares-predator-iv-3ab64906ed',
+                                                    'sr4-fichetti-security-600-186f9abc33','sr4-yamaha-pulsar-4ec98e3ab9','sr4-hk-mp-5-tx-ade01f2396'})
         self.assertIn('srn_2da', sling[0]['packs'])
         roles = {r['row']: r['role'] for r in self.manifest['tables'][0]['rows']}
         self.assertIn('sling ammunition', roles[27])

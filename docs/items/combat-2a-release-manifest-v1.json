@@ -10,8 +10,8 @@
     "projectileTarget": "sling (SR_NWN decisions D376-D378)"
   },
   "authorities": {
-    "docs/items/approved-weapons-v1.json": "559ca7f0de1b1b3332422398ee8dc416873409c82287cdc6b33f289556e0c42e",
-    "docs/items/approved-weapon-waves-release-validation.json": "da28a1d9a0daec1079bf7c91e9a200236d530e42211f927b07117c0b72df09c9",
+    "docs/items/approved-weapons-v1.json": "7c1f819fcb5bdf4499a05a051ec59d4dbdca797bb21e0de9514fea0c5f42440e",
+    "docs/items/approved-weapon-waves-release-validation.json": "59a0f96a99adb64098542f35d195d59157d3bec8eebc3d9f04bdfbea6663e761",
     "docs/items/firearm-grip-standard-v1.json": "e9fb2841225d3903fa01d4017875d2ddc87bac100a56be67ca54ced37ef79cd2",
     "docs/items/weapon-grip-standard-v1.json": "8d30d19ec7beb24ffc91946f1462148bce729becb391703815dcdc4b6a52f988",
     "PROVENANCE.md#approved-cougar-blades-and-colt-l36": "section record (srn_weapon, 2026-10-24)"
@@ -306,7 +306,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             0,
-            65
+            77
           ],
           "localizedName": {
             "strRef": null,
@@ -345,7 +345,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             0,
-            65
+            77
           ],
           "localizedName": {
             "strRef": null,
@@ -1048,7 +1048,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             0,
-            65
+            77
           ],
           "localizedName": {
             "strRef": null,
@@ -1379,7 +1379,7 @@
           "modelNumbersInRange": true,
           "baseItemRange": [
             0,
-            65
+            77
           ],
           "localizedName": {
             "strRef": null,
@@ -3484,6 +3484,428 @@
         "srn_weapon"
       ],
       "stockTableDependency": null
+    },
+    {
+      "id": "sr4-fichetti-security-600-186f9abc33",
+      "name": "Fichetti Security 600",
+      "status": "user-approved",
+      "family": "F7",
+      "sourceArchive": "sr186f9abch.hak",
+      "slingRelevant": true,
+      "baseItemRows": [
+        61
+      ],
+      "blueprints": [
+        {
+          "path": "srn_weapon/sr186f9abc_6.uti",
+          "resRef": "sr186f9abc_6",
+          "sha256": "ded0965ed2f7633f265328effe47a279546ab2db6a898e85b425fd16fc0c43b1",
+          "bytes": 751,
+          "pack": "srn_weapon",
+          "tag": "sr186f9abc_6",
+          "templateResRef": "sr186f9abc_6",
+          "baseItem": 61,
+          "baseItemLabel": "sling",
+          "modelType": "2",
+          "modelParts": {
+            "ModelPart1": 76,
+            "ModelPart2": 16,
+            "ModelPart3": 16
+          },
+          "modelNumbersInRange": true,
+          "baseItemRange": [
+            0,
+            77
+          ],
+          "localizedName": {
+            "strRef": null,
+            "embedded": {
+              "0": "Fichetti Security 600"
+            }
+          },
+          "description": {
+            "strRef": null,
+            "embedded": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "tlkDependency": "none (embedded locstrings)",
+          "cost": 0,
+          "stackSize": 1,
+          "propertyCount": 0,
+          "plot": 0,
+          "cursed": null,
+          "itemClass": "WBwSl"
+        }
+      ],
+      "resourceClosure": [
+        "iwbwsl_b_076.tga",
+        "iwbwsl_m_016.tga",
+        "iwbwsl_t_016.tga",
+        "sr186f9abc_076.tga",
+        "sr186f9abc_6.uti",
+        "srnfx_casing.tga",
+        "wbwsl_b_076.mdl",
+        "wbwsl_m_016.mdl",
+        "wbwsl_t_016.mdl"
+      ],
+      "closureMissing": [],
+      "contractPlaceholders": [
+        "iwbwsl_b_016.tga",
+        "wbwsl_b_016.mdl"
+      ],
+      "closureMatchesPublicationOwnership": true,
+      "tlkStrings": "none required; names are embedded CExoLocStrings",
+      "tables": [
+        {
+          "resource": "srn_2da/baseitems.2da",
+          "pack": "srn_2da",
+          "rows": [
+            61
+          ]
+        }
+      ],
+      "packs": [
+        "srn_2da",
+        "srn_weapon"
+      ],
+      "stockTableDependency": null
+    },
+    {
+      "id": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "name": "Yamaha Pulsar",
+      "status": "user-approved",
+      "family": "F7",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "slingRelevant": true,
+      "baseItemRows": [
+        61
+      ],
+      "blueprints": [
+        {
+          "path": "srn_weapon/sr4ec98e3a_7.uti",
+          "resRef": "sr4ec98e3a_7",
+          "sha256": "241c44674e6d84161cbc6e48554992c02d9ebaebcda07056521428c604fe8408",
+          "bytes": 743,
+          "pack": "srn_weapon",
+          "tag": "sr4ec98e3a_7",
+          "templateResRef": "sr4ec98e3a_7",
+          "baseItem": 61,
+          "baseItemLabel": "sling",
+          "modelType": "2",
+          "modelParts": {
+            "ModelPart1": 77,
+            "ModelPart2": 17,
+            "ModelPart3": 17
+          },
+          "modelNumbersInRange": true,
+          "baseItemRange": [
+            0,
+            77
+          ],
+          "localizedName": {
+            "strRef": null,
+            "embedded": {
+              "0": "Yamaha Pulsar"
+            }
+          },
+          "description": {
+            "strRef": null,
+            "embedded": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "tlkDependency": "none (embedded locstrings)",
+          "cost": 0,
+          "stackSize": 1,
+          "propertyCount": 0,
+          "plot": 0,
+          "cursed": null,
+          "itemClass": "WBwSl"
+        }
+      ],
+      "resourceClosure": [
+        "iwbwsl_b_077.tga",
+        "iwbwsl_m_017.tga",
+        "iwbwsl_t_017.tga",
+        "sr4ec98e3a_077.tga",
+        "sr4ec98e3a_7.uti",
+        "wbwsl_b_077.mdl",
+        "wbwsl_m_017.mdl",
+        "wbwsl_t_017.mdl"
+      ],
+      "closureMissing": [],
+      "contractPlaceholders": [
+        "iwbwsl_b_017.tga",
+        "wbwsl_b_017.mdl"
+      ],
+      "closureMatchesPublicationOwnership": true,
+      "tlkStrings": "none required; names are embedded CExoLocStrings",
+      "tables": [
+        {
+          "resource": "srn_2da/baseitems.2da",
+          "pack": "srn_2da",
+          "rows": [
+            61
+          ]
+        }
+      ],
+      "packs": [
+        "srn_2da",
+        "srn_weapon"
+      ],
+      "stockTableDependency": null
+    },
+    {
+      "id": "sr4-hk-mp-5-tx-ade01f2396",
+      "name": "HK MP-5 TX",
+      "status": "user-approved",
+      "family": "F7",
+      "sourceArchive": "srade01f23h.hak",
+      "slingRelevant": true,
+      "baseItemRows": [
+        61
+      ],
+      "blueprints": [
+        {
+          "path": "srn_weapon/srade01f23_8.uti",
+          "resRef": "srade01f23_8",
+          "sha256": "a1a95274c9a8658a3b73e0257d0feec9719e7e3020c0cf76dc4cae738f8d7408",
+          "bytes": 740,
+          "pack": "srn_weapon",
+          "tag": "srade01f23_8",
+          "templateResRef": "srade01f23_8",
+          "baseItem": 61,
+          "baseItemLabel": "sling",
+          "modelType": "2",
+          "modelParts": {
+            "ModelPart1": 18,
+            "ModelPart2": 38,
+            "ModelPart3": 18
+          },
+          "modelNumbersInRange": true,
+          "baseItemRange": [
+            0,
+            77
+          ],
+          "localizedName": {
+            "strRef": null,
+            "embedded": {
+              "0": "HK MP-5 TX"
+            }
+          },
+          "description": {
+            "strRef": null,
+            "embedded": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "tlkDependency": "none (embedded locstrings)",
+          "cost": 0,
+          "stackSize": 1,
+          "propertyCount": 0,
+          "plot": 0,
+          "cursed": null,
+          "itemClass": "WBwSl"
+        }
+      ],
+      "resourceClosure": [
+        "iwbwsl_b_018.tga",
+        "iwbwsl_m_038.tga",
+        "iwbwsl_t_018.tga",
+        "srade01f23_038.tga",
+        "srade01f23_8.uti",
+        "srnfx_casing.tga",
+        "wbwsl_b_018.mdl",
+        "wbwsl_m_038.mdl",
+        "wbwsl_t_018.mdl"
+      ],
+      "closureMissing": [],
+      "contractPlaceholders": [
+        "iwbwsl_m_018.tga",
+        "wbwsl_m_018.mdl"
+      ],
+      "closureMatchesPublicationOwnership": true,
+      "tlkStrings": "none required; names are embedded CExoLocStrings",
+      "tables": [
+        {
+          "resource": "srn_2da/baseitems.2da",
+          "pack": "srn_2da",
+          "rows": [
+            61
+          ]
+        }
+      ],
+      "packs": [
+        "srn_2da",
+        "srn_weapon"
+      ],
+      "stockTableDependency": null
+    },
+    {
+      "id": "sr4-ak-97-32dc7d7ec4",
+      "name": "AK-97",
+      "status": "user-approved",
+      "family": "F8",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "slingRelevant": false,
+      "baseItemRows": [
+        6
+      ],
+      "blueprints": [
+        {
+          "path": "srn_weapon/sr32dc7d7e_7.uti",
+          "resRef": "sr32dc7d7e_7",
+          "sha256": "fd1bef0d7f4bf6c4ed3b071648e6f0fb2d5bd0fb33eb6270753952490dafbe5a",
+          "bytes": 735,
+          "pack": "srn_weapon",
+          "tag": "sr32dc7d7e_7",
+          "templateResRef": "sr32dc7d7e_7",
+          "baseItem": 6,
+          "baseItemLabel": "heavycrossbow",
+          "modelType": "2",
+          "modelParts": {
+            "ModelPart1": 17,
+            "ModelPart2": 17,
+            "ModelPart3": 17
+          },
+          "modelNumbersInRange": true,
+          "baseItemRange": [
+            10,
+            100
+          ],
+          "localizedName": {
+            "strRef": null,
+            "embedded": {
+              "0": "AK-97"
+            }
+          },
+          "description": {
+            "strRef": null,
+            "embedded": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "tlkDependency": "none (embedded locstrings)",
+          "cost": 0,
+          "stackSize": 1,
+          "propertyCount": 0,
+          "plot": 0,
+          "cursed": null,
+          "itemClass": "WBwXh"
+        }
+      ],
+      "resourceClosure": [
+        "iwbwxh_b_017.tga",
+        "iwbwxh_m_017.tga",
+        "iwbwxh_t_017.tga",
+        "sr32dc7d7e_017.tga",
+        "sr32dc7d7e_7.uti",
+        "srnfx_casing.tga",
+        "wbwxh_b_017.mdl",
+        "wbwxh_m_017.mdl",
+        "wbwxh_t_017.mdl"
+      ],
+      "closureMissing": [],
+      "contractPlaceholders": [],
+      "closureMatchesPublicationOwnership": true,
+      "tlkStrings": "none required; names are embedded CExoLocStrings",
+      "tables": [
+        {
+          "resource": "srn_2da/baseitems.2da",
+          "pack": "srn_2da",
+          "rows": [
+            6
+          ]
+        }
+      ],
+      "packs": [
+        "srn_weapon"
+      ],
+      "stockTableDependency": "Uses the shipped baseitems.2da row; srn_2da carries it unchanged"
+    },
+    {
+      "id": "sr4-defiance-t-250-65882fcd83",
+      "name": "Defiance T-250",
+      "status": "user-approved",
+      "family": "F8",
+      "sourceArchive": "sr65882fcdh.hak",
+      "slingRelevant": false,
+      "baseItemRows": [
+        6
+      ],
+      "blueprints": [
+        {
+          "path": "srn_weapon/sr65882fcd_8.uti",
+          "resRef": "sr65882fcd_8",
+          "sha256": "5a233bcd23230f7f552fe8d610bfcead04bd39c92019238f47fb9e5e7e8b95b0",
+          "bytes": 744,
+          "pack": "srn_weapon",
+          "tag": "sr65882fcd_8",
+          "templateResRef": "sr65882fcd_8",
+          "baseItem": 6,
+          "baseItemLabel": "heavycrossbow",
+          "modelType": "2",
+          "modelParts": {
+            "ModelPart1": 18,
+            "ModelPart2": 18,
+            "ModelPart3": 18
+          },
+          "modelNumbersInRange": true,
+          "baseItemRange": [
+            10,
+            100
+          ],
+          "localizedName": {
+            "strRef": null,
+            "embedded": {
+              "0": "Defiance T-250"
+            }
+          },
+          "description": {
+            "strRef": null,
+            "embedded": {
+              "0": "Private itemkit review candidate."
+            }
+          },
+          "tlkDependency": "none (embedded locstrings)",
+          "cost": 0,
+          "stackSize": 1,
+          "propertyCount": 0,
+          "plot": 0,
+          "cursed": null,
+          "itemClass": "WBwXh"
+        }
+      ],
+      "resourceClosure": [
+        "iwbwxh_b_018.tga",
+        "iwbwxh_m_018.tga",
+        "iwbwxh_t_018.tga",
+        "sr65882fcd_018.tga",
+        "sr65882fcd_018.txi",
+        "sr65882fcd_8.uti",
+        "srnfx_casing.tga",
+        "wbwxh_b_018.mdl",
+        "wbwxh_m_018.mdl",
+        "wbwxh_t_018.mdl"
+      ],
+      "closureMissing": [],
+      "contractPlaceholders": [],
+      "closureMatchesPublicationOwnership": true,
+      "tlkStrings": "none required; names are embedded CExoLocStrings",
+      "tables": [
+        {
+          "resource": "srn_2da/baseitems.2da",
+          "pack": "srn_2da",
+          "rows": [
+            6
+          ]
+        }
+      ],
+      "packs": [
+        "srn_weapon"
+      ],
+      "stockTableDependency": "Uses the shipped baseitems.2da row; srn_2da carries it unchanged"
     }
   ],
   "resources": [
@@ -3600,6 +4022,42 @@
       "sourceArchive": "sr3ab64906h.hak"
     },
     {
+      "path": "srn_weapon/iwbwsl_b_016.tga",
+      "resRef": "iwbwsl_b_016",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_017.tga",
+      "resRef": "iwbwsl_b_017",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_018.tga",
+      "resRef": "iwbwsl_b_018",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak"
+    },
+    {
       "path": "srn_weapon/iwbwsl_b_051.tga",
       "resRef": "iwbwsl_b_051",
       "type": "tga",
@@ -3634,6 +4092,30 @@
       "item": "sr4-ares-predator-iv-3ab64906ed",
       "publicationSha256Match": true,
       "sourceArchive": "sr3ab64906h.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_076.tga",
+      "resRef": "iwbwsl_b_076",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "a703e47429cdc712a3ce38f794b3d258221253a1eaf9b9e40c8e3eb97fed506b",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_b_077.tga",
+      "resRef": "iwbwsl_b_077",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "d75b3fdbad036bd0dc44fa1d9cb93efea891885ec0a0f95c9b554edf4b8ead33",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak"
     },
     {
       "path": "srn_weapon/iwbwsl_m_011.tga",
@@ -3684,6 +4166,42 @@
       "sourceArchive": "sr3ab64906h.hak"
     },
     {
+      "path": "srn_weapon/iwbwsl_m_016.tga",
+      "resRef": "iwbwsl_m_016",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_m_017.tga",
+      "resRef": "iwbwsl_m_017",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_m_018.tga",
+      "resRef": "iwbwsl_m_018",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak"
+    },
+    {
       "path": "srn_weapon/iwbwsl_m_023.tga",
       "resRef": "iwbwsl_m_023",
       "type": "tga",
@@ -3694,6 +4212,18 @@
       "item": "ingram-smartgun-x",
       "publicationSha256Match": true,
       "sourceArchive": "sre9a211beh.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_m_038.tga",
+      "resRef": "iwbwsl_m_038",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "e3f632ee22ad0dc5c9ba691f4631ced8a23b89e85536bcd83ef73fb71379cfba",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak"
     },
     {
       "path": "srn_weapon/iwbwsl_t_011.tga",
@@ -3744,6 +4274,42 @@
       "sourceArchive": "sr3ab64906h.hak"
     },
     {
+      "path": "srn_weapon/iwbwsl_t_016.tga",
+      "resRef": "iwbwsl_t_016",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_t_017.tga",
+      "resRef": "iwbwsl_t_017",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwsl_t_018.tga",
+      "resRef": "iwbwsl_t_018",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 8236,
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak"
+    },
+    {
       "path": "srn_weapon/iwbwxh_b_015.tga",
       "resRef": "iwbwxh_b_015",
       "type": "tga",
@@ -3766,6 +4332,30 @@
       "item": "sr4-crossbows-heavy-6abe18c0e6",
       "publicationSha256Match": true,
       "sourceArchive": "sr6abe18ch.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwxh_b_017.tga",
+      "resRef": "iwbwxh_b_017",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 32812,
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "pack": "srn_weapon",
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr32dc7d7eh.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwxh_b_018.tga",
+      "resRef": "iwbwxh_b_018",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 32812,
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak"
     },
     {
       "path": "srn_weapon/iwbwxh_m_015.tga",
@@ -3792,6 +4382,30 @@
       "sourceArchive": "sr6abe18ch.hak"
     },
     {
+      "path": "srn_weapon/iwbwxh_m_017.tga",
+      "resRef": "iwbwxh_m_017",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 32812,
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "pack": "srn_weapon",
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr32dc7d7eh.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwxh_m_018.tga",
+      "resRef": "iwbwxh_m_018",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 32812,
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak"
+    },
+    {
       "path": "srn_weapon/iwbwxh_t_015.tga",
       "resRef": "iwbwxh_t_015",
       "type": "tga",
@@ -3814,6 +4428,30 @@
       "item": "sr4-crossbows-heavy-6abe18c0e6",
       "publicationSha256Match": true,
       "sourceArchive": "sr6abe18ch.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwxh_t_017.tga",
+      "resRef": "iwbwxh_t_017",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 32812,
+      "sha256": "5f823bcd2145fe737fdc507bebf60303f8433a56017660d7264ecfafc871166c",
+      "pack": "srn_weapon",
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr32dc7d7eh.hak"
+    },
+    {
+      "path": "srn_weapon/iwbwxh_t_018.tga",
+      "resRef": "iwbwxh_t_018",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 32812,
+      "sha256": "c3a1179db8e2b62c62d57fc8fa4711d840dad68523b00dddfd9d5d7ba23668eb",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak"
     },
     {
       "path": "srn_weapon/iwdbqs_b_061.tga",
@@ -5148,6 +5786,30 @@
       "sourceArchive": "sr1243dd1ah.hak"
     },
     {
+      "path": "srn_weapon/sr186f9abc_076.tga",
+      "resRef": "sr186f9abc_076",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 12582956,
+      "sha256": "cf7aa019bb93783c614c0ada491c503ff9accec33762ea23856140230ba67fd1",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak"
+    },
+    {
+      "path": "srn_weapon/sr186f9abc_6.uti",
+      "resRef": "sr186f9abc_6",
+      "type": "uti",
+      "resourceType": 2025,
+      "bytes": 751,
+      "sha256": "ded0965ed2f7633f265328effe47a279546ab2db6a898e85b425fd16fc0c43b1",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak"
+    },
+    {
       "path": "srn_weapon/sr1d8f6e60.uti",
       "resRef": "sr1d8f6e60",
       "type": "uti",
@@ -5218,6 +5880,30 @@
       "item": "sr4-spear-2febc2a88a",
       "publicationSha256Match": true,
       "sourceArchive": "sr2febc2a8h.hak"
+    },
+    {
+      "path": "srn_weapon/sr32dc7d7e_017.tga",
+      "resRef": "sr32dc7d7e_017",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 12582956,
+      "sha256": "39159a32df47f066cbe8dd19c0aab060a1afc9defc1256a55118353a3071706d",
+      "pack": "srn_weapon",
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr32dc7d7eh.hak"
+    },
+    {
+      "path": "srn_weapon/sr32dc7d7e_7.uti",
+      "resRef": "sr32dc7d7e_7",
+      "type": "uti",
+      "resourceType": 2025,
+      "bytes": 735,
+      "sha256": "fd1bef0d7f4bf6c4ed3b071648e6f0fb2d5bd0fb33eb6270753952490dafbe5a",
+      "pack": "srn_weapon",
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr32dc7d7eh.hak"
     },
     {
       "path": "srn_weapon/sr36b5c592.uti",
@@ -5386,6 +6072,66 @@
       "item": "sr4-mace-cc01910405",
       "publicationSha256Match": true,
       "sourceArchive": "sr4c45ec83h.hak"
+    },
+    {
+      "path": "srn_weapon/sr4ec98e3a_077.tga",
+      "resRef": "sr4ec98e3a_077",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 12582956,
+      "sha256": "944484a0df353b4e21a0d9a3d0b5c31aadf508fc71aba2ab2ebe6245452a28f5",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak"
+    },
+    {
+      "path": "srn_weapon/sr4ec98e3a_7.uti",
+      "resRef": "sr4ec98e3a_7",
+      "type": "uti",
+      "resourceType": 2025,
+      "bytes": 743,
+      "sha256": "241c44674e6d84161cbc6e48554992c02d9ebaebcda07056521428c604fe8408",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak"
+    },
+    {
+      "path": "srn_weapon/sr65882fcd_018.tga",
+      "resRef": "sr65882fcd_018",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 16777260,
+      "sha256": "836dba64025e78b3b72ac520f539b9d739ad2f16d2f028fb48e092697ffd6ebb",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak"
+    },
+    {
+      "path": "srn_weapon/sr65882fcd_018.txi",
+      "resRef": "sr65882fcd_018",
+      "type": "txi",
+      "resourceType": null,
+      "bytes": 23,
+      "sha256": "1d60fcf42113603d1f75b68dc967d997d6ee2b07d2010721ca6748ab7269c14b",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak"
+    },
+    {
+      "path": "srn_weapon/sr65882fcd_8.uti",
+      "resRef": "sr65882fcd_8",
+      "type": "uti",
+      "resourceType": 2025,
+      "bytes": 744,
+      "sha256": "5a233bcd23230f7f552fe8d610bfcead04bd39c92019238f47fb9e5e7e8b95b0",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak"
     },
     {
       "path": "srn_weapon/sr6a19234a.uti",
@@ -5782,6 +6528,30 @@
       "item": "sr4-ak-98-84e46602ea",
       "publicationSha256Match": true,
       "sourceArchive": "srak98gl.hak"
+    },
+    {
+      "path": "srn_weapon/srade01f23_038.tga",
+      "resRef": "srade01f23_038",
+      "type": "tga",
+      "resourceType": 3,
+      "bytes": 12582956,
+      "sha256": "4c5f215488a167519565c1e527c127b94cdfc0f52b1943590d18f3384c6936f1",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak"
+    },
+    {
+      "path": "srn_weapon/srade01f23_8.uti",
+      "resRef": "srade01f23_8",
+      "type": "uti",
+      "resourceType": 2025,
+      "bytes": 740,
+      "sha256": "a1a95274c9a8658a3b73e0257d0feec9719e7e3020c0cf76dc4cae738f8d7408",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak"
     },
     {
       "path": "srn_weapon/srb8bdf709.uti",
@@ -6208,12 +6978,54 @@
       "invisiblePart": true
     },
     {
+      "path": "srn_weapon/wbwsl_b_016.mdl",
+      "resRef": "wbwsl_b_016",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "6a4b4bcefd74b42bf182da13b4289cdde34df19513334165b13d0bef135ee560",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_017.mdl",
+      "resRef": "wbwsl_b_017",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "914223d859d7b19f8c778561a568c9bcf80f6b247d05889691be373bf9f55711",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_018.mdl",
+      "resRef": "wbwsl_b_018",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "901504476e72ee3fb5a19077007cff6519166a76f042eb2e68f45eb32d0d8a80",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
       "path": "srn_weapon/wbwsl_b_051.mdl",
       "resRef": "wbwsl_b_051",
       "type": "mdl",
       "resourceType": 2002,
       "bytes": 1154648,
-      "sha256": "99bc6299157a8362395a3e5f855f99586215f32cf184effdc0a95a3e45eccf71",
+      "sha256": "4cfe1dff9d508703a9bd0532561beaf16dbc191989726d2479520f0db66229d5",
       "pack": "srn_weapon",
       "item": "colt-l36-pistol",
       "publicationSha256Match": true,
@@ -6230,7 +7042,7 @@
       "type": "mdl",
       "resourceType": 2002,
       "bytes": 1154648,
-      "sha256": "9ece48aa714b7db9b4d06d73f7579d4a5479123cf29efc8c06bc7037870d9898",
+      "sha256": "5e67a5eb3c0ad2d42b3a96fdaea875a027946eaf5ffa6d730c8dbdff8ea462cc",
       "pack": "srn_weapon",
       "item": "colt-l36-pistol",
       "publicationSha256Match": true,
@@ -6247,7 +7059,7 @@
       "type": "mdl",
       "resourceType": 2002,
       "bytes": 1030360,
-      "sha256": "69eded3eedd1ed24b13cb51846214770416b548e0d4f79e2b75a5feb0fb85b17",
+      "sha256": "3f1260506e2629e56a8b2dbb10ad550dc07cf680aaf13420335318e7329858bf",
       "pack": "srn_weapon",
       "item": "sr4-ares-predator-iv-3ab64906ed",
       "publicationSha256Match": true,
@@ -6255,6 +7067,39 @@
       "textureRefs": [
         "sr3ab64906_065",
         "srnfx_casing"
+      ],
+      "invisiblePart": false
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_076.mdl",
+      "resRef": "wbwsl_b_076",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1188252,
+      "sha256": "0e6bfc8d8f68f82e7cad9f881de8dcaf7f676374014d8898ec4a13a3f824dc6c",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak",
+      "textureRefs": [
+        "sr186f9abc_076",
+        "srnfx_casing"
+      ],
+      "invisiblePart": false
+    },
+    {
+      "path": "srn_weapon/wbwsl_b_077.mdl",
+      "resRef": "wbwsl_b_077",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1079404,
+      "sha256": "ad89d1bec86e9b552f29d701923fa8b5c576a0ed9e581d8c967124b38c78ecf1",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "textureRefs": [
+        "sr4ec98e3a_077"
       ],
       "invisiblePart": false
     },
@@ -6315,18 +7160,77 @@
       "invisiblePart": true
     },
     {
+      "path": "srn_weapon/wbwsl_m_016.mdl",
+      "resRef": "wbwsl_m_016",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "4cb0580546ba473dff033a4f3e3cda2c11caeb0735d9997782be12538dc084ea",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwsl_m_017.mdl",
+      "resRef": "wbwsl_m_017",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "8e1f3f809f91741af40045d499adf5804bfa13ad078b7fc05f1d04bb9226e28a",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwsl_m_018.mdl",
+      "resRef": "wbwsl_m_018",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "7eaf5b2581c8a8517c298bca181e848f2e7025245091f264769fb9d1d64ec2b2",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
       "path": "srn_weapon/wbwsl_m_023.mdl",
       "resRef": "wbwsl_m_023",
       "type": "mdl",
       "resourceType": 2002,
       "bytes": 1182532,
-      "sha256": "688f616d009cf470a6f8d309438541ded8d0aabe93ac3c8b46e906669bcdaab7",
+      "sha256": "670903ce8ce14ea7c771ee938fab6b5b13416c3ee99b83642656d30d8995ccd4",
       "pack": "srn_weapon",
       "item": "ingram-smartgun-x",
       "publicationSha256Match": true,
       "sourceArchive": "sre9a211beh.hak",
       "textureRefs": [
         "sre9a211be_023",
+        "srnfx_casing"
+      ],
+      "invisiblePart": false
+    },
+    {
+      "path": "srn_weapon/wbwsl_m_038.mdl",
+      "resRef": "wbwsl_m_038",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1983540,
+      "sha256": "62e3249cef0401c4ec52144afe04e3577e83b8cd9bc4c8b7ded5f99d117bf246",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak",
+      "textureRefs": [
+        "srade01f23_038",
         "srnfx_casing"
       ],
       "invisiblePart": false
@@ -6388,6 +7292,48 @@
       "invisiblePart": true
     },
     {
+      "path": "srn_weapon/wbwsl_t_016.mdl",
+      "resRef": "wbwsl_t_016",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "baa3d3578c7f8179bda683b14402ae2f0ea7f9f9501a39a63a4a25b94951ceb1",
+      "pack": "srn_weapon",
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr186f9abch.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwsl_t_017.mdl",
+      "resRef": "wbwsl_t_017",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "d90ad85fff105d17325287cbfc64bbc8669be2e7399c1a527e0afd3bc4741a91",
+      "pack": "srn_weapon",
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwsl_t_018.mdl",
+      "resRef": "wbwsl_t_018",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "bcb7a8df035193f91391b4ec3bcbc492ded600e84949c993f2618902af4a6b6f",
+      "pack": "srn_weapon",
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "publicationSha256Match": true,
+      "sourceArchive": "srade01f23h.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
       "path": "srn_weapon/wbwxh_b_015.mdl",
       "resRef": "wbwxh_b_015",
       "type": "mdl",
@@ -6416,6 +7362,34 @@
       "invisiblePart": true
     },
     {
+      "path": "srn_weapon/wbwxh_b_017.mdl",
+      "resRef": "wbwxh_b_017",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "d02a99e884b49226798aeb805d6c7855815299efe74ca91ef6bf148ef6c064df",
+      "pack": "srn_weapon",
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwxh_b_018.mdl",
+      "resRef": "wbwxh_b_018",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "2e67ad20e9f9fa8cfc141eb2cc544d49febd5ba0969ab7228ef7ebe5e85a3939",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
       "path": "srn_weapon/wbwxh_m_015.mdl",
       "resRef": "wbwxh_m_015",
       "type": "mdl",
@@ -6440,6 +7414,34 @@
       "item": "sr4-crossbows-heavy-6abe18c0e6",
       "publicationSha256Match": true,
       "sourceArchive": "sr6abe18ch.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwxh_m_017.mdl",
+      "resRef": "wbwxh_m_017",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "15613bb80de6ef42adefcfed3589f39e0f9d8778872dfe2efcc6c4df992acc5b",
+      "pack": "srn_weapon",
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "textureRefs": [],
+      "invisiblePart": true
+    },
+    {
+      "path": "srn_weapon/wbwxh_m_018.mdl",
+      "resRef": "wbwxh_m_018",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1588,
+      "sha256": "16647a95a2febf4805f583b37d2d1f682ce649b85ffc7e3b0dedd085bd39325b",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak",
       "textureRefs": [],
       "invisiblePart": true
     },
@@ -6473,6 +7475,40 @@
       "sourceArchive": "sr6abe18ch.hak",
       "textureRefs": [
         "sr6abe18c_06"
+      ],
+      "invisiblePart": false
+    },
+    {
+      "path": "srn_weapon/wbwxh_t_017.mdl",
+      "resRef": "wbwxh_t_017",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 2605764,
+      "sha256": "705e4a8fad57a894f73ed2707d742103a4539c721bda7ba5c57c1983f423a718",
+      "pack": "srn_weapon",
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "textureRefs": [
+        "sr32dc7d7e_017",
+        "srnfx_casing"
+      ],
+      "invisiblePart": false
+    },
+    {
+      "path": "srn_weapon/wbwxh_t_018.mdl",
+      "resRef": "wbwxh_t_018",
+      "type": "mdl",
+      "resourceType": 2002,
+      "bytes": 1954480,
+      "sha256": "e9b908a098eb643529799525b1ccece9c324087d79c5a3428fbac4f489a487ac",
+      "pack": "srn_weapon",
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "publicationSha256Match": true,
+      "sourceArchive": "sr65882fcdh.hak",
+      "textureRefs": [
+        "sr65882fcd_018",
+        "srnfx_casing"
       ],
       "invisiblePart": false
     },
@@ -8173,7 +9209,7 @@
     {
       "resource": "srn_2da/baseitems.2da",
       "pack": "srn_2da",
-      "sha256": "f4d9f3da319e65898d22173280039689e7565dfd13db782332807d3d70e2e475",
+      "sha256": "99ffb9b08b7ddc9413e01130aa60abd0e8afa5db8d30ef1031d6551f6b3c562a",
       "matchesPublicationOverride": true,
       "installedGameOriginalSha256": "3fbdcd012b55f0b869c6324cc7d4ece44ed63a78f00e7889e7acefac28c8fdf4",
       "rows": [
@@ -8583,7 +9619,7 @@
           "ModelType": "2",
           "ItemClass": "WBwSl",
           "MinRange": "0",
-          "MaxRange": "65",
+          "MaxRange": "77",
           "DefaultModel": "it_bag",
           "DefaultIcon": "iwbwsl",
           "WeaponWield": "10",
@@ -8624,7 +9660,7 @@
           "modifiedFromInstalledGame": true,
           "changes": {
             "MaxRange": {
-              "after": "65",
+              "after": "77",
               "before": "50"
             },
             "ModelType": {
@@ -8779,7 +9815,9 @@
         "With wave 3",
         "Approve all five",
         "Looks good",
-        "Approve the Rattan"
+        "Approve the Rattan",
+        "Looks good, do effects",
+        "accepted, finish everything up"
       ]
     },
     "productionDeploymentPerformed": false,
@@ -9047,24 +10085,42 @@
       "srn_weapon/iwbwsl_b_012.tga",
       "srn_weapon/iwbwsl_b_013.tga",
       "srn_weapon/iwbwsl_b_015.tga",
+      "srn_weapon/iwbwsl_b_016.tga",
+      "srn_weapon/iwbwsl_b_017.tga",
+      "srn_weapon/iwbwsl_b_018.tga",
       "srn_weapon/iwbwsl_b_051.tga",
       "srn_weapon/iwbwsl_b_052.tga",
       "srn_weapon/iwbwsl_b_065.tga",
+      "srn_weapon/iwbwsl_b_076.tga",
+      "srn_weapon/iwbwsl_b_077.tga",
       "srn_weapon/iwbwsl_m_011.tga",
       "srn_weapon/iwbwsl_m_012.tga",
       "srn_weapon/iwbwsl_m_013.tga",
       "srn_weapon/iwbwsl_m_015.tga",
+      "srn_weapon/iwbwsl_m_016.tga",
+      "srn_weapon/iwbwsl_m_017.tga",
+      "srn_weapon/iwbwsl_m_018.tga",
       "srn_weapon/iwbwsl_m_023.tga",
+      "srn_weapon/iwbwsl_m_038.tga",
       "srn_weapon/iwbwsl_t_011.tga",
       "srn_weapon/iwbwsl_t_012.tga",
       "srn_weapon/iwbwsl_t_013.tga",
       "srn_weapon/iwbwsl_t_015.tga",
+      "srn_weapon/iwbwsl_t_016.tga",
+      "srn_weapon/iwbwsl_t_017.tga",
+      "srn_weapon/iwbwsl_t_018.tga",
       "srn_weapon/iwbwxh_b_015.tga",
       "srn_weapon/iwbwxh_b_016.tga",
+      "srn_weapon/iwbwxh_b_017.tga",
+      "srn_weapon/iwbwxh_b_018.tga",
       "srn_weapon/iwbwxh_m_015.tga",
       "srn_weapon/iwbwxh_m_016.tga",
+      "srn_weapon/iwbwxh_m_017.tga",
+      "srn_weapon/iwbwxh_m_018.tga",
       "srn_weapon/iwbwxh_t_015.tga",
       "srn_weapon/iwbwxh_t_016.tga",
+      "srn_weapon/iwbwxh_t_017.tga",
+      "srn_weapon/iwbwxh_t_018.tga",
       "srn_weapon/iwdbqs_b_061.tga",
       "srn_weapon/iwdbqs_b_071.tga",
       "srn_weapon/iwdbqs_b_081.tga",
@@ -9176,12 +10232,16 @@
       "srn_weapon/sr0eabace5_14.tga",
       "srn_weapon/sr1243dd1a.uti",
       "srn_weapon/sr1243dd1a_09.tga",
+      "srn_weapon/sr186f9abc_076.tga",
+      "srn_weapon/sr186f9abc_6.uti",
       "srn_weapon/sr1d8f6e60.uti",
       "srn_weapon/sr1d8f6e60_09.tga",
       "srn_weapon/sr2273b8c.uti",
       "srn_weapon/sr2273b8c_06.tga",
       "srn_weapon/sr2febc2a8.uti",
       "srn_weapon/sr2febc2a8_07.tga",
+      "srn_weapon/sr32dc7d7e_017.tga",
+      "srn_weapon/sr32dc7d7e_7.uti",
       "srn_weapon/sr36b5c592.uti",
       "srn_weapon/sr36b5c592_11.tga",
       "srn_weapon/sr3ab64906_065.tga",
@@ -9196,6 +10256,11 @@
       "srn_weapon/sr48d86616_23.tga",
       "srn_weapon/sr4c45ec83.uti",
       "srn_weapon/sr4c45ec83_20.tga",
+      "srn_weapon/sr4ec98e3a_077.tga",
+      "srn_weapon/sr4ec98e3a_7.uti",
+      "srn_weapon/sr65882fcd_018.tga",
+      "srn_weapon/sr65882fcd_018.txi",
+      "srn_weapon/sr65882fcd_8.uti",
       "srn_weapon/sr6a19234a.uti",
       "srn_weapon/sr6a19234a_13.tga",
       "srn_weapon/sr6abe18c_06.tga",
@@ -9229,6 +10294,8 @@
       "srn_weapon/sra84e4660_015.tga",
       "srn_weapon/sra84e4660_5.uti",
       "srn_weapon/sra84e4660gl.uti",
+      "srn_weapon/srade01f23_038.tga",
+      "srn_weapon/srade01f23_8.uti",
       "srn_weapon/srb8bdf709.uti",
       "srn_weapon/srb8bdf709_22.tga",
       "srn_weapon/src3ccd3b0.uti",
@@ -9263,24 +10330,42 @@
       "srn_weapon/wbwsl_b_012.mdl",
       "srn_weapon/wbwsl_b_013.mdl",
       "srn_weapon/wbwsl_b_015.mdl",
+      "srn_weapon/wbwsl_b_016.mdl",
+      "srn_weapon/wbwsl_b_017.mdl",
+      "srn_weapon/wbwsl_b_018.mdl",
       "srn_weapon/wbwsl_b_051.mdl",
       "srn_weapon/wbwsl_b_052.mdl",
       "srn_weapon/wbwsl_b_065.mdl",
+      "srn_weapon/wbwsl_b_076.mdl",
+      "srn_weapon/wbwsl_b_077.mdl",
       "srn_weapon/wbwsl_m_011.mdl",
       "srn_weapon/wbwsl_m_012.mdl",
       "srn_weapon/wbwsl_m_013.mdl",
       "srn_weapon/wbwsl_m_015.mdl",
+      "srn_weapon/wbwsl_m_016.mdl",
+      "srn_weapon/wbwsl_m_017.mdl",
+      "srn_weapon/wbwsl_m_018.mdl",
       "srn_weapon/wbwsl_m_023.mdl",
+      "srn_weapon/wbwsl_m_038.mdl",
       "srn_weapon/wbwsl_t_011.mdl",
       "srn_weapon/wbwsl_t_012.mdl",
       "srn_weapon/wbwsl_t_013.mdl",
       "srn_weapon/wbwsl_t_015.mdl",
+      "srn_weapon/wbwsl_t_016.mdl",
+      "srn_weapon/wbwsl_t_017.mdl",
+      "srn_weapon/wbwsl_t_018.mdl",
       "srn_weapon/wbwxh_b_015.mdl",
       "srn_weapon/wbwxh_b_016.mdl",
+      "srn_weapon/wbwxh_b_017.mdl",
+      "srn_weapon/wbwxh_b_018.mdl",
       "srn_weapon/wbwxh_m_015.mdl",
       "srn_weapon/wbwxh_m_016.mdl",
+      "srn_weapon/wbwxh_m_017.mdl",
+      "srn_weapon/wbwxh_m_018.mdl",
       "srn_weapon/wbwxh_t_015.mdl",
       "srn_weapon/wbwxh_t_016.mdl",
+      "srn_weapon/wbwxh_t_017.mdl",
+      "srn_weapon/wbwxh_t_018.mdl",
       "srn_weapon/wdbqs_b_061.mdl",
       "srn_weapon/wdbqs_b_071.mdl",
       "srn_weapon/wdbqs_b_081.mdl",
@@ -9399,7 +10484,7 @@
     {
       "id": "sling-row61-global-display-change",
       "severity": "integration-decision",
-      "text": "srn_2da/baseitems.2da changes Sling row 61 ModelType 0->2 and MaxRange 50->65 for the whole Sling family. Ordinary/stock simple-model slings are not client-qualified under this table."
+      "text": "srn_2da/baseitems.2da changes Sling row 61 ModelType 0->2 and MaxRange 50->77 for the whole Sling family. Ordinary/stock simple-model slings are not client-qualified under this table."
     },
     {
       "id": "baseitems-full-table-override",

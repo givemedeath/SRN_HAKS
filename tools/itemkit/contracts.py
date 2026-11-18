@@ -11,6 +11,9 @@ GENERATION = {'preset': 'pixal-single-v1', 'shapeResolution': 1536, 'shapeCFG': 
 # Whole-item cap for the firearm and shield routes. The user raised every visible budget by 50% on 2026-11-11
 # (10000 -> 15000); shadow budgets are unchanged. Profiles under the cap, such as the shipped 10000 ones, stay valid.
 FIXED_ROUTE_BUDGET = {'visible': 15000, 'shadow': 500}
+# The firearm route's own cap is the top of budget-policy.json's firearm range (user, 2026-11-17: "raise the firearm cap
+# to 37,500"); a pistol still starts near the bottom of that range. The shield route keeps FIXED_ROUTE_BUDGET.
+FIREARM_ROUTE_BUDGET = {'visible': 37500, 'shadow': 500}
 
 
 def resref(value):
@@ -97,8 +100,9 @@ def family(path, *, validate_native=True):
                 and data['firearm']['subtype'] in SLOTS, 'Explicit supported firearm slot required')
         firearm_slot = SLOTS[data['firearm']['subtype']]
     if firearm_slot or shield:
-        require(budgets['visible'] <= FIXED_ROUTE_BUDGET['visible'] and budgets['shadow'] == FIXED_ROUTE_BUDGET['shadow'],
-                'This route has a {visible}/{shadow} budget'.format(**FIXED_ROUTE_BUDGET))
+        cap = FIREARM_ROUTE_BUDGET if firearm_slot else FIXED_ROUTE_BUDGET
+        require(budgets['visible'] <= cap['visible'] and budgets['shadow'] == cap['shadow'],
+                'This route has a {visible}/{shadow} budget'.format(**cap))
     require(set(budgets) == {'visible', 'shadow', 'parts'}, 'Explicit whole-object and per-part budgets required')
     for kind in ('visible', 'shadow'):
         integer(budgets[kind], 4, 200000, kind + ' assembly budget')
@@ -355,12 +359,13 @@ def manifest(path, *, input_roles=None, validate_native=True):
     data = read(path)
     allowed = {'schemaVersion', 'kind', 'id', 'profile', 'familyProfile', 'inputs', 'features', 'openings',
                'camera', 'approval', 'fit', 'processing', 'render', 'clientCoverage', 'notes',
-               'landmarks', 'materials', 'generationSettings', 'geometrySeedOffset', 'conditioning'}
+               'landmarks', 'materials', 'generationSettings', 'geometrySeedOffset', 'appearanceSeedOffset', 'conditioning'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1 and data.get('kind') == 'item-asset', 'Unsupported item manifest')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')), 'Safe item ID required')
     require(data.get('profile') == 'pixal-single-v1', 'Items currently qualify only the single-image workflow')
     require(data.get('generationSettings') == GENERATION, 'Item generation settings must match the frozen preset')
     integer(data.get('geometrySeedOffset', 0), 0, 2147483647, 'geometry seed offset')
+    integer(data.get('appearanceSeedOffset', 0), 0, 2147483647, 'appearance seed offset')
     require(isinstance(data.get('landmarks'), list), 'Explicit measured landmark inventory required')
     require(data.get('materials') and all(isinstance(row.get('name'), str) and row.get('region')
             for row in data['materials']), 'Explicit material inventory required')
@@ -402,6 +407,14 @@ def manifest(path, *, input_roles=None, validate_native=True):
     return data
 
 
+def bindings(path):
+    """Item bindings. They also carry headkit's face libraries (2,500 files, 350 MB) that no item stage loads, and a
+    stage pins and verifies the libraries it does load (runner.STAGE_LIBRARIES, headkit's `library()`), so the loader
+    does not read every bound library at each process start."""
+    from tools.headkit.common import bindings as load
+    return load(path, verify_libraries=False)
+
+
 NEW_ITEM_TEXTURE_SIZE = 2048      # user, 2026-11-15: "also up all items to 2k"; a 1K contract already written keeps its size
 
 
@@ -432,7 +445,7 @@ def source_version():
 
 def stage_roles(stage):
     return {'prepare':{'reference'},'inspect':{'geometryRaw'},'donor':{'geometryDonor','field'},
-            'fit':{'texturedDonor','workingMesh','gripStandard'},'finish':{'reference'},'bake':{'reference'},
+            'fit':{'texturedDonor','workingMesh','gripStandard'},'finish':{'reference'},'bake':{'reference','donorMetallic'},
             'fixture':{'fixtureTemplate','maleCreature','femaleCreature','nwscript','comparisonBlueprint'},
             'calibrate':{'reference','geometry','detail','mask','calibrationReference','calibrationDetail','sourceAudit','referenceApproval'},
             'geometry':{'reference','clayReference','geometry','detail','foregroundMask','geometryForegroundMask','sourceAudit','referenceApproval'},

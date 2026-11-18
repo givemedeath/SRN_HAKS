@@ -73,6 +73,9 @@ class ShieldTests(unittest.TestCase):
                      'allowedAssemblies':[{'whole':'riot-shield'}]}
             path=root/'family.json';write(path,profile)
             self.assertEqual(contracts.family(path),profile)
+            # The firearm route's 37,500 cap (2026-11-17) is not the shield's: a shield stays at 15,000.
+            over=root/'family-over.json';write(over,{**profile,'budgets':{'visible':15001,'shadow':500,'parts':{'whole':{'visible':15001,'shadow':500}}}})
+            with self.assertRaisesRegex(ValueError,'15000/500'):contracts.family(over)
             self.assertEqual(active_parts(profile),('whole',))
             self.assertEqual(assembly_budget(profile,{'whole':4218},'visible')['assembly'],4218)
             with self.assertRaisesRegex(ValueError,'allocator'):contracts.model_names(profile,1)

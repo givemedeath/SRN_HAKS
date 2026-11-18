@@ -268,8 +268,14 @@ CFG1, texture12 steps; other sampler values unchanged). Retain raw mesh and shap
 An optional `geometrySeedOffset` (integer 0..2147483647) adds the recorded offset
 to the three frozen geometry noise seeds only. Omission/zero preserves historical
 requests. Use a fresh manifest and distinct offset for a new noise trial; identical
-conditioning and identical seeds are not a useful retry. Appearance keeps its
-saved-shape binding and its original texture seed. Every submitted geometry job
+conditioning and identical seeds are not a useful retry. `drive gen` refuses a
+geometry attempt whose workflow and seeds match an earlier submitted attempt of
+the same design, after the request and before the submit. Appearance keeps its
+saved-shape binding and its original texture seed unless the manifest carries
+`appearanceSeedOffset` (same range), which moves the one texture noise seed;
+`drive textured --appearance-seed N` colours an approved clay again that way
+(job `appearance-sN`, manifests `geometry-approved-seedN-v1` and `donor-seedN-v1`).
+A repeated appearance request with the same seed is refused like a repeated geometry one. Every submitted geometry job
 still counts against the shared model allowance.
 `run --stage inspect` renders the raw mesh in seven directions without texturing.
 Record the generated-geometry decision with both exact raw-mesh and saved-shape
@@ -448,6 +454,9 @@ minute before any work, and one pass over a stage's inputs opened about 6,600 fi
 
 - A stage pins the byte-bound libraries it loaded (`runner.STAGE_LIBRARIES`; loading another fails the stage), not
   every library in the bindings. The driver sets the launcher's hash cache (`SRN_LAUNCH_HASH_CACHE`, as headbatch does).
+- An item process reads its bindings without hashing the byte-bound libraries (`contracts.bindings`,
+  `verify_libraries=False`): the stage that loads a library hashes and pins it, so a process that loads none no
+  longer reads every library folder at start. Headkit's own loader still verifies them all.
 - The automatic approval of a stage the chain just ran continues that stage's completion pass; the new receipt and
   the stage's outputs are still read fresh. A reused stage, and every review a person files, takes a pass of its own.
 - `finish` starts no Blender without a `donorFinish` projection and hands the unwrapped scene on (`workerSkipped`).
@@ -733,9 +742,11 @@ The selected closed shadow result is 96/96/296. Its explicit `shadowPommel`
 projected-loop method retains the measured opening with a variable-thickness,
 96-triangle closed silhouette; it does not change visible geometry.
 
-The firearm and shield routes cap the whole item at 15,000 visible / 500 shadow
-(`contracts.FIXED_ROUTE_BUDGET`; 10,000 before 2026-11-11), including active hidden
-placeholders. Shipped profiles under the cap stay valid. SMG/rifle slot reservations exist; no subtype size
+The firearm route caps the whole item at 37,500 visible / 500 shadow
+(`contracts.FIREARM_ROUTE_BUDGET`; user, 2026-11-17: "raise the firearm cap to 37,500"; 15,000 before, and
+10,000 before 2026-11-11), including active hidden placeholders. The shield route stays at 15,000 / 500
+(`contracts.FIXED_ROUTE_BUDGET`). No firearm above 15,000 has been checked in the client yet; choose a
+pistol's budget near the bottom of the firearm range and a rifle's by its size. Shipped profiles under the cap stay valid. SMG/rifle slot reservations exist; no subtype size
 thresholds or shadow budget increases have been established. Preserve historical profiles and receipts;
 derive a fresh profile/manifest for future processing. New targets confer no geometry,
 native, client or production approval.
@@ -756,6 +767,19 @@ and only empty atlas padding is extended. Derive 2K/1K/512. The runtime diffuse 
 contract is 2K (user, 2026-11-15: "also up all items to 2k"; `contracts.NEW_ITEM_TEXTURE_SIZE`,
 written by `drive contract`); a contract written before that keeps its 1K, and the firearm
 package route takes either. The atlas gutter and coverage gates run at the contract's size.
+The atlas is packed at twice the runtime size, so a 2K item's island padding is measured in 2K texels (a 1K
+item's layout is unchanged); the Mace went from 0.484 to 0.532 useful coverage at 2K. `processing.textureSharpen`
+(`{radius, amount}`: 0.3-2 texels, amount up to 1) is an optional unsharp mask on each derived map after the box
+filter; the 4K bake is never sharpened. It is off unless a manifest sets it, and a look approval decides a default.
+`processing.metal` (`{darken, reflection}`) uses the donor stage's metallic map, pinned as the `donorMetallic`
+input (`maps/metallic-4096.png` beside the textured donor) and baked onto the final parts in a second pass over
+the colour bake's rays. `darken` (0.3-1) is the linear colour factor on full metal: the generator gives metal a
+bright albedo, which the game shows as pale steel because it has no metal shading (Defiance T-250, 2026-11-17:
+0.40-0.55 brought its receiver back to the reference's gunmetal). `reflection` (0-0.6) lowers the texture's alpha
+on metal, which the game reads as its environment-map mask, as the base game's metal textures do; with it the
+derived maps are RGBA, the native TGA keeps the alpha and its DDS twin is DXT5. A `.txi` beside it names the
+environment map (`envmaptexture chrome1`): without one the game shows the alpha as transparency. Zero writes no alpha. Both are
+off unless a manifest sets them, and the in-game look of a reflection strength still needs a client check.
 No original appearance-field sampling at transformed coordinates is permitted.
 
 Rendering uses four CPU threads, matched clay/textured views and measured native icon

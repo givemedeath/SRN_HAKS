@@ -83,6 +83,18 @@ def write_new(path, data):
     path.write_text(json.dumps(data, indent=2), encoding='utf-8'); return path
 
 
+DATA_INPUTS = ('.png', '.jpg', '.jpeg', '.webp', '.glb', '.npz', '.npy', '.latent')     # a request's reference, clay and shape pins
+
+
+def workflow_key(request):
+    """What decides a generation job's output: its workflow with the per-job token and output namespace taken out, and
+    the content of the images and shapes it uploads (the workflow names them by the token alone)."""
+    text = json.dumps(request['prompt'], sort_keys=True)
+    for value in (request['token'], str(request['outputNamespace'])): text = text.replace(value, '')
+    data = sorted({row['sha256'] for row in request.get('inputs', ()) if isinstance(row, dict) and str(row.get('path', '')).lower().endswith(DATA_INPUTS)})
+    return hashlib.sha256((text + json.dumps(data)).encode('utf-8')).hexdigest()
+
+
 class Driver:
     def __init__(self, workspace):
         self.ws = workspace
@@ -191,6 +203,17 @@ class Driver:
         flags = {'appearance': ['--appearance-donor'], 'export': ['--working-shell']}.get(stage, [])
         common = ['--manifest', manifest, '--stage', stage]
         self.launch(design, run, 'request', common, ['request', '--manifest', manifest, '--stage', stage, '--output', run/'request', *flags], kind='generation')
+        if stage in ('geometry', 'appearance'):
+            # The same workflow and seeds return the same result byte for byte (Defiance T-250 a2, 2026-11-17: an attempt
+            # spent for nothing). Refused after the free request and before the submit that the ledger counts.
+            new = workflow_key(read(run/'request'))
+            def repeats(earlier):
+                try: return workflow_key(read(earlier)) == new
+                except (KeyError, OSError, ValueError): return False       # an unreadable earlier request proves no repeat
+            same = [p.parent.name for p in sorted((self.ws.items/design).glob(f'{stage}-*/request'))
+                    if p.parent != run and (p.parent/'job/submission.json').exists() and repeats(p)]
+            if same: raise SystemExit(f'{design} {stage}-{attempt} repeats the workflow and seeds of {", ".join(same)} and would return the same result: '
+                                      "set geometrySeedOffset in a new manifest or change the reference (geometry); use textured --appearance-seed (appearance)")
         # submit waits in headkit.shared_comfy.slot for the GPU lease and an idle queue, before any ledger record.
         out, _, _ = self.launch(design, run, 'submit', [*common, '--extra', run/'request'],
                                 ['submit', '--request', run/'request', '--output', run/'job'], kind='generation')
@@ -294,10 +317,12 @@ class Driver:
         m['processing']['sourceFieldPolicy'] = policy
         return str(write_new(self.manifest(design, dst), m))
 
-    def textured(self, design, attempt, src, notes, straight=None, field_range=None):
+    def textured(self, design, attempt, src, notes, straight=None, field_range=None, appearance_seed=0):
         """Approved clay -> appearance (with the 200K donor) -> donor manifest -> CPU colour bake -> textured views.
 
-        `field_range` (LO, HI): the colour field's reviewed value range when it overshoots the decoder (donor_manifest)."""
+        `field_range` (LO, HI): the colour field's reviewed value range when it overshoots the decoder (donor_manifest).
+        `appearance_seed` N > 0 colours the same approved clay again with the texture noise seed moved by N (the same
+        seed returns the same colours): job appearance-sN, manifests geometry-approved-seedN-v1 and donor-seedN-v1."""
         if not notes.strip(): raise SystemExit("--notes must quote the user's clay approval")
         collection = self.ws.items/design/f'geometry-{attempt}/job/collection.json'
         if not collection.exists(): raise SystemExit(f'{design}: geometry {attempt} was never collected')
@@ -306,20 +331,25 @@ class Driver:
         glb = next(o['sha256'] for o in collected['outputs'] if o['path'].endswith('.glb'))
         if read(self.manifest(design, 'geometry-approved-v1'))['approval']['generatedGeometry']['geometryRawSha256'] != glb:
             raise SystemExit(f'geometry-approved-v1 binds another attempt than {attempt}: this chain continues only one approved clay')
-        if not (self.ws.items/design/'appearance-a1/job/collection.json').exists():
+        coloured, job, donor_suffix = 'geometry-approved-v1', 'a1', 'donor-v1'
+        if appearance_seed:
+            coloured, job, donor_suffix = f'geometry-approved-seed{appearance_seed}-v1', f's{appearance_seed}', f'donor-seed{appearance_seed}-v1'
+            if not self.manifest(design, coloured).exists():
+                write_new(self.manifest(design, coloured), {**read(self.manifest(design, 'geometry-approved-v1')), 'appearanceSeedOffset': appearance_seed})
+        if not (self.ws.items/design/f'appearance-{job}/job/collection.json').exists():
             self.comfy('start')
-            try: self.gen(design, 'appearance', 'geometry-approved-v1')
+            try: self.gen(design, 'appearance', coloured, job)
             finally: self.comfy('stop')
-        if self.manifest(design, 'donor-v1').exists():
-            policy = read(self.manifest(design, 'donor-v1'))['processing']['sourceFieldPolicy']
+        if self.manifest(design, donor_suffix).exists():
+            policy = read(self.manifest(design, donor_suffix))['processing']['sourceFieldPolicy']
             if field_range is not None and [policy['minimum'], policy['maximum']] != [float(x) for x in field_range]:
-                raise SystemExit(f"donor-v1 exists with the field range {policy['minimum']:g}..{policy['maximum']:g}: "
+                raise SystemExit(f"{donor_suffix} exists with the field range {policy['minimum']:g}..{policy['maximum']:g}: "
                                  '--field-range binds only a new donor manifest (manifests are immutable)')
         else:
-            self.donor_manifest(design, 'geometry-approved-v1', 'donor-v1', 'Automated chain: 200K/768 UDF donor and colour field from the appearance job '
+            self.donor_manifest(design, coloured, donor_suffix, 'Automated chain: 200K/768 UDF donor and colour field from the appearance job '
                                 'on the approved clay (raw mesh hash checked identical). Visual review of the textured result is still required.',
-                                field_range=field_range)
-        run = self.run_dir(design, 'donor-v1')
+                                attempt=job, field_range=field_range)
+        run = self.run_dir(design, donor_suffix)
         # The donor of the attempt the run's state records: attempt folders are not ordered, and an older or failed
         # attempt may hold a textured-donor.glb too.
         recorded = lambda: (read(run/'state.json')['stages'].get('donor') if (run/'state.json').exists() else None)
@@ -331,10 +361,10 @@ class Driver:
             receipt = Path(entry['path'])
             if not receipt.is_file(): raise SystemExit(f'{design}: {run/"state.json"} records a donor receipt that is missing: {receipt}')
             return read(receipt).get('state') == 'complete'
-        if not complete(): self.stage(design, 'donor-v1', 'donor')
+        if not complete(): self.stage(design, donor_suffix, 'donor')
         if not complete(): raise SystemExit(f'{design}: the donor stage did not complete; see {run}')
         donor = next(Path(recorded()['path']).parent.rglob('textured-donor.glb'))
-        family = read(self.ws.handoff/read(self.manifest(design, 'donor-v1'))['familyProfile']['path'])['family']
+        family = read(self.ws.handoff/read(self.manifest(design, donor_suffix))['familyProfile']['path'])['family']
         # Each map applies to the previous result, so the maps in --straight must have been measured in this same order:
         # with more than one map, each one's measuring report must show it was measured on the previous one's output.
         kinds = (('straighten', 'straightened'), ('thin', 'thinned'), ('level', 'levelled'))
@@ -348,7 +378,7 @@ class Driver:
         for kind, name in kinds:
             mapping = Path(straight)/f'{kind}-map.npz' if straight else None
             if mapping and mapping.exists():
-                out = self.ws.items/design/f'donor-v1-{name}'
+                out = self.ws.items/design/f'{donor_suffix}-{name}'
                 if out.exists() and not (out/f'{name}.glb').exists():
                     raise SystemExit(f'{out} holds an unfinished {kind} run: move it aside first')
                 if not out.exists():
@@ -400,13 +430,47 @@ class Driver:
                                 ['review', '--manifest', m, '--run', run, '--stage', stage, '--decision', decision, '--notes', notes])
         return json.loads(out[out.index('{'):]) if '{' in out else out
 
-    def chain(self, design, suffix, stages, notes=None):
+    def chain(self, design, suffix, stages, notes=None, screen=True):
+        """One verified launch of consecutive stages. A chain that unwraps and then bakes stops between the two for the
+        donor screen (about 10 s): faces the bake preflight would refuse are reported before Cycles spends minutes on them."""
+        stages = list(stages); cut = stages.index('bake') if 'bake' in stages else 0
+        if screen and 'unwrap' in stages[:cut]:
+            first = self.chain(design, suffix, stages[:cut], notes, screen=False)
+            found = self.screen_before_bake(design, suffix)
+            if found.get('failedCount'):
+                faces = ','.join(map(str, found['failedFaces']))
+                return {**first, 'screen': found, 'failed': f"donor screen before the bake: {found['failedCount']} visible faces have no facing donor "
+                        f"surface in reach ({faces}). Measure them (patch-measure {design} {suffix} DONOR --faces {faces}), add the reviewed "
+                        f"patch (patch-add {design} {suffix} NEW_SUFFIX ...; it adopts this run's stages) and chain NEW_SUFFIX."}
+            # The stages before the bake are reused from the launch above; the last of them is approved here on its gates.
+            # A failure from the bake on keeps what the first launch measured: its stage timings and the screen.
+            try: rest = self.chain(design, suffix, stages, notes, screen=False)
+            except (SystemExit, Exception) as error: return {**first, 'screen': found, 'failed': str(error)[-800:]}
+            return {**rest, 'seconds': first['seconds']+rest['seconds'], 'screen': found,
+                    'stages': first['stages']+[row for row in rest['stages'] if row.get('stage') in stages[cut:]]}
         m = self.manifest(design, suffix); run = self.run_dir(design, suffix); started = time.monotonic()
         notes = notes or CHAIN_NOTES.format(date=time.strftime('%Y-%m-%d'))
         _, err, out = self.launch(design, run, 'chain', ['--manifest', m, '--run', run, '--stages', *stages],
                                   ['chain', '--manifest', m, '--run', run, '--stages', *stages, '--notes', notes])
         rows = [json.loads(line) for line in err.splitlines() if line.startswith('{"stage"')]
         return {'design': design, 'suffix': suffix, 'seconds': round(time.monotonic() - started), 'stages': rows, 'launch': str(out)}
+
+    def screen_before_bake(self, design, suffix):
+        """The donor screen in its own process (it needs the mesh libraries). An early warning only: a screen that cannot
+        run, for want of a donor or a single attempt to read, is reported and never stops the chain."""
+        try:
+            donor = self.ws.handoff/read(self.manifest(design, suffix))['inputs']['texturedDonor']['path']
+            done = self.python('-m', 'tools.itemkit.drive', 'screen', design, suffix, donor, check=False)
+            if done.returncode: return {'skipped': (done.stderr or done.stdout or '')[-300:]}
+            return json.loads(done.stdout[done.stdout.index('{'):])
+        except (KeyError, OSError, ValueError) as error: return {'skipped': str(error)[-300:]}
+
+    def adopt(self, design, suffix, source_suffix):
+        """Name SOURCE's approved stages before the bake in SUFFIX's run when the manifests differ only in the
+        miss-correction policy, so a patched manifest starts again at its bake."""
+        done = self.python('tools/itemkit/run_itemkit.py', 'adopt', '--bindings', self.ws.bindings('processing'), '--manifest',
+                           self.manifest(design, suffix), '--run', self.run_dir(design, suffix), '--source', self.run_dir(design, source_suffix))
+        return json.loads(done.stdout[done.stdout.index('{'):])
 
     def batch(self, items, stages, jobs=2):
         """Chains for several designs at once (at most MAX_JOBS); each item's log stays in its own run folder."""
@@ -660,7 +724,9 @@ class Driver:
                                         replace=replace)
         path = write_new(self.manifest(design, new_suffix), manifest)
         patch = manifest['processing']['missCorrection']['unorientedSourcePatch']
-        return {'manifest': str(path), 'sha256': sha(path), 'target': target['source'], 'patch': patch,
+        try: adopted = self.adopt(design, new_suffix, suffix)['adopted']
+        except (SystemExit, ValueError, OSError) as error: adopted = f'none: {str(error)[-200:]}'
+        return {'manifest': str(path), 'sha256': sha(path), 'target': target['source'], 'patch': patch, 'adopted': adopted,
                 'maximumUnorientedDistance': manifest['processing']['missCorrection'].get('maximumUnorientedDistance')}
 
     def shell(self, operation, source, target, *arguments, **settings):
@@ -698,6 +764,7 @@ def parser():
     # Two numbers, not "LO,HI": argparse takes "-0.22,1.13" for an option, while a lone "-0.22" reads as a number.
     s.add_argument('--field-range', nargs=2, type=float, metavar=('LO', 'HI'),
                    help="the colour field's reviewed range when it overshoots the decoder (the refusal suggests one)")
+    s.add_argument('--appearance-seed', type=int, default=0, help='colour the approved clay again with the texture seed moved by N')
     s = c.add_parser('fit'); [s.add_argument(k) for k in ('id', 'src', 'dst', 'working', 'donor')]
     s.add_argument('--overrides'); s.add_argument('--measure-only', action='store_true'); s.add_argument('--donor-review'); s.add_argument('--authority')
     s = c.add_parser('opening-probes'); s.add_argument('id'); s.add_argument('suffix'); s.add_argument('--write', help='new manifest suffix')
@@ -708,6 +775,8 @@ def parser():
     s = c.add_parser('batch'); s.add_argument('items', nargs='+', help='ID:SUFFIX')
     s.add_argument('--stages', type=stage_list, required=True, help='comma-separated, e.g. fit,reduce,unwrap')
     s.add_argument('--jobs', type=int, default=2)
+    s = c.add_parser('adopt', help="reuse SOURCE's approved stages before the bake in SUFFIX's run (patch-add does this itself)")
+    [s.add_argument(k) for k in ('id', 'suffix', 'source')]
     s = c.add_parser('fixture-inputs'); s.add_argument('id'); s.add_argument('suffix', help='a manifest of the design (its family contract)'); s.add_argument('name')
     s = c.add_parser('refixture'); [s.add_argument(k) for k in ('id', 'suffix', 'name')]; s.add_argument('--capture', action='store_true')
     s = c.add_parser('capture'); s.add_argument('fixture'); s.add_argument('output')
@@ -755,12 +824,12 @@ def main(argv=None):
         'gen': lambda: d.gen(a.id, a.stage, a.manifest, a.attempt), 'calibrated': lambda: d.calibrated(a.id, a.fov, a.source),
         'colour-geometry': lambda: d.colour_geometry(a.id, a.src, a.dst, a.notes),
         'approve-geometry': lambda: d.approve_geometry(a.id, a.attempt, a.src, a.dst, a.notes),
-        'textured': lambda: d.textured(a.id, a.attempt, a.src, a.notes, a.straight, a.field_range),
+        'textured': lambda: d.textured(a.id, a.attempt, a.src, a.notes, a.straight, a.field_range, a.appearance_seed),
         'fit': lambda: d.fit(a.id, a.src, a.dst, a.working, a.donor, a.overrides, measure_only=a.measure_only, donor_review=a.donor_review, authority=a.authority),
         'opening-probes': lambda: d.opening_probes(a.id, a.suffix, a.write),
         'preview': lambda: d.preview(a.id, a.suffix), 'stage': lambda: d.stage(a.id, a.suffix, a.stage),
         'review': lambda: d.review(a.id, a.suffix, a.stage, a.decision, a.notes), 'chain': lambda: d.chain(a.id, a.suffix, a.stages),
-        'batch': lambda: d.batch(a.items, a.stages, a.jobs), 'fixture-inputs': lambda: d.fixture_inputs(a.id, a.suffix, a.name),
+        'batch': lambda: d.batch(a.items, a.stages, a.jobs), 'adopt': lambda: d.adopt(a.id, a.suffix, a.source), 'fixture-inputs': lambda: d.fixture_inputs(a.id, a.suffix, a.name),
         'refixture': lambda: d.refixture(a.id, a.suffix, a.name, a.capture), 'capture': lambda: d.capture(a.fixture, a.output),
         'contract': lambda: d.contract(a.family, a.id, a.wave, a.visible, a.base, a.replace_stock), 'views': lambda: d.views(a.glb, a.output, a.textured),
         'retire-contracts': lambda: d.retire_contracts(a.folder, a.reason, contracts=a.contract),
@@ -780,7 +849,8 @@ def main(argv=None):
         if a.command not in ('publish', 'screen', 'patch-measure', 'patch-add', 'opening-probes', 'retire-contracts'): raise
         raise SystemExit(f'{a.command}: {error}')
     print(json.dumps(result, indent=1, default=str))
-    return 0
+    # A chain that stopped at its donor screen or failed after it reports that in its result: the exit code says so too.
+    return 1 if a.command == 'chain' and isinstance(result, dict) and result.get('failed') else 0
 
 
 if __name__ == '__main__':

@@ -10,8 +10,8 @@ import uuid
 import numpy as np
 from PIL import Image
 from tools.headkit import common
-from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, bindings, digest, library, python_package_pins
-from .contracts import all_pins, code_pins, is_code_path, source_version, manifest, family, evidence_pins, stage_roles
+from tools.headkit.common import ROOT, read, write, pin, verify, require, asset, digest, library, python_package_pins
+from .contracts import bindings, all_pins, code_pins, is_code_path, source_version, manifest, family, evidence_pins, stage_roles
 from .geometry import corner_hash
 from .routes import PACKAGED_FIREARMS, ROUTES, needs_grip_standard
 from .verification import VerificationPass
@@ -20,6 +20,47 @@ DEPENDENCIES = {'prepare': (), 'inspect': (), 'donor': (), 'fit': (), 'reduce': 
                 'finish': ('unwrap',), 'bake': ('finish',), 'shadow': ('bake','reduce'), 'render': ('shadow', 'bake'),
                 'export': ('render', 'shadow', 'bake'), 'native': ('export',),
                 'fixture': ('native',), 'client': ('fixture',)}
+# The miss-correction policy (the reviewed colour patch) is read by the bake alone. The stages before it only check that
+# a patch names the reduced geometry, and that check is repeated wherever one of their receipts is taken on by its
+# stage view. A manifest that differs from a finished run's only in that policy can therefore keep the run's fit,
+# reduction, unwrap and finish instead of repeating them (about four minutes of a pistol's chain).
+BEFORE_BAKE = ('prepare', 'inspect', 'donor', 'fit', 'reduce', 'unwrap', 'finish')
+
+
+def stage_manifest_hash(data, stage):
+    """The manifest as this stage and its ancestors consume it."""
+    if stage not in BEFORE_BAKE or 'missCorrection' not in data.get('processing', {}): return digest(data)
+    return digest({**data, 'processing': {key: value for key, value in data['processing'].items() if key != 'missCorrection'}})
+
+
+def geometry_hashes(value):
+    """Every `geometryCornerHash` a stage result reports."""
+    found = set()
+    if isinstance(value, dict):
+        if isinstance(value.get('geometryCornerHash'), str): found.add(value['geometryCornerHash'])
+        for child in value.values(): found |= geometry_hashes(child)
+    elif isinstance(value, list):
+        for child in value: found |= geometry_hashes(child)
+    return found
+
+
+def adoption_records(run):
+    path = Path(run)/'adopted.json'
+    return read(path)['sources'] if path.exists() else []
+
+
+def recovery_proofs(run):
+    """Retained proofs of completed bakes in the runs this one adopted stages from, and the runs those adopted from
+    (a second patch adopts the first patch's run, while the bake was retained by the run before it), newest first."""
+    seen, queue, found = set(), [Path(run)], []
+    while queue:
+        for source in adoption_records(queue.pop()):
+            path = Path(source['run'])
+            if path in seen: continue
+            seen.add(path); queue.append(path); found += path.glob('bake/attempt-*/worker/bake-recovery.json')
+    return sorted(found, key=lambda proof: proof.stat().st_mtime, reverse=True)
+
+
 # Byte-bound libraries a stage may load. A stage pins the ones it did load (headkit's rule), not every bound library:
 # the bindings also carry headkit's face libraries, 2,500 files no item stage opens, and hashing them in every pass
 # of every stage was a third of a chain's file reads.
@@ -100,7 +141,8 @@ class Runner:
         if stage == 'client' and self.evidence is not None:
             require(pin(self.evidence) in receipt['inputs'], 'Client review evidence changed')
         if audit.code_version is None: audit.code_version = source_version()
-        require(receipt['manifestHash'] == digest(self.data) and receipt['bindingsHash'] == digest(self.local)
+        whole = receipt['manifestHash'] == digest(self.data)
+        require((whole or self._stage_view_holds(stage, receipt)) and receipt['bindingsHash'] == digest(self.local)
                 and receipt['codeVersion'] == audit.code_version, 'Stale item stage: '+stage)
         if self.runtime is not None: require(receipt['runtimeIdentity'] == self.runtime, 'Stage launcher identity changed')
         for parent, expected in receipt['dependencies'].items():
@@ -112,6 +154,65 @@ class Runner:
             require(decision['stageReceipt'] == row and decision['decision'] == 'approved', 'Stale or rejected review: '+stage)
         audit.results[stage, review] = receipt['result']
         return receipt['result']
+
+    def _stage_view_holds(self, stage, receipt):
+        """A receipt made under another miss-correction policy still stands for a stage that never read it.
+
+        The reduce stage's one use of the policy is the check that a reviewed patch names the reduced geometry: it is
+        made here against what that receipt measured."""
+        if 'stageManifestHash' not in receipt or receipt['stageManifestHash'] != stage_manifest_hash(self.data, stage): return False
+        patch = self.data.get('processing', {}).get('missCorrection', {}).get('unorientedSourcePatch')
+        if stage == 'reduce' and patch:
+            require(patch.get('targetCornerHash') in geometry_hashes(receipt.get('result')),
+                    'Visible assembly differs from the exact reviewed texture-patch geometry')
+        return True
+
+    def adopt(self, source):
+        """Take on another run's finished, approved stages before the bake when this manifest differs from that run's
+        only in the miss-correction policy. Nothing is copied: the state names that run's receipts and reviews, and
+        every later use verifies them as it verifies its own. Returns the stages adopted."""
+        source = Path(source).resolve()
+        require(source != self.run and (source/'state.json').exists(), 'Adopt from another run of this item that has a state')
+        other = read(source/'state.json'); require(other['id'] == self.data['id'], 'Run belongs to another item')
+        adopted = []; version = source_version()
+        for stage in BEFORE_BAKE:
+            if stage in self.state['stages'] or stage not in other['stages']: continue
+            row = other['stages'][stage]; review = other.get('reviews', {}).get(stage)
+            try:
+                verify([row]); receipt = read(row['path'])
+                fits = (receipt['state'] == 'complete' and receipt['bindingsHash'] == digest(self.local) and review is not None
+                        and receipt['codeVersion'] == version      # every later use would refuse another version as stale
+                        and all(self.state['stages'].get(parent) == expected for parent, expected in receipt['dependencies'].items())
+                        and self._stage_view_holds(stage, receipt))
+                if fits:
+                    verify([review]); decision = read(review['path'])
+                    fits = decision['stageReceipt'] == row and decision['decision'] == 'approved'
+            except (KeyError, OSError, ValueError): fits = False
+            if not fits:
+                if stage in ('fit', 'reduce', 'unwrap', 'finish'): break       # the chain: nothing after a refused link
+                continue
+            self.state['stages'][stage] = row; self.state.setdefault('reviews', {})[stage] = review; adopted.append(stage)
+        if adopted:
+            self.run.mkdir(parents=True, exist_ok=True)
+            write(self.run/'adopted.json', {'schemaVersion': 1, 'sources': adoption_records(self.run)+[{'run': str(source), 'stages': adopted}]})
+            write(self.state_path, self.state)
+        return adopted
+
+    def recoverable_bake(self, scene):
+        """The proof of a bake that completed in an adopted run and failed only on its misses, when this manifest
+        changes nothing but the miss-correction policy: the finished pixels are corrected instead of baked again."""
+        if self.data.get('processing', {}).get('metal'): return None            # the recovery keeps no metallic layer
+        from .recovery import recovery_inputs
+        without_policy = lambda values: {key: value for key, value in values.items() if key != 'missCorrection'}
+        current = None
+        for path in recovery_proofs(self.run):
+            try:
+                proof = read(path); recovery_inputs(proof); current = current or pin(scene)
+                if (proof['sourceScene'] == current and digest(proof['family']) == digest(self.family)
+                        and digest(without_policy(proof['processing'])) == digest(without_policy(self.data.get('processing', {})))):
+                    return str(path)
+            except (KeyError, OSError, ValueError): continue
+        return None
 
     def execute(self, stage):
         require(stage in DEPENDENCIES, 'Unknown item stage')
@@ -140,6 +241,7 @@ class Runner:
         version = parent_audit.code_version if parent_audit.code_version is not None else source_version()
         manifest_hash = digest(self.data)
         receipt = {'stage': stage, 'state': 'running', 'manifestHash': manifest_hash,
+                   'stageManifestHash': stage_manifest_hash(self.data, stage),
                    'bindingsHash': digest(self.local), 'codeVersion': version,
                    'runtimeIdentity': self.runtime, 'inputs': inputs, 'dependencies': parents, 'outputs': []}
         # A snapshot is every consumed byte and dependency, not only the manifest and code:
@@ -181,15 +283,20 @@ class Runner:
         verify([self.local['blender']])
         if stage=='bake' and self.data.get('processing',{}).get('donorFinish'):
             values.setdefault('reference',self.input('reference'))
+        if stage == 'bake' and self.data.get('processing', {}).get('metal'):
+            values['metallic'] = self.input('donorMetallic')     # the donor stage's metallic map, on the donor's own UVs
         if stage in ('fit', 'fit-measure') and 'gripStandard' in self.data['inputs']:
             values['gripStandard'] = self.input('gripStandard')
         config = {'stage': stage, 'family': self.family, 'fit': self.data.get('fit', {}),
                   'processing': self.data.get('processing', {}),'render':self.data.get('render',{}), 'output': str(folder/'worker'), **values}
-        roles_stage = 'fit' if stage == 'fit-measure' else stage
+        roles_stage = {'fit-measure': 'fit', 'recover-bake': 'bake'}.get(stage, stage)
         config['inputs'] = all_pins(self.manifest_path,roles=stage_roles(roles_stage),native=roles_stage=='fit')+code_pins()+[self.local['blender']]
-        config['inputs'] += [pin(values[key]) for key in ('source', 'workingSource', 'scene', 'texture', 'reference', 'atlas', 'gripStandard') if key in values]
+        config['inputs'] += [pin(values[key]) for key in ('source', 'workingSource', 'scene', 'texture', 'reference', 'atlas', 'gripStandard', 'metallic') if key in values]
         for key in ('shadowCandidates', 'visibleCandidates'):
             if key in values: config['inputs'] += [row['arrays'] for row in values[key].values()]
+        if 'recoveryProof' in values:
+            from .recovery import recovery_inputs
+            config['inputs'] += [pin(values['recoveryProof'])]+recovery_inputs(read(values['recoveryProof']))
         target = folder/'worker.json'; write(target, config, fresh=True)
         inputs = folder/'worker-inputs.json'; write(inputs, config['inputs']+[pin(target)], fresh=True)
         command = [sys.executable, str(ROOT/'tools/phenotypes/launch_shared_tool.py'),
@@ -292,17 +399,26 @@ class Runner:
                 values['visibleCandidates'] = self.constrained_candidates(parent, folder)
             if stage=='shadow' and self.data.get('processing',{}).get('shadowProxies'):
                 values['shadowCandidates']=parent_result('reduce')['shadowPreflight']
-            result = self.worker(stage, folder, **values)
+            if stage == 'bake':
+                # Before Cycles runs: finish_bake reads these only after the bake, when a refusal costs the attempt.
+                from .textures import metal_policy, sharpen_policy
+                for key, policy in (('textureSharpen', sharpen_policy), ('metal', metal_policy)):
+                    if self.data.get('processing', {}).get(key) is not None: policy(self.data['processing'][key])
+            proof = self.recoverable_bake(values['scene']) if stage == 'bake' else None
+            result = self.worker('recover-bake', folder, **values, recoveryProof=proof) if proof else self.worker(stage, folder, **values)
             if stage=='reduce' and self.data.get('processing',{}).get('shadowProxies'):
                 from .shadow import build_candidates
-                quadric=any(row.get('method')=='quadric' for row in self.data['processing']['shadowProxies'].values())
+                quadric=any(row.get('method') in ('quadric','voxel-shell') for row in self.data['processing']['shadowProxies'].values())
                 libraries={'meshlab':library(self.local,'pymeshlab'),'igl':library(self.local,'igl')} if quadric else {}
                 result['shadowPreflight']=build_candidates(result['shadowSource']['path'],self.family,self.data['processing'],
                                                            folder/'shadow-preflight',**libraries)
             if stage == 'bake':
                 from .textures import finish_bake
                 result.update(finish_bake(result['linear']['path'], result['masks']['path'], folder/'textures',
-                                               palettes=self.data['processing'].get('materialPalettes',())))
+                                               palettes=self.data['processing'].get('materialPalettes',()),
+                                               sharpen=self.data['processing'].get('textureSharpen'),
+                                               metal=self.data['processing'].get('metal'),
+                                               metallic_path=result['metallic']['path'] if result.get('metallic') else None))
                 from .texture_check import SIZE, check_bake
                 if str(SIZE) in result['maps']:     # advisory: a person looks at the flagged blobs; never a gate
                     try: result['textureOutliers'] = check_bake(result['maps'][str(SIZE)]['path'], result['masks']['path'], folder/'texture-check')

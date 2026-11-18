@@ -38,7 +38,36 @@ def material_palette(pixels,mapped,palettes):
     return records
 
 
-def finish_bake(linear_path, masks_path, output, *, palettes=()):
+def sharpen_policy(settings):
+    """A reviewed unsharp mask for the derived maps: `radius` in texels of each map, `amount` 0-1."""
+    require(isinstance(settings, dict) and set(settings) == {'radius', 'amount'}
+            and all(type(settings[key]) in (int, float) for key in settings)
+            and .3 <= settings['radius'] <= 2 and 0 < settings['amount'] <= 1,
+            'Texture sharpening needs a radius of 0.3-2 texels and an amount up to 1')
+    return {'radius': float(settings['radius']), 'amount': float(settings['amount'])}
+
+
+def metal_policy(settings):
+    """How the baked metallic map changes the game texture. `darken`: the colour factor on full metal (1 leaves it; the
+    generator gives metal a bright albedo that the game, which has no metal shading, shows as pale steel). `reflection`:
+    how far full metal lowers the texture's alpha, which the game uses as its environment-map mask the way the base
+    game's own metal textures do (0 writes no alpha at all)."""
+    require(isinstance(settings, dict) and set(settings) == {'darken', 'reflection'}
+            and all(type(settings[key]) in (int, float) for key in settings)
+            and .3 <= settings['darken'] <= 1 and 0 <= settings['reflection'] <= .6
+            and (settings['darken'] < 1 or settings['reflection'] > 0),
+            'Metal treatment needs darken 0.3-1 and reflection 0-0.6, and one of them must change something')
+    return {'darken': float(settings['darken']), 'reflection': float(settings['reflection'])}
+
+
+def finish_bake(linear_path, masks_path, output, *, palettes=(), sharpen=None, metal=None, metallic_path=None):
+    """`sharpen` (sharpen_policy) is applied to each derived map after it is reduced: the 4K bake is box-filtered down,
+    which softens every edge the donor drew. The padded image is sharpened, so an island's edge is compared with its
+    own extended colour and never with empty atlas; the 4K source map stays exactly the bake."""
+    from PIL import ImageFilter
+    if sharpen is not None: sharpen = sharpen_policy(sharpen)
+    require((metal is None) == (metallic_path is None), 'A metal treatment and a baked metallic map go together')
+    if metal is not None: metal = metal_policy(metal)
     from tools.headkit.textures import pad
     values = np.load(linear_path, allow_pickle=False)
     with np.load(masks_path, allow_pickle=False) as masks:
@@ -49,14 +78,28 @@ def finish_bake(linear_path, masks_path, output, *, palettes=()):
     values,normalization=normalize_source_colour(values)
     padded = pad(values, mapped)
     require(np.array_equal(padded[mapped], values[mapped]), 'Padding changed a mapped surface colour')
+    alpha = None; metal_report = None
+    if metal is not None:
+        layer = np.load(metallic_path, allow_pickle=False)
+        require(layer.shape == mapped.shape, 'Expected a 4K metallic bake')
+        known = mapped & np.isfinite(layer); require(known.sum() >= .98*mapped.sum(), 'The metallic bake missed too much of the surface')
+        layer = np.clip(pad(np.where(known, layer, 0), known), 0, 1)
+        padded = padded * (1 - layer*(1 - metal['darken']))[..., None]
+        if metal['reflection']: alpha = Image.fromarray(np.flipud(np.rint((1 - metal['reflection']*layer)*255).astype(np.uint8)), 'L')
+        metal_report = {**metal, 'metalFraction': float(layer[mapped].mean()), 'metallicTexelsFilled': int((mapped & ~known).sum()),
+                        'alphaChannel': alpha is not None}
     palette=material_palette(padded,mapped,palettes)
     srgb = np.where(padded <= .0031308, 12.92*padded, 1.055*np.power(padded, 1/2.4)-.055)
     image = Image.fromarray(np.flipud(np.rint(srgb*255).astype(np.uint8)), 'RGB')
     output = Path(output); output.mkdir(parents=True, exist_ok=False); maps = {}
     for size in (4096, 2048, 1024, 512):
-        path = output/f'diffuse-{size}.png'
-        (image if size == 4096 else image.resize((size, size), Image.Resampling.BOX)).save(path)
-        maps[str(size)] = pin(path)
-    return {'maps': maps, 'visibleMisses': 0, 'mappedColoursPreserved': not any(normalization['clippedValuesByChannel']),
+        path = output/f'diffuse-{size}.png'; derived = image
+        if size != 4096:
+            derived = image.resize((size, size), Image.Resampling.BOX)
+            if sharpen: derived = derived.filter(ImageFilter.UnsharpMask(radius=sharpen['radius'], percent=round(sharpen['amount']*100), threshold=0))
+        # The mask is reduced on its own and never sharpened: it is a reflection amount, not a drawn edge.
+        if alpha is not None: derived = derived.copy(); derived.putalpha(alpha if size == 4096 else alpha.resize((size, size), Image.Resampling.BOX))
+        derived.save(path); maps[str(size)] = pin(path)
+    return {'maps': maps, 'visibleMisses': 0, 'derivedMapSharpening': sharpen, 'mappedColoursPreserved': not any(normalization['clippedValuesByChannel']),
             'mappedColoursPreservedAfterFloatRangeNormalization':True,'floatRangeNormalization':normalization,
-            'uniformMaterialPalette':palette}
+            'uniformMaterialPalette':palette, 'metalTreatment': metal_report}

@@ -2,8 +2,8 @@
 void Equip(string tag,string name,int slot,int bow) {
  object actor=GetObjectByTag(tag);if(!GetIsObjectValid(actor)||GetLocalInt(actor,"SW2_EQUIPPED"))return;
  if(bow) {object ammo=CreateItemOnObject("sw2_arrow",actor,99);AssignCommand(actor,ActionEquipItem(ammo,INVENTORY_SLOT_ARROWS));}
- int count=1;if(name=="sr2273b8c")count=20;if(name=="sre9a211be_3"||name=="sr_cl36_1"||name=="sr_cl36_2"||name=="sr3ab64906_5") {object bullets=CreateItemOnObject("nw_wambu001",actor,99);AssignCommand(actor,ActionEquipItem(bullets,INVENTORY_SLOT_BULLETS));}
- if(name=="sra84e4660_5"||name=="sr6abe18c_6") {object bolts=CreateItemOnObject("nw_wambo001",actor,99);AssignCommand(actor,ActionEquipItem(bolts,INVENTORY_SLOT_BOLTS));}
+ int count=1;if(name=="sr2273b8c")count=20;if(name=="sre9a211be_3"||name=="sr_cl36_1"||name=="sr_cl36_2"||name=="sr3ab64906_5"||name=="sr186f9abc_6"||name=="sr4ec98e3a_7"||name=="srade01f23_8") {object bullets=CreateItemOnObject("nw_wambu001",actor,99);AssignCommand(actor,ActionEquipItem(bullets,INVENTORY_SLOT_BULLETS));}
+ if(name=="sra84e4660_5"||name=="sr6abe18c_6"||name=="sr32dc7d7e_7"||name=="sr65882fcd_8") {object bolts=CreateItemOnObject("nw_wambo001",actor,99);AssignCommand(actor,ActionEquipItem(bolts,INVENTORY_SLOT_BOLTS));}
  object item=CreateItemOnObject(name,actor,count);AssignCommand(actor,ActionEquipItem(item,slot));SetLocalInt(actor,"SW2_EQUIPPED",1);DelayCommand(0.5,SyncFirearm(actor));
 }
 void ReviewBody(object pc) {
@@ -67,6 +67,11 @@ CreateItemOnObject("sr8070eecb",pc);
 CreateItemOnObject("sr79104ee8",pc);
 CreateItemOnObject("srd88e01a2",pc);
 CreateItemOnObject("sr48d86616",pc);
+CreateItemOnObject("sr186f9abc_6",pc);
+CreateItemOnObject("sr4ec98e3a_7",pc);
+CreateItemOnObject("srade01f23_8",pc);
+CreateItemOnObject("sr32dc7d7e_7",pc);
+CreateItemOnObject("sr65882fcd_8",pc);
 CreateItemOnObject("sr_cl36_1",pc);SetLocalInt(pc,"SW2_ITEMS",1);}
 Equip("sw1_m0","sre9a211be_3",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw1_f0","sre9a211be_3",INVENTORY_SLOT_RIGHTHAND,0);
@@ -152,5 +157,15 @@ Equip("sw10_m2","srd88e01a2",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw10_f2","srd88e01a2",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw10_m3","sr48d86616",INVENTORY_SLOT_RIGHTHAND,0);
 Equip("sw10_f3","sr48d86616",INVENTORY_SLOT_RIGHTHAND,0);
-SendMessageToPC(pc,"Forty-two weapon/finish NPC pairs and inventory controls supplied. Cougar/Colt reviewers stand in the southern row; all pairs are in the selector. Bow arrows use native consumption only. Client/gameplay acceptance remains pending.");if(!GetLocalInt(GetModule(),"SW_REVIEW_STARTED")){SetLocalInt(GetModule(),"SW_REVIEW_STARTED",1);DelayCommand(3.0,ExecuteScript("c",GetModule()));}
+Equip("sw11_m0","sr186f9abc_6",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_f0","sr186f9abc_6",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_m1","sr4ec98e3a_7",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_f1","sr4ec98e3a_7",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_m2","srade01f23_8",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_f2","srade01f23_8",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_m3","sr32dc7d7e_7",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_f3","sr32dc7d7e_7",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_m4","sr65882fcd_8",INVENTORY_SLOT_RIGHTHAND,0);
+Equip("sw11_f4","sr65882fcd_8",INVENTORY_SLOT_RIGHTHAND,0);
+SendMessageToPC(pc,"Forty-seven weapon/finish NPC pairs and inventory controls supplied. Cougar/Colt reviewers stand in the southern row; all pairs are in the selector. Bow arrows use native consumption only. Client/gameplay acceptance remains pending.");if(!GetLocalInt(GetModule(),"SW_REVIEW_STARTED")){SetLocalInt(GetModule(),"SW_REVIEW_STARTED",1);DelayCommand(3.0,ExecuteScript("c",GetModule()));}
 }

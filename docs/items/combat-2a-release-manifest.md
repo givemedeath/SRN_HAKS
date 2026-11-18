@@ -55,10 +55,15 @@ Packs: `srn_weapon`, `srn_2da` (TLK not required). Build only these with `./tool
 | Monofilament Sword | user-approved | `sr79104ee8` | 1 longsword | 151/151/151 | no | srn_2da, srn_weapon |
 | Jupiter Taser Club | user-approved | `srd88e01a2` | 1 longsword | 161/161/161 | no | srn_2da, srn_weapon |
 | Rattan Stick | user-approved | `sr48d86616` | 1 longsword | 231/231/231 | no | srn_2da, srn_weapon |
+| Fichetti Security 600 | user-approved | `sr186f9abc_6` | 61 sling | 76/16/16 | **yes** | srn_2da, srn_weapon |
+| Yamaha Pulsar | user-approved | `sr4ec98e3a_7` | 61 sling | 77/17/17 | **yes** | srn_2da, srn_weapon |
+| HK MP-5 TX | user-approved | `srade01f23_8` | 61 sling | 18/38/18 | **yes** | srn_2da, srn_weapon |
+| AK-97 | user-approved | `sr32dc7d7e_7` | 6 heavycrossbow | 17/17/17 | no | srn_weapon |
+| Defiance T-250 | user-approved | `sr65882fcd_8` | 6 heavycrossbow | 18/18/18 | no | srn_weapon |
 
 All blueprints carry embedded names (no TLK StrRef), Cost 0 and no item properties. Model numbers outside their base row MinRange/MaxRange: none (see Gaps).
 
-Each item closure (blueprint, part models, icons, diffuse maps) matches the publication ownership: yes. Colt L36 pistol also ships unreferenced hidden-slot placeholders (`iwbwsl_b_011.tga`, `iwbwsl_b_012.tga`, `wbwsl_b_011.mdl`, `wbwsl_b_012.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address. Ingram Smartgun X also ships unreferenced hidden-slot placeholders (`iwbwsl_m_013.tga`, `wbwsl_m_013.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address. Ares Predator IV also ships unreferenced hidden-slot placeholders (`iwbwsl_b_015.tga`, `wbwsl_b_015.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address.
+Each item closure (blueprint, part models, icons, diffuse maps) matches the publication ownership: yes. Colt L36 pistol also ships unreferenced hidden-slot placeholders (`iwbwsl_b_011.tga`, `iwbwsl_b_012.tga`, `wbwsl_b_011.mdl`, `wbwsl_b_012.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address. Ingram Smartgun X also ships unreferenced hidden-slot placeholders (`iwbwsl_m_013.tga`, `wbwsl_m_013.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address. Ares Predator IV also ships unreferenced hidden-slot placeholders (`iwbwsl_b_015.tga`, `wbwsl_b_015.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address. Fichetti Security 600 also ships unreferenced hidden-slot placeholders (`iwbwsl_b_016.tga`, `wbwsl_b_016.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address. Yamaha Pulsar also ships unreferenced hidden-slot placeholders (`iwbwsl_b_017.tga`, `wbwsl_b_017.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address. HK MP-5 TX also ships unreferenced hidden-slot placeholders (`iwbwsl_m_018.tga`, `wbwsl_m_018.mdl`) so every multipart slot resolves; each blueprint names its own bottom-part address.
 
 ## Resources
 
@@ -73,24 +78,42 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/iwbwsl_b_012.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_b_013.tga` | ingram-smartgun-x | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_b_015.tga` | sr4-ares-predator-iv-3ab64906ed | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_b_016.tga` | sr4-fichetti-security-600-186f9abc33 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_b_017.tga` | sr4-yamaha-pulsar-4ec98e3ab9 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_b_018.tga` | sr4-hk-mp-5-tx-ade01f2396 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_b_051.tga` | colt-l36-pistol | 8236 | `afe99a8cfe0c54efbc9aa1647495c5be07117388baedd7fbcceaa14c151fb445` |  | yes |
 | `srn_weapon/iwbwsl_b_052.tga` | colt-l36-pistol | 8236 | `435b6cdb86ccddaefa78ded748ea3f1aac9dece922f1f08fe44d06db6aaf9203` |  | yes |
 | `srn_weapon/iwbwsl_b_065.tga` | sr4-ares-predator-iv-3ab64906ed | 8236 | `197f95c6539a57bbb531a9df689417f09b2ed6c429b88c17bd33f6af5c9b93ea` |  | yes |
+| `srn_weapon/iwbwsl_b_076.tga` | sr4-fichetti-security-600-186f9abc33 | 8236 | `a703e47429cdc712a3ce38f794b3d258221253a1eaf9b9e40c8e3eb97fed506b` |  | yes |
+| `srn_weapon/iwbwsl_b_077.tga` | sr4-yamaha-pulsar-4ec98e3ab9 | 8236 | `d75b3fdbad036bd0dc44fa1d9cb93efea891885ec0a0f95c9b554edf4b8ead33` |  | yes |
 | `srn_weapon/iwbwsl_m_011.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_m_012.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_m_013.tga` | ingram-smartgun-x | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_m_015.tga` | sr4-ares-predator-iv-3ab64906ed | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_m_016.tga` | sr4-fichetti-security-600-186f9abc33 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_m_017.tga` | sr4-yamaha-pulsar-4ec98e3ab9 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_m_018.tga` | sr4-hk-mp-5-tx-ade01f2396 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_m_023.tga` | ingram-smartgun-x | 8236 | `6fcc11a1f11a53919a7a7d7c9438ae9a8c9b91a1effb123a9fea841bc765b3e4` |  | yes |
+| `srn_weapon/iwbwsl_m_038.tga` | sr4-hk-mp-5-tx-ade01f2396 | 8236 | `e3f632ee22ad0dc5c9ba691f4631ced8a23b89e85536bcd83ef73fb71379cfba` |  | yes |
 | `srn_weapon/iwbwsl_t_011.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_t_012.tga` | colt-l36-pistol | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_t_013.tga` | ingram-smartgun-x | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwsl_t_015.tga` | sr4-ares-predator-iv-3ab64906ed | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_t_016.tga` | sr4-fichetti-security-600-186f9abc33 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_t_017.tga` | sr4-yamaha-pulsar-4ec98e3ab9 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
+| `srn_weapon/iwbwsl_t_018.tga` | sr4-hk-mp-5-tx-ade01f2396 | 8236 | `737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783` |  | yes |
 | `srn_weapon/iwbwxh_b_015.tga` | sr4-ak-98-84e46602ea | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
 | `srn_weapon/iwbwxh_b_016.tga` | sr4-crossbows-heavy-6abe18c0e6 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwxh_b_017.tga` | sr4-ak-97-32dc7d7ec4 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwxh_b_018.tga` | sr4-defiance-t-250-65882fcd83 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
 | `srn_weapon/iwbwxh_m_015.tga` | sr4-ak-98-84e46602ea | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
 | `srn_weapon/iwbwxh_m_016.tga` | sr4-crossbows-heavy-6abe18c0e6 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwxh_m_017.tga` | sr4-ak-97-32dc7d7ec4 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
+| `srn_weapon/iwbwxh_m_018.tga` | sr4-defiance-t-250-65882fcd83 | 32812 | `263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b` |  | yes |
 | `srn_weapon/iwbwxh_t_015.tga` | sr4-ak-98-84e46602ea | 32812 | `8f6a3f5d37b718629cbedcb30def573ee8a352d51e88cee7e0f73cebd7f2bcc1` |  | yes |
 | `srn_weapon/iwbwxh_t_016.tga` | sr4-crossbows-heavy-6abe18c0e6 | 32812 | `5b1f3130385ac7734bb7ff3bc038103e8af9fc4ab74ff668efa9e9620480af86` |  | yes |
+| `srn_weapon/iwbwxh_t_017.tga` | sr4-ak-97-32dc7d7ec4 | 32812 | `5f823bcd2145fe737fdc507bebf60303f8433a56017660d7264ecfafc871166c` |  | yes |
+| `srn_weapon/iwbwxh_t_018.tga` | sr4-defiance-t-250-65882fcd83 | 32812 | `c3a1179db8e2b62c62d57fc8fa4711d840dad68523b00dddfd9d5d7ba23668eb` |  | yes |
 | `srn_weapon/iwdbqs_b_061.tga` | sr4-staff-dc4c1668ea | 16428 | `efed297a5a64a38777453ba87b746c204e2bd2ce3ec816f7509f5b43e12ff474` |  | yes |
 | `srn_weapon/iwdbqs_b_071.tga` | sr4-spear-2febc2a88a | 16428 | `cc7ac4b97556187ce06d4fefaf337002200b488935551078a11ab038b75aaa6e` |  | yes |
 | `srn_weapon/iwdbqs_b_081.tga` | sr4-stun-staff-00af501c83 | 16428 | `d809c315e5b27807b329aae63960c3dffde6fa01e50f6e39ba931435879be35d` |  | yes |
@@ -202,12 +225,16 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sr0eabace5_14.tga` | sr4-club-0eabace56a | 3145772 | `593f976b165b54119d0df215a483f112177d8ccdcfbacef3cfb3b30818f618c7` |  | yes |
 | `srn_weapon/sr1243dd1a.uti` | sr4-survival-knife-1243dd1af8 | 740 | `3dace4a48d192e48bc883d4680428252196ec58e13e5e762997895a20fbc98c0` |  | yes |
 | `srn_weapon/sr1243dd1a_09.tga` | sr4-survival-knife-1243dd1af8 | 3145772 | `3532b9baf47611bd2846ee3e155ea4430872b47eba52fa20f910082fcfe3eab2` |  | yes |
+| `srn_weapon/sr186f9abc_076.tga` | sr4-fichetti-security-600-186f9abc33 | 12582956 | `cf7aa019bb93783c614c0ada491c503ff9accec33762ea23856140230ba67fd1` |  | yes |
+| `srn_weapon/sr186f9abc_6.uti` | sr4-fichetti-security-600-186f9abc33 | 751 | `ded0965ed2f7633f265328effe47a279546ab2db6a898e85b425fd16fc0c43b1` |  | yes |
 | `srn_weapon/sr1d8f6e60.uti` | sr4-baseball-bat-202ef7e755 | 738 | `52a51d202099fafd11ead35b99efadfbcc1b6440053ffcddcf05e156fcdaffc4` |  | yes |
 | `srn_weapon/sr1d8f6e60_09.tga` | sr4-baseball-bat-202ef7e755 | 3145772 | `2339f5cf954bc9ae7630e54a58f0e7fd93ea7133379670d229d3bc97e4d01c5c` |  | yes |
 | `srn_weapon/sr2273b8c.uti` | sr4-throwing-knife-2273b8c3cf | 738 | `480c6783e092fb182901ef5d8fcef1954ba935a1eb50e58d6addc6f0ab88ff7b` |  | yes |
 | `srn_weapon/sr2273b8c_06.tga` | sr4-throwing-knife-2273b8c3cf | 3145772 | `f41e6862cbb9cd75c5494454b2d74c3916157305cd26cf7bc0539ef1fec3501e` |  | yes |
 | `srn_weapon/sr2febc2a8.uti` | sr4-spear-2febc2a88a | 731 | `865bf43d61e6dc8982a26b2cb8b3a00d27dd961023809ed66d4d94d06b0a0f06` |  | yes |
 | `srn_weapon/sr2febc2a8_07.tga` | sr4-spear-2febc2a88a | 3145772 | `e9412e62544421fbdc815620642b6694490a799d9171e54799a84a5907d7da73` |  | yes |
+| `srn_weapon/sr32dc7d7e_017.tga` | sr4-ak-97-32dc7d7ec4 | 12582956 | `39159a32df47f066cbe8dd19c0aab060a1afc9defc1256a55118353a3071706d` |  | yes |
+| `srn_weapon/sr32dc7d7e_7.uti` | sr4-ak-97-32dc7d7ec4 | 735 | `fd1bef0d7f4bf6c4ed3b071648e6f0fb2d5bd0fb33eb6270753952490dafbe5a` |  | yes |
 | `srn_weapon/sr36b5c592.uti` | sr4-nodachi-92b43582ff | 733 | `4d198379e14fa0c417446efee91424f740df124d63c50f4015e877a7c79e835e` |  | yes |
 | `srn_weapon/sr36b5c592_11.tga` | sr4-nodachi-92b43582ff | 3145772 | `c9bb35977a41478985ecec3fd1f5c3575cd61223b945157915cecfe9d31fee95` |  | yes |
 | `srn_weapon/sr3ab64906_065.tga` | sr4-ares-predator-iv-3ab64906ed | 3145772 | `cbb2bed03441cc8b4d692964303a318297fa2d79045c9feaaaa5135daf76771c` |  | yes |
@@ -222,6 +249,11 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sr48d86616_23.tga` | sr4-rattan-stick-1f8c423340 | 3145772 | `a610a4b92a033ebdeec34be0d0d5a1ce12d3be1d7053ad70928cfbb8495628c7` |  | yes |
 | `srn_weapon/sr4c45ec83.uti` | sr4-mace-cc01910405 | 730 | `f81ef842ab24e24c60f39b52cb606b7636f154a563908d31b56c2fa4416d2db9` |  | yes |
 | `srn_weapon/sr4c45ec83_20.tga` | sr4-mace-cc01910405 | 3145772 | `f07d071e3cfd8322983d0f0411cf2a0dfe30f56440168366575b37d77de992bc` |  | yes |
+| `srn_weapon/sr4ec98e3a_077.tga` | sr4-yamaha-pulsar-4ec98e3ab9 | 12582956 | `944484a0df353b4e21a0d9a3d0b5c31aadf508fc71aba2ab2ebe6245452a28f5` |  | yes |
+| `srn_weapon/sr4ec98e3a_7.uti` | sr4-yamaha-pulsar-4ec98e3ab9 | 743 | `241c44674e6d84161cbc6e48554992c02d9ebaebcda07056521428c604fe8408` |  | yes |
+| `srn_weapon/sr65882fcd_018.tga` | sr4-defiance-t-250-65882fcd83 | 16777260 | `836dba64025e78b3b72ac520f539b9d739ad2f16d2f028fb48e092697ffd6ebb` |  | yes |
+| `srn_weapon/sr65882fcd_018.txi` | sr4-defiance-t-250-65882fcd83 | 23 | `1d60fcf42113603d1f75b68dc967d997d6ee2b07d2010721ca6748ab7269c14b` |  | yes |
+| `srn_weapon/sr65882fcd_8.uti` | sr4-defiance-t-250-65882fcd83 | 744 | `5a233bcd23230f7f552fe8d610bfcead04bd39c92019238f47fb9e5e7e8b95b0` |  | yes |
 | `srn_weapon/sr6a19234a.uti` | sr4-sai-2bf38d5135 | 729 | `da84633600f38629f7c4b5b3fa019cfdb9e55d2d9da38e64d0af6e088a8a253b` |  | yes |
 | `srn_weapon/sr6a19234a_13.tga` | sr4-sai-2bf38d5135 | 3145772 | `9e388fbf225a96e900e5ef306cc1e16d117d2394b5fba8cd8827931cd80b6692` |  | yes |
 | `srn_weapon/sr6abe18c_06.tga` | sr4-crossbows-heavy-6abe18c0e6 | 3145772 | `999d10039b1c99310a0d8f43da0189411f701e14def080466061ccfdc66e1f97` |  | yes |
@@ -255,6 +287,8 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/sra84e4660_015.tga` | sr4-ak-98-84e46602ea | 3145772 | `cac55658b3d0e0f5b944fc4b76bf32ec8a5c336431fbe3c690f83da0dc206b04` |  | yes |
 | `srn_weapon/sra84e4660_5.uti` | sr4-ak-98-84e46602ea | 735 | `ad37dc6773448c2bab8b52ac5e06fafb2651bf29cebe1dd3dfb808ca70b9fc7e` |  | yes |
 | `srn_weapon/sra84e4660gl.uti` | sr4-ak-98-84e46602ea | 899 | `58d3aa9b38efebe2753e87c24c177f20ada2e72a29364db1fd7fb2a9dc6ad26d` |  | yes |
+| `srn_weapon/srade01f23_038.tga` | sr4-hk-mp-5-tx-ade01f2396 | 12582956 | `4c5f215488a167519565c1e527c127b94cdfc0f52b1943590d18f3384c6936f1` |  | yes |
+| `srn_weapon/srade01f23_8.uti` | sr4-hk-mp-5-tx-ade01f2396 | 740 | `a1a95274c9a8658a3b73e0257d0feec9719e7e3020c0cf76dc4cae738f8d7408` |  | yes |
 | `srn_weapon/srb8bdf709.uti` | sr4-tonfa-0cf54e380b | 731 | `8545cf31656d7d1a929625fa747087cac571468f9a7f4412dd6f1ab0a1acc97e` |  | yes |
 | `srn_weapon/srb8bdf709_22.tga` | sr4-tonfa-0cf54e380b | 3145772 | `7c3fa6e6d0aff7c268423ea4df80213ba2832364a799ab42fd52fa4b7bb8d136` |  | yes |
 | `srn_weapon/src3ccd3b0.uti` | sr4-pole-arm-68ca996c08 | 734 | `18c87343a24a18a9e7d674cccf595ec6e25e9a703e42fd2cf08f07a44107fa0c` |  | yes |
@@ -289,24 +323,42 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | `srn_weapon/wbwsl_b_012.mdl` | colt-l36-pistol | 1588 | `8ba64f5731688011c17bfbb4aabdb942aa19a997ba80e9dffe0a723b96d10d22` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_013.mdl` | ingram-smartgun-x | 1588 | `6d9c2e1b2a16524af8c4dd139484446c72027dafa7489996a5f8e0f647f9180b` | (invisible part) | yes |
 | `srn_weapon/wbwsl_b_015.mdl` | sr4-ares-predator-iv-3ab64906ed | 1588 | `8bc3d32864ddd147a6080779f3c021e345c32eee6d2ef2bb82c4583b93464672` | (invisible part) | yes |
-| `srn_weapon/wbwsl_b_051.mdl` | colt-l36-pistol | 1154648 | `99bc6299157a8362395a3e5f855f99586215f32cf184effdc0a95a3e45eccf71` | sr_cl36_051, srnfx_casing | yes |
-| `srn_weapon/wbwsl_b_052.mdl` | colt-l36-pistol | 1154648 | `9ece48aa714b7db9b4d06d73f7579d4a5479123cf29efc8c06bc7037870d9898` | sr_cl36_052, srnfx_casing | yes |
-| `srn_weapon/wbwsl_b_065.mdl` | sr4-ares-predator-iv-3ab64906ed | 1030360 | `69eded3eedd1ed24b13cb51846214770416b548e0d4f79e2b75a5feb0fb85b17` | sr3ab64906_065, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_016.mdl` | sr4-fichetti-security-600-186f9abc33 | 1588 | `6a4b4bcefd74b42bf182da13b4289cdde34df19513334165b13d0bef135ee560` | (invisible part) | yes |
+| `srn_weapon/wbwsl_b_017.mdl` | sr4-yamaha-pulsar-4ec98e3ab9 | 1588 | `914223d859d7b19f8c778561a568c9bcf80f6b247d05889691be373bf9f55711` | (invisible part) | yes |
+| `srn_weapon/wbwsl_b_018.mdl` | sr4-hk-mp-5-tx-ade01f2396 | 1588 | `901504476e72ee3fb5a19077007cff6519166a76f042eb2e68f45eb32d0d8a80` | (invisible part) | yes |
+| `srn_weapon/wbwsl_b_051.mdl` | colt-l36-pistol | 1154648 | `4cfe1dff9d508703a9bd0532561beaf16dbc191989726d2479520f0db66229d5` | sr_cl36_051, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_052.mdl` | colt-l36-pistol | 1154648 | `5e67a5eb3c0ad2d42b3a96fdaea875a027946eaf5ffa6d730c8dbdff8ea462cc` | sr_cl36_052, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_065.mdl` | sr4-ares-predator-iv-3ab64906ed | 1030360 | `3f1260506e2629e56a8b2dbb10ad550dc07cf680aaf13420335318e7329858bf` | sr3ab64906_065, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_076.mdl` | sr4-fichetti-security-600-186f9abc33 | 1188252 | `0e6bfc8d8f68f82e7cad9f881de8dcaf7f676374014d8898ec4a13a3f824dc6c` | sr186f9abc_076, srnfx_casing | yes |
+| `srn_weapon/wbwsl_b_077.mdl` | sr4-yamaha-pulsar-4ec98e3ab9 | 1079404 | `ad89d1bec86e9b552f29d701923fa8b5c576a0ed9e581d8c967124b38c78ecf1` | sr4ec98e3a_077 | yes |
 | `srn_weapon/wbwsl_m_011.mdl` | colt-l36-pistol | 1588 | `06d11150f4674c6ddfa315b1bd5ab42a15a797ae8c0406a4cb422e80ac621dad` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_012.mdl` | colt-l36-pistol | 1588 | `b53ef2ae16bdb84bd38318ea67a333ffdf7efa60ae000310b9322e957a1cbe56` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_013.mdl` | ingram-smartgun-x | 1588 | `2dd90ec38e56ff8815c3acc7c122ccd700492e623d433d80d78b1157c6b39b2c` | (invisible part) | yes |
 | `srn_weapon/wbwsl_m_015.mdl` | sr4-ares-predator-iv-3ab64906ed | 1588 | `5a2aae6bad7629d6d4385e3e283c50557e70ee5d89c51f889de1ff1b70020d2f` | (invisible part) | yes |
-| `srn_weapon/wbwsl_m_023.mdl` | ingram-smartgun-x | 1182532 | `688f616d009cf470a6f8d309438541ded8d0aabe93ac3c8b46e906669bcdaab7` | sre9a211be_023, srnfx_casing | yes |
+| `srn_weapon/wbwsl_m_016.mdl` | sr4-fichetti-security-600-186f9abc33 | 1588 | `4cb0580546ba473dff033a4f3e3cda2c11caeb0735d9997782be12538dc084ea` | (invisible part) | yes |
+| `srn_weapon/wbwsl_m_017.mdl` | sr4-yamaha-pulsar-4ec98e3ab9 | 1588 | `8e1f3f809f91741af40045d499adf5804bfa13ad078b7fc05f1d04bb9226e28a` | (invisible part) | yes |
+| `srn_weapon/wbwsl_m_018.mdl` | sr4-hk-mp-5-tx-ade01f2396 | 1588 | `7eaf5b2581c8a8517c298bca181e848f2e7025245091f264769fb9d1d64ec2b2` | (invisible part) | yes |
+| `srn_weapon/wbwsl_m_023.mdl` | ingram-smartgun-x | 1182532 | `670903ce8ce14ea7c771ee938fab6b5b13416c3ee99b83642656d30d8995ccd4` | sre9a211be_023, srnfx_casing | yes |
+| `srn_weapon/wbwsl_m_038.mdl` | sr4-hk-mp-5-tx-ade01f2396 | 1983540 | `62e3249cef0401c4ec52144afe04e3577e83b8cd9bc4c8b7ded5f99d117bf246` | srade01f23_038, srnfx_casing | yes |
 | `srn_weapon/wbwsl_t_011.mdl` | colt-l36-pistol | 1588 | `54a71086b1bb6bc873ccb3430f053b7dfe6816e31b2906adc3585cc1a0e31a03` | (invisible part) | yes |
 | `srn_weapon/wbwsl_t_012.mdl` | colt-l36-pistol | 1588 | `a571dcaf41d7e501268e75938956ee1c52d6a23e26019938589a2cf8d0bcda07` | (invisible part) | yes |
 | `srn_weapon/wbwsl_t_013.mdl` | ingram-smartgun-x | 1588 | `a866f7c3e293be58d4d1449fd5d8c9969dbc7193cad2bbf9c3b81cdaf932d832` | (invisible part) | yes |
 | `srn_weapon/wbwsl_t_015.mdl` | sr4-ares-predator-iv-3ab64906ed | 1588 | `2748c08327a4366894b1712ce44e8336dbd9a5c262436738665f50dbe890cb1a` | (invisible part) | yes |
+| `srn_weapon/wbwsl_t_016.mdl` | sr4-fichetti-security-600-186f9abc33 | 1588 | `baa3d3578c7f8179bda683b14402ae2f0ea7f9f9501a39a63a4a25b94951ceb1` | (invisible part) | yes |
+| `srn_weapon/wbwsl_t_017.mdl` | sr4-yamaha-pulsar-4ec98e3ab9 | 1588 | `d90ad85fff105d17325287cbfc64bbc8669be2e7399c1a527e0afd3bc4741a91` | (invisible part) | yes |
+| `srn_weapon/wbwsl_t_018.mdl` | sr4-hk-mp-5-tx-ade01f2396 | 1588 | `bcb7a8df035193f91391b4ec3bcbc492ded600e84949c993f2618902af4a6b6f` | (invisible part) | yes |
 | `srn_weapon/wbwxh_b_015.mdl` | sr4-ak-98-84e46602ea | 1588 | `36e0a3892a759703e78f84a93335c19acc19aa99a99e7d7966388adf9e14ac7e` | (invisible part) | yes |
 | `srn_weapon/wbwxh_b_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 1588 | `0565e25b381de360d2e59da5755ed1487bd00a1f823b2d9b08bfb995749fac4e` | (invisible part) | yes |
+| `srn_weapon/wbwxh_b_017.mdl` | sr4-ak-97-32dc7d7ec4 | 1588 | `d02a99e884b49226798aeb805d6c7855815299efe74ca91ef6bf148ef6c064df` | (invisible part) | yes |
+| `srn_weapon/wbwxh_b_018.mdl` | sr4-defiance-t-250-65882fcd83 | 1588 | `2e67ad20e9f9fa8cfc141eb2cc544d49febd5ba0969ab7228ef7ebe5e85a3939` | (invisible part) | yes |
 | `srn_weapon/wbwxh_m_015.mdl` | sr4-ak-98-84e46602ea | 1588 | `f0387b62866e0751fedf1c551e3fead9ad295bd66bcaec980d3a71bbe03b217e` | (invisible part) | yes |
 | `srn_weapon/wbwxh_m_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 1588 | `e1d14dcd8ede842f7e3c7491042c37f63a593fc0f191bb5523d06c2f794235e1` | (invisible part) | yes |
+| `srn_weapon/wbwxh_m_017.mdl` | sr4-ak-97-32dc7d7ec4 | 1588 | `15613bb80de6ef42adefcfed3589f39e0f9d8778872dfe2efcc6c4df992acc5b` | (invisible part) | yes |
+| `srn_weapon/wbwxh_m_018.mdl` | sr4-defiance-t-250-65882fcd83 | 1588 | `16647a95a2febf4805f583b37d2d1f682ce649b85ffc7e3b0dedd085bd39325b` | (invisible part) | yes |
 | `srn_weapon/wbwxh_t_015.mdl` | sr4-ak-98-84e46602ea | 1134412 | `621ca4693f9e0ab888be31c7e11e06ca09792f4e1f44ddf8accc724984513e50` | sra84e4660_015, srnfx_casing | yes |
 | `srn_weapon/wbwxh_t_016.mdl` | sr4-crossbows-heavy-6abe18c0e6 | 939076 | `d9022597fb7bf7ff23c55acf2f6edf17b375e46e1b94c6505592a88589e3b639` | sr6abe18c_06 | yes |
+| `srn_weapon/wbwxh_t_017.mdl` | sr4-ak-97-32dc7d7ec4 | 2605764 | `705e4a8fad57a894f73ed2707d742103a4539c721bda7ba5c57c1983f423a718` | sr32dc7d7e_017, srnfx_casing | yes |
+| `srn_weapon/wbwxh_t_018.mdl` | sr4-defiance-t-250-65882fcd83 | 1954480 | `e9b908a098eb643529799525b1ccece9c324087d79c5a3428fbac4f489a487ac` | sr65882fcd_018, srnfx_casing | yes |
 | `srn_weapon/wdbqs_b_061.mdl` | sr4-staff-dc4c1668ea | 191108 | `a20fe05a26dc5d318bd6833e371b4ecfa83a726ffbc4786be1ebe1c76b3a3acd` | srdc4c1668_06 | yes |
 | `srn_weapon/wdbqs_b_071.mdl` | sr4-spear-2febc2a88a | 147736 | `2a5d3746c02346940e2323d8c5b0220e22327806225cc88aa5f2e85f370b418f` | sr2febc2a8_07 | yes |
 | `srn_weapon/wdbqs_b_081.mdl` | sr4-stun-staff-00af501c83 | 321240 | `6ba491cfce7d5c185b863245d463fa04c2a576a6e5a0a07eaa5cccd6bc83f2e5` | sr05afd23e_08 | yes |
@@ -416,7 +468,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 
 ## Tables
 
-`srn_2da/baseitems.2da` (srn_2da) SHA-256 `f4d9f3da319e65898d22173280039689e7565dfd13db782332807d3d70e2e475`; matches the reviewed override: yes.
+`srn_2da/baseitems.2da` (srn_2da) SHA-256 `99ffb9b08b7ddc9413e01130aa60abd0e8afa5db8d30ef1031d6551f6b3c562a`; matches the reviewed override: yes.
 
 | Row | Label | Role | ModelType | ItemClass | Range | WeaponType | Ranged | Ammo | Dice | Name StrRef | Modified |
 |---:|---|---|---|---|---|---|---|---|---|---|---|
@@ -428,7 +480,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 | 27 | bullet | sling ammunition (bullets) | 0 | WAmBu | 0-50 | 0 | **** | **** | ****d**** | 1521 (base-game dialog.tlk) | no |
 | 50 | quarterstaff | weapon family host row | 2 | WDbQs | 10-101 | 2 | **** | **** | 1d6 | 1544 (base-game dialog.tlk) | MaxRange 100->101 |
 | 56 | largeshield | weapon family host row | 0 | AShLw | 10-100 | 0 | **** | **** | ****d**** | 1550 (base-game dialog.tlk) | no |
-| 61 | sling | sling family (Colt L36 host row) | 2 | WBwSl | 0-65 | 2 | 27 | 3 | 1d4 | 1555 (base-game dialog.tlk) | MaxRange 50->65, ModelType 0->2 |
+| 61 | sling | sling family (Colt L36 host row) | 2 | WBwSl | 0-77 | 2 | 27 | 3 | 1d4 | 1555 (base-game dialog.tlk) | MaxRange 50->77, ModelType 0->2 |
 | 63 | throwingaxe | weapon family host row | 2 | WThAx | 10-100 | 3 | 63 | 6 | 1d6 | 1557 (base-game dialog.tlk) | no |
 | 111 | Whip | weapon family host row | 2 | WWhip | 10-100 | 3 | **** | **** | 1d2 | 83617 (base-game dialog.tlk) | no |
 
@@ -438,7 +490,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 
 ## Pinned commit vs HEAD
 
-At `5394878`: `srn_weapon` registered: False; `srn_2da` registered: True; TLK nextId 136. Present there: `srn_tlk/allocations.json`, `srn_tlk/srn.tlk.json`. Absent there: 351 of the slice's paths (every weapon resource, `baseitems.2da` and the publication manifest). The weapon slice exists only after the pinned commit (added in #57).
+At `5394878`: `srn_weapon` registered: False; `srn_2da` registered: True; TLK nextId 136. Present there: `srn_tlk/allocations.json`, `srn_tlk/srn.tlk.json`. Absent there: 398 of the slice's paths (every weapon resource, `baseitems.2da` and the publication manifest). The weapon slice exists only after the pinned commit (added in #57).
 
 ## Collisions
 
@@ -453,7 +505,7 @@ Record: PROVENANCE.md "Approved Cougar blades and Colt L36 (srn_weapon, 2026-10-
 | Id | Severity | Detail |
 |---|---|---|
 | `pinned-commit-lacks-weapons` | blocking-for-consumer | None of the srn_weapon resources, srn_2da/baseitems.2da or the publication manifest exist at the SR_NWN-pinned commit; SR_NWN must advance its SRN_HAKS submodule to consume this slice. |
-| `sling-row61-global-display-change` | integration-decision | srn_2da/baseitems.2da changes Sling row 61 ModelType 0->2 and MaxRange 50->65 for the whole Sling family. Ordinary/stock simple-model slings are not client-qualified under this table. |
+| `sling-row61-global-display-change` | integration-decision | srn_2da/baseitems.2da changes Sling row 61 ModelType 0->2 and MaxRange 50->77 for the whole Sling family. Ordinary/stock simple-model slings are not client-qualified under this table. |
 | `baseitems-full-table-override` | integration-decision | srn_2da ships a complete baseitems.2da. Any SR_NWN or other HAK baseitems change requires an intentional row-level merge; load order is not a substitute. |
 | `no-firearm-mechanics` | scope | Colt L36 retains Sling gameplay (damage, range, feats, ammunition). No firearm rules, ammunition items, projectile models or ammunition tables are published; sling projectiles fall back to the installed game. |
 | `no-ammunition-assets` | gap-for-sling-target | No sling bullet blueprint, ammunition model/icon, projectile model or ammunitiontypes.2da override exists in any SRN_HAKS pack. The bullets row is carried unchanged. |

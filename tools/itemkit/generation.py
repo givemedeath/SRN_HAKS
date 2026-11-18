@@ -1,6 +1,7 @@
 """Item contracts around the same guarded Pixal engine used by headkit."""
 from pathlib import Path
-from tools.headkit.common import asset, bindings, pin, require, write, read, verify, digest
+from tools.headkit.common import asset, pin, require, write, read, verify, digest
+from .contracts import bindings
 from tools.headkit.generation import prepare_request
 from .contracts import all_pins, code_pins, family, manifest, source_version,stage_roles
 from tools.headkit.reference_background import analyze_reference
@@ -86,6 +87,7 @@ def request_stage(manifest_path, bindings_path, stage, output, *, runtime, comfy
                            appearance_export_settings=dict(profile['sourceExport']) if appearance_donor else None,
                            generation_subject={'id': data['id'], 'referenceSha256': asset(manifest_path, data['inputs']['reference'])['sha256']},
                            geometry_seed_offset=data.get('geometrySeedOffset', 0),
+                           appearance_seed_offset=data.get('appearanceSeedOffset', 0),
                            model_verification='server-owned-v1',
                            background=calibration_background_decision(manifest_path,data) if stage=='calibrate' else None)
 

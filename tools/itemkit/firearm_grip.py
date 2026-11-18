@@ -3,6 +3,7 @@ import numpy as np
 from tools.headkit.common import digest, require
 from .geometry import similarity_matrix, transform
 from .grip import GripDeparture, bind_departure, reference_sections
+from .firearm_lean import reviewed_lean
 
 
 # The Colt reference supersedes Cougar for firearms. Pre-Colt fits (the Colt L36
@@ -59,5 +60,7 @@ def measured_fit(vertices, faces, config, donor_sha, working_sha, standard, nati
     if authority == 'midpoint-depth':
         report['sizingAuthority'] = authority
     report['measurementDigest']=digest(report)
+    # Outside the digest, so a grip review bound before the lean check still names the same measurement.
+    report['sidewaysLean']=reviewed_lean(fitted,faces,config.get('sidewaysLeanReview'))
     if any(abs(v)>.05 for v in differences.values()):bind_departure(report,config.get('gripDeparture'))
     return matrix,report

@@ -1919,6 +1919,7 @@
       "tools/itemkit/generation.py",
       "tools/itemkit/native.py",
       "tools/itemkit/profiles/cougar-shortsword.json",
+      "tools/itemkit/recovery.py",
       "tools/itemkit/resize.py",
       "tools/itemkit/runner.py",
       "tools/itemkit/shield_native.py"
@@ -2027,18 +2028,24 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/firearm_fx_pilot.py": [
+      "docs/items/firearm-grip-standard-v1.json",
       "tools/Invoke-NwnMdlComp.ps1",
       "tools/itemkit/__init__.py",
-      "tools/itemkit/combat_clip_pilot.py"
+      "tools/itemkit/combat_clip_pilot.py",
+      "tools/itemkit/firearm_lean.py"
     ],
     "tools/itemkit/firearm_grip.py": [
       "tools/headkit/common.py",
+      "tools/itemkit/firearm_lean.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/grip.py"
     ],
     "tools/itemkit/firearm_intake.py": [
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py"
+    ],
+    "tools/itemkit/firearm_lean.py": [
+      "tools/headkit/common.py"
     ],
     "tools/itemkit/firearm_native.py": [
       "tools/headkit/common.py",
@@ -2206,6 +2213,7 @@
       "tools/itemkit/geometry.py",
       "tools/itemkit/native.py",
       "tools/itemkit/parts.py",
+      "tools/itemkit/recovery.py",
       "tools/itemkit/reduction.py",
       "tools/itemkit/routes.py",
       "tools/itemkit/shadow.py",
@@ -2217,7 +2225,8 @@
     "tools/itemkit/shadow.py": [
       "tools/headkit/common.py",
       "tools/itemkit/geometry.py",
-      "tools/itemkit/parts.py"
+      "tools/itemkit/parts.py",
+      "tools/itemkit/shell_repair.py"
     ],
     "tools/itemkit/shell_repair.py": [
       "tools/headkit/common.py",
@@ -2329,7 +2338,11 @@
     ],
     "tools/itemkit/test_firearm_fx_pilot.py": [
       "tools/itemkit/__init__.py",
-      "tools/itemkit/firearm_fx_pilot.py"
+      "tools/itemkit/firearm_fx_pilot.py",
+      "tools/itemkit/test_firearm_lean.py"
+    ],
+    "tools/itemkit/test_firearm_lean.py": [
+      "tools/itemkit/firearm_lean.py"
     ],
     "tools/itemkit/test_firearm_package.py": [
       "tools/headkit/common.py",
@@ -2393,6 +2406,10 @@
     "tools/itemkit/test_material_palette.py": [
       "tools/itemkit/textures.py"
     ],
+    "tools/itemkit/test_metal_treatment.py": [
+      "tools/itemkit/native.py",
+      "tools/itemkit/textures.py"
+    ],
     "tools/itemkit/test_miss_patch.py": [
       "tools/itemkit/__init__.py",
       "tools/itemkit/geometry.py",
@@ -2423,11 +2440,17 @@
       "tools/itemkit/publish.py",
       "tools/itemkit/test_native_stack.py"
     ],
+    "tools/itemkit/test_publish_firearms.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/publish.py",
+      "tools/itemkit/test_publish.py"
+    ],
     "tools/itemkit/test_recovery.py": [
       "tools/headkit/common.py",
       "tools/itemkit/recovery.py"
     ],
     "tools/itemkit/test_reduction.py": [
+      "tools/headkit/common.py",
       "tools/itemkit/reduction.py"
     ],
     "tools/itemkit/test_reference_conditioning.py": [
@@ -2483,6 +2506,14 @@
       "tools/itemkit/contracts.py",
       "tools/itemkit/test_itemkit.py"
     ],
+    "tools/itemkit/test_stage_adoption.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/drive.py",
+      "tools/itemkit/miss_patch.py",
+      "tools/itemkit/runner.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
     "tools/itemkit/test_stock_slots.py": [
       "tools/headkit/common.py",
       "tools/itemkit/__init__.py",
@@ -2529,6 +2560,11 @@
       "tools/headkit/generation.py",
       "tools/headkit/templates/geometry.json",
       "tools/itemkit/generation.py"
+    ],
+    "tools/itemkit/test_visible_only_probe.py": [
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/shadow.py",
+      "tools/itemkit/shell_repair.py"
     ],
     "tools/itemkit/test_workflow.py": [
       "tools/headkit/common.py",
@@ -5853,6 +5889,7 @@
     "tools/itemkit/test_donor.py",
     "tools/itemkit/test_donor_caps.py",
     "tools/itemkit/test_firearm_fx_pilot.py",
+    "tools/itemkit/test_firearm_lean.py",
     "tools/itemkit/test_firearm_package.py",
     "tools/itemkit/test_firearm_processing.py",
     "tools/itemkit/test_firearms.py",
@@ -5860,12 +5897,14 @@
     "tools/itemkit/test_greatsword.py",
     "tools/itemkit/test_itemkit.py",
     "tools/itemkit/test_material_palette.py",
+    "tools/itemkit/test_metal_treatment.py",
     "tools/itemkit/test_miss_patch.py",
     "tools/itemkit/test_native_stack.py",
     "tools/itemkit/test_onehand_fire_motion.py",
     "tools/itemkit/test_preflight.py",
     "tools/itemkit/test_profile_mesh.py",
     "tools/itemkit/test_publish.py",
+    "tools/itemkit/test_publish_firearms.py",
     "tools/itemkit/test_recovery.py",
     "tools/itemkit/test_reduction.py",
     "tools/itemkit/test_reference_conditioning.py",
@@ -5878,11 +5917,13 @@
     "tools/itemkit/test_skinned_native.py",
     "tools/itemkit/test_source_atlas.py",
     "tools/itemkit/test_staff.py",
+    "tools/itemkit/test_stage_adoption.py",
     "tools/itemkit/test_stock_slots.py",
     "tools/itemkit/test_straightness.py",
     "tools/itemkit/test_thrown.py",
     "tools/itemkit/test_toolkit_driver.py",
     "tools/itemkit/test_trial_policy.py",
+    "tools/itemkit/test_visible_only_probe.py",
     "tools/itemkit/test_workflow.py",
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
     "tools/phenomorpher/phenomorpher/engine/test_body_sweep.py",

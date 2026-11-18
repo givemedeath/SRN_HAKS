@@ -5,7 +5,8 @@ from pathlib import Path
 import shutil
 import sys
 from tools.headkit import comfy
-from tools.headkit.common import asset, bindings, launched, pin, read, require, verify, write, python_package_pins, verification_pass
+from .contracts import bindings
+from tools.headkit.common import asset, launched, pin, read, require, verify, write, python_package_pins, verification_pass
 from .contracts import all_pins, code_pins, family, is_code_path, manifest, source_version, evidence_pins,stage_roles
 from .generation import request_stage, shared_ledger, initialize_trial, set_trial_limit
 
@@ -128,6 +129,13 @@ def _consumed_inputs(manifest_path, bindings_path, run=None, extra=(),stage=None
     if run and (Path(run)/'state.json').exists():
         state = read(Path(run)/'state.json')  # Mutable state is output, not an immutable consumed asset.
         pins += run_receipt_pins(state, stage, historical_code=is_code_path() if fixture_docs else None)
+        if stage in (None, 'bake'):
+            # A bake may correct the retained pixels of a completed bake in a run this one adopted stages from.
+            from .recovery import recovery_inputs
+            from .runner import recovery_proofs
+            for proof in recovery_proofs(run):
+                try: pins += [pin(proof)]+recovery_inputs(read(proof))
+                except (KeyError, OSError, ValueError): pass
     for path, document in documents:
         row = pin(path); pins.append(row)
         if isinstance(document, dict):
@@ -243,6 +251,8 @@ def main():
     c = commands.add_parser('chain', help='run consecutive stages in one verified launch; all but the last are approved on their gates')
     for key in ('manifest', 'bindings', 'run'): c.add_argument('--'+key, type=Path, required=True)
     c.add_argument('--stages', nargs='+', required=True); c.add_argument('--notes', required=True)
+    c = commands.add_parser('adopt', help="take on another run's approved stages before the bake when only the miss-correction policy differs")
+    for key in ('manifest', 'bindings', 'run', 'source'): c.add_argument('--'+key, type=Path, required=True)
     c = commands.add_parser('measure-fit', help="the fit worker's measure-only pass: grip measurement, digest and preview, no stage attempt")
     for key in ('manifest', 'bindings', 'run', 'output'): c.add_argument('--'+key, type=Path, required=True)
     c = commands.add_parser('refixture', help="a new fixture from the run's reviewed native package, without re-running earlier stages")
@@ -272,7 +282,7 @@ def main():
     if a.command == 'request':
         require(not a.working_shell or a.stage == 'export', 'Working-shell option is export-only')
     with verification_pass('item-cli-startup'):
-        runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'shield-inputs', 'status', 'preflight') else launched(a.bindings)
+        runtime = None if a.command in ('intake', 'inputs', 'firearm-inputs', 'shield-inputs', 'status', 'preflight', 'adopt') else launched(a.bindings, verify_libraries=False)
         package_pins = python_package_pins(bindings(a.bindings), require_imports=True) if runtime is not None else None
     if a.command == 'intake': result = intake(a.reference, a.output, a.id, a.family)
     elif a.command == 'firearm-inputs':
@@ -340,6 +350,12 @@ def main():
         paths = chain_inputs(a.manifest, a.bindings, a.run, a.stages) if a.stages else consumed_inputs(a.manifest, a.bindings, a.run, a.extra,a.stage)
         write(a.output, paths, fresh=True)
         result = {'inputs': str(a.output), 'count': len(paths)}
+    elif a.command == 'adopt':
+        # No launch: adoption only names another run's receipts in this run's state. The launched stages that follow
+        # verify each one, bytes and code version included, before they use it.
+        from .runner import Runner
+        a.run.mkdir(parents=True, exist_ok=True)
+        with comfy.locked(a.run/'runner'): result = {'adopted': Runner(a.manifest, a.bindings, a.run).adopt(a.source), 'source': str(a.source)}
     elif a.command == 'chain':
         from .runner import Runner
         with comfy.locked(a.run/'runner'):

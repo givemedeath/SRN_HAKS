@@ -41,8 +41,13 @@ def joined_target(values):
 def _one(run, patterns, explicit, what, option):
     """The run's only file for the first pattern that matches, or the explicit one; never a guess between attempts."""
     if explicit: require(Path(explicit).is_file(), f'{explicit} not found'); return Path(explicit)
+    state = Path(run)/'state.json'; stages = json.loads(state.read_text(encoding='utf-8')).get('stages', {}) if state.exists() else {}
     for pattern in patterns:
         found = sorted(Path(run).glob(pattern))
+        stage, _, inside = pattern.split('/', 2)
+        if not found and stage in stages:
+            # A stage adopted from another run (Runner.adopt) lives in that run's folder: the state names its attempt.
+            found = sorted(Path(stages[stage]['path']).parent.glob(inside))
         if found:
             require(len(found) == 1, f'{run}: {len(found)} {what} ({", ".join(p.parent.as_posix() for p in found)}); choose one with {option}')
             return found[0]
