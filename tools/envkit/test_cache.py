@@ -53,6 +53,16 @@ class CacheTests(unittest.TestCase):
         self.assertEqual((float(first[0][0, 0]), self.made, [path.suffix for path in (self.root / 'kind').iterdir()]), (1.0, 2, ['.npz']))
         self.assertEqual(float(cache.arrays('kind', (1,), self.make(5.0), faces=5)[0][0, 0]), 1.0)  # and what was kept reads back
 
+    def test_a_kept_file_another_build_takes_away_while_they_are_listed_stops_nothing(self):
+        cache.arrays('kind', (1,), self.make(1.0), faces=5); folder = self.root / 'kind'; listed = Path.glob
+        gone = lambda path, pattern: [*listed(path, pattern), folder / 'taken-by-another-build.npz']
+        with mock.patch.object(Path, 'glob', autospec=True, side_effect=gone):
+            self.assertEqual(float(cache.arrays('kind', (2,), self.make(2.0), faces=5)[0][0, 0]), 2.0)
+            self.assertEqual(len(cache._newest_first(folder)), 2)
+        with mock.patch.object(Path, 'replace', autospec=True, side_effect=PermissionError('held open by another build')):  # nor does a kept file that cannot be written
+            self.assertEqual(float(cache.arrays('kind', (3,), self.make(3.0), faces=5)[0][0, 0]), 3.0)
+        self.assertEqual(sorted(path.suffix for path in folder.iterdir()), ['.npz', '.npz'])
+
 
 if __name__ == '__main__':
     unittest.main()

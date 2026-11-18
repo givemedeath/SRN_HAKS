@@ -33,6 +33,18 @@ def key(*made_from):
     return found.hexdigest()
 
 
+def _newest_first(folder):
+    """The kept files of a folder, the newest first. One that another build takes away while they are listed is left
+    out: its `stat` failed and stopped a build whose own arrays were already kept (review of PR 175, 2026-11-18)."""
+    aged = []
+    for path in folder.glob('*.npz'):
+        try:
+            aged.append((path.stat().st_mtime, path))
+        except OSError:
+            continue
+    return [path for _, path in sorted(aged, key=lambda one: one[0], reverse=True)]
+
+
 def arrays(kind, made_from, make, *, faces):
     """`make()`'s tuple of arrays, read back if it was kept for the same `made_from` (`key`), else made and kept.
     `faces` is the model's size: under LEAST nothing is kept. Each call stages what it made in a file of its own
@@ -54,8 +66,13 @@ def arrays(kind, made_from, make, *, faces):
         with open(part, 'wb') as staged:  # a file, not a name: `savez` would add `.npz` to the name
             np.savez(staged, **{f'a{index}': np.asarray(one) for index, one in enumerate(made)})
         part.replace(kept)
+    except OSError:  # another build holds the kept file open, or the disk is full: what was made is still returned
+        pass
     finally:
         part.unlink(missing_ok=True)
-    for old in sorted(folder.glob('*.npz'), key=lambda path: path.stat().st_mtime, reverse=True)[KEPT:]:
-        old.unlink(missing_ok=True)
+    for old in _newest_first(folder)[KEPT:]:
+        try:
+            old.unlink(missing_ok=True)
+        except OSError:  # open in another build: it goes at the next tidying
+            pass
     return made

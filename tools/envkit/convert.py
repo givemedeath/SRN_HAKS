@@ -1522,7 +1522,13 @@ def _compress(image, target, mode, size, crunch, *, data):
     source.unlink()
     require(result.returncode == 0 and target.is_file(), f'{target.name} did not compress: {(result.stdout + result.stderr)[-400:]}')
     if not os.environ.get('ENVKIT_NO_CACHE'):
-        kept.parent.mkdir(parents=True, exist_ok=True); part = kept.with_suffix(f'.{uuid.uuid4().hex}.part'); shutil.copyfile(target, part); part.replace(kept)
+        kept.parent.mkdir(parents=True, exist_ok=True); part = kept.with_suffix(f'.{uuid.uuid4().hex}.part')
+        try:
+            shutil.copyfile(target, part); part.replace(kept)
+        except OSError:  # another build is reading the kept copy, or the disk is full: the map itself is made
+            pass
+        finally:
+            part.unlink(missing_ok=True)
     return target
 
 
