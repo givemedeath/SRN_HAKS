@@ -381,6 +381,11 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(placed.call_count, 1)  # the glow's map of places serves the retouching: both are 512 texels across
         sheet = {'from': [-0.5, 0.0], 'to': [0.5, 0.0], 'z': [0.5, 1.5], 'pitch': 0.09, 'wire': 0.016}
         self.assertGreater(len(convert.shape(model, maps, height=2.0, fence=[sheet])['wire']['faces']), 0)
+        # A frame's steel is toned from the picture as it ships: a model toned down has its fence toned down with it.
+        post = [{'tube': [[-0.5, 0.0, 0.0], [-0.5, 0.0, 1.6]], 'radius': 0.03, 'picture': [0.0, 0.0, 1.0]}]
+        steel = lambda made: float(np.asarray(made['wire']['image'])[200:, 180:300, :3].mean())
+        as_made, toned = (convert.shape(model, maps, height=2.0, fence=[sheet], frame=post, **more) for more in ({}, {'tone': 0.5}))
+        self.assertAlmostEqual(steel(toned) / steel(as_made), 0.5, delta=0.05)
         with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):  # measured before a turn: it would hang beside the wall
             convert.shape(model, maps, height=2.0, fence=[{**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
         # A frame's own upright posts hold a fence up where the model has nothing: a rail along it holds up neither end.
@@ -729,6 +734,8 @@ class ConvertTests(unittest.TestCase):
         with mock.patch.object(convert, '_compress', side_effect=packed):
             convert.textures('ek_x', maps, folder / 'out', 'crunch', colour=4096)
         self.assertEqual(sizes, {'ek_x.dds': 4096, 'ek_x_n.dds': 4096, 'ek_x_s.dds': 2048, 'ek_x_r.dds': 2048})
+        notes = convert.oversize_notes({'ek_x.dds': 11184952, 'ek_x_n.dds': 22369776})  # and such a relief map is more than the repository takes unstated
+        self.assertEqual(len(notes), 1); self.assertIn('ek_x_n.dds: 21.3 MiB', notes[0]); self.assertIn('srn-size-exception', notes[0])
 
     def test_a_fences_frame_is_round_posts_and_capped_blocks_on_a_picture_of_steel_and_concrete(self):
         """The first perimeter's posts were square bars in one flat colour (user, 2026-11-17: "the posts for the fences

@@ -1850,8 +1850,18 @@ def relief_size(colour):
     """Pixels across a model's relief map: half its colour picture's, and all of it for a building's 4096 (user,
     2026-11-17: "Yes, full 4K normals"). A building's one picture is spread thin, some 40 texels a metre on the
     Shiawase Barrens power station where a prop has 100 to 300, and Meshy's relief comes at 4096: at half, every
-    crack and panel line of its walls was drawn 20 texels a metre."""
+    crack and panel line of its walls was drawn 20 texels a metre. At 4096 the map is some 22 MB (`oversize_notes`)."""
     return colour if colour >= 4096 else max(colour // 2, 256)
+
+
+REPOSITORY_FILE = 15 * 2 ** 20  # bytes: `Test-Repository.ps1` refuses a larger tracked file that PROVENANCE.md states no size exception for
+
+
+def oversize_notes(sizes):
+    """Notes on the built files of `sizes` ({name: bytes}) that the repository takes only with a size exception. The
+    power station's relief map, 22 MB at 4096, was found at its PR, when `Test-Repository.ps1` failed (2026-11-18)."""
+    return [f'{name}: {size / 2 ** 20:.1f} MiB, over the {REPOSITORY_FILE // 2 ** 20} MiB the repository takes a file at: before it is committed, state a '
+            f'srn-size-exception for its path in the pack in PROVENANCE.md (`Test-Repository.ps1`)' for name, size in sizes.items() if size > REPOSITORY_FILE]
 
 
 def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base=None, flat=None, plain=None):
@@ -2326,6 +2336,8 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
                 if at is not None:
                     u, v = picture_at(vertices, uvs, faces, at); row, column = int(np.clip(v, 0, 1) * (seen_.shape[0] - 1)), int(np.clip(u, 0, 1) * (seen_.shape[1] - 1))
                     tones[kind] = seen_[max(row - 4, 0):row + 5, max(column - 4, 0):column + 5].reshape(-1, 3).mean(0)
+            if tone is not None:  # as the model ships: its picture is toned (`retouch`), and so is what is toned from it
+                tones = {kind: np.clip(value * np.asarray(tone, float), 0, 255) for kind, value in tones.items()}
         wire = sheets(fence, frame=frame, colours=tones)
     shown = flat = plain = placed = None; retouched = tone is not None or paint or copy or smooth or mesh
     if lit or retouched:

@@ -145,7 +145,6 @@ def study(source, height, views, output=None, *, resolution=RESOLUTION):
     `marked`, a copy of the model with each patch painted on its colour map by its verdict (red smudged, yellow
     printed, blue plain), to draw with `envkit view --source <output>/marked --height <height>`."""
     from PIL import Image
-    Image.MAX_IMAGE_PIXELS = None
     source = Path(source); vertices, normals, uvs, faces = convert.read_glb(source / 'model.glb')
     points, _, uvs, _, _ = convert.fit(vertices, normals, uvs, height, faces=faces)
     face, point, texel, area, normal = scatter(points, uvs, faces, resolution=resolution)

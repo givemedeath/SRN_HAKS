@@ -190,7 +190,8 @@ A group is built many times while its fence, lit boxes and path nodes are settle
 model alone (the map of its places, the winding of its faces, how it is squared up) and every compressed map are
 kept in ignored `output/envkit/cache` and read back by the next build of the same model: the power station's
 build fell from 197 seconds to 35, to the same bytes, and a first build to 115 (the map of places is drawn many
-faces at a time and the maps are compressed four at a time). `ENVKIT_NO_CACHE=1` works everything out anew.
+faces at a time and the maps are compressed four at a time). `ENVKIT_NO_CACHE=1` works everything out anew. The
+cache tidies itself: the six newest of each kind worked out from a model and the 400 compressed maps last used stay.
 
 `envkit tiles` notes raised ground (a slab, a deck) of a tile that is reached only across the line from the next
 tile: a planned walk has not crossed there (see the troubleshooting row on fenced yards). Act on the note before
@@ -678,8 +679,13 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   by day as well as by night, as a coloured main light is. Nothing puts it out: colour and multiplier keys on its
   node in the tile's day animation changed nothing in the client, a script that puts the group's lights out swaps
   pictures and does not reach it, and as a source light it would be dark until a builder coloured it. Look for every head, roof gear included, before stating
-  them: two of the five were on the roof and had no lit part. See it in `check group --mode night`: the ground
-  under each head lit in the lamp's colour.
+  them: two of the five were on the roof and had no lit part. A lamp's `at` is the head's lens: one further than
+  0.3 metres from the model is refused when the group is built, as a placeable's light is. See it in `check group
+  --mode night`: the ground under each head lit in the lamp's colour.
+- **`Test-Repository.ps1` refuses a building's relief map at the PR** (`ek_sb_power_n.dds`, 22 MB, 2026-11-18). A
+  building at `colour` 4096 keeps its relief at 4096 too, and that map is over the 15 MiB the repository takes a
+  file at. `envkit tiles` says so in the report's notes: state a `srn-size-exception` for the file's path in the
+  pack in PROVENANCE.md, with the reason, in the commit that adds it.
 - **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
   own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
   its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",

@@ -58,13 +58,14 @@ def fits(height, size, leaf=None, target=LEAF):
     return found
 
 
-def probe(vertices, faces, box):
+def probe(vertices, faces, box, points=None):
     """How far out the model stands within `box`, [[x0, y0, z0], [x1, y1, z1]] on the stood model: {points, low, high,
     median}, the corners of what it holds and the middle of it on each axis. A box drawn wide across a wall and deep
-    through it tells the wall's own depth by its median."""
+    through it tells the wall's own depth by its median. `points` is the model's surface strewn already, for a caller
+    with several boxes."""
     low, high = (np.asarray(corner, float) for corner in box)
     require(low.shape == high.shape == (3,) and (high > low).all(), 'A box runs from its low corner to its high corner')
-    points = convert.scatter(vertices, faces, spacing=0.05); held = points[((points >= low) & (points <= high)).all(1)]
+    points = convert.scatter(vertices, faces, spacing=0.05) if points is None else points; held = points[((points >= low) & (points <= high)).all(1)]
     if not len(held):
         return {'points': 0}
     return {'points': int(len(held)), 'low': held.min(0).round(2).tolist(), 'high': held.max(0).round(2).tolist(), 'median': np.median(held, axis=0).round(2).tolist()}
@@ -73,6 +74,7 @@ def probe(vertices, faces, box):
 def study(source, height, leaf=None, boxes=None):
     """What `envkit measure` prints: {height, bounds, footprint, slab, fits, probes}."""
     vertices, faces = stood(source, height); size = np.ptp(vertices[:, :2], axis=0)
+    surface = convert.scatter(vertices, faces, spacing=0.05) if boxes else None  # once, for every box
     return {'height': float(height), 'bounds': [vertices.min(0).round(2).tolist(), vertices.max(0).round(2).tolist()], 'footprint': size.round(2).tolist(),
             'slab': slab(vertices, faces), 'fits': fits(float(height), size, leaf),
-            'probes': {label: probe(vertices, faces, box) for label, box in (boxes or {}).items()}}
+            'probes': {label: probe(vertices, faces, box, surface) for label, box in (boxes or {}).items()}}

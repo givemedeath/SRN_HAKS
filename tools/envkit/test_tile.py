@@ -349,7 +349,14 @@ class TileTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as scratch:
             fenced = tile.group('ek_long', made, Path(scratch) / 'a', ground='pavement'); plain = tile.group('ek_long', bare, Path(scratch) / 'b', ground='pavement')
             self.assertEqual((fenced['rows'], fenced['columns']), (1, 2))
-            more = [one['faces'] - other['faces'] for one, other in zip(fenced['tiles'], plain['tiles'])]
+            # A fence that reaches past the model is held by the group too: a perimeter round a building with no slab.
+            hut = scene(box((-3, -3, 0), (3, 3, 3))); spec = {'box': [[-7.0, -7.0], [7.0, 7.0]], 'z': [0.0, 2.0], 'steel': [3.0, 0.0, 1.0], 'concrete': [0.0, 3.0, 1.0],
+                                                                'gateways': [{'side': 'north', 'from': -1.5, 'to': 1.5}]}
+            frame, hung = convert.perimeter(spec)
+            yard = {**made, 'vertices': hut[0], 'normals': np.tile([0.0, 0, 1], (len(hut[0]), 1)), 'uvs': np.zeros((len(hut[0]), 2)), 'faces': hut[1], 'wire': convert.sheets(hung, frame=frame)}
+            self.assertEqual([(one['rows'], one['columns']) for one in (tile.group('ek_hut', {**yard, 'wire': None}, Path(scratch) / 'hut', ground='pavement'),
+                                                                         tile.group('ek_hut', yard, Path(scratch) / 'yard', ground='pavement'))], [(1, 1), (2, 2)])
+            more =[one['faces'] - other['faces'] for one, other in zip(fenced['tiles'], plain['tiles'])]
             self.assertEqual(sum(more), len(wire['faces'])); self.assertTrue(all(count > 0 for count in more))  # every square in one tile, some in each
             # A fence closes the ground it stands on, though its sheets are no part of the model's mesh: a generator leaves
             # the frames empty, and without the sheets the walkmesh between two posts would be open (review, 2026-11-12).

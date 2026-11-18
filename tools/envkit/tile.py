@@ -927,7 +927,8 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     picture, halo and fence sheets, and with the building one ground to walk on, cut into the same tiles; a model placed
     more than once comes once for each place, and they are joined (`merge_parts`). A part marked `underfoot` (railway
     track) is drawn but not surveyed: the ground is walked flat across it, and it may run off the group's edges, where
-    a raised slab may not. It stands no higher than the knee. lamps: [{at: [x, y, z], colour: [r, g, b] (0-255), radius}]
+    a raised slab may not. It stands no higher than the knee. The group is as many tiles as hold the models, and their
+    fences where those reach past them (a perimeter round a building drawn without its slab). lamps: [{at: [x, y, z], colour: [r, g, b] (0-255), radius}]
     on the finished model, each a light of its own colour in the tile it stands in, lit without a builder's doing."""
     require(len(name) <= convert.TILE_NAME_LENGTH, 'A tile group name leaves four characters for the tile: ' + name)
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
@@ -939,7 +940,12 @@ def group(name, made, folder, *, ground, colour=None, ground_colour=(0.4, 0.4, 0
     walked = join([one for one in shaped if not one.get('underfoot')], ('vertices', 'faces'))
     wires = [(texture, one['wire']) for texture, one, _ in meshes if one.get('wire') is not None]
     barrier = tuple(join([wire for _, wire in wires], ('vertices', 'faces')).values()) if wires else None
-    rows, columns, corner = layout(vertices); found = survey(walked['vertices'], walked['faces'], rows, columns, corner, barrier=barrier)
+    rows, columns, corner = layout(vertices)
+    if wires:  # a fence built round a building with no slab reaches past its walls: the group holds the fence too
+        every = np.vstack([vertices, *[wire['vertices'] for _, wire in wires]])
+        if (every[:, :2].min(0) < corner).any() or (every[:, :2].max(0) > corner + np.array([columns, rows]) * SIZE).any():
+            rows, columns, corner = layout(every)
+    found = survey(walked['vertices'], walked['faces'], rows, columns, corner, barrier=barrier)
     require(fade is None or found['slab'] < fade < found['roof'], 'The fade height lies between the slab and the roof')
     if lamps:  # each at its lamp head, as a placeable's light is (`convert.light_gap`): one mistyped, or left from before a turn, lit the ground from the air
         surface = np.vstack([convert.scatter(np.asarray(one['vertices'], float), np.asarray(one['faces']), spacing=0.03) for one in shaped])
