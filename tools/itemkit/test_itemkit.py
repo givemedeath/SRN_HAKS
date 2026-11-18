@@ -84,6 +84,13 @@ class ContractTests(Fixture):
             self.assertEqual(rows,[pin(self.local),expected] if str(self.local)<str(dependency) else [expected,pin(self.local)])
             self.assertEqual([args.args[0] for args in repin.call_args_list],[self.local])
             self.assertEqual([row['path'] for row in rows],consumed_inputs(self.path,self.local,stage='donor'))
+    def test_item_bindings_leave_library_files_to_the_stage_that_loads_them(self):
+        from tools.headkit import common
+        library=self.root/'lib.bin';library.write_bytes(b'bound');row=pin(library);library.write_bytes(b'changed since binding')
+        write(self.local,{'schemaVersion':1,'toolsRoot':str(self.root),'libraries':{'igl':{'directory':str(self.root),'files':[row]}}})
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):common.bindings(self.local)      # headkit reads every library
+        self.assertEqual(contracts.bindings(self.local)['libraries']['igl']['files'],[row])       # an item process does not
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):common.library(contracts.bindings(self.local),'igl')
     def test_a_stage_lists_only_the_libraries_it_may_load(self):
         files={name:self.root/(name+'.bin') for name in ('igl','pymeshlab','xatlas','mediapipe')}
         for name,path in files.items():path.write_bytes(name.encode())

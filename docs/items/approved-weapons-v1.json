@@ -525,6 +525,56 @@
       "sourceArchive": "sr48d86616h.hak",
       "status": "user-approved",
       "family": "F2"
+    },
+    {
+      "id": "sr4-fichetti-security-600-186f9abc33",
+      "name": "Fichetti Security 600",
+      "blueprints": [
+        "sr186f9abc_6"
+      ],
+      "sourceArchive": "sr186f9abch.hak",
+      "status": "user-approved",
+      "family": "F7"
+    },
+    {
+      "id": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "name": "Yamaha Pulsar",
+      "blueprints": [
+        "sr4ec98e3a_7"
+      ],
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "status": "user-approved",
+      "family": "F7"
+    },
+    {
+      "id": "sr4-hk-mp-5-tx-ade01f2396",
+      "name": "HK MP-5 TX",
+      "blueprints": [
+        "srade01f23_8"
+      ],
+      "sourceArchive": "srade01f23h.hak",
+      "status": "user-approved",
+      "family": "F7"
+    },
+    {
+      "id": "sr4-ak-97-32dc7d7ec4",
+      "name": "AK-97",
+      "blueprints": [
+        "sr32dc7d7e_7"
+      ],
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "status": "user-approved",
+      "family": "F8"
+    },
+    {
+      "id": "sr4-defiance-t-250-65882fcd83",
+      "name": "Defiance T-250",
+      "blueprints": [
+        "sr65882fcd_8"
+      ],
+      "sourceArchive": "sr65882fcdh.hak",
+      "status": "user-approved",
+      "family": "F8"
     }
   ],
   "resources": [
@@ -1372,22 +1422,24 @@
       "sourceArchive": "srn_cl36_test.hak",
       "sourceResource": "wbwsl_b_051.mdl",
       "path": "srn_weapon/wbwsl_b_051.mdl",
-      "sha256": "99bc6299157a8362395a3e5f855f99586215f32cf184effdc0a95a3e45eccf71",
+      "sha256": "4cfe1dff9d508703a9bd0532561beaf16dbc191989726d2479520f0db66229d5",
       "bytes": 1154648,
       "resourceType": 2002,
       "preEffectsSha256": "8d4b57302a6494375b170cda0914f9a4485648d77cbd0c9ccea3362dc8e2622e",
-      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)",
+      "sidewaysLeanStraightened": "docs/items/early-checks-and-recovery.md (rigid turn about the grip point, 2.55 to 0.00 degrees, same size and texture mapping; user 2026-11-17: \"Refit published\", \"accepted, finish everything up\")"
     },
     {
       "item": "colt-l36-pistol",
       "sourceArchive": "srn_cl36_test.hak",
       "sourceResource": "wbwsl_b_052.mdl",
       "path": "srn_weapon/wbwsl_b_052.mdl",
-      "sha256": "9ece48aa714b7db9b4d06d73f7579d4a5479123cf29efc8c06bc7037870d9898",
+      "sha256": "5e67a5eb3c0ad2d42b3a96fdaea875a027946eaf5ffa6d730c8dbdff8ea462cc",
       "bytes": 1154648,
       "resourceType": 2002,
       "preEffectsSha256": "f290809216aa379e361e97024ed91f1ed22c06f5922a57fef0d9ece754c63df4",
-      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)",
+      "sidewaysLeanStraightened": "docs/items/early-checks-and-recovery.md (rigid turn about the grip point, 2.55 to 0.00 degrees, same size and texture mapping; user 2026-11-17: \"Refit published\", \"accepted, finish everything up\")"
     },
     {
       "item": "colt-l36-pistol",
@@ -1423,11 +1475,12 @@
       "sourceResource": "wbwsl_m_023.mdl",
       "approvedSourceSha256": "0fc8a6e1ba8a03d329907c9ad25904419c4df54a9a560ddd310552f91926d251",
       "path": "srn_weapon/wbwsl_m_023.mdl",
-      "sha256": "688f616d009cf470a6f8d309438541ded8d0aabe93ac3c8b46e906669bcdaab7",
+      "sha256": "670903ce8ce14ea7c771ee938fab6b5b13416c3ee99b83642656d30d8995ccd4",
       "bytes": 1182532,
       "resourceType": 2002,
       "preEffectsSha256": "0fc8a6e1ba8a03d329907c9ad25904419c4df54a9a560ddd310552f91926d251",
-      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)",
+      "sidewaysLeanStraightened": "docs/items/early-checks-and-recovery.md (rigid turn about the grip point, 2.06 to 0.00 degrees, same size and texture mapping; user 2026-11-17: \"Refit published\", \"accepted, finish everything up\")"
     },
     {
       "item": "colt-l36-pistol",
@@ -1789,7 +1842,7 @@
     },
     {
       "path": "srn_2da/baseitems.2da",
-      "sha256": "f4d9f3da319e65898d22173280039689e7565dfd13db782332807d3d70e2e475",
+      "sha256": "99ffb9b08b7ddc9413e01130aa60abd0e8afa5db8d30ef1031d6551f6b3c562a",
       "bytes": 133484,
       "resourceType": 2017,
       "item": "colt-l36-pistol",
@@ -1942,11 +1995,12 @@
       "sourceResource": "wbwsl_b_065.mdl",
       "approvedSourceSha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
       "path": "srn_weapon/wbwsl_b_065.mdl",
-      "sha256": "69eded3eedd1ed24b13cb51846214770416b548e0d4f79e2b75a5feb0fb85b17",
+      "sha256": "3f1260506e2629e56a8b2dbb10ad550dc07cf680aaf13420335318e7329858bf",
       "bytes": 1030360,
       "resourceType": 2002,
       "preEffectsSha256": "fea06c97444e5bdcef0542eb335a5b7939c4ea36eca19e3ff2848d5cc2d1ad40",
-      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)"
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips, user request 2026-11-07)",
+      "sidewaysLeanStraightened": "docs/items/early-checks-and-recovery.md (rigid turn about the grip point, 3.75 to 0.00 degrees, same size and texture mapping; user 2026-11-17: \"Refit published\", \"accepted, finish everything up\")"
     },
     {
       "item": "sr4-ares-predator-iv-3ab64906ed",
@@ -3987,6 +4041,486 @@
       "sha256": "91744f1ec6fd863c9db9d0ccc946180e03f5e5c36f7c97f705014ddb9c9a976d",
       "bytes": 738,
       "resourceType": 2025
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "iwbwsl_b_016.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_b_016.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "iwbwsl_b_076.tga",
+      "approvedSourceSha256": "a703e47429cdc712a3ce38f794b3d258221253a1eaf9b9e40c8e3eb97fed506b",
+      "path": "srn_weapon/iwbwsl_b_076.tga",
+      "sha256": "a703e47429cdc712a3ce38f794b3d258221253a1eaf9b9e40c8e3eb97fed506b",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "iwbwsl_m_016.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_m_016.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "iwbwsl_t_016.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_t_016.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "sr186f9abc_076.tga",
+      "approvedSourceSha256": "cf7aa019bb93783c614c0ada491c503ff9accec33762ea23856140230ba67fd1",
+      "path": "srn_weapon/sr186f9abc_076.tga",
+      "sha256": "cf7aa019bb93783c614c0ada491c503ff9accec33762ea23856140230ba67fd1",
+      "bytes": 12582956,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "wbwsl_b_016.mdl",
+      "approvedSourceSha256": "6a4b4bcefd74b42bf182da13b4289cdde34df19513334165b13d0bef135ee560",
+      "path": "srn_weapon/wbwsl_b_016.mdl",
+      "sha256": "6a4b4bcefd74b42bf182da13b4289cdde34df19513334165b13d0bef135ee560",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "wbwsl_b_076.mdl",
+      "approvedSourceSha256": "d435b5ae2cb6692dfe47a62781c0ad7036b84de6afdb892ea03c5be80ef71b8e",
+      "path": "srn_weapon/wbwsl_b_076.mdl",
+      "sha256": "0e6bfc8d8f68f82e7cad9f881de8dcaf7f676374014d8898ec4a13a3f824dc6c",
+      "bytes": 1188252,
+      "resourceType": 2002,
+      "preEffectsSha256": "d435b5ae2cb6692dfe47a62781c0ad7036b84de6afdb892ea03c5be80ef71b8e",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips)"
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "wbwsl_m_016.mdl",
+      "approvedSourceSha256": "4cb0580546ba473dff033a4f3e3cda2c11caeb0735d9997782be12538dc084ea",
+      "path": "srn_weapon/wbwsl_m_016.mdl",
+      "sha256": "4cb0580546ba473dff033a4f3e3cda2c11caeb0735d9997782be12538dc084ea",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "wbwsl_t_016.mdl",
+      "approvedSourceSha256": "baa3d3578c7f8179bda683b14402ae2f0ea7f9f9501a39a63a4a25b94951ceb1",
+      "path": "srn_weapon/wbwsl_t_016.mdl",
+      "sha256": "baa3d3578c7f8179bda683b14402ae2f0ea7f9f9501a39a63a4a25b94951ceb1",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-fichetti-security-600-186f9abc33",
+      "sourceArchive": "sr186f9abch.hak",
+      "sourceResource": "sr186f9abc_6.uti",
+      "approvedSourceSha256": "ded0965ed2f7633f265328effe47a279546ab2db6a898e85b425fd16fc0c43b1",
+      "path": "srn_weapon/sr186f9abc_6.uti",
+      "sha256": "ded0965ed2f7633f265328effe47a279546ab2db6a898e85b425fd16fc0c43b1",
+      "bytes": 751,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "iwbwsl_b_017.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_b_017.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "iwbwsl_b_077.tga",
+      "approvedSourceSha256": "d75b3fdbad036bd0dc44fa1d9cb93efea891885ec0a0f95c9b554edf4b8ead33",
+      "path": "srn_weapon/iwbwsl_b_077.tga",
+      "sha256": "d75b3fdbad036bd0dc44fa1d9cb93efea891885ec0a0f95c9b554edf4b8ead33",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "iwbwsl_m_017.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_m_017.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "iwbwsl_t_017.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_t_017.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "sr4ec98e3a_077.tga",
+      "approvedSourceSha256": "944484a0df353b4e21a0d9a3d0b5c31aadf508fc71aba2ab2ebe6245452a28f5",
+      "path": "srn_weapon/sr4ec98e3a_077.tga",
+      "sha256": "944484a0df353b4e21a0d9a3d0b5c31aadf508fc71aba2ab2ebe6245452a28f5",
+      "bytes": 12582956,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "wbwsl_b_017.mdl",
+      "approvedSourceSha256": "914223d859d7b19f8c778561a568c9bcf80f6b247d05889691be373bf9f55711",
+      "path": "srn_weapon/wbwsl_b_017.mdl",
+      "sha256": "914223d859d7b19f8c778561a568c9bcf80f6b247d05889691be373bf9f55711",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "wbwsl_b_077.mdl",
+      "approvedSourceSha256": "9877574087cc46f35c6a4271faeffdb6670fbc4a4c92d850d9323c463becd07f",
+      "path": "srn_weapon/wbwsl_b_077.mdl",
+      "sha256": "ad89d1bec86e9b552f29d701923fa8b5c576a0ed9e581d8c967124b38c78ecf1",
+      "bytes": 1079404,
+      "resourceType": 2002,
+      "preEffectsSha256": "9877574087cc46f35c6a4271faeffdb6670fbc4a4c92d850d9323c463becd07f",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips)"
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "wbwsl_m_017.mdl",
+      "approvedSourceSha256": "8e1f3f809f91741af40045d499adf5804bfa13ad078b7fc05f1d04bb9226e28a",
+      "path": "srn_weapon/wbwsl_m_017.mdl",
+      "sha256": "8e1f3f809f91741af40045d499adf5804bfa13ad078b7fc05f1d04bb9226e28a",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "wbwsl_t_017.mdl",
+      "approvedSourceSha256": "d90ad85fff105d17325287cbfc64bbc8669be2e7399c1a527e0afd3bc4741a91",
+      "path": "srn_weapon/wbwsl_t_017.mdl",
+      "sha256": "d90ad85fff105d17325287cbfc64bbc8669be2e7399c1a527e0afd3bc4741a91",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-yamaha-pulsar-4ec98e3ab9",
+      "sourceArchive": "sr4ec98e3ah.hak",
+      "sourceResource": "sr4ec98e3a_7.uti",
+      "approvedSourceSha256": "241c44674e6d84161cbc6e48554992c02d9ebaebcda07056521428c604fe8408",
+      "path": "srn_weapon/sr4ec98e3a_7.uti",
+      "sha256": "241c44674e6d84161cbc6e48554992c02d9ebaebcda07056521428c604fe8408",
+      "bytes": 743,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "iwbwsl_b_018.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_b_018.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "iwbwsl_m_018.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_m_018.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "iwbwsl_m_038.tga",
+      "approvedSourceSha256": "e3f632ee22ad0dc5c9ba691f4631ced8a23b89e85536bcd83ef73fb71379cfba",
+      "path": "srn_weapon/iwbwsl_m_038.tga",
+      "sha256": "e3f632ee22ad0dc5c9ba691f4631ced8a23b89e85536bcd83ef73fb71379cfba",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "iwbwsl_t_018.tga",
+      "approvedSourceSha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "path": "srn_weapon/iwbwsl_t_018.tga",
+      "sha256": "737393c43e5100e502950245539b908aa90203b0e123a9a21745aa2f7a6ff783",
+      "bytes": 8236,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "srade01f23_038.tga",
+      "approvedSourceSha256": "4c5f215488a167519565c1e527c127b94cdfc0f52b1943590d18f3384c6936f1",
+      "path": "srn_weapon/srade01f23_038.tga",
+      "sha256": "4c5f215488a167519565c1e527c127b94cdfc0f52b1943590d18f3384c6936f1",
+      "bytes": 12582956,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "wbwsl_b_018.mdl",
+      "approvedSourceSha256": "901504476e72ee3fb5a19077007cff6519166a76f042eb2e68f45eb32d0d8a80",
+      "path": "srn_weapon/wbwsl_b_018.mdl",
+      "sha256": "901504476e72ee3fb5a19077007cff6519166a76f042eb2e68f45eb32d0d8a80",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "wbwsl_m_018.mdl",
+      "approvedSourceSha256": "7eaf5b2581c8a8517c298bca181e848f2e7025245091f264769fb9d1d64ec2b2",
+      "path": "srn_weapon/wbwsl_m_018.mdl",
+      "sha256": "7eaf5b2581c8a8517c298bca181e848f2e7025245091f264769fb9d1d64ec2b2",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "wbwsl_m_038.mdl",
+      "approvedSourceSha256": "1f3d8e44f8cc45589f4ad412ca8fb7069d2cecd58ac1f9c7e3ff20052ece83f6",
+      "path": "srn_weapon/wbwsl_m_038.mdl",
+      "sha256": "62e3249cef0401c4ec52144afe04e3577e83b8cd9bc4c8b7ded5f99d117bf246",
+      "bytes": 1983540,
+      "resourceType": 2002,
+      "preEffectsSha256": "1f3d8e44f8cc45589f4ad412ca8fb7069d2cecd58ac1f9c7e3ff20052ece83f6",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips)"
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "wbwsl_t_018.mdl",
+      "approvedSourceSha256": "bcb7a8df035193f91391b4ec3bcbc492ded600e84949c993f2618902af4a6b6f",
+      "path": "srn_weapon/wbwsl_t_018.mdl",
+      "sha256": "bcb7a8df035193f91391b4ec3bcbc492ded600e84949c993f2618902af4a6b6f",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-hk-mp-5-tx-ade01f2396",
+      "sourceArchive": "srade01f23h.hak",
+      "sourceResource": "srade01f23_8.uti",
+      "approvedSourceSha256": "a1a95274c9a8658a3b73e0257d0feec9719e7e3020c0cf76dc4cae738f8d7408",
+      "path": "srn_weapon/srade01f23_8.uti",
+      "sha256": "a1a95274c9a8658a3b73e0257d0feec9719e7e3020c0cf76dc4cae738f8d7408",
+      "bytes": 740,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "sourceResource": "iwbwxh_b_017.tga",
+      "approvedSourceSha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "path": "srn_weapon/iwbwxh_b_017.tga",
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "bytes": 32812,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "sourceResource": "iwbwxh_m_017.tga",
+      "approvedSourceSha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "path": "srn_weapon/iwbwxh_m_017.tga",
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "bytes": 32812,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "sourceResource": "iwbwxh_t_017.tga",
+      "approvedSourceSha256": "5f823bcd2145fe737fdc507bebf60303f8433a56017660d7264ecfafc871166c",
+      "path": "srn_weapon/iwbwxh_t_017.tga",
+      "sha256": "5f823bcd2145fe737fdc507bebf60303f8433a56017660d7264ecfafc871166c",
+      "bytes": 32812,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "sourceResource": "sr32dc7d7e_017.tga",
+      "approvedSourceSha256": "39159a32df47f066cbe8dd19c0aab060a1afc9defc1256a55118353a3071706d",
+      "path": "srn_weapon/sr32dc7d7e_017.tga",
+      "sha256": "39159a32df47f066cbe8dd19c0aab060a1afc9defc1256a55118353a3071706d",
+      "bytes": 12582956,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "sourceResource": "wbwxh_b_017.mdl",
+      "approvedSourceSha256": "d02a99e884b49226798aeb805d6c7855815299efe74ca91ef6bf148ef6c064df",
+      "path": "srn_weapon/wbwxh_b_017.mdl",
+      "sha256": "d02a99e884b49226798aeb805d6c7855815299efe74ca91ef6bf148ef6c064df",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "sourceResource": "wbwxh_m_017.mdl",
+      "approvedSourceSha256": "15613bb80de6ef42adefcfed3589f39e0f9d8778872dfe2efcc6c4df992acc5b",
+      "path": "srn_weapon/wbwxh_m_017.mdl",
+      "sha256": "15613bb80de6ef42adefcfed3589f39e0f9d8778872dfe2efcc6c4df992acc5b",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "sourceResource": "wbwxh_t_017.mdl",
+      "approvedSourceSha256": "dec61970654b5911be4bdfeb82bb0f4e982149b8b9e7b9f7e9c4e5f00c547430",
+      "path": "srn_weapon/wbwxh_t_017.mdl",
+      "sha256": "705e4a8fad57a894f73ed2707d742103a4539c721bda7ba5c57c1983f423a718",
+      "bytes": 2605764,
+      "resourceType": 2002,
+      "preEffectsSha256": "dec61970654b5911be4bdfeb82bb0f4e982149b8b9e7b9f7e9c4e5f00c547430",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips)"
+    },
+    {
+      "item": "sr4-ak-97-32dc7d7ec4",
+      "sourceArchive": "sr32dc7d7eh.hak",
+      "sourceResource": "sr32dc7d7e_7.uti",
+      "approvedSourceSha256": "fd1bef0d7f4bf6c4ed3b071648e6f0fb2d5bd0fb33eb6270753952490dafbe5a",
+      "path": "srn_weapon/sr32dc7d7e_7.uti",
+      "sha256": "fd1bef0d7f4bf6c4ed3b071648e6f0fb2d5bd0fb33eb6270753952490dafbe5a",
+      "bytes": 735,
+      "resourceType": 2025
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "iwbwxh_b_018.tga",
+      "approvedSourceSha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "path": "srn_weapon/iwbwxh_b_018.tga",
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "bytes": 32812,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "iwbwxh_m_018.tga",
+      "approvedSourceSha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "path": "srn_weapon/iwbwxh_m_018.tga",
+      "sha256": "263412557ea7b6621de3121b5aca7e9fadbf68b225bacf2acd5f123dbb75940b",
+      "bytes": 32812,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "iwbwxh_t_018.tga",
+      "approvedSourceSha256": "c3a1179db8e2b62c62d57fc8fa4711d840dad68523b00dddfd9d5d7ba23668eb",
+      "path": "srn_weapon/iwbwxh_t_018.tga",
+      "sha256": "c3a1179db8e2b62c62d57fc8fa4711d840dad68523b00dddfd9d5d7ba23668eb",
+      "bytes": 32812,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "sr65882fcd_018.tga",
+      "approvedSourceSha256": "836dba64025e78b3b72ac520f539b9d739ad2f16d2f028fb48e092697ffd6ebb",
+      "path": "srn_weapon/sr65882fcd_018.tga",
+      "sha256": "836dba64025e78b3b72ac520f539b9d739ad2f16d2f028fb48e092697ffd6ebb",
+      "bytes": 16777260,
+      "resourceType": 3
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "sr65882fcd_018.txi",
+      "approvedSourceSha256": "1d60fcf42113603d1f75b68dc967d997d6ee2b07d2010721ca6748ab7269c14b",
+      "path": "srn_weapon/sr65882fcd_018.txi",
+      "sha256": "1d60fcf42113603d1f75b68dc967d997d6ee2b07d2010721ca6748ab7269c14b",
+      "bytes": 23,
+      "resourceType": 2022
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "wbwxh_b_018.mdl",
+      "approvedSourceSha256": "2e67ad20e9f9fa8cfc141eb2cc544d49febd5ba0969ab7228ef7ebe5e85a3939",
+      "path": "srn_weapon/wbwxh_b_018.mdl",
+      "sha256": "2e67ad20e9f9fa8cfc141eb2cc544d49febd5ba0969ab7228ef7ebe5e85a3939",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "wbwxh_m_018.mdl",
+      "approvedSourceSha256": "16647a95a2febf4805f583b37d2d1f682ce649b85ffc7e3b0dedd085bd39325b",
+      "path": "srn_weapon/wbwxh_m_018.mdl",
+      "sha256": "16647a95a2febf4805f583b37d2d1f682ce649b85ffc7e3b0dedd085bd39325b",
+      "bytes": 1588,
+      "resourceType": 2002
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "wbwxh_t_018.mdl",
+      "approvedSourceSha256": "55c8522eceed14e183756609b6d2057f71d5450101f3a0e0d08f53a9c71571ca",
+      "path": "srn_weapon/wbwxh_t_018.mdl",
+      "sha256": "e9b908a098eb643529799525b1ccece9c324087d79c5a3428fbac4f489a487ac",
+      "bytes": 1954480,
+      "resourceType": 2002,
+      "preEffectsSha256": "55c8522eceed14e183756609b6d2057f71d5450101f3a0e0d08f53a9c71571ca",
+      "firearmEffects": "docs/items/firearm-fx-pilot.md (muzzle flash and casing emitters with their detonate clips)"
+    },
+    {
+      "item": "sr4-defiance-t-250-65882fcd83",
+      "sourceArchive": "sr65882fcdh.hak",
+      "sourceResource": "sr65882fcd_8.uti",
+      "approvedSourceSha256": "5a233bcd23230f7f552fe8d610bfcead04bd39c92019238f47fb9e5e7e8b95b0",
+      "path": "srn_weapon/sr65882fcd_8.uti",
+      "sha256": "5a233bcd23230f7f552fe8d610bfcead04bd39c92019238f47fb9e5e7e8b95b0",
+      "bytes": 744,
+      "resourceType": 2025
     }
   ],
   "sharedResourceItems": [
@@ -4066,7 +4600,12 @@
     "srd88e01a2h.hak": "f04755eea31697620c8254cf3e1003ffa77591971884622f9a551aebb233ba9f",
     "srd88e01a2m.mod": "8a52fb6cd34031cb22de1edb8aad57e27ee363f467995d1741f10a15867936cf",
     "sr48d86616h.hak": "92a4208ecedfedbbd0b42277ec20817dfd699c3466ae9f7a74a7c95210440550",
-    "sr48d86616m.mod": "04b54f49b18d9ed390cdc2d98329b89bfed2f050e0db5bc922a6da3423e8e12b"
+    "sr48d86616m.mod": "04b54f49b18d9ed390cdc2d98329b89bfed2f050e0db5bc922a6da3423e8e12b",
+    "sr186f9abch.hak": "303e760d13837279305e3ffe7fc6a93622be77bab875b930d4d708aba563ef75",
+    "sr4ec98e3ah.hak": "ae61ca3740759d6fab671a85e3608f0cd2df89aed3a4bc9686b96649edb57707",
+    "srade01f23h.hak": "199e3ba6790a7549479ed90219765b8e93753e2ed05f1c46989ed145d11a13d9",
+    "sr32dc7d7eh.hak": "cd0f6c7be70970b89d5260af74d19cc54ef3bad16f4846631d9c305d0052f297",
+    "sr65882fcdh.hak": "23b645124565977aa3525bd6177fca88352cfc98dd3bdacd909d81ac76894c29"
   },
   "approvalEvidence": {
     "completedWeaponsSha256": "28da1b6dbcde332078ec2468f5a292d2c89f13735c7a1a2ff7ef1b0d803d8e38",
@@ -4095,14 +4634,16 @@
       "With wave 3",
       "Approve all five",
       "Looks good",
-      "Approve the Rattan"
+      "Approve the Rattan",
+      "Looks good, do effects",
+      "accepted, finish everything up"
     ]
   },
   "displayTable": {
     "baseItem": 61,
     "changes": {
       "MaxRange": {
-        "after": "65",
+        "after": "77",
         "before": "50"
       },
       "ModelType": {
@@ -4112,15 +4653,15 @@
     },
     "intentionalOverride": true,
     "originalSha256": "3fbdcd012b55f0b869c6324cc7d4ece44ed63a78f00e7889e7acefac28c8fdf4",
-    "overrideSha256": "f4d9f3da319e65898d22173280039689e7565dfd13db782332807d3d70e2e475",
+    "overrideSha256": "99ffb9b08b7ddc9413e01130aa60abd0e8afa5db8d30ef1031d6551f6b3c562a",
     "resource": "baseitems.2da",
     "unrelatedBytesPreserved": true,
     "ordinarySlingCompatibility": "Not newly client-qualified; changes the whole Sling family"
   },
-  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance. Ceramic Knife (F1/row 22, 111), Extendable Baton (F2/row 1, 171), Tomahawk (F2, 181), Baseball Bat (F4/row 13, 091) and Stun Staff (F5/row 50, 081) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (scripted captures retained locally); the user approved each visually. This is not production acceptance. Melee wave 1: Survival Knife (F1/row 22, 091), Sword (F2/row 1, 131), Club (F2, 141) and Claymore (F4/row 13, 081) were viewed in the NWN:EE client from their private itemkit fixtures; the user kept each (\"Yes, keep it\"; for the Sword this was its 1.10 m size). Not production acceptance. The Claymore and Club grip-depth departures were hand-fit reviewed on both Human bodies from scripted idle captures of rebuilds of the same fits (Claymore run-fixture-v5 refixture-2 captures-2, Club run-fixture-v2 captures-1); user: \"Hand fit is fine\". Melee wave 3 (Vibro Knife, Rapier, Combat Axe) and the Spear were look-approved by the user from unattended in-client captures on both shipped Human bodies (2026-11-13); not production acceptance. The user approved melee wave 4 (Sai, Mace, Macauitl, Nodachi, Pole Arm) after unattended in-client captures on both shipped Human bodies: \"Approve all five\" (2026-11-14), after the Sai was redone on the user's words \"the side blades fan out too wide\". Not a client-stage receipt or production acceptance. The user approved melee wave 5 (Katar, Tonfa, Telescopic Staff) after unattended in-client captures on both shipped Human bodies: \"Looks good\" (2026-11-14), after the Tonfa was redone on the user's words \"Tonfa is too long and not facing the right direction\" (\"Shorten shaft only (Recommended)\"). Not a client-stage receipt or production acceptance. Approved by the user in chat on 2026-11-15 after unattended in-client captures on both Human bodies: Kris, Jupiter Taser Club and Monofilament Sword (\"Approve all three\"), then the Rattan Stick after it was rebuilt (\"rattan is a little too thick and one of the ends has some mesh and texture defects\", \"3.0 cm (Recommended)\", \"Trim and repaint (Recommended)\"): \"Approve the Rattan\".",
+  "clientReview": "User accepted the original weapon appearances and repaired wave fixture. Long-blade F1 routing and expanded Colt test-motion selection have native/package validation; no new client acceptance is claimed. Production motion overlays are excluded. Vibro Blades — Sword (F2/row 1, appearance 121) and Ares Predator IV (F7/row 61, colour 5, bottom 065) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (screenshots and logs retained locally); the user approved both visually. This is not production animation, ammunition or exhaustive equipment acceptance. Ceramic Knife (F1/row 22, 111), Extendable Baton (F2/row 1, 171), Tomahawk (F2, 181), Baseball Bat (F4/row 13, 091) and Stun Staff (F5/row 50, 081) were reviewed in the NWN:EE client on both shipped Human bodies from their private itemkit fixtures (scripted captures retained locally); the user approved each visually. This is not production acceptance. Melee wave 1: Survival Knife (F1/row 22, 091), Sword (F2/row 1, 131), Club (F2, 141) and Claymore (F4/row 13, 081) were viewed in the NWN:EE client from their private itemkit fixtures; the user kept each (\"Yes, keep it\"; for the Sword this was its 1.10 m size). Not production acceptance. The Claymore and Club grip-depth departures were hand-fit reviewed on both Human bodies from scripted idle captures of rebuilds of the same fits (Claymore run-fixture-v5 refixture-2 captures-2, Club run-fixture-v2 captures-1); user: \"Hand fit is fine\". Melee wave 3 (Vibro Knife, Rapier, Combat Axe) and the Spear were look-approved by the user from unattended in-client captures on both shipped Human bodies (2026-11-13); not production acceptance. The user approved melee wave 4 (Sai, Mace, Macauitl, Nodachi, Pole Arm) after unattended in-client captures on both shipped Human bodies: \"Approve all five\" (2026-11-14), after the Sai was redone on the user's words \"the side blades fan out too wide\". Not a client-stage receipt or production acceptance. The user approved melee wave 5 (Katar, Tonfa, Telescopic Staff) after unattended in-client captures on both shipped Human bodies: \"Looks good\" (2026-11-14), after the Tonfa was redone on the user's words \"Tonfa is too long and not facing the right direction\" (\"Shorten shaft only (Recommended)\"). Not a client-stage receipt or production acceptance. Approved by the user in chat on 2026-11-15 after unattended in-client captures on both Human bodies: Kris, Jupiter Taser Club and Monofilament Sword (\"Approve all three\"), then the Rattan Stick after it was rebuilt (\"rattan is a little too thick and one of the ends has some mesh and texture defects\", \"3.0 cm (Recommended)\", \"Trim and repaint (Recommended)\"): \"Approve the Rattan\". Firearm wave 1 (2026-11-17): Fichetti Security 600, Yamaha Pulsar, HK MP-5 TX, AK-97 and Defiance T-250 were captured in the client on both Human bodies in their first fits (user: \"Looks good, do effects\"); after the sideways-lean refits of the Fichetti, Pulsar, MP-5 TX and Defiance and the firing effects, Claude fired all five in the firing test module on the Human male, and the user accepted them without a further in-game review (\"accepted, finish everything up\"). The Defiance's muzzle flash was not caught on a frame after its refit.",
   "smgOnHold": false,
   "productionDeploymentPerformed": false,
-  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker. The five wave-2 melee blueprints and resources are byte-identical to their reviewed itemkit packages; F1 MaxRange 100->111 and F2 MaxRange 121->181 only extend the appearance picker. The four wave-1 melee blueprints and resources are byte-identical to the native packages and fixture modules of the runs the user approved; no table change. Vibro Blades Knife, Rapier, Combat Axe, Spear: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 181->191; row 13 MaxRange 100->101; row 22 MaxRange 111->121. Sai, Mace, Macauitl, Nodachi, Pole Arm: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 191->211; row 13 MaxRange 101->111; row 22 MaxRange 121->131. Katar, Tonfa, Telescopic Staff: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 211->221; row 22 MaxRange 131->141; row 50 MaxRange 100->101. Kris, Monofilament Sword, Jupiter Taser Club, Rattan Stick: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 221->231; row 22 MaxRange 141->151.",
+  "blueprintPublicationPolicy": "Approved wave blueprints unchanged. Cougar long blade: BaseItem 0->22 and three part bytes 71->81 only; equal-length model aliases preserve all corner attributes. Legacy model/icon resources remain. New F1 icons fit the existing silhouette into32x32. The Vibro sword and Ares Predator IV blueprints and resources are byte-identical to their accepted itemkit packages; F2 MaxRange 111->121 and Sling MaxRange 52->65 only extend the appearance picker. The five wave-2 melee blueprints and resources are byte-identical to their reviewed itemkit packages; F1 MaxRange 100->111 and F2 MaxRange 121->181 only extend the appearance picker. The four wave-1 melee blueprints and resources are byte-identical to the native packages and fixture modules of the runs the user approved; no table change. Vibro Blades Knife, Rapier, Combat Axe, Spear: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 181->191; row 13 MaxRange 100->101; row 22 MaxRange 111->121. Sai, Mace, Macauitl, Nodachi, Pole Arm: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 191->211; row 13 MaxRange 101->111; row 22 MaxRange 121->131. Katar, Tonfa, Telescopic Staff: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 211->221; row 22 MaxRange 131->141; row 50 MaxRange 100->101. Kris, Monofilament Sword, Jupiter Taser Club, Rattan Stick: blueprints and resources byte-identical to the approved itemkit packages; row 1 MaxRange 221->231; row 22 MaxRange 141->151. Fichetti Security 600, Yamaha Pulsar, HK MP-5 TX, AK-97, Defiance T-250: blueprints and resources byte-identical to the approved itemkit packages (Fichetti Security 600, Yamaha Pulsar, HK MP-5 TX, AK-97, Defiance T-250: the shown model ships as its firing-effect build, the package model kept as preEffectsSha256); row 61 MaxRange 65->77.",
   "additionalDisplayRows": [
     {
       "baseItem": 1,

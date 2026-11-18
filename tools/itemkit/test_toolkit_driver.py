@@ -353,6 +353,30 @@ class ComfyStopTests(unittest.TestCase):
         # Waiting for the GPU lease and an idle queue is the submitter's job (headkit.shared_comfy.slot), not the driver's.
         self.assertFalse(hasattr(d, 'wait_idle'))
 
+    def test_a_geometry_retry_with_the_same_workflow_and_seeds_is_refused_before_submit(self):
+        import json, tempfile, types
+        from tools.itemkit.drive import Driver, workflow_key
+        request = lambda token, seed: {'token': token, 'outputNamespace': 'itemkit', 'prompt': {'3': {'inputs': {'seed': seed, 'prefix': 'itemkit/' + token}}}}
+        self.assertEqual(workflow_key(request('aa', 57)), workflow_key(request('bb', 57)))
+        self.assertNotEqual(workflow_key(request('aa', 57)), workflow_key(request('bb', 58)))
+        # The workflow names an uploaded image by the token alone: another clay under the same seeds is another job.
+        clay = lambda sha: {**request('aa', 57), 'inputs': [{'path': 'inputs/' + sha + '.png', 'sha256': sha}, {'path': 'tools/x.py', 'sha256': sha}]}
+        self.assertNotEqual(workflow_key(clay('1' * 64)), workflow_key(clay('2' * 64)))
+        self.assertEqual(workflow_key(clay('1' * 64)), workflow_key({**clay('1' * 64), 'inputs': clay('1' * 64)['inputs'][:1]}))    # code pins do not count
+        with tempfile.TemporaryDirectory() as tmp:
+            items = Path(tmp); first = items/'gun/geometry-a1'; (first/'job').mkdir(parents=True)
+            (first/'request').write_bytes(json.dumps(request('aa', 57)).encode()); (first/'job/submission.json').write_bytes(b'{}')
+            d = Driver(types.SimpleNamespace(items=items, handoff=items, runtime=items, path=Path, data={}))
+            def launch(design, run, step, common, argv, kind=None):
+                self.assertEqual(step, 'request', 'nothing may be submitted')
+                (run/'request').parent.mkdir(parents=True, exist_ok=True); (run/'request').write_bytes(json.dumps(request('bb', launch.seed)).encode())
+                return '', '', ''
+            d.launch = launch; d.manifest = lambda design, suffix: items/'manifest.json'
+            launch.seed = 57
+            with self.assertRaisesRegex(SystemExit, 'repeats the workflow and seeds of geometry-a1'): d.gen('gun', 'geometry', 'v1', 'a2')
+            launch.seed = 58
+            with self.assertRaisesRegex(AssertionError, 'nothing may be submitted'): d.gen('gun', 'geometry', 'v1', 'a3')
+
     def test_a_failed_query_or_a_still_answering_comfy_keeps_the_pid_file(self):
         for kwargs in ({'query_fails': True}, {'answering': True}):
             result, killed, kept = self.stop('"C:\\Program Files\\Editor\\editor.exe"', **kwargs)
@@ -707,6 +731,12 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'receipt that is missing'):
                 d.textured('blade', 'a1', 'src', 'approved')
             stage.assert_not_called()
+            # a re-seeded colouring works in its own donor manifest and run, not the first colouring's
+            (root/'blade/appearance-s1/job').mkdir(parents=True); (root/'blade/appearance-s1/job/collection.json').write_text('{}', encoding='utf-8')
+            (h/'blade.donor-seed1-v1.asset.json').write_bytes((h/'blade.donor-v1.asset.json').read_bytes())
+            with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'did not complete'):
+                d.textured('blade', 'a1', 'src', 'approved', appearance_seed=1)
+            self.assertEqual(stage.call_args[0][:2], ('blade', 'donor-seed1-v1'))
 
     def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
         import hashlib

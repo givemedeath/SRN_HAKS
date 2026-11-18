@@ -49,6 +49,15 @@ def apply_geometry_seed_offset(graph, offset):
     return graph
 
 
+def apply_appearance_seed_offset(graph, offset):
+    """Vary the saved-shape texture noise explicitly; the shape binding and the sampler recipe stay frozen."""
+    require(type(offset) is int and 0 <= offset <= 2147483647, 'Invalid appearance seed offset')
+    samplers = [node['inputs'] for node in graph.values() if node['class_type'] == 'KSampler']
+    require(len(samplers) == 1 and type(samplers[0].get('seed')) is int, 'Expected exactly one frozen appearance sampler')
+    samplers[0]['seed'] += offset
+    return graph
+
+
 def appearance_donor_graph(graph, settings, prefix):
     """Append the qualified donor export to the exact saved-shape appearance job.
 
@@ -83,7 +92,7 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
                     manifest_reader=manifest, extra_pins=(), namespace="headkit",
                     version=None, read_json=read, export_settings=None, generation_subject=None,background=None,
                     appearance_export_settings=None,
-                    geometry_seed_offset=0, model_verification=None):
+                    geometry_seed_offset=0, appearance_seed_offset=0, model_verification=None):
     require(namespace in ("headkit", "itemkit"), "Unsupported generation namespace")
     data=manifest_reader(manifest_path);local=bindings(bindings_path)
     require(data.get('approval',{}).get('inputReviewComplete') is True,'Review measured input overlays and feature inventory before GPU preparation')
@@ -162,6 +171,8 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
         graph=appearance_donor_graph(graph,appearance_export_settings,namespace+'/'+token)
     if stage == 'geometry':
         apply_geometry_seed_offset(graph, geometry_seed_offset)
+    if stage == 'appearance' and appearance_seed_offset:
+        apply_appearance_seed_offset(graph, appearance_seed_offset)
     if export_settings is not None:
         require(stage == 'export', 'Export settings apply only to mesh export')
         apply_export_settings(graph, export_settings)
@@ -195,4 +206,5 @@ def _prepare_request(manifest_path, bindings_path, stage, output, *, runtime=Non
     if background is not None:result['backgroundDecision']=background
     if generation_subject is not None: result['generationSubject']=generation_subject
     if stage == 'geometry' and geometry_seed_offset: result['geometrySeedOffset']=geometry_seed_offset
+    if stage == 'appearance' and appearance_seed_offset: result['appearanceSeedOffset']=appearance_seed_offset
     write(output,result,fresh=True);return result

@@ -10,6 +10,7 @@ before `srn_weapon`.
 """
 import argparse
 from functools import partial
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -69,6 +70,11 @@ STANDIN_PARTS = {'colt': {'left': 'wswss_b_201', 'right': 'wswss_b_204'},
 # The Predator's is on its right face (x max 0.022) just below the slide top (0.14) where the grip starts (z -0.06).
 PORTS = {'colt': (.025, .10, -.05), 'colt_gunmetal': (.025, .10, -.05), 'ingram': (.015, .10, -.06),
          'ak98': (.031, .165, -.06), 'predator': (.022, .125, -.05)}
+# Guns published before fits measured their sideways lean (firearm_lean.py): Predator 3.8, Colt 2.6, Ingram 2.1
+# degrees. Their fits cannot all be rerun, so the build turns each shape rigidly about the hand's grip point until its
+# middle plane stands upright: same size, proportions and texture mapping. The AK-98 (1.2) is inside the limit.
+# User, 2026-11-17: "Refit published".
+STRAIGHTEN = ('colt', 'colt_gunmetal', 'ingram', 'predator')
 # What `--ship` copies from a build into the packs. Stand-ins, test clips and the test module stay in output/.
 SHIP_BODY = ('a_ba_custom.mdl', 'a_ba_non_combat.mdl')
 TEST_CLIP = re.compile(r'(?ms)^newanim (srp_\S+) a_ba_custom\n.*?^doneanim \1 a_ba_custom\n')
@@ -348,6 +354,16 @@ def tagged_gun(text, stem, names, quiet=False, burst_time=BURST_TIME, effects=No
     return text.replace(close, nodes + close + '\n\n' + clips.rstrip('\n'))
 
 
+def straightened(text, port):
+    """A published gun's text stood upright about the grip point, and its hand-placed ejection port moved with it."""
+    from tools.itemkit.firearm_lean import straightened_model
+    standard = json.loads((REPO / 'docs/items/firearm-grip-standard-v1.json').read_text(encoding='utf-8'))
+    pivot = np.array(standard['nativeGripOrigin'], float)
+    text, turned = straightened_model(text, pivot)
+    moved = np.array(turned['matrix']) @ (np.array(port, float) - pivot) + pivot
+    return text, tuple(float(v) for v in moved.round(5)), turned
+
+
 def extend(names, quiet, corrected, hit_at, old_fx, hak, stock_dir, scripts):
     """corrected: move fire clip `hit` events to HIT_TIMES and burst the gun at the same time.
     hit_at: move every fire clip `hit` to this time instead, keeping the burst at clip start as a marker.
@@ -367,9 +383,13 @@ def extend(names, quiet, corrected, hit_at, old_fx, hak, stock_dir, scripts):
             subprocess.run([str(REPO / 'tools/vendor/nwnmdlcomp/nwnmdlcomp.exe'), '-d', '-e', str(binary), str(stock_dir / part)],
                            check=True, capture_output=True, timeout=120)
         text = (stock_dir / part).read_text(encoding='cp1252')
+        port = PORTS[label]
+        if label in STRAIGHTEN:
+            text, port, turned = straightened(text, port)
+            (stock_dir / (part + '.straightened.json')).write_text(json.dumps(turned, indent=1), encoding='utf-8')
         burst = HIT_TIMES[stem] if corrected and hit_at is None else BURST_TIME
         root = re.search(r'(?m)^newmodel (\S+)', text)[1]
-        effects = old_effects(root, text, flashes, casing, PORTS[label]) if old_fx else None
+        effects = old_effects(root, text, flashes, casing, port) if old_fx else None
         (hak / part).write_text(tagged_gun(text, stem, names, quiet, burst, effects), encoding='cp1252', newline='\n')
         for hand, standin in STANDIN_PARTS.get(label, {}).items() if effects else ():
             # Each stand-in is the same gun under a short sword part name, firing on its own hand's kicks.

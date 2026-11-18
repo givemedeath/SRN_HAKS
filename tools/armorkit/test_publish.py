@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import export, publish, registry, tables
+from . import export, logo, publish, registry, tables
 from .test_registry import document, part
 from .test_tables import stock
 
@@ -336,6 +336,18 @@ class IconTests(unittest.TestCase):
         clipped = publish.icon([(vertices, np.array([(0, 1, 2), (0, 2, 3)]), uvs, shades, layers)], 1.0, (publish.ICON_WAIST + 10, None))[0]
         self.assertTrue((clipped[:publish.ICON_WAIST + 10] == publish.ICON_CLEAR).all() and (clipped[publish.ICON_WAIST + 10:publish.ICON_WAIST + 20, 22:42] != publish.ICON_CLEAR).all())
         self.assertEqual(export.read_tint(export.tint(shade, layer))[0].shape, (128, 64))
+
+    def test_a_skinned_models_textures_are_read_back_by_the_model_tool(self):
+        with tempfile.TemporaryDirectory() as folder:
+            model = Path(folder) / 'pmh0_neck1000.mdl'
+            model.write_bytes(b'not a rigid model')  # as the rigid reader refuses headgear's skin
+            text = 'node trimesh a\n  bitmap pmh0_neck1000\nendnode\nnode skin b\n  bitmap PMH0_NECK1000\nendnode\nnode dummy c\n  bitmap NULL\nendnode\n'
+            self.assertEqual(publish.model_textures(model, read_back=lambda path: text), ['pmh0_neck1000'])
+
+            def unread(path):
+                raise ValueError('cannot be read back')
+            with self.assertRaisesRegex(ValueError, '.+; read back by the model tool: cannot be read back'):  # what both readers said
+                publish.model_textures(model, read_back=unread)
 
     def test_only_the_slots_the_game_draws_have_icons(self):
         self.assertEqual(publish.icon_names(CHEST), [f'ipm_chest{NUMBER}', f'ipf_chest{NUMBER}'])
@@ -684,6 +696,150 @@ class PublishTests(Workspace):
         self.assertIsNone(publish.brief_of('unknown', {}, two))
         with self.assertRaisesRegex(ValueError, "A root is a trial's scratch folder"):
             self.publish(shared(('pmh0',)), root=self.root / 'scratch')
+
+
+BRASSARD = part(slot='shoulder', number=1000, families=['accessory'], set=..., group=..., genderedCut=False, tiers={},
+                badge={'positions': ['left', 'right']})
+
+
+def badged(path):
+    """A stand-in for `publish.model_textures`: a model with a badge names its own texture and the logo strip."""
+    return [Path(path).stem, logo.STRIP]
+
+
+def brassard(folder, body, strip=b'strip'):
+    """A drawn brassard's output folder as `brassard.run` leaves it, with stand-in payloads: no materials, no
+    material file of its own, and the logo's three files."""
+    folder = Path(folder)
+    resources = folder / 'resources'
+    resources.mkdir(parents=True)
+    models = {token: registry.model_name(body, token, 1000) for token in ('shol', 'shor')}
+    for name in models.values():
+        (resources / (name + '.mdl')).write_bytes(bytes(4) + name.encode())
+        (resources / (name + '.plt')).write_bytes(b'band')
+    for name in logo.FILES:
+        (resources / name).write_bytes(strip if name.endswith('.tga') else b'text\n')
+    record = {'model': 'brassard-test', 'body': body, 'tier': 1, 'number': 1000, 'models': models, 'drawn': True, 'logo': logo.record(),
+              'gates': {'passed': True, 'failures': [], 'triangles': {'shol': 10, 'shor': 10}}, 'compiled': 2}
+    (folder / 'bake.json').write_text(json.dumps(record), encoding='utf-8')
+    return folder
+
+
+class DrawnPieceTests(Workspace):
+    """A drawn piece with a badge: no brief, no material file, and the logo's files once for the pack."""
+
+    def setUp(self):
+        super().setUp()
+        self.registry.write_text(json.dumps(document(BRASSARD)), encoding='utf-8')
+        with (self.repo / 'PROVENANCE.md').open('a', encoding='utf-8') as stream:
+            stream.write('brassard-test, drawn by the kit.\n')
+        self.bakes = [brassard(self.root / 'drawn' / body, body) for body in registry.BODIES]
+        self.options = {'records': [('brassard-test', self.ledger)], 'briefs': [], 'textures': badged}
+
+    def test_a_drawn_piece_brings_no_material_file_and_the_logos_files(self):
+        found = publish.survey(self.bakes[0])
+        self.assertEqual((found['wrong'], found['drawn']), ([], True))
+        self.assertEqual(sorted(found['files']), sorted(['pmh0_shol1000.mdl', 'pmh0_shol1000.plt', 'pmh0_shor1000.mdl', 'pmh0_shor1000.plt', *logo.FILES]))
+        record = json.loads((self.bakes[0] / 'bake.json').read_text(encoding='utf-8'))
+        record['logo']['cells'] = {'ares': 2}
+        (self.bakes[0] / 'bake.json').write_text(json.dumps(record), encoding='utf-8')
+        (self.bakes[0] / 'resources' / logo.FILES[1]).unlink()
+        self.assertEqual([reason for _, reason in publish.survey(self.bakes[0])['wrong']],
+                         ["it was drawn for another logo strip than the kit's: draw it again", f'the bake holds no {logo.FILES[1]}'])
+        del record['drawn']  # a record that lists no materials is not thereby a drawn piece: it is held to its material files
+        (self.bakes[0] / 'bake.json').write_text(json.dumps(record), encoding='utf-8')
+        found = publish.survey(self.bakes[0])
+        self.assertFalse(found['drawn'])
+        self.assertIn(('pmh0_shol1000', 'the bake holds no pmh0_shol1000.mtr'), found['wrong'])
+
+    def test_a_shader_with_carriage_returns_fails(self):
+        for folder in self.bakes:
+            (folder / 'resources' / logo.FILES[1]).write_bytes(b'text\r\n')
+        report = self.publish(self.bakes, dry_run=True, **self.options)
+        self.assertEqual([(one['gate'], one['model']) for one in report['failures']], [('format', logo.FILES[1])])
+
+    def test_it_is_published_with_the_logo_once_and_the_handoff_names_it(self):
+        report = self.publish(self.bakes, **self.options)
+        self.assertEqual((report['failures'], report['written']), ([], True))
+        pack = {path.name for path in (self.repo / 'srn_parts').iterdir()}
+        self.assertTrue(set(logo.FILES) <= pack)
+        self.assertFalse({name for name in pack if name.endswith('.mtr')} - {logo.FILES[0]})
+        handoff = json.loads((self.repo / publish.HANDOFF).read_text(encoding='utf-8'))
+        self.assertEqual(handoff['logo'], logo.record())
+        self.assertEqual(handoff['outfits'][0]['brief'], None)
+        self.assertEqual(handoff['outfits'][0]['bake']['triangles'], {'shol': 10, 'shor': 10})
+        holders = [outfit['body'] for outfit in handoff['outfits'] if set(logo.FILES) & {one['name'] for one in outfit['resources']}]
+        self.assertEqual(holders, ['pmh0'])  # recorded with the first bake that brings them
+        self.assertEqual(sum(len(outfit['resources']) for outfit in handoff['outfits']), 20 * 4 + 3)
+        # the next publication stands on it: the published band has no material file, and the logo's files are the pack's
+        self.registry.write_text(json.dumps(document(BRASSARD, *PARTS)), encoding='utf-8')
+        again = self.publish(shared(), textures=named)
+        self.assertEqual(again['failures'], [])
+        self.assertEqual(json.loads((self.repo / publish.HANDOFF).read_text(encoding='utf-8'))['logo'], logo.record())
+
+    def test_another_strip_a_badge_without_it_and_a_missing_history_fail(self):
+        other = brassard(self.root / 'other' / 'pfg2', 'pfg2', strip=b'another strip')
+        report = self.publish(self.bakes[:-1] + [other], dry_run=True, **self.options)
+        self.assertEqual([(one['gate'], one['model'], one['reason']) for one in report['failures']],
+                         [('bake', logo.FILES[2], f'pfg2 brassard-test holds another {logo.FILES[2]} than the one the other bakes hold')])
+        report = self.publish(self.bakes, dry_run=True, **{**self.options, 'textures': named})
+        self.assertEqual(report['failuresByGate'], {'closure': 40})
+        self.assertIn('shoulder 1000 has a badge and the model has no mesh on the logo strip srn_logos', report['failures'][0]['reason'])
+        report = self.publish(self.bakes, dry_run=True, **{**self.options, 'records': []})
+        self.assertEqual(report['failuresByGate'], {'records': 20})
+
+    def test_a_part_without_a_badge_may_not_name_the_strip(self):
+        report = self.publish(shared(), dry_run=True, registry=self.plain(), textures=badged)
+        self.assertEqual(report['failuresByGate'], {'closure': 20 * len(TOKENS) * 3})  # the strip is not its own, and it has no tint or material file
+        self.assertIn('it names the texture srn_logos, not its own', report['failures'][0]['reason'])
+
+    def test_a_new_strip_replaces_the_published_one_and_keeps_every_cell(self):
+        from unittest import mock
+        with self.assertRaisesRegex(ValueError, 'has no published logo to replace'):
+            publish.relogo(repo=self.repo)
+        self.assertEqual(self.publish(self.bakes, **self.options)['failures'], [])
+        pack, handoff = self.repo / 'srn_parts', self.repo / publish.HANDOFF
+        held = handoff.read_bytes()
+
+        def strip(blob=b'a longer strip'):
+            def write(folder):
+                for name in logo.FILES:
+                    (Path(folder) / name).write_bytes(blob if name.endswith('.tga') else b'text\n')
+            return write
+        with self.assertRaisesRegex(ValueError, 'there is nothing to replace'):
+            publish.relogo(repo=self.repo, write=strip(b'strip'))
+        more = logo.CELLS[:12] + ('zeta',) + logo.CELLS[13:]
+        with mock.patch.object(logo, 'CELLS', more):
+            report = publish.relogo(repo=self.repo, write=strip(), dry_run=True)
+            self.assertEqual((report['passed'], report['files'], report['cells'], report['written']), (True, [logo.FILES[2]], {'added': ['zeta'], 'kept': 11}, False))
+            self.assertEqual(handoff.read_bytes(), held)
+            report = publish.relogo(repo=self.repo, write=strip())
+            self.assertTrue(report['written'])
+            self.assertEqual((pack / logo.FILES[2]).read_bytes(), b'a longer strip')
+            now = json.loads(handoff.read_text(encoding='utf-8'))
+            self.assertEqual(now['logo']['cells']['zeta'], 12)
+            recorded = {one['name']: one for outfit in now['outfits'] for one in outfit['resources']}
+            self.assertEqual((recorded[logo.FILES[2]]['sha256'], recorded[logo.FILES[2]]['bytes']), (publish.sha(pack / logo.FILES[2]), 14))
+            # what is published is again what its handoff records: the next publication passes
+            self.registry.write_text(json.dumps(document(BRASSARD, *PARTS)), encoding='utf-8')
+            self.assertEqual(self.publish(shared(), textures=named)['failures'], [])
+        # a cell that moved or went, and a strip changed by hand, fail and write nothing
+        held, moved = handoff.read_bytes(), (None, 'renraku', 'ares') + logo.CELLS[3:]
+        with mock.patch.object(logo, 'CELLS', moved):
+            report = publish.relogo(repo=self.repo, write=strip(b'moved'))
+        self.assertEqual([(one['gate'], one['model']) for one in report['failures']], [('cells', 'ares'), ('cells', 'renraku'), ('cells', 'zeta')])
+        self.assertIn('published as cell 1 and now cell 2: a cell once given keeps its name and number', report['failures'][0]['reason'])
+        self.assertIn('published as cell 12 and now gone', report['failures'][2]['reason'])
+        (pack / logo.FILES[0]).write_bytes(b'by hand\n')
+        with mock.patch.object(logo, 'CELLS', more[:13] + ('eta',) + more[14:]):
+            report = publish.relogo(repo=self.repo, write=strip(b'third'))
+        self.assertEqual((report['failuresByGate'], report['written']), ({'published': 1}, False))
+        self.assertEqual((handoff.read_bytes(), (pack / logo.FILES[2]).read_bytes()), (held, b'a longer strip'))
+
+    def plain(self):
+        path = self.root / 'plain.json'
+        path.write_text(json.dumps(document(*PARTS)), encoding='utf-8')
+        return path
 
 
 if __name__ == '__main__':

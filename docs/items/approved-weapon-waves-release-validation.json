@@ -3,13 +3,13 @@
   "status": "passed",
   "kind": "normal-weapon-release-validation",
   "date": "2026-11-03",
-  "updated": "2026-11-15",
-  "weaponDesigns": 41,
-  "blueprints": 43,
-  "weaponResources": 349,
-  "publicationPins": 350,
-  "modelsDecoded": 132,
-  "imagesChecked": 174,
+  "updated": "2026-11-17",
+  "weaponDesigns": 46,
+  "blueprints": 48,
+  "weaponResources": 396,
+  "publicationPins": 397,
+  "modelsDecoded": 150,
+  "imagesChecked": 197,
   "textureDependenciesResolved": true,
   "normalReleasePacks": [
     "srn_weapon",
@@ -18,14 +18,14 @@
   "builtArchives": [
     {
       "archive": "srn_weapon.hak",
-      "resources": 349,
-      "sha256": "64096d23e9b60ac6aefd2e6617e82aef334ad2bc6913e1f1d6bb1825872011a8",
+      "resources": 396,
+      "sha256": "5e6b7a7658ae99650cff77c2006d28e7fcbedefd25b760964bb67a2f26e25818",
       "exactPayload": true
     },
     {
       "archive": "srn_2da.hak",
-      "resources": 29,
-      "sha256": "3fcbc1aee246269e9bf36fe66b01bc77b8ff22f112c9dd42865399655d157f77",
+      "resources": 31,
+      "sha256": "363fdb2b5de88a2ae1c49f9334909b8a4e4f3ad03e67a7cdd3733e312dc06076",
       "exactPayload": true
     },
     {
@@ -42,8 +42,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 118,
-      "sha256": "6839830bf5d632ff13b054176f02ab97f6a134ac2ec6780f622714e9699915fb",
+      "resources": 128,
+      "sha256": "b1072c06e108bbb7f750e098b9139923d33cf5a6ffab167f5551726e56338da3",
       "exactPayload": true
     }
   ],
@@ -99,7 +99,7 @@
     "61": {
       "MaxRange": [
         "52",
-        "65"
+        "77"
       ]
     },
     "13": {
@@ -354,6 +354,39 @@
         "sw10_f2",
         "sw10_m3",
         "sw10_f3"
+      ],
+      "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
+    },
+    {
+      "date": "2026-11-17",
+      "items": [
+        "sr4-fichetti-security-600-186f9abc33",
+        "sr4-yamaha-pulsar-4ec98e3ab9",
+        "sr4-hk-mp-5-tx-ade01f2396",
+        "sr4-ak-97-32dc7d7ec4",
+        "sr4-defiance-t-250-65882fcd83"
+      ],
+      "payloadsByteIdenticalToNativePackages": false,
+      "firingEffectModels": [
+        "wbwsl_b_076.mdl",
+        "wbwsl_b_077.mdl",
+        "wbwsl_m_038.mdl",
+        "wbwxh_t_017.mdl",
+        "wbwxh_t_018.mdl"
+      ],
+      "rebuiltArchivesPayloadExact": true,
+      "baseitemTableChanged": true,
+      "comparisonReviewers": [
+        "sw11_m0",
+        "sw11_f0",
+        "sw11_m1",
+        "sw11_f1",
+        "sw11_m2",
+        "sw11_f2",
+        "sw11_m3",
+        "sw11_f3",
+        "sw11_m4",
+        "sw11_f4"
       ],
       "note": "Published with tools.itemkit.publish. The new comparison reviewers were not run in that module's client."
     }

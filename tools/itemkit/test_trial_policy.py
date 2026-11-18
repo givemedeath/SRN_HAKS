@@ -70,6 +70,16 @@ class TrialPolicyTests(unittest.TestCase):
         self.assertEqual(read(new)['itemTrial']['maximumGeometryAttempts'], 5)
         with self.assertRaises(FileExistsError): initialize_trial(new, 'replacement', 'Cannot reset')
 
+    def test_appearance_seed_offset_moves_the_one_texture_seed(self):
+        from tools.headkit.generation import apply_appearance_seed_offset
+        graph={'12':{'class_type':'KSampler','inputs':{'seed':43,'steps':12}},'9':{'class_type':'Other','inputs':{'seed':7}}}
+        apply_appearance_seed_offset(graph,5)
+        self.assertEqual((graph['12']['inputs'],graph['9']['inputs']),({'seed':48,'steps':12},{'seed':7}))
+        for bad in (-1,True,1.5,2147483648):
+            with self.assertRaises(ValueError):apply_appearance_seed_offset(copy.deepcopy(graph),bad)
+        graph['13']=copy.deepcopy(graph['12'])
+        with self.assertRaises(ValueError):apply_appearance_seed_offset(graph,1)
+
     def test_seed_offset_changes_only_three_noise_seeds(self):
         graph=read(Path(__file__).parents[1]/'headkit/templates/geometry.json')
         before=copy.deepcopy(graph);apply_geometry_seed_offset(graph,1009)

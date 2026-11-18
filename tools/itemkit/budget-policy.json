@@ -19,7 +19,8 @@
     "These are adjustable starting targets, not final performance-qualified limits.",
     "Select an exact per-model cap and part allocation in a fresh family profile before processing.",
     "Shadow budgets are separate and unchanged by this policy.",
-    "Native resource contracts, supported assemblies and client validation remain required; the firearm and shield route cap is enforced at 15000 visible / 500 shadow (contracts.FIXED_ROUTE_BUDGET) until a larger cap is qualified.",
+    "Native resource contracts, supported assemblies and client validation remain required; the shield route cap is enforced at 15000 visible / 500 shadow (contracts.FIXED_ROUTE_BUDGET) and the firearm route cap at 37500 visible / 500 shadow (contracts.FIREARM_ROUTE_BUDGET).",
+    "2026-11-17: the user raised the firearm route cap from 15000 to 37500, the top of the firearm range. No firearm above 15000 has been checked in the client yet.",
     "2026-11-11: the user raised every visible budget by 50% (melee 5000-15000 -> 7500-22500, firearm 10000-25000 -> 15000-37500, fixed route cap 10000 -> 15000). Items already processed keep their counts until they are reprocessed under a new profile."
   ]
 }

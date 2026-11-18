@@ -3,6 +3,139 @@
  "kind": "srn-armorkit-registry-handoff",
  "parts": [
   {
+   "slot": "belt",
+   "number": 6020,
+   "set": "facility-security",
+   "group": "corpsec",
+   "families": [
+    "security"
+   ],
+   "genderedCut": false,
+   "tiers": {
+    "waist": 2
+   },
+   "coverage": {
+    "skin": false,
+    "headgear": false
+   },
+   "channels": [
+    "leather1",
+    "metal2"
+   ],
+   "badge": null,
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "colours": {
+    "leather1": [
+     46,
+     42,
+     38
+    ],
+    "metal2": [
+     52,
+     56,
+     62
+    ]
+   },
+   "table": "parts_belt",
+   "block": "security",
+   "setNumber": 6020,
+   "variant": 0,
+   "itemFields": [
+    "xArmorPart_Belt"
+   ],
+   "itemModelIndices": [
+    8
+   ],
+   "models": {
+    "pmh0": [
+     "pmh0_belt6020"
+    ],
+    "pmh2": [
+     "pmh2_belt6020"
+    ],
+    "pmd0": [
+     "pmd0_belt6020"
+    ],
+    "pmd2": [
+     "pmd2_belt6020"
+    ],
+    "pme0": [
+     "pme0_belt6020"
+    ],
+    "pme2": [
+     "pme2_belt6020"
+    ],
+    "pmo0": [
+     "pmo0_belt6020"
+    ],
+    "pmo2": [
+     "pmo2_belt6020"
+    ],
+    "pmg0": [
+     "pmg0_belt6020"
+    ],
+    "pmg2": [
+     "pmg2_belt6020"
+    ],
+    "pfh0": [
+     "pfh0_belt6020"
+    ],
+    "pfh2": [
+     "pfh2_belt6020"
+    ],
+    "pfd0": [
+     "pfd0_belt6020"
+    ],
+    "pfd2": [
+     "pfd2_belt6020"
+    ],
+    "pfe0": [
+     "pfe0_belt6020"
+    ],
+    "pfe2": [
+     "pfe2_belt6020"
+    ],
+    "pfo0": [
+     "pfo0_belt6020"
+    ],
+    "pfo2": [
+     "pfo2_belt6020"
+    ],
+    "pfg0": [
+     "pfg0_belt6020"
+    ],
+    "pfg2": [
+     "pfg2_belt6020"
+    ]
+   },
+   "tintTextures": [
+    "pfh0_belt6020",
+    "pmh0_belt6020"
+   ]
+  },
+  {
    "slot": "bicep",
    "number": 6020,
    "set": "facility-security",
@@ -909,6 +1042,151 @@
    ]
   },
   {
+   "slot": "shoulder",
+   "number": 1000,
+   "families": [
+    "accessory",
+    "security"
+   ],
+   "genderedCut": false,
+   "tiers": {},
+   "coverage": {
+    "skin": false,
+    "headgear": false
+   },
+   "channels": [
+    "cloth2",
+    "leather1"
+   ],
+   "badge": {
+    "positions": [
+     "left",
+     "right"
+    ]
+   },
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "table": "parts_shoulder",
+   "block": "standalone",
+   "itemFields": [
+    "xArmorPart_LShou",
+    "xArmorPart_RShou"
+   ],
+   "itemModelIndices": [
+    15,
+    14
+   ],
+   "models": {
+    "pmh0": [
+     "pmh0_shol1000",
+     "pmh0_shor1000"
+    ],
+    "pmh2": [
+     "pmh2_shol1000",
+     "pmh2_shor1000"
+    ],
+    "pmd0": [
+     "pmd0_shol1000",
+     "pmd0_shor1000"
+    ],
+    "pmd2": [
+     "pmd2_shol1000",
+     "pmd2_shor1000"
+    ],
+    "pme0": [
+     "pme0_shol1000",
+     "pme0_shor1000"
+    ],
+    "pme2": [
+     "pme2_shol1000",
+     "pme2_shor1000"
+    ],
+    "pmo0": [
+     "pmo0_shol1000",
+     "pmo0_shor1000"
+    ],
+    "pmo2": [
+     "pmo2_shol1000",
+     "pmo2_shor1000"
+    ],
+    "pmg0": [
+     "pmg0_shol1000",
+     "pmg0_shor1000"
+    ],
+    "pmg2": [
+     "pmg2_shol1000",
+     "pmg2_shor1000"
+    ],
+    "pfh0": [
+     "pfh0_shol1000",
+     "pfh0_shor1000"
+    ],
+    "pfh2": [
+     "pfh2_shol1000",
+     "pfh2_shor1000"
+    ],
+    "pfd0": [
+     "pfd0_shol1000",
+     "pfd0_shor1000"
+    ],
+    "pfd2": [
+     "pfd2_shol1000",
+     "pfd2_shor1000"
+    ],
+    "pfe0": [
+     "pfe0_shol1000",
+     "pfe0_shor1000"
+    ],
+    "pfe2": [
+     "pfe2_shol1000",
+     "pfe2_shor1000"
+    ],
+    "pfo0": [
+     "pfo0_shol1000",
+     "pfo0_shor1000"
+    ],
+    "pfo2": [
+     "pfo2_shol1000",
+     "pfo2_shor1000"
+    ],
+    "pfg0": [
+     "pfg0_shol1000",
+     "pfg0_shor1000"
+    ],
+    "pfg2": [
+     "pfg2_shol1000",
+     "pfg2_shor1000"
+    ]
+   },
+   "tintTextures": [
+    "pfh0_shol1000",
+    "pfh0_shor1000",
+    "pmh0_shol1000",
+    "pmh0_shor1000"
+   ]
+  },
+  {
    "slot": "thigh",
    "number": 6020,
    "set": "facility-security",
@@ -1073,22 +1351,48 @@
    ]
   }
  ],
+ "logo": {
+  "material": "srn_logo",
+  "parameter": "LogoCell",
+  "strip": "srn_logos",
+  "cells": {
+   "ares": 1,
+   "renraku": 2,
+   "saeder-krupp": 3,
+   "wuxing": 4,
+   "mitsuhama": 5,
+   "aztechnology": 6,
+   "evo": 7,
+   "horizon": 8,
+   "neonet": 9,
+   "shiawase": 10,
+   "lone-star": 11
+  }
+ },
  "pack": "srn_parts",
  "tablePack": "srn_2da",
  "tables": [
+  "parts_belt",
   "parts_bicep",
   "parts_chest",
   "parts_foot",
   "parts_hand",
   "parts_legs",
   "parts_pelvis",
-  "parts_shin"
+  "parts_shin",
+  "parts_shoulder"
  ],
  "icons": [
+  "ipf_belt6020",
   "ipf_chest6020",
   "ipf_pelvis6020",
+  "ipf_shol1000",
+  "ipf_shor1000",
+  "ipm_belt6020",
   "ipm_chest6020",
-  "ipm_pelvis6020"
+  "ipm_pelvis6020",
+  "ipm_shol1000",
+  "ipm_shor1000"
  ],
  "iconFiles": [
   {
@@ -1109,6 +1413,36 @@
   {
    "name": "ipm_pelvis6020.plt",
    "sha256": "90ac268e9db56591f6d7bafd933a29a7141e51f4153b94198c1dd49aaac68476",
+   "bytes": 16408
+  },
+  {
+   "name": "ipf_belt6020.plt",
+   "sha256": "a646a5bde5e102a4544452e532abb8f6e8dab251aac664a0048aadef5aa5574f",
+   "bytes": 16408
+  },
+  {
+   "name": "ipf_shol1000.plt",
+   "sha256": "a60905f16aaec7c363ae9c1c1777e81dde7ca9605b3d3007177c8dad809c46bd",
+   "bytes": 16408
+  },
+  {
+   "name": "ipf_shor1000.plt",
+   "sha256": "fec2862f1f9b5da1f11cf32eef0319d01e452727790acd841f9c8ee65b1faad0",
+   "bytes": 16408
+  },
+  {
+   "name": "ipm_belt6020.plt",
+   "sha256": "fec4d9f4a7c369496da8c38d29088a6140b4804315ff59756087c5ad1ad7a551",
+   "bytes": 16408
+  },
+  {
+   "name": "ipm_shol1000.plt",
+   "sha256": "b8d513e7630862d8aa5b2014a905fcc75e5e35ab113cefb3fb1e2d09de188af7",
+   "bytes": 16408
+  },
+  {
+   "name": "ipm_shor1000.plt",
+   "sha256": "2267c7cc3b224e5e1806bc30143784817dc470fa635e597dded0e515a68725c8",
    "bytes": 16408
   }
  ],
@@ -7910,6 +8244,2826 @@
      "name": "pfg2_shinr6020.plt",
      "sha256": "dc66a6fbb5d1eb4b841ad474541ab3cfaf50b25be1779051dad820d00f420177",
      "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pmh0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "b4adda95b6addb7b1a3fb3bdb83e602e8b7d6e20c90339e6d18dda328e600650",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmh0_belt6020.mdl",
+     "sha256": "74e5b0e4515f81cb3d5c2f59614a71c5e2241e8ef4d7ae3ddb4c6da17e5d27b8",
+     "bytes": 260260
+    },
+    {
+     "name": "pmh0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pmh0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pmh0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "52ce0187fb7d80b6a92e4be0a1d22a96c150d00d057cd442b658b5883dd7e767",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmh0_shol1000.mdl",
+     "sha256": "19f0458b755704764d0923f17ae86549bdfd614235c695505a4c66a56f3e2069",
+     "bytes": 140948
+    },
+    {
+     "name": "pmh0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pmh0_shor1000.mdl",
+     "sha256": "4f540216d9380fab083286b59dc516807651a7d921725ac993f586de867c1304",
+     "bytes": 140948
+    },
+    {
+     "name": "pmh0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "srn_logo.mtr",
+     "sha256": "763aa4cee73ad7b0c8d95358fb87d32ed37f6393b7514c9132b0c9f203657cd3",
+     "bytes": 95
+    },
+    {
+     "name": "srn_logos.tga",
+     "sha256": "81f2f41e3783e22c2532211d0eff0c0550d9bc63a7ba6e6dff3d2b1a195d617e",
+     "bytes": 786450
+    },
+    {
+     "name": "srn_vslogo.shd",
+     "sha256": "d8ff5131b3dea5fe8e0196baef7097e14a7fda287a1703d197a5ec4232a8ba3f",
+     "bytes": 279
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pmh2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "6d1f039da3fe64553275a5d9123d4a8417eccfbaf429c4979f52436bf75877ba",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmh2_belt6020.mdl",
+     "sha256": "26724b5481242db3b575627c3f61b8a2deec7b079508bc775ca09da51836e4db",
+     "bytes": 260260
+    },
+    {
+     "name": "pmh2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pmh2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pmh2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "31e3255bb5bee69d16236111f35d6528a8532fe47937e827145adbff130df187",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmh2_shol1000.mdl",
+     "sha256": "0b2e38b95811ae4d4916544b067fbc0b5a1407b63ec21d8ec9be029705f7d3d0",
+     "bytes": 140948
+    },
+    {
+     "name": "pmh2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pmh2_shor1000.mdl",
+     "sha256": "336cfe5eb330af048c5b347ce81a1e57a13f8c51fb0a90386c8d2cde5016299d",
+     "bytes": 140948
+    },
+    {
+     "name": "pmh2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pmd0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "6ced8733699e433b083eff96aefce8cb5d46d594b7ee34b793d1bcb869cc5a30",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmd0_belt6020.mdl",
+     "sha256": "5e1fd58221fc0574804a72aae41c5be996c08c0f1dcd8172d7e37b2ed0333fb4",
+     "bytes": 260260
+    },
+    {
+     "name": "pmd0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pmd0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pmd0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "a62636ddc092184e375f38ef36d7bfaa2c99c848342883a014cacceb390b8f87",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmd0_shol1000.mdl",
+     "sha256": "7c9de85befdfd02084fa5d2ed1ede194a32f9a95ed14fc62bfc35892a178d8fe",
+     "bytes": 140948
+    },
+    {
+     "name": "pmd0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pmd0_shor1000.mdl",
+     "sha256": "a862b8a1f8ddb5baa667bfadfab5eb6aed81b2faa1ad682a17a608ea0f6d9c36",
+     "bytes": 140948
+    },
+    {
+     "name": "pmd0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pmd2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "66cca4c0d49d6be55ac2b6c7ba58cc60307b6b903f6f16ba9599c30b3a8a9b09",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmd2_belt6020.mdl",
+     "sha256": "a97ad0b79c5e78e8cfefd4887b3846eeb284d0b6cf98c62946aa1d6ebaa9539d",
+     "bytes": 260260
+    },
+    {
+     "name": "pmd2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pmd2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pmd2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "1d51357dae50275a1bb0e7af96a4627a51ccde54c7e5517487aa46edd0dda570",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmd2_shol1000.mdl",
+     "sha256": "0cef2d981a96648fc91aa842dbb805573e688ee518e2a44d0752e8cdaf9005a4",
+     "bytes": 140948
+    },
+    {
+     "name": "pmd2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pmd2_shor1000.mdl",
+     "sha256": "564d446967b735aa71f6e6ce8c6d6769c64dea60bac47677b88f4d053d891dae",
+     "bytes": 140948
+    },
+    {
+     "name": "pmd2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pme0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "ef18f54f902ab7b3068ee3dd19ac0146f1dcd118dbb3784843568166f872d24a",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pme0_belt6020.mdl",
+     "sha256": "51c39e5a9dcfd6fd81e9d84286ff3594e570066e796d670981c5439e5358f187",
+     "bytes": 260260
+    },
+    {
+     "name": "pme0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pme0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pme0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "507b99cf275823355e67fa71de2d45362392f33c8917a66d329034a0ef4cb402",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pme0_shol1000.mdl",
+     "sha256": "fabb64fd4422d3b71501bf7ccc3b7706f6681db8476181c323b75196cbc5298f",
+     "bytes": 140948
+    },
+    {
+     "name": "pme0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pme0_shor1000.mdl",
+     "sha256": "ad9b1a366f89371e999053b39fc36ae735b9cb4a6776393614c2a8323de18cef",
+     "bytes": 140948
+    },
+    {
+     "name": "pme0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pme2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "9cb9604a7cbe5aef57cfd9e5f7f78783b6a29dabb262743ab6196c64b131ad29",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pme2_belt6020.mdl",
+     "sha256": "128ddf0cf9ff6612a76bfe666e62092fc0ef826a08fd3521f5f5a08d84d6abb3",
+     "bytes": 260260
+    },
+    {
+     "name": "pme2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pme2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pme2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "6bb160d4262865ea47301a6feb178f13e4f907e27e15ea23f8047e0661922328",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pme2_shol1000.mdl",
+     "sha256": "800670cae9da0b302ed170eac9e4c5a63f94c14703296a62d2446ae6febd5266",
+     "bytes": 140948
+    },
+    {
+     "name": "pme2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pme2_shor1000.mdl",
+     "sha256": "b459054855f6f3abc1089816dc45eea8e9f6266cfa1fe9790dea280565f55abe",
+     "bytes": 140948
+    },
+    {
+     "name": "pme2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pmo0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "03626161c39f2292986bb40f19f3ee0edb4618f46fb0dff5d7b004b49751d8ba",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmo0_belt6020.mdl",
+     "sha256": "d0fa0129e4349a94da9faa10a70b95919573ac42ad784f39e82e596c54dab614",
+     "bytes": 260260
+    },
+    {
+     "name": "pmo0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pmo0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pmo0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "9615d57f9614b25cf8234eb1c033640cf5eb956efd89af4a7be6d20b141d8b57",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmo0_shol1000.mdl",
+     "sha256": "df485abb49482048c4b80f844a96f13d0fd1df0fd96a25d627e271ad6fd5851d",
+     "bytes": 140948
+    },
+    {
+     "name": "pmo0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pmo0_shor1000.mdl",
+     "sha256": "1d4f5b44ce78083d02ba4666006d74d935d7c6747990bb637e5e815279f6a2da",
+     "bytes": 140948
+    },
+    {
+     "name": "pmo0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pmo2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "67f72da2214864e030d18854630d7953493776026997fd26dbe763f0561b7100",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmo2_belt6020.mdl",
+     "sha256": "ec4eb75010bc60ddfa843e35fe7a6eaff76db7caaaa728819eba7a3826bbae69",
+     "bytes": 260260
+    },
+    {
+     "name": "pmo2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pmo2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pmo2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "a1e11b5043e6f1b4ae9d3573c15ea467d1b146f9c1c7ef30bd6c007ad8e4f82c",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmo2_shol1000.mdl",
+     "sha256": "df5c13e0dcd6959adbd3f65d31151839ff7997f162389d65d6919b5ceb8323c6",
+     "bytes": 140948
+    },
+    {
+     "name": "pmo2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pmo2_shor1000.mdl",
+     "sha256": "568c7f6dd2580dc0d4baf1d482ad872e0970534741f929014088a08a5982b347",
+     "bytes": 140948
+    },
+    {
+     "name": "pmo2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pmg0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "e66e40162d1d666ba0022e4d7d64a7e3458142bf11a30c134ed591d2422dbd0e",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmg0_belt6020.mdl",
+     "sha256": "deb26dd99357a01e8ffe349eedebeb4ec70ceace7dcc27b7e35860d036970d98",
+     "bytes": 260260
+    },
+    {
+     "name": "pmg0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pmg0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pmg0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "bbf4202aa9f2ba75c900c765a32c7333df9aad28c9663ddebc97eed0cea66165",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmg0_shol1000.mdl",
+     "sha256": "d31923a9d1a41fb72d817e75877add5db10b7c8b93f1a85d78b184eb0358af10",
+     "bytes": 140948
+    },
+    {
+     "name": "pmg0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pmg0_shor1000.mdl",
+     "sha256": "cc04e287a9fb734ce255e4add939be5278aaa8df42346835b1f846dc6374a6be",
+     "bytes": 140948
+    },
+    {
+     "name": "pmg0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pmg2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "634940a7c4145d0b21c985c76535296aa610525234c8be3a30df8c6dcb85ea78",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmg2_belt6020.mdl",
+     "sha256": "5d40bf80e1daf8ea496177fa42b72a61f3a62a364af7c3a2a57b54651fde64a7",
+     "bytes": 260260
+    },
+    {
+     "name": "pmg2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pmg2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pmg2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "ff701503a4d9e4cfc9b4b68c38ddb5b6a17a5dd9721a80e62481f185bb1c398b",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pmg2_shol1000.mdl",
+     "sha256": "e42ea87bf4c32a72e67d1c4edd7b99df807d33a725a48a269280bd2e30beaac6",
+     "bytes": 140948
+    },
+    {
+     "name": "pmg2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pmg2_shor1000.mdl",
+     "sha256": "60f5b1cfcabb9767f0191a9436a228655d181265f9ce74e927f9322509f555e0",
+     "bytes": 140948
+    },
+    {
+     "name": "pmg2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfh0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "aeb90521a217335239d201bb7563fb1b18247b3f6de1bfa32852b6859e1ac0fc",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "belt6020n_36f9.tga",
+     "sha256": "36f9ed36b0d9b65384da1bccce50598e0c0e9d0f093607132d817891244a7d17",
+     "bytes": 786450
+    },
+    {
+     "name": "pfh0_belt6020.mdl",
+     "sha256": "9256d9ce43cfbe126009a4ace76c17433086c90b6acfdc8356ade01b1de99c86",
+     "bytes": 260260
+    },
+    {
+     "name": "pfh0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfh0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfh0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "f0413505f608d4dd2fec0c194a5494f2ab86fb2349aae7c9269686376edd2161",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfh0_shol1000.mdl",
+     "sha256": "0651b907b7f1504f232aaa931dc736eb867ff362baa515e457fcfd282a691fbf",
+     "bytes": 140948
+    },
+    {
+     "name": "pfh0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfh0_shor1000.mdl",
+     "sha256": "dcd8bc714acb21294a711a48ebdf69bd0a91038f653e04e4b255e18e8464a26d",
+     "bytes": 140948
+    },
+    {
+     "name": "pfh0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfh2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "dbb3e1b266b52f0817c6b0137d00dd9958bc87032a163817027ed158096e68f5",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfh2_belt6020.mdl",
+     "sha256": "cd9c2443b1a87c6fba253d1643c9b3df4794c8c1817218bb1b925021e8ee9abb",
+     "bytes": 260260
+    },
+    {
+     "name": "pfh2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfh2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfh2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "6b5c4acffe9e0cd196015ead58a91e9f2798584ed7eedbeb94a64d24466303a6",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfh2_shol1000.mdl",
+     "sha256": "40a575432ca72eb37270e57fc03e37be37741d3b883eef0730e8fbc391786db1",
+     "bytes": 140948
+    },
+    {
+     "name": "pfh2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfh2_shor1000.mdl",
+     "sha256": "6ec381aee8c66f3585d39e4e521ae1ff908a63fa1408823b3e9a29a0ff3cd178",
+     "bytes": 140948
+    },
+    {
+     "name": "pfh2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfd0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "3d53152de22ffd665e918ac3f4b8264924d7d0457f39cebc5ff81c2665067f23",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfd0_belt6020.mdl",
+     "sha256": "271a77efd5785dcd1b19c48d637f59c629e9400a365d71ef20e7585ed219ce6e",
+     "bytes": 260260
+    },
+    {
+     "name": "pfd0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfd0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfd0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "0baa1c84b070884cf26579a10d6090ab9f5f716d8886b51b5e49c31d4efac379",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfd0_shol1000.mdl",
+     "sha256": "b2992fbe0819cecc2b27f6d572ac0d4f93d72549d3c010806e6cb4b32e1af932",
+     "bytes": 140948
+    },
+    {
+     "name": "pfd0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfd0_shor1000.mdl",
+     "sha256": "222f977acae8766a0e72acb043bd57a0f2b778531920271ab1c54932b98166fa",
+     "bytes": 140948
+    },
+    {
+     "name": "pfd0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfd2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "9b898b932de53b7bed436f3f6b54791d2d67873f17feeb167cbafa804aecd4ff",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfd2_belt6020.mdl",
+     "sha256": "e81504b0f24df7a0bc00b647485c96872f28650b58bb146a3788ef6a00b149aa",
+     "bytes": 260260
+    },
+    {
+     "name": "pfd2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfd2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfd2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "23e87eff470b9960c0d7e07f2933c58e122553f1310b11cf3fe26ac130421e1f",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfd2_shol1000.mdl",
+     "sha256": "41edb1738f85e16338276f7121a8618488d54d11a59e7c748b4fb0e0e805e7f9",
+     "bytes": 140948
+    },
+    {
+     "name": "pfd2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfd2_shor1000.mdl",
+     "sha256": "9880a49ce0866215084d908753797a25415860ea4667cb52dee121bb7ed3c1bf",
+     "bytes": 140948
+    },
+    {
+     "name": "pfd2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfe0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "e6508bcce8ecc9f2efd5a161d593273760814a614c6394df4b8acef528f9c0e7",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfe0_belt6020.mdl",
+     "sha256": "9f053daa8064f0f591d87f957351fbcaf2f8139af84d61cae755454483ea5d0b",
+     "bytes": 260260
+    },
+    {
+     "name": "pfe0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfe0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfe0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "55fe2ff3776f674430a0aea75b34a175251f5454072097f09b2c991e733daa18",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfe0_shol1000.mdl",
+     "sha256": "8c9a548f232e645327b2238c9247b3b4cb8062f3c3c20f26b33014afc7c51b76",
+     "bytes": 140948
+    },
+    {
+     "name": "pfe0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfe0_shor1000.mdl",
+     "sha256": "5042f027ed11a285e0e3bd926cd681401a7186633c5a1341f01ff5d73ed17abf",
+     "bytes": 140948
+    },
+    {
+     "name": "pfe0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfe2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "c5935123c9078c11e8a16ca36e9bb70d0c8d3f4b2b4c2f6ff1f6591555c51f1b",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfe2_belt6020.mdl",
+     "sha256": "943eb18564c731f3bccb21dc1d128c9e058fd703ad74ad0cf5d5cd962dc63254",
+     "bytes": 260260
+    },
+    {
+     "name": "pfe2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfe2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfe2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "7c7c571a1fe7765697a5ba98e0c9e802b023511105456fe26a1a11b2c14280e0",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfe2_shol1000.mdl",
+     "sha256": "3075acd23031e48577ee9b42ae8b955f9d9d2d33dd02090aecaa3564ca97b273",
+     "bytes": 140948
+    },
+    {
+     "name": "pfe2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfe2_shor1000.mdl",
+     "sha256": "b93659d0d0d9ffd4b461968062df27f78d7cf4e71a34e1a6f33e68d5c8b4aa2c",
+     "bytes": 140948
+    },
+    {
+     "name": "pfe2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfo0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "7736b2cde119c7bb81fe557ae69745698bd6a87b631565e7628310cf852a52df",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfo0_belt6020.mdl",
+     "sha256": "ebb4f197ca82582280861acefd1419531cff2f5b246d26798612b60ceebe9ea5",
+     "bytes": 260260
+    },
+    {
+     "name": "pfo0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfo0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfo0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "90aecb4f5109289fdaca8103903448da183a258426452ea01a4f8c7b327223b2",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfo0_shol1000.mdl",
+     "sha256": "a27531bcd444128d7fedf4c7b4d77f193880d8e25b84b4a3f753b38d8e71b77a",
+     "bytes": 140948
+    },
+    {
+     "name": "pfo0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfo0_shor1000.mdl",
+     "sha256": "8970c37869b6f95b9eedf6e639e8a508efb29a6c1e527df45cc617a320d4d6b4",
+     "bytes": 140948
+    },
+    {
+     "name": "pfo0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfo2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "36b6e58155eb670a9250aa2e8afbb031c7798bb07ce2755ffacff14e99fe4c12",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfo2_belt6020.mdl",
+     "sha256": "a15c12c2ee772a5f2f095fce16a0cdba13f8402358b1d32d1a66a8feca079f5c",
+     "bytes": 260260
+    },
+    {
+     "name": "pfo2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfo2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfo2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "74277c7c87fa584c3b3838cb7f1beebdbaa5ad18be0c6eab23892e9f6faf7bba",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfo2_shol1000.mdl",
+     "sha256": "e44cb7546e8eb642b4eeb261542a976e31dc33b141bf1a1a9be410a9e66d0eb6",
+     "bytes": 140948
+    },
+    {
+     "name": "pfo2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfo2_shor1000.mdl",
+     "sha256": "b368920de0c9637a39937970fb53936475458627d2b22f4cb36a65891137a272",
+     "bytes": 140948
+    },
+    {
+     "name": "pfo2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfg0",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "dc31fbe34bce4f3376ed07d27d4548aea9498694116660f3365015bac661bece",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfg0_belt6020.mdl",
+     "sha256": "69f8a66a11f28146a41730304c7fe440eb6dad034cf1093726b7bad7db12a658",
+     "bytes": 260260
+    },
+    {
+     "name": "pfg0_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfg0_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfg0",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "f57b23747ce4d29fdb8289fc19f8dbf031de4e81e60f5d1c169f0b058abf9c79",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfg0_shol1000.mdl",
+     "sha256": "99c04b3a10942441f23011f297352fb21a3bf4b7ff0b5888bcbbc1d3093b8bdb",
+     "bytes": 140948
+    },
+    {
+     "name": "pfg0_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfg0_shor1000.mdl",
+     "sha256": "a9ccc269fb7b0bd4e8cb3ce6902569af354bd7e2189f2376c286348eace09411",
+     "bytes": 140948
+    },
+    {
+     "name": "pfg0_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    }
+   ]
+  },
+  {
+   "model": "corpsec-duty-belt",
+   "body": "pfg2",
+   "number": 6020,
+   "tier": 2,
+   "brief": {
+    "name": "corpsec-duty-belt.json",
+    "sha256": "cb49d6a4df51e28ff8b459a3461ca312cc21fee50bd5b991ea8e95232dae014c"
+   },
+   "bake": {
+    "sha256": "8c53d2d21e61430ea59cd672aaca2d2bf609d924e884df7af9bc9776b2cb2a72",
+    "materials": [
+     {
+      "name": "gear",
+      "kind": "leather",
+      "channels": [
+       "leather1"
+      ],
+      "colour": [
+       175,
+       155,
+       124
+      ],
+      "lit": 174.5,
+      "suggested": [
+       46,
+       42,
+       38
+      ]
+     },
+     {
+      "name": "shell",
+      "kind": "metal",
+      "channels": [
+       "metal2"
+      ],
+      "colour": [
+       141,
+       204,
+       205
+      ],
+      "lit": 171.8,
+      "suggested": [
+       52,
+       56,
+       62
+      ]
+     }
+    ],
+    "triangles": 3884
+   },
+   "records": [
+    {
+     "name": "corpsec-pilot/trial-ledger.json",
+     "sha256": "8d2fe0bd55fc05bd333ca3bc2677631c8461f38ece85c5f8d6427002cd42168c",
+     "bytes": 3697
+    },
+    {
+     "name": "geometry-2/record.json",
+     "sha256": "a4680dae6e2e5aed13bc522668d577050cff4b6ebda5c534140f374527733ca6",
+     "bytes": 1452
+    },
+    {
+     "name": "appearance-2/record.json",
+     "sha256": "760f732530102bc4d4b48d03de268739d5a96ae6644e00cc92c65b08d02ef3fc",
+     "bytes": 1970
+    },
+    {
+     "name": "export-4/record.json",
+     "sha256": "a0fb91825e51f48b6cb01b1f4b99731e2ff79447104017f537f240bf2c583e6c",
+     "bytes": 658
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfg2_belt6020.mdl",
+     "sha256": "a6aeca39a3ef6089e90486a8629e9ade076dd3baf43fe84fedd732fb7e32c624",
+     "bytes": 260260
+    },
+    {
+     "name": "pfg2_belt6020.mtr",
+     "sha256": "4f9366a2f8f6d95228bb466951c0c17763dd7bcae9b76d27ba3f1a3e522e9563",
+     "bytes": 148
+    },
+    {
+     "name": "pfg2_belt6020.plt",
+     "sha256": "3e9958d8e0ac0a7d2321b697d1a07517e5f8803cd79b2355d8388f480e446a02",
+     "bytes": 524312
+    }
+   ]
+  },
+  {
+   "model": "brassard",
+   "body": "pfg2",
+   "number": 1000,
+   "tier": 1,
+   "brief": null,
+   "bake": {
+    "sha256": "d23efc8b8a84a15824f8112cb9def57785e748e6f03e4884caa3c5342f141b57",
+    "materials": [],
+    "triangles": {
+     "shol": 2528,
+     "shor": 2528
+    }
+   },
+   "records": [
+    {
+     "name": "armorkit/brassard.py",
+     "sha256": "a1aa711fa3a968fb59d90ac5f08bf092743b09215fd7bf825e7063f803320025",
+     "bytes": 16644
+    },
+    {
+     "name": "armorkit/logo.py",
+     "sha256": "bf835a9e750da7afb9da8e76beceeea3263d80be0eb76b10ef91991f1fc28eae",
+     "bytes": 5896
+    }
+   ],
+   "resources": [
+    {
+     "name": "pfg2_shol1000.mdl",
+     "sha256": "45a71411cb842f87f9035a9e52092d07c6411a57727ba8dae3662737ca51c0cd",
+     "bytes": 140948
+    },
+    {
+     "name": "pfg2_shol1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
+    },
+    {
+     "name": "pfg2_shor1000.mdl",
+     "sha256": "2cc4d11d64cbe011c922b91b430b78145aef3ded6469023730e5416c1c64a482",
+     "bytes": 140948
+    },
+    {
+     "name": "pfg2_shor1000.plt",
+     "sha256": "6b509e26f9d9b8618e56a17bacaab8162c3b22fc3df4d28c238b9e4fbb82223f",
+     "bytes": 8216
     }
    ]
   }

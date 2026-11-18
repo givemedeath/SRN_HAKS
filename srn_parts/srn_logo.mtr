@@ -1,0 +1,4 @@
+customshaderVS srn_vslogo
+customshaderFS fslit
+texture0 srn_logos
+parameter float LogoCell 0.0

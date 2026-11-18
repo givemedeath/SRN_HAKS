@@ -268,9 +268,17 @@ def _axis_aligned_shadow_loop(vertices,faces,probe,maximum_outline=12):
     return result,triangles,{'method':'projected-loop','outlineVertices':n,'triangles':len(triangles),'outerYZ':outer.tolist(),'innerYZ':inner.tolist(),'sourceBounds':[p.min(0).tolist(),p.max(0).tolist()],'proxyBounds':[result.min(0).tolist(),result.max(0).tolist()]}
 
 
-def protected_checks(vertices, faces, config):
+def protected_checks(vertices, faces, config, kind='visible'):
+    """`kind` 'shadow' leaves out an opening probe marked `visibleOnly` (with its `visibleOnlyReview` note): the
+    500-triangle shadow of a detailed one-piece gun can close a small opening that the visible model keeps (the MP-5 TX's
+    trigger guard, firearm wave 1), and no shadow builder held it. The report lists what was left out."""
     report = {'openings': [], 'thickness': []}
     for row in config.get('openingProbes', []):
+        if row.get('visibleOnly'):
+            require(row['visibleOnly'] is True and isinstance(row.get('visibleOnlyReview'), str) and row['visibleOnlyReview'].strip(),
+                    'A visible-only opening probe quotes its review (visibleOnlyReview)')
+            if kind == 'shadow':
+                report['openings'].append({'name': row['name'], 'notHeldAgainstShadow': True}); continue
         hits = segment_hits(vertices, faces, row['start'], row['end'])
         require(hits == 0, 'Intentional opening obstructed: ' + row['name'])
         report['openings'].append({'name': row['name'], 'hits': hits})
