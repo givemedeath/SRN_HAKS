@@ -88,7 +88,7 @@ def command_reference(args):
             if asset.get('drawn'):
                 result = reference.as_drawn(name, source, args.seed, output)
             else:
-                text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset))
+                text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset), asset.get('slab', True))
                 result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         except Exception as failure:
             if not args.keep_going:
@@ -330,6 +330,16 @@ def command_onboard(args):
     print(json.dumps(told, indent=1))
 
 
+def command_measure(args):
+    """Measure a generated building before its game set is written (`measure.study`)."""
+    from . import measure
+    boxes = {}
+    for one in args.probe or []:
+        label, _, numbers = one.partition('='); values = [float(value) for value in numbers.split(',')] if numbers else []
+        require(label and len(values) == 6, 'A probe is label=x0,y0,z0,x1,y1,z1 in metres on the model as it stands'); boxes[label] = [values[:3], values[3:]]
+    print(json.dumps(measure.study(Path(args.source) / 'model.glb', args.height, args.leaf, boxes), indent=1))
+
+
 def command_smears(args):
     """The places a generated model's picture is smudged or printed through, as patches with their boxes."""
     from . import smears
@@ -458,6 +468,10 @@ def main(argv=None):
     sub.add_argument('--grid', type=float, help='with --eye: a measuring grid this many metres apart on the upright plane through each target; the eyes level with their targets')
     sub.add_argument('--page', help='also one picture of every model drawn, side by side under their names')
     sub.set_defaults(run=command_view)
+    sub = commands.add_parser('measure', help='measure a generated building: footprint, slab, the heights that fit its door and its tiles, and its walls')
+    sub.add_argument('--source', required=True, help='a generated model folder'); sub.add_argument('--height', type=float, required=True, help='the height in metres it is stood at')
+    sub.add_argument('--leaf', type=float, help="its door leaf's height in metres as measured at that height")
+    sub.add_argument('--probe', action='append', help='label=x0,y0,z0,x1,y1,z1: what of the model a box holds (repeatable)'); sub.set_defaults(run=command_measure)
     sub = commands.add_parser('smears', help="where a generated model's picture is smeared: what stood in front of each surface in its references")
     sub.add_argument('--source', required=True, help='a generated model folder'); sub.add_argument('--height', type=float, required=True, help='the height in metres it is stood at')
     sub.add_argument('--view', action='append', required=True, choices=['front', 'back', 'east', 'west'], help='a side a reference was drawn from, square on (repeatable)')

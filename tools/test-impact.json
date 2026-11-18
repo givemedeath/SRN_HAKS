@@ -376,6 +376,7 @@
       "tools/envkit/checks.py",
       "tools/envkit/convert.py",
       "tools/envkit/local.py",
+      "tools/envkit/measure.py",
       "tools/envkit/meshy.py",
       "tools/envkit/onboard.py",
       "tools/envkit/reference.py",
@@ -428,6 +429,9 @@
     "tools/envkit/local.py": [
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
+    ],
+    "tools/envkit/measure.py": [
+      "tools/envkit/convert.py"
     ],
     "tools/envkit/meshy.py": [
       "tools/headkit/gpu_lock.py",
@@ -494,6 +498,11 @@
     ],
     "tools/envkit/test_local.py": [
       "tools/envkit/local.py"
+    ],
+    "tools/envkit/test_measure.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/measure.py",
+      "tools/envkit/test_tile.py"
     ],
     "tools/envkit/test_meshy.py": [
       "tools/envkit/__main__.py",
@@ -5748,6 +5757,7 @@
     "tools/envkit/test_convert.py",
     "tools/envkit/test_glow.py",
     "tools/envkit/test_local.py",
+    "tools/envkit/test_measure.py",
     "tools/envkit/test_meshy.py",
     "tools/envkit/test_onboard.py",
     "tools/envkit/test_placeables.py",

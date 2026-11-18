@@ -56,6 +56,11 @@ its fence in both views: the fence came back as open frames, its chain-link prin
 and the roller door, and the surface behind its razor wire smudged. Look at each chosen building reference for a fence
 before selecting it.
 
+A building's views can be drawn without its slab: state `"slab": false` on each of them. The slab shares the
+building's one picture (about a fifth of the power station's surface) and a planned walk did not cross from tile to
+tile on it; the default stays the slab with its street furniture (user, 2026-11-10: "we should keep the slab"), so
+ask before using it on a sheet. Not yet tried through Meshy.
+
 Images that are already clean references on white (made apart from the concept sheets, one object to an image) come
 in as a sheet of their own: compose them on white into `<sheets>/NNb_<what>.png`, give the set a box round each and
 `"drawn": true`, and `reference` takes each crop as it is, with a receipt naming its hash, and sends nothing to ComfyUI.
@@ -145,6 +150,27 @@ vertices a face, read from `envkit view --eye`.
 
 Size a building by its door: scale it until the door leaf is about 2.1 m, then choose the tile group's size.
 Its door hook is door type 58. Screens and signs are lit.
+
+Measure before the game set is written, so nothing is measured twice:
+
+```
+envkit measure --source <root>/meshy/models/<key> --height <metres> [--leaf <metres>] [--probe label=x0,y0,z0,x1,y1,z1 ...]
+```
+
+It prints the footprint and the slab (its top and outline) at that height and, given the door leaf's height as read
+there from one close `view --eye --grid 0.5`, the heights worth standing the building at: the one that gives the door
+2.1 metres with the tiles it then takes, and for each smaller group the tallest that still fits it with the leaf that
+leaves. Choose between them first: the Shiawase Barrens power station was measured at 10 metres (3 by 2 tiles) and
+again at 9.55 (2 by 2). A `--probe` box tells what of the model it holds, for a wall's depth or a lamp's place.
+
+A group is built many times while its fence, lit boxes and path nodes are settled. What a build works out from the
+model alone (the map of its places, the winding of its faces, how it is squared up) and every compressed map are
+kept in ignored `output/envkit/cache` and read back by the next build of the same model: the power station's
+build fell from 197 seconds to 35, to the same bytes. `ENVKIT_NO_CACHE=1` works everything out anew.
+
+`envkit tiles` notes raised ground (a slab, a deck) of a tile that is reached only across the line from the next
+tile: a planned walk has not crossed there (see the troubleshooting row on fenced yards). Act on the note before
+installing and walking.
 
 ### A building in pieces, and a group of several models
 
@@ -242,7 +268,10 @@ envkit check lights --game <game> --models ... --root <root> --name <name> --bui
 ```
 
 Both read the packs, so they follow step 5. `group` lays the pack's tile numbers with the built models, and
-refuses where the pack holds another build: a building built again is installed again first. `near` frees the
+refuses where the pack holds another build: a building built again is installed again first. `walk` also takes the
+day's views once its walkers have arrived, so one run of the client checks both, and `day` alone is seldom needed. A
+view captured after its shot had passed is taken again once, in a second short run (`retake-<label>.png`), and the
+check is refused only if it is late again; a walk is judged by its log, so a late picture of a walker refuses nothing. `near` frees the
 player to show which storeys the client hides; `night` also puts out every lit model of the group, its own and its
 parts', and brings them back (`out`, `out-behind`, `lit-again`). `walk` sends walkers from the far corners of the
 area to the door, to each side of the building and onto the ground a walk must go furthest round to reach (a fenced
