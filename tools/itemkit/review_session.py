@@ -281,6 +281,8 @@ def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
               'items': [{key: row[key] for key in ('item', 'carry', 'fire', 'fixture')} for row in items],
               'resources': [pin(path) for path in extra],
               'clientValidated': False, 'productionAccepted': False}
+    # The table for a look by hand before any capture: the entry script takes its first row. `capture` rewrites it.
+    (user/'override'/f'{ITEMS_TABLE}.2da').write_bytes(items_table(record['items']))
     write(session/'session.json', record, fresh=True)
     return record
 
