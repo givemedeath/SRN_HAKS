@@ -35,16 +35,17 @@ FENCE_NEAR = 0.3  # metres: how near each end of a fence some part of the model 
 OVERHEAD = 2.2  # metres: what hangs at least this high is walked under
 DIELECTRIC = 0.04  # share of light a non-metal reflects head on
 DOOR_LEAF = (1.9, 2.5)  # metres: how tall a door a character walks through may be
-MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'wheels', 'fill', 'built', 'move', 'glass', 'embers')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
+MEASURED = ('lit', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'frame', 'close', 'clear', 'wheels', 'fill', 'built', 'move', 'glass', 'embers')  # what a game set states in metres on the finished model, beside a tile group's door and fade height
 FILL_NEAR, FILL_WELD, FILL_MOST = 0.1, 0.002, 64  # metres from a stated point to a hole's rim; how near two corners are one place; a hole's most corners
 STEP_RISE, RAIL_HEIGHT, POST_EVERY = 0.19, 0.95, 1.2  # metres: a built stair's most rise a step, its handrail's height over the nosings, posts at most this far apart
 STAIR_STEEPEST = 1.2  # a built stair flight's most rise over its run (about 50 degrees): steeper, it is a ladder
+COIL, COIL_SIDES = 0.03, 10  # a built coil of barbed wire: its wire's thickness, metres (thicker than wire, to be seen from the yard), and the straight lengths to a turn
 TREAD, STRINGER, RAIL, POST = (0.04,), (0.05, 0.22), (0.045, 0.045), (0.045, 0.045)  # built stair members' sections, metres: tread thickness, stringer, rails, posts
 GLASS_COLOUR, GLASS_STRENGTH, GLASS_FLAT, GLASS_MOST, GLASS_PICTURE = (150, 170, 185), 0.25, 0.02, 8, 64  # a pane's colour and how much of it is added to what stands behind; metres its corners may stand off its plane; its most corners; its picture's width
 LIGHT_NEAR = 0.3  # metres a placeable's cast light may stand from the model: the game draws a flare where it stands
 CLOSE_NEAR = 0.02  # how near one of the model's own vertices a closing face's stated corner lies, metres
 PLACING = ('lift', 'turn', 'signTilt', 'length', 'level')  # what, with its height, places a model's parts: the boxes of a game set are on the model as lifted, turned, tilted, stretched and levelled
-RETOUCHING = ('turn', 'length', 'level', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'inside', 'wheels', 'fill', 'built', 'move', 'glass', 'embers')  # what of a game set `shape` takes to turn, clear, close and retouch a model
+RETOUCHING = ('turn', 'length', 'level', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'frame', 'close', 'clear', 'inside', 'wheels', 'fill', 'built', 'move', 'glass', 'embers')  # what of a game set `shape` takes to turn, clear, close and retouch a model
 WHEEL_BACK = 0.68  # metres from a car's middle to the back of each wheel: a wheelset's backs stand 1.360 m apart on standard gauge (track.GAUGE)
 WHEEL_BLEND = 0.15  # metres over which a truck drawn in to gauge eases back to the car round it
 DOOR_TYPE = 58  # the row of doortypes.2da every building's door hook takes: the invisible transition door (user, 2026-11-11, until further notice)
@@ -209,6 +210,14 @@ def back_to_back(vertices, faces, which):
 
 
 def turn_faces(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
+    """`_turn_faces`, a large model's kept for its next build (`cache`)."""
+    from . import cache
+    vertices, faces = np.asarray(vertices, float), np.asarray(faces)
+    turned, count = cache.arrays('winding', (vertices, faces, cells, views, Path(__file__)), lambda: _turn_faces(vertices, faces, cells, views), faces=len(faces))
+    return np.array(turned), int(count)
+
+
+def _turn_faces(vertices, faces, cells=SIGHT_CELLS, views=SIGHT_VIEWS):
     """(faces, turned): a face seen from outside mostly from behind (`seen`: more than twice as much, at least three
     pixels and a fifth of all it would show were nothing in front of it) turned round. The fifth keeps a face hidden
     behind another from being judged by the few pixels where the spots of the face in front miss. The game draws a face only from the side its corners run counter-clockwise on, so such a face
@@ -352,10 +361,187 @@ def railing(path, height=RAIL_HEIGHT, below=0.0):
     return members
 
 
+def coil(start, end, radius, pitch):
+    """A coil of barbed wire along the line from `start` to `end`, its axis: (vertices, normals, faces). Two strands of
+    `radius`, each a turn every `pitch` metres, wound opposite ways from one point, so that they cross twice a turn as
+    the clipped loops of concertina wire do; seen from the side one strand alone is a wave, not a coil (the first
+    built, of six straight bars a turn, read in the client as a row of pointed arches: user, 2026-11-17, "Fix the fence
+    razor wire first"). Each strand is a three-sided wire COIL thick, COIL_SIDES lengths to a turn, shaded round. A
+    fence built after generation is topped with one (user, 2026-11-17: "Fences will generally need to be topped with
+    spiral barbed wire"); a generator's own smudges what stands behind it (`smears`)."""
+    start, end = np.asarray(start, float), np.asarray(end, float); along = end - start; length = float(np.linalg.norm(along)); along = along / length
+    level = np.cross(along, [0.0, 0.0, 1.0]); level = level / np.linalg.norm(level) if np.linalg.norm(level) > 1e-6 else np.array([1.0, 0.0, 0.0])
+    upright = np.cross(level, along); steps = max(int(round(length / pitch)), 1) * COIL_SIDES
+    k = np.arange(steps + 1); angle = 2 * np.pi * k / COIL_SIDES; points, normals, faces = [], [], []
+    for hand in (1.0, -1.0):
+        out = np.cos(angle)[:, None] * level + hand * np.sin(angle)[:, None] * upright
+        centre = start + along * (length * k / steps)[:, None] + radius * out; base = 3 * (steps + 1) * len(points)
+        ring = [np.cos(turn) * out + np.sin(turn) * along for turn in 2 * np.pi * np.arange(3) / 3]  # across the wire: out from the axis, and along it
+        points.append(np.stack([centre + COIL / 2 * one for one in ring], 1).reshape(-1, 3)); normals.append(np.stack(ring, 1).reshape(-1, 3))
+        for j in range(3):
+            a, b = base + 3 * k[:-1] + j, base + 3 * k[:-1] + (j + 1) % 3
+            quads = np.concatenate([np.stack([a, b, b + 3], 1), np.stack([a, b + 3, a + 3], 1)])
+            faces.append(quads if hand > 0 else quads[:, ::-1])
+    points, normals, faces = np.vstack(points), np.vstack(normals), np.vstack(faces)
+    across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+    if float((across * normals[faces[:, 0]]).sum()) < 0:  # wound outward, whichever way the axis runs
+        faces = faces[:, ::-1]
+    return points, normals, faces
+
+
+# A fence's frame (`sheets`): its posts, rails, coils and gateway posts show the fence's own picture, which is then
+# FRAME_SHEET wire pictures across and high: the wires in its first corner, and beside them a column of galvanised
+# steel and one of concrete, each from the foot of a post (v 0) to its top, FRAME_MARGIN in from its edges.
+FRAME_SHEET, FRAME_SIDES, FRAME_MARGIN = 4, 10, 1 / 64
+FRAME_COLUMNS = {'steel': (0.3125, 0.625), 'concrete': (0.625, 0.9375)}
+FRAME_COLOURS, FRAME_RUST = {'steel': WIRE, 'concrete': (150, 146, 138)}, (112, 66, 38)
+FRAME_CAP = (0.04, 0.07, 0.07)  # metres: how far a gateway post's cap stands out, its height and the rise of its top
+
+
+def _wound(points, normals, faces):
+    """`faces` without those of no area, each wound to face the way its corners' normals do."""
+    across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+    faces = faces[np.linalg.norm(across, axis=1) > 1e-12]
+    across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+    back = (across * normals[faces].sum(1)).sum(1) < 0; faces[back] = faces[back][:, ::-1]
+    return faces
+
+
+def tube(start, end, radius, cap=False, sides=FRAME_SIDES):
+    """A round tube from `start` to `end`, shaded round: (points, normals, uvs, faces), u once round it and v from its
+    start (0) to its end (1). With `cap` its end is closed by a low dome, as a fence post's is. The first posts of a
+    perimeter were square-cut bars in one flat colour (user, 2026-11-17: "the posts for the fences needs to be better
+    than a square pole and they don't even look like they have any texture applied")."""
+    start, end = np.asarray(start, float), np.asarray(end, float); along = end - start; along = along / np.linalg.norm(along)
+    level = np.cross(along, [0.0, 0.0, 1.0]); level = level / np.linalg.norm(level) if np.linalg.norm(level) > 1e-6 else np.array([1.0, 0.0, 0.0])
+    upright = np.cross(level, along); round_ = np.arange(sides + 1) / sides
+    out = np.cos(2 * np.pi * round_)[:, None] * level + np.sin(2 * np.pi * round_)[:, None] * upright
+    rings = [(start + radius * out, out, 0.0), (end + radius * out, out, 0.93 if cap else 1.0)]
+    if cap:
+        lean = out + along; lean = lean / np.linalg.norm(lean, axis=1, keepdims=True)
+        rings += [(end + along * 0.45 * radius + 0.6 * radius * out, lean, 0.97), (end + along * 0.6 * radius + 0 * out, np.tile(along, (sides + 1, 1)), 1.0)]
+    points = np.vstack([ring[0] for ring in rings]); normals = np.vstack([ring[1] for ring in rings])
+    uvs = np.vstack([np.stack([round_, np.full(sides + 1, ring[2])], 1) for ring in rings]); faces = []
+    for ring in range(len(rings) - 1):
+        a = ring * (sides + 1) + np.arange(sides); b, c, d = a + 1, a + sides + 1, a + sides + 2
+        faces += [np.stack([a, b, d], 1), np.stack([a, d, c], 1)]
+    return points, normals, uvs, _wound(points, normals, np.vstack(faces))
+
+
+def block(foot, top, size):
+    """An upright square post `size` across from `foot` to `top`, under a cap that stands out from it and rises to a
+    point, as a cast gateway post has: (points, normals, uvs, faces), flat shaded, u across each side and v up."""
+    foot, top = np.asarray(foot, float), np.asarray(top, float); half = size / 2; out, tall, rise = FRAME_CAP; wide = half + out
+    points, normals, uvs, faces = [], [], [], []
+
+    def face(corners, normal, spots):
+        base = len(points); points.extend(corners); normals.extend([normal] * len(corners)); uvs.extend(spots)
+        faces.extend([[base, base + 1, base + 2]] if len(corners) == 3 else [[base, base + 1, base + 2], [base, base + 2, base + 3]])
+    square = lambda reach, z: [np.array([foot[0] + x * reach, foot[1] + y * reach, z]) for x, y in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    low, high, under, over = square(half, foot[2]), square(half, top[2]), square(wide, top[2]), square(wide, top[2] + tall)
+    apex = np.array([foot[0], foot[1], top[2] + tall + rise])
+    for i, way in enumerate(([0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0])):
+        j = (i + 1) % 4; way = np.array(way)
+        face([low[i], low[j], high[j], high[i]], way, [[0, 0], [1, 0], [1, 0.9], [0, 0.9]])
+        face([under[i], under[j], over[j], over[i]], way, [[0, 0.9], [1, 0.9], [1, 0.95], [0, 0.95]])
+        slant = way * rise + np.array([0.0, 0.0, wide]); face([over[i], over[j], apex], slant / np.linalg.norm(slant), [[0, 0.95], [1, 0.95], [0.5, 1.0]])
+    face(under, np.array([0.0, 0.0, -1.0]), [[0, 0.9], [1, 0.9], [1, 0.95], [0, 0.95]])  # the cap's underside, seen from the ground
+    points, normals = np.array(points), np.array(normals)
+    return points, normals, np.array(uvs, float), _wound(points, normals, np.array(faces))
+
+
+def frame_picture(pixels, colours, seed=7):
+    """Draw the steel and the concrete of a fence's frame on `pixels` (rows from the foot of a post up), in the columns
+    FRAME_COLUMNS: galvanised steel mottled and streaked down its length, rusted at its foot and in spots; cast
+    concrete speckled and pitted, damp at its foot and stained under its cap. Each in the tones of `colours`."""
+    from PIL import Image
+    high, wide = pixels.shape[:2]; rng = np.random.default_rng(seed); rows = (np.arange(high) + 0.5)[:, None] / high
+
+    def grain(across, up, width):
+        small = rng.standard_normal((max(high // up, 2), max(width // across, 2))).astype(np.float32)
+        return np.asarray(Image.fromarray(small, 'F').resize((width, high), Image.BICUBIC), float)
+    for kind, (u0, u1) in FRAME_COLUMNS.items():
+        x0, x1 = int(round(u0 * wide)), int(round(u1 * wide)); width = x1 - x0; base = np.asarray(colours[kind], float)
+        if kind == 'steel':
+            shade = 1 + 0.08 * grain(12, 12, width) + 0.05 * grain(2, 2, width) + 0.07 * grain(3, high // 3, width)
+            rust = np.clip(0.8 * grain(10, 14, width) + 1.5 * (1 - rows / 0.16) - 0.2, 0, 1) + 1.5 * np.clip(grain(6, 6, width) - 1.7, 0, 1)
+            rust = (np.clip(rust, 0, 1) * 0.85)[..., None]
+            colour = base * shade[..., None] * (1 - rust) + np.asarray(FRAME_RUST, float) * (0.8 + 0.2 * shade)[..., None] * rust
+        else:
+            shade = 1 + 0.06 * grain(20, 20, width) + 0.05 * grain(1, 1, width) - 0.18 * np.clip(1 - rows / 0.12, 0, 1)
+            shade = shade - 0.12 * np.clip(grain(4, high // 2, width), 0, None) * np.clip((rows - 0.55) / 0.45, 0, 1) - 0.22 * (rng.random((high, width)) < 0.012)
+            colour = base * shade[..., None]
+        pixels[:, x0:x1, :3] = np.clip(colour, 0, 255).round(); pixels[:, x0:x1, 3] = 255
+
+
+PERIMETER_POSTS, PERIMETER_POST, PERIMETER_END, PERIMETER_RAIL, PERIMETER_GATEPOST = 2.6, 0.04, 0.055, 0.022, 0.35  # metres: posts at most this far apart; the radius of a post, of one at a corner or a run's end and of a rail; a gateway's concrete post across
+PERIMETER_SIDES = ('north', 'east', 'south', 'west')
+
+
+def perimeter(spec):
+    """A perimeter fence as the `frame` and `fence` parts that make it: (frame, fence).
+
+    spec: {box: [[x0, y0], [x1, y1]], z: [foot, top], steel: [x, y, z], gateways: [{side, from, to}], concrete: [x, y,
+    z], coil: {radius, pitch} or false, posts, pitch, wire, colour}, in metres on the finished model. The fence runs
+    round `box` from `foot` (the ground it stands on) to `top`: round steel posts with caps at its corners and at most
+    `posts` apart (stouter at a corner and at a run's end), a top and a bottom rail, chain-link sheets between them and
+    a coil of barbed wire along the top of every run (user, 2026-11-17), in galvanised steel of the tone of the model's
+    picture at `steel` (`frame_picture`). A gateway is an opening in one side, north, east,
+    south or west, from one place along it to another (x for north and south, y for east and west), between two
+    capped concrete posts of the tone at `concrete`. The Shiawase Barrens power station's fence was 46 built parts and 6 fences
+    written by a script; this states it in a few lines. A fence is built, never generated (`reference.FENCE`)."""
+    number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
+    spot = lambda value: isinstance(value, list) and len(value) == 3 and all(number(one) for one in value)
+    require(isinstance(spec, dict) and {'box', 'z', 'steel'} <= set(spec) <= {'box', 'z', 'steel', 'gateways', 'concrete', 'coil', 'posts', 'pitch', 'wire', 'colour'},
+            'A perimeter needs box, z and steel, and may state gateways, concrete, coil, posts, pitch, wire and colour')
+    require(np.asarray(spec['box'], float).shape == (2, 2) and np.asarray(spec['z'], float).shape == (2,) and spot(spec['steel']), 'A perimeter runs round a box [[x0, y0], [x1, y1]] from z [foot, top], coloured at a point of the model')
+    (x0, y0), (x1, y1) = spec['box']; foot, top = (float(one) for one in spec['z']); gateways = spec.get('gateways', [])
+    require(x1 - x0 > 1 and y1 - y0 > 1 and 1.0 <= top - foot <= 6.0, 'A perimeter is more than a metre across and one to six metres high')
+    require(isinstance(gateways, list) and all(isinstance(one, dict) and set(one) == {'side', 'from', 'to'} and one['side'] in PERIMETER_SIDES and number(one['from'])
+                                              and number(one['to']) and one['to'] - one['from'] >= 1.0 for one in gateways), 'A gateway is {side, from, to}: an opening of a metre or more in the north, east, south or west side')
+    require(not gateways or spot(spec.get('concrete')), "A perimeter with gateways colours their posts at a point of the model: concrete")
+    coiled = spec.get('coil', {'radius': 0.25, 'pitch': 0.5}); spacing = float(spec.get('posts', PERIMETER_POSTS))
+    require(coiled is False or isinstance(coiled, dict) and set(coiled) == {'radius', 'pitch'}, 'A perimeter coil is {radius, pitch}, or false for a fence without one')
+    require(0.5 <= spacing <= 6.0, 'A perimeter has a post every 0.5 to 6 metres')
+    wire = {'pitch': spec.get('pitch', 0.09), 'wire': spec.get('wire', 0.016), **({'colour': spec['colour']} if 'colour' in spec else {})}
+    fixed = lambda point: [round(float(value), 2) for value in point]
+    ends = {'north': ((x0, y1), (x1, y1)), 'east': ((x1, y1), (x1, y0)), 'south': ((x1, y0), (x0, y0)), 'west': ((x0, y0), (x0, y1))}
+    built, fence, stood, gateposts = [], [], set(), []
+    for side in PERIMETER_SIDES:
+        start, end = (np.array(one, float) for one in ends[side]); axis = 0 if side in ('north', 'south') else 1; low, high = sorted((start[axis], end[axis]))
+        # To the centimetre, as every place of the fence is stated: a post is left out where a gateway's own stands,
+        # and an edge stated finer left a steel post inside the concrete one (review of PR 175, 2026-11-18).
+        openings = sorted((round(float(one['from']), 2), round(float(one['to']), 2)) for one in gateways if one['side'] == side)
+        require(all(low < a and b < high for a, b in openings) and all(first[1] < second[0] for first, second in zip(openings, openings[1:])),
+                f'The gateways of the {side} side lie within it, from {low} to {high}, and apart from one another')
+        cuts = [low, *(value for opening in openings for value in opening), high]; runs = list(zip(cuts[::2], cuts[1::2]))
+        if start[axis] > end[axis]:  # the side is walked the other way: its runs too
+            runs = [(b, a) for a, b in reversed(runs)]
+        for index, (a, b) in enumerate(runs):
+            one, other = start.copy(), start.copy(); one[axis], other[axis] = a, b; name = side if len(runs) == 1 else f'{side} {index + 1}'
+            spans = int(np.ceil(abs(b - a) / spacing - 1e-9))
+            for step in range(spans + 1):
+                at = tuple(fixed(one + (other - one) * step / spans))
+                if at in stood or any(abs(at[axis] - value) < 1e-6 for opening in openings for value in opening):
+                    continue
+                stood.add(at); ended = step in (0, spans)
+                built.append({'part': f'{name} fence post', 'tube': [[*at, foot], [*at, round(top + (0.08 if ended else 0.04), 3)]], 'radius': PERIMETER_END if ended else PERIMETER_POST, 'cap': True, 'picture': spec['steel']})
+            for label, height in (('top', round(top - 0.03, 3)), ('bottom', round(foot + 0.12, 3))):
+                built.append({'part': f'{name} fence {label} rail', 'tube': [[*fixed(one), height], [*fixed(other), height]], 'radius': PERIMETER_RAIL, 'picture': spec['steel']})
+            if coiled:
+                built.append({'part': f'{name} fence barbed wire coil', 'coil': [[*fixed(one), round(top + coiled['radius'], 3)], [*fixed(other), round(top + coiled['radius'], 3)]], 'radius': coiled['radius'],
+                              'pitch': coiled['pitch'], 'picture': spec['steel']})
+            fence.append({'part': f'{name} fence', 'from': fixed(one), 'to': fixed(other), 'z': [round(foot + 0.1, 3), top], **wire})
+        for a, b in openings:
+            for value in (a, b):
+                at = start.copy(); at[axis] = value; gateposts.append({'part': 'gateway post', 'block': [[*fixed(at), foot], [*fixed(at), round(top + 0.05, 3)]], 'size': PERIMETER_GATEPOST, 'picture': spec['concrete']})
+    return built + gateposts, fence
+
+
 def with_built(vertices, normals, uvs, faces, parts):
     """The model with straight members of its own made on to it: [{bar: [from, to], size}], [{railing: [points],
     height}] (`railing`) or [{stairs: {foot, top, width, sides}, rails}] (`flight`), each member a square-cut box drawn wholly in the colour of the model's picture at
-    `picture` (and a flight's rails and posts at `rails`), a point on the model. A generator draws rails and stairs it
+    `picture` (and a flight's rails and posts at `rails`), a point on the model; or [{coil: [from, to], radius, pitch}], a coil of barbed wire (`coil`). A generator draws rails and stairs it
     cannot hold straight as wavy strands, or leaves them off: the rail yard's stair tower's handrails and the stairs up
     to its walkway (user, 2026-11-13). Returns (vertices, normals, uvs, faces)."""
     vertices, normals, uvs, faces = (np.asarray(one) for one in (vertices, normals, uvs, faces))
@@ -366,6 +552,9 @@ def with_built(vertices, normals, uvs, faces, parts):
             members = [(part['bar'][0], part['bar'][1], part['size'], 'bar')]
         elif 'railing' in part:
             members = railing(part['railing'], part.get('height', RAIL_HEIGHT))
+        elif 'coil' in part:
+            points, outward, local = coil(part['coil'][0], part['coil'][1], part['radius'], part['pitch']); count = len(vertices); members = []
+            vertices = np.vstack([vertices, points]); normals = np.vstack([normals, outward]); uvs = np.vstack([uvs, np.tile(place, (len(points), 1))]); faces = np.vstack([faces, local + count])
         else:
             stairs = part['stairs']; members = flight(stairs['foot'], stairs['top'], stairs['width'], stairs.get('sides', ('left', 'right')))
         for start, end, size, kind in members:
@@ -565,6 +754,126 @@ def closed(vertices, normals, uvs, faces, parts):
     return faces
 
 
+# A face whose picture is drawn out (`relaid`): its least area, metres squared; the share of the model's usual grain
+# under which its picture counts as drawn out; and how far along its plane, metres, sound surface is looked for.
+STRETCH_AREA, STRETCH_SHARE, RELAY_REACH = 0.1, 1 / 6, (0.3, 0.6, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0)
+RELAY_PIECE, RELAY_TONE = 0.15, 40  # metres: the longest side of a piece a drawn-out face is cut into; and how far, of 255, what a piece takes may lie from the face's own tone
+RELAY_SAME = (0.96, 0.12)  # faces of one surface: how nearly they face one way, and how far, metres, one may lie off the other's plane
+
+
+def picture_grain(vertices, uvs, faces):
+    """(least, most, area, normal) of each face: how much of the picture (its whole width 1) a metre of the face shows
+    along the way it shows least and the way it shows most, its area in metres squared and the way it faces."""
+    corner = np.asarray(vertices, float)[faces]; spot = np.asarray(uvs, float)[faces]
+    e1, e2 = corner[:, 1] - corner[:, 0], corner[:, 2] - corner[:, 0]; d1, d2 = spot[:, 1] - spot[:, 0], spot[:, 2] - spot[:, 0]
+    across = np.cross(e1, e2); size = np.linalg.norm(across, axis=1); normal = across / np.maximum(size, 1e-18)[:, None]
+    long = np.maximum(np.linalg.norm(e1, axis=1), 1e-18); x = e1 / long[:, None]; y = np.cross(normal, x)
+    a, b, c = long, (e2 * x).sum(1), (e2 * y).sum(1)  # the face in its own plane: [[a, b], [0, c]]
+    safe = np.where(np.abs(a * c) > 1e-18, a * c, 1.0)
+    first = d1 / a[:, None]; second = (d2 - first * b[:, None]) * (a / safe)[:, None]  # the columns of the map from metres to the picture
+    grain = np.linalg.svd(np.stack([first, second], 2), compute_uv=False)
+    return grain[:, 1], grain[:, 0], size / 2, normal
+
+
+def _picture(maps, size=1024):
+    """A model's colour picture brought down to `size`, as an array, or None where it has none to read."""
+    path = (maps or {}).get('base_color')
+    if not path or not Path(path).is_file():
+        return None
+    from PIL import Image
+    with Image.open(path) as picture:
+        return np.asarray(picture.convert('RGB').resize((size, size)))
+
+
+def relaid(vertices, normals, uvs, faces, picture=None):
+    """The model with each face whose picture is drawn out showing the sound surface beside it instead: (vertices,
+    normals, uvs, faces, mended, left), `mended` and `left` [{m2, at, share}] of the faces relaid and of those sound
+    surface was found for under half of (`share`).
+
+    A generator gives some faces a sliver of the picture, a few texels wide, and the game draws those texels out
+    across the whole face: the Shiawase Barrens power station's slab showed a square metre of streaks at its gateway
+    (user, 2026-11-17: "what is this smear?"). Such a face is one of STRETCH_AREA or more that shows, the way it shows
+    least, under STRETCH_SHARE of what the model's faces usually show. It is cut into pieces at most RELAY_PIECE
+    along a side, since the surface beside it is drawn on many small stretches of the picture, and the pieces are
+    moved along the face's plane, all the same way where they can be, so that together they show one stretch of the
+    surface: the least way in RELAY_REACH that lands most of them on faces of the same surface that are drawn soundly.
+    A piece shows what those faces show where it lands if they show it on one stretch of the picture; one that lands
+    across two stretches is moved another way by itself, and one that lands nowhere stays as it was. Its edges then
+    meet their neighbours with another part of the same surface, which cracked concrete and plain walls bear.
+
+    `picture` is the model's colour picture (rows by columns by red, green and blue, 0-255), or what reads it when
+    called: it is read only where a face is drawn out, which on most models none is. With it a piece takes
+    only what is within RELAY_TONE of the tone the face itself shows: a drawn-out face of the power station's dark
+    roller door took a stretch of the red and white wall beside it at first, which lies in the same plane."""
+    vertices, normals, uvs, faces = (np.array(one) for one in (vertices, normals, uvs, faces))
+    least, _, area, normal = picture_grain(vertices, uvs, faces); sound = area > 1e-8; mended, left = [], []
+    usual = float(np.median(least[sound])) if sound.any() else 0.0
+    if usual <= 0:
+        return vertices, normals, uvs, faces, mended, left
+    thin = sound & (area >= STRETCH_AREA) & (least < usual * STRETCH_SHARE); middle = vertices[faces].mean(1)
+    if callable(picture):
+        picture = picture() if thin.any() else None
+    if picture is not None:
+        picture = np.asarray(picture, float); high, wide = picture.shape[:2]
+        tone = lambda spots: picture[np.clip((spots[..., 1] * high).astype(int), 0, high - 1), np.clip((spots[..., 0] * wide).astype(int), 0, wide - 1)]
+    shifts = [reach * np.array([np.cos(turn * np.pi / 4), np.sin(turn * np.pi / 4)]) for reach in RELAY_REACH for turn in range(8)]
+    added = {'vertices': [], 'normals': [], 'uvs': []}; gone = []
+    for one in np.nonzero(thin)[0]:
+        corners = vertices[faces[one]]; way = normal[one]; centre = corners.mean(0)
+        sides = np.linalg.norm(corners - np.roll(corners, -1, 0), axis=1); told = {'m2': round(float(area[one]), 3), 'at': centre.round(2).tolist()}
+        donors = np.nonzero(sound & ~thin & (np.abs(normal @ way) > RELAY_SAME[0]) & (np.abs((middle - centre) @ way) < RELAY_SAME[1])
+                            & (np.linalg.norm(middle - centre, axis=1) < RELAY_REACH[-1] + sides.max() + 1.0))[0]  # of its surface, though it lie a little askew
+        if not len(donors):
+            left.append({**told, 'share': 0.0}); continue
+        cuts = int(min(max(np.ceil(sides.max() / RELAY_PIECE), 1), 40)); at = lambda i, j: [1 - (i + j) / cuts, i / cuts, j / cuts]
+        weights = np.array([[at(i, j), at(i + 1, j), at(i, j + 1)] for i in range(cuts) for j in range(cuts - i)]
+                           + [[at(i + 1, j), at(i + 1, j + 1), at(i, j + 1)] for i in range(cuts) for j in range(cuts - i - 1)])  # (pieces, 3, 3)
+        piece = weights @ corners; own = weights @ uvs[faces[one]]; facing = weights @ normals[faces[one]]
+        x = corners[1] - corners[0]; x = x / np.linalg.norm(x); y = np.cross(way, x)
+        flat = lambda points: np.stack([(points - corners[0]) @ x, (points - corners[0]) @ y], -1)
+        marks = flat(np.concatenate([piece, (piece + np.roll(piece, -1, 1)) / 2, piece.mean(1, keepdims=True)], 1))  # (pieces, 7, 2): corners, the middles of the sides, the middle
+        held = flat(vertices[faces[donors]]); a, v0, v1 = held[:, 0], held[:, 1] - held[:, 0], held[:, 2] - held[:, 0]
+        span = v0[:, 0] * v1[:, 1] - v0[:, 1] * v1[:, 0]; span = np.where(np.abs(span) > 1e-12, span, 1e-12); shown = uvs[faces[donors]]
+        theirs = float(np.median(least[donors]))  # a slab is drawn coarser than a wall
+        its = tone(np.concatenate([own, own.mean(1, keepdims=True)], 1)).mean((0, 1)) if picture is not None else None
+
+        def drawn(points):
+            """What the sound faces show at each point, and whether any holds it."""
+            got = np.zeros((len(points), 2)); landed = np.zeros(len(points), bool)
+            for begin in range(0, len(points), 512):
+                some = points[begin:begin + 512]; off = some[:, None, :] - a[None]
+                s = (off[..., 0] * v1[:, 1] - off[..., 1] * v1[:, 0]) / span; t = (v0[:, 0] * off[..., 1] - v0[:, 1] * off[..., 0]) / span
+                inside = (s >= -1e-6) & (t >= -1e-6) & (s + t <= 1 + 1e-6); pick = inside.argmax(1); rows = np.arange(len(some)); s, t = s[rows, pick], t[rows, pick]; three = shown[pick]
+                got[begin:begin + 512] = (1 - s - t)[:, None] * three[:, 0] + s[:, None] * three[:, 1] + t[:, None] * three[:, 2]; landed[begin:begin + 512] = inside.any(1)
+            return got, landed
+        tried = []
+        for shift in shifts:
+            got, landed = drawn((marks + shift).reshape(-1, 2)); got = got.reshape(-1, 7, 2); landed = landed.reshape(-1, 7).all(1)
+            straight = np.concatenate([(got[:, :3] + np.roll(got[:, :3], -1, 1)) / 2, got[:, :3].mean(1, keepdims=True)], 1)  # one stretch of the picture shows the middles where the corners say
+            grain = picture_grain(piece.reshape(-1, 3), got[:, :3].reshape(-1, 2), np.arange(len(piece) * 3).reshape(-1, 3))[0]
+            passed = landed & (np.abs(straight - got[:, 3:]).max((1, 2)) <= 0.03 * theirs) & (grain >= theirs / 2)
+            if its is not None:
+                passed &= np.abs(tone(got).mean(1) - its).max(1) <= RELAY_TONE
+            tried.append((passed, got[:, :3]))
+            if passed.all():
+                break
+        best = max(range(len(tried)), key=lambda index: int(tried[index][0].sum())); done = np.zeros(len(piece), bool); spots = own.copy()
+        for passed, got in [tried[best], *tried]:  # together where they can be, then each by itself
+            take = passed & ~done; spots[take] = got[take]; done |= take
+        parts = np.linalg.norm(np.cross(piece[:, 1] - piece[:, 0], piece[:, 2] - piece[:, 0]), axis=1); share = float(parts[done].sum() / max(parts.sum(), 1e-12))
+        told['share'] = round(share, 2)
+        if share < 0.5:
+            left.append(told); continue
+        added['vertices'].append(piece.reshape(-1, 3)); added['normals'].append(facing.reshape(-1, 3)); added['uvs'].append(spots.reshape(-1, 2)); gone.append(one); mended.append(told)
+    if gone:
+        count = len(vertices); more = np.vstack(added['vertices']); kept = np.ones(len(faces), bool); kept[gone] = False
+        facing = np.vstack(added['normals']); facing = facing / np.maximum(np.linalg.norm(facing, axis=1, keepdims=True), 1e-12)
+        vertices = np.vstack([vertices, more]); normals = np.vstack([normals, facing]); uvs = np.vstack([uvs, np.vstack(added['uvs'])])
+        faces = np.vstack([faces[kept], np.arange(len(more)).reshape(-1, 3) + count])
+    used, local = np.unique(faces, return_inverse=True)
+    return vertices[used], normals[used], uvs[used], local.reshape(-1, 3), mended, left
+
+
 def moved(vertices, normals, uvs, faces, parts):
     """The model with each of `parts` ([{box, by}], metres on the finished model) moved: the faces wholly in the box are
     carried `by` on copies of their corners, and the faces that tied them to the rest (some corners in the box, some
@@ -665,6 +974,14 @@ def _turn(yaw, pitch, roll):
 
 
 def upright(points, faces, *, limit=(45.0, 35.0, 35.0), sample=6000):
+    """`_upright`, a large model's kept for its next build (`cache`)."""
+    from . import cache
+    points, faces = np.asarray(points, float), np.asarray(faces)
+    found = cache.arrays('upright', (points, faces, limit, sample, Path(__file__)), lambda: (np.asarray(_upright(points, faces, limit=limit, sample=sample), float),), faces=len(faces))
+    return tuple(float(angle) for angle in found[0])
+
+
+def _upright(points, faces, *, limit=(45.0, 35.0, 35.0), sample=6000):
     """(yaw, pitch, roll) in degrees that stand a made thing square to the axes, or zeros.
 
     A model generated locally comes back the way the reference was drawn: seen from above and to one side, so it leans
@@ -1180,14 +1497,38 @@ def specular(base, metallic):
     return DIELECTRIC + (luminance - DIELECTRIC) * metallic
 
 
+COMPRESSED = Path(__file__).resolve().parents[2] / 'output' / 'envkit' / 'cache' / 'dds'  # ignored: maps as compressed, by what they were compressed from
+COMPRESSED_KEPT = 400  # maps: the least lately used go (a sheet's fifteen models are some 90, 200 MB)
+
+
 def _compress(image, target, mode, size, crunch, *, data):
-    """One PNG through the texture compressor to a mipmapped DDS. `data` maps are filtered without gamma."""
-    source = target.with_suffix('.source.png'); image.resize((size, size)).save(source)
-    command = [crunch, '-file', str(source), '-out', str(target), '-fileformat', 'dds', mode, '-mipMode', 'Generate', '-noprogress',
-               '-gamma', '1.0' if data else '2.2'] + (['-renormalize'] if mode == '-DXN' else [])
+    """One PNG through the texture compressor to a mipmapped DDS. `data` maps are filtered without gamma.
+
+    The same picture compressed the same way by the same compressor is copied from COMPRESSED, where each is kept under
+    the hash of all three: a group built again after a change to its fence or its path nodes compressed every map
+    again, about a third of each of the Shiawase Barrens power station's seven builds (2026-11-17). ENVKIT_NO_CACHE
+    set compresses anew. Each call stages its copy in a file of its own (`cache.keep`): two maps that are the same
+    picture compressed the same way (a model's shine and roughness, both plain white) are compressed side by side,
+    and with one staging file between them the second found it already renamed and the build stopped (review of PR
+    175, 2026-11-18). All but the COMPRESSED_KEPT last used are taken away."""
+    import hashlib, io, shutil
+    from . import cache
+    pixels = io.BytesIO(); image.resize((size, size)).save(pixels, 'PNG'); tool = Path(crunch)
+    renormal = ['-renormalize'] if mode == '-DXN' else []; settings = [mode, '-mipMode', 'Generate', '-noprogress', '-gamma', '1.0' if data else '2.2', *renormal]
+    stamp = [tool.name, tool.stat().st_size, tool.stat().st_mtime_ns] if tool.is_file() else [str(crunch)]
+    kept = COMPRESSED / (hashlib.sha256(pixels.getvalue() + repr([settings, stamp]).encode()).hexdigest() + '.dds')
+    if not cache.off():
+        try:
+            shutil.copyfile(kept, target); cache.used(kept); return target
+        except OSError:  # not kept, or taken away by another build's tidying: compressed here
+            pass
+    source = target.with_suffix('.source.png'); source.write_bytes(pixels.getvalue())
+    command = [crunch, '-file', str(source), '-out', str(target), '-fileformat', 'dds', *settings]
     result = subprocess.run(command, capture_output=True, text=True, check=False, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     source.unlink()
     require(result.returncode == 0 and target.is_file(), f'{target.name} did not compress: {(result.stdout + result.stderr)[-400:]}')
+    if not cache.off():
+        cache.keep(kept, lambda staged: staged.write(target.read_bytes())); cache.tidy(COMPRESSED, COMPRESSED_KEPT, '*.dds')
     return target
 
 
@@ -1270,7 +1611,7 @@ def _run(places):
     return ahead
 
 
-def sheets(fences, size=WIRE_PICTURE):
+def sheets(fences, size=WIRE_PICTURE, frame=None, colours=None):
     """Chain-link sheets hung between a fence's posts: {vertices, normals, uvs, faces, image}, a mesh of its own.
 
     fences: [{from: [x, y], to: [x, y], z: [low, high], pitch, wire, colour}] on the finished model; a sheet stands
@@ -1279,16 +1620,24 @@ def sheets(fences, size=WIRE_PICTURE):
     2026-11-11). The wires are drawn on `image`, a small picture of their own that is see-through between them, as
     many links of the pattern as leave a wire its pixels; the model's colour picture keeps its size and stays opaque
     (with an alpha channel the depot's, at 4096 pixels, was 22 MB). Each sheet is cut into squares one picture across,
-    so a tile group can share them out among its tiles."""
+    so a tile group can share them out among its tiles.
+
+    frame: the fence's posts, rails, coils and gateway posts, [{tube: [from, to], radius, cap}], [{coil: [from, to],
+    radius, pitch}] or [{block: [foot, top], size}], made as faces of the same mesh. The picture is then FRAME_SHEET
+    times as wide and high, the wires in its first corner and steel and concrete beside them (`frame_picture`) in the
+    tones `colours` {steel, concrete}; without a frame it is the wires alone, as it was."""
     from PIL import Image
     first = fences[0]; pitch, wire, colour = first['pitch'], first['wire'], list(first.get('colour', WIRE))
     require(all((one['pitch'], one['wire'], list(one.get('colour', WIRE))) == (pitch, wire, colour) for one in fences), 'The fences of a model share one wire mesh')
     link = pitch * np.sqrt(2)  # the pattern repeats every `link` metres along and up
     links = int(wire * size / (WIRE_TEXELS * link)); require(links >= 1, f'A wire this thin cannot be drawn on a picture of {size} pixels')
     from . import glow
-    period = links * link; at = (np.arange(size) + 0.5) / size * period; along, up = np.meshgrid(at, at)
+    share = 1.0 / FRAME_SHEET if frame else 1.0; whole = size * FRAME_SHEET if frame else size  # the wires go on past their corner, so no edge of it shows
+    period = links * link; at = (np.arange(whole) + 0.5) / size * period; along, up = np.meshgrid(at, at)
     drawn = glow.wires(along, up, pitch, wire)  # the pattern a `mesh` panel is painted with
-    pixels = np.empty((size, size, 4), np.uint8); pixels[..., :3] = colour; pixels[..., 3] = drawn * 255  # the wire's colour under the gaps too
+    pixels = np.empty((whole, whole, 4), np.uint8); pixels[..., :3] = colour; pixels[..., 3] = drawn * 255  # the wire's colour under the gaps too
+    if frame:
+        frame_picture(pixels, {**FRAME_COLOURS, **(colours or {})})
     vertices, normals, uvs, faces = [], [], [], []
     for one in fences:
         start, end = np.asarray(one['from'], float), np.asarray(one['to'], float); low, high = (float(value) for value in one['z'])
@@ -1297,10 +1646,24 @@ def sheets(fences, size=WIRE_PICTURE):
             for j in range(int(np.ceil((high - low) / period - 1e-9))):
                 s0, z0 = i * period, low + j * period; s1, z1 = min(length, s0 + period), min(high, z0 + period)
                 corners = [(s0, z0), (s1, z0), (s1, z1), (s0, z1)]
-                place = [[*(start + ahead * s), z] for s, z in corners]; spot = [[(s - s0) / period, (z - z0) / period] for s, z in corners]
+                place = [[*(start + ahead * s), z] for s, z in corners]; spot = [[(s - s0) / period * share, (z - z0) / period * share] for s, z in corners]
                 for way, order in ((out, ((0, 1, 2), (0, 2, 3))), (-out, ((0, 2, 1), (0, 3, 2)))):  # a face each way, each with its own normals
                     base = len(vertices); vertices += place; normals += [way.tolist()] * 4; uvs += spot
                     faces += [[base + a, base + b, base + c] for a, b, c in order]
+
+    def laid(kind, spots, low=0.02, high=0.98):
+        u0, u1 = FRAME_COLUMNS[kind]
+        return np.stack([u0 + FRAME_MARGIN + spots[:, 0] * (u1 - u0 - 2 * FRAME_MARGIN), low + spots[:, 1] * (high - low)], 1)
+    for part in frame or ():
+        if 'tube' in part:
+            (start, end) = part['tube']; points, outward, spots, local = tube(start, end, part['radius'], part.get('cap', False))
+            stood = abs(end[2] - start[2]) > 0.9 * float(np.linalg.norm(np.subtract(end, start)))  # a post shows the column from its foot; a rail its clean middle
+            spots = laid('steel', spots) if stood else laid('steel', spots, 0.35, 0.65)
+        elif 'block' in part:
+            points, outward, spots, local = block(part['block'][0], part['block'][1], part['size']); spots = laid('concrete', spots)
+        else:
+            points, outward, local = coil(part['coil'][0], part['coil'][1], part['radius'], part['pitch']); spots = laid('steel', np.full((len(points), 2), 0.5))
+        base = len(vertices); vertices += points.tolist(); normals += outward.tolist(); uvs += spots.tolist(); faces += (local + base).tolist()
     return {'vertices': np.array(vertices), 'normals': np.array(normals), 'uvs': np.array(uvs), 'faces': np.array(faces), 'image': Image.fromarray(pixels, 'RGBA'),
             'period': period}
 
@@ -1365,6 +1728,9 @@ def _copied(colour, where, covered, target, source, part, kept=None):
     return colour
 
 
+PAINT_FACING = 0.5  # a painted part with `facing` takes the faces that look within 60 degrees of that way
+
+
 def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth=(), mesh=(), size=RETOUCH, placed=None):
     """(colour, flat, plain): a model's colour picture as it ships, where its relief is to be flattened, and where its
     other maps are to be smoothed as its colour was: [(texels, reach in texels)] for each smoothed part, with its marked
@@ -1374,7 +1740,9 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth
     `tone` multiplies the whole picture (a model that came back paler than its reference), by one number or by one
     each for red, green and blue (a building's piece that came back another shade than the piece it stands against:
     the Iron Sight Arms range wing, paler and greyer than its shop; user, 2026-11-14). `paint` covers what a
-    generator invented: [{box, colour}], every texel within the box in one colour (0-255). `copy` covers it with the
+    generator invented: [{box, colour}], every texel within the box in one colour (0-255), or with `facing` ([x, y, z])
+    only those on faces that look within 60 degrees of that way (a floodlight's lens, drawn dark, and not its housing:
+    the power station's, user, 2026-11-18). `copy` covers it with the
     wall beside it instead: [{box, from}], the texels within `box` showing the wall within the box `from`, height for
     height, or its mirror image with `mirror` (`_copied`), after the painting and before the smoothing. `mesh` makes a panel a
     chain-link fence: [{box, pitch, wire, colour}], the texels within the box in the wire's colour and see-through
@@ -1406,11 +1774,18 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth
     if mesh:
         alpha = np.ones(colour.shape[:2], bool)
     if paint or copy or smooth or mesh:
-        where, covered = placed if placed is not None else glow.position_map(vertices, uvs, faces, grain)
+        faced = any('facing' in part for part in paint)
+        if placed is None or (faced and len(placed) < 3):
+            placed = glow.position_map(vertices, uvs, faces, grain, facing=faced)
+        where, covered = placed[:2]
         require(covered.shape == (grain, grain), f'The position map handed to the retouching is {grain} texels across')
         full = lambda mask: np.asarray(Image.fromarray(mask).resize(image.size, Image.NEAREST))
         for part in paint:
-            colour[full(glow.held(where, covered, part, 'painted'))] = np.asarray(part['colour'], float) / 255
+            chosen = glow.held(where, covered, part, 'painted')
+            if 'facing' in part:  # only what looks that way: a lamp's lens and not the housing round it
+                way = np.asarray(part['facing'], float); chosen = chosen & (placed[2] @ (way / np.linalg.norm(way)) >= PAINT_FACING)
+                require(chosen.any(), 'Nothing in the box of a painted part faces the way it states: ' + str(part.get('part', part['box'])))
+            colour[full(chosen)] = np.asarray(part['colour'], float) / 255
         places = {}
         for part in copy:
             colour = _copied(colour, where, covered, glow.held(where, covered, part, 'copied-over'),
@@ -1471,8 +1846,26 @@ def retouch(image, vertices, uvs, faces, *, tone=None, paint=(), copy=(), smooth
     return Image.fromarray(np.dstack([picture, alpha.astype(np.uint8) * 255]), 'RGBA'), level, plain
 
 
+def relief_size(colour):
+    """Pixels across a model's relief map: half its colour picture's, and all of it for a building's 4096 (user,
+    2026-11-17: "Yes, full 4K normals"). A building's one picture is spread thin, some 40 texels a metre on the
+    Shiawase Barrens power station where a prop has 100 to 300, and Meshy's relief comes at 4096: at half, every
+    crack and panel line of its walls was drawn 20 texels a metre. At 4096 the map is some 22 MB (`oversize_notes`)."""
+    return colour if colour >= 4096 else max(colour // 2, 256)
+
+
+REPOSITORY_FILE = 15 * 2 ** 20  # bytes: `Test-Repository.ps1` refuses a larger tracked file that PROVENANCE.md states no size exception for
+
+
+def oversize_notes(sizes):
+    """Notes on the built files of `sizes` ({name: bytes}) that the repository takes only with a size exception. The
+    power station's relief map, 22 MB at 4096, was found at its PR, when `Test-Repository.ps1` failed (2026-11-18)."""
+    return [f'{name}: {size / 2 ** 20:.1f} MiB, over the {REPOSITORY_FILE // 2 ** 20} MiB the repository takes a file at: before it is committed, state a '
+            f'srn-size-exception for its path in the pack in PROVENANCE.md (`Test-Repository.ps1`)' for name, size in sizes.items() if size > REPOSITORY_FILE]
+
+
 def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base=None, flat=None, plain=None):
-    """`maps` holds base_color, normal, metallic and roughness image paths. Colour at `colour` pixels, the rest at half.
+    """`maps` holds base_color, normal, metallic and roughness image paths. Colour at `colour` pixels, the rest at half; the relief of a 4096 picture at 4096 too (`relief_size`).
     `base` is the colour picture retouched (`retouch`); with an alpha channel it is stored with one. `flat` marks where
     the relief map is levelled, `plain` the parts whose roughness and metal are smoothed as the colour was (`_levelled`)."""
     from PIL import Image
@@ -1485,13 +1878,16 @@ def textures(name, maps, folder, crunch, *, colour=1024, illumination=None, base
     grey = read if plain is None else lambda key: _levelled(read(key), plain)
     shine = np.clip(specular(np.asarray(base, float) / 255, grey('metallic')), 0, 1)
     channel = lambda values: Image.fromarray(np.repeat((values * 255).round().astype(np.uint8)[..., None], 4, axis=2), 'RGBA')
-    written = [_compress(shown, folder / f'{name}.dds', '-DXT5' if shown.mode == 'RGBA' else '-DXT1', colour, crunch, data=False),
-               _compress(relief, folder / f'{name}_n.dds', '-DXN', half, crunch, data=True),
-               _compress(channel(shine), folder / f'{name}_s.dds', '-DXT5A', half, crunch, data=True),
-               _compress(channel(grey('roughness')), folder / f'{name}_r.dds', '-DXT5A', half, crunch, data=True)]
+    # The maps are compressed side by side, four at a time: one after another they were 59 of the 146 seconds of the
+    # Shiawase Barrens power station's first build (2026-11-17).
+    from concurrent.futures import ThreadPoolExecutor
+    wanted = [(shown, folder / f'{name}.dds', '-DXT5' if shown.mode == 'RGBA' else '-DXT1', colour, False), (relief, folder / f'{name}_n.dds', '-DXN', relief_size(colour), True),
+              (channel(shine), folder / f'{name}_s.dds', '-DXT5A', half, True), (channel(grey('roughness')), folder / f'{name}_r.dds', '-DXT5A', half, True)]
     if illumination is not None:  # a path or an image; mostly black, so half size like the other maps
         lit = illumination if isinstance(illumination, Image.Image) else Image.open(illumination)
-        written.append(_compress(lit.convert('RGB'), folder / f'{name}_i.dds', '-DXT1', half, crunch, data=False))
+        wanted.append((lit.convert('RGB'), folder / f'{name}_i.dds', '-DXT1', half, False))
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        written = list(pool.map(lambda one: _compress(one[0], one[1], one[2], one[3], crunch, data=one[4]), wanted))
     return written
 
 
@@ -1538,7 +1934,9 @@ def load_models(path):
     require(isinstance(data, dict) and set(data) == {'models'} and isinstance(data['models'], dict) and data['models'], 'A game set has exactly models')
     for name, model in data['models'].items():
         require(name == name.lower() and name.isidentifier() and len(name) <= NAME_LENGTH, f'Model names are lowercase, at most {NAME_LENGTH} characters: {name}')
-        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'embers', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot', 'level', 'fire', 'walkUnder'},
+        if isinstance(model, dict) and 'perimeter' in model:  # a fence stated in a few lines, built as the parts it is made of
+            made, hung = perimeter(model['perimeter']); model['frame'] = [*model.get('frame', []), *made]; model['fence'] = [*model.get('fence', []), *hung]
+        require(isinstance(model, dict) and {'source', 'height'} <= set(model) <= {'perimeter', 'source', 'height', 'length', 'colour', 'signTilt', 'lift', 'turn', 'tone', 'paint', 'copy', 'smooth', 'mesh', 'fence', 'frame', 'close', 'clear', 'fill', 'built', 'move', 'inside', 'wheels', 'glass', 'embers', 'lit', 'halo', 'tiles', 'placeable', 'measuredAt', 'underfoot', 'level', 'fire', 'walkUnder'},
                 'Model needs source and height: ' + name)
         number = lambda value: isinstance(value, (int, float)) and not isinstance(value, bool)
         box = lambda part: np.asarray(part.get('box', 0), float).shape == (2, 3)
@@ -1554,8 +1952,9 @@ def load_models(path):
         require(all(number(tone) and 0.2 <= tone <= 2 for tone in tones), 'A tone is 0.2 to 2 times the colour, one number or one each for red, green and blue: ' + name)
         shade = lambda value: isinstance(value, list) and len(value) == 3 and all(type(part) is int and 0 <= part <= 255 for part in value)
         for part in model.get('paint', []):
-            require(isinstance(part, dict) and {'box', 'colour'} <= set(part) <= {'part', 'box', 'colour'} and box(part) and shade(part['colour']),
-                    'A painted part needs a box and a colour of three 0-255 values: ' + name)
+            require(isinstance(part, dict) and {'box', 'colour'} <= set(part) <= {'part', 'box', 'colour', 'facing'} and box(part) and shade(part['colour'])
+                    and ('facing' not in part or (isinstance(part['facing'], list) and len(part['facing']) == 3 and all(number(one) for one in part['facing']) and any(part['facing']))),
+                    'A painted part needs a box and a colour of three 0-255 values (facing: the way its faces look, [x, y, z]): ' + name)
         for part in model.get('copy', []):
             require(isinstance(part, dict) and {'box', 'from'} <= set(part) <= {'part', 'box', 'from', 'mirror', 'rise'} and box(part) and box({'box': part['from']})
                     and type(part.get('mirror', False)) is bool and number(part.get('rise', 0.0)),
@@ -1585,12 +1984,16 @@ def load_models(path):
             require(isinstance(part, dict) and {'box', 'by'} <= set(part) <= {'part', 'box', 'by'} and box(part) and point(part['by']),
                     'A moved part is a box and how far it is moved, [x, y, z] metres: ' + name)
         for part in model.get('built', []):
-            kinds = {'bar', 'stairs', 'railing'} & set(part) if isinstance(part, dict) else set()
-            require(len(kinds) == 1 and point(part.get('picture')), 'A built part is one bar, railing or stair flight, coloured from a point of the model\'s picture: ' + name)
+            kinds = {'bar', 'stairs', 'railing', 'coil'} & set(part) if isinstance(part, dict) else set()
+            require(len(kinds) == 1 and point(part.get('picture')), 'A built part is one bar, railing, stair flight or coil, coloured from a point of the model\'s picture: ' + name)
             if 'railing' in part:
                 require(set(part) <= {'part', 'railing', 'height', 'picture'} and isinstance(part['railing'], list) and len(part['railing']) >= 2
                         and all(point(one) for one in part['railing']) and (number(part.get('height', 1.0)) and 0.3 <= part.get('height', 1.0) <= 1.5),
                         'A built railing is a path of two or more points on the surface walked and a height of 0.3 to 1.5 metres: ' + name)
+            elif 'coil' in part:
+                require(set(part) <= {'part', 'coil', 'radius', 'pitch', 'picture'} and isinstance(part['coil'], list) and len(part['coil']) == 2 and all(point(end) for end in part['coil'])
+                        and part['coil'][0] != part['coil'][1] and number(part.get('radius')) and 0.1 <= part['radius'] <= 0.6 and number(part.get('pitch')) and 0.1 <= part['pitch'] <= 1.0,
+                        'A built coil of barbed wire is the two ends of its axis, a radius of 0.1 to 0.6 metres and a pitch of 0.1 to 1 metre a turn: ' + name)
             elif 'bar' in part:
                 require(set(part) <= {'part', 'bar', 'size', 'picture'} and isinstance(part['bar'], list) and len(part['bar']) == 2 and all(point(end) for end in part['bar'])
                         and part['bar'][0] != part['bar'][1] and isinstance(part.get('size'), list) and len(part['size']) == 2 and all(number(one) and one > 0 for one in part['size']),
@@ -1624,6 +2027,23 @@ def load_models(path):
                 'Its embers are a bed of their own (embers), and a lamp on it is another prop: ' + name)
         # The panes share a picture GLASS_PICTURE pixels wide, compressed in blocks of four: narrower patches run into each other.
         require(len(model.get('glass', [])) <= GLASS_PICTURE // 4, f'A model has at most {GLASS_PICTURE // 4} panes of glass: ' + name)
+        for part in model.get('frame', []):
+            kinds = {'tube', 'block', 'coil'} & set(part) if isinstance(part, dict) else set(); ends = part[next(iter(kinds))] if len(kinds) == 1 else None
+            require(len(kinds) == 1 and point(part.get('picture')) and isinstance(ends, list) and len(ends) == 2 and all(point(end) for end in ends) and ends[0] != ends[1],
+                    "A part of a fence's frame is one tube, block or coil between two points, toned from a point of the model's picture: " + name)
+            if 'tube' in part:
+                require(set(part) <= {'part', 'tube', 'radius', 'cap', 'picture'} and number(part.get('radius')) and 0.01 <= part['radius'] <= 0.3 and isinstance(part.get('cap', False), bool),
+                        "A frame's tube has a radius of 0.01 to 0.3 metres, and a cap or none: " + name)
+            elif 'block' in part:
+                require(set(part) <= {'part', 'block', 'size', 'picture'} and number(part.get('size')) and 0.1 <= part['size'] <= 1.0 and ends[0][:2] == ends[1][:2] and ends[1][2] > ends[0][2],
+                        "A frame's block stands upright from its foot to its top, 0.1 to 1 metre across: " + name)
+            else:
+                require(set(part) <= {'part', 'coil', 'radius', 'pitch', 'picture'} and number(part.get('radius')) and 0.1 <= part['radius'] <= 0.6 and number(part.get('pitch')) and 0.1 <= part['pitch'] <= 1.0,
+                        "A frame's coil of barbed wire has a radius of 0.1 to 0.6 metres and a pitch of 0.1 to 1 metre a turn: " + name)
+        require(not model.get('frame') or model.get('fence'), "A fence's frame stands with its fence, whose picture it shows: " + name)
+        for what, kinds in (('steel (its tubes and coils)', ('tube', 'coil')), ('concrete (its blocks)', ('block',))):  # `shape` tones each from one point
+            require(len({tuple(part['picture']) for part in model.get('frame', []) if any(kind in part for kind in kinds)}) <= 1,
+                    f"The {what} of a fence's frame is toned from one point of the model's picture, the same for every part: " + name)
         pair = lambda value: np.asarray(value, float).shape == (2,)
         for part in model.get('fence', []):
             require(isinstance(part, dict) and {'from', 'to', 'z', 'pitch', 'wire'} <= set(part) <= {'part', 'from', 'to', 'z', 'pitch', 'wire', 'colour'}
@@ -1676,12 +2096,16 @@ def load_models(path):
                 'underfoot is true, for a model laid on the ground of the groups it is placed in, and that is no group itself: ' + name)
         require(model.get('walkUnder', True) is True and not ('walkUnder' in model and (tiles or not placed or model.get('underfoot'))),
                 'walkUnder is true, for a placeable on legs that is walked under between them, and that is neither a group nor laid underfoot: ' + name)
-        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes'} and isinstance(tiles['sets'], dict) and tiles['sets']
+        require(tiles is None or ({'ground', 'group', 'label', 'sets'} <= set(tiles) <= {'ground', 'group', 'label', 'sets', 'fade', 'door', 'parts', 'nodes', 'lamps'} and isinstance(tiles['sets'], dict) and tiles['sets']
                                   and all(isinstance(value, str) and value for value in (tiles['ground'], tiles['group'], tiles['label'], *tiles['sets'], *tiles['sets'].values()))),
                 'Tiles need a ground texture, a group name, a palette label and the terrain in each tileset: ' + name)
         require(tiles is None or len(name) <= TILE_NAME_LENGTH, f'A tile group model is named in at most {TILE_NAME_LENGTH} characters: {name}')
         # A tile group stands on the ground: `tiles` builds it there, and a lift would only move its boxes off it.
         require(tiles is None or not model.get('lift'), 'A tile group stands on the ground and takes no lift: ' + name)
+        for lamp in (tiles or {}).get('lamps', []):  # a lamp head's own light, where a glow alone leaves the ground dark
+            require(isinstance(lamp, dict) and {'at', 'colour', 'radius'} <= set(lamp) <= {'part', 'at', 'colour', 'radius'} and point(lamp['at']) and shade(lamp['colour'])
+                    and number(lamp['radius']) and 2 <= lamp['radius'] <= 20,
+                    'The lamp of a tile group is a place on the finished model, a colour of three 0-255 values and a radius of 2 to 20 metres: ' + name)
         door = (tiles or {}).get('door')
         require(not (isinstance(door, dict) and 'measuredAt' in door), 'measuredAt is stated on the model, beside its height, and covers its door: take it off the door of ' + name)
         require(door is None or (isinstance(door, dict) and {'at'} <= set(door) <= {'at', 'facing', 'type', 'leaf'} and np.asarray(door['at'], float).shape == (3,)),
@@ -1714,7 +2138,7 @@ def load_models(path):
         # part of it (found in review, 2026-11-12); so would the boxes of a sign hung at another lift or turned since
         # they were read. So a model that states any measurement says how it stood when they were made, and standing
         # otherwise they are made again.
-        measured = any(model.get(key) for key in MEASURED) or bool(model.get('fire')) or isinstance(model.get('inside'), list) or door is not None or fade is not None or bool(parts)
+        measured = any(model.get(key) for key in MEASURED) or bool(model.get('fire')) or isinstance(model.get('inside'), list) or door is not None or fade is not None or bool(parts) or bool((tiles or {}).get('lamps'))
         stands = {'height': model['height'], **{key: model[key] for key in PLACING if key in model}}
         told = lambda at: ', '.join(f'{key} {value}' for key, value in at.items())
         require('measuredAt' in model if measured else True, 'A model that states boxes, fences, a door or a fade height says how it stood when they were measured '
@@ -1765,6 +2189,15 @@ def building_triangles(models, name, triangles):
     in the group (a fence, a crate) is a prop, held to its own target."""
     parts = models[name]['tiles'].get('parts', [])
     return triangles[name] + sum(triangles[part['model']] for part in parts if not models[part['model']].get('placeable'))
+
+
+def fence_notes(name, built, fenced, budget):
+    """A note where a group's tiles draw more than the building budget once the fences built on to it are counted:
+    `built` is the budget's own count (`building_triangles`), `fenced` the triangles of the sheets, posts, rails and
+    coils its tiles draw beside it. The power station's perimeter is 16,696, most of it barbed wire: a coil is some
+    240 triangles a metre at a pitch of half a metre. A fence cannot be remeshed lower, so this is told, not refused."""
+    return [f'{name}: its tiles draw {built + fenced} triangles, {fenced} of them fence (sheets, posts, rails and coils), more than the building budget of {budget}: '
+            'a coil at a longer pitch, or a perimeter with "coil": false, draws fewer'] if fenced and built + fenced > budget else []
 
 
 def place(made, at, turn=0):
@@ -1850,7 +2283,7 @@ def blackout_script(name, player, on, halo=True):
 
 
 def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None, lit=None, halo=None, lift=0.0, turn=0.0, length=None, level=None, tone=None, paint=None,
-          copy=None, smooth=None, mesh=None, fence=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None, glass=None, embers=None, sight=True):
+          copy=None, smooth=None, mesh=None, fence=None, frame=None, close=None, clear=None, fill=None, inside=False, wheels=None, built=None, move=None, glass=None, embers=None, sight=True):
     """The finished model in game space and what lights it: {vertices, normals, uvs, faces, scale, angles, repaired,
     illumination, card, colour, flat, plain, turn, wire}. `turn` turns it about the vertical before anything is measured on it; `clear`
     takes away what stands in its boxes (`cleared`) and `close` closes holes in it with faces between its own vertices
@@ -1876,6 +2309,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     if level is not None:  # a floor marking that came back a wedge, laid flat (`levelled`): after its faces are wound right, before anything is measured on it
         vertices, normals = levelled(vertices, faces, float(level))
     vertices = vertices + [0.0, 0.0, float(lift)]  # hung at its height before its lit parts are found: their boxes are on the finished model
+    vertices, normals, uvs, faces, mended, drawn_out = relaid(vertices, normals, uvs, faces, lambda: _picture(maps))  # before anything is measured or built on it
     if wheels:
         vertices, normals = gauged(vertices, normals, wheels)
     if move:
@@ -1896,11 +2330,24 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         patches = []; seen(vertices, faces, holes=patches, both=_backs(vertices, faces, inside) if inside else None); behind = max(patches)
     if inside:
         vertices, normals, uvs, faces = backed(vertices, normals, uvs, faces, None if inside is True else inside)
+    require(not frame or fence, 'A frame stands with a fence, whose picture it shows')
     require(not halo or lit, 'A halo spreads the lit parts: name them')
     require(not lit or illumination is None, 'Give the lit parts or a glow map, not both')
     wire = None
     if fence:  # before the long work on the pictures: a fence that is refused is refused in the first seconds
-        _hung(vertices, faces, fence); wire = sheets(fence)
+        _hung(vertices, faces, fence, frame); tones = {}
+        if frame:  # its steel and concrete in the tones of the model's picture at the points stated
+            from PIL import Image
+            with Image.open(maps['base_color']) as picture:
+                seen_ = np.asarray(picture.convert('RGB'), float)
+            for kind, keys in (('steel', ('tube', 'coil')), ('concrete', ('block',))):
+                at = next((part['picture'] for part in frame if any(key in part for key in keys)), None)
+                if at is not None:
+                    u, v = picture_at(vertices, uvs, faces, at); row, column = int(np.clip(v, 0, 1) * (seen_.shape[0] - 1)), int(np.clip(u, 0, 1) * (seen_.shape[1] - 1))
+                    tones[kind] = seen_[max(row - 4, 0):row + 5, max(column - 4, 0):column + 5].reshape(-1, 3).mean(0)
+            if tone is not None:  # as the model ships: its picture is toned (`retouch`), and so is what is toned from it
+                tones = {kind: np.clip(value * np.asarray(tone, float), 0, 255) for kind, value in tones.items()}
+        wire = sheets(fence, frame=frame, colours=tones)
     shown = flat = plain = placed = None; retouched = tone is not None or paint or copy or smooth or mesh
     if lit or retouched:
         from PIL import Image
@@ -1911,7 +2358,7 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
         with Image.open(maps['base_color']) as picture:
             same = placed is not None and size == min(RETOUCH, picture.width)  # the glow's map of places serves the retouching where their sizes agree
             shown, flat, plain = retouch(picture, vertices, uvs, faces, tone=tone, paint=paint or (), copy=copy or (), smooth=smooth or (), mesh=mesh or (),
-                                         placed=placed[:2] if same else None)
+                                         placed=placed if same else None)
     if lit:  # by the picture as it ships: what was painted over or toned down does not shine through by night as it was
         with Image.open(maps['base_color']) as picture:
             base = np.asarray((shown if shown is not None else picture).convert('RGB').resize((size, size)), float) / 255
@@ -1923,19 +2370,31 @@ def shape(model, maps, *, height, colour=1024, illumination=None, sign_tilt=None
     panes = glazed(glass) if glass else None
     return {'embers': ember_beds(embers) if embers else None, 'emberBeds': len(embers or []), 'glass': panes, 'vertices': vertices, 'normals': normals, 'uvs': uvs, 'faces': faces, 'scale': scale, 'angles': angles, 'repaired': repaired, 'turned': turned, 'facesTurned': faces_turned,
             'illumination': illumination, 'card': card, 'colour': shown, 'flat': flat, 'plain': plain, 'turn': float(turn), 'wire': wire, 'behind': behind,
+            'relaid': mended, 'drawnOut': drawn_out,  # the faces whose picture was drawn out, relaid and left (`relaid`)
             'placed': placed}  # the map of the model's places its lit parts were found by, None where it has none: `shipped_blank_panels` reads by it
 
 
-def _hung(vertices, faces, fences):
+def _hung(vertices, faces, fences, frame=None):
     """Refuse a fence either end of which is at no part of the model. A fence hangs between its posts, and its ends are
     stated on the finished model, turned and lifted; one measured before a turn would pass every check of its heights
-    and be built hanging in the air (the wall sign's lit boxes went wrong the same way, 2026-11-12)."""
+    and be built hanging in the air (the wall sign's lit boxes went wrong the same way, 2026-11-12). The upright
+    tubes and blocks of its `frame` are posts too: a perimeter builds its own, and round a building with no slab or
+    wall at its edge there is nothing else to hang from (review of PR 175, 2026-11-18)."""
     surface = scatter(vertices, faces, spacing=FENCE_NEAR / 3)  # places all over the model: a post's flat side may have no corner near
+    posts = []
+    for part in frame or []:
+        ends = part.get('tube') or part.get('block')
+        if ends is not None:
+            (foot, top), reach = np.asarray(ends, float), float(np.max(part['radius' if 'tube' in part else 'size'])) / (1 if 'tube' in part else 2)
+            if np.linalg.norm(top[:2] - foot[:2]) <= FENCE_NEAR:  # a post stands; a rail lies along the fence and holds up neither end
+                posts.append((foot[:2], min(foot[2], top[2]), max(foot[2], top[2]), reach))
     for one in fences:
         low, high = (float(value) for value in one['z'])
         level = surface[(surface[:, 2] >= low - FENCE_NEAR) & (surface[:, 2] <= high + FENCE_NEAR)][:, :2]
         for end in (one['from'], one['to']):
             away = float(np.linalg.norm(level - np.asarray(end, float), axis=1).min()) if len(level) else float('inf')
+            built = [max(float(np.linalg.norm(at - np.asarray(end, float))) - reach, 0.0) for at, foot, top, reach in posts if foot <= high + FENCE_NEAR and top >= low - FENCE_NEAR]
+            away = min([away, *built])
             require(away <= FENCE_NEAR, f'A fence hangs between posts of the model, and no part of the model lies within {FENCE_NEAR} metres of its end at {list(end)} '
                     f'between its heights (the nearest is {away:.2f} away); fences are on the finished model, turned and lifted: ' + str(one.get('part', '')))
 

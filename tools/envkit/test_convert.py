@@ -134,6 +134,14 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(convert.retouch(picture, points, texture, faces, tone=[0.5, 1.0, 2.0])[0].getpixel((5, 5)), (100, 100, 100))  # a tone for each of red, green and blue
         painted, flat, _ = convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3]}])
         self.assertIsNone(flat); self.assertEqual(painted.getpixel((32, 8)), (1, 2, 3)); self.assertEqual(painted.getpixel((32, 56)), (200, 100, 50))  # the top half only
+        # With `facing`, only the faces that look that way are painted: a lamp's lens and not the housing round it.
+        results = []
+        for way in ([0, 1, 0], [0, -1, 0]):
+            try:
+                results.append(convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3], 'facing': way}])[0].getpixel((32, 8)))
+            except ValueError as refused:
+                self.assertIn('faces the way', str(refused)); results.append(None)
+        self.assertEqual(sorted(results, key=str), [(1, 2, 3), None])  # the wall looks one way along Y and is painted from that side alone
         # A wall is copied over what the generator left blank beside it, height for height: the left half of a wall that
         # is red below and blue above, laid over its plain right half.
         banded = np.zeros((64, 64, 3), np.uint8); banded[:, :32] = (0, 0, 255); banded[32:, :32] = (255, 0, 0); banded[:, 32:] = (90, 90, 90)
@@ -373,8 +381,19 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(placed.call_count, 1)  # the glow's map of places serves the retouching: both are 512 texels across
         sheet = {'from': [-0.5, 0.0], 'to': [0.5, 0.0], 'z': [0.5, 1.5], 'pitch': 0.09, 'wire': 0.016}
         self.assertGreater(len(convert.shape(model, maps, height=2.0, fence=[sheet])['wire']['faces']), 0)
+        # A frame's steel is toned from the picture as it ships: a model toned down has its fence toned down with it.
+        post = [{'tube': [[-0.5, 0.0, 0.0], [-0.5, 0.0, 1.6]], 'radius': 0.03, 'picture': [0.0, 0.0, 1.0]}]
+        steel = lambda made: float(np.asarray(made['wire']['image'])[200:, 180:300, :3].mean())
+        as_made, toned = (convert.shape(model, maps, height=2.0, fence=[sheet], frame=post, sight=False, **more) for more in ({}, {'tone': 0.5}))
+        self.assertAlmostEqual(steel(toned) / steel(as_made), 0.5, delta=0.05)
         with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):  # measured before a turn: it would hang beside the wall
             convert.shape(model, maps, height=2.0, fence=[{**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
+        # A frame's own upright posts hold a fence up where the model has nothing: a rail along it holds up neither end.
+        aside = {**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}; points, _, _, _, _ = convert.fit(*convert.read_glb(model)[:3], 2.0); corners = convert.read_glb(model)[3]
+        post = lambda y: {'tube': [[1.5, y, 0.4], [1.5, y, 1.6]], 'radius': 0.04, 'picture': [0.0, 0.0, 1.0]}
+        convert._hung(points, corners, [aside], [post(-0.5), post(0.5)])
+        with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):
+            convert._hung(points, corners, [aside], [post(-0.5), {'tube': [[1.5, -0.5, 1.5], [1.5, 0.5, 1.5]], 'radius': 0.02, 'picture': [0.0, 0.0, 1.0]}])
         with mock.patch.object(glow, 'position_map', wraps=glow.position_map) as placed:  # and it is said before the long work on the pictures
             with self.assertRaisesRegex(ValueError, 'hangs between posts'):
                 convert.shape(model, maps, height=2.0, lit=whole, paint=cover, fence=[{**sheet, 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
@@ -628,6 +647,182 @@ class ConvertTests(unittest.TestCase):
         stair_uvs = u[len(u) - 24 * len(members):]; kinds = [m[3] for m in members for _ in range(24)]
         np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind in ('rail', 'post')]], 0.9)
         np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind == 'tread']], 0.1)
+
+    def test_a_map_compressed_before_is_copied_not_compressed_again(self):
+        """A group built again for its fence or its nodes compressed every map again (2026-11-17)."""
+        from unittest import mock
+        from PIL import Image
+        folder = Path(tempfile.mkdtemp()); runs = []
+        def run(command, **said):
+            runs.append(command); Path(command[command.index('-out') + 1]).write_bytes(b'DDS ' + str(len(runs)).encode())
+            return mock.Mock(returncode=0, stdout='', stderr='')
+        picture = Image.new('RGB', (8, 8), (10, 20, 30))
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'kept'), mock.patch.object(convert.subprocess, 'run', side_effect=run), mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            first = convert._compress(picture, folder / 'a.dds', '-DXT1', 8, 'crunch', data=False).read_bytes()
+            again = convert._compress(picture, folder / 'b.dds', '-DXT1', 8, 'crunch', data=False).read_bytes()
+            self.assertEqual((first, again, len(runs)), (b'DDS 1', b'DDS 1', 1))
+            convert._compress(picture, folder / 'c.dds', '-DXT1', 8, 'crunch', data=True); self.assertEqual(len(runs), 2)  # another gamma is another map
+            convert._compress(Image.new('RGB', (8, 8), (10, 20, 31)), folder / 'd.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 3)
+            environment['ENVKIT_NO_CACHE'] = '1'
+            convert._compress(picture, folder / 'e.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 4)
+        self.assertFalse(list(folder.glob('*.png')))
+        # All but the last used are taken away: every retouched colour map of a building is another 11 to 22 MB.
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'few'), mock.patch.object(convert, 'COMPRESSED_KEPT', 2), mock.patch.object(convert.subprocess, 'run', side_effect=run), \
+                mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            for shade in range(3):
+                convert._compress(Image.new('RGB', (8, 8), (shade, 0, 0)), folder / f'f{shade}.dds', '-DXT1', 8, 'crunch', data=False)
+        self.assertEqual(len(list((folder / 'few').iterdir())), 2)
+        # Two workers that compress the same picture the same way each stage their copy in a file of their own: here
+        # the second stages and keeps its copy while the first is about to rename its own.
+        folder = Path(tempfile.mkdtemp()); runs.clear(); rename = Path.replace; nested = []
+        def replace(part, kept):
+            if not nested:
+                nested.append('second.dds'); convert._compress(picture, folder / nested[0], '-DXT5A', 8, 'crunch', data=True)
+            return rename(part, kept)
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'kept'), mock.patch.object(convert.subprocess, 'run', side_effect=run), \
+                mock.patch.object(Path, 'replace', autospec=True, side_effect=replace), mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            convert._compress(picture, folder / 'first.dds', '-DXT5A', 8, 'crunch', data=True)
+        self.assertEqual((len(runs), len(nested), len(list((folder / 'kept').glob('*.dds')))), (2, 1, 1)); self.assertFalse(list((folder / 'kept').glob('*.part')))
+
+    def test_a_perimeter_is_the_posts_rails_sheets_and_coils_of_its_fence(self):
+        """The power station's fence was 46 built parts and 6 fences written by a script (2026-11-17)."""
+        spec = {'box': [[-9.45, -7.0], [9.45, 7.0]], 'z': [0.31, 2.81], 'steel': [9.22, 0.64, 1.53], 'concrete': [0.0, 4.8, 0.31],
+                'gateways': [{'side': 'north', 'from': -7.5, 'to': -2.5}, {'side': 'north', 'from': 3.5, 'to': 6.5}]}
+        built, fence = convert.perimeter(spec)
+        self.assertEqual([one['part'] for one in fence], ['north 1 fence', 'north 2 fence', 'north 3 fence', 'east fence', 'south fence', 'west fence'])
+        self.assertEqual((fence[0]['from'], fence[0]['to'], fence[0]['z']), ([-9.45, 7.0], [-7.5, 7.0], [0.41, 2.81]))
+        self.assertEqual((fence[3]['from'], fence[3]['to']), ([9.45, 7.0], [9.45, -7.0])); self.assertEqual((fence[0]['pitch'], fence[0]['wire']), (0.09, 0.016))
+        posts = [one for one in built if one['part'].endswith('fence post')]; gate = [one for one in built if one['part'] == 'gateway post']
+        self.assertEqual(len({tuple(one['tube'][0]) for one in posts}), len(posts))  # a corner has one post, not one for each side
+        self.assertTrue(all(one['cap'] and one['radius'] in (convert.PERIMETER_POST, convert.PERIMETER_END) for one in posts))
+        self.assertEqual({one['radius'] for one in posts if one['tube'][0][:2] in ([-9.45, 7.0], [9.45, -7.0])}, {convert.PERIMETER_END})  # stouter at a corner
+        self.assertEqual(sorted(one['block'][0][0] for one in gate), [-7.5, -2.5, 3.5, 6.5]); self.assertTrue(all(one['picture'] == spec['concrete'] and one['size'] == 0.35 for one in gate))
+        self.assertFalse(any(one['tube'][0][:2] == [-7.5, 7.0] for one in posts))  # a gateway's end is its concrete post
+        finer = convert.perimeter({**spec, 'gateways': [{'side': 'north', 'from': -7.455, 'to': -2.5}]})  # and where its edge is stated finer than the fence is built
+        self.assertFalse(any(one['tube'][0][:2] == [-7.46, 7.0] for one in finer[0] if 'tube' in one and one['part'].endswith('fence post')))
+        self.assertEqual((finer[1][0]['to'], [one['block'][0][0] for one in finer[0] if 'block' in one]), ([-7.46, 7.0], [-7.46, -2.5]))
+        self.assertEqual(sum('coil' in one for one in built), 6); self.assertEqual(sum(one['part'].endswith('rail') for one in built), 12)
+        self.assertTrue(all(one['coil'][0][2] == 2.81 + 0.25 for one in built if 'coil' in one))
+        spans = [np.hypot(*np.subtract(b['tube'][0][:2], a['tube'][0][:2])) for a, b in zip(posts, posts[1:]) if a['part'] == b['part']]
+        self.assertLessEqual(max(spans), convert.PERIMETER_POSTS + 1e-6)
+        self.assertEqual(sum('coil' in one for one in convert.perimeter({**spec, 'coil': False})[0]), 0)
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'perimeter': spec, 'measuredAt': 4.0}}}), encoding='utf-8')
+        loaded = convert.load_models(path)['ek_x']; self.assertEqual((loaded['frame'], loaded['fence']), (built, fence)); self.assertNotIn('built', loaded)
+        mixed = {'source': 'a', 'height': 4.0, 'measuredAt': 4.0, 'fence': fence[:1], 'frame': [built[0], {**built[1], 'picture': [0.0, 0.0, 1.0]}]}  # `shape` tones all its steel from one point
+        path.write_text(json.dumps({'models': {'ek_x': mixed}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'toned from one point'):
+            convert.load_models(path)
+        for wrong in ({**spec, 'gateways': [{'side': 'north', 'from': -12.0, 'to': -8.0}]}, {**spec, 'gateways': [{'side': 'up', 'from': 0, 'to': 2}]},
+                      {key: value for key, value in spec.items() if key != 'concrete'}, {**spec, 'z': [0.3, 0.5]}, {**spec, 'height': 2}):
+            with self.assertRaises(ValueError):
+                convert.perimeter(wrong)
+
+    def test_a_building_ships_its_relief_at_full_size(self):
+        """User, 2026-11-17: full 4K normals for buildings; props keep theirs at half."""
+        self.assertEqual([convert.relief_size(one) for one in (512, 1024, 2048, 4096)], [256, 512, 1024, 4096])
+        from unittest import mock
+        from PIL import Image
+        folder = Path(tempfile.mkdtemp()); sizes = {}; maps = {}
+        for key in ('base_color', 'normal', 'metallic', 'roughness'):
+            maps[key] = folder / f'{key}.png'; Image.new('RGB', (16, 16), (128, 128, 255)).save(maps[key])
+        def packed(image, path, mode, size, crunch, *, data):
+            sizes[Path(path).name] = size; return Path(path)
+        with mock.patch.object(convert, '_compress', side_effect=packed):
+            convert.textures('ek_x', maps, folder / 'out', 'crunch', colour=4096)
+        self.assertEqual(sizes, {'ek_x.dds': 4096, 'ek_x_n.dds': 4096, 'ek_x_s.dds': 2048, 'ek_x_r.dds': 2048})
+        notes = convert.oversize_notes({'ek_x.dds': 11184952, 'ek_x_n.dds': 22369776})  # and such a relief map is more than the repository takes unstated
+        self.assertEqual(len(notes), 1); self.assertIn('ek_x_n.dds: 21.3 MiB', notes[0]); self.assertIn('srn-size-exception', notes[0])
+        # Nor are the fences built on to a group part of its building's count: they are told where the tiles draw more than the budget with them.
+        self.assertEqual((convert.fence_notes('ek_x', 181833, 16696, 200000), convert.fence_notes('ek_x', 201000, 0, 200000)), ([], []))
+        self.assertIn('211696 triangles, 16696 of them fence', convert.fence_notes('ek_x', 195000, 16696, 200000)[0])
+
+    def test_a_fences_frame_is_round_posts_and_capped_blocks_on_a_picture_of_steel_and_concrete(self):
+        """The first perimeter's posts were square bars in one flat colour (user, 2026-11-17: "the posts for the fences
+        needs to be better than a square pole and they don't even look like they have any texture applied")."""
+        points, normals, uvs, faces = convert.tube([1.0, 2.0, 0.0], [1.0, 2.0, 2.5], 0.05, cap=True)
+        middle = points.mean(0); out = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue((((points[faces].mean(1) - [1.0, 2.0, middle[2]]) * out).sum(1) > 0).all())  # every face looks outward
+        self.assertTrue((np.linalg.norm(out, axis=1) > 0).all()); np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0)
+        side = points[:, 2] <= 2.5 + 1e-9; np.testing.assert_allclose(np.hypot(points[side, 0] - 1.0, points[side, 1] - 2.0), 0.05)  # round
+        self.assertGreater(points[:, 2].max(), 2.5); self.assertEqual(len(faces), convert.FRAME_SIDES * 5)  # its side, and a dome over it
+        self.assertEqual((float(uvs.min()), float(uvs.max())), (0.0, 1.0)); self.assertEqual(len(convert.tube([0, 0, 1], [3, 0, 1], 0.02)[3]), convert.FRAME_SIDES * 2)
+        points, normals, uvs, faces = convert.block([0.0, 0.0, 0.3], [0.0, 0.0, 2.9], 0.35)
+        out = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue(((out * normals[faces[:, 0]]).sum(1) > 0).all()); self.assertAlmostEqual(float(np.abs(points[:, 0]).max()), 0.175 + convert.FRAME_CAP[0])
+        self.assertAlmostEqual(float(points[:, 2].max()), 2.9 + convert.FRAME_CAP[1] + convert.FRAME_CAP[2])
+        fences = [{'from': [0.0, 0.0], 'to': [2.0, 0.0], 'z': [0.0, 2.0], 'pitch': 0.09, 'wire': 0.016}]
+        frame = [{'tube': [[0.0, 0.0, 0.0], [0.0, 0.0, 2.1]], 'radius': 0.05, 'cap': True, 'picture': [0, 0, 0]}, {'tube': [[0.0, 0.0, 2.0], [2.0, 0.0, 2.0]], 'radius': 0.02, 'picture': [0, 0, 0]},
+                 {'coil': [[0.0, 0.0, 2.3], [2.0, 0.0, 2.3]], 'radius': 0.25, 'pitch': 0.5, 'picture': [0, 0, 0]}, {'block': [[2.0, 0.0, 0.0], [2.0, 0.0, 2.2]], 'size': 0.35, 'picture': [0, 0, 0]}]
+        bare = convert.sheets(fences); wire = convert.sheets(fences, frame=frame, colours={'steel': (120, 124, 128)})
+        image = np.asarray(wire['image']); size = convert.WIRE_PICTURE * convert.FRAME_SHEET; self.assertEqual(image.shape, (size, size, 4))
+        np.testing.assert_array_equal(image[:convert.WIRE_PICTURE, :convert.WIRE_PICTURE], np.asarray(bare['image']))  # the wires in its first corner, as they were
+        count = len(bare['vertices']); np.testing.assert_allclose(wire['uvs'][:count], bare['uvs'] / convert.FRAME_SHEET); np.testing.assert_allclose(wire['vertices'][:count], bare['vertices'])
+        for kind, (u0, u1) in convert.FRAME_COLUMNS.items():
+            column = image[:, int(u0 * size):int(u1 * size)]; self.assertTrue((column[..., 3] == 255).all())
+            self.assertGreater(float(column[..., :3].astype(float).std(axis=(0, 1)).mean()), 4.0)  # a texture, not one flat colour
+        steel = image[:, int(0.3125 * size):int(0.625 * size), :3].astype(float); foot, shaft = steel[:size // 16].mean((0, 1)), steel[size // 4:].mean((0, 1))
+        self.assertGreater(foot[0] - foot[2], shaft[0] - shaft[2] + 15)  # rust at the foot of a post
+        np.testing.assert_allclose(shaft, (120, 124, 128), atol=12)
+        made = wire['uvs'][count:]; self.assertTrue(((made[:, 0] >= 0.3125) & (made[:, 0] <= 0.9375) & (made[:, 1] >= 0) & (made[:, 1] <= 1)).all())  # none of the frame shows the wires
+        self.assertEqual(len(wire['vertices']), len(wire['normals'])); self.assertEqual(len(wire['vertices']), len(wire['uvs'])); self.assertLess(wire['faces'].max(), len(wire['vertices']))
+
+    def test_a_face_whose_picture_is_drawn_out_is_drawn_with_the_sound_surface_beside_it(self):
+        """The power station's slab showed a square metre of streaks at its gateway (user, 2026-11-17: "what is this smear?")."""
+        side = np.arange(7.0); x, y = np.meshgrid(side, side); grid = np.stack([x.ravel(), y.ravel(), np.zeros(49)], 1); uvs = grid[:, :2] / 12  # a floor six metres square on half the picture
+        cell = lambda i, j: [[j * 7 + i, j * 7 + i + 1, (j + 1) * 7 + i + 1], [j * 7 + i, (j + 1) * 7 + i + 1, (j + 1) * 7 + i]]
+        faces = np.array([face for j in range(6) for i in range(6) for face in cell(i, j)]); normals = np.tile([0.0, 0.0, 1.0], (49, 1))
+        same = convert.relaid(grid, normals, uvs, faces); self.assertEqual((same[4], same[5]), ([], [])); np.testing.assert_array_equal(same[3], faces)
+        unread = lambda: self.fail('the picture of a model with no drawn-out face is not read')
+        self.assertEqual(convert.relaid(grid, normals, uvs, faces, unread)[4:], ([], []))
+        extra = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0]]); sliver = np.array([[0.9, 0.9], [0.9, 0.9004], [0.9, 0.9008]])  # the first face, on a line of the picture
+        vertices = np.vstack([grid, extra]); spots = np.vstack([uvs, sliver]); drawn = faces.copy(); drawn[0] = [49, 50, 51]
+        made = convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn); self.assertEqual((made[4], made[5]), ([{'m2': 0.5, 'at': [0.67, 0.33, 0.0], 'share': 1.0}], []))
+        least, most, area, _ = convert.picture_grain(made[0], made[2], made[3]); np.testing.assert_allclose(least, 1 / 12); np.testing.assert_allclose(most, 1 / 12)  # drawn as the floor is
+        self.assertAlmostEqual(float(area.sum()), 36.0); pieces = made[3][len(faces) - 1:]; self.assertEqual(len(pieces), 100)  # cut into pieces, where it was
+        self.assertLessEqual(float(area[len(faces) - 1:].max()), convert.RELAY_PIECE ** 2 / 2 + 1e-9); self.assertAlmostEqual(float(area[len(faces) - 1:].sum()), 0.5)
+        inside = made[0][pieces].reshape(-1, 3); self.assertTrue(((inside[:, 0] <= 1 + 1e-9) & (inside[:, 1] <= inside[:, 0] + 1e-9) & (inside[:, 1] >= -1e-9)).all())
+        shift = made[2][pieces].reshape(-1, 2) - inside[:, :2] / 12; np.testing.assert_allclose(shift, np.tile(shift[0], (len(shift), 1)), atol=1e-9)  # one stretch of the floor, all together
+        self.assertGreater(float(np.abs(shift[0]).max()), 0.02)  # another part of it
+        self.assertTrue(((made[2] >= 0) & (made[2] <= 0.5 + 1e-9)).all()); self.assertEqual(len(made[0]), len(made[1]))
+        picture = np.full((120, 120, 3), 200, np.uint8); picture[108:, 108:] = 30  # the face is dark where the floor is pale: it takes none of it
+        dark = convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn, picture); self.assertEqual((dark[4], [one['share'] for one in dark[5]]), ([], [0.0]))
+        picture[108:, 108:] = 190; self.assertEqual(len(convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn, picture)[4]), 1)
+        alone = convert.relaid(extra, normals[:3], sliver, np.array([[0, 1, 2]])); self.assertEqual((alone[4], alone[5]), ([], []))  # nothing to tell it by
+        wall = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 1.0]])  # a face of another plane, where no sound surface is
+        left = convert.relaid(np.vstack([grid, wall]), np.vstack([normals, np.tile([1.0, 0, 0], (3, 1))]), spots, np.vstack([faces, [[49, 50, 51]]]))
+        self.assertEqual((left[4], [(one['m2'], one['share']) for one in left[5]]), ([], [(0.5, 0.0)]))
+
+    def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
+        """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""
+        points, normals, faces = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.5)
+        steps = 12 * convert.COIL_SIDES; self.assertEqual((len(points), len(faces)), (2 * 3 * (steps + 1), 2 * 6 * steps))  # two strands, three-sided
+        away = np.hypot(points[:, 1], points[:, 2] - 3); self.assertLessEqual(np.abs(away - 0.25).max(), convert.COIL / 2 + 1e-9)  # on the coil's radius
+        self.assertAlmostEqual(points[:, 0].min(), -convert.COIL / 2, places=2); self.assertAlmostEqual(points[:, 0].max(), 6 + convert.COIL / 2, places=2)
+        across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue(((across * normals[faces].sum(1)).sum(1) > 0).all())  # every face wound outward, both strands
+        one, other = points[:len(points) // 2].reshape(-1, 3, 3).mean(1), points[len(points) // 2:].reshape(-1, 3, 3).mean(1)
+        np.testing.assert_allclose(one[:, 1], other[:, 1], atol=1e-9); np.testing.assert_allclose(one[:, 2] - 3, 3 - other[:, 2], atol=1e-9)  # wound opposite ways
+        back = convert.coil([6, 0, 3], [0, 0, 3], 0.25, 0.5); flipped = np.cross(back[0][back[2][:, 1]] - back[0][back[2][:, 0]], back[0][back[2][:, 2]] - back[0][back[2][:, 0]])
+        self.assertTrue(((flipped * back[1][back[2]].sum(1)).sum(1) > 0).all())
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], float); base = np.array([[0, 1, 2]])
+        v, n, u, f = convert.with_built(vertices, np.tile([0.0, 0.0, 1.0], (3, 1)), np.full((3, 2), 0.3), base,
+                                        [{'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.5, 'picture': [0.2, 0.2, 0]}])
+        self.assertEqual(len(f), 1 + len(faces)); np.testing.assert_allclose(u, 0.3)
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for part, held in (({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0, 0, 1]}, True),
+                           ({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'picture': [0, 0, 1]}, False),  # no pitch
+                           ({'coil': [[0, 0, 3], [0, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0, 0, 1]}, False),  # no length
+                           ({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 2.0, 'pitch': 0.4, 'picture': [0, 0, 1]}, False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'built': [part], 'measuredAt': 4.0}}}), encoding='utf-8')
+            if held:
+                self.assertEqual(convert.load_models(path)['ek_x']['built'], [part])
+            else:
+                with self.assertRaises(ValueError):
+                    convert.load_models(path)
 
     def test_a_cast_light_is_measured_from_the_model(self):
         """The Ares and Saeder-Krupp gates and the Iron Sight Arms booths (2026-11-14): a light set between their lamps

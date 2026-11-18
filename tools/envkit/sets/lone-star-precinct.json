@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "grey and blue private security precinct with a glazed front, a garage door and a fenced side", "box": [0, 14, 890, 540], "notes": "Remove the title banner and all text outside the building."},
+    "building-hero": {"kind": "building", "subject": "grey and blue private security precinct with a glazed front, a garage door and a side yard", "box": [0, 14, 890, 540], "notes": "Remove the title banner and all text outside the building."},
     "building-front": {"kind": "building", "subject": "front elevation of a grey and blue private security precinct", "box": [891, 108, 1247, 302]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a grey and blue private security precinct", "box": [892, 332, 1258, 506]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: curved blue desk under a canopy, Lone Star livery.", "subject": "curved blue report desk under a canopy", "box": [7, 620, 294, 806]},

@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "abandoned stepped stone and concrete research building behind a razor-wire fence", "box": [0, 14, 880, 535], "notes": "Remove the title banner and all text outside the building."},
+    "building-hero": {"kind": "building", "subject": "abandoned stepped stone and concrete research building", "box": [0, 14, 880, 535], "notes": "Remove the title banner and all text outside the building."},
     "building-front": {"kind": "building", "subject": "front elevation of an abandoned stepped stone research building", "box": [848, 89, 1237, 276]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of an abandoned concrete research building", "box": [846, 302, 1247, 498]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: cracked, abandoned desk with faded Aztechnology livery.", "subject": "cracked abandoned corporate reception desk", "box": [4, 612, 260, 812]},

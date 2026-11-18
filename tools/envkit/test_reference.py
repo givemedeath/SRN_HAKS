@@ -63,6 +63,33 @@ class SetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'kind'):
             reference.prompt('vehicle', 'van')
 
+    def test_a_building_can_be_drawn_without_its_slab(self):
+        """The slab shares the building's one picture, and a planned walk did not cross tiles on it (2026-11-17)."""
+        kept = reference.prompt('building', 'a depot'); bare = reference.prompt('building', 'a depot', slab=False)
+        self.assertIn('Keep the pavement slab', kept); self.assertNotIn('Keep the pavement slab', bare)
+        self.assertIn('draw no pavement slab', bare); self.assertIn('Leave out every perimeter fence', bare); self.assertIn('do not clean or repaint', bare)
+        self.assertIn('draw no pavement slab', reference.prompt('building', 'a depot', unbranded=True, slab=False))
+        self.assertIn('draw no pavement slab', reference.prompt('building', 'a depot', turn='the rear', slab=False))
+        with self.assertRaisesRegex(ValueError, 'only a building'):
+            reference.prompt('prop', 'a crate', slab=False)
+
+    def test_a_building_is_drawn_without_its_perimeter_fence(self):
+        # user, 2026-11-17: no more perimeter fences through the generator; they are built afterwards
+        for text in (reference.prompt('building', 'depot'), reference.prompt('building', 'depot', unbranded=True),
+                     reference.prompt('building', 'depot', turn='the rear')):
+            self.assertIn('Leave out every perimeter fence', text); self.assertIn('razor wire', text)
+        self.assertNotIn('perimeter fence', reference.prompt('prop', 'fence section'))
+        good = json.loads(SET.read_text(encoding='utf-8')); hero = good['assets']['building-hero']
+        for subject, notes in (('depot with a fenced yard', ''), ('depot behind a razor-wire fence', ''), ('depot', 'Keep the chain-link and the gate posts.')):
+            data = json.loads(json.dumps(good)); data['assets']['building-hero'] = {**hero, 'subject': subject, 'notes': notes}
+            with self.assertRaisesRegex(ValueError, 'drawn without its perimeter fence.*building-hero'):
+                reference.load_set(self.write(data))
+        data = json.loads(json.dumps(good)); data['assets']['building-hero'] = {**hero, 'notes': 'Remove the people, the fence and all text. Roof units stay.'}
+        reference.load_set(self.write(data))  # what a note takes away is no request for it
+        fence = next(name for name, asset in good['assets'].items() if asset['kind'] == 'prop')
+        data = json.loads(json.dumps(good)); data['assets'][fence]['subject'] = 'chain-link fence section with razor wire'
+        reference.load_set(self.write(data))  # a fence is a prop of its own
+
     def test_a_set_rejects_machine_paths_bad_names_and_boxes_off_the_sheet(self):
         good = json.loads(SET.read_text(encoding='utf-8'))
         for change, message in ((lambda d: d['sheet'].update(file='C:/art/sheet.png'), 'bare file name'),

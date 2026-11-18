@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "two-storey white utility control substation with a fenced transformer yard", "box": [0, 88, 840, 560]},
+    "building-hero": {"kind": "building", "subject": "two-storey white utility control substation with a transformer yard", "box": [0, 88, 840, 560]},
     "building-front": {"kind": "building", "subject": "front elevation of a two-storey white utility control substation", "box": [844, 120, 1252, 312]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a two-storey white utility control substation", "box": [851, 349, 1256, 530]},
     "control-console": {"kind": "prop", "type": "console-desk", "variant": "Hooded utility control console with a schematic wall and a chair.", "subject": "hooded utility control console with screens and a chair", "box": [12, 657, 246, 810]},

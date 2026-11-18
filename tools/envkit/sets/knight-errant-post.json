@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "black and yellow hardened security response post with a guard window, a vehicle bay and a fenced side", "box": [0, 14, 890, 535], "notes": "Remove the title banner and all text outside the building."},
+    "building-hero": {"kind": "building", "subject": "black and yellow hardened security response post with a guard window, a vehicle bay and a side yard", "box": [0, 14, 890, 535], "notes": "Remove the title banner and all text outside the building."},
     "building-front": {"kind": "building", "subject": "front elevation of a black and yellow security response post", "box": [888, 122, 1228, 296]},
     "building-rear": {"kind": "building", "subject": "rear service elevation of a black and yellow security response post", "box": [900, 332, 1239, 504]},
     "reception-desk": {"kind": "prop", "type": "reception-desk", "variant": "Branding: black desk with amber light under a canopy, Knight Errant livery.", "subject": "black guarded reception desk under a canopy", "box": [9, 617, 277, 796]},

@@ -213,15 +213,16 @@ def late(stamp, now, hold):
     return lag if lag > hold - LINE_DELAY - client.MARGIN else None
 
 
-def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra_settings=''):
+def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra_settings='', late_ok=False):
     """Start the client on the fixture, capture the window after each shot line, stop the client; returns lines and
     captures. A capture made too late for its shot (`late`) is kept as `<name>-late.png`, and the run is refused once the
-    fixture has finished."""
+    fixture has finished; with `late_ok` it is not refused, and `late` in what is returned names those shots, for a
+    caller that takes them again or does not judge by them."""
     user = Path(record['userDirectory']); timeout = record['start'] + len(record['shots']) * record['hold'] + 240
     # Every run states its own settings, so none are left over from the run before.
     (user / 'settings.tml').write_text(client.SETTINGS.format(width=width, height=height) + extra_settings, encoding='utf-8')
     process = client.start(nwn_root, user, Path(record['module']).stem, width=width, height=height)
-    shots, seen, missed = [], 0, []
+    shots, seen, missed, labels = [], 0, [], []
     try:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
@@ -238,14 +239,14 @@ def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra
                     if lag is None:
                         shots.append(str(path))
                     else:
-                        path.replace(path.with_name(path.stem + '-late.png')); missed.append(f'{values["target"]} ({lag:.0f} s)')
+                        path.replace(path.with_name(path.stem + '-late.png')); missed.append(f'{values["target"]} ({lag:.0f} s)'); labels.append(values['target'])
             seen = len(lines)
             if f'{LOG_PREFIX} done' in [line for _, line in lines]:
                 break
         else:
             raise ValueError('The fixture did not finish within the timeout')
-        require(not missed, f'Captures came after their shot had passed and show a later view: {", ".join(missed)}. The client '
+        require(late_ok or not missed, f'Captures came after their shot had passed and show a later view: {", ".join(missed)}. The client '
                 f'stalled (loading what came into view) or its log came late; the captures are kept as -late.png in {captures}. Run the check again')
-        return {'lines': client.log_lines(user, LOG_PREFIX), 'captures': shots}
+        return {'lines': client.log_lines(user, LOG_PREFIX), 'captures': shots, 'late': labels}
     finally:
         client.stop(process)

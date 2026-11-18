@@ -1,5 +1,6 @@
 """The lit parts of a model are found by where they are on it, glow with their own colour, and spread onto a card."""
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import numpy as np
@@ -13,6 +14,21 @@ FACES = np.array([[0, 1, 2], [0, 2, 3]])
 
 
 class GlowTests(unittest.TestCase):
+    def test_the_map_of_places_drawn_many_faces_at_a_time_is_the_one_drawn_face_by_face(self):
+        """A model of 190,000 faces took 42 seconds a map face by face, and two maps a build (2026-11-17)."""
+        rng = np.random.default_rng(3); count = 400
+        centre = rng.uniform(0.05, 0.95, (count, 1, 2)); reach = rng.choice([0.004, 0.02, 0.09, 0.3], (count, 1, 1), p=[0.5, 0.3, 0.15, 0.05])
+        uvs = np.clip(centre + rng.uniform(-1, 1, (count, 3, 2)) * reach, 0, 1).reshape(-1, 2)  # islands that overlap, from a texel to a third of the picture
+        uvs[:3] = [[0.2, 0.2], [0.2, 0.2], [0.4, 0.4]]  # one of no area at all
+        points = rng.uniform(-5, 5, (count * 3, 3)); faces = np.arange(count * 3).reshape(-1, 3)
+        for size in (64, 300):
+            with mock.patch.object(glow, 'PLACES_BLOCKS', (4, 8, 16)), mock.patch.object(glow, 'PLACES_BATCH', 500):  # every way a face is drawn, in several batches
+                fast = glow._position_map(points, uvs, faces, size, True)
+            slow = glow._position_map_face_by_face(points, uvs, faces, size, True)
+            np.testing.assert_array_equal(fast[1], slow[1]); self.assertGreater(fast[1].mean(), 0.5)
+            np.testing.assert_allclose(fast[0], slow[0], atol=1e-9); np.testing.assert_allclose(fast[2], slow[2], atol=1e-12)
+        self.assertEqual(len(glow._position_map(points, uvs, faces, 64, False)), 2)
+
     def test_every_texel_knows_its_place_on_the_model(self):
         where, covered = glow.position_map(POINTS, UVS, FACES, 32)
         self.assertTrue(covered.all())
