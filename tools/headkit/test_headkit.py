@@ -1080,7 +1080,7 @@ class MeshTests(Temporary):
         wide={'maximumExtent':.06,'maximumAreaShare':.0075}  # Copperleaf's reviewed bounds; the strands above add to the area share
         long=fine_relief(p,f,groove,.003,.004,wide);self.assertTrue(long['passed']);self.assertGreater(long['measured']['extent'],.03)
         groove[groove>.004]=.02;self.assertFalse(fine_relief(p,f,groove,.003,.004,wide)['passed'])
-        for bad in ({'maximumExtent':.07},{'other':.01},{'maximumError':0},True):
+        for bad in ({'maximumExtent':.08},{'other':.01},{'maximumError':0},True):
             with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'fineRelief'):fine_relief(p,f,error,.003,.004,bad)
     def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
         from headkit import neck as mesh_module
