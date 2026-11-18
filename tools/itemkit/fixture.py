@@ -174,8 +174,8 @@ def shot_script(shots=SHOTS, slot='right', checks=CHECKS):
         require(len(rest) == 5 or (len(rest) == 6 and SHOT_HOLD <= rest[5] and delay + rest[5] <= 6), 'A shot holds inside its own step')
         require(type(step) is int and 0 <= step < SHOT_CYCLE - 1 and SHOT_LEAD <= delay <= 6 - .5,
                 'A shot is taken inside its own 6-second step')
-        by_step.setdefault(step, []).append(delay)
-    require(all(b - a >= SHOT_LEAD + SHOT_HOLD + .3 for row in by_step.values() for a, b in zip(sorted(row), sorted(row)[1:])),
+        by_step.setdefault(step, []).append((delay, rest[5] if len(rest) == 6 else SHOT_HOLD))
+    require(all(b - a >= SHOT_LEAD + hold + .3 for row in by_step.values() for (a, hold), (b, _) in zip(sorted(row), sorted(row)[1:])),
             'Shots of one step need time to aim and hold between them')
     plan = []
     for index, (step, delay, check, facing, distance, pitch, height, *hold) in enumerate(shots):
@@ -439,7 +439,9 @@ def build(manifest_path, manifest, native, local, output):
 
 
 def link_or_copy(source, target):
-    """A hard link where the file system allows one (the same volume), else a copy."""
+    """A hard link where the file system allows one (the same volume), else a copy. Never onto an existing file: a
+    copy onto a hard link would write into the pinned file the link shares."""
+    require(not os.path.lexists(target), f'{target} already exists')
     try: os.link(source, target)
     except OSError: shutil.copyfile(source, target)
 

@@ -24,7 +24,6 @@ module and HAKs (fixture.validate_evidence), and a session runs another module. 
 """
 import argparse
 import json
-import os
 import re
 import shutil
 import sys
@@ -60,6 +59,7 @@ PARK = 1 + max(row[0] for row in SESSION_SHOTS)   # the step after an actor's la
 FIRE_CLIPS = {61: 'fire_pst', 6: 'fire_rfl'}     # the firing clip of a carrier base item unless the build names another
 FIRE_CODE = re.compile(r'fire_[a-z0-9]{1,8}')
 KEEP, BRIGHT = 3, 215                            # flash frames kept of a firing burst; the grey level that counts as flash
+STALL = 0.5                                      # a burst that took no picture for this long may have missed the flash
 CURRENT = 'GetLocalString(GetModule(),"ITK_ITEM")'
 PLAN_LINE = re.compile(r'(?m)^  if\(n==\d+\) DelayCommand\([0-9.]+,ItkTry\(.*\n?')
 TYPES = {'uti': 2025, 'nss': 2009, '2da': 2017}
@@ -233,14 +233,14 @@ def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
     require(len({row['item'] for row in items}) == len(items), 'Two fixtures review the same blueprint')
     require(len({row['slot'] for row in items}) == 1, 'A session holds items of one hand: build shields in their own session')
     require(len({row['previous'] for row in items}) == 1, 'The fixtures come from different templates')
-    session.mkdir(parents=True); resources = session/'module-resources'; resources.mkdir()
+    session.mkdir(parents=True); staged = session/'module-resources'; staged.mkdir()
     user = session/'userdir'; (user/'hak').mkdir(parents=True); (user/'modules').mkdir(); (user/'override').mkdir()
     tools = Tools(repo, nwn_root); first = items[0]
-    tools.run('erf', '-x', '-f', first['module']['path'], cwd=resources)
+    tools.run('erf', '-x', '-f', first['module']['path'], cwd=staged)
     for row in items[1:]:
         for (resref, kind), body in row['resources'].items():
             if kind != TYPES['uti']: continue
-            target = resources/f'{resref}.uti'
+            target = staged/f'{resref}.uti'
             require(not target.exists() or target.read_bytes() == body, f'Two fixtures carry different blueprints named {resref}')
             target.write_bytes(body)
     # HAKs by name: the shared packs once, then every item's own. The same name must be the same bytes.
@@ -250,9 +250,10 @@ def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
             require(bound.setdefault(name, hak)['sha256'] == hak['sha256'], f'The fixtures hold different HAKs named {name}: rebuild the older fixture')
             if name not in order: order.append(name)
     own = [row['hak'] for row in items]; order = [name for name in order if name not in own] + own
-    private = [(row, read_erf(bound[row['hak']]['path']).get(('baseitems', TYPES['2da']))) for row in items]
-    for row in items: row['fire'] = fire.get(row['item'], FIRE_CLIPS.get(carrier(row, bound), ''))
-    tables = [(carrier(row, bound), body) for row, body in private if body is not None]
+    for row in items:        # each item's own HAK is read once: its blueprint's base item and its private base-item table
+        archive = read_erf(bound[row['hak']]['path']); row['carrier'] = carrier(row, archive)
+        row['baseitems'] = archive.get(('baseitems', TYPES['2da'])); row['fire'] = fire.get(row['item'], FIRE_CLIPS.get(row['carrier'], ''))
+    tables = [(row['carrier'], row['baseitems']) for row in items if row['baseitems'] is not None]
     with tempfile.TemporaryDirectory() as work:
         merge = len({body for _, body in tables}) > 1
         if merge or extra:
@@ -262,17 +263,17 @@ def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
             for path in extra: link_or_copy(path, folder/path.name.lower())
             tools.run('erf', '-c', '-e', 'HAK', '-f', user/'hak'/f'{SESSION_HAK}.hak', folder)
             order.insert(0, SESSION_HAK)        # the first HAK of the list wins a shared resource
-        ifo = tools.to_json(resources/'module.ifo', work)
+        ifo = tools.to_json(staged/'module.ifo', work)
         ifo['Mod_HakList'] = field('list', [{'__struct_id': 8, 'Mod_Hak': field('cexostring', name)} for name in order])
         ifo['Mod_Name'] = field('cexolocstring', {'0': 'Itemkit review session'})
-        tools.to_gff(ifo, resources/'module.ifo', work)
+        tools.to_gff(ifo, staged/'module.ifo', work)
     scripts = ['sr_it_enter.nss']
-    (resources/'sr_it_enter.nss').write_bytes(session_script(first['slot'], first['previous']).encode('ascii'))
-    heartbeat = resources/'sr_it_hb.nss'
+    (staged/'sr_it_enter.nss').write_bytes(session_script(first['slot'], first['previous']).encode('ascii'))
+    heartbeat = staged/'sr_it_hb.nss'
     if heartbeat.exists():
         heartbeat.write_bytes(session_heartbeat(heartbeat.read_bytes().decode('ascii').replace(chr(13) + chr(10), chr(10))).encode('ascii')); scripts.append('sr_it_hb.nss')
-    tools.compile(resources, scripts)
-    module = user/'modules'/f'{MODULE}.mod'; tools.run('erf', '-c', '-e', 'MOD', '-f', module, resources)
+    tools.compile(staged, scripts)
+    module = user/'modules'/f'{MODULE}.mod'; tools.run('erf', '-c', '-e', 'MOD', '-f', module, staged)
     for name in order:
         if name != SESSION_HAK: link_or_copy(bound[name]['path'], user/'hak'/f'{name}.hak')
     record = {'schemaVersion': 2, 'kind': 'itemkit-review-session', 'module': pin(module), 'userDirectory': str(user),
@@ -284,10 +285,10 @@ def build(session, fixtures, nwn_root, repo=REPO, *, resources=None, fire=None):
     return record
 
 
-def carrier(row, bound):
-    """The base item a fixture's blueprint is carried on, from the blueprint in its own HAK or module."""
+def carrier(row, archive):
+    """The base item a fixture's blueprint is carried on, from the blueprint in its own HAK (`archive`) or module."""
     from tools import combat_release_manifest as crm
-    body = read_erf(bound[row['hak']]['path']).get((row['item'], TYPES['uti'])) or row['resources'].get((row['item'], TYPES['uti']))
+    body = archive.get((row['item'], TYPES['uti'])) or row['resources'].get((row['item'], TYPES['uti']))
     require(body is not None, f"No blueprint {row['item']} in its fixture")
     return crm.parse_gff(body).get('BaseItem')
 
@@ -297,21 +298,22 @@ def finished(folder):
     return record.is_file() and read(record).get('finished') is True
 
 
-def flash_score(image, base):
-    """(how much of a picture is bright where the burst's first picture was not, its bright mask): the muzzle flash."""
-    from PIL import ImageChops
-    mask = image.convert('L').resize((640, 360)).point(lambda value: 255 if value >= BRIGHT else 0)
-    return (ImageChops.subtract(mask, base).histogram()[255] if base else 0), mask
+def bright(image):
+    """How much of a picture is bright, in pixels of a 640 x 360 copy."""
+    return image.convert('L').resize((640, 360)).point(lambda value: 255 if value >= BRIGHT else 0).histogram()[255]
 
 
 def fire_burst(client, process, user, folder, row, previous_read, hold=FIRE_HOLD):
     """Watch one firing shot for its whole hold and keep the pictures with the most flash: the brightest is frame 1,
     the one the contact sheet shows. A flash lasts a tenth of a second, so the pictures are scored as they are taken
-    and only the kept ones are written."""
+    and only the kept ones are written. `flash` is the brightest picture's bright area over the burst's dimmest: no
+    one picture is the baseline, so a flash in the first picture counts. A burst that stopped taking pictures for
+    `STALL` seconds may have missed the flash and is rejected, never filed as a gun without one."""
     body = cc.BODIES.get(row['target']); require(body and row['valid'], f"Shot {row['shot']} has no actor to look at")
-    ends = previous_read + hold - .4; base = None; kept = []; taken = 0
-    while time.monotonic() < ends:
-        image = client.grab(process.pid); score, mask = flash_score(image, base); base = base or mask; taken += 1
+    ends = previous_read + hold - .4; kept = []; taken = 0; least = None; gap = 0.0; last = time.monotonic()
+    while last < ends:
+        image = client.grab(process.pid); now = time.monotonic(); gap = max(gap, now - last); last = now
+        score = bright(image); least = score if least is None else min(least, score); taken += 1
         kept = sorted(kept + [(score, -taken, image)], key=lambda entry: entry[:2], reverse=True)[:KEEP]
     late = time.monotonic() > previous_read + hold
     order = [kept[at] for at in (1, 0, 2) if at < len(kept)] if len(kept) > 1 else kept      # the best is frame 1
@@ -319,8 +321,9 @@ def fire_burst(client, process, user, folder, row, previous_read, hold=FIRE_HOLD
     for frame, (_, _, image) in enumerate(order):
         name = f"{body}-{row['check']}-{row['shot']:02d}-{frame}.png"; client.save(image, Path(folder)/name); names.append(name)
     newest = cc.shot_rows(client.log_lines(user, cc.PREFIX))[-1]['shot']
-    rejected = 'next shot began' if newest != row['shot'] else 'burst overran the shot hold' if late else None
-    return {**row, 'body': body, 'captures': names, 'pictures': taken, 'flash': kept[0][0] if kept else 0,
+    rejected = ('next shot began' if newest != row['shot'] else 'burst overran the shot hold' if late else
+                'burst stalled' if gap > STALL or not kept else None)
+    return {**row, 'body': body, 'captures': names, 'pictures': taken, 'longestGap': round(gap, 2), 'flash': kept[0][0] - least if kept else 0,
             **({'rejected': rejected} if rejected else {})}
 
 

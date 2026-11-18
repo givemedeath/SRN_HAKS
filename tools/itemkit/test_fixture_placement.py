@@ -139,6 +139,20 @@ class ScriptedShotTests(unittest.TestCase):
                                             {'body': 'human-female', 'check': 'walk'}])
         self.assertTrue(draft['reviewRequired'])
 
+    def test_shots_of_one_step_are_spaced_by_the_earlier_shots_own_hold(self):
+        from tools.itemkit.fixture import shot_script
+        row = lambda delay, *hold: (3, delay, 'idle', 0, 2, 80, 1, *hold)
+        shot_script((row(0.7), row(3.5)), checks=('idle',))                                   # 1.8 s hold: free at 2.5, wanted at 2.8
+        with self.assertRaisesRegex(ValueError, 'time to aim and hold'): shot_script((row(0.7, 2.6), row(3.5)), checks=('idle',))
+
+    def test_link_or_copy_never_writes_onto_an_existing_file(self):
+        from tools.itemkit.fixture import link_or_copy
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); (root/'old.hak').write_bytes(b'old'); (root/'new.hak').write_bytes(b'new')
+            link_or_copy(root/'old.hak', root/'linked.hak'); self.assertEqual((root/'linked.hak').read_bytes(), b'old')
+            with self.assertRaisesRegex(ValueError, 'already exists'): link_or_copy(root/'new.hak', root/'linked.hak')
+            self.assertEqual((root/'old.hak').read_bytes(), b'old')                            # the pinned file the link shares
+
     def test_a_burst_that_overruns_the_shot_hold_is_never_filed(self):
         import json, time
         from tools.headkit.common import pin

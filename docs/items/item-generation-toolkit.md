@@ -520,9 +520,10 @@ built fixtures of one hand in a session:
 - **Firing.** The actors are given bullets and bolts, and each item's firing clip replaces the stock shot: `fire_pst`
   on the sling row and `fire_rfl` on the crossbow row unless `--fire BLUEPRINT=CLIP` names another (`fire_smg`,
   `fire_sg`; empty for none). The firing shot holds five seconds of an attack round. The driver takes pictures the
-  whole time, scores each by how much of it is bright where the first was not, and writes the three best; frame 1,
-  the one on the contact sheet, is the brightest. `capture.json` records the score as `flash` per shot and the run
-  prints it per body: a firearm whose flash is 0 showed no muzzle flash. The attack and firing shots are framed from
+  whole time, scores each by how much of it is bright, and writes the three best; frame 1, the one on the contact
+  sheet, is the brightest. `capture.json` records `flash` per shot (the brightest picture's bright area over the
+  burst's dimmest) and the run prints it per body: a firearm whose flash is 0 showed no muzzle flash. A burst that
+  took no picture for half a second (`longestGap`) may have missed the flash and is rejected as `burst stalled`. The attack and firing shots are framed from
   the direction of the actor's target (an attacking actor has turned, and `GetFacing` did not say where to), so they
   stay side views. An actor stops attacking after its own firing shot: left shooting, its flash was the brightest
   thing in the other actor's burst.

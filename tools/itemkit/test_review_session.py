@@ -112,6 +112,23 @@ class FlashTests(unittest.TestCase):
         self.assertNotIn('rejected', shot); self.assertGreater(shot['flash'], 0); self.assertGreaterEqual(shot['pictures'], 5)
         self.assertEqual(shot['captures'], ['human-male-firing-04-0.png', 'human-male-firing-04-1.png', 'human-male-firing-04-2.png'])
         self.assertIs(saved['human-male-firing-04-1.png'], lit); self.assertIs(saved['human-male-firing-04-0.png'], faint)
+        self.assertEqual((shot['flash'], shot['longestGap']), (300, .1))
+
+    def test_a_flash_in_the_first_picture_counts_and_a_stalled_burst_is_rejected(self):
+        from PIL import Image
+        dark = Image.new('RGB', (640, 360), (40, 40, 40)); lit = dark.copy(); lit.paste((255, 250, 200), (100, 80, 120, 95))
+        row = {'shot': 4, 'target': 'sr_it_male', 'check': 'firing', 'step': 12, 'valid': True}
+        def burst(pictures, times):
+            client = mock.Mock(); feed = iter(pictures + [dark] * 500); client.grab.side_effect = lambda pid: next(feed)
+            client.log_lines.return_value = ['ITEMKIT_SHOT shot=4 target=sr_it_male check=firing step=12 valid=1']
+            clock = iter(times)
+            with mock.patch.object(R.time, 'monotonic', side_effect=lambda: next(clock)):
+                return R.fire_burst(client, mock.Mock(pid=1), 'user', 'folder', row, previous_read=0.0)
+        first = burst([lit], [n * .1 for n in range(200)])
+        self.assertEqual((first['flash'], first.get('rejected')), (300, None))
+        # two pictures two seconds apart: whatever happened between them was not seen
+        stalled = burst([dark], [0.0, 0.1, 2.1, 4.7, 4.8, 4.9])
+        self.assertEqual((stalled['pictures'], stalled['rejected']), (3, 'burst stalled'))
 
 
 if __name__ == '__main__':

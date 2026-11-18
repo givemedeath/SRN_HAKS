@@ -117,9 +117,9 @@ def run(nwn_root, fixture_dir, captures, *, timeout=None, frames=FRAMES, gap=GAP
     # Before anything is written: a refused start must not leave an empty captures folder to block the next attempt.
     if wait: client.wait_free(wait)
     require(not client.running(), 'A game client is already running; it is not ours to reuse or close (--wait SECONDS waits for it)')
-    captures.mkdir(parents=True, exist_ok=False)
     toggle = user / 'override' / (SHOT_TOGGLE + '.2da'); toggle.parent.mkdir(exist_ok=True)
     require(not toggle.exists(), 'A scripted-shot toggle is already in this fixture; another capture may be running')
+    captures.mkdir(parents=True, exist_ok=False)
     (user / 'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
     toggle.write_text(TOGGLE_TABLE, encoding='ascii')
     shots, seen, finished = [], 0, False
