@@ -189,6 +189,18 @@ class ClientTests(unittest.TestCase):
                          (('bin', 'win32', 'nwmain.exe'), '-userdirectory', 'userdir', ['+TestNewModule', 'ak_t']))
         self.assertTrue(Path(got[2]).is_absolute())  # the client runs from its own folder
 
+    def test_a_log_tail_reads_what_was_written_since_and_waits_for_a_whole_line(self):
+        with tempfile.TemporaryDirectory() as folder:
+            tail = client.LogTail(folder); self.assertEqual(tail.lines(), [])           # no log yet
+            log = Path(folder) / 'logs' / 'nwclientLog1.txt'; log.parent.mkdir()
+            with open(log, 'ab') as written:
+                written.write(b'[Mon Nov  9 15:00:00] ARMORKIT shot=0 target=a\r\nother line\r\n[Mon] ARMORKIT sho'); written.flush()
+                self.assertEqual(tail.lines(), ['ARMORKIT shot=0 target=a'])
+                written.write(b't=1 target=b\n'); written.flush()
+                first = tail.lines(); first.append('not kept')
+                self.assertEqual(tail.lines(), ['ARMORKIT shot=0 target=a', 'ARMORKIT shot=1 target=b'])
+            self.assertGreaterEqual(tail.slowest, 0); tail.close(); log.unlink()                # closed: the log can be deleted
+
     def test_log_lines_are_filtered_and_parsed(self):
         with tempfile.TemporaryDirectory() as folder:
             self.assertEqual(client.log_lines(folder), [])
