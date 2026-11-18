@@ -1505,8 +1505,11 @@ def _compress(image, target, mode, size, crunch, *, data):
     The same picture compressed the same way by the same compressor is copied from COMPRESSED, where each is kept under
     the hash of all three: a group built again after a change to its fence or its path nodes compressed every map
     again, about a third of each of the Shiawase Barrens power station's seven builds (2026-11-17). ENVKIT_NO_CACHE
-    set compresses anew."""
-    import hashlib, io, os, shutil
+    set compresses anew. Each call stages its copy for the cache in a file of its own: two maps that are the same
+    picture compressed the same way (a model's shine and roughness, both plain white) are compressed side by side,
+    and with one staging file between them the second found it already renamed and the build stopped (review of PR
+    175, 2026-11-18)."""
+    import hashlib, io, os, shutil, uuid
     pixels = io.BytesIO(); image.resize((size, size)).save(pixels, 'PNG'); tool = Path(crunch)
     renormal = ['-renormalize'] if mode == '-DXN' else []; settings = [mode, '-mipMode', 'Generate', '-noprogress', '-gamma', '1.0' if data else '2.2', *renormal]
     stamp = [tool.name, tool.stat().st_size, tool.stat().st_mtime_ns] if tool.is_file() else [str(crunch)]
@@ -1519,7 +1522,7 @@ def _compress(image, target, mode, size, crunch, *, data):
     source.unlink()
     require(result.returncode == 0 and target.is_file(), f'{target.name} did not compress: {(result.stdout + result.stderr)[-400:]}')
     if not os.environ.get('ENVKIT_NO_CACHE'):
-        kept.parent.mkdir(parents=True, exist_ok=True); part = kept.with_suffix('.part'); shutil.copyfile(target, part); part.replace(kept)
+        kept.parent.mkdir(parents=True, exist_ok=True); part = kept.with_suffix(f'.{uuid.uuid4().hex}.part'); shutil.copyfile(target, part); part.replace(kept)
     return target
 
 

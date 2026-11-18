@@ -656,6 +656,18 @@ class ConvertTests(unittest.TestCase):
             environment['ENVKIT_NO_CACHE'] = '1'
             convert._compress(picture, folder / 'e.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 4)
         self.assertFalse(list(folder.glob('*.png')))
+        # Two workers that compress the same picture the same way each stage their copy in a file of their own: here
+        # the second stages and keeps its copy while the first is about to rename its own.
+        folder = Path(tempfile.mkdtemp()); runs.clear(); rename = Path.replace; nested = []
+        def replace(part, kept):
+            if not nested:
+                nested.append('second.dds'); convert._compress(picture, folder / nested[0], '-DXT5A', 8, 'crunch', data=True)
+            return rename(part, kept)
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'kept'), mock.patch.object(convert.subprocess, 'run', side_effect=run), \
+                mock.patch.object(Path, 'replace', autospec=True, side_effect=replace), mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            convert._compress(picture, folder / 'first.dds', '-DXT5A', 8, 'crunch', data=True)
+        self.assertEqual((len(runs), len(nested), len(list((folder / 'kept').glob('*.dds')))), (2, 1, 1)); self.assertFalse(list((folder / 'kept').glob('*.part')))
 
     def test_a_perimeter_is_the_posts_rails_sheets_and_coils_of_its_fence(self):
         """The power station's fence was 46 built parts and 6 fences written by a script (2026-11-17)."""
