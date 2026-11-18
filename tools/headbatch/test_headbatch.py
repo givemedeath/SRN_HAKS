@@ -404,6 +404,20 @@ class Guards(Base):
         with self.assertRaisesRegex(guards.Refused, 'RUNBOOK 98'):
             guards.ownership_rules(self.head(manifest={'ownership': {'mode': 'rules', 'rules': []}}))
 
+    def test_declared_tusks_and_horns_need_a_tattoo2_rule(self):
+        tusks = {'name': 'tusks', 'description': 'Two short ivory lower tusks.'}
+        absent = [{'name': 'tusks', 'description': 'Absent.'}, {'name': 'horns', 'description': ' absent'}]
+        hair = {'mode': 'rules', 'rules': [{'channel': 1}]}
+        guards.ownership_rules(self.head(manifest={'ownership': hair, 'features': absent}))
+        guards.ownership_rules(self.head(manifest={'ownership': {'mode': 'atlas'}, 'features': [tusks]}))
+        with self.assertRaisesRegex(guards.Refused, r'declare tusks .*RUNBOOK 442'):
+            guards.ownership_rules(self.head(manifest={'ownership': hair, 'features': [tusks]}))
+        with self.assertRaisesRegex(guards.Refused, 'horns and tusks'):
+            guards.ownership_rules(self.head(manifest={'ownership': hair, 'features': [
+                tusks, {'name': 'horns', 'description': 'Two curved horns.'}]}))
+        guards.ownership_rules(self.head(manifest={'ownership': {'mode': 'rules', 'rules': [
+            {'channel': 1}, {'channel': 9}]}, 'features': [tusks]}))
+
     def test_uv_margin_reads_the_newest_result(self):
         head = self.head()
         self.receipt(head, 'unwrap', 1, {'result': {'pixelAudits': {'2048': {'coverageFraction': .4}}}})
