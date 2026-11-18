@@ -1,6 +1,7 @@
 """Build a private item fixture from a pinned Human test module and UTC donors."""
 from pathlib import Path
 import copy
+import os
 import re
 import shutil
 import struct
@@ -407,13 +408,14 @@ def build(manifest_path, manifest, native, local, output):
     payload = audit_module_payload(resources, extracted)
     write(output/'module-payload.json', payload, fresh=True)
     shutil.copyfile(native['hak']['path'], userdir/'hak'/(hak_name+'.hak'))
-    # Existing fixture HAKs must be bound copies, not borrowed from a live userdir.
+    # Existing fixture HAKs must be the bound files, not borrowed from a live userdir. A hard link to the bound file is
+    # that file (the shared packs are a gigabyte per fixture as copies); its pin is verified before every use.
     for row in haks[:-1]:
         from .contracts import resref
         name = resref(row['Mod_Hak']['value']); bound = {**local.get('fixtureHaks', {}), **local.get('comparisonHaks', {})}.get(name)
         require(bound is not None, 'Missing bound fixture dependency HAK: '+name); verify([bound]); inputs.append(bound)
         require_unshadowed(native['hak'], bound, name)
-        shutil.copyfile(bound['path'], userdir/'hak'/(name+'.hak'))
+        link_or_copy(bound['path'], userdir/'hak'/(name+'.hak'))
     verify(inputs, fresh=True)
     # Tools resolve once; this records every input the build came to consume.
     tool_runtime.tool('nwn_erf', inputs=[row['path'] for row in inputs])
@@ -429,6 +431,12 @@ def build(manifest_path, manifest, native, local, output):
         result['variantBlueprints'] = [bound for _, bound in variants]
     write(output/'fixture.json', result, fresh=True)
     return result
+
+
+def link_or_copy(source, target):
+    """A hard link where the file system allows one (the same volume), else a copy."""
+    try: os.link(source, target)
+    except OSError: shutil.copyfile(source, target)
 
 
 def require_unshadowed(candidate, other, name):

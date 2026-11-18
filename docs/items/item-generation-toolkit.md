@@ -491,6 +491,37 @@ higher and a metre further off, with the close-ups aimed at the chest where the 
 route's `carry` (`fixture.carry_for`): the greataxe, halberd and scythe carriers are also shouldered. Other carries
 (staff, bow) still use the hip framing until their own is measured.
 
+`--wait SECONDS` waits for another session's client to close before starting. A refused start writes nothing, so the
+same captures folder can be named again.
+
+### Several items in one client start
+
+    python -m tools.itemkit.review_session build SESSION FIXTURE_DIR [FIXTURE_DIR ...] --nwn-root GAME_INSTALL
+    python -m tools.itemkit.review_session capture SESSION CAPTURES --nwn-root GAME_INSTALL [--wait SECONDS] [--items A,B]
+
+A fixture is one item with its own module, user directory and copy of the shared packs. `build` joins any number of
+built fixtures of one hand in a session:
+
+- **One user directory.** Its HAKs are hard links to the fixtures' pinned files, so a session adds no pack copies.
+  New fixtures link their shared packs to the bound files the same way (`fixture.link_or_copy`); the pins are verified
+  before every use as before.
+- **One module.** It is the first fixture's module with every item's blueprint. Its entry script reads the reviewed
+  item and its carry from `itk_items.2da` in the session's override folder, and when an item's shots are done it
+  takes that item from the actors, hands them the next one and restarts the motion sequence. The motion heartbeat
+  re-equips the current item. Without the capture toggle the session shows the table's first item for a look by hand.
+- **One table of base items.** Firearm packages carry a private `baseitems.2da`. When they differ, a small HAK listed
+  first holds one merged table: each carrier row as the packages that use it have it, with the widest appearance range.
+  Packages that disagree on a row beyond that range are refused.
+
+`capture` starts the client once and files each item under `CAPTURES/<blueprint>/` in the single-fixture layout
+(`capture.json`, `evidence-draft.json`, contact sheets). It writes the item table itself: items with a finished
+capture are left out, so a second run takes up where a stopped one ended, and `--items` picks a subset without a
+rebuild. It exits 1 while any item is unfinished.
+
+Session captures are review material. The client stage's evidence names the item's own fixture module and HAKs
+(`fixture.validate_evidence`), which a session does not run, so the single-fixture capture stays the route to that
+evidence. Shields (the left hand) go in a session of their own.
+
 `capture.json` records the shots and equip lines. `evidence-draft.json` groups the pictures by body and required
 check with `result: "unreviewed"` and lists any check without a picture. It is material for the client evidence, not
 the evidence: a person still looks, judges and writes the review. The fixture area keeps only the two review actors;
