@@ -2253,7 +2253,7 @@ Origins, by route:
 Model edits, to 434 D20 Modern tile models in `srn_t_common` and `srn_t_dgt04` (402 tiles of the set and 32 edge
 tiles of `srn_2da/dgt04_edge.2da`; the upstream D20 Modern Haks 2.2 terms above apply): tile lamps on 152 models are moved from source lights, which the game draws as flames, to main
 lights of radius 7 (`tilekit lamps`); small trims and flat panels cast no shadow, which the game drew as wedges on
-the walls behind them (`tilekit shadows`). No walkmesh, texture name or geometry changes: all 467 walkmeshes hash
+the walls behind them (`tilekit shadows`). No walkmesh, texture name or geometry changes: all 589 walkmeshes (467 in ASCII models, 122 `.wok` files of compiled ones) hash
 as `docs/tilesets/dgt04/walkmesh.json` records. Areas built with a tile's source lights on go dark at those 152
 tiles until switched to main lights. Generation intermediates, scans, review captures and local bindings stay
 outside the repository.

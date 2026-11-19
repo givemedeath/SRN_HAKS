@@ -1,6 +1,7 @@
 """The tileset inventory: what the set and edge table name, surface by texture, copies and other users of a name, and
 the walkmesh hashes a restyle must leave alone."""
 import contextlib
+import hashlib
 import io
 import json
 import struct
@@ -123,7 +124,7 @@ class InventoryTests(unittest.TestCase):
         (common / 'tst01_b01_01.mdl').write_text(model('tst01_b01_01', [('trimesh', 'ground', 'paving', True, 10.0), ('trimesh', 'wall', 'brick', True, 5.0),
                                                                        ('danglymesh', 'flag', 'cloth', True, 1.0), ('trimesh', 'blank', 'NULL', True, 3.0)]))
         (own / 'tst01_z01_01.mdl').write_text(model('tst01_z01_01', [('trimesh', 'wall', 'brick', True, 5.0)]))
-        (common / 'ek_new.mdl').write_bytes(b'\0\0\0\0compiled paving')
+        (common / 'EK_New.mdl').write_bytes(b'\0\0\0\0compiled paving'); (common / 'ek_new.wok').write_bytes(b'compiled walk')  # a file in any case is found
         (own / 'tst01_x09_01.mdl').write_text(model('tst01_x09_01', [('trimesh', 'spare', 'brick', True, 2.0)]))  # nothing names this one
         # Copies: paving twice in one pack at two sizes, brick in the door pack only, cloth nowhere (a base-game name).
         (common / 'paving.tga').write_bytes(tga(128, 64)); (common / 'paving.dds').write_bytes(struct.pack('<III', 512, 256, 3) + bytes(8))
@@ -174,8 +175,9 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual((paving['terrains'], brick['terrains']), (['Ground', 'Tower'], ['Tower']))  # an edge tile alone gives a texture no terrain
         self.assertEqual(told['models']['tst01_b01_01'], {'pack': 'srn_t_common', 'form': 'uncompiled', 'tiles': [1], 'edge': False})
         self.assertEqual((told['models']['stock_z02_01']['form'], told['models']['ek_new']['form'], told['unnamedModels']), ('absent', 'compiled', ['tst01_x09_01']))
-        self.assertEqual(sorted(walkmesh['models']), ['tst01_a01_01', 'tst01_b01_01', 'tst01_z01_01'])  # compiled and absent models are not held
+        self.assertEqual(sorted(walkmesh['models']), ['ek_new', 'tst01_a01_01', 'tst01_b01_01', 'tst01_z01_01'])  # an absent model is not held
         self.assertIsNotNone(walkmesh['models']['tst01_a01_01']['aabb']); self.assertIsNone(walkmesh['models']['tst01_b01_01']['aabb'])
+        self.assertEqual(walkmesh['models']['ek_new'], {'wok': hashlib.sha256(b'compiled walk').hexdigest(), 'aabb': None})  # a compiled model's walkmesh is its .wok
         rows = inventory.table(told).splitlines()
         self.assertEqual(rows[0].split(',')[:3], ['texture', 'surface_m2', 'share_pct'])
         self.assertEqual(rows[1], 'paving,200.0,79.681,79.681,2,512,srn_t_common:dds:512x256 srn_t_common:tga:128x64,oth01,,Ground Tower')

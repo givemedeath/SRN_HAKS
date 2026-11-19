@@ -131,7 +131,8 @@ docs/tilesets/dgt04/materials.json --overlay output/tilekit/ground/overlay10` mo
   `srn_t_dgt04` 359); the ten base-game textures in `srn_t_dgt04`. 239 old TGA and DDS copies deleted.
 - `dumpster`, `dumpster_sign`, `tmi_metal01` (`srn_t_common` and `srn_placeable`) and `manhole_tex2` (`srn_door` and
   `srn_placeable`) keep a copy in both packs, as before; their maps and materials are expected overrides.
-- 397 tile models with the lamp and shadow changes replace their pack copies. All 467 walkmeshes hash as the baseline.
+- 397 tile models with the lamp and shadow changes replace their pack copies. All 467 walkmeshes hash as the baseline. The baseline holds the `.wok` hashes of the 122 compiled models
+  too (2026-11-19; no `.wok` file changed in the release), 589 in all.
 - Edge tiles (user, 2026-11-19): the 31 edge-table models drawn round an area's border take the same shadow rule (388
   trims and panels; none has a source-light lamp). Looked at on an area with twelve buildings against its borders
   (`tke1` before, `tke2` after, `tke3` on the built packs) and passed; in the packs the same day.

@@ -203,20 +203,21 @@ def inventory(repo, tileset, *, walkmesh_only=False):
         terrains_of.setdefault(tile['model'], set()).update(set(tile['corners']) - {laid['default'], ''} or {laid['default']})
     scope = sorted(set(tiles_of) | set(edges))
 
+    held = {(pack.name, path.name.lower()): path for pack in homes if pack.is_dir() for path in pack.iterdir()}  # a file in any case, as the game finds it
     models, surface, users, terrains, walkmesh = {}, {}, {}, {}, {}
     for name in scope:
-        home = next((pack for pack in homes if (pack / f'{name}.mdl').is_file()), None)
+        home = next((pack for pack in homes if (pack.name, f'{name}.mdl') in held), None)
         entry = {'pack': home.name if home else None, 'form': 'absent', 'tiles': tiles_of.get(name, []), 'edge': name in edges}
         if home:
-            data = (home / f'{name}.mdl').read_bytes(); entry['form'] = 'compiled' if compiled(data) else 'uncompiled'
-            wok = home / f'{name}.wok'
-            marks = {'wok': hashlib.sha256(wok.read_bytes()).hexdigest() if wok.is_file() else None, 'aabb': None}
+            data = held[(home.name, f'{name}.mdl')].read_bytes(); entry['form'] = 'compiled' if compiled(data) else 'uncompiled'
+            wok = held.get((home.name, f'{name}.wok'))
+            marks = {'wok': hashlib.sha256(wok.read_bytes()).hexdigest() if wok else None, 'aabb': None}
             if entry['form'] == 'uncompiled':
                 text = data.decode('cp1252'); marks['aabb'] = walk_hash(text)
                 for texture, area in ({} if walkmesh_only else surfaces(text)).items():
                     surface[texture] = surface.get(texture, 0.0) + area; users.setdefault(texture, []).append(name)
                     terrains.setdefault(texture, set()).update(terrains_of.get(name, ()))
-                walkmesh[name] = marks
+            walkmesh[name] = marks  # a compiled model's walkmesh is its .wok
         models[name] = entry
     marked = {'schemaVersion': 1, 'tileset': tileset, 'models': dict(sorted(walkmesh.items()))}
     if walkmesh_only:
