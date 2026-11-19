@@ -100,18 +100,19 @@ class ReviewTests(unittest.TestCase):
     def test_the_shared_part_lays_another_tileset_s_tiles_on_its_plain_tile_and_stands_placeables_in_rows(self):
         table = '2DA V2.0\n\n   Label StrRef ModelName\n0  Bin 1 plc_bin\n1  Crate 2 plc_crate\n'
         spec = {'tileset': 'tst01', 'fill': 0, 'shared': {'lights': ['day'], 'tilesets': {'oth01': {'models': ['T_04', 't_02'], 'lights': ['day', 'night']}},
-                                                           'placeables': {'models': ['plc_crate', 'plc_bin']}}}
+                                                           'placeables': {'groups': [{'name': 'small', 'models': ['plc_crate', 'plc_bin']},
+                                                                                     {'name': 'large', 'models': ['plc_bin'], 'across': 1, 'spacing': 40, 'apart': 40, 'distance': 50}]}}}
         areas, shots = review.plan(SET, spec, sets={'oth01': SET}, table=table)
         self.assertEqual([(area['tag'], area['tileset'], area['width'], area['height']) for area in areas],
-                         [('tkoth01d', 'oth01', 4, 3), ('tkoth01n', 'oth01', 4, 3), ('tkpd', 'tst01', 5, 4)])
+                         [('tkoth01d', 'oth01', 4, 3), ('tkoth01n', 'oth01', 4, 3), ('tkpsd', 'tst01', 5, 4), ('tkpld', 'tst01', 6, 6)])
         self.assertEqual(sorted({number for number, _ in areas[0]['laid'].values()}), [0, 2, 4])  # tile 0 is the plain one: tile 9 is of a group
         self.assertEqual([(prop['model'], prop['appearance']) for prop in areas[2]['props']], [('plc_crate', 1), ('plc_bin', 0)])
-        self.assertEqual([shot['label'] for shot in shots if shot['area'] == 'tkpd'], ['props-day-r00'])
-        self.assertEqual(review.area_documents('tkpd', 'P', 'tst01', 5, 4, areas[2]['laid'], 'day', props=areas[2]['props'])['tkpd.git']['Placeable List']['value'][1]['Appearance']['value'], 0)
+        self.assertEqual([(shot['label'], shot['distance']) for shot in shots if shot['area'].startswith('tkp')], [('props-small-day-r00', 24.0), ('props-large-day-r00', 50)])
+        self.assertEqual(review.area_documents('tkpsd', 'P', 'tst01', 5, 4, areas[2]['laid'], 'day', props=areas[2]['props'])['tkpsd.git']['Placeable List']['value'][1]['Appearance']['value'], 0)
         with self.assertRaisesRegex(ValueError, 'No tile of oth01 is t_77'):
             review.plan(SET, {**spec, 'shared': {**spec['shared'], 'tilesets': {'oth01': {'models': ['t_77']}}}}, sets={'oth01': SET}, table=table)
         with self.assertRaisesRegex(ValueError, 'no row of placeables.2da: plc_lamp'):
-            review.plan(SET, {**spec, 'shared': {**spec['shared'], 'placeables': {'models': ['plc_lamp']}}}, sets={'oth01': SET}, table=table)
+            review.plan(SET, {**spec, 'shared': {**spec['shared'], 'placeables': {'groups': [{'name': 'small', 'models': ['plc_lamp']}]}}}, sets={'oth01': SET}, table=table)
 
     def test_a_plan_lays_each_part_once_for_every_lighting_and_keeps_group_and_envkit_tiles_out_of_the_block(self):
         spec = {'tileset': 'tst01', 'fill': 0, 'block': {'width': 4, 'height': 4, 'lights': ['day', 'night'], 'patches': [{'terrain': T, 'at': [1, 1]}], 'crossings': [[3, 3]]},

@@ -211,15 +211,19 @@ def plain(laid):
     return found[0]
 
 
-def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0):
+PROP_GROUP = {'across': 5, 'spacing': 6.0, 'apart': 12.0, 'distance': 24.0, 'pitch': 55.0, 'bearing': 3.14159}  # a group of placeables of about one size
+
+
+def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=3.14159):
     """(width, height, props, rows) of placeables stood `across` to a row, `spacing` metres apart, rows `apart` metres
-    apart, a tile of ground round them. props: [{model, appearance, position, bearing}] facing south, toward the views
-    of `prop_shots`; appearance: {model: placeables.2da row}."""
+    apart, a tile of ground round them. props: [{model, appearance, position, bearing}] (bearing pi faces south, toward
+    the views of `prop_shots`); appearance: {model: placeables.2da row}."""
     require(models, 'No placeables to stand'); missing = sorted(set(models) - set(appearance))
     require(not missing, 'These models have no row of placeables.2da: ' + ', '.join(missing))
     count = -(-len(models) // across)
     width, height = 2 + -(-int(across * spacing) // int(TILE)), 2 + -(-int(count * apart) // int(TILE))
-    props = [{'model': model, 'appearance': appearance[model], 'position': [TILE + spacing * (index % across + 0.5), TILE + apart * (index // across + 0.5)], 'bearing': 3.14159}
+    require(width <= 32 and height <= 32, 'These placeables do not fit one area: give fewer, or closer')
+    props = [{'model': model, 'appearance': appearance[model], 'position': [TILE + spacing * (index % across + 0.5), TILE + apart * (index // across + 0.5)], 'bearing': bearing}
              for index, model in enumerate(models)]
     return width, height, props, count
 
@@ -342,12 +346,13 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
     patches, runs, crossings, lights, views (which of a crossing's views are taken, as 'x03y03-ne'; all without it),
     near: {distance, pitch, views}, lamps: [{name, main, source, lights}] (the block again with
     every tile's own lights on, `area_documents`; views `lamp-<name>-<light>`)}, grid: {across, lights}, area: {step, lights},
-    shared: {lights, tilesets: {tileset: {models, fill, lights}}, placeables: {models, lights}}}. built_area: (width, height, laid)
+    shared: {lights, tilesets: {tileset: {models, fill, lights}}, placeables: {lights, groups: [{name, models, lights, and
+    the `PROP_GROUP` keys}]}}}. built_area: (width, height, laid)
     of an area someone built (`read_area`), without which the `area` part is left out, as is a part the spec lacks.
     The grid holds every tile that is not an envkit building's; the block is laid only with tiles outside groups.
     `shared` lays what else draws the restyled textures: each other tileset's tiles of `models` in a row on its plain
-    tile (sets: {tileset: its set file's text}), and the placeables of `models` stood in rows on this tileset's fill
-    (table: the text of placeables.2da, whose rows place them)."""
+    tile (sets: {tileset: its set file's text}), and the placeables of each group stood in rows on this tileset's fill,
+    a group of about one size to an area (table: the text of placeables.2da, whose rows place them)."""
     from . import inventory
     laid = inventory.read_set(set_text); tiles = {tile['number']: tile for tile in laid['tiles']}; tileset, fill = spec['tileset'], spec.get('fill', 0)
     require(all(part in PARTS for part in parts), 'A review\'s parts are ' + ', '.join(PARTS))
@@ -404,12 +409,16 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
                 shots += grid_shots(tag, f'{other}-{light}', min(width, len(numbers)), rows)
         if shared.get('placeables'):
             from tools.envkit import placeables
-            require(table, 'The review needs placeables.2da to stand the placeables')
-            width, height, props, rows = prop_rows([model.lower() for model in shared['placeables']['models']], placeables.rows(table))
-            cells = {(column, row): (fill, 0) for column in range(width) for row in range(height)}
-            for light in shared['placeables'].get('lights', shared['lights']):
-                tag = 'tkp' + light[0]; add(tag, f'Placeables, {light}', width, height, cells, light, props=props)
-                shots += prop_shots(tag, f'props-{light}', rows)
+            require(table, 'The review needs placeables.2da to stand the placeables'); appearance = placeables.rows(table)
+            for group in shared['placeables']['groups']:  # each size of placeable in an area of its own, spaced and seen to suit it
+                how = {**PROP_GROUP, **{key: value for key, value in group.items() if key in PROP_GROUP}}
+                width, height, props, rows = prop_rows([model.lower() for model in group['models']], appearance, across=how['across'], spacing=how['spacing'],
+                                                       apart=how['apart'], bearing=how['bearing'])
+                cells = {(column, row): (fill, 0) for column in range(width) for row in range(height)}
+                for light in group.get('lights', shared['placeables'].get('lights', shared['lights'])):
+                    tag = f'tkp{group["name"][0]}{light[0]}'; add(tag, f'Placeables, {group["name"]}, {light}', width, height, cells, light, props=props)
+                    shots += prop_shots(tag, f'props-{group["name"]}-{light}', rows, across=how['across'], spacing=how['spacing'], apart=how['apart'],
+                                        distance=how['distance'], pitch=how['pitch'])
     require(areas, 'Nothing to review: no part of the spec was laid')
     return areas, shots
 
