@@ -99,6 +99,8 @@ def parser():
     p = commands.add_parser('trial-spec', help='write specs/trial-RACE-vN.json')
     p.add_argument('race')
     p.add_argument('--version', default='1')
+    p.add_argument('--gender', choices=('male', 'female'), help='include only this gender of the race')
+    p.add_argument('--native-fits', help='pin selected private fit variants to the exact native attempts they replace')
     p = commands.add_parser('trial', help='build trials/NAME-vN from its spec')
     p.add_argument('name')
     p.add_argument('--version', default='1')
@@ -203,7 +205,7 @@ def main(argv=None):
                 print(row['head'], 'seed', row['seed'], round(row['elapsedSeconds'], 1), 's exit', row['exitCode'], row.get('error', ''))
             return max(row['exitCode'] for row in rows)  # RUNBOOK 119
         elif args.command == 'trial-spec':
-            out, count = trials.write_spec(workspace, args.race, args.version)
+            out, count = trials.write_spec(workspace, args.race, args.version, gender=args.gender, native_fits=args.native_fits)
             print(out, count, 'heads')
         elif args.command == 'trial':
             print(trials.build(workspace, args.name, args.version))

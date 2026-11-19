@@ -404,6 +404,20 @@ class Guards(Base):
         with self.assertRaisesRegex(guards.Refused, 'RUNBOOK 98'):
             guards.ownership_rules(self.head(manifest={'ownership': {'mode': 'rules', 'rules': []}}))
 
+    def test_declared_tusks_and_horns_need_a_tattoo2_rule(self):
+        tusks = {'name': 'tusks', 'description': 'Two short ivory lower tusks.'}
+        absent = [{'name': 'tusks', 'description': 'Absent.'}, {'name': 'horns', 'description': ' absent'}]
+        hair = {'mode': 'rules', 'rules': [{'channel': 1}]}
+        guards.ownership_rules(self.head(manifest={'ownership': hair, 'features': absent}))
+        guards.ownership_rules(self.head(manifest={'ownership': {'mode': 'atlas'}, 'features': [tusks]}))
+        with self.assertRaisesRegex(guards.Refused, r'declare tusks .*RUNBOOK 442'):
+            guards.ownership_rules(self.head(manifest={'ownership': hair, 'features': [tusks]}))
+        with self.assertRaisesRegex(guards.Refused, 'horns and tusks'):
+            guards.ownership_rules(self.head(manifest={'ownership': hair, 'features': [
+                tusks, {'name': 'horns', 'description': 'Two curved horns.'}]}))
+        guards.ownership_rules(self.head(manifest={'ownership': {'mode': 'rules', 'rules': [
+            {'channel': 1}, {'channel': 9}]}, 'features': [tusks]}))
+
     def test_uv_margin_reads_the_newest_result(self):
         head = self.head()
         self.receipt(head, 'unwrap', 1, {'result': {'pixelAudits': {'2048': {'coverageFraction': .4}}}})
@@ -754,6 +768,29 @@ class GpuJob(Base):
             launcher.run_gpu(self.workspace, head.name, ['--stages', 'geometry'])
         with self.assertRaisesRegex(guards.Refused, 'comfy'):  # past the cap check
             launcher.run_gpu(self.workspace, head.name, ['--stages', 'appearance'])
+
+    def test_geometry_options_are_refused_before_locking_without_geometry(self):
+        for stages, option in (('calibrate', ['--single-submission']), ('appearance', ['--shape-grid', '1024'])):
+            with self.subTest(stages=stages), unittest.mock.patch.object(guards, 'head_locks') as lock:
+                with self.assertRaisesRegex(guards.Refused, 'require a geometry stage'):
+                    launcher.run_gpu(self.workspace, 'elf-male-a', ['--stages', stages, *option])
+                lock.assert_not_called()
+
+    def test_the_workspace_shape_grid_applies_to_every_geometry_launch(self):
+        # RUNBOOK 379: a launch without the flag ran the template's 1536 grid and met the VRAM stop.
+        self.workspace.data['geometryShapeGrid'] = 1024
+        stages = ['calibrate', 'geometry']
+        self.assertEqual(launcher.workspace_shape_grid(self.workspace, stages, ['--stages', 'geometry']),
+                         ['--stages', 'geometry', '--shape-grid', '1024'])
+        self.assertEqual(launcher.workspace_shape_grid(self.workspace, stages, ['--shape-grid', '1024']), ['--shape-grid', '1024'])
+        self.assertEqual(launcher.workspace_shape_grid(self.workspace, ['appearance'], []), [])
+        with self.assertRaisesRegex(guards.Refused, 'differs from the workspace'):
+            launcher.workspace_shape_grid(self.workspace, stages, ['--shape-grid', '1536'])
+        self.workspace.data['geometryShapeGrid'] = 1000
+        with self.assertRaisesRegex(guards.Refused, 'geometryShapeGrid must be'):
+            launcher.workspace_shape_grid(self.workspace, stages, [])
+        del self.workspace.data['geometryShapeGrid']
+        self.assertEqual(launcher.workspace_shape_grid(self.workspace, stages, []), [])
 
     def launched_gpu(self, head, stages):
         data=guards.read(self.root/'workspace.json')
@@ -1199,20 +1236,44 @@ class Setup(Base):
         self.assertFalse(hold)
 
     def test_components_count_the_extra_shells_not_the_table(self):
+        from head_files import shell_review_basis
         design = self.prepare()
         head_setup.set_up(self.workspace, 'elf-male-a', design, approval='t', check=lambda *_: None)
         head = self.workspace.head('elf-male-a')
-        write(head/'review-evidence/shells.json', {'count': 8, 'extra': [{}]*7, 'deletedAreaFraction': .001})
+        precluster = {'path': str(head/'run/precluster/attempt-01/receipt.json'), 'sha256': 'a'*64}
+        progress = head/'run/state.json'
+        write(progress, {'stages': {'precluster': precluster}})
+        manifest = head/'manifest.json'
+        basis = shell_review_basis(precluster, guards.read(manifest)['mesh'])
+        report = head/'review-evidence/shells.json'
+        write(report, {'count': 8, 'extra': [{}]*7, 'deletedAreaFraction': .001})
+        with self.assertRaisesRegex(guards.Refused, 'missing or stale'):
+            head_setup.set_components(self.workspace, head.name, 'old unbound table', lambda *_: None)
+        write(report, {'basis': basis, 'count': 8, 'extra': [{}]*7, 'deletedAreaFraction': .001})
         self.assertEqual(head_setup.set_components(self.workspace, 'elf-male-a', 'studs', lambda *_: None), (7, .0011))
-        components = guards.read(head/'manifest.json')['mesh']['components']
+        components = guards.read(manifest)['mesh']['components']
         self.assertEqual(components['expectedDeleted'], 7)
         self.assertNotIn('interiorOnly', components)
-        write(head/'review-evidence/shells.json', {'count': 2, 'extra': [{'insideFraction': 1.0}], 'deletedAreaFraction': .00008})
+        guards.repair_shell_review(head)
+        write(progress, {'stages': {'precluster': dict(precluster, sha256='b'*64)}})
+        with self.assertRaisesRegex(guards.Refused, 'missing or stale'):
+            head_setup.set_components(self.workspace, head.name, 'old source', lambda *_: None)
+        with self.assertRaisesRegex(guards.Refused, 'missing or stale'):
+            guards.repair_shell_review(head)
+        write(progress, {'stages': {'precluster': precluster}})
+        settings = guards.read(manifest)
+        settings['mesh']['alphaRelative'] = .01
+        write(manifest, settings)
+        with self.assertRaisesRegex(guards.Refused, 'missing or stale'):
+            guards.repair_shell_review(head)
+        settings['mesh'].pop('alphaRelative')
+        write(manifest, settings)
+        write(report, {'basis': basis, 'count': 2, 'extra': [{'insideFraction': 1.0}], 'deletedAreaFraction': .00008})
         head_setup.set_components(self.workspace, head.name, 'inside', lambda *_: None)
-        self.assertTrue(guards.read(head/'manifest.json')['mesh']['components']['interiorOnly'])
-        write(head/'review-evidence/shells.json', {'count': 1, 'extra': [], 'deletedAreaFraction': 0})
+        self.assertTrue(guards.read(manifest)['mesh']['components']['interiorOnly'])
+        write(report, {'basis': basis, 'count': 1, 'extra': [], 'deletedAreaFraction': 0})
         self.assertEqual(head_setup.set_components(self.workspace, head.name, 'one shell', lambda *_: None), (0, .0001))
-        write(head/'review-evidence/shells.json', {'count': 7, 'extra': [{}]*7, 'deletedAreaFraction': .001})
+        write(report, {'basis': basis, 'count': 7, 'extra': [{}]*7, 'deletedAreaFraction': .001})
         with self.assertRaisesRegex(guards.Refused, 'counts 7'):
             head_setup.set_components(self.workspace, 'elf-male-a', 'studs', lambda *_: None)
 
@@ -1330,6 +1391,24 @@ class StockMaterialTrialCheck(Base):
 
 
 class Trials(Base):
+    def test_spec_can_isolate_one_gender_and_its_camera(self):
+        for file in ('head.hak', 'mod.mod'):
+            write(self.root/file, file)
+        data = json.loads((self.root/'workspace.json').read_text())
+        data.update(game={'root': 'game', 'client': 'game/client'}, trialBase={'haks': ['head.hak'], 'module': 'mod.mod', 'actorIdentity': {}},
+                    trialInspection={'elf': {'height': {'pme0': 1.7, 'pfe0': 1.6}, 'distance': 1.5}})
+        write(self.root/'workspace.json', data)
+        workspace = Workspace.load(self.root)
+        with unittest.mock.patch.object(Workspace, 'head_ids', return_value={
+            'elf-male-a': ('elf', 'male', 'pme0_head050'), 'elf-female-a': ('elf', 'female', 'pfe0_head050'),
+        }), unittest.mock.patch.object(trials, 'head_entry', side_effect=lambda _, name, slot: {'id': name, 'model': slot}):
+            out, count = trials.write_spec(workspace, 'elf', '2', gender='female')
+        spec = json.loads(out.read_text())
+        self.assertEqual(count, 1)
+        self.assertEqual(spec['prefix'], ['pfe0'])
+        self.assertEqual([head['id'] for head in spec['heads']], ['elf-female-a'])
+        self.assertEqual(spec['inspect'], {'height': {'pfe0': 1.6}, 'distance': 1.5})
+
     def test_spec_uses_each_heads_newest_native_and_chosen_rows(self):
         for file in ('head.hak', 'mod.mod'):
             write(self.root/file, file)
@@ -1464,6 +1543,19 @@ class Presets(Base):
         write(self.root/'workspace.json', data)
         self.assertEqual(presets.plan(Workspace.load(self.root), head.name)[0]['mesh']['fineRelief'], {'maximumError': .02})
 
+    def test_manifest_check_refuses_fine_relief_outside_the_supported_profile(self):
+        # Copperleaf: a 6% extent override passed the manifest and was refused only by the repair launch (RUNBOOK 484)
+        tools = str(Path(__file__).resolve().parent.parent)
+        env = dict(os.environ, PYTHONPATH=os.pathsep.join([tools] + [p for p in os.environ.get('PYTHONPATH', '').split(os.pathsep) if p]))
+        for relief, refused in (({'maximumExtent': .07}, False), ({'maximumExtent': .08}, True), (False, False)):
+            with self.subTest(relief=relief):
+                path = self.root/'manifest-check.json'
+                write(path, {'schemaVersion': 1, 'id': 'orc-female-x', 'inputs': {}, 'mesh': {'fineRelief': relief}})
+                done = subprocess.run([sys.executable, '-B', '-c', head_setup.VALIDATE_CODE, str(path)], env=env, capture_output=True, text=True)
+                self.assertEqual(bool(done.returncode), refused, done.stderr[-400:])
+                if refused:
+                    self.assertIn('maximumExtent 0.08 (supported up to 0.07)', done.stderr)
+
     def test_jaw_picks_the_largest_reach_that_finds_the_chin(self):
         head = self.head()
         workspace = self.marks(head)
@@ -1496,6 +1588,14 @@ class Presets(Base):
 
 
 class Review(Base):
+    def test_candidate_look_requires_unique_stock_rows(self):
+        from argparse import ArgumentTypeError
+        from review.gamesize import candidate_look
+        self.assertEqual(candidate_look('1=19,8=23'), {'1':19,'8':23})
+        for value in ('', '1=19,1=23', '10=19', '8=-1', '8=176', '1=gray'):
+            with self.subTest(value=value), self.assertRaises(ArgumentTypeError):
+                candidate_look(value)
+
     def test_every_tool_documents_itself_and_needs_no_batch_names(self):
         tools = [path for path in (HERE/'review').glob('*.py') if not path.stem.startswith('_')]
         self.assertGreaterEqual(len(tools), 18)
@@ -2141,6 +2241,22 @@ class SpoolTests(Base):
         self.assertIn('exit 2', self.spool.state['attention']['clay-1/sheet']['text'])
         self.assertEqual(list(self.spool.drawing), [Path('clay-2.log')])
 
+    def test_a_finished_sheet_is_logged_ready(self):
+        # REVIEW names a queued sheet about a minute before it exists; SHEET marks it on disk (RUNBOOK 485)
+        sheet = self.workspace.spool/'sheets'/'elf-male-a-tone-attempt-01.png'
+        sheet.parent.mkdir(parents=True, exist_ok=True)
+        with unittest.mock.patch.object(spool.subprocess, 'Popen') as popen:
+            popen.return_value = unittest.mock.Mock(poll=lambda: None)
+            self.spool.run_later('texturesheet', 'elf-male-a', 'tone', 'attempt-01', sheet)
+        log = next(iter(self.spool.drawing))
+        self.spool.scan_sheets()
+        self.assertNotIn('SHEET', (self.workspace.spool/'log.txt').read_text(encoding='utf-8') if (self.workspace.spool/'log.txt').exists() else '')
+        sheet.write_bytes(b'png')
+        self.spool.drawing[log] = unittest.mock.Mock(poll=lambda: 0)
+        self.spool.scan_sheets()
+        self.assertIn(f'SHEET {log.stem} ready: {sheet}', (self.workspace.spool/'log.txt').read_text(encoding='utf-8'))
+        self.assertEqual(self.spool.sheet_outputs, {})
+
     def test_repair_evidence_says_what_the_jaw_check_did(self):
         head = self.head()
         self.receipt(head, 'repair', 1, {'result': {}})
@@ -2469,6 +2585,21 @@ class ConditioningContracts(Base):
         with self.assertRaisesRegex(BudgetExceeded,'dispatch needs'):budget.admit_prompt()
         budget.sample();budget.admit_prompt()
         budget.sample();budget.check()
+
+    def test_dispatch_waits_for_released_models_to_return_ram(self):
+        from resource_budget import Budget,BudgetExceeded
+        values=iter([(10,7.1),(10,7.2),(10,12.9)]);now=[0.0]
+        budget=Budget({'memoryLimitBytes':100,'minimumStartRAMGiB':8,'minimumFreeRAMGiB':2},self.root/'settle.json',lambda _:next(values))
+        sleep=lambda s:now.__setitem__(0,now[0]+s)
+        budget.sample();budget.admit_prompt(settle_seconds=30,sleep=sleep,clock=lambda:now[0])
+        self.assertEqual((now[0],budget.latest_available),(2.0,12.9))
+        values=iter([(10,7.1)]*40);now[0]=0.0
+        budget=Budget({'memoryLimitBytes':100,'minimumStartRAMGiB':8,'minimumFreeRAMGiB':2},self.root/'settle2.json',lambda _:next(values))
+        budget.sample()
+        # check() reads a monotonic sample age; keep the fake samples fresh while the fake clock advances.
+        with self.assertRaisesRegex(BudgetExceeded,'dispatch needs 8 GiB'):
+            budget.admit_prompt(settle_seconds=3,sleep=sleep,clock=lambda:now[0])
+        self.assertEqual(now[0],3.0)
 
     def test_ram_floor_and_sampler_staleness(self):
         from resource_budget import Budget,BudgetExceeded

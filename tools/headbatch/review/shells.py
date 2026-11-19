@@ -7,12 +7,14 @@ from pathlib import Path
 head = Path(next(a for a in sys.argv[1:] if not a.startswith('--')))
 from headkit import neck, mesh as meshmod
 from headkit.common import read
-from headbatch.head_files import fit_matrix
+from headbatch.head_files import fit_matrix, shell_review_basis, write_json
 from _frame import band
 man = json.load(open(head/'manifest.json')); st = read(head/'run/state.json')['stages']; b = read(head/'bindings.json')
 source = read(st['precluster']['path'])['result']['output']
 fit = dict(man['fit'], matrix=fit_matrix(head), reviewed=True); fit.pop('matrixFrom', None)
 policy = dict(man['mesh']); policy.pop('components', None)  # force the refusal so the full table is reported
+basis = shell_review_basis(st['precluster'], policy)
+report = head/'review-evidence'/'shells.json'
 inspection = dict(policy.get('shellInspection', {}), sourceSha256=source['sha256'])
 body = head/man['inputs']['bodyNeck']['path'] if (policy.get('neck') or {}).get('cut') else None
 captured = {}
@@ -27,9 +29,7 @@ with tempfile.TemporaryDirectory() as tmp:
     try:
         neck.repair(source['path'], Path(tmp)/'final.glb', b, policy, inspection, fit=fit, body=body)
     except Selected:
-        (head/'review-evidence').mkdir(exist_ok=True)
-        table = {'count': 1, 'deletedAreaFraction': 0.0, 'extra': []}
-        (head/'review-evidence'/'shells.json').write_text(json.dumps(table, indent=1))
+        write_json(report, {'count': 1, 'deletedAreaFraction': 0.0, 'extra': [], 'basis': basis})
         print('single shell: keep it, no extras to delete')
     except meshmod.ShellReview as error:
         import numpy as np
@@ -44,7 +44,6 @@ with tempfile.TemporaryDirectory() as tmp:
                 winding = igl.fast_winding_number(V, main.astype(np.int64, copy=False), points)
                 row['insideFraction'] = float(np.mean(np.abs(winding) > .5))
             print(' ', row['triangles'], 'tri', '%.4f%%' % (100*row['areaFraction']), 'inside %.0f%%' % (100*row['insideFraction']), 'centroid', row['centroid'])
-        (head/'review-evidence').mkdir(exist_ok=True); (head/'review-evidence'/'shells.json').write_text(json.dumps(table, indent=1))
         # shells.png: face centroids projected on the three axis planes of the repair frame, kept shell grey (nearer = lighter),
         # extra shells red and enlarged, so a visible floater (stud, ring) is told from an interior bubble at a glance.
         from PIL import Image, ImageDraw
@@ -60,7 +59,9 @@ with tempfile.TemporaryDirectory() as tmp:
                 for c in C[label == k]:
                     x = ((c[a]-(lo[a]+hi[a])/2)/span+.5)*size; y = (.5-(c[b]-(lo[b]+hi[b])/2)/span)*size; draw.ellipse([x-3, y-3, x+3, y+3], fill=(255, 40, 40))
             draw.text((4, 4), f'axes {"xyz"[a]} right, {"xyz"[b]} up, depth {"xyz"[d]}', fill=(255, 255, 0)); tiles.append(im)
-        sheet = Image.new('RGB', (size*3, size)); [sheet.paste(t, (i*size, 0)) for i, t in enumerate(tiles)]; sheet.save(head/'review-evidence'/'shells.png')
+        report.parent.mkdir(exist_ok=True)
+        sheet = Image.new('RGB', (size*3, size)); [sheet.paste(t, (i*size, 0)) for i, t in enumerate(tiles)]; sheet.save(report.with_suffix('.png'))
+        write_json(report, dict(table, basis=basis))
         if '--interior' in sys.argv:  # would the toolkit's interiorOnly selection accept this master?
             win = lambda vv, ff, pts: igl.fast_winding_number(np.asarray(vv, float), np.asarray(ff, np.int64), np.asarray(pts, float))
             try:

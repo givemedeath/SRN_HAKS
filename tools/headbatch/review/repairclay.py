@@ -36,7 +36,8 @@ def draw(head, attempt, output):
         require(result.get('localSeal') and 'fitMatrix' in result,'Repair needs a pinned fit stage or local-closure fit matrix')
         matrix = checked_fit(result['fitMatrix']) @ BASIS
     size = 360
-    views = [('Front',(0.,1.,0.)), ('Side',(1.,0.,0.)), ('Rear',(0.,-1.,0.)), ('Under jaw',(0.,.12,-1.))]
+    views = [('Front',(0.,1.,0.)), ('Profile +X',(1.,0.,0.)), ('Profile -X',(-1.,0.,0.)),
+             ('Rear',(0.,-1.,0.)), ('Under jaw',(0.,.12,-1.))]
     tiles = []
     for label, artifact in [('Before cut' if cut else 'Before reduction',before), ('Final',after)]:
         value = mesh(artifact['path'])

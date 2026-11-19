@@ -1074,8 +1074,27 @@ class MeshTests(Temporary):
         for value,outward,policy in ((.02,.003,{}),(.009,.005,{}),(.009,.003,False),(.009,.003,{'maximumError':.008})):
             with self.subTest(value=value,outward=outward,policy=policy):
                 deep=error.copy();deep[strands]=value;self.assertFalse(fine_relief(p,f,deep,outward,.004,policy)['passed'])
-        for bad in ({'maximumExtent':.05},{'other':.01},{'maximumError':0},True):
+        # a long shallow braid groove (Copperleaf, 2026-11-18) passes only under a per-head extent bound; deeper than the error bound fails
+        groove=error.copy();groove[np.linalg.norm(p-p[0],axis=1)<.028*diagonal]=.009
+        self.assertFalse(fine_relief(p,f,groove,.003,.004,{})['passed'])
+        wide={'maximumExtent':.06,'maximumAreaShare':.0075}  # Copperleaf's reviewed bounds; the strands above add to the area share
+        long=fine_relief(p,f,groove,.003,.004,wide);self.assertTrue(long['passed']);self.assertGreater(long['measured']['extent'],.03)
+        groove[groove>.004]=.02;self.assertFalse(fine_relief(p,f,groove,.003,.004,wide)['passed'])
+        for bad in ({'maximumExtent':.08},{'other':.01},{'maximumError':0},True):
             with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'fineRelief'):fine_relief(p,f,error,.003,.004,bad)
+    def test_fine_relief_lists_every_failed_measure(self):
+        # Copperleaf repair-02: the outward stand-off (0.544%) hid behind the extent failure until the extent bound passed
+        from headkit.neck import fine_relief, fine_relief_bounds, relief_failures
+        p,f=self.icosphere(levels=4);diagonal=float(np.linalg.norm(np.ptp(p,axis=0)));error=np.full(len(p),.001)
+        groove=error.copy();groove[np.linalg.norm(p-p[0],axis=1)<.028*diagonal]=.009
+        both=fine_relief(p,f,groove,.005,.004,{})
+        self.assertFalse(both['passed']);self.assertEqual([x['measure'] for x in both['failed']][:2],['outward','extent'])
+        line=relief_failures(both);self.assertIn('outward 0.00500 > 0.00400',line);self.assertIn('extent',line)
+        self.assertEqual(fine_relief(p,f,error,.003,.004,{})['failed'],[])
+        strict=fine_relief(p,f,groove,.003,.004,False);self.assertEqual(strict['failed'][0]['measure'],'fineRelief')
+        self.assertIn('fineRelief: false',relief_failures(strict))
+        self.assertIsNone(fine_relief_bounds(False));self.assertEqual(fine_relief_bounds({'maximumExtent':.07})['maximumExtent'],.07)
+        with self.assertRaisesRegex(ValueError,r'maximumExtent 0.08 \(supported up to 0.07\)'):fine_relief_bounds({'maximumExtent':.08})
     def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
         from headkit import neck as mesh_module
         from headkit.neck import neck_policy,neck_shorten,shorten_depth,transform
@@ -1865,6 +1884,47 @@ class AppearanceTests(Temporary):
         Image.fromarray(palette).save(self.root/'pal.png')
         result=quantize(self.root/'rgb.png',self.root/'labels.png',{'0':str(self.root/'pal.png'),'8':str(self.root/'pal.png')},{'0':0,'8':0},self.root/'quantized')
         shades=np.asarray(Image.open(result['shades']['path']));self.assertTrue(np.all(shades==1));self.assertEqual(set(result['layers']),{'0','8'})
+    def test_skin_rows_must_be_fully_opaque(self):
+        # RUNBOOK 407: stock skin rows 56-59 (alpha 35-40) render environment-mapped; hair shine and metal tattoo rows stay usable.
+        from headkit.palette import rows_for_shades
+        rgb=np.full((1024,1024,3),120,np.uint8);labels=np.zeros((1024,1024),np.uint8);labels[:5]=1
+        Image.fromarray(rgb).save(self.root/'rgb.png');Image.fromarray(labels).save(self.root/'labels.png')
+        palette=np.zeros((2,256,4),np.uint8);palette[...,:3]=np.arange(256)[None,:,None];palette[0,:,3]=38;palette[1,:,3]=255;palette[1,0,3]=0  # a transparent shade is unusable, not environment-mapped
+        Image.fromarray(palette).save(self.root/'pal.png')
+        with self.assertRaisesRegex(ValueError,'Skin row 0 is not fully opaque'):
+            quantize(self.root/'rgb.png',self.root/'labels.png',{'0':str(self.root/'pal.png'),'1':str(self.root/'pal.png')},{'0':0,'1':0},self.root/'bad')
+        result=quantize(self.root/'rgb.png',self.root/'labels.png',{'0':str(self.root/'pal.png'),'1':str(self.root/'pal.png')},{'0':1,'1':0},self.root/'ok')
+        self.assertEqual(set(result['layers']),{'0','1'})
+        target=np.full((10,3),120.);shades=np.full(10,120)
+        self.assertEqual([r['row'] for r in rows_for_shades(target,shades,palette)],[0,1])
+        self.assertEqual([r['row'] for r in rows_for_shades(target,shades,palette,opaque=True)],[1])
+        # A mixed row (stock skin row 175) is not ranked for skin even when the used shades are opaque: the gate refuses it.
+        mixed=palette.copy();mixed[0,:,3]=255;mixed[0,200:230,3]=112
+        self.assertEqual([r['row'] for r in rows_for_shades(target,shades,mixed,opaque=True)],[1])
+        from headkit.palette import design_rows
+        self.assertEqual([r['row'] for r in design_rows([50.,0.,0.],shades,mixed,opaque=True)],[1])
+    def test_hair_broad_contrast_scales_broad_tone_and_keeps_strands(self):
+        # RUNBOOK 408: broad bake patches on pale hair are scaled about the median before ranking; strand detail is kept.
+        size=1024;ys,xs=np.mgrid[0:size,0:size];labels=np.zeros((size,size),np.uint8);labels[:128]=1
+        luma=60+120*xs/size+np.where((xs//2+ys//2)%2==0,8,-8);rgb=np.repeat(np.clip(luma,0,255)[...,None],3,2).astype(np.uint8)
+        Image.fromarray(rgb).save(self.root/'rgb.png');Image.fromarray(labels).save(self.root/'labels.png')
+        palette=np.full((1,256,4),255,np.uint8);palette[0,:,:3]=np.arange(256)[:,None];Image.fromarray(palette).save(self.root/'pal.png')
+        positions=np.dstack([xs/size,ys/size,np.zeros((size,size))]).astype(np.float32)
+        files={'0':str(self.root/'pal.png'),'1':str(self.root/'pal.png')}
+        def decoded(factor,name):
+            result=quantize(self.root/'rgb.png',self.root/'labels.png',files,{'0':0,'1':0},self.root/name,positions=positions,hair_broad=factor)
+            shades=np.asarray(Image.open(result['shades']['path'])).astype(float)[16:112,16:1008];return result,shades
+        _,full=decoded(1.0,'full');result,half=decoded(.5,'half')
+        report=result['layers']['1']['hairBroadContrast'];self.assertEqual(report['factor'],.5)
+        self.assertAlmostEqual(report['broadStdAfter'],report['broadStdBefore']*.5,places=1)
+        broad=lambda a:np.ptp(a.reshape(a.shape[0],-1,32).mean(2).mean(0))
+        self.assertLess(broad(half),.6*broad(full));self.assertGreater(broad(half),.4*broad(full))
+        strands=lambda a:np.abs(np.diff(a,axis=1)).mean()
+        self.assertGreater(strands(half),.8*strands(full))
+        with self.assertRaisesRegex(ValueError,'hairBroadContrast'):
+            quantize(self.root/'rgb.png',self.root/'labels.png',files,{'0':0,'1':0},self.root/'nopos',hair_broad=.5)
+        with self.assertRaisesRegex(ValueError,'hairBroadContrast'):
+            quantize(self.root/'rgb.png',self.root/'labels.png',files,{'0':0,'1':0},self.root/'low',positions=positions,hair_broad=.1)
     def test_unknown_ownership_is_not_assumed_hair(self):
         Image.new('RGB',(1024,1024)).save(self.root/'rgb.png');Image.new('L',(1024,1024),255).save(self.root/'mask.png')
         with self.assertRaisesRegex(ValueError,'ownership'):quantize(self.root/'rgb.png',self.root/'mask.png',{}, {},self.root/'bad')
@@ -2027,6 +2087,23 @@ class ToneMatchTests(Temporary):
         for kw in ({'full_range':True},{'positions':flat}):
             with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'surface points'):
                 quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/'bad',shading_only=True,**kw)
+    def test_skin_detail_contrast_scales_fine_skin_detail_not_the_shading(self):
+        # RUNBOOK 486: Quartz's bake mottling is fine detail; skinDetailContrast damps it and leaves the stretched shading alone.
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(7);x=np.arange(1024)
+        luma=80+20*x[None,:]/1024+rng.normal(0,3,(1024,1024));luma[:,900:]=60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'d.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.
+        run=lambda name,**kw:quantize(self.root/'d.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,shading_only=True,positions=flat,**kw)
+        whole,half=run('dwhole'),run('dhalf',skin_detail=.5)
+        shades={name:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,:900] for name,r in (('whole',whole),('half',half))}
+        fine=lambda s:np.std(s[1:-1,1:-1]-(s[:-2,1:-1]+s[2:,1:-1]+s[1:-1,:-2]+s[1:-1,2:])/4)
+        self.assertLess(fine(shades['half']),.7*fine(shades['whole']))
+        trend=lambda s:s[:,400:500].mean()-s[:,10:110].mean();self.assertGreaterEqual(trend(shades['half']),.95*trend(shades['whole']))  # shading kept
+        report=half['layers']['0']['skinDetailContrast'];self.assertEqual((report['factor'],report['sigma']),(.5,.04))
+        self.assertLess(report['detailStdAfter'],report['detailStdBefore']);self.assertNotIn('skinDetailContrast',whole['layers']['0'])
+        for factor,kw in ((.2,{'full_range':True,'shading_only':True,'positions':flat}),(.5,{'full_range':True})):
+            with self.subTest(factor=factor),self.assertRaisesRegex(ValueError,'skinDetailContrast'):
+                quantize(self.root/'d.png',self.root/'o.png',palettes,rows,self.root/f'bad{factor}',skin_detail=factor,**kw)
     def test_shading_range_keeps_seam_offsets_at_their_own_amplitude(self):
         # RUNBOOK 153: a near-flat skin whose two UV charts (x<512, x>=512) differ by 2 luma where they meet on the surface. The
         # full stretch multiplies that offset into a tone step; surface-smoothed shading keeps it near its source size.

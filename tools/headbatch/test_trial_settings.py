@@ -15,6 +15,7 @@ class TrialCaptureSettingsTests(unittest.TestCase):
                 inspection_settings(source, dest)
                 expected = tomllib.loads(initial)
                 expected.setdefault('ui', {}).update({'mouseover-feedback': False, 'targeting-feedback-mode': 0})
+                expected['game']={'auto-pause':{'on-focus-loss':{'enabled':False}}}
                 graphics=expected.setdefault('graphics', {})
                 graphics['framelimiter']={'enabled':True, 'foreground':{'target-fps':30},
                     'background':{'target-fps':10}, 'non-interactive':{'target-fps':10}}
@@ -47,6 +48,32 @@ class TrialInspectionTests(unittest.TestCase):
 
 
 class TrialBuildLeaseTests(unittest.TestCase):
+    def test_trial_fit_keeps_exact_parent_slot_material_and_palette(self):
+        from types import SimpleNamespace
+        from guards import Refused
+        from head_files import sha, write_json
+        from trials import bind_native_fit
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);workspace=SimpleNamespace(root=root,path=lambda value:root/value)
+            base=root/'run/native/attempt-01';receipt=root/'trial/fit/native.json'
+            entry={'id':'human-male-a','model':'pmh0_head088','native':str(base/'native')}
+            original={'model':entry['model'],'plt':{'sha256':'a'*64}}
+            write_json(base/'receipt.json',{'result':original})
+            write_json(receipt,original)
+            selected={'sourceNativeSha256':sha(base/'receipt.json'),
+                      'native':{'path':'trial/fit/native.json','sha256':sha(receipt)}}
+            chosen=entry.copy();bind_native_fit(workspace,chosen,selected)
+            self.assertEqual(chosen['native'],receipt.parent.as_posix())
+            self.assertEqual(chosen['nativeReceiptSha256'],sha(receipt))
+            with self.assertRaisesRegex(Refused,'another native attempt'):
+                bind_native_fit(workspace,entry.copy(),{**selected,'sourceNativeSha256':'b'*64})
+            write_json(receipt,{**original,'plt':{'sha256':'b'*64}})
+            with self.assertRaisesRegex(Refused,'receipt is missing or changed'):
+                bind_native_fit(workspace,entry.copy(),selected)
+            selected['native']['sha256']=sha(receipt)
+            with self.assertRaisesRegex(Refused,'material or PLT'):
+                bind_native_fit(workspace,entry.copy(),selected)
+
     def test_failed_ram_admission_starts_no_freeze_or_compiler(self):
         from unittest.mock import patch,MagicMock
         import trials
@@ -68,12 +95,13 @@ class ClientSafetyTests(unittest.TestCase):
     def test_caps_uncapped_large_window_without_touching_personal_profile_or_schema(self):
         with tempfile.TemporaryDirectory() as tmp:
             source,dest=Path(tmp)/'personal.tml',Path(tmp)/'private.tml'
-            raw=('[graphics.framelimiter]\nenabled=false\n[graphics.window]\nmode="fullscreen"\n'
+            raw=('[game.auto-pause.on-focus-loss]\nenabled=true\n[graphics.framelimiter]\nenabled=false\n[graphics.window]\nmode="fullscreen"\n'
                  '[graphics.window.windowed]\nwidth=3840\nheight=2071\nx=22\n'
                  '["~~schema".graphics.framelimiter]\ndefault=false\n')
             source.write_text(raw,encoding='utf8')
             inspection_settings(source,dest)
             result=tomllib.loads(dest.read_text())
+            self.assertFalse(result['game']['auto-pause']['on-focus-loss']['enabled'])
             self.assertTrue(result['graphics']['framelimiter']['enabled'])
             self.assertEqual(result['graphics']['framelimiter']['foreground']['target-fps'],30)
             self.assertEqual(result['graphics']['window']['windowed'],{'width':1920,'height':1080,'borderless':False,'x':22})
@@ -107,6 +135,25 @@ class ClientSafetyTests(unittest.TestCase):
         self.assertEqual(events,[('take','cpu-1'),('take','cpu-2'),('take','cpu-3'),('take','gpu'),
                                  ('running','client'),('drop','gpu'),('drop','cpu-3'),('drop','cpu-2'),('drop','cpu-1')])
 
+    def test_client_accepts_only_a_confirmed_stopped_endpoint(self):
+        from unittest.mock import patch
+        from urllib.error import URLError
+        from client_trial import comfy_ready_for_client
+        url='http://127.0.0.1:8188'
+        with patch('headkit.render_device.comfy_idle') as idle, \
+             patch('client_trial.socket.create_connection') as connect:
+            idle.return_value=False
+            self.assertFalse(comfy_ready_for_client(url))
+            connect.assert_not_called()
+            idle.side_effect=URLError(TimeoutError())
+            with self.assertRaises(URLError):comfy_ready_for_client(url)
+            connect.assert_not_called()
+            idle.side_effect=URLError(ConnectionRefusedError())
+            with self.assertRaises(URLError):comfy_ready_for_client(url)
+            connect.assert_called_once_with(('127.0.0.1',8188),timeout=3)
+            connect.side_effect=ConnectionRefusedError()
+            self.assertTrue(comfy_ready_for_client(url))
+
     def test_memory_failure_stops_only_the_owned_process(self):
         from unittest.mock import MagicMock
         from client_trial import supervise
@@ -126,6 +173,31 @@ class ClientSafetyTests(unittest.TestCase):
         result=supervise(process,MagicMock(),MagicMock())
         self.assertIsNone(result['stopReason'])
         process.terminate.assert_not_called()
+
+    def test_locked_desktop_refuses_launch_before_taking_leases(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        import client_trial
+        from guards import Refused
+        workspace=SimpleNamespace(root=Path('private'),data={'game':{'client':'nwmain.exe'}},path=Path)
+        with patch.object(client_trial,'runtime_files',return_value=({},[])), \
+             patch.object(client_trial,'desktop_is_unlocked',return_value=False), \
+             patch.object(client_trial,'exclusive') as lease:
+            with self.assertRaisesRegex(Refused,'Unlock the interactive Windows desktop'):
+                client_trial.launch(workspace,'human','1')
+        lease.assert_not_called()
+
+    def test_desktop_loss_closes_only_the_owned_client(self):
+        from unittest.mock import MagicMock
+        from client_trial import supervise
+        child=MagicMock();child.poll.return_value=None;child.returncode=1
+        budget=MagicMock();stop=MagicMock();stop.exists.return_value=False
+        states=iter((True,False))
+        result=supervise(child,budget,stop,sleep=lambda _:None,desktop_ready=lambda:next(states))
+        self.assertIn('Windows session locked or disconnected',result['stopReason'])
+        budget.check.assert_called_once()
+        child.terminate.assert_called_once()
+        child.wait.assert_called_once()
 
     def test_manifest_cannot_escape_private_userdir(self):
         import json
@@ -194,6 +266,7 @@ class ClientStartupFailureTests(unittest.TestCase):
             child.wait.side_effect=stopped
             budget=MagicMock();budget.close.side_effect=lambda:events.append('budget-close')
             with patch.object(client_trial,'existing_clients',return_value=''), \
+                 patch.object(client_trial,'desktop_is_unlocked',return_value=True), \
                  patch.object(client_trial,'runtime_files',return_value=({'module':'test'},[])), \
                  patch.object(client_trial,'Budget',return_value=budget), \
                  patch.object(client_trial.subprocess,'Popen',return_value=child), \

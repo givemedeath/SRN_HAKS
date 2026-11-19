@@ -20,7 +20,7 @@ NEAR_EYE = 12   # 4K texels around the eye opening where hair-owned lash lines a
 CHANNEL_MASKS = ('iris', 'eye', 'brow', 'skin', 'lips', 'nose', 'hairlock', 'beard')
 BEARD_RATIO = .8   # below the nose, hair-owned texels nearer the hair median than this x the skin median stay hair (RUNBOOK 145)
 BEARD_LIGHTNESS = .5   # Lab L weight in that test: shading moves a beard's lightness, not its chroma
-TREATMENT_MASKS = ('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket')
+TREATMENT_MASKS = ('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket', 'hair')
 TREATMENT = {'delight': .8, 'smooth': .7, 'lipDark': .5, 'socket': .3, 'irisRim': .45, 'lidLine': .6, 'browEdge': .95, 'scalpDelight': 0, 'browSkinRefill': 0}
 BROW_FRINGE = .02   # head widths around the brow searched for leftover brow colour on skin
 
@@ -195,12 +195,20 @@ def treat(colour, labels, masks, value, settings=None, outer=None, preserve_skin
     c[iris & (gaussian_filter(iris.astype(np.float32), 3) < .8)] *= s['irisRim']
     charts = np.where(mapped, chart_ids(value['uv'], shared='vertex')[fid], -1)
     c[binary_dilation(eye, iterations=6) & ~eye & (o == 0) & np.isin(charts, np.unique(charts[eye & mapped]))] *= s['lidLine']   # eye's own charts only
-    bm = brow & (o == 1); report['browFringeRefilled'] = 0
+    # Brow-mask texels the parser labels hair are hair (a fringe over the brow, temple strands the colour-grown mask reached when
+    # brow and hair share a colour): the brow cap and shift would pull them to brow level (elf-female-d dark discs, RUNBOOK 409).
+    parsed_hair = masks.get('hair'); bm = brow & (o == 1) & (True if parsed_hair is None else ~(parsed_hair > .5))
+    report['browHairExcluded'] = 0 if parsed_hair is None else int((brow & (o == 1) & (parsed_hair > .5)).sum()); report['browFringeRefilled'] = 0
     if bm.any():
         lb = luma(c[bm]); cap = np.percentile(lb, 85); hot = np.flatnonzero(bm.ravel())[lb > cap]
         c[hot//4096, hot % 4096] *= (cap/lb[lb > cap])[:, None]   # skin-coloured texels caught in the soft mask edge: brow range
         hair = mapped & (o == 1) & ~bm
-        if hair.any(): c[bm] *= np.clip((luma(c[bm])+np.median(luma(c[hair]))-np.median(luma(c[bm])))/np.maximum(luma(c[bm]), 1), 0, 4)[:, None]
+        if hair.any():
+            # Each brow texel moves by the median offset toward the hair's level but never past it: a colour-grown brow mask on
+            # temple hair already at that level was pushed below it and decoded black (elf-female-d teal brows, RUNBOOK 409).
+            lb = luma(c[bm]); level = float(np.median(luma(c[hair]))); shift = level-float(np.median(lb))
+            moved = np.maximum(lb+shift, np.minimum(lb, level)) if shift < 0 else np.minimum(lb+shift, np.maximum(lb, level))
+            c[bm] *= np.clip(moved/np.maximum(lb, 1), 0, 4)[:, None]
         # Outer edge by surface distance to the nearest non-brow texel (UV blur would also darken chart seams inside the brow).
         by, bx = np.nonzero(bm); oy, ox = np.nonzero(binary_dilation(bm, iterations=8) & ~bm & mapped)
         if len(oy):

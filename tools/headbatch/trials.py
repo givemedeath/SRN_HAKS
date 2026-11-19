@@ -89,26 +89,61 @@ def inspection_view(workspace, race):
     return {**view,**({'height':dict(heights)} if 'height' in view else {})}
 
 
-def write_spec(workspace, race, version):
+def bind_native_fit(workspace, entry, selection):
+    """Select a previously reviewed private fit with the same model and PLT."""
+    name = entry['id']
+    if not isinstance(selection, dict) or set(selection) != {'sourceNativeSha256', 'native'}:
+        raise guards.Refused(f'{name}: native fit needs a source attempt hash and a pinned native receipt')
+    base = Path(entry['native']).parent/'receipt.json'
+    if sha(base) != selection['sourceNativeSha256']:
+        raise guards.Refused(f'{name}: selected fit belongs to another native attempt')
+    chosen = selection['native']
+    if not isinstance(chosen, dict) or set(chosen) != {'path', 'sha256'} or not isinstance(chosen['path'], str):
+        raise guards.Refused(f'{name}: invalid selected native receipt pin')
+    # Containment is checked on resolved paths; the spec keeps the workspace's own spelling (a Windows 8.3 temp root
+    # resolves to its long name).
+    path = workspace.path(chosen['path'])
+    if (path.name != 'native.json' or not path.resolve().is_relative_to(workspace.root.resolve()) or not path.is_file()
+            or sha(path) != chosen['sha256']):
+        raise guards.Refused(f'{name}: selected native fit receipt is missing or changed')
+    result = guards.read(path)
+    original = guards.read(base)['result']
+    if (result.get('model') != entry['model'] or result.get('nativeMaterial') != entry.get('nativeMaterial')
+            or result.get('plt', {}).get('sha256') != original['plt']['sha256']):
+        raise guards.Refused(f'{name}: selected native fit changed the model, material or PLT')
+    entry['native'] = path.parent.as_posix()
+    entry['nativeReceiptSha256'] = chosen['sha256']
+
+
+def write_spec(workspace, race, version, *, gender=None, native_fits=None):
     """specs/trial-RACE-vN.json with each exported head's latest native folder and its chosen palette rows first."""
     base = workspace.data.get('trialBase')
     game = workspace.data.get('game')
     if not base or not game:
         raise guards.Refused('Trials need "trialBase" and "game" in workspace.json')
-    heads = [entry for name, (head_race, _, slot) in sorted(workspace.head_ids().items()) if head_race == race
+    sexes = ('male', 'female') if gender is None else (gender,)
+    prefixes = [prefix(race, sex) for sex in sexes]
+    heads = [entry for name, (head_race, sex, slot) in sorted(workspace.head_ids().items()) if head_race == race and sex in sexes
              for entry in [head_entry(workspace, name, slot)] if entry]
-    if race == 'troll':
-        for entry in heads:
+    selected = guards.read(workspace.path(native_fits)) if native_fits else {}
+    if not isinstance(selected, dict) or set(selected) - {entry['id'] for entry in heads}:
+        raise guards.Refused('Native fit selections must name completed heads in this trial')
+    for entry in heads:
+        if entry['id'] in selected:
+            bind_native_fit(workspace, entry, selected[entry['id']])
+        elif race == 'troll':
             sized_trial_native(workspace, entry, version)
     race_row = RACE_DATA['races'][race]
     name = f'srn_rh_{race[:3]}{version}'
     spec = {'kind': 'srn-head-trial-spec', 'trial': f'race-heads-{race}-v{version}', 'hak': name, 'module': name,
-            'prefix': [prefix(race, 'male'), prefix(race, 'female')], 'identity': {'appearanceRow': race_row['appearanceRow'], 'raceId': race_row['raceId'], 'visualScale': 1.0},
+            'prefix': prefixes, 'identity': {'appearanceRow': race_row['appearanceRow'], 'raceId': race_row['raceId'], 'visualScale': 1.0},
             'captureCoverageRequired': True, 'inspectionTour': True, 'motion': True, 'lighting': 'ambient', 'gameRoot': workspace.path(game['root']).as_posix(), 'client': workspace.path(game['client']).as_posix(),
             'base': {'haks': [pin(workspace.path(hak)) for hak in base['haks']], 'module': pin(workspace.path(base['module'])), 'actorIdentity': base['actorIdentity']},
             'heads': heads}
     framing=inspection_view(workspace,race)
     if framing:
+        if 'height' in framing:
+            framing = {**framing, 'height': {family: height for family, height in framing['height'].items() if family in prefixes}}
         spec['inspect']=framing
     from stock_materials import check
     with launcher.cpu_slot(workspace):
@@ -127,6 +162,7 @@ def inspection_settings(source, output):
     window = before.get('graphics', {}).get('window', {}).get('windowed', {})
     controls = {
         'ui': {'mouseover-feedback': False, 'targeting-feedback-mode': 0},
+        'game.auto-pause.on-focus-loss': {'enabled': False},
         'graphics.framelimiter': {'enabled': True},
         'graphics.framelimiter.foreground': {'target-fps': 30},
         'graphics.framelimiter.background': {'target-fps': 10},

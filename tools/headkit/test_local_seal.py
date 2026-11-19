@@ -16,6 +16,32 @@ class LocalRepairContract(unittest.TestCase):
   p=self.value['positions'];f=self.value['faces'];self.assertEqual(genus(p,f),0)
   with self.assertRaises(ValueError):genus(p,f[:-1])
   with self.assertRaises(ValueError):genus(np.r_[p,p+5],np.r_[f,f+len(p)])
+ def test_crossing_reduced_closure_tries_the_next_bounded_margin(self):
+  from unittest.mock import MagicMock,patch
+  from headkit.local_seal import close_geometry
+  ml=MagicMock()
+  vertices=self.value['positions'].astype(np.float64)
+  faces=self.value['faces']
+  birth=np.arange(len(faces),dtype=float)+1
+  oversized=np.tile(faces,(5001,1))
+  current=ml.MeshSet.return_value.current_mesh.return_value
+  current.vertex_matrix.return_value=vertices
+  current.face_matrix.return_value=oversized
+  current.face_scalar_array.return_value=np.ones(len(oversized))
+  plan={}
+  with patch('headkit.local_seal.library',return_value=ml), \
+       patch('headkit.local_seal.cavity',return_value=plan), \
+       patch('headkit.local_seal.solid',return_value=(vertices,faces,None)) as solid, \
+       patch('headkit.local_seal.genus',side_effect=[5,4,4,4,4,4]), \
+       patch('headkit.local_seal._simplify_closure',return_value=(vertices,faces,birth)) as simplify, \
+       patch('headkit.local_seal.scan',side_effect=[{'complete':True,'pairs':[[0,1]]},
+             {'complete':True,'pairs':[[0,1]]},{'complete':True,'pairs':[]}]) as scan:
+   _,_,_,_,records=close_geometry(self.value,{'embree':{'path':'embree'}},{})
+  self.assertEqual([call.args[1] for call in solid.call_args_list],[2.,3.])
+  self.assertEqual([call.kwargs['optimize'] for call in simplify.call_args_list],[True,False,True])
+  self.assertEqual(scan.call_args.args[0].dtype,np.float32)
+  self.assertIn('1 pairs',records[0]['rejected'])
+  self.assertNotIn('rejected',records[1])
  def test_fingerprint_includes_uv(self):
   self.assertNotEqual(geometry_fingerprint(self.value),geometry_fingerprint({**self.value,'uv':self.value['uv']+.001}))
  def test_bundle_verifies_embedded_bytes(self):

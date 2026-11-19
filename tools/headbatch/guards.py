@@ -7,7 +7,7 @@ import re
 import time
 
 from gpu_job import geometry_limit, submissions
-from head_files import attempts, current, decision, fit_matrix, read, sha
+from head_files import attempts, current, decision, fit_matrix, read, sha, shell_review_basis, state
 from headkit.comfy import locked
 from workspace import TOOLS
 
@@ -93,10 +93,41 @@ def remove(path):
     return not os.path.exists(path)
 
 
+TATTOO2 = 9  # orc/troll convention: tusks and horns own the tattoo2 channel (user 2026-10-30)
+FEATURES_ON_TATTOO2 = ('tusks', 'horns')
+
+
+def declared(feature):
+    description = str(feature.get('description', '')).strip().lower()
+    return bool(description) and not description.startswith('absent')
+
+
 def ownership_rules(head):
-    ownership = read(head/'manifest.json')['ownership']
-    if ownership.get('mode') == 'rules' and not ownership.get('rules'):
+    manifest = read(head/'manifest.json')
+    ownership = manifest['ownership']
+    if ownership.get('mode') != 'rules':
+        return
+    rules = ownership.get('rules')
+    if not rules:
         raise Refused(f'{head.name}: ownership has no rules (RUNBOOK 98)')
+    present = sorted(f['name'] for f in manifest.get('features', [])
+                     if isinstance(f, dict) and f.get('name') in FEATURES_ON_TATTOO2 and declared(f))
+    if present and not any(isinstance(rule, dict) and rule.get('channel') == TATTOO2 for rule in rules):
+        raise Refused(f'{head.name}: features declare {" and ".join(present)} but no ownership rule puts them on '
+                      f'tattoo2 (channel {TATTOO2}); add a measured rule before ownership (RUNBOOK 442)')
+
+
+def shell_review_current(head, basis, mesh):
+    expected = shell_review_basis(state(head).get('stages', {}).get('precluster'), mesh)
+    if expected['precluster'] is None or basis != expected:
+        raise Refused(f'{head.name}: shell review is missing or stale; run review --slot shells for the current precluster and wrap settings')
+
+
+def repair_shell_review(head):
+    mesh = read(head/'manifest.json').get('mesh', {})
+    components = mesh.get('components') or {}
+    if not mesh.get('localSeal') and 'reviewBasis' in components:
+        shell_review_current(head, components['reviewBasis'], mesh)
 
 
 def reference_eye_prerequisites(head):

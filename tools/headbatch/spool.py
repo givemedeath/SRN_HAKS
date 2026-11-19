@@ -54,6 +54,7 @@ class Spool:
         self.later = later or self.run_later
         self.running = {}
         self.drawing = {}
+        self.sheet_outputs = {}
         self.sheet_numbers = itertools.count()
 
     def log(self, message):
@@ -105,6 +106,7 @@ class Spool:
         log = self.sheets/f'{arguments[0]}-{datetime.now():%H%M%S}-{next(self.sheet_numbers)}.log'
         with open(log, 'w', encoding='utf-8') as out:
             self.drawing[log] = subprocess.Popen(self.command(['review', '--slot', *arguments]), stdout=out, stderr=subprocess.STDOUT)
+        self.sheet_outputs[log] = [Path(item) for item in arguments if str(item).lower().endswith('.png')]
 
     def draw(self, sheet, *arguments):
         """A reused stage keeps the sheet it already has."""
@@ -352,12 +354,17 @@ class Spool:
                     self.attention(name, 'launch', 'the launch ended without a result: see its .out file (RUNBOOK 117)')
 
     def scan_sheets(self):
+        """A REVIEW line says a sheet is queued; SHEET says it is on disk, about a minute later behind a CPU slot (RUNBOOK 485)."""
         for log, process in list(self.drawing.items()):
             code = process.poll()
             if code is not None:
                 del self.drawing[log]
+                outputs = self.sheet_outputs.pop(log, [])
                 if code:
                     self.attention(log.stem, 'sheet', f'exit {code}: see {log}')
+                else:
+                    ready = [str(path) for path in outputs if path.exists()]
+                    self.log(f"SHEET {log.stem} ready: {', '.join(ready) if ready else f'no image; see {log}'}")
 
     def taken(self, path):
         """The heads a request file has already launched or refused: it can outlive a pass, edited or held open, and none of them must fire twice (RUNBOOK 207)."""
