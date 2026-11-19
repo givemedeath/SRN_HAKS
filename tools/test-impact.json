@@ -5723,6 +5723,10 @@
       "tools/tilekit/__init__.py",
       "tools/tilekit/apply.py"
     ],
+    "tools/tilekit/test_baselines.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py"
+    ],
     "tools/tilekit/test_enlarge.py": [
       "tools/tilekit/enlarge.py",
       "tools/tilekit/material.py",
@@ -5988,6 +5992,11 @@
     "tools/tilekit/test_apply.py": [
       "srn_placeable",
       "srn_t_common"
+    ],
+    "tools/tilekit/test_baselines.py": [
+      "srn_2da",
+      "srn_t_common",
+      "srn_t_dgt04"
     ],
     "tools/tilekit/test_enlarge.py": [
       "srn_t_common"
@@ -6334,6 +6343,7 @@
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py",
     "tools/tilekit/test_apply.py",
+    "tools/tilekit/test_baselines.py",
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_inventory.py",
     "tools/tilekit/test_lamps.py",

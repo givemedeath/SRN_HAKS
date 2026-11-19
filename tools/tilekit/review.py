@@ -276,7 +276,7 @@ def _tools():
 def read_area(path, run=None):
     """(width, height, [(tile number, turn)]) of an area file, binary or as JSON."""
     path = Path(path); run = run or _tools()
-    are = json.loads(path.read_text(encoding='utf-8') if path.suffix == '.json' else run('nwn_gff', ['-i', path, '-k', 'json']))
+    are = json.loads(path.read_text(encoding='utf-8-sig') if path.suffix.lower() == '.json' else run('nwn_gff', ['-i', path, '-k', 'json']))  # with or without a byte-order mark
     return are['Width']['value'], are['Height']['value'], [(one['Tile_ID']['value'], one['Tile_Orientation']['value']) for one in are['Tile_List']['value']]
 
 
@@ -359,12 +359,13 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
     from . import inventory
     laid = inventory.read_set(set_text); tiles = {tile['number']: tile for tile in laid['tiles']}; tileset, fill = spec['tileset'], spec.get('fill', 0)
     require(all(part in PARTS for part in parts), 'A review\'s parts are ' + ', '.join(PARTS))
+    require(fill in tiles, f'The fill tile {fill} is no tile of {tileset}')
     envkit = {number for number, tile in tiles.items() if tile['model'].startswith('ek_')}
     grouped = {number for group in laid['groups'] for number in group['tiles']}
     areas, shots = [], []
 
     def add(tag, title, width, height, cells, light, lamps=None, of=None, props=()):
-        require(tag not in {area['tag'] for area in areas}, f'Two lightings of a part begin with the same letter ({light}): an area is named by it')
+        require(tag not in {area['tag'] for area in areas}, f'Two areas would be named {tag}: an area is named by the first letters of its lighting ({light}) and of its lamp set, so two of either begin with the same letter')
         areas.append({'tag': tag, 'title': title, 'tileset': of or tileset, 'width': width, 'height': height, 'laid': cells, 'light': light,
                       **({'lamps': lamps} if lamps else {}), **({'props': list(props)} if props else {})})
 
@@ -406,6 +407,7 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
             numbers = [tile['number'] for tile in theirs['tiles'] if tile['model'] in wanted]
             missing = sorted(wanted - {tile['model'] for tile in theirs['tiles']}); require(not missing, f'No tile of {other} is ' + ', '.join(missing))
             filler = how['fill'] if 'fill' in how else plain(theirs)
+            require(filler in {tile['number'] for tile in theirs['tiles']}, f'The fill tile {filler} is no tile of {other}')
             width, height, cells, rows = grid(numbers, filler, max(4, min(len(numbers), 32)))  # an area four tiles wide at least
             for light in how.get('lights', shared['lights']):
                 tag = f'tk{other}{light[0]}'; add(tag, f'{other} tiles, {light}', width, height, cells, light, of=other)

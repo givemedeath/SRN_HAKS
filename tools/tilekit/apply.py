@@ -27,11 +27,12 @@ def _configuration(repo):
     return json.loads((repo / 'hakbuilder.json').read_text(encoding='utf-8-sig'))
 
 
-def _extends(was, made):
-    """Whether a set file or 2DA keeps every entry of the pack copy it replaces, in place, adding only after them:
-    areas name tiles, terrains and rows by number, and another session may have appended since the overlay was made."""
-    old, new = (path.read_bytes().decode('cp1252') for path in (was, made))
-    if made.suffix.lower() == '.set':
+def _extends(suffix, was, made):
+    """Whether a set file or 2DA (`suffix`, the bytes of the pack copy and of the new one) keeps every entry of the pack
+    copy it replaces, in place, adding only after them: areas name tiles, terrains and rows by number, and another
+    session may have appended since the overlay was made."""
+    old, new = (data.decode('cp1252') for data in (was, made))
+    if suffix.lower() == '.set':
         old, new = inventory.read_set(old), inventory.read_set(new)
         return all(new[key][:len(old[key])] == old[key] for key in ('terrains', 'tiles', 'groups'))
     rows = lambda text: [line.split() for line in text.splitlines()[3:] if line.strip()]  # past the version, blank and column lines
@@ -119,7 +120,7 @@ def plan(repo, spec, overlay):
         if path.name.lower() in made_from and made != there:  # the palette too, which cannot be compared entry by entry; one in place already is applied again
             require(hashlib.sha256(there).hexdigest() == made_from[path.name.lower()], f'{path.name}: the pack copy changed since the overlay was made from it: make the overlay again')
         if path.suffix.lower() in ('.set', '.2da'):
-            require(_extends(was, path), f'{path.name}: it lacks or changes entries the pack copy has (added since the overlay was made?): make the overlay again')
+            require(_extends(path.suffix, there, made),f'{path.name}: it lacks or changes entries the pack copy has (added since the overlay was made?): make the overlay again')
         put.append((path, was))
     after = {name: set(holding) for name, holding in held.items()}  # what each pack holds once this apply is done
     for path in delete:

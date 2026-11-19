@@ -140,7 +140,7 @@ class ReviewTests(unittest.TestCase):
             review.plan(SET, spec, parts=('area',))
         with self.assertRaisesRegex(ValueError, 'has tiles this set does not: 77'):
             review.plan(SET, spec, built_area=(2, 1, [(0, 0), (77, 0)]))
-        with self.assertRaisesRegex(ValueError, r'begin with the same letter \(dusk\)'):
+        with self.assertRaisesRegex(ValueError, r'Two areas would be named tkgd: .*lighting \(dusk\)'):
             review.LIGHTS['dusk'] = review.LIGHTS['overcast']; self.addCleanup(review.LIGHTS.pop, 'dusk')
             review.plan(SET, {**spec, 'grid': {'across': 4, 'lights': ['day', 'dusk']}}, parts=('grid',))
         self.assertEqual([area['tag'] for area in review.plan(SET, {key: spec[key] for key in ('tileset', 'grid')})[0]], ['tkgd'])  # a spec of a grid alone
@@ -152,11 +152,11 @@ class ReviewTests(unittest.TestCase):
     def test_the_command_refuses_in_words_and_a_refused_overlay_leaves_the_folder_fresh(self):
         import contextlib, io, json
         from . import __main__ as command
-        spec = {'tileset': 'tst01', 'grid': {'across': 4, 'lights': ['day']}}
+        spec = {'tileset': 'tst01', 'grid': {'across': 4, 'lights': ['day']}, 'haks': ['srn_t_tst01', *review.HAKS]}
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder); (root / 'srn_t_tst01').mkdir(); (root / 'srn_t_tst01' / 'tst01.set').write_text(SET, encoding='cp1252')
             (root / 'game' / 'data').mkdir(parents=True); (root / 'built').mkdir(); (root / 'over').mkdir(); (root / 'over' / 'Brick.tga').write_bytes(b'')
-            for name in [pack + '.hak' for pack in review.HAKS] + [review.TLK + '.tlk']:
+            for name in [pack + '.hak' for pack in spec['haks']] + [review.TLK + '.tlk']:
                 (root / 'built' / name).write_bytes(b'')
 
             def run(document, *more, encoding='utf-8'):
@@ -171,6 +171,8 @@ class ReviewTests(unittest.TestCase):
             self.assertEqual(run({'tileset': 'tst01', 'grid': {}}), (2, "tilekit: The review spec lacks 'lights'\n"))
             self.assertEqual(run({'tileset': 'nope', 'grid': {}})[0], 2)  # no such set file: said, not thrown
             self.assertEqual(run(spec, '--overlay', str(root / 'over')), (2, 'tilekit: Overlay files are lowercase resref files: Brick.tga\n'))
+            self.assertIn('add srn_t_tst01 to the spec\'s haks', run({**spec, 'haks': list(review.HAKS)})[1])  # a tileset whose pack the module would not load
+            self.assertIn('The fill tile 99 is no tile of tst01', run({**spec, 'fill': 99})[1])
             self.assertFalse((root / 'out').exists())
 
     def test_what_the_views_wait_is_counted_for_every_change_of_area(self):

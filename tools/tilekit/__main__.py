@@ -29,7 +29,7 @@ def review_command(chosen):
     spec = _json(chosen.spec); require(isinstance(spec, dict) and spec.get('tileset'), 'A review spec names its tileset')
     tileset = spec['tileset']  # an overlay's set file (a copied terrain's) is the one shown, so it is the one laid
     set_of = lambda name: (chosen.overlay / f'{name}.set' if chosen.overlay and (chosen.overlay / f'{name}.set').is_file() else chosen.repo / f'srn_t_{name}' / f'{name}.set').read_bytes().decode('cp1252')
-    shared = spec.get('shared', {})
+    shared = spec.get('shared', {}); haks = tuple(spec.get('haks', review.HAKS))
     try:
         areas, shots = review.plan(set_of(tileset), spec, parts=tuple(part for part in chosen.parts.split(',') if part),
                                    built_area=review.read_area(chosen.area) if chosen.area else None,
@@ -41,7 +41,9 @@ def review_command(chosen):
         shots = [shot for shot in shots if shot['label'].startswith(tuple(chosen.views.split(',')))]
         require(shots, 'No view begins with ' + ' or '.join(chosen.views.split(',')))
     shots = shots[::max(1, chosen.every)]; kept = {shot['area'] for shot in shots}; areas = [area for area in areas if area['tag'] in kept]
-    record = review.build(chosen.name, areas, shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay, haks=tuple(spec.get('haks', review.HAKS)))
+    lacking = sorted({f'srn_t_{area["tileset"]}' for area in areas} - set(haks))  # each tileset laid is one of this project's packs (its set file is read there)
+    require(not lacking, 'The module would not load the pack of every tileset it lays: add ' + ', '.join(lacking) + ' to the spec\'s haks')
+    record = review.build(chosen.name, areas, shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay, haks=haks)
     told = {'module': record['module'], 'areas': [area['tag'] for area in areas], 'views': len(shots), 'overlay': record['overlay']}
     if not chosen.no_run:
         told.update(review.capture(chosen.game, record, chosen.out))
