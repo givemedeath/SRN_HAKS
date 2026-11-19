@@ -7,7 +7,6 @@ import hashlib
 import struct
 from pathlib import Path
 
-
 import numpy as np
 
 from . import require
