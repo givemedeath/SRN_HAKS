@@ -202,10 +202,37 @@ def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
     return '\n'.join(lines) + '\n'
 
 
-def area_documents(tag, title, tileset, width, height, laid, light, lamps=None):
+def plain(laid):
+    """The number of a set's plain tile: its default terrain at every corner, level, with no crosser, outside groups."""
+    grouped = {number for group in laid['groups'] for number in group['tiles']}
+    found = [tile['number'] for tile in laid['tiles'] if tile['number'] not in grouped and not any(tile['heights']) and not any(tile['crossers'])
+             and set(tile['corners']) == {laid['default']}]
+    require(found, 'The set has no plain tile of its default terrain: give the review a fill')
+    return found[0]
+
+
+def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0):
+    """(width, height, props, rows) of placeables stood `across` to a row, `spacing` metres apart, rows `apart` metres
+    apart, a tile of ground round them. props: [{model, appearance, position, bearing}] facing south, toward the views
+    of `prop_shots`; appearance: {model: placeables.2da row}."""
+    require(models, 'No placeables to stand'); missing = sorted(set(models) - set(appearance))
+    require(not missing, 'These models have no row of placeables.2da: ' + ', '.join(missing))
+    count = -(-len(models) // across)
+    width, height = 2 + -(-int(across * spacing) // int(TILE)), 2 + -(-int(count * apart) // int(TILE))
+    props = [{'model': model, 'appearance': appearance[model], 'position': [TILE + spacing * (index % across + 0.5), TILE + apart * (index // across + 0.5)], 'bearing': 3.14159}
+             for index, model in enumerate(models)]
+    return width, height, props, count
+
+
+def prop_shots(area, prefix, rows, *, across=5, spacing=6.0, apart=12.0, distance=24.0, pitch=55.0):
+    """One view of each row of `prop_rows`, from the south, the player standing just short of it."""
+    return [_shot(area, f'{prefix}-r{row:02d}', TILE + spacing * across / 2, TILE + apart * (row + 0.5) - 3.0, 90, distance, pitch) for row in range(rows)]
+
+
+def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, props=()):
     """{file: document} of one area: its tiles as laid ({(column, row): (tile number, turn)}, every cell), its lighting
-    one of LIGHTS, nothing standing in it. lamps: {main, source} switches every tile's own lights on, as a builder
-    does in the Toolset: each a row of lightcolor.2da for both of that kind, 0 for off."""
+    one of LIGHTS, nothing standing in it but `props` (`prop_rows`). lamps: {main, source} switches every tile's own
+    lights on, as a builder does in the Toolset: each a row of lightcolor.2da for both of that kind, 0 for off."""
     require(NAME.fullmatch(tag) and len(tag) <= client_fixture.RESREF, 'An area\'s tag is a lowercase resref')
     require(light in LIGHTS, 'An area is lit by ' + ', '.join(LIGHTS)); require(len(laid) == width * height, f'{tag}: every cell of the area is laid')
     made = client_fixture.area_documents(tag, [], 1); are = made.pop(tag + '_a.are'); git = made.pop(tag + '_a.git'); plain = are['Tile_List']['value'][0]
@@ -222,6 +249,9 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None):
                 'Name': field('cexolocstring', {'0': title}), 'Tag': field('cexostring', tag), 'ResRef': field('resref', tag),
                 'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 90.0)})
     are.update({key: field(KINDS.get(key, 'dword'), value) for key, value in LIGHTS[light].items()})
+    if props:
+        git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', 3.14159))
+                                               for index, prop in enumerate(props)])
     return {tag + '.are': are, tag + '.git': git}
 
 
@@ -278,7 +308,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     ifo['Mod_Area_list']['value'] = [{'__struct_id': 6, 'Area_Name': field('resref', area['tag'])} for area in areas]
     ifo['Mod_Entry_Area'] = field('resref', shots[0]['area']); ifo['Mod_Name'] = field('cexolocstring', {'0': 'Tilekit review ' + name})
     for area in areas:
-        made.update(area_documents(area['tag'], area['title'], area['tileset'], area['width'], area['height'], area['laid'], area['light'], area.get('lamps')))
+        made.update(area_documents(area['tag'], area['title'], area['tileset'], area['width'], area['height'], area['laid'], area['light'], area.get('lamps'), area.get('props', ())))
     for filename, document in made.items():
         path = documents / (filename + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
         run('nwn_gff', ['-i', path, '-o', binary / filename])
@@ -307,13 +337,17 @@ def elsewhere(lines):
     return [values['target'] for values in map(client.parse_line, lines) if 'shot' in values and values.get('valid') == '0']
 
 
-def plan(set_text, spec, *, parts=PARTS, built_area=None):
+def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
     patches, runs, crossings, lights, views (which of a crossing's views are taken, as 'x03y03-ne'; all without it),
     near: {distance, pitch, views}, lamps: [{name, main, source, lights}] (the block again with
-    every tile's own lights on, `area_documents`; views `lamp-<name>-<light>`)}, grid: {across, lights}, area: {step, lights}}. built_area: (width, height, laid)
+    every tile's own lights on, `area_documents`; views `lamp-<name>-<light>`)}, grid: {across, lights}, area: {step, lights},
+    shared: {lights, tilesets: {tileset: {models, fill, lights}}, placeables: {models, lights}}}. built_area: (width, height, laid)
     of an area someone built (`read_area`), without which the `area` part is left out, as is a part the spec lacks.
-    The grid holds every tile that is not an envkit building's; the block is laid only with tiles outside groups."""
+    The grid holds every tile that is not an envkit building's; the block is laid only with tiles outside groups.
+    `shared` lays what else draws the restyled textures: each other tileset's tiles of `models` in a row on its plain
+    tile (sets: {tileset: its set file's text}), and the placeables of `models` stood in rows on this tileset's fill
+    (table: the text of placeables.2da, whose rows place them)."""
     from . import inventory
     laid = inventory.read_set(set_text); tiles = {tile['number']: tile for tile in laid['tiles']}; tileset, fill = spec['tileset'], spec.get('fill', 0)
     require(all(part in PARTS for part in parts), 'A review\'s parts are ' + ', '.join(PARTS))
@@ -321,9 +355,10 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None):
     grouped = {number for group in laid['groups'] for number in group['tiles']}
     areas, shots = [], []
 
-    def add(tag, title, width, height, cells, light, lamps=None):
+    def add(tag, title, width, height, cells, light, lamps=None, of=None, props=()):
         require(tag not in {area['tag'] for area in areas}, f'Two lightings of a part begin with the same letter ({light}): an area is named by it')
-        areas.append({'tag': tag, 'title': title, 'tileset': tileset, 'width': width, 'height': height, 'laid': cells, 'light': light, **({'lamps': lamps} if lamps else {})})
+        areas.append({'tag': tag, 'title': title, 'tileset': of or tileset, 'width': width, 'height': height, 'laid': cells, 'light': light,
+                      **({'lamps': lamps} if lamps else {}), **({'props': list(props)} if props else {})})
 
     if 'block' in parts and 'block' in spec:
         block = spec['block']
@@ -355,6 +390,26 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None):
         for light in spec['area']['lights']:
             tag = 'tka' + light[0]; add(tag, f'Built area, {light}', width, height, cells, light)
             shots += lattice_shots(tag, f'area-{light}', width, height, step=spec['area'].get('step', 4))
+    if 'shared' in parts and 'shared' in spec:
+        shared = spec['shared']
+        for other, how in sorted(shared.get('tilesets', {}).items()):
+            require(sets and other in sets, f'The review needs the set file of {other}')
+            theirs = inventory.read_set(sets[other]); wanted = {model.lower() for model in how['models']}
+            numbers = [tile['number'] for tile in theirs['tiles'] if tile['model'] in wanted]
+            missing = sorted(wanted - {tile['model'] for tile in theirs['tiles']}); require(not missing, f'No tile of {other} is ' + ', '.join(missing))
+            filler = how['fill'] if 'fill' in how else plain(theirs)
+            width, height, cells, rows = grid(numbers, filler, max(4, min(len(numbers), 32)))  # an area four tiles wide at least
+            for light in how.get('lights', shared['lights']):
+                tag = f'tk{other}{light[0]}'; add(tag, f'{other} tiles, {light}', width, height, cells, light, of=other)
+                shots += grid_shots(tag, f'{other}-{light}', min(width, len(numbers)), rows)
+        if shared.get('placeables'):
+            from tools.envkit import placeables
+            require(table, 'The review needs placeables.2da to stand the placeables')
+            width, height, props, rows = prop_rows([model.lower() for model in shared['placeables']['models']], placeables.rows(table))
+            cells = {(column, row): (fill, 0) for column in range(width) for row in range(height)}
+            for light in shared['placeables'].get('lights', shared['lights']):
+                tag = 'tkp' + light[0]; add(tag, f'Placeables, {light}', width, height, cells, light, props=props)
+                shots += prop_shots(tag, f'props-{light}', rows)
     require(areas, 'Nothing to review: no part of the spec was laid')
     return areas, shots
 
