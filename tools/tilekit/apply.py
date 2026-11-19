@@ -32,48 +32,49 @@ def files_of(overlay, name):
 
 
 def plan(repo, spec, overlay):
-    """{'put': [(overlay file, pack)], 'delete': [pack file], 'overrides': {resource: packs}, 'left': [overlay files
-    that are of no texture of the spec and no model]} for a spec's textures (none where spec is None) and the overlay's
-    models; nothing is changed."""
+    """{'put': [(overlay file, pack file)], 'delete': [pack file], 'overrides': {resource: packs}, 'touched': names,
+    'left': [overlay files that are of no texture of the spec and no model]} for a spec's textures (none where spec is
+    None) and the overlay's models; nothing is changed. Names are compared in lower case, as the game reads them; a
+    file a pack already holds is written and deleted as that pack spells it."""
     repo, overlay = Path(repo), Path(overlay); packs = [pack['Name'] for pack in _configuration(repo)['HakList']]
     spec = spec or {'textures': {}}  # an overlay of changed models alone
-    held = {}
+    held = {}  # lower-case name: {pack: its file there}
     for pack in packs:
         if (repo / pack).is_dir():
             for path in (repo / pack).iterdir():
-                held.setdefault(path.name.lower(), []).append(pack)
+                held.setdefault(path.name.lower(), {})[pack] = path
     require(not spec['textures'] or spec.get('tileset'), 'A spec with textures names its tileset')
     own = f"srn_t_{spec.get('tileset', '').lower()}"; require(not spec['textures'] or own in packs, f'{own} is no pack of hakbuilder.json'); put, delete, placed = [], [], {}
     for name in sorted(spec['textures']):
-        holders = sorted({pack for suffix in HELD for pack in held.get(name + suffix, ())}) or [own]
-        delete += [repo / pack / (name + suffix) for suffix in OLD for pack in held.get(name + suffix, ())]
+        holders = sorted({pack for suffix in HELD for pack in held.get((name + suffix).lower(), {})}) or [own]
+        delete += [path for suffix in OLD for path in held.get((name + suffix).lower(), {}).values()]
         for path in files_of(overlay, name):
-            strangers = sorted(set(held.get(path.name, ())) - set(holders))
+            key = path.name.lower(); strangers = sorted(set(held.get(key, {})) - set(holders))
             require(not strangers, f'{name}: {path.name} is already a file of {", ".join(strangers)}')
-            require(path.name not in placed or placed[path.name] == holders, f'{path.name} belongs to two textures')
-            placed[path.name] = holders; put += [(path, pack) for pack in holders]
+            require(key not in placed or placed[key] == holders, f'{path.name} belongs to two textures')
+            placed[key] = holders; put += [(path, held.get(key, {}).get(pack, repo / pack / path.name)) for pack in holders]
     for path in sorted(overlay.glob('*.mdl')):
-        holders = held.get(path.name, [])
+        holders = held.get(path.name.lower(), {})
         require(len(holders) == 1, f'{path.name}: a changed model replaces the one pack copy it was made from, not {len(holders)}')
-        text, was = path.read_bytes().decode('cp1252'), (repo / holders[0] / path.name).read_bytes().decode('cp1252')
-        require(inventory.walk_hash(text) == inventory.walk_hash(was), f'{path.name}: its walkmesh differs from the pack copy it replaces')
-        put.append((path, holders[0]))
+        (was,) = holders.values(); text = path.read_bytes().decode('cp1252')
+        require(inventory.walk_hash(text) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
+        put.append((path, was))
     after = {name: set(holding) for name, holding in held.items()}
     for path in delete:
-        after[path.name].discard(path.parent.name)
-    for path, pack in put:
-        after.setdefault(path.name, set()).add(pack)
-    touched = {path.name for path in delete} | {path.name for path, _ in put}
+        after[path.name.lower()].discard(path.parent.name)
+    for _, target in put:
+        after.setdefault(target.name.lower(), set()).add(target.parent.name)
+    touched = {path.name.lower() for path in delete} | {target.name.lower() for _, target in put}
     overrides = {name: sorted(after[name]) for name in sorted(touched) if len(after.get(name, ())) > 1}
     used = {path.name for path, _ in put}; left = sorted(path.name for path in overlay.iterdir() if path.is_file() and path.name not in used)
-    return {'put': put, 'delete': sorted(set(delete) - {repo / pack / path.name for path, pack in put}), 'overrides': overrides, 'touched': touched, 'left': left}
+    return {'put': put, 'delete': sorted(set(delete) - {target for _, target in put}), 'overrides': overrides, 'touched': touched, 'left': left}
 
 
 def apply(repo, spec, overlay):
     """Carry out `plan`, rewrite hakbuilder.json's expected overrides for the names touched, and tell the counts."""
     repo = Path(repo); moves = plan(repo, spec, overlay)
-    for path, pack in moves['put']:  # written first: a write that fails leaves the old copies in place
-        (repo / pack / path.name).write_bytes(path.read_bytes())
+    for path, target in moves['put']:  # written first: a write that fails leaves the old copies in place
+        target.write_bytes(path.read_bytes())
     for path in moves['delete']:
         path.unlink()
     configuration = _configuration(repo); waiting = dict(moves['overrides']); entries, dropped = [], 0

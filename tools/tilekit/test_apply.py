@@ -63,6 +63,14 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 't_a01.mdl: its walkmesh differs'):
             apply.plan(self.repo, self.spec, self.overlay)
 
+    def test_names_are_matched_in_any_case_and_a_pack_s_spelling_kept(self):
+        (self.repo / 'srn_t_common' / 'wall.tga').rename(self.repo / 'srn_t_common' / 'Wall.TGA')
+        apply.apply(self.repo, self.spec, self.overlay)
+        self.assertNotIn('Wall.TGA', self.names('srn_t_common')); self.assertIn('wall.mtr', self.names('srn_t_common'))
+        (self.repo / 'srn_placeable' / 'Wall_N.dds').write_bytes(b'theirs')
+        with self.assertRaisesRegex(ValueError, 'wall_n.dds is already a file of srn_placeable'):
+            apply.plan(self.repo, self.spec, self.overlay)
+
     def test_a_map_named_like_another_packs_file_or_a_missing_one_is_refused(self):
         (self.repo / 'srn_placeable' / 'wall_n.dds').write_bytes(b'theirs')
         with self.assertRaisesRegex(ValueError, 'wall_n.dds is already a file of srn_placeable'):

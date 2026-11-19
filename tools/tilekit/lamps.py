@@ -15,7 +15,10 @@ SOURCE, MAIN = re.compile(r'(?i)sl([12])$'), re.compile(r'(?i)ml[12]$')
 
 def moved(text, radius=RADIUS):
     """(the model's text with its source lights as main lights, their new names), or (None, why) where it is left."""
-    names = sorted(set(re.findall(r'(?im)^\s*node[ \t]+light[ \t]+(\S+)', text)))
+    spelled = {}  # one name in any case, as the geometry's node (the first) spells it
+    for name in re.findall(r'(?im)^\s*node[ \t]+light[ \t]+(\S+)', text):
+        spelled.setdefault(name.lower(), name)
+    names = sorted(spelled.values())
     source = [name for name in names if SOURCE.search(name)]
     if not source:
         return None, 'no source light'
@@ -24,7 +27,7 @@ def moved(text, radius=RADIUS):
     made = []
     for name in source:
         new = SOURCE.sub(r'ml\1', name)
-        text = re.sub(r'(?<!\S)' + re.escape(name) + r'(?!\S)', new, text)  # the node, and its keys in every animation
+        text = re.sub(r'(?i)(?<!\S)' + re.escape(name) + r'(?!\S)', new, text)  # the node, and its keys in every animation, in any case
         node = re.search(r'(?is)^[ \t]*node[ \t]+light[ \t]+' + re.escape(new) + r'[ \t\r]*$.*?^[ \t]*endnode', text, re.M)
         require(node and re.search(r'(?im)^\s*radius\s+\S+', node.group(0)), f'The light {name} has no radius to set')
         text = text[:node.start()] + re.sub(r'(?im)^(\s*radius\s+)\S+', rf'\g<1>{radius}', node.group(0), count=1) + text[node.end():]
@@ -35,25 +38,16 @@ def moved(text, radius=RADIUS):
 def move(repo, tileset, folder, *, radius=RADIUS):
     """Write the moved models of a tileset into `folder` (a review's overlay; a model already there is changed in
     place) and tell {model: state}. A model whose walkmesh would differ afterwards is a refusal: nothing here touches one."""
-    repo, folder = Path(repo), Path(folder); tileset = tileset.lower()
-    tiles = inventory.drawn_models(repo, tileset)  # the edge tiles round an area's border too
-    others = inventory._other_sets(repo, tileset); told, seen = {}, set(); folder.mkdir(parents=True, exist_ok=True)
-    for pack in PACKS:
-        for path in sorted((repo / pack.format(tileset=tileset)).glob('*.mdl')):
-            name = path.stem.lower()  # a copy already in the folder (the shadows') is the one moved, so neither undoes the other
-            data = (folder / path.name if (folder / path.name).is_file() else path).read_bytes()
-            if name not in tiles or name in seen:  # the first pack's copy is the one the game shows
-                continue
-            seen.add(name)
-            if inventory.compiled(data):
-                continue
-            text = data.decode('cp1252'); new, said = moved(text, radius)
-            if new is None:
-                if said != 'no source light':
-                    told[name] = said
-            elif others.get(name):
-                told[name] = 'shared with ' + ', '.join(sorted(others[name]))
-            else:
-                require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
-                (folder / path.name).write_bytes(new.encode('cp1252')); told[name] = 'moved'
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
+    # the set's tiles and its edge tiles; a copy already in the folder (the shadows') is the one moved, so neither undoes the other
+    for name, file, text, others in inventory.drawn_copies(repo, tileset.lower(), folder, PACKS):
+        new, said = moved(text, radius)
+        if new is None:
+            if said != 'no source light':
+                told[name] = said
+        elif others:
+            told[name] = 'shared with ' + ', '.join(others)
+        else:
+            require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
+            (folder / file).write_bytes(new.encode('cp1252')); told[name] = 'moved'
     return told

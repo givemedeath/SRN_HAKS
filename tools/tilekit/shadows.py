@@ -27,6 +27,13 @@ def extent(body):
     return sorted((max(point[axis] for point in points) - min(point[axis] for point in points) for axis in range(3)), reverse=True)
 
 
+def _number(word):
+    try:
+        return float(word)
+    except ValueError:
+        return None
+
+
 def quieted(text, thin=THIN, small=SMALL, flat=FLAT):
     """(the model's text with its trims casting no shadow, their names): only the geometry, not the animations."""
     geometry, cut, rest = text.partition('\nnewanim ')
@@ -34,8 +41,8 @@ def quieted(text, thin=THIN, small=SMALL, flat=FLAT):
 
     def one(match):
         head, name, body, end = match.groups(); sides = extent(body)
-        stated = re.search(r'(?im)^\s*shadow\s+(\d+)\s*$', body)  # a mesh that does not say casts one
-        if sides is None or (stated and stated.group(1) == '0') or not (sides[1] < thin or sides[0] < small or sides[2] < flat):
+        stated = re.search(r'(?im)^[ \t]*shadow[ \t]+(\S+)', body)  # a mesh that does not say casts one
+        if sides is None or (stated and _number(stated.group(1)) == 0) or not (sides[1] < thin or sides[0] < small or sides[2] < flat):
             return match.group(0)
         names.append(name)
         if not stated:
@@ -48,20 +55,12 @@ def quieted(text, thin=THIN, small=SMALL, flat=FLAT):
 def quiet(repo, tileset, folder, *, thin=THIN, small=SMALL, flat=FLAT):
     """Write the models of a tileset whose trims cast shadows, with those trims quiet, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {model: count of trims}."""
-    repo, folder = Path(repo), Path(folder); tileset = tileset.lower(); folder.mkdir(parents=True, exist_ok=True)
-    tiles = inventory.drawn_models(repo, tileset)  # the edge tiles round an area's border too
-    others = inventory._other_sets(repo, tileset); told, seen = {}, set()
-    for pack in lamps.PACKS:
-        for path in sorted((repo / pack.format(tileset=tileset)).glob('*.mdl')):
-            name = path.stem.lower()
-            if name not in tiles or name in seen or others.get(name):  # the first pack's copy is the one the game shows
-                continue
-            seen.add(name)
-            source = folder / path.name if (folder / path.name).is_file() else path; data = source.read_bytes()
-            if inventory.compiled(data):
-                continue
-            text = data.decode('cp1252'); new, names = quieted(text, thin, small, flat)
-            if names:
-                require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
-                (folder / path.name).write_bytes(new.encode('cp1252')); told[name] = len(names)
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
+    for name, file, text, others in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):  # the edge tiles too
+        if others:  # another tileset draws it too
+            continue
+        new, names = quieted(text, thin, small, flat)
+        if names:
+            require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
+            (folder / file).write_bytes(new.encode('cp1252')); told[name] = len(names)
     return told

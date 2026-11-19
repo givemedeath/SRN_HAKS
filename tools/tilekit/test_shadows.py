@@ -65,6 +65,20 @@ class ShadowTests(unittest.TestCase):
         self.assertIn('node trimesh wall\n  parent t_a01\n  shadow 1', text); self.assertIn('node trimesh sill\n  parent t_a01\n  shadow 0', text); self.assertIn('node trimesh ledge\n  shadow 0\n  parent t_a01', text)
         self.assertEqual(shadows.extent('  verts 2\n    0 0 0\n    1 2 3\n'), [3.0, 2.0, 1.0])
 
+    def test_a_shadow_written_as_a_decimal_is_set_not_doubled(self):
+        text, names = shadows.quieted(MODEL.replace('shadow 1\n  verts 3\n    0 0 0\n    2', 'shadow 1.0\n  verts 3\n    0 0 0\n    2'))
+        self.assertIn('sill', names); self.assertIn('node trimesh sill\n  parent t_a01\n  shadow 0\n  verts', text)
+        self.assertEqual(shadows.quieted(MODEL.replace('shadow 0', 'shadow 0.0'))[1], ['sill', 'panel', 'ledge'])  # already quiet
+
+    def test_a_model_another_tileset_s_edge_table_lays_is_left(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary); own = repo / 'srn_t_t'
+            for folder in (own, repo / 'srn_t_common', repo / 'srn_2da'):
+                folder.mkdir()
+            (own / 't.set').write_text('[TILES]\nCount=1\n[TILE0]\nModel=t_a01\n', encoding='cp1252'); (own / 't_a01.mdl').write_text(MODEL, encoding='cp1252')
+            (repo / 'srn_2da' / 'u_edge.2da').write_text('2da v2.0\n\n   corner1 edge corner2 height model\n0  a **** a 0 T_A01\n', encoding='cp1252')  # its words in lower case
+            self.assertEqual(shadows.quiet(repo, 't', repo / 'out'), {})
+
     def test_quiet_changes_the_folder_s_copy_and_only_the_set_s_tiles(self):
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary); own = repo / 'srn_t_t'; common = repo / 'srn_t_common'; out = repo / 'out'

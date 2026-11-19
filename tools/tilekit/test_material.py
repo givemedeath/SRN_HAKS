@@ -171,7 +171,7 @@ class MaterialTests(unittest.TestCase):
     def test_a_restyled_texture_is_read_as_it_was_at_the_spec_s_before_commit(self):
         import subprocess
         repo = self.root / 'repo'; pack = repo / 'srn_t_common'; pack.mkdir(parents=True)
-        Image.new('RGB', (8, 8), (200, 10, 10)).save(pack / 'wall.tga')
+        Image.new('RGB', (8, 8), (200, 10, 10)).save(pack / 'wall.tga'); Image.new('RGB', (8, 8), (9, 9, 9)).save(pack / 'Brick.TGA')
         git = lambda *words: subprocess.run(['git', '-C', str(repo), '-c', 'user.name=t', '-c', 'user.email=t@t', *words], check=True, capture_output=True, text=True).stdout.strip()
         git('init', '-q'); git('add', '-A'); git('commit', '-q', '-m', 'old'); before = git('rev-parse', 'HEAD')
         (pack / 'wall.tga').unlink(); (pack / 'wall.mtr').write_text('texture0 wall\n', encoding='ascii')
@@ -179,6 +179,8 @@ class MaterialTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'restyled already'):
             material.current(repo, 'wall')
         self.assertEqual(material.current(repo, 'wall', before=before).getpixel((0, 0)), (200, 10, 10))
+        (pack / 'Brick.TGA').unlink(); (pack / 'brick.mtr').write_text('texture0 brick\n', encoding='ascii')
+        self.assertEqual(material.current(repo, 'brick', before=before).getpixel((0, 0)), (9, 9, 9))  # as the pack spelled it
         Image.new('RGB', (8, 8), (10, 200, 10)).save(pack / 'added.tga')  # a texture new since `before` is read as it is
         self.assertEqual(material.current(repo, 'added', before=before).getpixel((0, 0)), (10, 200, 10))
         (pack / 'water.dds').write_bytes(b'DDS ' + bytes(124))  # a plain restyle has no material: a standard DDS is one

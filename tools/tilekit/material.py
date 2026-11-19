@@ -192,10 +192,10 @@ def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None, pl
 
 @functools.lru_cache(maxsize=None)
 def _tree(repo, before, pack):
-    """The file names a pack held at commit `before`."""
+    """{lower-case file name: file name} of what a pack held at commit `before`."""
     listed = subprocess.run(['git', '-C', str(repo), 'ls-tree', '--name-only', before, '--', f'{pack}/'], capture_output=True, text=True)
     require(listed.returncode == 0, f'git cannot list {pack} at {before}: ' + listed.stderr.strip()[-300:])
-    return frozenset(line.rsplit('/', 1)[-1] for line in listed.stdout.splitlines())
+    return {name.lower(): name for name in (line.rsplit('/', 1)[-1] for line in listed.stdout.splitlines())}
 
 
 def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None, before=None):
@@ -208,8 +208,8 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
     repo = Path(repo)
     for pack in packs if before is not None else ():
         for kind in ('dds', 'tga'):
-            file = f'{name}.{kind}'
-            if file in _tree(str(repo), before, pack):
+            file = _tree(str(repo), before, pack).get(f'{name}.{kind}'.lower())  # as the pack spelled it
+            if file:
                 shown = subprocess.run(['git', '-C', str(repo), 'show', f'{before}:{pack}/{file}'], capture_output=True)
                 require(shown.returncode == 0, f'git cannot read {pack}/{file} at {before}')
                 return pictures.read(file, shown.stdout)

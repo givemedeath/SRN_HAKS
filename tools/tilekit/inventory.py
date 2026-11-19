@@ -63,8 +63,8 @@ def read_set(text):
 def edge_models(text):
     """The models an edge table names, lower case, with its row count: (models, rows)."""
     lines = [line.split() for line in text.replace('\r', '').split('\n') if line.strip() and not line.lstrip().upper().startswith('DEFAULT:')]
-    require(len(lines) >= 2 and lines[0][0] == '2DA', 'An edge table is a 2DA file')
-    column = lines[1].index('Model') + 1 if 'Model' in lines[1] else None
+    require(len(lines) >= 2 and lines[0][0].upper() == '2DA', 'An edge table is a 2DA file')  # the game reads its words in any case
+    heads = [word.lower() for word in lines[1]]; column = heads.index('model') + 1 if 'model' in heads else None
     require(column is not None, 'The edge table has no Model column')
     rows = [line for line in lines[2:] if len(line) > column]
     return sorted({line[column].lower() for line in rows if line[column] != '****'}), len(rows)
@@ -158,15 +158,35 @@ def _packs(repo):
     return sorted(path for path in Path(repo).iterdir() if path.is_dir() and path.name.startswith('srn_'))
 
 
-def _other_sets(repo, tileset):
-    """{model: [tileset]} for the tiles of every other tileset in the repository."""
+def _other_sets(repo, tileset, *, edges=False):
+    """{model: [tileset]} for the tiles of every other tileset in the repository, and with `edges` the models their
+    edge tables lay round an area's border."""
     told = {}
     for pack in _packs(repo):
         for path in sorted(pack.glob('*.set')):
             if path.stem.lower() != tileset:
                 for tile in read_set(path.read_bytes().decode('cp1252'))['tiles']:
                     told.setdefault(tile['model'], set()).add(path.stem.lower())
+    for path in sorted((Path(repo) / 'srn_2da').glob('*_edge.2da')) if edges else ():
+        other = path.stem.lower()[:-len('_edge')]
+        if other != tileset:
+            for model in edge_models(path.read_bytes().decode('cp1252'))[0]:
+                told.setdefault(model, set()).add(other)
     return told
+
+
+def drawn_copies(repo, tileset, folder, packs):
+    """(name, file name, text, other tilesets using it) for each uncompiled model the tileset draws, in the first of
+    `packs` that holds it (the copy the game shows), read from `folder` where a copy is already there."""
+    tiles, others, seen = drawn_models(repo, tileset), _other_sets(repo, tileset, edges=True), set()
+    for pack in packs:
+        for path in sorted((Path(repo) / pack.format(tileset=tileset)).glob('*.mdl')):
+            name = path.stem.lower()
+            if name not in tiles or name in seen:
+                continue
+            seen.add(name); data = (Path(folder) / path.name if (Path(folder) / path.name).is_file() else path).read_bytes()
+            if not compiled(data):
+                yield name, path.name, data.decode('cp1252'), sorted(others.get(name, ()))
 
 
 def inventory(repo, tileset, *, walkmesh_only=False):
