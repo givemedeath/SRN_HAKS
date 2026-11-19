@@ -108,6 +108,10 @@ class Profiles(unittest.TestCase):
             self.assertNotIn('Old', text)
             self.assertNotIn('SRN_Gone', text)  # a row of ours the profiles dropped
             self.assertRegex(text, r'16\s+New\s+\*\*\*\*\s+1\s+w\s+x\s+y\s+z')
+            longest = 'SRN_' + 'x' * 20, ['m' * 16] * 4  # a label past its column, models at the 16-character limit
+            build.write_table({16: (longest[0], 0, longest[1])}, path)
+            row = [line for line in path.read_text(encoding='ascii').splitlines() if line.startswith('16')][0]
+            self.assertEqual(row.split(), ['16', longest[0], '****', '0', *longest[1]])
             build.write_table({}, path)  # no rows of ours: the rest stays
             self.assertIn('0 (None)', path.read_text(encoding='ascii'))
 

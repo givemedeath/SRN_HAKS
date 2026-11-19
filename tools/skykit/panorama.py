@@ -1,8 +1,7 @@
 """Land panoramas for the dynamic skies: keyed source views -> one 360-degree strip -> two texture halves and light masks.
 
 A source view is a generated picture whose sky is a flat chroma key (green or magenta). Its land is cut out with a
-soft edge, the views are joined round the horizon (a view may be mirrored so a single view still wraps without a
-seam), and the strip is resampled into two halves of `HALF` texels, each with a light mask: R marks lit windows and
+soft edge, the views are joined round the horizon (`assemble`, or `chain` from one start view), and the strip is resampled into two halves of `HALF` texels, each with a light mask: R marks lit windows and
 neon (the shader dims them by day and lets them flicker at night), G marks the red aircraft-warning beacons on tower
 tops (the shader blinks them).
 """
@@ -16,8 +15,9 @@ EDGE_ROWS = 20  # rows (at source scale) under a green-keyed silhouette cleared 
 KEYS = {'green': (0.0, 1.0, 0.0), 'magenta': (1.0, 0.0, 1.0)}
 
 
-def load(path):
-    return np.asarray(Image.open(path).convert('RGB'), np.float32) / 255
+def to_u8(array):
+    """Float 0..1 values as rounded bytes, the one conversion every picture the kit writes goes through."""
+    return np.clip(np.asarray(array) * 255 + 0.5, 0, 255).astype(np.uint8)
 
 
 def keyness(rgb, key):
@@ -67,17 +67,6 @@ def land_rows(rgba, margin=6):
     return max(int(rows[0]) - margin, 0), int(rgba.shape[0])
 
 
-def strip(views):
-    """Join (rgba, mirrored) views left to right into one strip; all views share the land rows of the tallest."""
-    tops = [land_rows(rgba)[0] for rgba, _ in views]
-    top = min(tops)
-    heights = {rgba.shape[0] for rgba, _ in views}
-    if len(heights) != 1:
-        raise ValueError('views of one strip must share a height')
-    parts = [(rgba[:, ::-1] if mirrored else rgba)[top:] for rgba, mirrored in views]
-    return np.concatenate(parts, axis=1)
-
-
 def _blur(channel, radius):
     image = Image.fromarray(np.clip(channel * 255, 0, 255).astype(np.uint8))
     return np.asarray(image.filter(ImageFilter.GaussianBlur(radius)), np.float32) / 255
@@ -91,7 +80,7 @@ def sharpen(rgb, settings=SHARPEN):
     picture's ends are padded with each other so the wrap stays seamless."""
     pad = 16
     wrapped = np.concatenate([rgb[:, -pad:], rgb, rgb[:, :pad]], axis=1)
-    image = Image.fromarray(np.clip(wrapped * 255 + 0.5, 0, 255).astype(np.uint8))
+    image = Image.fromarray(to_u8(wrapped))
     radius, percent, threshold = settings
     out = np.asarray(image.filter(ImageFilter.UnsharpMask(radius, percent, threshold)), np.float32) / 255
     return out[:, pad:-pad]
@@ -191,7 +180,7 @@ def roof_degrees(mask, band, share=0.15):
 
 def tga(array):
     """Uncompressed TGA bytes of float rows (top row first); RGB or RGBA."""
-    data = np.clip(np.asarray(array) * 255 + 0.5, 0, 255).astype(np.uint8)
+    data = to_u8(array)
     height, width, channels = data.shape
     header = bytes([0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, width & 255, width >> 8, height & 255, height >> 8, channels * 8,
                     8 if channels == 4 else 0])
@@ -200,7 +189,7 @@ def tga(array):
 
 
 def save_png(array, path):
-    data = np.clip(np.asarray(array) * 255 + 0.5, 0, 255).astype(np.uint8)
+    data = to_u8(array)
     Image.fromarray(data, 'RGBA' if data.shape[2] == 4 else 'RGB').save(Path(path))
 
 

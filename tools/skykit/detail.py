@@ -71,7 +71,7 @@ def generate(land, key, folder, prompt_file, seed, tiles=None, redo=False, url=N
         name = f'{folder.parent.name}-detail-{index:02d}'
         graph = lambda image, prefix: design.compile_design(prompt, [image], seed + index, 1, prefix, profile='qwen21-int8-v1')
         out = run_graph(url, tile_input(land, key, index), name, graph, timeout=1800, subfolder=SUBFOLDER, output='9')
-        Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8)).save(target)
+        Image.fromarray(panorama.to_u8(out)).save(target)
         print(f'tile {index:02d} of {len(starts)}: {target.name}', flush=True)
     missing = [i for i in range(len(starts)) if not (folder / f'tile_{i:02d}.png').is_file()]
     if missing:  # the build takes the tiles once detail.json is there: only a complete set gets one
@@ -79,10 +79,12 @@ def generate(land, key, folder, prompt_file, seed, tiles=None, redo=False, url=N
         return
     previous = folder / 'detail.json'
     if drawn != set(range(len(starts))):
-        # tiles kept from an earlier run were drawn from the input that run's record names: keep it, so a changed
-        # strip still shows as stale; with no record their input is unknown
+        # tiles kept from an earlier run were drawn as that run's record says: where it differs from this run (or
+        # there is no record) the set is mixed or unknown, and says so; a changed strip then still shows as stale
         old = json.loads(previous.read_text(encoding='utf-8')) if previous.is_file() else {}
-        record['inputSha256'] = old.get('inputSha256')
+        for field in ('inputSha256', 'seed', 'profile', 'promptSha256'):
+            if old.get(field) != record[field]:
+                record[field] = None
     (folder / 'detail.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
@@ -125,7 +127,7 @@ def assemble(land, key, folder):
     def tile(index):
         picture = Image.open(folder / f'tile_{index:02d}.png').convert('RGB').resize(size, Image.LANCZOS)
         drawn = np.asarray(picture, np.float32) / 255
-        source = np.asarray(Image.fromarray(np.clip(tile_input(land, key, index) * 255 + 0.5, 0, 255).astype(np.uint8))
+        source = np.asarray(Image.fromarray(panorama.to_u8(tile_input(land, key, index)))
                             .resize(size, Image.BICUBIC), np.float32) / 255
         # the model moves its redraw a few texels (up to ten in Denver): put it back over its input, so lines that
         # cross into the next tile meet there

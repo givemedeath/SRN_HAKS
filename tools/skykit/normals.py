@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
+from .panorama import to_u8
 from .upscale import comfy_url, run_graph
 
 MODEL = 'moge_2_vitl_normal_fp16.safetensors'
@@ -33,7 +34,9 @@ def _graph(fov):
 
 
 def key(strip):
-    return hashlib.sha256(np.ascontiguousarray(strip, np.float32).tobytes() + MODEL.encode()).hexdigest()[:16]
+    """The cache name's hash: the strip and everything that shapes the normals from it (model, tiling, sky fill)."""
+    settings = f'{MODEL}|tile={TILE}|step={STEP}|sky={SKY}'
+    return hashlib.sha256(np.ascontiguousarray(strip, np.float32).tobytes() + settings.encode()).hexdigest()[:16]
 
 
 def normals(strip, folder, url=None):
@@ -54,13 +57,13 @@ def normals(strip, folder, url=None):
             tile = np.concatenate([np.broadcast_to(np.array(SKY, np.float32), (pad, TILE[0], 3)), rgb[:, columns]], axis=0)
             out = run_graph(url, tile, f'{folder.name}-normals-{index}', _graph(fov))
             if out.shape[:2] != tile.shape[:2]:
-                out = np.asarray(Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8)).resize(tile.shape[1::-1], Image.BILINEAR),
+                out = np.asarray(Image.fromarray(to_u8(out)).resize(tile.shape[1::-1], Image.BILINEAR),
                                  np.float32) / 255
             np.add.at(total, (slice(None), columns), (out[pad:] * 2 - 1) * ramp)
             np.add.at(weight, (slice(None), columns), ramp)
         field = total / np.maximum(weight, 1e-6)
         field /= np.maximum(np.linalg.norm(field, axis=-1, keepdims=True), 1e-6)
         folder.mkdir(parents=True, exist_ok=True)
-        Image.fromarray(np.clip((field * 0.5 + 0.5) * 255 + 0.5, 0, 255).astype(np.uint8)).save(target)
+        Image.fromarray(to_u8(field * 0.5 + 0.5)).save(target)
     field = np.asarray(Image.open(target).convert('RGB'), np.float32) / 255 * 2 - 1
     return field, target

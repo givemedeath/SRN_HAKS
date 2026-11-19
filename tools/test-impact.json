@@ -5646,10 +5646,13 @@
       "tools/skykit/upscale.py"
     ],
     "tools/skykit/normals.py": [
+      "tools/skykit/panorama.py",
       "tools/skykit/upscale.py"
     ],
     "tools/skykit/panorama.py": [],
-    "tools/skykit/preview.py": [],
+    "tools/skykit/preview.py": [
+      "tools/skykit/panorama.py"
+    ],
     "tools/skykit/profiles.py": [],
     "tools/skykit/sphere.py": [],
     "tools/skykit/test_skykit.py": [
@@ -5663,7 +5666,9 @@
       "tools/skykit/profiles.py",
       "tools/skykit/sphere.py"
     ],
-    "tools/skykit/upscale.py": [],
+    "tools/skykit/upscale.py": [
+      "tools/skykit/panorama.py"
+    ],
     "tools/test_ci_result.py": [
       "tools/ci_result.py"
     ],

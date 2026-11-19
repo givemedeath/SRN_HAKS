@@ -166,7 +166,8 @@ def write_table(rows, path=TABLE):
     kept = [line for line in lines if not ours(line)]
     for row in sorted(rows):
         label, cyclical, models = rows[row]
-        kept.append(f'{row:<4}{label:<24}****        {cyclical:<12}' + ''.join(f'{m:<16}' for m in models).rstrip())
+        # every column ends in at least one space, so a label or model at its longest never runs into the next
+        kept.append(f'{row:<3} {label:<23} ****        {cyclical:<11} ' + ''.join(f'{m:<15} ' for m in models).rstrip())
     Path(path).write_text('\n'.join(kept) + '\n', encoding='ascii', newline='\n')
 
 
@@ -196,19 +197,16 @@ def build(args):
     keys = sorted({key for key, _ in materials.values()})
     built = {key: build_panorama(key, 1 if args.no_upscale else 2) for key in keys}
     crunch = None if args.no_dds else crunch_tool([OUTPUT / key / f'{name}.tga' for key in keys for name in profiles.texture_names(key)])
-    written = []
     if crunch:
         for key in keys:
             for name in profiles.texture_names(key):
                 compression = 'DXT5'  # land: alpha is coverage; masks: b and a carry the normals
                 to_dds(crunch, OUTPUT / key / f'{name}.tga', PACK / f'{name}.dds', compression)
-                written.append(PACK / f'{name}.dds')
     resolved = {}
     for name, (key, parameters) in materials.items():
         text, values = material_text(key, parameters, built[key][1])
         (PACK / f'{name}.mtr').write_text(text, encoding='ascii', newline='\n')
         (PACK / f'{name}.mdl').write_text(sphere.ascii_model(name, name), encoding='ascii', newline='\n')
-        written += [PACK / f'{name}.mtr', PACK / f'{name}.mdl']
         resolved[name] = (key, values)
     write_table(table_rows())
     folder = OUTPUT / 'previews'

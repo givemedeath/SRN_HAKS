@@ -9,6 +9,7 @@ import io
 import json
 import os
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
@@ -17,13 +18,15 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
+from .panorama import to_u8
+
 MODEL = 'RealESRGAN_x2plus.pth'
 SCALE = 2
 PAD = 64  # columns of the other end laid either side, so the upscaler sees across the wrap
 
 
 def _png(array):
-    data = np.clip(array * 255 + 0.5, 0, 255).astype(np.uint8)
+    data = to_u8(array)
     buffer = io.BytesIO()
     Image.fromarray(data, 'RGB').save(buffer, 'PNG')
     return buffer.getvalue()
@@ -53,7 +56,13 @@ def run_graph(url, picture, name, nodes, timeout=900, subfolder='skykit', output
                                  {'Content-Type': 'application/json'}))['prompt_id']
     deadline = time.time() + timeout
     while time.time() < deadline:
-        history = json.loads(_request(f'{url}/history/{prompt}')).get(prompt)
+        try:
+            history = json.loads(_request(f'{url}/history/{prompt}')).get(prompt)
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as error:
+            # a busy ComfyUI can miss a poll; the job runs on, so keep asking until the deadline
+            print(f'note: ComfyUI history poll for {name} failed ({error}); retrying', flush=True)
+            time.sleep(5)
+            continue
         if history and history.get('status', {}).get('completed'):
             images = history.get('outputs', {}).get(output, {}).get('images')
             if not images:
@@ -81,7 +90,8 @@ def _upscale_graph(image, prefix):
 
 
 def key(array):
-    return hashlib.sha256(np.ascontiguousarray(array, np.float32).tobytes() + MODEL.encode()).hexdigest()[:16]
+    """The cache name's hash: the input and everything that shapes the result from it (model and wrap padding)."""
+    return hashlib.sha256(np.ascontiguousarray(array, np.float32).tobytes() + f'{MODEL}|pad={PAD}'.encode()).hexdigest()[:16]
 
 
 def upscale(array, folder, url=None):
@@ -95,5 +105,5 @@ def upscale(array, folder, url=None):
         if out.shape[:2] != (padded.shape[0] * SCALE, padded.shape[1] * SCALE):
             raise RuntimeError(f'upscaled to {out.shape[:2]}, expected {SCALE} times {padded.shape[:2]}')
         folder.mkdir(parents=True, exist_ok=True)
-        Image.fromarray(np.clip(out[:, PAD * SCALE:-PAD * SCALE] * 255 + 0.5, 0, 255).astype(np.uint8)).save(target)
+        Image.fromarray(to_u8(out[:, PAD * SCALE:-PAD * SCALE])).save(target)
     return np.asarray(Image.open(target).convert('RGB'), np.float32) / 255, target

@@ -9,6 +9,8 @@ import re
 
 import numpy as np
 
+from .panorama import to_u8
+
 ROOT = Path(__file__).resolve().parents[2]
 SHADERS = ROOT / 'srn_skybox'
 
@@ -81,7 +83,7 @@ class Renderer:
         self.textures = []
         arrays = [halves[0][0], halves[1][0], halves[0][1], halves[1][1]]
         for unit, array in enumerate(arrays):
-            data = np.clip(array[::-1] * 255 + 0.5, 0, 255).astype(np.uint8)
+            data = to_u8(array[::-1])
             if data.shape[2] == 3:
                 data = np.dstack([data, np.full(data.shape[:2], 255, np.uint8)])
             texture = self.gl.texture((data.shape[1], data.shape[0]), 4, np.ascontiguousarray(data).tobytes())
