@@ -39,31 +39,13 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def _land(whole, spec, key, scale):
-    """The keyed land of an assembled panorama (float RGB, wrapped), upscaled `scale` times first (upscale.py)."""
-    rows = panorama.land_rows(panorama.cut(whole, spec['key']))[0]
-    whole = whole[max(rows - 8, 0):]
-    if scale > 1:
-        from . import upscale
-        whole, cache = upscale.upscale(whole, OUTPUT / key)
-        UPSCALED[key] = cache
-        whole = panorama.sharpen(whole)
-    rgba = panorama.cut(whole, spec['key'], scale)
-    return rgba[panorama.land_rows(rgba)[0]:]
-
-
-UPSCALED = {}
-NORMALS = {}
-
-
-def build_panorama(key, scale=2):
-    """(halves, (bottom, top, roofs) degrees) of one panorama, its intermediate pictures written to output/skykit/<key>/."""
+def assembled_land(key):
+    """The assembled panorama (float RGB, wrapped, at the source size) cropped to its land and a few rows of key."""
     spec = profiles.PANORAMAS[key]
     if 'chain' in spec:
         # one start view grown to the right by redrawn extensions, wrapped by a closing join
         start, *extensions = [panorama.view_rgb(ART / name) for name in spec['chain']]
         whole = panorama.chain(start, extensions, panorama.view_rgb(ART / spec['close']), key=spec['key'])
-        strip = _land(whole, spec, key, scale)
     elif 'joins' in spec:
         # views read left to right as a viewer turns clockwise; the joins between them are redrawn seams
         views = [panorama.view_rgb(ART / name) for name in spec['views']]
@@ -73,9 +55,37 @@ def build_panorama(key, scale=2):
             views = [v if i == spec['match'] else panorama.match_colours(v, reference, spec['key']) for i, v in enumerate(views)]
             joins = [panorama.match_colours(j, reference, spec['key'], 0.5) for j in joins]
         whole = panorama.assemble(views, joins, panorama.WIDE if spec.get('wide') else panorama.LAYOUT, spec['key'])
-        strip = _land(whole, spec, key, scale)
     else:
         raise ValueError(f'{key}: a panorama is a chain or views with joins')
+    rows = panorama.land_rows(panorama.cut(whole, spec['key']))[0]
+    return np.ascontiguousarray(whole[max(rows - 8, 0):])
+
+
+UPSCALED = {}
+NORMALS = {}
+DETAILED = {}
+
+
+def build_panorama(key, scale=2):
+    """(halves, (bottom, top, roofs) degrees) of one panorama, its intermediate pictures written to output/skykit/<key>/.
+
+    With `scale` above 1 the land is enlarged: by its tracked detail tiles when it has them (detail.py), otherwise by
+    the 2x upscaler (upscale.py); `scale` becomes the enlargement."""
+    spec = profiles.PANORAMAS[key]
+    whole = assembled_land(key)
+    if scale > 1:
+        tiles = ART / spec['detail'] if 'detail' in spec else None
+        if tiles and (tiles / 'detail.json').is_file():
+            from . import detail
+            whole, scale = detail.assemble(whole, spec['key'], tiles)
+            DETAILED[key] = spec['detail']
+        else:
+            from . import upscale
+            whole, cache = upscale.upscale(whole, OUTPUT / key)
+            UPSCALED[key] = cache
+        whole = panorama.sharpen(whole)
+    rgba = panorama.cut(whole, spec['key'], scale)
+    strip = rgba[panorama.land_rows(rgba)[0]:]
     # u grows counter-clockwise, which from inside the dome is to the viewer's left: flip so pictures read the right way
     strip = np.ascontiguousarray(strip[:, ::-1])
     mask = panorama.lights(strip, spec.get('city_from', 0.0), scale)
@@ -228,6 +238,7 @@ def build(args):
                             'band': [round(b, 4) for b in built[key][1]],
                             'upscale': ({'model': 'RealESRGAN_x2plus.pth', 'scale': 2, 'cache': UPSCALED[key].name}
                                         if key in UPSCALED else None),
+                            'detail': ({'profile': 'qwen21-int8-v1', 'tiles': DETAILED[key]} if key in DETAILED else None),
                             'normals': ({'model': 'moge_2_vitl_normal_fp16.safetensors', 'cache': NORMALS[key].name}
                                         if key in NORMALS else None)} for key in keys},
         'rows': {str(row): {'label': label, 'cyclical': cyclical, 'models': models}

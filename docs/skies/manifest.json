@@ -18,17 +18,17 @@
       },
       "band": [
         -2.0,
-        10.4171,
-        2.3676
+        10.3757,
+        2.593
       ],
-      "upscale": {
-        "model": "RealESRGAN_x2plus.pth",
-        "scale": 2,
-        "cache": "x2-028d5081df8ad751.png"
+      "upscale": null,
+      "detail": {
+        "profile": "qwen21-int8-v1",
+        "tiles": "denver/detail"
       },
       "normals": {
         "model": "moge_2_vitl_normal_fp16.safetensors",
-        "cache": "normals-d61ec050ed4dc536.png"
+        "cache": "normals-1b1def3f87cc0ddd.png"
       }
     },
     "pk": {
@@ -51,6 +51,7 @@
         "scale": 2,
         "cache": "x2-c2b3b8e68c28afec.png"
       },
+      "detail": null,
       "normals": {
         "model": "moge_2_vitl_normal_fp16.safetensors",
         "cache": "normals-c6c96b3d6a8352a6.png"
@@ -120,25 +121,25 @@
     }
   },
   "resources": {
-    "srn_skyden_d.dds": "0a58e06d5d3396e81cae6df1cf6198848ecb4a58db76af02f05dabf67fa38a4f",
+    "srn_skyden_d.dds": "21924729f2343f7785e31d2f3c4061d77599411103ee913d00a8ed4c93a7e9e7",
     "srn_skyden_d.mdl": "9beac5ce4c117e9b119fb5bd45fbf1e9a77e537bf88f329ae0197bcbdf1f8ffd",
-    "srn_skyden_d.mtr": "6151a287451cdc0562e1a83e11ad70d5077fdb5f1a19fb6f1a4bfd7966118934",
-    "srn_skyden_da.dds": "504a26b0cbd8f8d0717bad855a703f0fe9fdb4c0e07fe88bd61d322c80934d39",
+    "srn_skyden_d.mtr": "b1cbdc91e5fd780ec75aad5acd193c4263736d71bb7d37249f040a8e6a624127",
+    "srn_skyden_da.dds": "d919a09047a5be44f0d9a5dd498efaabcd95aed04649fe0ac55673c3bff09767",
     "srn_skyden_da.mdl": "91bf485b3085987ff0466dad5d0b2f36cf2000848fcfd013f1f4929ebe951716",
-    "srn_skyden_da.mtr": "622320d6ed961929efa65f3818384d18014c8fd34d636e2af1076462f01c18fd",
-    "srn_skyden_du.dds": "75333c622406912f1f714a179fb9aac995548d0fc1b64b43f7cb6483967c8c1a",
+    "srn_skyden_da.mtr": "e34a28d360dea61d5eaabd7ab6bb1b761a3f796991fe820e60b51a1cba5708f2",
+    "srn_skyden_du.dds": "0680da4c72ac5624e515e72f42deb70d9448a07eeeba505c7e6ab8de2ff5103e",
     "srn_skyden_du.mdl": "02146eb1b21c8f606579e5fac6ba58b3b184cc80fe7addcc5f66e84d52ad1091",
-    "srn_skyden_du.mtr": "200bdb59b597dd9f8344c0e575f3330e3b9db9e39aa92f753f4f8c9b30ff966a",
-    "srn_skyden_ma.dds": "d7165841a5bfd7295b516345f9212f00056360c727d445e87f2d35453de6d269",
-    "srn_skyden_mb.dds": "b51e58a96dd8cbab608dad439e4f51da5ef48df7ec770bc9a334d73b0cc2cc74",
-    "srn_skyden_n.dds": "20bb776e1dce904c17abd3c1ad76dc880f3c8418ab7c47fba8d1bafe2ad82475",
+    "srn_skyden_du.mtr": "7de45a6f43c85e2eccadf8293fe747a7c08e5599e59265c2ae06d0b8332925bd",
+    "srn_skyden_ma.dds": "cfafb3b03519b2c83253d3e8c8bad2de526c2919a37cd723fc524be4f072e9e1",
+    "srn_skyden_mb.dds": "5273387e332cbb89d7a3b4c1ff817fd92e22a89acaaf9c268f3d9de0d9e1e9d4",
+    "srn_skyden_n.dds": "6613c6d684f6a2caa6aaecabba7267a6039f89a0c60d86d2f60a5996bd6bb6ba",
     "srn_skyden_n.mdl": "1a0f3bcae7fa14119f207ce378851028c0d6323e624cfec564650dde0637fe26",
-    "srn_skyden_n.mtr": "ceaae0b86a61b1b505d89b5b210588413f0bd5473c56406469a0507426ca5bac",
-    "srn_skyden_pa.dds": "5201a28592e22decee84c7fcb6c2966c8ca97af8c6628b71dbb5296e04a00e04",
-    "srn_skyden_pb.dds": "c9c922634cecebc39ee8e4465f31f2e8940628964eeaafe5d2b3fe018d8b2ea8",
-    "srn_skyden_st.dds": "020445dd5943e5e6bd44d9ea635d49664cce3296a2b5cd629f6efd53a2441387",
+    "srn_skyden_n.mtr": "7e45eb585045c9559c5c417e8c30416799af26753b424cfc7fb9188626ec3ade",
+    "srn_skyden_pa.dds": "831f08df6966737c666878a79f90fba22c83e4c62efe40b651cac1e1f4161d51",
+    "srn_skyden_pb.dds": "00ecc8ce03a294aa1347602dfcc975bd9fcb2414c1bb4b44640151c406464c0b",
+    "srn_skyden_st.dds": "be0c1a8c406d13ea45c5c21efb26778d395d6cb6e175431aecd1fe773767a1e1",
     "srn_skyden_st.mdl": "245457f06d52c65dfc7417476750f435b92ba3d1e6e1691508e119972fbcbb75",
-    "srn_skyden_st.mtr": "43bab1b5bfcfbfe45a6df0050a9b660031fc26e4da98f6009346999bbc7fbc3d",
+    "srn_skyden_st.mtr": "8846e72c9052bc32b01ec7227d34a2f6e24d62354d452c6d825c2f0fb7718945",
     "srn_skypk_d.dds": "bddcf81bccec2788fc360c3066bf87cc9389ea9822e68486dc0786c084233512",
     "srn_skypk_d.mdl": "de12ead18715bc1c3aa0c1e647a2ab032f3da0f558d03119e466b14b0a0ffc16",
     "srn_skypk_d.mtr": "747c5945f9e8bbec73d625cf27047b7fce6fb01c79829fe6fc0aa12de092e43b",

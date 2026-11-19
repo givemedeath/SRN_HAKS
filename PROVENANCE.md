@@ -2236,7 +2236,8 @@ Origin: the pictures are under `tools/skykit/art/`, prompts beside them. Denver'
 was drawn for the SRN project operator with the Codex CLI's image generation from the Denver skyline concept the
 operator supplied; Denver's four extensions and closing join (the acid storm row shares Denver's skyline), and the peaks views and
 joins, were drawn with the local Qwen-Image 2.1 profile (`qwen21-int8-v1`) on the operator's shared ComfyUI, the
-peaks views as edits of that start view. The skylines are upscaled 2x with RealESRGAN (`RealESRGAN_x2plus`) and their
+peaks views as edits of that start view. Denver's land was then redrawn at about 2.8 times in 14 overlapping detail tiles with the same Qwen profile
+(`art/denver/detail/`). The peaks skyline is upscaled 2x with RealESRGAN (`RealESRGAN_x2plus`) and their
 face normals estimated with MoGe-2 (`moge_2_vitl_normal_fp16`), both on that ComfyUI. The sky, clouds, stars, moon, aurora, lightning,
 searchlights and rain are procedural, written for this project (SRN project operator with Claude); the approach of a
 material-driven animated sky in a skybox model follows the community Dynamic Skies example by Bhaal in its general

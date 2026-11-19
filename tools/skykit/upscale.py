@@ -34,27 +34,28 @@ def _request(url, data=None, headers=None):
         return reply.read()
 
 
-def _upload(url, name, payload):
+def _upload(url, name, payload, subfolder='skykit'):
     boundary = uuid.uuid4().hex
     body = (f'--{boundary}\r\nContent-Disposition: form-data; name="image"; filename="{name}"\r\n'
             f'Content-Type: image/png\r\n\r\n').encode() + payload + (
-            f'\r\n--{boundary}\r\nContent-Disposition: form-data; name="subfolder"\r\n\r\nskykit'
+            f'\r\n--{boundary}\r\nContent-Disposition: form-data; name="subfolder"\r\n\r\n{subfolder}'
             f'\r\n--{boundary}\r\nContent-Disposition: form-data; name="overwrite"\r\n\r\ntrue\r\n--{boundary}--\r\n').encode()
     reply = json.loads(_request(url + '/upload/image', body, {'Content-Type': f'multipart/form-data; boundary={boundary}'}))
     return f"{reply['subfolder']}/{reply['name']}" if reply.get('subfolder') else reply['name']
 
 
-def run_graph(url, picture, name, nodes, timeout=900):
-    """Upload `picture`, queue the graph `nodes(image, prefix)` (its saving node is 'out') and return the saved image."""
-    image = _upload(url, f'{name}.png', _png(picture))
-    graph = nodes(image, f'skykit/{name}')
+def run_graph(url, picture, name, nodes, timeout=900, subfolder='skykit', output='out'):
+    """Upload `picture` into `subfolder`, queue the graph `nodes(image, prefix)` and return the image its `output` node
+    saved."""
+    image = _upload(url, f'{name}.png', _png(picture), subfolder)
+    graph = nodes(image, f'{subfolder}/{name}')
     prompt = json.loads(_request(url + '/prompt', json.dumps({'prompt': graph, 'client_id': uuid.uuid4().hex}).encode(),
                                  {'Content-Type': 'application/json'}))['prompt_id']
     deadline = time.time() + timeout
     while time.time() < deadline:
         history = json.loads(_request(f'{url}/history/{prompt}')).get(prompt)
         if history and history.get('status', {}).get('completed'):
-            saved = history['outputs']['out']['images'][0]
+            saved = history['outputs'][output]['images'][0]
             query = urllib.parse.urlencode({'filename': saved['filename'], 'subfolder': saved['subfolder'], 'type': saved['type']})
             return np.asarray(Image.open(io.BytesIO(_request(f'{url}/view?{query}'))).convert('RGB'), np.float32) / 255
         if history and history.get('status', {}).get('status_str') == 'error':

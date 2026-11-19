@@ -99,6 +99,7 @@ def sharpen(rgb, settings=SHARPEN):
 
 def _blur_rows(channel, radius):
     """Mean over `radius` columns either side, along each row only."""
+    radius = int(round(radius))
     padded = np.pad(channel, ((0, 0), (radius + 1, radius)), mode='edge')
     sums = np.cumsum(padded, axis=1)
     return (sums[:, 2 * radius + 1:] - sums[:, :-2 * radius - 1]) / (2 * radius + 1)

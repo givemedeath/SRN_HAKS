@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+from PIL import Image
 
 from tools.skykit import panorama, profiles, sphere
 from tools.skykit import __main__ as build
@@ -160,6 +161,26 @@ class Panorama(unittest.TestCase):
         drifted = np.clip(land * np.array([0.8, 1.1, 0.9], np.float32), 0, 1)
         fixed = panorama.apply_gain(drifted, panorama.row_gain(land, drifted, 'magenta'), 'magenta')
         self.assertLess(np.abs(fixed - land).mean(), np.abs(drifted - land).mean() * 0.25)
+
+    def test_detail_tiles_reassemble_the_strip(self):
+        from tools.skykit import detail
+        rng = np.random.default_rng(3)
+        land = np.zeros((60, 900, 3), np.float32)
+        land[:] = panorama.KEYS['magenta']
+        land[20:] = (rng.random((40, 1, 3)) * 0.5 + 0.2)  # smooth land: rows of one colour each
+        width, starts, height = detail.layout(land)
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder)
+            for index in range(len(starts)):  # a perfect redraw: the input itself, at the model's size
+                tile = detail.tile_input(land, 'magenta', index)
+                Image.fromarray((tile * 255 + 0.5).astype(np.uint8)).resize((1248, 832), Image.BICUBIC).save(folder / f'tile_{index:02d}.png')
+            (folder / 'detail.json').write_text(json.dumps({'inputSha256': detail.digest(land), 'tileWidth': width,
+                                                            'starts': starts, 'height': height}), encoding='utf-8')
+            strip, scale = detail.assemble(land, 'magenta', folder)
+        self.assertAlmostEqual(scale, 1248 / width, places=2)
+        self.assertEqual(strip.shape[1], int(round(900 * 1248 / width)))
+        expected = np.asarray(Image.fromarray((land * 255 + 0.5).astype(np.uint8)).resize(strip.shape[1::-1], Image.BICUBIC), np.float32) / 255
+        self.assertLess(np.abs(strip[int(30 * scale):] - expected[int(30 * scale):]).mean(), 0.02)
 
     def test_band_degrees(self):
         strip = np.zeros((100, 3600, 4), np.float32)
