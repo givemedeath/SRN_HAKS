@@ -69,6 +69,7 @@ class ShadowTests(unittest.TestCase):
         text, names = shadows.quieted(MODEL.replace('shadow 1\n  verts 3\n    0 0 0\n    2', 'shadow 1.0\n  verts 3\n    0 0 0\n    2'))
         self.assertIn('sill', names); self.assertIn('node trimesh sill\n  parent t_a01\n  shadow 0\n  verts', text)
         self.assertEqual(shadows.quieted(MODEL.replace('shadow 0', 'shadow 0.0'))[1], ['sill', 'panel', 'ledge'])  # already quiet
+        crlf = shadows.quieted(MODEL.replace('\n', '\r\n'))[0]; self.assertNotRegex(crlf, r'[^\r]\n')  # a line added ends as the model's own do
 
     def test_a_model_another_tileset_s_edge_table_lays_is_left(self):
         with tempfile.TemporaryDirectory() as temporary:

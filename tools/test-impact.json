@@ -5706,6 +5706,7 @@
       "tools/envkit/placeables.py",
       "tools/envkit/prop_fixture.py",
       "tools/phenotypes/tool_runtime.py",
+      "tools/tilekit/apply.py",
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/shadows.py": [

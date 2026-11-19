@@ -291,7 +291,8 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     require(areas and shots and {shot['area'] for shot in shots} <= {area['tag'] for area in areas}, 'Every view is of one of the areas')
     missing = [pack for pack in haks if not (built / f'{pack}.hak').is_file()] + ([] if (built / f'{tlk}.tlk').is_file() else [tlk + '.tlk'])
     require(not missing, f'The built packs are needed in {built}: ' + ', '.join(missing))
-    laid_over = sorted(Path(overlay).iterdir()) if overlay else []  # refused before anything is made: the folder stays fresh
+    from .apply import MADE_FROM  # a copied terrain's record, for apply: no game file
+    laid_over = sorted(path for path in Path(overlay).iterdir() if path.name != MADE_FROM) if overlay else []  # refused before anything is made: the folder stays fresh
     for path in laid_over:
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Overlay files are lowercase resref files: ' + path.name)
     user, staged, documents, binary = (output / part for part in ('userdir', 'hak-resources', 'json', 'module'))

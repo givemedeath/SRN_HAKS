@@ -45,8 +45,8 @@ def quieted(text, thin=THIN, small=SMALL, flat=FLAT):
         if sides is None or (stated and _number(stated.group(1)) == 0) or not (sides[1] < thin or sides[0] < small or sides[2] < flat):
             return match.group(0)
         names.append(name)
-        if not stated:
-            return head + '  shadow 0\n' + body + end
+        if not stated:  # a line ended as the model's own are
+            return head + '  shadow 0' + ('\r\n' if head.endswith('\r\n') else '\n') + body + end
         return head + body[:stated.start(1)] + '0' + body[stated.end(1):] + end
     geometry = NODE.sub(one, geometry)
     return geometry + cut + rest, names
