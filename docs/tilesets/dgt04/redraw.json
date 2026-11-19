@@ -29,7 +29,6 @@
     "win_pawn": {"kind": "shopfront", "district": "barrens", "note": "A pawn shop's two-pane window with painted lettering PAWN and AMMUNITION, HOLSTERS, HUNTING SUPPLIES over a cluttered display."},
     "win_pawn_g": {"kind": "shopfront", "district": "barrens", "of": "win_pawn", "light": "warm shop light behind the display and lettering", "compose": true},
     "window_store003": {"kind": "shopfront", "district": "barrens", "note": "A small shop window at night, framed in a lit red neon tube, with three glowing neon words across the glass in the same three places as the old ones. Replace every old word: from left to right the neon words are exactly CHIPS (cyan), TRIDS (green) and SIMSENSE (magenta), each spelled exactly, and no other large lettering. Behind the glass a dim, cluttered shop display."},
-    "slumbrd2": {"kind": "poster", "district": "barrens", "note": "Every poster is replaced with a new invented one: different bands, events and products, different pictures and wording. Only the overall layout of the board and the number and sizes of the posters stay."},
     "slumbrd4": {"kind": "poster", "district": "barrens", "note": "Older, more faded and torn than most: mostly bare stained board showing through."},
     "j_sign": {"kind": "sign", "district": "barrens", "note": "A dark shop fascia with pale lettering B. BLING JEWELERS."},
     "sign_delivery": {"kind": "sign", "district": "barrens", "note": "A weathered white sign with red stencilled lettering: DELIVERIES 9:00 AM TO 5:00 PM ONLY."},

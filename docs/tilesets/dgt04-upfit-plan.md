@@ -110,8 +110,13 @@ of tiles that have source lights and no main light are renamed from `sl1`/`sl2` 
 - Like the textures, the models stay in the review overlay until the look gate.
 - Small trims cast no shadow (user, 2026-11-18): the game draws a sill's or ledge's shadow on the wall behind it as
   hard wedges, which show as triangles once a wall's picture is even. `tilekit shadows --tileset dgt04 --out <overlay>`  sets
-  `shadow 0` on meshes under 0.75 m across their second side or 1 m long (3,639 trims in 342 models); walls, roofs and
-  buildings keep their shadows. Larger slanted panels still show some wedges.
+  `shadow 0` on meshes under 2 m across their second side or 2 m long, and on flat panels of any size (shortest side
+  under 0.1 m; a facade sheet or plinth face throws wedges on what is behind it). Closed building meshes keep their
+  shadows (2026-11-19: 1,560 more meshes in 366 models over the first 0.75 m / 1 m rule; no wedges left in the
+  block's 17 day views).
+- Base-game textures (2026-11-19) come from a stock folder extracted from the game (`--stock`). The canal water keeps
+  its procedural TXI: its DDS is written plain, with no mtr, and the stock TXI copied beside it. `slumbrd2` stays on
+  the upscale route: Qwen copied its old posters twice.
 - Night is left dark (user, 2026-11-18): brightness at night is a matter of an area's own lighting and its tile lamps,
   not of the textures.
 
