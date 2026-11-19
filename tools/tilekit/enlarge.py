@@ -39,7 +39,7 @@ def enlarge(client, local, bindings_path, repo, spec, folder, *, only=None, dead
         if times is None:
             continue
         require(times in (1, 2), f'{name}: a texture is doubled once or twice')
-        old = np.ascontiguousarray(np.asarray(material.current(repo, name, stock=stock, before=spec.get('before')))[..., :3])
+        old = np.ascontiguousarray(np.asarray(material.current(repo, textures[name].get('copy', name), stock=stock, before=spec.get('before')))[..., :3])  # a copy starts from its source
         source = hashlib.sha256(repr(old.shape).encode() + old.tobytes()).hexdigest()
         target, record = folder / f'{name}.png', folder / f'{name}.json'
         if target.exists() or record.exists():

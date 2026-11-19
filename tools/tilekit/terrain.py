@@ -11,7 +11,6 @@ Everything is written into a folder (a review's overlay) for `apply` to move int
 import copy as copying
 import json
 import re
-import subprocess
 import tempfile
 from pathlib import Path
 
@@ -73,12 +72,17 @@ def copied_set(text, copies):
                 if re.fullmatch(rf'TILE{tile["number"]}DOOR\d+', name):
                     added['TILE'].append(door.replace(f'[TILE{tile["number"]}DOOR', f'[TILE{new}DOOR', 1))
         for position, group in enumerate(laid['groups']):
-            if group['tiles'] and set(group['tiles']) <= set(numbers[terrain]):
-                name = one.get('groups', {}).get(group['name']); require(name, f'{terrain}: the copy names no new group for {group["name"]}')
+            cells = [number for number in group['tiles'] if number >= 0]  # -1 is a blank cell
+            copied = [number for number in cells if number in numbers[terrain]]
+            name = one.get('groups', {}).get(group['name'])
+            if copied and (len(copied) == len(cells) or name):  # a group of the terrain's tiles, or one the copy names that mixes them with others
+                require(name, f'{terrain}: the copy names no new group for {group["name"]}')
                 body = re.sub(r'(?m)^Name=.*?(\r?)$', f'Name={name}\\1', raw[f'GROUP{position}'], count=1)
                 body = re.sub(r'(?m)^(Tile\d+)=(-?\d+)', lambda found: f'{found.group(1)}={numbers[terrain].get(int(found.group(2)), int(found.group(2)))}', body)
                 added['GROUP'].append(body.replace(f'[GROUP{position}]', f'[GROUP{groups}]', 1)); groups += 1
-    last = {kind: max(index for index, (name, _) in enumerate(parts) if re.fullmatch(rf'{kind}\d+' + (r'(DOOR\d+)?' if kind == 'TILE' else ''), name)) for kind in added}
+    heads = {'TERRAIN': 'TERRAIN TYPES', 'TILE': 'TILES', 'GROUP': 'GROUPS'}  # where the first of a kind goes when the set has none
+    last = {kind: max((index for index, (name, _) in enumerate(parts) if re.fullmatch(rf'{kind}\d+' + (r'(DOOR\d+)?' if kind == 'TILE' else ''), name)),
+                      default=next((index for index, (name, _) in enumerate(parts) if name == heads[kind]), len(parts) - 1)) for kind in added if added[kind]}
     out = []
     for index, (name, body) in enumerate(parts):
         body = {'TERRAIN TYPES': lambda: _counted(body, terrains), 'TILES': lambda: _counted(body, tiles), 'GROUPS': lambda: _counted(body, groups)}.get(name, lambda: body)()
@@ -132,8 +136,9 @@ def palette(document, copies, names):
                     made = copying.deepcopy(entry); made['RESREF']['value'] = one['terrain'].lower() if resref == one['from'].lower() else models[resref]
                     if resref == one['from'].lower():
                         made['NAME'] = {'type': 'cexostring', 'value': one['display']}; made.pop('STRREF', None)
-                    elif 'NAME' in made:
-                        made['NAME']['value'] = one['display'] + made['NAME']['value'][made['NAME']['value'].find(','):] if ',' in made['NAME']['value'] else one['display']
+                    else:  # a name of its own, also where the source's was a talk-table reference
+                        was = made['NAME']['value'].strip() if isinstance(made.get('NAME', {}).get('value'), str) else ''
+                        made['NAME'] = {'type': 'cexostring', 'value': one['display'] + (was[was.find(','):] if ',' in was else '')}; made.pop('STRREF', None)
                     out.append(made)
         for entry in out:
             if 'NAME' in entry and isinstance(entry['NAME'].get('value'), str) and _named(entry['NAME']['value'], names) != entry['NAME']['value'].strip():
@@ -144,14 +149,9 @@ def palette(document, copies, names):
 
 
 def _gff():
-    from tools.phenotypes import tool_runtime
-    tool = tool_runtime.tool('nwn_gff')
-
-    def run(arguments):
-        done = subprocess.run([str(tool), *map(str, arguments)], capture_output=True, timeout=300, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-        require(done.returncode == 0, 'nwn_gff failed: ' + done.stderr.decode(errors='replace')[-600:])
-        return done.stdout
-    return run
+    from .review import _tools  # the kit's one tool runner
+    run = _tools()
+    return lambda arguments: run('nwn_gff', arguments)
 
 
 def copy(repo, spec, folder, *, gff=None):

@@ -350,8 +350,9 @@ try {
             if (-not $setGroups.ContainsKey($number) -or $number -lt [int]$baseline.importedGroups) { Add-ValidationError "The additions catalog lists group $number ($($listedGroups[$number].name)) of $tilesetName, which $($baseline.set) does not have above its imported groups." }
         }
         # A tile of no group (a copied terrain's) is listed by its terrain under terrainTiles.
-        $terrainListed = [System.Collections.Generic.HashSet[int]]::new()
+        $terrainListed = [System.Collections.Generic.HashSet[int]]::new(); $terrainNames = [System.Collections.Generic.HashSet[string]]::new()
         foreach ($entry in @($additions.PSObject.Properties['terrainTiles'] | ForEach-Object { $_.Value } | ForEach-Object { $_ } | Where-Object { $_ -and $_.tileset -ceq $tilesetName })) {
+            if (-not $terrainNames.Add([string]$entry.terrain)) { Add-ValidationError "The additions catalog has more than one entry for terrain $($entry.terrain) of $tilesetName." }
             for ($index = 0; $index -lt @($entry.tiles).Count; $index++) {
                 $tile = [int]@($entry.tiles)[$index]; $model = [string]@($entry.models)[$index]; [void]$collected.Add($tile)
                 if (-not $terrainListed.Add($tile)) { Add-ValidationError "The additions catalog lists tile $tile of $tilesetName under more than one terrain." }

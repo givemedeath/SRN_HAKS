@@ -3,7 +3,8 @@ its walkmeshes (walkmesh.json); `walkmesh` holds the tileset's walkmeshes agains
 that changed; `review` builds a module of the tileset on the built packs and captures the same views of it in the
 game client each time, with an overlay folder shown instead of the packs' own files. `material` makes restyled
 textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps` and `shadows` write changed tile
-models into it; `apply` moves an overlay whose look the user passed into the packs."""
+models into it; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
+`apply` moves an overlay whose look the user passed into the packs."""
 import argparse
 import json
 import sys
@@ -103,6 +104,12 @@ def enlarge_command(chosen):
     return 0
 
 
+def terrain_command(chosen):
+    from . import terrain
+    print(json.dumps(terrain.copy(chosen.repo, json.loads(chosen.spec.read_text(encoding='utf-8')), chosen.out), indent=1))
+    return 0
+
+
 def main(arguments=None):
     parser = argparse.ArgumentParser(prog='tilekit', description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -152,8 +159,13 @@ def main(arguments=None):
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
     nine.add_argument('--spec', type=Path, help='the tileset\'s material spec: the textures moved (without it, only the overlay\'s changed models)')
     nine.add_argument('--overlay', required=True, type=Path, help='the review overlay the look was passed on'); nine.add_argument('--repo', type=Path, default=REPO)
+    ten = commands.add_parser('terrain', help='copy building terrains under names of their own and make the palette names descriptive, into a folder')
+    ten.add_argument('--spec', required=True, type=Path, help='the tileset\'s terrain spec (docs/tilesets/<tileset>/terrains.json)')
+    ten.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay'); ten.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
+        if chosen.command == 'terrain':
+            return terrain_command(chosen)
         if chosen.command == 'apply':
             return apply_command(chosen)
         if chosen.command == 'shadows':

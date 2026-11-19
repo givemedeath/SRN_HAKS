@@ -191,7 +191,7 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
 
     def one(name):
         how = textures[name]; target = folder / f'{name}.png'; record = folder / f'{name}.json'
-        source = lambda texture: textures[texture].get('copy', texture)  # a copied terrain's texture is drawn from its source's picture
+        source = lambda texture: textures.get(texture, {}).get('copy', texture)  # a day picture may be another spec's  # a copied terrain's texture is drawn from its source's picture
         original = lambda: np.asarray(material.current(repo, source(name), stock=stock, before=spec.get('before')))
         day = folder / f'{how["of"]}.png' if how.get('of') else None  # a lit variant's day picture, as redrawn
         if target.is_file():  # kept where it was made from the picture the game draws now, a lit one from its day picture as it is; one with no record was placed by hand

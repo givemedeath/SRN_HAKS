@@ -410,13 +410,13 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
         if shared.get('placeables'):
             from tools.envkit import placeables
             require(table, 'The review needs placeables.2da to stand the placeables'); appearance = placeables.rows(table)
-            for group in shared['placeables']['groups']:  # each size of placeable in an area of its own, spaced and seen to suit it
+            for number, group in enumerate(shared['placeables']['groups']):  # each size of placeable in an area of its own, spaced and seen to suit it
                 how = {**PROP_GROUP, **{key: value for key, value in group.items() if key in PROP_GROUP}}
                 width, height, props, rows = prop_rows([model.lower() for model in group['models']], appearance, across=how['across'], spacing=how['spacing'],
                                                        apart=how['apart'], bearing=how['bearing'])
                 cells = {(column, row): (fill, 0) for column in range(width) for row in range(height)}
                 for light in group.get('lights', shared['placeables'].get('lights', shared['lights'])):
-                    tag = f'tkp{group["name"][0]}{light[0]}'; add(tag, f'Placeables, {group["name"]}, {light}', width, height, cells, light, props=props)
+                    tag = f'tkp{number}{light[0]}'; add(tag, f'Placeables, {group["name"]}, {light}', width, height, cells, light, props=props)
                     shots += prop_shots(tag, f'props-{group["name"]}-{light}', rows, across=how['across'], spacing=how['spacing'], apart=how['apart'],
                                         distance=how['distance'], pitch=how['pitch'])
     require(areas, 'Nothing to review: no part of the spec was laid')

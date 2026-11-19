@@ -104,7 +104,7 @@ class ReviewTests(unittest.TestCase):
                                                                                      {'name': 'large', 'models': ['plc_bin'], 'across': 1, 'spacing': 40, 'apart': 40, 'distance': 50}]}}}
         areas, shots = review.plan(SET, spec, sets={'oth01': SET}, table=table)
         self.assertEqual([(area['tag'], area['tileset'], area['width'], area['height']) for area in areas],
-                         [('tkoth01d', 'oth01', 4, 3), ('tkoth01n', 'oth01', 4, 3), ('tkpsd', 'tst01', 5, 4), ('tkpld', 'tst01', 6, 6)])
+                         [('tkoth01d', 'oth01', 4, 3), ('tkoth01n', 'oth01', 4, 3), ('tkp0d', 'tst01', 5, 4), ('tkp1d', 'tst01', 6, 6)])
         self.assertEqual(sorted({number for number, _ in areas[0]['laid'].values()}), [0, 2, 4])  # tile 0 is the plain one: tile 9 is of a group
         self.assertEqual([(prop['model'], prop['appearance']) for prop in areas[2]['props']], [('plc_crate', 1), ('plc_bin', 0)])
         self.assertEqual([(shot['label'], shot['distance']) for shot in shots if shot['area'].startswith('tkp')], [('props-small-day-r00', 24.0), ('props-large-day-r00', 50)])

@@ -58,6 +58,7 @@ def load(path):
                 'An entry\'s lights name its material, its lights-out twin and its glow map, and with a halo the halo and its dark sheet: ' + str(entry.get('model', entry.get('name'))))
     numbers = [entry['row'] for entry in data['placeables']] + [(entry['tileset'], entry['group']) for entry in data['tileGroups']]
     numbers += [(entry['tileset'], 'tile', tile) for entry in data.get('terrainTiles', []) for tile in entry['tiles']]
+    numbers += [(entry['tileset'], 'terrain', entry['terrain']) for entry in data.get('terrainTiles', [])]  # one entry per terrain
     twice = sorted({str(number) for number in numbers if numbers.count(number) > 1})
     require(not twice, 'The catalog has more than one entry for: ' + ', '.join(twice))
     return data

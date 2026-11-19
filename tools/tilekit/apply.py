@@ -3,7 +3,8 @@ is its material file and the DDS maps that file names (or, for a plain one, its 
 every pack that held a copy of that name; the old TGA and DDS copies are deleted from every pack. A base-game texture,
 which no pack held, goes to the tileset's own pack. A changed tile model replaces the one pack copy it was made from.
 A name that ends up in more than one pack is an expected override in hakbuilder.json; one that no longer does is not.
-A tileset's set file, edge table and palette replace their pack copies; a new tile model and walkmesh (a copied
+A tileset's set file, edge table and palette replace their pack copies, a set file or table only when it keeps every
+entry of the pack copy (`_extends`); a new tile model and walkmesh (a copied
 terrain's, `terrain`) go to the tileset's own pack; a walkmesh a pack holds is never replaced. Other files of the packs (a TXI of an old name, a placeable's own texture) are left as they are."""
 import json
 import re
@@ -19,6 +20,17 @@ TABLES = ('.set', '.2da', '.itp')  # a tileset's set file, edge table and palett
 
 def _configuration(repo):
     return json.loads((repo / 'hakbuilder.json').read_text(encoding='utf-8-sig'))
+
+
+def _extends(was, made):
+    """Whether a set file or 2DA keeps every entry of the pack copy it replaces, in place, adding only after them:
+    areas name tiles, terrains and rows by number, and another session may have appended since the overlay was made."""
+    old, new = (path.read_bytes().decode('cp1252') for path in (was, made))
+    if made.suffix.lower() == '.set':
+        old, new = inventory.read_set(old), inventory.read_set(new)
+        return all(new[key][:len(old[key])] == old[key] for key in ('terrains', 'tiles', 'groups'))
+    rows = lambda text: [line.split() for line in text.splitlines()[3:] if line.strip()]  # past the version, blank and column lines
+    return new.splitlines()[:3] == old.splitlines()[:3] and rows(new)[:len(rows(old))] == rows(old)
 
 
 def files_of(overlay, name):
@@ -66,6 +78,8 @@ def plan(repo, spec, overlay):
             require(inventory.walk_hash(path.read_bytes().decode('cp1252')) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
         if path.suffix.lower() == '.wok':
             require(path.read_bytes() == was.read_bytes(), f'{path.name}: a walkmesh in a pack is not replaced')
+        if path.suffix.lower() in ('.set', '.2da'):
+            require(_extends(was, path), f'{path.name}: it lacks or changes entries the pack copy has (added since the overlay was made?): make the overlay again')
         put.append((path, was))
     after = {name: set(holding) for name, holding in held.items()}
     for path in delete:

@@ -69,9 +69,10 @@ class CatalogTests(unittest.TestCase):
             # Tiles of no group, a copied terrain's (2026-11-19), are listed by their terrain; a tile is listed once.
             terrain = {'tileset': 'dgt04', 'terrain': 'Tower_2', 'tiles': [440, 441], 'models': ['n_t01', 'n_t02'], 'pack': 'tiles', 'madeBy': 'tilekit',
                        'source': 'specs/towers.json', 'provenance': 'Towers', 'added': '2026-11-19'}
-            catalog.save(path, {**again, 'terrainTiles': [{**terrain, 'tiles': [442], 'models': ['n_t03']}, terrain]})
+            catalog.save(path, {**again, 'terrainTiles': [{**terrain, 'terrain': 'Tower_3', 'tiles': [442], 'models': ['n_t03']}, terrain]})
             self.assertEqual([entry['tiles'][0] for entry in catalog.load(path)['terrainTiles']], [440, 442])
-            for broken, message in (({**terrain, 'models': ['n_t01']}, 'terrain tiles entry is incomplete'), ({**terrain, 'terrain': 'Tower_3'}, 'more than one entry for')):
+            for broken, message in (({**terrain, 'models': ['n_t01']}, 'terrain tiles entry is incomplete'), ({**terrain, 'terrain': 'Tower_3'}, 'more than one entry for'),
+                                    ({**terrain, 'tiles': [443], 'models': ['n_t04']}, 'more than one entry for')):  # a tile, or a terrain, listed twice
                 path.write_text(json.dumps({**again, 'terrainTiles': [terrain, broken]}), encoding='utf-8')
                 with self.assertRaisesRegex(ValueError, message):
                     catalog.load(path)

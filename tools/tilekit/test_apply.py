@@ -65,13 +65,20 @@ class ApplyTests(unittest.TestCase):
 
     def test_a_copied_terrain_s_new_models_go_to_the_tileset_s_pack_and_its_tables_replace_theirs(self):
         overlay = self.overlay.parent / 'terrain'; overlay.mkdir()
-        for name, data in (('n_t01.mdl', b'model'), ('n_t01.wok', b'walk'), ('tst.set', b'new set')):
+        tile = '[TILE{0}]\r\nModel=t_{0}\r\nTopLeft=Ground\r\nTopRight=Ground\r\nBottomLeft=Ground\r\nBottomRight=Ground\r\n\r\n'
+        laid = lambda count: ('[TERRAIN TYPES]\r\nCount=1\r\n\r\n[TERRAIN0]\r\nName=Ground\r\n\r\n[TILES]\r\nCount=%d\r\n\r\n' % count + ''.join(tile.format(n) for n in range(count))).encode()
+        (self.repo / 'srn_t_tst' / 'tst.set').write_bytes(laid(2))
+        for name, data in (('n_t01.mdl', b'model'), ('n_t01.wok', b'walk'), ('tst.set', laid(3))):  # the set adds after the pack's entries
             (overlay / name).write_bytes(data)
         told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
-        self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), b'new set')
+        self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), laid(3))
         (overlay / 'n_t01.wok').write_bytes(b'moved')
         with self.assertRaisesRegex(ValueError, 'a walkmesh in a pack is not replaced'):
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        (overlay / 'n_t01.wok').write_bytes(b'walk')
+        (self.repo / 'srn_t_tst' / 'tst.set').write_bytes(laid(4))  # another addition since the overlay was made
+        with self.assertRaisesRegex(ValueError, 'tst.set: it lacks or changes entries the pack copy has'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         with self.assertRaisesRegex(ValueError, 'is new: the spec names the tileset'):
             (overlay / 'n_t01.wok').unlink(); (overlay / 'n_t02.mdl').write_bytes(b'model'); apply.plan(self.repo, None, overlay)

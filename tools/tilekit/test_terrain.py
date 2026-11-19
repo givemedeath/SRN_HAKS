@@ -37,6 +37,10 @@ class TerrainTests(unittest.TestCase):
         self.assertIn('[TERRAIN1]\r\nName=Tower\r\n\r\n[TERRAIN2]\r\nName=Tower_2\r\n\r\n[TILES]', text)
         with self.assertRaisesRegex(ValueError, 'names no new model for t_t02'):
             terrain.copied_set(SET, [{**COPY, 'models': {'t_t01': 'n_t01'}}])
+        bare = SET[:SET.index('[GROUP0]')].replace('[GROUPS]\r\nCount=1', '[GROUPS]\r\nCount=0')  # a set with no groups
+        made, _ = terrain.copied_set(bare, [{**COPY, 'groups': {}}]); self.assertEqual(inventory.read_set(made)['groups'], [])
+        blank = SET.replace('Columns=1\r\nTile0=2', 'Columns=2\r\nTile0=2\r\nTile1=-1')  # a group with a blank cell is the terrain's still
+        self.assertEqual(inventory.read_set(terrain.copied_set(blank, [COPY])[0])['groups'][1], {'name': 'Flats_Roof', 'tiles': [4, -1]})
 
     def test_the_edge_table_gains_the_source_rows_for_the_copy(self):
         rows = terrain.copied_edge(EDGE, [COPY]).split('\r\n')
@@ -48,6 +52,10 @@ class TerrainTests(unittest.TestCase):
         self.assertEqual([(entry['RESREF']['value'], entry['NAME']['value']) for entry in features], [('t_t02', 'Stone Tower, Roof'), ('n_t02', 'Flats, Roof')])
         self.assertEqual([(entry['RESREF']['value'], entry['NAME']['value']) for entry in terrains], [('tower', 'Stone Tower'), ('tower_2', 'Flats')])
         self.assertEqual(PALETTE['MAIN']['value'][1]['LIST']['value'][0]['NAME']['value'], 'Tower 1\r\n')  # the document given is left as it was
+        talked = {'__data_type': 'ITP ', 'MAIN': {'type': 'list', 'value': [{'ID': {'type': 'byte', 'value': 0}, 'LIST': {'type': 'list', 'value': [
+            {'STRREF': {'type': 'dword', 'value': 63000}, 'RESREF': {'type': 'resref', 'value': 't_t02'}}]}}]}}  # named by the talk table
+        copied = terrain.palette(talked, [COPY], {})['MAIN']['value'][0]['LIST']['value'][1]
+        self.assertEqual((copied['NAME']['value'], 'STRREF' in copied), ('Flats', False))
 
     def test_copy_writes_the_models_the_set_the_edge_table_and_the_palette(self):
         with tempfile.TemporaryDirectory() as temporary:

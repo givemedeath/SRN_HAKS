@@ -5663,7 +5663,8 @@
       "tools/tilekit/material.py",
       "tools/tilekit/redraw.py",
       "tools/tilekit/review.py",
-      "tools/tilekit/shadows.py"
+      "tools/tilekit/shadows.py",
+      "tools/tilekit/terrain.py"
     ],
     "tools/tilekit/apply.py": [
       "hakbuilder.json",
@@ -5710,8 +5711,8 @@
       "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/terrain.py": [
-      "tools/phenotypes/tool_runtime.py",
-      "tools/tilekit/inventory.py"
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/review.py"
     ],
     "tools/tilekit/test_apply.py": [
       "hakbuilder.json",
