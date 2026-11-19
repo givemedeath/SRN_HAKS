@@ -2357,6 +2357,54 @@
     "srt04_a05_02": {
       "wok": "b04df648323c6f1355babaf81ef8e8e1d0bf9b8d43bad259cd663f4b5810ccf3",
       "aabb": "bc0c60b82b2c0f91b86d85975c89278632e1f50092b9af9389f55b2d95f1ac8c"
+    },
+    "srt04_r01_01": {
+      "wok": "c649f7de1964249e9946d9d9856949ffea38a485fa828ccba34f5c1da51245d0",
+      "aabb": "f418ab30e96da57f1a4b4bccd14455998f4e1ed72baf7452ae1226765606680c"
+    },
+    "srt04_r02_01": {
+      "wok": "17852c36c848d1cf11ce13d77fc847f0139d7cc7e52cf666f88ddb6e1d53131b",
+      "aabb": "1ef029b0f5bdf23e68a30dece5eb4ab7639d2bcc1a0cf0155a15a5c2c5bae864"
+    },
+    "srt04_r03_01": {
+      "wok": "2bda97f4f854f0fd29b7d6e25e90b322c871f54ac137899fbede356f74dc5525",
+      "aabb": "42d03b5422dc59ecb207eb1339f5dc2893d9d4850fd79e104f1ae06d616f2985"
+    },
+    "srt04_r04_01": {
+      "wok": "4309c94314ea83b5732c24dc43958cc7d08800eab570e23bb40220dc5bbaa419",
+      "aabb": "4f39a26e2bf173edabc424a7caaaaa46cbc558ed62afd3f3e5592edbe4daf26e"
+    },
+    "srt04_r05_01": {
+      "wok": "3b09d5218514cec0e8db96e2eb3bd5573ecc906bd71fae483cd4322c4a45aa31",
+      "aabb": "bc83b9e64ec8f98365cd61984512bca51de001b94c367ee36ae6f98926a1a95c"
+    },
+    "srt04_r06_01": {
+      "wok": "321aac49a06faccbcd90bbe73f14a6d7b0d9c6d1f53b2001138ab9c3a830b0ae",
+      "aabb": "bf455a3306a874b8c93599cc12556d4d73678d59819829a01a90ef152ba36627"
+    },
+    "srt04_x01_01": {
+      "wok": "cb9b77c5537bb872a3687fecfdb33e7e0b29d23ff453fa54299c11827efe0958",
+      "aabb": "d57cc908db1691cc317a987efda895033bee7bd3c6e94a13c39e3f6730788391"
+    },
+    "srt04_x02_01": {
+      "wok": "04259a1da2563e3dc086dbeb052180fd76e48de0feb936c01d9aa9c0b58a7c2e",
+      "aabb": "8953391d45ff7c300c52ac9fb6a923fca29d7e3831fd5d7cb0dd7bac258fda19"
+    },
+    "srt04_x03_01": {
+      "wok": "79a1a1d00e3e9b6847970702489f2066f83255c6d874a14dae0df793978b0737",
+      "aabb": "a94e12a6165857e063755f6d9adebba4e79d2c7469533abf35ed1defe2baff06"
+    },
+    "srt04_x04_01": {
+      "wok": "2a2c5d157ae89de5bcafcd5ff7da5270c4f84605de42895567a68781707439e5",
+      "aabb": "38b7fb3a18db7d3b6836615383d7147eae0dbbae3adf9fc2a73beb97de1cfce4"
+    },
+    "srt04_x05_01": {
+      "wok": "a92cc81d8b84911dd351dce5190657b61c1adf61cc2d1beed3e4d4f35535c705",
+      "aabb": "c57764fdbf584a741671bb6f8f6b001902cecac6f1ede8e8be8cf402c5a8bc6c"
+    },
+    "srt04_x06_01": {
+      "wok": "46b69c91faef5f7d81c42792f7875e481e60a3eeb04c64fc1f082bebc55f128b",
+      "aabb": "f740de61d3d98735b3de49c9b90319c45630b6c89a996ddec23f05f2bd4fecd1"
     }
   }
 }

@@ -66,6 +66,15 @@ class CatalogTests(unittest.TestCase):
                 path.write_text(json.dumps(entries), encoding='utf-8')
                 with self.assertRaisesRegex(ValueError, 'lights name its material'):
                     catalog.load(path)
+            # Tiles of no group, a copied terrain's (2026-11-19), are listed by their terrain; a tile is listed once.
+            terrain = {'tileset': 'dgt04', 'terrain': 'Tower_2', 'tiles': [440, 441], 'models': ['n_t01', 'n_t02'], 'pack': 'tiles', 'madeBy': 'tilekit',
+                       'source': 'specs/towers.json', 'provenance': 'Towers', 'added': '2026-11-19'}
+            catalog.save(path, {**again, 'terrainTiles': [{**terrain, 'tiles': [442], 'models': ['n_t03']}, terrain]})
+            self.assertEqual([entry['tiles'][0] for entry in catalog.load(path)['terrainTiles']], [440, 442])
+            for broken, message in (({**terrain, 'models': ['n_t01']}, 'terrain tiles entry is incomplete'), ({**terrain, 'terrain': 'Tower_3'}, 'more than one entry for')):
+                path.write_text(json.dumps({**again, 'terrainTiles': [terrain, broken]}), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, message):
+                    catalog.load(path)
             path.write_text(json.dumps({**again, 'baseline': {'placeables': again['baseline']['placeables']}}), encoding='utf-8')  # the tilesets left out
             with self.assertRaisesRegex(ValueError, 'baseline has placeables and tilesets'):
                 catalog.load(path)

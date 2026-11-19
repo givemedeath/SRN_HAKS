@@ -1,5 +1,6 @@
 """The catalog of what this project has added to shared game data on top of what it imported: rows of the placeables
-table, and tiles and groups of the tilesets.
+table, and tiles and groups of the tilesets. A tile of no group (a copied terrain's, tools/tilekit/terrain.py) is listed by its
+terrain under `terrainTiles`.
 
 Imports record their rows under docs/imports (`*-global-row-allocations.json`). Nothing recorded what was added
 afterwards, by envkit or by hand, and a row or a tile once placed in an area is named by its number for good. The
@@ -23,13 +24,15 @@ PATH = 'docs/additions/catalog.json'
 PLACEABLE_KEYS = {'row', 'model', 'label', 'pack', 'madeBy', 'source', 'provenance', 'added'}
 LIGHT_KEYS = ({'lit', 'out', 'glow'}, {'lit', 'out', 'glow', 'halo', 'dark'})  # without a halo, and with one
 GROUP_KEYS = {'tileset', 'group', 'name', 'rows', 'columns', 'tiles', 'models', 'pack', 'madeBy', 'source', 'provenance', 'added'}
+TERRAIN_KEYS = {'tileset', 'terrain', 'tiles', 'models', 'pack', 'madeBy', 'source', 'provenance', 'added'}
+KEYS = {'schemaVersion', 'kind', 'baseline', 'placeables', 'tileGroups'}
 
 
 def load(path):
     """The catalog, checked for its own shape."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and data.get('kind') == KIND and data.get('schemaVersion') == 1, 'Additions catalog required: ' + str(path))
-    require(set(data) == {'schemaVersion', 'kind', 'baseline', 'placeables', 'tileGroups'}, 'The catalog has a baseline, placeables and tile groups')
+    require(set(data) in (KEYS, KEYS | {'terrainTiles'}), 'The catalog has a baseline, placeables and tile groups, and may have terrain tiles')
     baseline = data['baseline']
     require(isinstance(baseline, dict) and set(baseline) == {'placeables', 'tilesets'} and isinstance(baseline['placeables'], dict) and isinstance(baseline['tilesets'], dict),
             'The catalog\'s baseline has placeables and tilesets')
@@ -43,6 +46,9 @@ def load(path):
     for entry in data['tileGroups']:
         require(set(entry) >= GROUP_KEYS and set(entry) <= GROUP_KEYS | {'label', 'door', 'lights'} and len(entry['tiles']) == len(entry['models']) == entry['rows'] * entry['columns'],
                 'A tile group entry is incomplete: ' + str(entry.get('name')))
+    for entry in data.get('terrainTiles', []):
+        require(set(entry) == TERRAIN_KEYS and entry['tiles'] and len(entry['tiles']) == len(entry['models']) and all(type(tile) is int for tile in entry['tiles']),
+                'A terrain tiles entry is incomplete: ' + str(entry.get('terrain')))
     one = lambda lights: isinstance(lights, dict) and set(lights) in LIGHT_KEYS and all(isinstance(value, str) and value for value in lights.values())
     for entry in data['placeables'] + data['tileGroups']:
         lights = entry.get('lights')
@@ -51,6 +57,7 @@ def load(path):
         require(lights is None or one(lights) or several,
                 'An entry\'s lights name its material, its lights-out twin and its glow map, and with a halo the halo and its dark sheet: ' + str(entry.get('model', entry.get('name'))))
     numbers = [entry['row'] for entry in data['placeables']] + [(entry['tileset'], entry['group']) for entry in data['tileGroups']]
+    numbers += [(entry['tileset'], 'tile', tile) for entry in data.get('terrainTiles', []) for tile in entry['tiles']]
     twice = sorted({str(number) for number in numbers if numbers.count(number) > 1})
     require(not twice, 'The catalog has more than one entry for: ' + ', '.join(twice))
     return data
@@ -60,6 +67,8 @@ def save(path, data):
     """Write the catalog in a fixed order, so a change to it reads as that change alone."""
     data = {**data, 'placeables': sorted(data['placeables'], key=lambda entry: entry['row']),
             'tileGroups': sorted(data['tileGroups'], key=lambda entry: (entry['tileset'], entry['group']))}
+    if 'terrainTiles' in data:
+        data['terrainTiles'] = sorted(data['terrainTiles'], key=lambda entry: (entry['tileset'], entry['tiles'][0]))
     Path(path).write_text(json.dumps(data, indent=1) + '\n', encoding='utf-8', newline='\n')
 
 

@@ -1,8 +1,8 @@
 # Modern Exterior (`dgt04`) Shadowrun upfit — plan
 
 Status: revision 3, 2026-11-18. Release 1 (materials, lamps, shadows) passed the user's look gate and is in the
-packs, 2026-11-19; see "Release 1 in the packs". Stratum 5's look at the other tilesets and placeables passed
-(2026-11-19); stratum 4 and the rest of stratum 5 are not started.
+packs, 2026-11-19; see "Release 1 in the packs". Strata 4 and 5 passed the user's look gate and are in the
+packs, 2026-11-19; see "Strata 4 and 5 in the packs". Release 2 is not started.
 
 Source: `SR_NWN_Modern_Exterior_Upfit_Plan_Complete.zip` (revision 1.1, 2026-11-18), reviewed against this
 repository. The package's art direction and its insistence on in-game proof stand. Its inventory, packaging and
@@ -166,6 +166,31 @@ a tile's source lights on goes dark at those 152 tiles until its main lights are
 58 tiles that already had main lights are unchanged, and their lamps still burn as torches with source lights on.
 `slumbrd2` keeps its upscaled old posters: two redraws copied them.
 
+## Strata 4 and 5 in the packs (2026-11-19)
+
+- Two terrains copied from existing ones by `tilekit terrain` (`docs/tilesets/dgt04/terrains.json`): Residential
+  Block (`Highrise_08`, from `Highrise_05`, models `srt04_r01_01`-`r06_01`, group `Highrise8_RoofAccess`) and
+  Derelict Tower (`Highrise_09`, from `Highrise_02`, models `srt04_x01_01`-`x06_01`). Set tiles 556-567 and group 68
+  come after every earlier entry; ten edge-table rows and the palette entries are added. Walkmeshes are the
+  sources' own; the twelve are added to `walkmesh.json` (601 entries), and the 589 earlier ones are unchanged.
+- Facades by the local Qwen image edit model (`redraw-terrains.json`), because the Codex image quota was out:
+  curtains and balconies for the residential block, broken and plywood-boarded windows for the derelict tower
+  (seed 2; seed 1 ignored the boarding). Night windows of the residential block take the warm lit grade.
+  Textures in `materials-terrains.json`, each reading its source's picture (`copy`). Passed: `tkter1`, `tkter2`.
+- Descriptive names in the palette only (approved list in `terrains.json`); set and edge-table terrain names are
+  unchanged. SR_NWN refers to set terrain names and model resrefs only, outside its design notes, and pins none of
+  the set, edge table or palette, so nothing there changes.
+- Toolset (by computer use, ignored `output/tilekit/tkts2`): both terrains paint from the Terrain palette and
+  border Concrete; a door from the Universal palette snaps to the type-0 hook of a Residential Block tile
+  (`srt04_r05_01`, at 35.0, 12.7) and of a Derelict Tower tile (`srt04_x06_01`, at 22.9, 67.1), as on their
+  sources (type 0 makes no door by itself). The release-1 review module opens and draws its three areas; the
+  first 556 tiles, the terrains, groups and edge rows match the set before the change, so existing areas keep
+  their tiles.
+- Wear evened (stratum 5): `concrete_07` and `concrete_08` stain 0.3 (Hospital, Ruined High-rise), `lab_wall02`
+  and `lab_wall05` stain 0.2 and `lab_floor01` the street grade (Laboratory). Passed: `tkeven1`.
+- Toolset notes: palette tree and palette toolbar ignore simulated clicks; select with `TVM_SELECTITEM`, and for
+  doors post a click on the item so the blueprint is armed. The camera buttons below the area are `TBitBtn`
+  windows that act while held: post button down, wait, button up.
 ## Authoring routes and time savers
 
 Every texture takes one of four routes. The pilot fixes which route each family takes.
@@ -344,6 +369,4 @@ surface in a further 17–24.
 
 ## Open items
 
-- The descriptive terrain names themselves (proposed with pictures in stratum 3b).
-- Whether SR_NWN refers to terrain names anywhere (checked before stratum 4).
 - Other sessions append envkit groups to `dgt04.set`; stratum 4 lands as one short-lived change to that file.
