@@ -15,6 +15,7 @@ is the standard those names follow.
 envkit's own commands write their entries (`placeables`, `blueprints`, `install`); an addition made by hand gets its
 entry by hand (docs/additions/README.md)."""
 import json
+from collections import Counter
 from pathlib import Path
 
 from . import require
@@ -66,7 +67,7 @@ def checked(data):
     numbers = [entry['row'] for entry in data['placeables']] + [(entry['tileset'], entry['group']) for entry in data['tileGroups']]
     numbers += [(entry['tileset'], 'tile', tile) for entry in data.get('terrainTiles', []) for tile in entry['tiles']]
     numbers += [(entry['tileset'], 'terrain', entry['terrain']) for entry in data.get('terrainTiles', [])]  # one entry per terrain
-    twice = sorted({str(number) for number in numbers if numbers.count(number) > 1})
+    twice = sorted(str(number) for number, count in Counter(numbers).items() if count > 1)
     require(not twice, 'The catalog has more than one entry for: ' + ', '.join(twice))
     return data
 

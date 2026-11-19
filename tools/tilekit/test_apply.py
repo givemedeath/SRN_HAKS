@@ -72,7 +72,12 @@ class ApplyTests(unittest.TestCase):
             (overlay / name).write_bytes(data)
         with self.assertRaisesRegex(ValueError, 'n_t01.mdl is new, and the overlay has no made-from.json'):  # new tiles come with a whole copy
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
-        (overlay / apply.MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': {}}), encoding='utf-8')
+        bare = {'kind': 'tilekit-terrain-copy', 'from': {}}
+        (overlay / apply.MADE_FROM).write_text(json.dumps(bare), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'n_t01.mdl is new, and made-from.json catalogues no tile of it'):  # a stray model is not installed
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        self.catalog(); entry = {'tileset': 'tst', 'terrain': 'Tower_2', 'tiles': [2], 'models': ['n_t01'], 'pack': 'srn_t_tst', 'madeBy': 'tilekit', 'source': 's', 'provenance': 'p', 'added': '2026-11-19'}
+        (overlay / apply.MADE_FROM).write_text(json.dumps({**bare, 'catalog': {'terrainTiles': [entry]}}), encoding='utf-8')
         told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
         self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), laid(3))
@@ -84,7 +89,20 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'tst.set: it lacks or changes entries the pack copy has'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         with self.assertRaisesRegex(ValueError, 'is new: the spec names the tileset'):
+            (overlay / apply.MADE_FROM).write_text(json.dumps(bare), encoding='utf-8')
             (overlay / 'n_t01.wok').unlink(); (overlay / 'n_t02.mdl').write_bytes(b'model'); apply.plan(self.repo, None, overlay)
+
+    def catalog(self):
+        (self.repo / 'docs' / 'additions').mkdir(parents=True)
+        (self.repo / 'docs' / 'additions' / 'catalog.json').write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-additions-catalog', 'placeables': [], 'tileGroups': [],
+            'baseline': {'placeables': {'table': 't.2da', 'lastImportedRow': 0}, 'tilesets': {'tst': {'set': 'srn_t_tst/tst.set', 'importedTiles': 3, 'importedGroups': 1}}}}), encoding='utf-8')
+
+    def test_a_palette_replaces_its_pack_copy_only_with_the_record_of_the_copy_that_made_it(self):
+        overlay = self.overlay.parent / 'palette'; overlay.mkdir(); (overlay / 'tstpalstd.itp').write_bytes(b'palette 2'); (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
+        with self.assertRaisesRegex(ValueError, 'tstpalstd.itp: a palette replaces its pack copy only with the made-from.json'):
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 2')  # one in place already is applied again
+        self.assertEqual(len(apply.plan(self.repo, {'tileset': 'tst'}, overlay)['put']), 1)
 
     def test_a_copy_s_record_holds_its_tables_to_the_pack_files_they_were_made_from_and_writes_its_catalog_entries(self):
         import hashlib
@@ -93,10 +111,7 @@ class ApplyTests(unittest.TestCase):
         record = {'kind': 'tilekit-terrain-copy', 'from': {'tstpalstd.itp': hashlib.sha256(b'palette 1').hexdigest()},
                   'catalog': {'terrainTiles': [{**entry, 'terrain': 'Tower_2', 'tiles': [3], 'models': ['n_t01']}],
                               'tileGroups': [{**entry, 'group': 1, 'name': 'Flats_Roof', 'rows': 1, 'columns': 1, 'tiles': [3], 'models': ['n_t01']}]}}
-        (overlay / apply.MADE_FROM).write_text(json.dumps(record), encoding='utf-8')
-        (self.repo / 'docs' / 'additions').mkdir(parents=True)
-        (self.repo / 'docs' / 'additions' / 'catalog.json').write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-additions-catalog', 'placeables': [], 'tileGroups': [],
-            'baseline': {'placeables': {'table': 't.2da', 'lastImportedRow': 0}, 'tilesets': {'tst': {'set': 'srn_t_tst/tst.set', 'importedTiles': 3, 'importedGroups': 1}}}}), encoding='utf-8')
+        (overlay / apply.MADE_FROM).write_text(json.dumps(record), encoding='utf-8'); self.catalog()
         (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1b')  # changed since the copy was made
         with self.assertRaisesRegex(ValueError, 'tstpalstd.itp: the pack copy changed since the overlay was made'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)

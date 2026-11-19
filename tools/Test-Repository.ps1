@@ -307,7 +307,8 @@ try {
     foreach ($entry in @($additions.tileGroups)) {
         if ($baselineNames -cnotcontains [string]$entry.tileset) { Add-ValidationError "The additions catalog lists a group of $($entry.tileset), which has no baseline." }
     }
-    foreach ($entry in @($additions.PSObject.Properties['terrainTiles'] | ForEach-Object { $_.Value } | ForEach-Object { $_ } | Where-Object { $_ })) {
+    $terrainEntries = @($additions.PSObject.Properties['terrainTiles'] | ForEach-Object { $_.Value } | ForEach-Object { $_ } | Where-Object { $_ })  # optional in the catalog
+    foreach ($entry in $terrainEntries) {
         if ($baselineNames -cnotcontains [string]$entry.tileset) { Add-ValidationError "The additions catalog lists terrain tiles of $($entry.tileset), which has no baseline." }
     }
     foreach ($tilesetName in $baselineNames) {
@@ -353,7 +354,7 @@ try {
         }
         # A tile of no group (a copied terrain's) is listed by its terrain under terrainTiles.
         $terrainListed = [System.Collections.Generic.HashSet[int]]::new(); $terrainNames = [System.Collections.Generic.HashSet[string]]::new()
-        foreach ($entry in @($additions.PSObject.Properties['terrainTiles'] | ForEach-Object { $_.Value } | ForEach-Object { $_ } | Where-Object { $_ -and $_.tileset -ceq $tilesetName })) {
+        foreach ($entry in @($terrainEntries | Where-Object { $_.tileset -ceq $tilesetName })) {
             if (-not $terrainNames.Add([string]$entry.terrain)) { Add-ValidationError "The additions catalog has more than one entry for terrain $($entry.terrain) of $tilesetName." }
             for ($index = 0; $index -lt @($entry.tiles).Count; $index++) {
                 $tile = [int]@($entry.tiles)[$index]; $model = [string]@($entry.models)[$index]; [void]$collected.Add($tile)

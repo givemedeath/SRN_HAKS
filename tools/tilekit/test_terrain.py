@@ -25,6 +25,9 @@ class TerrainTests(unittest.TestCase):
         made = terrain.retextured(terrain.renamed(MODEL, {'t_t01': 'n_t01'}), {'tower_wall': 'flat_wall'})
         self.assertNotIn('t_t01', made); self.assertIn('node trimesh n_t01wall', made); self.assertIn('bitmap flat_wall', made); self.assertIn('materialname flat_wall', made)
         self.assertEqual(inventory.walk_hash(terrain.renamed(made, {'n_t01': 't_t01'})), inventory.walk_hash(MODEL))
+        own = MODEL.replace('bitmap tower_wall', 'bitmap t_t01_wall')  # a texture named after its model keeps its name unless `textures` renames it
+        self.assertIn('bitmap t_t01_wall', terrain.renamed(own, {'t_t01': 'n_t01'}))
+        self.assertIn('bitmap flat_t01', terrain.retextured(terrain.renamed(own, {'t_t01': 'n_t01'}), {'t_t01_wall': 'flat_t01'}))
 
     def test_the_set_gains_the_terrain_its_tiles_with_their_doors_and_its_group(self):
         text, numbers = terrain.copied_set(SET, [COPY])
@@ -37,6 +40,11 @@ class TerrainTests(unittest.TestCase):
         self.assertIn('[TERRAIN1]\r\nName=Tower\r\n\r\n[TERRAIN2]\r\nName=Tower_2\r\n\r\n[TILES]', text)
         with self.assertRaisesRegex(ValueError, 'names no new model for t_t02'):
             terrain.copied_set(SET, [{**COPY, 'models': {'t_t01': 'n_t01'}}])
+        for copies in ([COPY, COPY], [{**COPY, 'terrain': 'TOWER'}]):  # a terrain name is the set's once, in any case
+            with self.assertRaisesRegex(ValueError, 'has a terrain (Tower_2|TOWER) already'):
+                terrain.copied_set(SET, copies)
+        with self.assertRaisesRegex(ValueError, 'names groups that hold none of its tiles: Tower_Rof'):
+            terrain.copied_set(SET, [{**COPY, 'groups': {**COPY['groups'], 'Tower_Rof': 'Flats_Rof'}}])
         bare = SET[:SET.index('[GROUP0]')].replace('[GROUPS]\r\nCount=1', '[GROUPS]\r\nCount=0')  # a set with no groups
         made, _ = terrain.copied_set(bare, [{**COPY, 'groups': {}}]); self.assertEqual(inventory.read_set(made)['groups'], [])
         blank = SET.replace('Columns=1\r\nTile0=2', 'Columns=2\r\nTile0=2\r\nTile1=-1')  # a group with a blank cell is the terrain's still
@@ -78,15 +86,20 @@ class TerrainTests(unittest.TestCase):
             self.assertEqual(sorted(record['from']), ['tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
             self.assertEqual([(entry['terrain'], entry['tiles'], entry['models'], entry['source']) for entry in record['catalog']['terrainTiles']], [('Tower_2', [3, 4], ['n_t01', 'n_t02'], 'specs/towers.json')])
             self.assertEqual([(entry['group'], entry['name'], entry['rows'], entry['columns'], entry['tiles'], entry['models']) for entry in record['catalog']['tileGroups']], [(1, 'Flats_Roof', 1, 1, [4], ['n_t02'])])
-            (repo / 'out' / 'n_t09.mdl').write_text(MODEL)  # left by an earlier run
-            with self.assertRaisesRegex(ValueError, 'models of an earlier run, which apply would install: n_t09.mdl'):
+            (repo / 'out' / 'n_t09.mdl').write_text(MODEL); (repo / 'out' / 'oth.set').write_text('')  # left by an earlier run
+            with self.assertRaisesRegex(ValueError, 'files of an earlier run, which apply would install: n_t09.mdl, oth.set'):
                 terrain.copy(repo, spec, repo / 'out', gff=gff)
+            (repo / 'out' / 'n_t09.mdl').unlink(); (repo / 'out' / 'oth.set').unlink()
+            with self.assertRaisesRegex(ValueError, 'broken'):  # a run that fails part way leaves no record of an earlier one
+                terrain.copy(repo, spec, repo / 'out', gff=lambda arguments: (_ for _ in ()).throw(ValueError('broken')))
+            self.assertFalse((repo / 'out' / 'made-from.json').exists())
             for broken, message in (({**spec, 'provenance': ''}, 'names its section of PROVENANCE.md'), ({**spec, 'copies': [{**COPY, 'terrain': 'Tower 2'}]}, 'at most 16 letters')):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, broken, repo / 'again', gff=gff)
             for broken, message in (({**COPY, 'models': {'t_t01': 'n_t01'}}, 'names no new model for t_t02'),  # each refused before a file is written
                                     ({**COPY, 'models': {**COPY['models'], 't_a01': 'n_a01'}}, 'no tile of Tower is t_a01'),
-                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'ground_x'}}, 'A pack holds ground_x already')):
+                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'ground_x'}}, 'A pack holds ground_x already'),
+                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n_t01'}}, 'more than one model the name n_t01')):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, {**spec, 'copies': [broken]}, repo / 'refused', gff=gff)
                 self.assertEqual(list((repo / 'refused').iterdir()), [])

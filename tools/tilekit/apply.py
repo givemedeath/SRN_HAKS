@@ -78,6 +78,7 @@ def plan(repo, spec, overlay):
     require(record.get('kind') == 'tilekit-terrain-copy' and isinstance(record.get('from'), dict), f'{MADE_FROM} is not a terrain copy\'s record')
     named = {entry['tileset'] for kind in ('terrainTiles', 'tileGroups') for entry in record.get('catalog', {}).get(kind, [])}
     require(named <= {(spec or {}).get('tileset')}, f'{MADE_FROM} is a copy of ' + ', '.join(sorted(named)) + ', not of the spec\'s tileset')
+    recorded = {model.lower() for entry in record.get('catalog', {}).get('terrainTiles', []) for model in entry['models']}  # the new tiles the record catalogues
     spec = {'textures': {}, **(spec or {})}  # an overlay of changed models alone, or a copied terrain's (its spec has no textures)
     held = {}  # lower-case name: {pack: its file there}
     for pack in packs:
@@ -99,9 +100,12 @@ def plan(repo, spec, overlay):
         if not holders and path.suffix.lower() in MODELS:  # a new tile (a copied terrain's): to the tileset's own pack
             require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it')
             require((overlay / MADE_FROM).is_file(), f'{path.name} is new, and the overlay has no {MADE_FROM}: only a whole terrain copy brings new tiles')
+            require(path.stem.lower() in recorded, f'{path.name} is new, and {MADE_FROM} catalogues no tile of it')
             put.append((path, repo / own / path.name)); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
         (was,) = holders.values()
+        require(path.suffix.lower() != '.itp' or path.name in record['from'] or path.read_bytes() == was.read_bytes(),
+                f'{path.name}: a palette replaces its pack copy only with the {MADE_FROM} of the copy that made it')  # it cannot be compared entry by entry
         if path.suffix.lower() == '.mdl':
             require(inventory.walk_hash(path.read_bytes().decode('cp1252')) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
         if path.suffix.lower() == '.wok':

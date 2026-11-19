@@ -21,20 +21,23 @@ from .apply import MADE_FROM
 
 HEADER = re.compile(r'(?m)^\[([^\]]+)\][ \t]*\r?$')
 CORNERS = ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')
+TEXTURE = re.compile(r'(?im)^([ \t]*(?:bitmap|texture\d|materialname)[ \t]+)(\S+)')  # a mesh's texture or material name
 
 
 def renamed(text, names):
     """`text` with each old name (any case) replaced, also where it begins a longer word: a tile's node names begin
-    with its model's name."""
-    for old, new in sorted(names.items(), key=lambda pair: -len(pair[0])):
-        text = re.sub(r'(?i)(?<![A-Za-z0-9_])' + re.escape(old), new, text)
-    return text
+    with its model's name. The textures and materials meshes name are left alone (`retextured` renames those)."""
+    pattern = '|'.join(re.escape(old) for old in sorted(names, key=len, reverse=True)); lowered = {old.lower(): new for old, new in names.items()}
+    if not pattern:
+        return text
+    swap = lambda line: re.sub(rf'(?i)(?<![A-Za-z0-9_])(?:{pattern})', lambda found: lowered[found.group(0).lower()], line)
+    return ''.join(line if TEXTURE.match(line) else swap(line) for line in text.splitlines(keepends=True))
 
 
 def retextured(text, textures):
     """A model's text with the textures and materials its meshes name (bitmap, textureN, materialname) renamed as
     `textures` says."""
-    return re.sub(r'(?im)^([ \t]*(?:bitmap|texture\d|materialname)[ \t]+)(\S+)', lambda found: found.group(1) + textures.get(found.group(2).lower(), found.group(2)), text)
+    return TEXTURE.sub(lambda found: found.group(1) + textures.get(found.group(2).lower(), found.group(2)), text)
 
 
 def _sections(text):
@@ -55,10 +58,11 @@ def copied_set(text, copies):
     groups: {old: new}}]. Returns (text, {terrain: {old tile number: new}})."""
     laid = inventory.read_set(text); parts = _sections(text); raw = dict(parts)
     terrains, tiles, groups = len(laid['terrains']), len(laid['tiles']), len(laid['groups'])
-    added = {'TERRAIN': [], 'TILE': [], 'GROUP': []}; numbers = {}
+    added = {'TERRAIN': [], 'TILE': [], 'GROUP': []}; numbers = {}; names = {name.lower() for name in laid['terrains']}  # the game reads terrain names in any case
     for one in copies:
         source, terrain = one['from'], one['terrain']
-        require(source in laid['terrains'], f'The set has no terrain {source}'); require(terrain not in laid['terrains'], f'The set has a terrain {terrain} already')
+        require(source in laid['terrains'], f'The set has no terrain {source}'); require(terrain.lower() not in names, f'The set has a terrain {terrain} already')
+        names.add(terrain.lower()); used = set()
         index = laid['terrains'].index(source)
         added['TERRAIN'].append(re.sub(r'^\[TERRAIN\d+\]', f'[TERRAIN{terrains}]', re.sub(r'(?m)^Name=.*?(\r?)$', f'Name={terrain}\\1', raw[f'TERRAIN{index}'], count=1)))
         terrains += 1
@@ -83,7 +87,9 @@ def copied_set(text, copies):
                 require(name, f'{terrain}: the copy names no new group for {group["name"]}')
                 body = re.sub(r'(?m)^Name=.*?(\r?)$', f'Name={name}\\1', raw[f'GROUP{position}'], count=1)
                 body = re.sub(r'(?m)^(Tile\d+)=(-?\d+)', lambda found: f'{found.group(1)}={numbers[terrain].get(int(found.group(2)), int(found.group(2)))}', body)
-                added['GROUP'].append(body.replace(f'[GROUP{position}]', f'[GROUP{groups}]', 1)); groups += 1
+                added['GROUP'].append(body.replace(f'[GROUP{position}]', f'[GROUP{groups}]', 1)); groups += 1; used.add(group['name'])
+        unused = sorted(set(one.get('groups', {})) - used)
+        require(not unused, f'{terrain}: the copy names groups that hold none of its tiles: ' + ', '.join(unused))
     heads = {'TERRAIN': 'TERRAIN TYPES', 'TILE': 'TILES', 'GROUP': 'GROUPS'}  # where the first of a kind goes when the set has none
     last = {kind: max((index for index, (name, _) in enumerate(parts) if re.fullmatch(rf'{kind}\d+' + (r'(DOOR\d+)?' if kind == 'TILE' else ''), name)),
                       default=next((index for index, (name, _) in enumerate(parts) if name == heads[kind]), len(parts) - 1)) for kind in added if added[kind]}
@@ -166,16 +172,21 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     walkmesh must be the source's, names apart. Returns {terrain: {tiles, models}, palette names}."""
     repo, folder = Path(repo), Path(folder); tileset = spec['tileset']; own = repo / f'srn_t_{tileset}'; gff = gff or _gff()
     folder.mkdir(parents=True, exist_ok=True); copies = spec.get('copies', []); told = {}
-    held = {(pack, path.name.lower()): path for pack in (own, repo / 'srn_t_common') if pack.is_dir() for path in pack.iterdir()}
+    listed = {pack: list(pack.iterdir()) for pack in repo.iterdir() if pack.is_dir() and pack.name.lower().startswith('srn_')}  # every pack, listed once
+    held = {(pack, path.name.lower()): path for pack in (own, repo / 'srn_t_common') for path in listed.get(pack, [])}
+    taken = {path.name.lower() for paths in listed.values() for path in paths}  # apply would take a name any pack holds for that pack's file
     require(not copies or spec.get('provenance'), 'A terrain spec names its section of PROVENANCE.md (provenance)')
-    writing = {f'{new}{suffix}'.lower() for one in copies for new in one['models'].values() for suffix in ('.mdl', '.wok')}
-    stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in ('.mdl', '.wok') and path.name.lower() not in writing)
-    require(not stale, 'The folder holds models of an earlier run, which apply would install: ' + ', '.join(stale))
+    new_names = [new.lower() for one in copies for new in one['models'].values()]
+    twice = sorted({name for name in new_names if new_names.count(name) > 1}); require(not twice, 'The spec gives more than one model the name ' + ', '.join(twice))
+    edge = repo / 'srn_2da' / f'{tileset}_edge.2da'; itp = own / f'{tileset}palstd.itp'; set_path = own / f'{tileset}.set'
+    writing = {f'{new}{suffix}' for new in new_names for suffix in ('.mdl', '.wok')} | {set_path.name.lower(), itp.name.lower()} | ({edge.name.lower()} if edge.is_file() and copies else set())
+    stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in ('.mdl', '.wok', '.set', '.2da', '.itp') and path.name.lower() not in writing)
+    require(not stale, 'The folder holds files of an earlier run, which apply would install: ' + ', '.join(stale))
+    (folder / MADE_FROM).unlink(missing_ok=True)  # an earlier run's record, which would otherwise outlive a run that fails part way
     made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
-    set_path = own / f'{tileset}.set'; data = set_path.read_bytes(); before = data.decode('cp1252')
+    data = set_path.read_bytes(); before = data.decode('cp1252')
     set_text, numbers = copied_set(before, copies); made_from[set_path.name] = sha(data)
     laid = inventory.read_set(before); outputs = []  # every model made and checked before any file is written
-    taken = {path.name.lower() for pack in repo.iterdir() if pack.is_dir() and pack.name.lower().startswith('srn_') for path in pack.iterdir()}  # apply would take a name any pack holds for that pack's file
     for one in copies:
         require(re.fullmatch(r'[A-Za-z0-9_]{1,16}', one['terrain']), f'{one["terrain"]}: a terrain is named by at most 16 letters, digits and underscores (the palette keeps it as a resref)')
         theirs = {tile['model'] for tile in laid['tiles'] if one['from'] in tile['corners']}
@@ -199,10 +210,8 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
         path.write_bytes(made)
     for terrain, tiles in numbers.items():
         told[terrain]['tiles'] = sorted(tiles.values())
-    edge = repo / 'srn_2da' / f'{tileset}_edge.2da'
     if edge.is_file() and copies:
         data = edge.read_bytes(); (folder / edge.name).write_bytes(copied_edge(data.decode('cp1252'), copies).encode('cp1252')); made_from[edge.name] = sha(data)
-    itp = own / f'{tileset}palstd.itp'
     with tempfile.TemporaryDirectory() as work:  # the overlay holds pack files alone
         data = itp.read_bytes(); read = Path(work) / itp.name; read.write_bytes(data); made_from[itp.name] = sha(data)
         document = json.loads(gff(['-i', read, '-k', 'json']))
