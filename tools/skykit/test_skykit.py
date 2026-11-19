@@ -120,6 +120,19 @@ class Panorama(unittest.TestCase):
         # rows run up from the bottom: the top row is written last, as BGRA
         self.assertEqual(tuple(data[-4:]), (0, 0, 255, 255))
 
+    def test_assembled_strip_keeps_views_and_join_middles(self):
+        rng = np.random.default_rng(1)
+        h, w = panorama.VIEW[1] // 8, panorama.VIEW[0]
+        views = [rng.random((h, w, 3)).astype(np.float32) for _ in range(3)]
+        joins = [panorama.join_input(views[i], views[(i + 1) % 3]) for i in range(3)]
+        strip = panorama.assemble(views, joins)
+        keep, trim, span = panorama.JOIN_KEEP, panorama.JOIN_TRIM, joins[0].shape[1]
+        body = w - 2 * (keep - trim)
+        self.assertEqual(strip.shape[1], 3 * (body + span - 2 * trim))
+        # an unchanged join (the input itself) leaves the views' own columns in place across the meeting
+        self.assertTrue(np.allclose(strip[:, :body], views[0][:, keep - trim:w - keep + trim]))
+        self.assertTrue(np.allclose(strip[:, body:body + keep - trim], views[0][:, w - keep + trim:], atol=1e-5))
+
     def test_band_degrees(self):
         strip = np.zeros((100, 3600, 4), np.float32)
         self.assertEqual(panorama.band_degrees(strip, 2.0, 1.0), (-2.0, 8.0))

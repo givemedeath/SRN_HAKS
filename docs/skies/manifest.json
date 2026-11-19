@@ -7,25 +7,49 @@
   "vertexShader": "vsvt",
   "panoramas": {
     "den": {
-      "views": [
-        {
-          "file": "denver/view_w.png",
-          "key": "green",
-          "mirrored": false,
-          "sha256": "386f23f9cd91aa83fda52f2f1bcab1477647058c491549476851a3c5c15ffff7"
-        },
-        {
-          "file": "denver/view_w.png",
-          "key": "green",
-          "mirrored": true,
-          "sha256": "386f23f9cd91aa83fda52f2f1bcab1477647058c491549476851a3c5c15ffff7"
-        }
-      ],
+      "key": "green",
+      "sources": {
+        "denver/view_w.png": "386f23f9cd91aa83fda52f2f1bcab1477647058c491549476851a3c5c15ffff7",
+        "denver/view_n.png": "94b11210e805aab4028b68d30bec40b1fcccb495502a02e0dcfc133ef574cd5a",
+        "denver/view_e.png": "c3f22203796f719b3da7d65560ed12d925ab4af2b07cb30a23ff6564e56179cd",
+        "denver/join_wn.png": "8b3320adfe58af5efdc1e6562a1a45b5c6797e93e6d23f8c0560e762403f42ad",
+        "denver/join_ne.png": "ed18c5c92c5148e6d730a1f8449a671cbb44196b1ff73cb6b25cab1402fb88d2",
+        "denver/join_ew.png": "0b09042a70a06005d06275551dd7ff49e4f73e4ab5141513b45b9db180ad1aec"
+      },
       "band": [
         -2.0,
-        16.75
-      ],
-      "interim": "one Codex view mirrored; three views and their joins are to replace it"
+        14.4599
+      ]
+    },
+    "pk": {
+      "key": "magenta",
+      "sources": {
+        "peaks/view_a.png": "a76fcc19ad649eeeb3239b488ec0f24bafee6b74bb338cc1ef56721349cf2754",
+        "peaks/view_b.png": "8d80810ef8578f191b64594047bfe2412dd2c25f0b6966a1973073174d42208f",
+        "peaks/view_c.png": "5aa0e2fabbb000b57a6c7071ed48ad8303e16cd0cda575a7c775572a1ffca16e",
+        "peaks/join_ab.png": "802b14077b486e71574156b69d6ea9702f38bf8f6e61a0f3d9519a8309dcd9ef",
+        "peaks/join_bc.png": "7952793eaeb745766193887ccdf2080d9e7f9943b44818fef7053b513aaca48c",
+        "peaks/join_ca.png": "bac0eb89ba3f9d6f80e7c17b9a73806612773a517c3d5e48ab79d950eade9062"
+      },
+      "band": [
+        -2.0,
+        19.0561
+      ]
+    },
+    "stm": {
+      "key": "magenta",
+      "sources": {
+        "storm/view_a.png": "6f2dc8741181b07627e06be8dd6569820e83ecfc4aa0dde7c8d0a1767dc54bbc",
+        "storm/view_b.png": "491e8e493a1c3fcb26d6c7f1bd17fe6df73bef6423583be80542bd23ba7a7888",
+        "storm/view_c.png": "692b38b06168d0b6181a83f167c46e02d490d6b3ecd41755779eff9f79387231",
+        "storm/join_ab.png": "d90b28083f53c277b369f64a59a5a9306d24be99a340447c05dc654cffa1fcfe",
+        "storm/join_bc.png": "2c0dff72bae9ab7c0e9dd63ae9e0da71a83c1ce8e0088cdef8bc9478d4e7a17a",
+        "storm/join_ca.png": "fcd6a17edf7c9d18e15342a30c662c0118489aa45ec2b6c60fc7fcab036994da"
+      },
+      "band": [
+        -2.0,
+        20.0332
+      ]
     }
   },
   "rows": {
@@ -40,13 +64,13 @@
       ]
     },
     "17": {
-      "label": "SRN_Denver_AcidStorm",
+      "label": "SRN_Sprawl_AcidStorm",
       "cyclical": 0,
       "models": [
-        "srn_skyden_st",
-        "srn_skyden_st",
-        "srn_skyden_st",
-        "srn_skyden_st"
+        "srn_skystm_n",
+        "srn_skystm_n",
+        "srn_skystm_n",
+        "srn_skystm_n"
       ]
     },
     "18": {
@@ -68,28 +92,68 @@
         "srn_skyden_n",
         "srn_skyden_n"
       ]
+    },
+    "20": {
+      "label": "SRN_Awakened_Peaks",
+      "cyclical": 1,
+      "models": [
+        "srn_skypk_da",
+        "srn_skypk_d",
+        "srn_skypk_du",
+        "srn_skypk_n"
+      ]
+    },
+    "21": {
+      "label": "SRN_Awakened_Aurora",
+      "cyclical": 0,
+      "models": [
+        "srn_skypk_n",
+        "srn_skypk_n",
+        "srn_skypk_n",
+        "srn_skypk_n"
+      ]
     }
   },
   "resources": {
-    "srn_skyden_d.dds": "000140f21acab4a56c2a85a6ed3f3dab205b76580057667f8778a8fefc375396",
+    "srn_skyden_d.dds": "823470c3108a4cccc3394f3fcf763da28a675eef35900b5e098d0498feaa6875",
     "srn_skyden_d.mdl": "9beac5ce4c117e9b119fb5bd45fbf1e9a77e537bf88f329ae0197bcbdf1f8ffd",
-    "srn_skyden_d.mtr": "ba65659509148aaba6118fd6b5ad954a7109181fc69188923fa9b14239c3c829",
-    "srn_skyden_da.dds": "dbfb5fc6f3753308742c4f725689198e8eaac8e73e6039fea6823a28f394b10b",
+    "srn_skyden_d.mtr": "d46d6dc940651b068eec54e6c0bb90a1ea115ddc7ddcb4c408403ebd13bb605f",
+    "srn_skyden_da.dds": "4c624b747f6113f18038117c6072145d6d311dc21afaf5cbcd4e9f9fc48af724",
     "srn_skyden_da.mdl": "91bf485b3085987ff0466dad5d0b2f36cf2000848fcfd013f1f4929ebe951716",
-    "srn_skyden_da.mtr": "194715aef27725b8604155893dd227f399c64facc35523ccc6cf11d5f61907de",
-    "srn_skyden_du.dds": "a5f8ee26e8bf13fe08a9bb008651ce67f1ee092f1e556580b74fdfc3b89eb7aa",
+    "srn_skyden_da.mtr": "3254250709da752a5132c38b882068956d56f881cd182ecb65699d458769ce14",
+    "srn_skyden_du.dds": "677558418837e43d95413f5d57634a78d7d7236757d468f313cfd0cfdb282d3d",
     "srn_skyden_du.mdl": "02146eb1b21c8f606579e5fac6ba58b3b184cc80fe7addcc5f66e84d52ad1091",
-    "srn_skyden_du.mtr": "ad5e0a15474a59828afa907fa769a057820f06c5f1419548bf23065c3d5339b4",
-    "srn_skyden_ma.dds": "a27d14b074b1bbb48cd31402dbc372adac51e0b35c67020c0bb2233c0af5e07b",
-    "srn_skyden_mb.dds": "cf2ba7fdff35e8063476028caf93cbaedc96229cb998faadc1b175ac7584487c",
-    "srn_skyden_n.dds": "035774a759f3b915e6647bd6e0f9e7e3afd36fc4cafe3965883f5ae7edf5e4c7",
+    "srn_skyden_du.mtr": "38e84d094c54fc8cd59f4efa30dfc7d401ad8d1dabc32f9ce1e945fb489ce94e",
+    "srn_skyden_ma.dds": "8c3bb35263d52068a5e46039bbb15e32171239f19efdce83cd4105bade1444f0",
+    "srn_skyden_mb.dds": "96f48075794dd3281db32f452cfab1607e88850dc1b175a4414105ec628020e6",
+    "srn_skyden_n.dds": "a7a9cc7a6c7f641ee7628337ed1ca365dd10695ca61f8991810367ce72a82acb",
     "srn_skyden_n.mdl": "1a0f3bcae7fa14119f207ce378851028c0d6323e624cfec564650dde0637fe26",
-    "srn_skyden_n.mtr": "279a0d09520bc8c937354a79e8646576a7f47a27e39bf0829dc14e6f67149db5",
-    "srn_skyden_pa.dds": "999c660876f209a12ead8592650bf4e2c3050377eb463de8eaebe6486ecccbd1",
-    "srn_skyden_pb.dds": "503de1691f1189d25fca11b204984f84369a0815ffdd14a9ff65b0cbab66bb5c",
-    "srn_skyden_st.dds": "d1f149ba29c7da46a6788513c3758826fe1701c8359ec9ba4b52a95e2063e11d",
-    "srn_skyden_st.mdl": "245457f06d52c65dfc7417476750f435b92ba3d1e6e1691508e119972fbcbb75",
-    "srn_skyden_st.mtr": "51c5efe6b8f97b3f37ef04d0be71570afcd01bde8186c2b517ffaca04ef6584f"
+    "srn_skyden_n.mtr": "1a66085eb4667e89382ab9bf4942f434321ae442034f938c937f94289e7d6d3e",
+    "srn_skyden_pa.dds": "88441403dd1e32ebf373a8567621d3f097b469fcb96f4f948f0268b5be92b355",
+    "srn_skyden_pb.dds": "6a620053310a682ef47bd7f8de7316e50491e71063978e8ebc8beb6365677670",
+    "srn_skypk_d.dds": "b6a5c148cdb51e1a92a0f68f04c76d80ceb628afb6d52604b253876e97122774",
+    "srn_skypk_d.mdl": "de12ead18715bc1c3aa0c1e647a2ab032f3da0f558d03119e466b14b0a0ffc16",
+    "srn_skypk_d.mtr": "8f1aa8ef10e66158945319a2086e585c41d46b67fbe10e62ab3f308d6d93f0bb",
+    "srn_skypk_da.dds": "c4a1dd9f4d5b9f4ad41c3fa04554c7dd7d4bad31da8d447f0746a2ee6789d724",
+    "srn_skypk_da.mdl": "4f26ec5b46cde858cbf603cf90efbb588425b03572d89fda32937930298fb08d",
+    "srn_skypk_da.mtr": "c3d97e0e8cf1ba505c4b0b1f884f6296fbaafbc735b7b35313f83d697a6fc7f2",
+    "srn_skypk_du.dds": "fdf1fea7e710901e877b64da02c793c599aa8daebfd932400895e511893925cc",
+    "srn_skypk_du.mdl": "fc1025d7e12f67bf5eb97bef34bca61b17c63a608c8df2072184385bd00b5913",
+    "srn_skypk_du.mtr": "2ef54bc2fb44c2ebbc54d4cb57fb2d9afb3241e2df54401b10897ba6e9341d5e",
+    "srn_skypk_ma.dds": "5ac6c29e3e145c07390cfc40ff0931d9ef7bdadd4c97702e9e6bc8211613b29c",
+    "srn_skypk_mb.dds": "e92cf4c0f9fe45d3dd8af30ea5211d593a384c4b723dbcfb23f78dedb2572521",
+    "srn_skypk_n.dds": "0958ccdbbc5c9e87ffc9c3c33a40d2514a9c22055766996344e7da0b5b74f930",
+    "srn_skypk_n.mdl": "8525b8f2b448eb438f2caeb3f1bbee3449f69cb9da13c90bf82d69763af41b69",
+    "srn_skypk_n.mtr": "1c56409fc6e87a0767765fcb7603697952058ad5a365d11e19ed45f558c4629e",
+    "srn_skypk_pa.dds": "5264712821de52e063d31fb931eeeaf572feacfe45882b27bca003d00ef56c07",
+    "srn_skypk_pb.dds": "212af10a6a1477f71faf89d85752dac07c9cdf616d7d667e534bc46dfa8e3394",
+    "srn_skystm_ma.dds": "e66081e88c63241652072f26dbab801b69afc6c46fd4e4a391fbcfc4d37ee4d6",
+    "srn_skystm_mb.dds": "ec4c866540cf4c1a53272b785c617d8a9714e14c0f58f617cae825be1e427c2b",
+    "srn_skystm_n.dds": "6f740ddc040e4bde0d7a09533418150375346a232847b96c1cb9f22d9240d8a3",
+    "srn_skystm_n.mdl": "be4e584a2149a18ff6b66434c142e85a5bd76df1bf0c6e7e02991dc1d86b86bd",
+    "srn_skystm_n.mtr": "fd24689f6fbc294cc92d4a2dda966c3c74bf41cd757364b88088c08a567013f4",
+    "srn_skystm_pa.dds": "d97525fc96b636763c72e9b48463f438f4d0063db8dff2a0f192ac9c519f0f42",
+    "srn_skystm_pb.dds": "64b9c8297fbc6b211cfbc46376698ed98c0b7aacba338ea8def50f105004d826"
   },
   "runtimeTestedInNwn": false
 }

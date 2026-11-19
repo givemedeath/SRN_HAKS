@@ -151,3 +151,65 @@ def tga(array):
 def save_png(array, path):
     data = np.clip(np.asarray(array) * 255 + 0.5, 0, 255).astype(np.uint8)
     Image.fromarray(data, 'RGBA' if data.shape[2] == 4 else 'RGB').save(Path(path))
+
+
+# Joins: neighbouring views are drawn apart, so their ends do not meet. A join picture is redrawn (by the same image
+# model) from `join_input`: the last JOIN_KEEP columns of the left view, a blend of the two across JOIN_GAP columns,
+# and the first JOIN_KEEP columns of the right view. `assemble` keeps the redrawn middle and feathers it into both views.
+VIEW = (1248, 832)       # every view is resized to this before joining
+JOIN_KEEP, JOIN_GAP, JOIN_FEATHER = 500, 248, 64
+JOIN_TRIM = 100          # columns of a join's kept ends that are trusted to the views rather than to the redraw
+
+
+def view_rgb(path):
+    """A source view as float RGB at VIEW size."""
+    return np.asarray(Image.open(path).convert('RGB').resize(VIEW, Image.LANCZOS), np.float32) / 255
+
+
+def join_input(left, right):
+    """The picture a join is redrawn from: left's end, a crossfade, right's start (float RGB, VIEW size)."""
+    a, b = left[:, -JOIN_KEEP:], right[:, :JOIN_KEEP]
+    t = np.linspace(0, 1, JOIN_GAP, dtype=np.float32)[None, :, None]
+    gap = a[:, -1:] * (1 - t) + b[:, :1] * t
+    return np.concatenate([a, gap, b], axis=1)
+
+
+def _feather(x, y):
+    """Blend from x to y across their shared width (equal-sized column blocks)."""
+    t = np.linspace(0, 1, x.shape[1], dtype=np.float32)[None, :, None]
+    return x * (1 - t) + y * t
+
+
+def assemble(views, joins):
+    """One wrapped strip from views [v0..vn-1] and joins [j01, j12, .., j(n-1)0] (float RGB, VIEW size).
+
+    Join column c < JOIN_KEEP is the left view's column W - JOIN_KEEP + c; column c >= JOIN_KEEP + JOIN_GAP is the right
+    view's column c - JOIN_KEEP - JOIN_GAP. Each view keeps the columns between its joins, each join the columns between
+    JOIN_TRIM of its ends, and each meeting is feathered over JOIN_FEATHER columns inside the join."""
+    width = views[0].shape[1]
+    keep, trim, feather = JOIN_KEEP, JOIN_TRIM, JOIN_FEATHER
+    span = joins[0].shape[1]
+    parts = []
+    for index, view in enumerate(views):
+        right = views[(index + 1) % len(views)]
+        join = joins[index].copy()
+        start = width - keep + trim
+        join[:, trim:trim + feather] = _feather(view[:, start:start + feather], join[:, trim:trim + feather])
+        end = keep - trim
+        join[:, span - trim - feather:span - trim] = _feather(join[:, span - trim - feather:span - trim], right[:, end - feather:end])
+        parts += [view[:, keep - trim:width - keep + trim], join[:, trim:span - trim]]
+    return np.concatenate(parts, axis=1)
+
+
+def match_colours(image, reference, key, strength=0.75):
+    """Shift `image`'s land colours toward `reference`'s (per-channel mean and spread of the land, sky key left alone):
+    views drawn by different models then share one grade."""
+    def land(rgb):
+        return keyness(rgb, key) < 0.1
+    src, ref = image[land(image)], reference[land(reference)]
+    mean_s, std_s = src.mean(0), src.std(0) + 1e-4
+    mean_r, std_r = ref.mean(0), ref.std(0) + 1e-4
+    graded = (image - mean_s) / std_s * std_r + mean_r
+    out = image + (graded - image) * strength
+    mask = land(image)[..., None]
+    return np.where(mask, np.clip(out, 0, 1), image).astype(np.float32)

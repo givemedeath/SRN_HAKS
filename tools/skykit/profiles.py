@@ -6,14 +6,25 @@ Parameters (srn_skybox/srn_sky_math.shd documents each):
 Azimuths are the sky sphere's: 0 is the area's east (+x), 90 north (+y), 180 west, 270 south.
 """
 
-# A panorama: its source views (file under tools/skykit/art/, chroma key, mirrored) joined left to right from azimuth
-# 0 counter-clockwise, then how tall the band stands. `interim` marks art that stands in until its own set exists.
+# A panorama: three views that read left to right as a viewer turns clockwise (west, north, east for Denver), each
+# 1248x832 with a flat chroma-key sky, and the three redrawn joins between them (view 0-1, 1-2, 2-0); see
+# panorama.assemble. `below` is the degrees of the strip's bottom under the horizon, `stretch` the vertical scale of
+# square texels (below 1 squats the land into a lower band).
 PANORAMAS = {
     'den': {
-        'views': [('denver/view_w.png', 'green', False), ('denver/view_w.png', 'green', True)],
-        'below': 2.0,      # degrees of the strip's bottom under the horizon
-        'stretch': 0.5,   # vertical scale of square texels: below 1 squats the land into a lower band
-        'interim': 'one Codex view mirrored; three views and their joins are to replace it',
+        'views': ['denver/view_w.png', 'denver/view_n.png', 'denver/view_e.png'],
+        'joins': ['denver/join_wn.png', 'denver/join_ne.png', 'denver/join_ew.png'],
+        'key': 'green', 'below': 2.0, 'stretch': 0.6, 'match': 0,  # the Qwen views take the Codex view's grade
+    },
+    'stm': {
+        'views': ['storm/view_a.png', 'storm/view_b.png', 'storm/view_c.png'],
+        'joins': ['storm/join_ab.png', 'storm/join_bc.png', 'storm/join_ca.png'],
+        'key': 'magenta', 'below': 2.0, 'stretch': 0.42,
+    },
+    'pk': {
+        'views': ['peaks/view_a.png', 'peaks/view_b.png', 'peaks/view_c.png'],
+        'joins': ['peaks/join_ab.png', 'peaks/join_bc.png', 'peaks/join_ca.png'],
+        'key': 'magenta', 'below': 2.0, 'stretch': 0.7,
     },
 }
 
@@ -52,18 +63,29 @@ DEN_NIGHT = {
 STORM = {
     'SkyPhase': 3,
     'SkyZenith': (0.01, 0.02, 0.025, 1), 'SkyHorizon': (0.10, 0.14, 0.12, 3.0),
-    'SkyCloud': (0.21, 0.26, 0.23, 1), 'SkyLand': (0.42, 0.58, 0.52, 0.45),
+    'SkyCloud': (0.21, 0.26, 0.23, 1), 'SkyLand': (0.80, 0.90, 0.85, 0.10),
     'SkySun': (172.0, -30.0, 1.0, 0.0), 'SkySunColor': (0.0, 0.0, 0.0, 0.0),
-    'SkyMotion': (5.0, 0.55, 0.75, 1.0), 'SkyNight': (0.0, 0.0, 0.0, 1.4),
-    'SkyExtra': (0.9, 1.0, 0.9, 0.55), 'SkyGlow': (0.75, 0.85, 0.35, 1), 'SkyBand': (0.0, 0.0, 0.08, 0.0),
+    'SkyMotion': (5.0, 0.55, 0.75, 1.0), 'SkyNight': (0.0, 0.0, 0.0, 1.2),
+    'SkyExtra': (0.9, 1.0, 0.9, 0.55), 'SkyGlow': (0.75, 0.85, 0.35, 1), 'SkyBand': (0.0, 0.0, 0.06, 0.0),
 }
+# The Awakened wilderness: neutral daylight art, tinted per phase; no city, so no window light, beacons or city glow.
+PK_DAWN = dict(DEN_DAWN, SkyLand=(1.0, 0.82, 0.78, 0.0), SkyNight=(0.0, 0.0, 0.0, 0.0), SkyExtra=(0.0, 0.0, 0.0, 0.0),
+               SkyGlow=(0.0, 0.0, 0.0, 1), SkyBand=(0.0, 0.0, 0.14, 0.0))
+PK_DAY = dict(DEN_DAY, SkyLand=(1.0, 1.0, 1.0, 0.0), SkyBand=(0.0, 0.0, 0.10, 0.0))
+PK_DUSK = dict(DEN_DUSK, SkyLand=(0.86, 0.62, 0.72, 0.0), SkyNight=(0.25, 0.0, 0.0, 0.0), SkyExtra=(0.0, 0.0, 0.0, 0.0),
+               SkyGlow=(0.0, 0.0, 0.0, 1), SkyBand=(0.0, 0.0, 0.10, 0.0))
+PK_NIGHT = dict(DEN_NIGHT, SkyLand=(0.22, 0.28, 0.42, 0.2), SkyCloud=(0.08, 0.09, 0.14, 1), SkyMotion=(2.4, 0.30, 0.0, 0.0),
+                SkyNight=(1.3, 1.0, 1.0, 0.0), SkyExtra=(0.0, 0.0, 0.0, 0.0), SkyGlow=(0.0, 0.0, 0.0, 1),
+                SkyHorizon=(0.05, 0.07, 0.14, 4.0), SkyBand=(0.0, 0.0, 0.08, 0.0))
 
 # skyboxes.2da rows: id -> (label, cyclical, panorama, {model suffix: phase parameters}, (dawn, day, dusk, night) suffixes)
 SKIES = {
     16: ('SRN_Denver_Dynamic', 1, 'den', {'da': DEN_DAWN, 'd': DEN_DAY, 'du': DEN_DUSK, 'n': DEN_NIGHT}, ('da', 'd', 'du', 'n')),
-    17: ('SRN_Denver_AcidStorm', 0, 'den', {'st': STORM}, ('st', 'st', 'st', 'st')),
+    17: ('SRN_Sprawl_AcidStorm', 0, 'stm', {'n': STORM}, ('n', 'n', 'n', 'n')),
     18: ('SRN_Denver_Dusk_Fixed', 0, 'den', {}, ('du', 'du', 'du', 'du')),
     19: ('SRN_Denver_Night_Fixed', 0, 'den', {}, ('n', 'n', 'n', 'n')),
+    20: ('SRN_Awakened_Peaks', 1, 'pk', {'da': PK_DAWN, 'd': PK_DAY, 'du': PK_DUSK, 'n': PK_NIGHT}, ('da', 'd', 'du', 'n')),
+    21: ('SRN_Awakened_Aurora', 0, 'pk', {}, ('n', 'n', 'n', 'n')),
 }
 
 

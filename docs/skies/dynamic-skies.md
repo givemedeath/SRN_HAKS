@@ -12,10 +12,12 @@ Built by `tools/skykit` (2026-11-19). Client-checked on one local client (Window
 
 | ID | Label | Cyclical | Dawn / day / dusk / night |
 |---|---|---|---|
-| 16 | `SRN_Denver_Dynamic` | 1 | `srn_skyden_da` / `_d` / `_du` / `_n` |
-| 17 | `SRN_Denver_AcidStorm` | 0 | `srn_skyden_st` all day: storm night, lightning, searchlights, rain |
+| 16 | `SRN_Denver_Dynamic` | 1 | `srn_skyden_da` / `_d` / `_du` / `_n`: Front Range, downtown, refineries, arcology |
+| 17 | `SRN_Sprawl_AcidStorm` | 0 | `srn_skystm_n` all day: megasprawl storm night, lightning, searchlights, rain |
 | 18 | `SRN_Denver_Dusk_Fixed` | 0 | `srn_skyden_du` all day |
 | 19 | `SRN_Denver_Night_Fixed` | 0 | `srn_skyden_n` all day |
+| 20 | `SRN_Awakened_Peaks` | 1 | `srn_skypk_da` / `_d` / `_du` / `_n`: Rocky Mountain wilderness, mana aurora at night |
+| 21 | `SRN_Awakened_Aurora` | 0 | `srn_skypk_n` all day |
 
 Pick one in Area Properties or with `SetSkyBox(16, oArea)`. A fixed row keeps its look at every hour; its animation
 still runs. The table is `srn_2da/skyboxes.2da`; the resources are in `srn_skybox`.
@@ -94,12 +96,22 @@ and resource hashes; the tests check the pack against it and the materials again
 - Not checked: Linux and other GPUs, other game builds (the shader includes the game's `inc_standard`), interiors,
   multiplayer, and areas with tall tiles in front of the horizon.
 
+## Art
+
+Each panorama is three views of 120 degrees (`tools/skykit/art/<set>/view_*.png`, prompts beside them) and three
+redrawn joins between them (`join_*.png`): `panorama.join_input` lays the ends of two neighbouring views either side
+of a crossfade, the image model repaints that middle (`art/join.qwen-prompt.txt`) and `panorama.assemble` feathers the
+repainted middle into both views. Denver's west view is Codex CLI image generation from the user's concept; every
+other view and every join is the local Qwen-Image 2.1 profile on the shared ComfyUI (2026-11-19, the user's trial of
+the local route while the Codex quota was spent), each an edit of the Denver west view so it keeps its composition.
+Denver's Qwen pictures are colour-matched to the Codex view (`match`). The build flips each strip: u grows
+counter-clockwise, which from inside the dome is the viewer's left.
+
 ## Known limits and next steps
 
-- **Interim art.** The Denver panorama is one generated view used twice, the second mirrored, so the skyline repeats
-  and mirrors at east and west. The plan is three views per panorama (120 degrees each) and generated joins, from
-  the prompts in `tools/skykit/art/`. The Codex image quota ran out after the first view.
-- **Day uses dusk-lit art**, recoloured by the day material. A day-lit panorama fading with the others would look
-  more natural.
-- **More panoramas** are prepared in the shader but have no art yet: a megasprawl for the acid storm and an Awakened
-  Rocky Mountain wilderness whose night shows the mana aurora (`SkyNight.z`).
+- **Mixed art sources.** Qwen's views are more photographic than the Codex painting; the grade match narrows it. The
+  Codex prompts of a full painted set are kept as `view_*.codex-prompt.txt` for when the quota returns.
+- **Day uses dusk-lit art** for Denver, recoloured by the day material. The peaks art is neutral daylight, tinted per
+  phase.
+- **Fast-cycle check:** `client_fixture --play` jumps the clock an hour every 12 seconds and shows the next sky each
+  day (Denver, Peaks, Storm).

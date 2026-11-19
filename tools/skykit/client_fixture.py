@@ -81,7 +81,39 @@ def transition_script():
     return '\n'.join(lines), len(rows)
 
 
-def build(nwn_root, out, transition=False):
+PLAY_SKIES = [(16, 'Denver'), (20, 'Awakened Peaks'), (17, 'Sprawl Acid Storm')]
+PLAY_HOUR = 12.0  # real seconds per game hour in the play module: a whole day in under five minutes
+
+
+def play_script():
+    """No shots: the clock jumps an hour every PLAY_HOUR seconds and each new day shows the next of PLAY_SKIES, with
+    the sky and the time floated over the player; the camera is the player's."""
+    names = ' '.join(f'if (n == {i}) return "{label} (row {row})";' for i, (row, label) in enumerate(PLAY_SKIES))
+    rows = ' '.join(f'if (n == {i}) return {row};' for i, (row, label) in enumerate(PLAY_SKIES))
+    text = f"""string SkyName(int n) {{ {names} return ""; }}
+int SkyRow(int n) {{ {rows} return 16; }}
+void Tick(int day, int hour)
+{{
+  object pc = GetFirstPC();
+  if (hour >= 24) {{ hour = 0; day = (day + 1) % {len(PLAY_SKIES)}; }}
+  if (hour == 0 || GetLocalInt(GetModule(), "SK_STARTED") == 0) {{ SetSkyBox(SkyRow(day), GetArea(pc)); SetLocalInt(GetModule(), "SK_STARTED", 1); }}
+  SetTime(hour, 0, 0, 0);
+  string label = SkyName(day) + "  " + IntToString(hour) + ":00";
+  FloatingTextStringOnCreature(label, pc, FALSE);
+  WriteTimestampedLogEntry("{PREFIX} play " + label);
+  DelayCommand({PLAY_HOUR}, Tick(day, hour + 1));
+}}
+void main()
+{{
+  object pc = GetEnteringObject(); if (!GetIsPC(pc)) return;
+  SetWeather(GetArea(pc), WEATHER_CLEAR);
+  DelayCommand(4.0, Tick(0, 4));
+}}
+"""
+    return text, 0
+
+
+def build(nwn_root, out, transition=False, play=False):
     sys.path.insert(0, str(ROOT / 'tools' / 'phenotypes'))
     from tool_runtime import tool
     out = Path(out).resolve()
@@ -129,7 +161,7 @@ def build(nwn_root, out, transition=False):
                     Mod_CustomTlk=field('cexostring', ''), Mod_OnClientEntr=field('resref', 'sk_enter'),
                     Mod_StartYear=field('dword', 2075), Mod_StartMonth=field('byte', 1), Mod_StartDay=field('byte', 1),
                     Mod_StartHour=field('byte', 12), Mod_DawnHour=field('byte', 6), Mod_DuskHour=field('byte', 18),
-                    Mod_MinPerHour=field('byte', 2 if transition else 60), Mod_XPScale=field('byte', 10))
+                    Mod_MinPerHour=field('byte', 2 if transition or play else 60), Mod_XPScale=field('byte', 10))
     factions = [{'__struct_id': i, 'FactionName': field('cexostring', name), 'FactionGlobal': field('word', 1),
                  'FactionParentID': field('dword', 4294967295)} for i, name in enumerate(('PC', 'Hostile', 'Commoner', 'Merchant', 'Defender'))]
     reps = [{'__struct_id': i * 5 + j, 'FactionID1': field('dword', i), 'FactionID2': field('dword', j),
@@ -139,7 +171,7 @@ def build(nwn_root, out, transition=False):
         path = staging / (filename + '.json')
         path.write_text(json.dumps(document), encoding='utf-8')
         run(gff, '-i', path, '-o', binary / filename)
-    text, count = transition_script() if transition else script(SHOTS)
+    text, count = play_script() if play else transition_script() if transition else script(SHOTS)
     source = binary / 'sk_enter.nss'
     source.write_text(text, encoding='ascii')
     run(compiler, '--root', nwn_root, '--userdirectory', user, source)
@@ -199,8 +231,16 @@ def main(argv=None):
     parser.add_argument('--out', type=Path, default=ROOT / 'output' / 'skykit' / 'client')
     parser.add_argument('--wait', type=float, default=0)
     parser.add_argument('--build-only', action='store_true')
+    parser.add_argument('--play', action='store_true', help='start the client on a module with no shots and leave it running for a person')
     parser.add_argument('--transition', action='store_true', help='let time run through dusk and dawn instead of the fixed shots')
     args = parser.parse_args(argv)
+    if args.play:
+        from tools.armorkit import client
+        user, _ = build(args.nwn_root, args.out, play=True)
+        (user / 'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
+        process = client.start(args.nwn_root, user, MODULE)
+        print(json.dumps({'pid': process.pid, 'userDirectory': str(user)}))
+        return
     if args.build_only:
         print(build(args.nwn_root, args.out, args.transition))
         return

@@ -42,8 +42,22 @@ def sha(path):
 def build_panorama(key):
     """(halves, (bottom, top) degrees) of one panorama, its intermediate pictures written to output/skykit/<key>/."""
     spec = profiles.PANORAMAS[key]
-    views = [(panorama.cut(panorama.load(ART / name), chroma), mirrored) for name, chroma, mirrored in spec['views']]
-    strip = panorama.strip(views)
+    if 'joins' in spec:
+        # views read left to right as a viewer turns clockwise; the joins between them are redrawn seams
+        views = [panorama.view_rgb(ART / name) for name in spec['views']]
+        joins = [panorama.view_rgb(ART / name) for name in spec['joins']]
+        if 'match' in spec:  # grade every other picture like the named view
+            reference = views[spec['match']]
+            views = [v if i == spec['match'] else panorama.match_colours(v, reference, spec['key']) for i, v in enumerate(views)]
+            joins = [panorama.match_colours(j, reference, spec['key'], 0.5) for j in joins]
+        whole = panorama.assemble(views, joins)
+        rgba = panorama.cut(whole, spec['key'])
+        strip = rgba[panorama.land_rows(rgba)[0]:]
+    else:
+        views = [(panorama.cut(panorama.load(ART / name), chroma), mirrored) for name, chroma, mirrored in spec['views']]
+        strip = panorama.strip(views)
+    # u grows counter-clockwise, which from inside the dome is to the viewer's left: flip so pictures read the right way
+    strip = np.ascontiguousarray(strip[:, ::-1])
     mask = panorama.lights(strip)
     band = panorama.band_degrees(strip, spec['below'], spec['stretch'])
     halves = panorama.halves(strip, mask)
@@ -126,6 +140,9 @@ def preview_sheet(renderer, materials, folder):
 
 def build(args):
     PACK.mkdir(exist_ok=True)
+    for old in PACK.glob('srn_sky*'):  # the build owns every srn_sky* resource but the shaders: drop what it no longer writes
+        if old.name not in SHADERS:
+            old.unlink()
     materials = profiles.materials()
     keys = sorted({key for key, _ in materials.values()})
     built = {key: build_panorama(key) for key in keys}
@@ -152,6 +169,8 @@ def build(args):
         from .preview import Renderer
         renderer = Renderer()
         for key in keys:
+            sheet_folder = folder / key
+            sheet_folder.mkdir(exist_ok=True)
             renderer.bind(built[key][0])
             mine = {n: v for n, v in resolved.items() if v[0] == key}
             for name, (_, values) in mine.items():
@@ -161,15 +180,14 @@ def build(args):
                 if crunch:
                     to_dds(crunch, tga, PACK / f'{name}.dds', 'DXT1')
                     written.append(PACK / f'{name}.dds')
-            print('contact sheet:', preview_sheet(renderer, mine, folder))
+            print('contact sheet:', preview_sheet(renderer, mine, sheet_folder))
     manifest = {
         'schema': 1,
         'shaders': {name: sha(PACK / name) for name in SHADERS},
         'vertexShader': VERTEX_SHADER,
-        'panoramas': {key: {'views': [{'file': v[0], 'key': v[1], 'mirrored': v[2], 'sha256': sha(ART / v[0])}
-                                      for v in profiles.PANORAMAS[key]['views']],
-                            'band': [round(b, 4) for b in built[key][1]],
-                            'interim': profiles.PANORAMAS[key].get('interim')} for key in keys},
+        'panoramas': {key: {'key': profiles.PANORAMAS[key]['key'],
+                            'sources': {name: sha(ART / name) for name in profiles.PANORAMAS[key]['views'] + profiles.PANORAMAS[key]['joins']},
+                            'band': [round(b, 4) for b in built[key][1]]} for key in keys},
         'rows': {str(row): {'label': label, 'cyclical': cyclical, 'models': models}
                  for row, (label, cyclical, models) in table_rows().items()},
         'resources': {p.name: sha(p) for p in sorted(set(written))},
