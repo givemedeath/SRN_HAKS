@@ -63,7 +63,7 @@ def redraw_command(chosen):
     told = redraw.redraw(spec, chosen.repo, chosen.out, run, only=chosen.only.split(',') if chosen.only else None,
                          enlarged=chosen.enlarged, workers=1 if chosen.bindings else chosen.workers)
     failed = {name: state for name, state in told.items() if state.startswith('failed')}
-    print(json.dumps({'redrawn': sum(state == 'redrawn' for state in told.values()), 'kept': sum(state == 'kept' for state in told.values()), 'failed': failed}, indent=1))
+    print(json.dumps({'redrawn': sum(state == 'redrawn' for state in told.values()), 'composed': sum(state == 'composed' for state in told.values()), 'kept': sum(state == 'kept' for state in told.values()), 'failed': failed}, indent=1))
     return 1 if failed else 0
 
 

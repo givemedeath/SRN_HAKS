@@ -119,11 +119,36 @@ def alike(old, new, side=256):
     return 0.0 if first.std() == 0 or second.std() == 0 else float(np.corrcoef(first, second)[0, 1])
 
 
+def composed(day, old_day, old_lit, enlarged=None):
+    """The lit variant of a redrawn day picture, made with no generator: its glass lit where the old night texture is
+    lit, in that texture's colours, with the day picture's own detail (a curtain, a blind, dirt) showing against the
+    light; everything else as by day, darker. day: the redrawn day picture (PIL image). old_day, old_lit: the
+    textures the game draws now (uint8 arrays; a lit one's alpha limits what is lit). enlarged: the old lit picture
+    as the upscaling model enlarged it, for cleaner colours. Lit is what the old night texture shows well brighter
+    than the old day one, or outright bright (a neon tube is as bright by day in the old pictures)."""
+    from PIL import Image, ImageFilter
+    weights = np.array([0.2126, 0.7152, 0.0722]); size = day.size
+    sized = lambda picture: np.asarray(Image.fromarray(np.ascontiguousarray(np.asarray(picture)[..., :3])).resize(size, Image.LANCZOS), np.float64)
+    new, before, night = np.asarray(day.convert('RGB'), np.float64), sized(old_day), sized(old_lit if enlarged is None else enlarged)
+    brightest = night.max(axis=2)
+    mask = np.maximum(np.clip((night @ weights - before @ weights - 12) / 36, 0, 1) * np.clip((brightest - 60) / 60, 0, 1), np.clip((brightest - 140) / 50, 0, 1))
+    if np.asarray(old_lit).shape[2] == 4:
+        mask *= np.asarray(Image.fromarray(np.ascontiguousarray(np.asarray(old_lit)[..., 3])).resize(size, Image.LANCZOS), np.float64) / 255
+    soft = max(1, size[0] // 256)
+    mask = np.asarray(Image.fromarray(np.uint8(mask * 255 + 0.5)).filter(ImageFilter.GaussianBlur(soft)), np.float64)[..., None] / 255
+    colour = np.asarray(Image.fromarray(np.uint8(night + 0.5)).filter(ImageFilter.GaussianBlur(soft * 2)), np.float64)
+    light = new @ weights; inside = mask[..., 0] > 0.5
+    low, high = np.percentile(light[inside], [5, 95]) if inside.sum() > 50 else (0.0, 255.0)
+    detail = np.clip((light - low) / max(high - low, 1.0), 0, 1)[..., None]
+    return Image.fromarray(np.uint8(np.clip(new * 0.6 * (1 - mask) + colour * (0.7 + 0.5 * detail) * mask, 0, 255) + 0.5))
+
+
 def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=print):
     """Every texture of a redraw list drawn again into `folder` as <name>.png with a record beside it, the day
-    pictures first and then the lit ones from them, `workers` at a time. One that is there already is passed over.
+    pictures first and then the lit ones from them, `workers` at a time. One that is there already is passed over. A
+    lit one whose entry says `compose` is not drawn: it is `composed` from its day picture and the old textures.
     enlarged: the folder of `enlarge`, whose cleaner picture is the reference where it has one. Returns
-    {name: 'redrawn' | 'kept' | 'failed: ...'}; a failure stops nothing else."""
+    {name: 'redrawn' | 'composed' | 'kept' | 'failed: ...'}; a failure stops nothing else."""
     from PIL import Image
     textures = spec.get('textures'); require(isinstance(textures, dict) and textures, 'A redraw list lists its textures')
     chosen = sorted(textures) if only is None else list(only); require(set(chosen) <= set(textures), 'Not in the list: ' + ', '.join(sorted(set(chosen) - set(textures))))
@@ -137,11 +162,20 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
             return 'kept'
         old = np.asarray(material.current(repo, name))[..., :3]; height, width = old.shape[:2]
         size = (SIDE, max(64, round(SIDE * height / width / 64) * 64)) if width >= height else (max(64, round(SIDE * width / height / 64) * 64), SIDE)
+        better = Path(enlarged) / f'{name}.png' if enlarged else None
+        if how.get('compose'):
+            require(how.get('of'), 'only a lit variant is composed: it names the day texture it is `of`')
+            day = folder / f'{how["of"]}.png'; require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
+            with Image.open(day) as shown:
+                picture = composed(shown, np.asarray(material.current(repo, how['of'])), np.asarray(material.current(repo, name)),
+                                   np.asarray(Image.open(better).convert('RGB')) if better is not None and better.is_file() else None).resize(size, Image.LANCZOS)
+            picture.save(target)
+            (folder / f'{name}.json').write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'size': list(size)}, indent=1) + '\n', encoding='utf-8')
+            return 'composed'
         work = folder / 'jobs' / name
         if work.exists():
             shutil.rmtree(work)
         work.mkdir(parents=True); images = [work / 'ref.png']
-        better = Path(enlarged) / f'{name}.png' if enlarged else None
         reference = Image.open(better).convert('RGB') if better is not None and better.is_file() else Image.fromarray(old)
         reference.resize(size, Image.LANCZOS).save(work / 'ref.png')
         if how.get('of'):
