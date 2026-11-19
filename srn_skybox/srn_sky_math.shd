@@ -119,7 +119,7 @@ vec4 SrnLand(vec2 uv, float elevation, out vec4 lights, out vec3 blurred)
     vec4 land = mix(texture2D(texUnit0, ta), texture2D(texUnit1, tb), second);
     vec4 mask = mix(texture2D(texUnit2, ta), texture2D(texUnit3, tb), second);
     lights = mask;
-    blurred = mix(texture2D(texUnit0, ta, 3.5).rgb, texture2D(texUnit1, tb, 3.5).rgb, second);
+    blurred = mix(texture2D(texUnit0, ta, 1.5).rgb, texture2D(texUnit1, tb, 1.5).rgb, second);
     if (tv < 0.0)
     {
         // below the panorama: the blurred colour of its bottom row, darkening downward
@@ -342,7 +342,7 @@ vec3 SrnSkyColour(vec2 uv, float timeOfDayMs, float dayLengthMs, float weather)
     if (land.a > 0.0)
     {
         // by day a lit window takes the colour round it, a little darker, instead of glowing
-        vec3 rgb = mix(land.rgb, blurred * 0.8, clamp(lights.r * 1.5, 0.0, 1.0) * SkyBand.w * isDay);
+        vec3 rgb = mix(land.rgb, blurred * 0.9, clamp(lights.r, 0.0, 1.0) * SkyBand.w * isDay);
         float lum = dot(rgb, vec3(0.299, 0.587, 0.114));
         vec3 base = mix(rgb, vec3(lum), SkyLand.a) * SkyLand.rgb;
         // window and neon light: dimmed by day, stronger at night, a slow flicker per block of windows

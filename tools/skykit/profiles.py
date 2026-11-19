@@ -25,22 +25,23 @@ PANORAMAS = {
     },
 }
 
+# land haze, desaturation and day window dimming retuned for the 2x upscaled art (user, 2026-11-19)
 DEN_DAWN = {
     'SkyPhase': 0,
     'SkyZenith': (0.16, 0.18, 0.40, 0.8), 'SkyHorizon': (0.98, 0.58, 0.46, 5.0),
-    'SkyCloud': (0.62, 0.42, 0.58, 1), 'SkyLand': (1.05, 0.88, 0.92, 0.15),
+    'SkyCloud': (0.62, 0.42, 0.58, 1), 'SkyLand': (1.05, 0.88, 0.92, 0.05),
     'SkySun': (8.0, 3.0, 1.6, 1.0), 'SkySunColor': (1.0, 0.62, 0.36, 0.9),
     'SkyMotion': (2.4, 0.52, 0.0, 0.0), 'SkyNight': (0.0, 0.0, 0.0, 0.55),
-    'SkyExtra': (0.0, 0.6, 0.15, 0.0), 'SkyGlow': (1.0, 0.55, 0.65, 1), 'SkyBand': (0.0, 0.0, 0.10, 0.0),
+    'SkyExtra': (0.0, 0.6, 0.15, 0.0), 'SkyGlow': (1.0, 0.55, 0.65, 1), 'SkyBand': (0.0, 0.0, 0.05, 0.0),
 }
 DEN_DAY = {
     'SkyPhase': 1,
     # about a fifth darker than first built: the day read too bright in the client (user, 2026-11-19)
     'SkyZenith': (0.16, 0.32, 0.64, 0.4), 'SkyHorizon': (0.58, 0.65, 0.76, 4.0),
-    'SkyCloud': (0.80, 0.80, 0.83, 1), 'SkyLand': (1.10, 1.02, 0.95, 0.45),
+    'SkyCloud': (0.80, 0.80, 0.83, 1), 'SkyLand': (1.10, 1.02, 0.95, 0.15),
     'SkySun': (200.0, 62.0, 1.4, 0.45), 'SkySunColor': (1.0, 0.95, 0.85, 0.3),
     'SkyMotion': (2.4, 0.46, 0.0, 0.0), 'SkyNight': (0.0, 0.0, 0.0, 0.0),
-    'SkyExtra': (0.0, 0.0, 0.0, 0.0), 'SkyGlow': (0.0, 0.0, 0.0, 1), 'SkyBand': (0.0, 0.0, 0.14, 0.9),
+    'SkyExtra': (0.0, 0.0, 0.0, 0.0), 'SkyGlow': (0.0, 0.0, 0.0, 1), 'SkyBand': (0.0, 0.0, 0.06, 0.55),
 }
 DEN_DUSK = {
     'SkyPhase': 2,
@@ -48,7 +49,7 @@ DEN_DUSK = {
     'SkyCloud': (0.42, 0.18, 0.44, 1), 'SkyLand': (1.08, 0.86, 1.0, 0.0),
     'SkySun': (172.0, 2.0, 1.8, 1.2), 'SkySunColor': (1.0, 0.42, 0.50, 1.1),
     'SkyMotion': (2.4, 0.64, 0.0, 0.0), 'SkyNight': (0.25, 0.0, 0.0, 0.8),
-    'SkyExtra': (0.0, 0.9, 0.45, 0.0), 'SkyGlow': (1.0, 0.45, 0.70, 1), 'SkyBand': (0.0, 0.0, 0.06, 0.0),
+    'SkyExtra': (0.0, 0.9, 0.45, 0.0), 'SkyGlow': (1.0, 0.45, 0.70, 1), 'SkyBand': (0.0, 0.0, 0.03, 0.0),
 }
 DEN_NIGHT = {
     'SkyPhase': 3,
@@ -57,7 +58,7 @@ DEN_NIGHT = {
     'SkySun': (172.0, -30.0, 1.0, 0.0), 'SkySunColor': (0.0, 0.0, 0.0, 0.0),
     'SkyMotion': (2.4, 0.48, 0.0, 0.0), 'SkyNight': (1.0, 1.0, 0.0, 1.3),
     # searchlights sweep the Denver night too (user, 2026-11-19)
-    'SkyExtra': (0.8, 1.0, 0.75, 0.0), 'SkyGlow': (1.0, 0.42, 0.72, 1), 'SkyBand': (0.0, 0.0, 0.05, 0.0),
+    'SkyExtra': (0.8, 1.0, 0.75, 0.0), 'SkyGlow': (1.0, 0.42, 0.72, 1), 'SkyBand': (0.0, 0.0, 0.03, 0.0),
 }
 STORM = {
     'SkyPhase': 3,
@@ -69,13 +70,13 @@ STORM = {
 }
 # The Awakened wilderness: neutral daylight art, tinted per phase; no city, so no window light, beacons or city glow.
 PK_DAWN = dict(DEN_DAWN, SkyLand=(1.0, 0.82, 0.78, 0.0), SkyNight=(0.0, 0.0, 0.0, 0.0), SkyExtra=(0.0, 0.0, 0.0, 0.0),
-               SkyGlow=(0.0, 0.0, 0.0, 1), SkyBand=(0.0, 0.0, 0.14, 0.0))
-PK_DAY = dict(DEN_DAY, SkyLand=(0.86, 0.86, 0.86, 0.0), SkyBand=(0.0, 0.0, 0.10, 0.0))
+               SkyGlow=(0.0, 0.0, 0.0, 1), SkyBand=(0.0, 0.0, 0.07, 0.0))
+PK_DAY = dict(DEN_DAY, SkyLand=(0.86, 0.86, 0.86, 0.0), SkyBand=(0.0, 0.0, 0.05, 0.0))
 PK_DUSK = dict(DEN_DUSK, SkyLand=(0.86, 0.62, 0.72, 0.0), SkyNight=(0.25, 0.0, 0.0, 0.0), SkyExtra=(0.0, 0.0, 0.0, 0.0),
-               SkyGlow=(0.0, 0.0, 0.0, 1), SkyBand=(0.0, 0.0, 0.10, 0.0))
+               SkyGlow=(0.0, 0.0, 0.0, 1), SkyBand=(0.0, 0.0, 0.05, 0.0))
 PK_NIGHT = dict(DEN_NIGHT, SkyLand=(0.22, 0.28, 0.42, 0.2), SkyCloud=(0.08, 0.09, 0.14, 1), SkyMotion=(2.4, 0.30, 0.0, 0.0),
                 SkyNight=(1.3, 1.0, 1.0, 0.0), SkyExtra=(0.0, 0.0, 0.0, 0.0), SkyGlow=(0.0, 0.0, 0.0, 1),
-                SkyHorizon=(0.05, 0.07, 0.14, 4.0), SkyBand=(0.0, 0.0, 0.08, 0.0))
+                SkyHorizon=(0.05, 0.07, 0.14, 4.0), SkyBand=(0.0, 0.0, 0.05, 0.0))
 
 # skyboxes.2da rows: id -> (label, cyclical, panorama, {model suffix: phase parameters}, (dawn, day, dusk, night) suffixes)
 SKIES = {
