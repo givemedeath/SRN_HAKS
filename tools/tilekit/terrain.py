@@ -171,6 +171,9 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     writing = {f'{new}{suffix}'.lower() for one in copies for new in one['models'].values() for suffix in ('.mdl', '.wok')}
     stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in ('.mdl', '.wok') and path.name.lower() not in writing)
     require(not stale, 'The folder holds models of an earlier run, which apply would install: ' + ', '.join(stale))
+    made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
+    set_path = own / f'{tileset}.set'; data = set_path.read_bytes(); before = data.decode('cp1252')
+    set_text, numbers = copied_set(before, copies); made_from[set_path.name] = sha(data)  # the spec's checks, before any file is written
     for one in copies:
         require(re.fullmatch(r'[A-Za-z0-9_]{1,16}', one['terrain']), f'{one["terrain"]}: a terrain is named by at most 16 letters, digits and underscores (the palette keeps it as a resref)')
         textures = {old.lower(): new for old, new in one.get('textures', {}).items()}
@@ -188,9 +191,7 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
                 require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
                 (folder / f'{new}.wok').write_bytes(moved.encode('cp1252'))
         told[one['terrain']] = {'models': len(one['models'])}
-    made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
-    set_path = own / f'{tileset}.set'; data = set_path.read_bytes(); before = data.decode('cp1252'); text, numbers = copied_set(before, copies)
-    (folder / set_path.name).write_bytes(text.encode('cp1252')); made_from[set_path.name] = sha(data)
+    (folder / set_path.name).write_bytes(set_text.encode('cp1252'))
     for terrain, tiles in numbers.items():
         told[terrain]['tiles'] = sorted(tiles.values())
     edge = repo / 'srn_2da' / f'{tileset}_edge.2da'
@@ -202,7 +203,7 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
         document = json.loads(gff(['-i', read, '-k', 'json']))
         made = Path(work) / 'palette.json'; made.write_text(json.dumps(palette(document, copies, spec.get('names', {}))), encoding='utf-8')
         gff(['-i', made, '-o', folder / itp.name])
-    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'catalog': catalogued(spec, before, text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
+    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'catalog': catalogued(spec, before, set_text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
     told['palette names'] = len(spec.get('names', {}))
     return told
 

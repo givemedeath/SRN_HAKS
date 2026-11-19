@@ -32,6 +32,13 @@ def load(path):
     """The catalog, checked for its own shape."""
     data = json.loads(Path(path).read_text(encoding='utf-8'))
     require(isinstance(data, dict) and data.get('kind') == KIND and data.get('schemaVersion') == 1, 'Additions catalog required: ' + str(path))
+    return checked(data)
+
+
+def checked(data):
+    """`data`, a catalog, once it has the shape `load` requires: what a command merges into it is held to that
+    before it is saved."""
+    require(isinstance(data, dict) and data.get('kind') == KIND and data.get('schemaVersion') == 1, 'Additions catalog required')
     require(set(data) in (KEYS, KEYS | {'terrainTiles'}), 'The catalog has a baseline, placeables and tile groups, and may have terrain tiles')
     baseline = data['baseline']
     require(isinstance(baseline, dict) and set(baseline) == {'placeables', 'tilesets'} and isinstance(baseline['placeables'], dict) and isinstance(baseline['tilesets'], dict),

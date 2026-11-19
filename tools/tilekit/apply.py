@@ -5,8 +5,9 @@ which no pack held, goes to the tileset's own pack. A changed tile model replace
 A name that ends up in more than one pack is an expected override in hakbuilder.json; one that no longer does is not.
 A tileset's set file, edge table and palette replace their pack copies, a set file or table only when it keeps every
 entry of the pack copy (`_extends`) and, where the overlay records it (`MADE_FROM`), only over the very pack file it was
-made from; that record's additions catalog entries are written. A new tile model and walkmesh (a copied
-terrain's, `terrain`) go to the tileset's own pack; a walkmesh a pack holds is never replaced. Other files of the packs (a TXI of an old name, a placeable's own texture) are left as they are."""
+made from; that record's additions catalog entries are written, checked and dated the day of the apply. A new tile
+model and walkmesh come only with such a record (a copied terrain's, `terrain`) and go to the tileset's own pack; a walkmesh a pack holds is never replaced. Other files of the packs (a TXI of an old name, a placeable's own texture) are left as they are."""
+import datetime
 import hashlib
 import json
 import re
@@ -43,14 +44,15 @@ def _catalogued(repo, entries):
         return None
     from tools.envkit import catalog
     data = catalog.load(repo / catalog.PATH); same = lambda one, other: (one['tileset'], one['terrain']) == (other['tileset'], other['terrain'])
+    today = datetime.date.today().isoformat()  # the day the numbers reach the packs, as envkit's install records it
     for group in entries.get('tileGroups', []):  # an entry already there keeps the day it was first added
-        listed = any((old['tileset'], old['group']) == (group['tileset'], group['group']) for old in data['tileGroups'])
-        catalog.put_group(data, {key: value for key, value in group.items() if not (listed and key == 'added')})
+        there = [old for old in data['tileGroups'] if (old['tileset'], old['group']) == (group['tileset'], group['group'])]
+        catalog.put_group(data, {**group, 'added': there[0]['added'] if there else today})
     for terrain in entries.get('terrainTiles', []):
         there = [old for old in data.get('terrainTiles', []) if same(old, terrain)]
         require(all(old['tiles'] == terrain['tiles'] for old in there), f'Terrain {terrain["terrain"]} of {terrain["tileset"]} has tiles {there[0]["tiles"] if there else ""} in the additions catalog')
-        data['terrainTiles'] = [old for old in data.get('terrainTiles', []) if not same(old, terrain)] + [{**terrain, **({'added': there[0]['added']} if there else {})}]
-    return data
+        data['terrainTiles'] = [old for old in data.get('terrainTiles', []) if not same(old, terrain)] + [{**terrain, 'added': there[0]['added'] if there else today}]
+    return catalog.checked(data)  # held to what a load requires, so a later load does not fail on it
 
 
 def files_of(overlay, name):
@@ -95,7 +97,9 @@ def plan(repo, spec, overlay):
     for path in sorted(path for path in overlay.iterdir() if path.suffix.lower() in MODELS + TABLES):
         holders = held.get(path.name.lower(), {})
         if not holders and path.suffix.lower() in MODELS:  # a new tile (a copied terrain's): to the tileset's own pack
-            require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it'); put.append((path, repo / own / path.name)); continue
+            require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it')
+            require((overlay / MADE_FROM).is_file(), f'{path.name} is new, and the overlay has no {MADE_FROM}: only a whole terrain copy brings new tiles')
+            put.append((path, repo / own / path.name)); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
         (was,) = holders.values()
         if path.suffix.lower() == '.mdl':

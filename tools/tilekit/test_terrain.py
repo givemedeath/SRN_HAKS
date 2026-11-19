@@ -83,6 +83,9 @@ class TerrainTests(unittest.TestCase):
             for broken, message in (({**spec, 'provenance': ''}, 'names its section of PROVENANCE.md'), ({**spec, 'copies': [{**COPY, 'terrain': 'Tower 2'}]}, 'at most 16 letters')):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, broken, repo / 'again', gff=gff)
+            with self.assertRaisesRegex(ValueError, 'names no new model for t_t02'):  # refused before a file is written
+                terrain.copy(repo, {**spec, 'copies': [{**COPY, 'models': {'t_t01': 'n_t01'}}]}, repo / 'refused', gff=gff)
+            self.assertEqual(list((repo / 'refused').iterdir()), [])
             with self.assertRaisesRegex(ValueError, 'A pack holds n_t01.mdl already'):
                 (own / 'n_t01.mdl').write_text(MODEL); terrain.copy(repo, spec, repo / 'again', gff=gff)
 

@@ -70,6 +70,9 @@ class ApplyTests(unittest.TestCase):
         (self.repo / 'srn_t_tst' / 'tst.set').write_bytes(laid(2))
         for name, data in (('n_t01.mdl', b'model'), ('n_t01.wok', b'walk'), ('tst.set', laid(3))):  # the set adds after the pack's entries
             (overlay / name).write_bytes(data)
+        with self.assertRaisesRegex(ValueError, 'n_t01.mdl is new, and the overlay has no made-from.json'):  # new tiles come with a whole copy
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        (overlay / apply.MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': {}}), encoding='utf-8')
         told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
         self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), laid(3))
@@ -102,6 +105,8 @@ class ApplyTests(unittest.TestCase):
         self.assertEqual((told['put'], told['not applied'], told['catalogued']), (1, [], True))  # the record itself is no pack file
         written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))
         self.assertEqual(([one['terrain'] for one in written['terrainTiles']], [one['group'] for one in written['tileGroups']]), (['Tower_2'], [1]))
+        import datetime
+        self.assertEqual({one['added'] for one in written['terrainTiles'] + written['tileGroups']}, {datetime.date.today().isoformat()})  # the day they reached the packs
         apply.apply(self.repo, {'tileset': 'tst'}, overlay); written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))  # applied again
         self.assertEqual((len(written['terrainTiles']), len(written['tileGroups'])), (1, 1))
         moved = {**record, 'catalog': {'terrainTiles': [{**record['catalog']['terrainTiles'][0], 'tiles': [4]}]}}  # numbers once given are kept
@@ -109,6 +114,10 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, r'Terrain Tower_2 of tst has tiles \[3\] in the additions catalog'):
             apply.apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((self.repo / 'srn_t_tst' / 'tstpalstd.itp').read_bytes(), b'palette 1')  # refused before anything was written
+        clash = {**record, 'catalog': {'terrainTiles': [{**record['catalog']['terrainTiles'][0], 'terrain': 'Tower_3'}]}}  # tile 3 is Tower_2's
+        (overlay / apply.MADE_FROM).write_text(json.dumps(clash), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'more than one entry for'):
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         for wrong, message in (({**record, 'kind': 'other'}, 'is not a terrain copy'), (record, 'is a copy of tst, not of the spec')):
             (overlay / apply.MADE_FROM).write_text(json.dumps(wrong), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, message):
