@@ -1,6 +1,7 @@
 # Modern Exterior (`dgt04`) Shadowrun upfit — plan
 
-Status: planning, revision 3, 2026-11-18. Nothing in the packs has changed yet.
+Status: revision 3, 2026-11-18. Release 1 (materials, lamps, shadows) passed the user's look gate and is in the
+packs, 2026-11-19; see "Release 1 in the packs". Strata 4 and 5 are not started.
 
 Source: `SR_NWN_Modern_Exterior_Upfit_Plan_Complete.zip` (revision 1.1, 2026-11-18), reviewed against this
 repository. The package's art direction and its insistence on in-game proof stand. Its inventory, packaging and
@@ -119,6 +120,30 @@ of tiles that have source lights and no main light are renamed from `sl1`/`sl2` 
   the upscale route: Qwen copied its old posters twice.
 - Night is left dark (user, 2026-11-18): brightness at night is a matter of an area's own lighting and its tile lamps,
   not of the textures.
+
+## Release 1 in the packs (2026-11-19)
+
+The user passed the look on the client acceptance capture (`tkacc1` block by day, overcast and night; `tkacc2` every
+tile by day; `tkacc3` lamps at night) and asked for it to be applied. `python -B -m tools.tilekit apply --spec
+docs/tilesets/dgt04/materials.json --overlay output/tilekit/ground/overlay10` moved it in:
+
+- 215 textures as material files and DDS maps, in the pack that held each name (`srn_t_common` 1,105 files,
+  `srn_t_dgt04` 359); the ten base-game textures in `srn_t_dgt04`. 239 old TGA and DDS copies deleted.
+- `dumpster`, `dumpster_sign`, `tmi_metal01` (`srn_t_common` and `srn_placeable`) and `manhole_tex2` (`srn_door` and
+  `srn_placeable`) keep a copy in both packs, as before; their maps and materials are expected overrides.
+- 397 tile models with the lamp and shadow changes replace their pack copies. All 467 walkmeshes hash as the baseline.
+- Old TXIs of restyled names are kept (`window_tex07` reflection, `checks` one-frame cycle): they were in place for
+  the look the user passed.
+- Checked on the built packs with no overlay (`tkrel1`): the views match the passed overlay views (mean difference
+  0.0 by day). The canal water renders pixel for pixel as the stock water did (`tkbase1` against `tkrel2`), so its
+  procedure still applies; motion itself is not shown by stills.
+- Not done: the Toolset check (computer use on the Toolset was declined on 2026-11-19; a folder for it is in ignored
+  `output/tilekit/tkts1`), and the other tilesets and placeables that name restyled textures (stratum 5).
+
+For builders (release notes): tiles whose lamps were source lights now light them as main lights. An area built with
+a tile's source lights on goes dark at those 152 tiles until its main lights are switched on in Tile Properties. The
+58 tiles that already had main lights are unchanged, and their lamps still burn as torches with source lights on.
+`slumbrd2` keeps its upscaled old posters: two redraws copied them.
 
 ## Authoring routes and time savers
 
