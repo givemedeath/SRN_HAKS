@@ -1898,6 +1898,11 @@ class AppearanceTests(Temporary):
         target=np.full((10,3),120.);shades=np.full(10,120)
         self.assertEqual([r['row'] for r in rows_for_shades(target,shades,palette)],[0,1])
         self.assertEqual([r['row'] for r in rows_for_shades(target,shades,palette,opaque=True)],[1])
+        # A mixed row (stock skin row 175) is not ranked for skin even when the used shades are opaque: the gate refuses it.
+        mixed=palette.copy();mixed[0,:,3]=255;mixed[0,200:230,3]=112
+        self.assertEqual([r['row'] for r in rows_for_shades(target,shades,mixed,opaque=True)],[1])
+        from headkit.palette import design_rows
+        self.assertEqual([r['row'] for r in design_rows([50.,0.,0.],shades,mixed,opaque=True)],[1])
     def test_hair_broad_contrast_scales_broad_tone_and_keeps_strands(self):
         # RUNBOOK 408: broad bake patches on pale hair are scaled about the median before ranking; strand detail is kept.
         size=1024;ys,xs=np.mgrid[0:size,0:size];labels=np.zeros((size,size),np.uint8);labels[:128]=1

@@ -140,11 +140,18 @@ def partial_alpha(row):
     alpha=np.asarray(row)[:255,3];return bool(np.any((alpha>0)&(alpha<255)))
 
 
+def shows_shades(palette, used, opaque):
+    """Rows that can show every used shade; for an opaque channel only rows with no partially transparent shade, as the
+    selection gate requires (stock skin row 175 mixes opaque and partial shades)."""
+    if not opaque: return np.all(palette[:,used,3]>0,axis=1)
+    alpha=palette[:,:255,3];return np.all(palette[:,used,3]==255,axis=1)&~np.any((alpha>0)&(alpha<255),axis=1)
+
+
 def design_rows(target, shades, palette, *, keep=4, opaque=False):
     """Rows ranked by Lab distance of their decoded mean colour (shades fixed, count-weighted) to the design's mean
     colour for the channel, lightness weighted DESIGN_LIGHTNESS_WEIGHT."""
     used=np.unique(shades);counts=np.bincount(shades,minlength=256)[used].astype(float)
-    usable=np.flatnonzero(np.all(palette[:,used,3]>(254 if opaque else 0),axis=1))  # rows that can show every matched shade
+    usable=np.flatnonzero(shows_shades(palette,used,opaque))  # rows that can show every matched shade
     means=(lab(palette[usable][:,used,:3]).reshape(len(usable),len(used),3)*counts[None,:,None]).sum(1)/counts.sum()
     delta=means-np.asarray(target,float);distance=np.sqrt(DESIGN_LIGHTNESS_WEIGHT*delta[:,0]**2+delta[:,1]**2+delta[:,2]**2)
     rows=sorted(zip(distance.tolist(),usable.tolist()))
@@ -201,8 +208,9 @@ def rows_for_shades(target, shades, palette, *, keep=4, opaque=False):
     """Rows ranked by meanSquaredColorError (per RGB component) with the shades fixed: the rows that best show the source colours."""
     counts=np.bincount(shades,minlength=256);used=counts>0;target=np.asarray(target,float)
     sums=np.stack([np.bincount(shades,target[:,c],256) for c in range(3)],1);squares=np.bincount(shades,(target**2).sum(1),256)
+    usable=shows_shades(palette,used,opaque)
     scores=sorted((float((counts[used]*(t*t).sum(1)-2*(t*sums[used]).sum(1)+squares[used]).sum()/(3*len(shades))),row)
-                  for row in range(len(palette)) if np.all(palette[row,used,3]>(254 if opaque else 0)) for t in [palette[row,used,:3].astype(float)])
+                  for row in range(len(palette)) if usable[row] for t in [palette[row,used,:3].astype(float)])
     return [{'row':row,'meanSquaredColorError':error} for error,row in scores[:keep]]
 
 
