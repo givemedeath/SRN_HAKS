@@ -82,6 +82,16 @@ class PictureTests(unittest.TestCase):
             pictures.graded(colour, {'grime': 1})
 
 
+    def test_stain_wraps_darkens_and_dulls_and_is_the_same_each_time(self):
+        made = {'colour': np.full((128, 64, 3), 160, np.uint8), 'roughness': np.full((128, 64), 0.4)}
+        one, two = pictures.stained(made, 'brick', 1.0), pictures.stained(made, 'brick', 1.0)
+        self.assertTrue(np.array_equal(one['colour'], two['colour']))
+        self.assertLess(one['colour'].mean(), 150); self.assertGreater(one['roughness'].mean(), 0.4)
+        field = pictures.stain_field((128, 64), 0.3, 1)  # a tile's last row and column run on into its first
+        self.assertLess(abs(field[0] - field[-1]).mean(), abs(field[0] - field[64]).mean())
+        self.assertFalse(np.array_equal(pictures.stained(made, 'other', 1.0)['colour'], one['colour']))
+
+
 class MaterialTests(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory(); self.addCleanup(folder.cleanup); self.root = Path(folder.name)

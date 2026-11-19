@@ -77,5 +77,15 @@ class RedrawTests(unittest.TestCase):
             material.build(spec, self.root, self.root, self.root / 'none', 'crunch', compress=keep)
 
 
+
+class BlackKeptTests(unittest.TestCase):
+    def test_an_opening_black_in_the_old_picture_is_black_again(self):
+        old = np.full((32, 64, 3), 200, np.uint8); old[8:24, 8:40] = 0; old[2, 60] = 0  # an opening, and a speck
+        drawn = Image.new('RGB', (128, 64), (90, 120, 150))
+        kept = np.asarray(redraw.black_kept(old, drawn))
+        self.assertTrue((kept[20:44, 20:76] == 0).all()); self.assertTrue((kept[:8] == (90, 120, 150)).all())
+        self.assertTrue((kept[4, 120] == (90, 120, 150)).all())
+
+
 if __name__ == '__main__':
     unittest.main()

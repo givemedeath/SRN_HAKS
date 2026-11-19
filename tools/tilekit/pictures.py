@@ -3,8 +3,10 @@
 The game shows a pack's DDS copy of a texture before its TGA (plan, stratum 0), and the packs' DDS copies are BioWare
 DDS, which no image library reads: `read` decodes them, so that what a texture looks like "before" is what the game
 drew. Everything here is whole-picture arithmetic on arrays; nothing knows about tiles or packs."""
+import hashlib
 import struct
 from pathlib import Path
+
 
 import numpy as np
 
@@ -150,3 +152,33 @@ def offset_seams(colour):
     grey = np.asarray(colour, np.float64)[..., :3].mean(axis=2)
     within = (np.abs(np.diff(grey, axis=1)).mean() + 1e-6, np.abs(np.diff(grey, axis=0)).mean() + 1e-6)
     return (float(np.abs(grey[:, 0] - grey[:, -1]).mean() / within[0]), float(np.abs(grey[0] - grey[-1]).mean() / within[1]))
+
+
+def stain_field(shape, scale, seed, stretch=1.0):
+    """Tileable noise in 0-1: white noise blurred in the frequency domain, so it wraps at every edge. `scale` is the
+    size of a blotch as a share of the picture; `stretch` above 1 draws it out downwards (streaks)."""
+    height, width = shape; rng = np.random.default_rng(seed)
+    fy, fx = np.fft.fftfreq(height)[:, None], np.fft.fftfreq(width)[None, :]
+    sigma = 1.0 / (scale * max(height, width) * np.pi)
+    spectrum = np.fft.fft2(rng.standard_normal(shape)) * np.exp(-((fx / sigma) ** 2 + (fy * stretch / sigma) ** 2) / 2)
+    values = np.real(np.fft.ifft2(spectrum)); values -= values.min(); top = values.max()
+    return values / top if top > 0 else values
+
+
+def stained(made, name, amount):
+    """`made` with grime laid over it: large soot and damp patches and a few streaks running down, darker and duller
+    where they lie, the same on every tiling of the texture. amount 0-1."""
+    colour = made['colour'].astype(np.float64); shape = colour.shape[:2]
+    seed = int(hashlib.sha256(name.encode()).hexdigest()[:8], 16)
+    rough = stain_field(shape, 0.3, seed) * 0.55 + stain_field(shape, 0.1, seed + 4) * 0.3 + stain_field(shape, 0.03, seed + 5) * 0.15
+    soot = np.clip((rough - 0.48) / 0.25, 0, 1)
+    damp = np.clip(((stain_field(shape, 0.25, seed + 1) * 0.7 + stain_field(shape, 0.05, seed + 6) * 0.3) - 0.5) / 0.35, 0, 1)
+    streak = np.clip((stain_field(shape, 0.012, seed + 2, stretch=25.0) - 0.55) / 0.3, 0, 1)
+    fine = stain_field(shape, 0.008, seed + 3)
+    mask = np.clip(soot * 0.9 + streak * 0.6 + (fine - 0.5) * 0.25, 0, 1) * amount
+    colour *= (1 - 0.5 * mask)[..., None]
+    colour = colour * (1 - 0.35 * damp[..., None] * amount) + np.array([38, 40, 30]) * 0.35 * damp[..., None] * amount
+    out = dict(made); out['colour'] = np.uint8(np.clip(colour + 0.5, 0, 255))
+    if 'roughness' in made:
+        out['roughness'] = np.clip(np.asarray(made['roughness'], np.float64) + 0.25 * mask[: made['roughness'].shape[0], : made['roughness'].shape[1]], 0, 1)
+    return out

@@ -122,6 +122,18 @@ def alike(old, new, side=256):
     return 0.0 if first.std() == 0 or second.std() == 0 else float(np.corrcoef(first, second)[0, 1])
 
 
+def black_kept(old, picture, *, below=8):
+    """`picture` with every area that is pure black in `old` (each channel under `below`) black again: such an area is
+    a door or opening a model is hooked up to, whatever the generator drew there. Specks of black are left to it."""
+    from PIL import Image, ImageFilter
+    dark = Image.fromarray(np.uint8((np.asarray(old)[..., :3].max(axis=2) < below) * 255)).filter(ImageFilter.MinFilter(3))
+    mask = np.asarray(dark.resize(picture.size, Image.NEAREST)) > 127
+    if not mask.any():
+        return picture
+    shown = np.asarray(picture.convert('RGB')).copy(); shown[mask] = 0
+    return Image.fromarray(shown)
+
+
 def composed(day, old_day, old_lit, enlarged=None):
     """The lit variant of a redrawn day picture, made with no generator: its glass lit where the old night texture is
     lit, in that texture's colours, with the day picture's own detail (a curtain, a blind, dirt) showing against the
@@ -189,6 +201,8 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         require((work / 'out.png').is_file(), 'the generator left no out.png')
         with Image.open(work / 'out.png') as made:
             picture = made.convert('RGB').resize(size, Image.LANCZOS)
+        if not how.get('of'):  # a generator paints over black openings (doors are hooked up there): they are put back
+            picture = black_kept(old, picture)
         picture.save(target)
         (folder / f'{name}.json').write_text(json.dumps({'kind': 'tilekit-redrawn', 'texture': name, 'source': _sha(old), 'prompt': text, 'size': list(size),
                                                          'alike': round(alike(old, picture), 2)}, indent=1) + '\n', encoding='utf-8')

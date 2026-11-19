@@ -206,6 +206,9 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
         made = make(np.asarray(current(repo, name)), how, scan, enlarged=picture)
+        if how.get('stain'):  # grime over the whole texture, before the district's grade; see pictures.stained
+            require(0 < float(how['stain']) <= 1, f'{name}: a stain is between 0 and 1')
+            made = pictures.stained(made, name, float(how['stain']))
         if how.get('grade'):  # the district's look, laid on whatever route made the picture
             require(how['grade'] in grades, f'{name}: the spec has no grade {how["grade"]}')
             made['colour'] = pictures.graded(made['colour'], grades[how['grade']])
