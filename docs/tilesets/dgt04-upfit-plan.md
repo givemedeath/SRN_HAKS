@@ -1,7 +1,8 @@
 # Modern Exterior (`dgt04`) Shadowrun upfit — plan
 
 Status: revision 3, 2026-11-18. Release 1 (materials, lamps, shadows) passed the user's look gate and is in the
-packs, 2026-11-19; see "Release 1 in the packs". Strata 4 and 5 are not started.
+packs, 2026-11-19; see "Release 1 in the packs". Stratum 5's look at the other tilesets and placeables passed
+(2026-11-19); stratum 4 and the rest of stratum 5 are not started.
 
 Source: `SR_NWN_Modern_Exterior_Upfit_Plan_Complete.zip` (revision 1.1, 2026-11-18), reviewed against this
 repository. The package's art direction and its insistence on in-game proof stand. Its inventory, packaging and
@@ -149,7 +150,16 @@ docs/tilesets/dgt04/materials.json --overlay output/tilekit/ground/overlay10` mo
 - Toolset (2026-11-19, by computer use on the built packs, user folder in ignored `output/tilekit/tkts1`): the review
   module opens and its block draws with the restyled textures, from above and tilted, with no missing or black
   texture. Screenshots are beside it. Painting was not tried: release 1 changes no tile, terrain or group.
-- Not done: the other tilesets and placeables that name restyled textures (stratum 5).
+- Other tilesets and placeables (stratum 5, user passed the look 2026-11-19): `tilekit review` with
+  `docs/tilesets/dgt04/shared-review.json` lays the tiles of other sets that name a restyled texture (Futuristic
+  City `fcx01` 17, `shp02` 23, `udp1` 6) and stands the 48 placeables that do, in four size groups (`tksh1` tiles
+  and placeables, `tksh2` large and huge, `tksh3` small and medium from a player's camera). No missing or black
+  texture. Not shown: six placeable models with no row of placeables.2da (`mod01_o01_02`, `plc_stbld`,
+  `vos_fire_esc_x3`, `vos_sign_els`, `vos_sign_tls`, `vos_sign_wob`), the two door models (`dumpster`,
+  `manhole_tex2`) and ten models of `srn_t_dgt04` that neither the set nor the edge table names.
+- Pack size (source folders against the `before` commit): `srn_t_common` −4.3 MiB, `srn_t_dgt04` −27.1 MiB,
+  `srn_door` +0.3 MiB, `srn_placeable` +0.7 MiB; 30.4 MiB smaller in all, where about +130 MB was expected: the
+  old TGA copies went and the maps are compressed. Frame rate and load time have no Phase 0 baseline to compare.
 
 For builders (release notes): tiles whose lamps were source lights now light them as main lights. An area built with
 a tile's source lights on goes dark at those 152 tiles until its main lights are switched on in Tile Properties. The
