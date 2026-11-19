@@ -9,12 +9,15 @@ with them keep the names they have.
 
 Everything is written into a folder (a review's overlay) for `apply` to move into the packs once it has passed."""
 import copy as copying
+import datetime
+import hashlib
 import json
 import re
 import tempfile
 from pathlib import Path
 
 from . import inventory, require
+from .apply import MADE_FROM
 
 HEADER = re.compile(r'(?m)^\[([^\]]+)\][ \t]*\r?$')
 CORNERS = ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')
@@ -29,8 +32,9 @@ def renamed(text, names):
 
 
 def retextured(text, textures):
-    """A model's text with the textures its meshes name (bitmap, textureN) renamed as `textures` says."""
-    return re.sub(r'(?im)^([ \t]*(?:bitmap|texture\d)[ \t]+)(\S+)', lambda found: found.group(1) + textures.get(found.group(2).lower(), found.group(2)), text)
+    """A model's text with the textures and materials its meshes name (bitmap, textureN, materialname) renamed as
+    `textures` says."""
+    return re.sub(r'(?im)^([ \t]*(?:bitmap|texture\d|materialname)[ \t]+)(\S+)', lambda found: found.group(1) + textures.get(found.group(2).lower(), found.group(2)), text)
 
 
 def _sections(text):
@@ -102,9 +106,9 @@ def copied_edge(text, copies):
     for one in copies:
         models = {old.lower(): new for old, new in one['models'].items()}
         for line in rows:
-            words = line.split()
-            if one['from'] in words[1:]:
-                new = re.sub(rf'(?<!\S){re.escape(one["from"])}(?!\S)', one['terrain'], line)
+            words = line.lower().split()  # the game reads a table's words in any case
+            if one['from'].lower() in words[1:]:
+                new = re.sub(rf'(?i)(?<!\S){re.escape(one["from"])}(?!\S)', one['terrain'], line)
                 new = re.sub(r'(?<!\S)(\S+)(\s*)$', lambda found: models.get(found.group(1).lower(), found.group(1)) + found.group(2), new)
                 extra.append(re.sub(r'^\d+', lambda found: str(count).ljust(len(found.group(0))), new)); count += 1
     body = '\n'.join(lines).rstrip('\r\n')
@@ -154,14 +158,21 @@ def _gff():
     return lambda arguments: run('nwn_gff', arguments)
 
 
-def copy(repo, spec, folder, *, gff=None):
-    """Write each copy of `spec` ({tileset, names: {old: new}, copies: [{terrain, from, display, models, groups,
-    textures: {old: new}}]}) into `folder`: the new models and walkmeshes, the set file, the edge table and the
-    palette. A copied walkmesh must be the source's, names apart. Returns {terrain: {tiles, models}, palette names}."""
+def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
+    """Write each copy of `spec` ({tileset, provenance (its PROVENANCE.md section), names: {old: new}, copies:
+    [{terrain, from, display, models, groups, textures: {old: new}}]}) into `folder`: the new models and walkmeshes,
+    the set file, the edge table and the palette, and `MADE_FROM`: the hashes of the pack files those three were made
+    from and the additions catalog's entries for the new tiles and groups, which `apply` checks and writes. A copied
+    walkmesh must be the source's, names apart. Returns {terrain: {tiles, models}, palette names}."""
     repo, folder = Path(repo), Path(folder); tileset = spec['tileset']; own = repo / f'srn_t_{tileset}'; gff = gff or _gff()
     folder.mkdir(parents=True, exist_ok=True); copies = spec.get('copies', []); told = {}
     held = {(pack, path.name.lower()): path for pack in (own, repo / 'srn_t_common') if pack.is_dir() for path in pack.iterdir()}
+    require(not copies or spec.get('provenance'), 'A terrain spec names its section of PROVENANCE.md (provenance)')
+    writing = {f'{new}{suffix}'.lower() for one in copies for new in one['models'].values() for suffix in ('.mdl', '.wok')}
+    stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in ('.mdl', '.wok') and path.name.lower() not in writing)
+    require(not stale, 'The folder holds models of an earlier run, which apply would install: ' + ', '.join(stale))
     for one in copies:
+        require(re.fullmatch(r'[A-Za-z0-9_]{1,16}', one['terrain']), f'{one["terrain"]}: a terrain is named by at most 16 letters, digits and underscores (the palette keeps it as a resref)')
         textures = {old.lower(): new for old, new in one.get('textures', {}).items()}
         for old, new in one['models'].items():
             require(len(new) <= 16 and new == new.lower(), f'{new}: a model is named by a lowercase resref')
@@ -177,7 +188,7 @@ def copy(repo, spec, folder, *, gff=None):
                 require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
                 (folder / f'{new}.wok').write_bytes(moved.encode('cp1252'))
         told[one['terrain']] = {'models': len(one['models'])}
-    set_path = own / f'{tileset}.set'; text, numbers = copied_set(set_path.read_bytes().decode('cp1252'), copies)
+    set_path = own / f'{tileset}.set'; before = set_path.read_bytes().decode('cp1252'); text, numbers = copied_set(before, copies)
     (folder / set_path.name).write_bytes(text.encode('cp1252'))
     for terrain, tiles in numbers.items():
         told[terrain]['tiles'] = sorted(tiles.values())
@@ -188,5 +199,20 @@ def copy(repo, spec, folder, *, gff=None):
     with tempfile.TemporaryDirectory() as work:  # the overlay holds pack files alone
         made = Path(work) / 'palette.json'; made.write_text(json.dumps(palette(document, copies, spec.get('names', {}))), encoding='utf-8')
         gff(['-i', made, '-o', folder / itp.name])
+    made_from = {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in (set_path, edge, itp) if path.is_file() and (folder / path.name).is_file()}
+    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'catalog': catalogued(spec, before, text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
     told['palette names'] = len(spec.get('names', {}))
     return told
+
+
+def catalogued(spec, before, text, numbers, source):
+    """The additions catalog's entries (docs/additions/README.md) for the tiles and groups a copy adds: each terrain's
+    tiles under `terrainTiles`, each new group under `tileGroups`."""
+    tileset = spec['tileset']; laid = inventory.read_set(text); models = {tile['number']: tile['model'] for tile in laid['tiles']}
+    common = {'tileset': tileset, 'pack': f'srn_t_{tileset}', 'madeBy': 'tilekit', 'source': source, 'provenance': spec.get('provenance', ''),
+              'added': datetime.date.today().isoformat()}
+    terrains = [{**common, 'terrain': terrain, 'tiles': sorted(tiles.values()), 'models': [models[number] for number in sorted(tiles.values())]} for terrain, tiles in numbers.items()]
+    first = len(inventory.read_set(before)['groups']); sizes = {name: keys for name, keys in inventory.sections(text) if re.fullmatch(r'GROUP\d+', name)}
+    groups = [{**common, 'group': number, 'name': group['name'], 'rows': int(sizes[f'GROUP{number}'].get('Rows', 1)), 'columns': int(sizes[f'GROUP{number}'].get('Columns', 1)),
+               'tiles': group['tiles'], 'models': [models.get(tile, '') for tile in group['tiles']]} for number, group in enumerate(laid['groups']) if number >= first]
+    return {'terrainTiles': terrains, 'tileGroups': groups}

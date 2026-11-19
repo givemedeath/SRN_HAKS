@@ -100,7 +100,9 @@ names its section of `PROVENANCE.md`.
 The catalog records tiles by their group. Tiles of no group, such as a terrain copied by `tilekit terrain`
 (`tools/tilekit/terrain.py`), are listed under `terrainTiles`, one entry per terrain: `tileset`, `terrain`, `tiles`
 and their `models` in the same order, `pack`, `madeBy`, `source`, `provenance` and `added`. A tile is listed under
-one terrain at most. A tile that is also in a group (a terrain's roof access) is listed in both.
+one terrain at most. A tile that is also in a group (a terrain's roof access) is listed in both. `tilekit terrain`
+writes these entries, and the new groups', into its overlay's `made-from.json`; `tilekit apply` writes them here when it
+moves the overlay into the packs, as envkit's `install` does for its groups.
 
 A row's label is changed by hand, in the table and in its catalog entry together; `envkit placeables` refuses to
 convert a model again under a label other than the one its row has.

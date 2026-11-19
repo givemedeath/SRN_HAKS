@@ -359,6 +359,9 @@ try {
                 if ($tile -lt [int]$baseline.importedTiles -or -not $tileModels.ContainsKey($tile) -or $tileModels[$tile].ToLowerInvariant() -cne $model.ToLowerInvariant()) {
                     Add-ValidationError "Tile $tile of $tilesetName is '$($tileModels[$tile])' in the set file above its imported tiles and '$model' under terrain $($entry.terrain) in the additions catalog."
                 }
+                $section = [regex]::Match($setText, "(?ms)^\[TILE$tile\]\r?\n(.*?)(?=^\[|\z)")
+                $corners = @([regex]::Matches($section.Groups[1].Value, '(?m)^(?:TopLeft|TopRight|BottomLeft|BottomRight)=([^\r\n]*)') | ForEach-Object { $_.Groups[1].Value.Trim() })
+                if ($corners -notcontains [string]$entry.terrain) { Add-ValidationError "Tile $tile of $tilesetName has no corner of terrain $($entry.terrain), under which the additions catalog lists it." }
                 foreach ($suffix in '.mdl', '.wok') {
                     if (-not (Test-Path -LiteralPath (Join-Path $repoRoot (Join-Path $entry.pack "$model$suffix")) -PathType Leaf)) { Add-ValidationError "$($entry.pack) has no $model$suffix for tile $tile of $tilesetName." }
                 }

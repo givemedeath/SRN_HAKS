@@ -12,7 +12,7 @@ SET = ('[GENERAL]\r\nDefault=Ground\r\n\r\n[TERRAIN TYPES]\r\nCount=2\r\n\r\n[TE
        '[TILE2]\r\nModel=T_T02\r\nTopLeft=Tower\r\nTopRight=Tower\r\nBottomLeft=Tower\r\nBottomRight=Tower\r\n\r\n'
        '[GROUPS]\r\nCount=1\r\n\r\n[GROUP0]\r\nName=Tower_Roof\r\nRows=1\r\nColumns=1\r\nTile0=2\r\n')
 EDGE = '2DA V2.0\r\n\r\n   Corner1 Edge Corner2 Height Model\r\n0  Tower **** Tower 0 t_t02\r\n1  Ground **** Ground 0 t_a01\r\n'
-MODEL = 'newmodel t_t01\nnode trimesh t_t01wall\n  bitmap tower_wall\nendnode\nnode aabb t_t01walk\n  verts 1\n    0 0 0\nendnode\ndonemodel t_t01\n'
+MODEL = 'newmodel t_t01\nnode trimesh t_t01wall\n  bitmap tower_wall\n  materialname tower_wall\nendnode\nnode aabb t_t01walk\n  verts 1\n    0 0 0\nendnode\ndonemodel t_t01\n'
 COPY = {'terrain': 'Tower_2', 'from': 'Tower', 'display': 'Flats', 'models': {'t_t01': 'n_t01', 't_t02': 'n_t02'}, 'groups': {'Tower_Roof': 'Flats_Roof'},
         'textures': {'tower_wall': 'flat_wall'}}
 PALETTE = {'__data_type': 'ITP ', 'MAIN': {'type': 'list', 'value': [
@@ -23,7 +23,7 @@ PALETTE = {'__data_type': 'ITP ', 'MAIN': {'type': 'list', 'value': [
 class TerrainTests(unittest.TestCase):
     def test_a_model_takes_its_new_name_in_every_node_and_its_textures_are_renamed(self):
         made = terrain.retextured(terrain.renamed(MODEL, {'t_t01': 'n_t01'}), {'tower_wall': 'flat_wall'})
-        self.assertNotIn('t_t01', made); self.assertIn('node trimesh n_t01wall', made); self.assertIn('bitmap flat_wall', made)
+        self.assertNotIn('t_t01', made); self.assertIn('node trimesh n_t01wall', made); self.assertIn('bitmap flat_wall', made); self.assertIn('materialname flat_wall', made)
         self.assertEqual(inventory.walk_hash(terrain.renamed(made, {'n_t01': 't_t01'})), inventory.walk_hash(MODEL))
 
     def test_the_set_gains_the_terrain_its_tiles_with_their_doors_and_its_group(self):
@@ -45,6 +45,7 @@ class TerrainTests(unittest.TestCase):
     def test_the_edge_table_gains_the_source_rows_for_the_copy(self):
         rows = terrain.copied_edge(EDGE, [COPY]).split('\r\n')
         self.assertEqual(rows[-2].split(), ['2', 'Tower_2', '****', 'Tower_2', '0', 'n_t02']); self.assertEqual(len([row for row in rows if row.strip()]), 5)  # the header, three rows
+        self.assertEqual(terrain.copied_edge(EDGE.replace('Tower **** Tower', 'TOWER **** tower'), [COPY]).split('\r\n')[-2].split()[1:4], ['Tower_2', '****', 'Tower_2'])  # read in any case
 
     def test_the_palette_gains_the_copy_s_entries_and_takes_descriptive_names(self):
         made = terrain.palette(PALETTE, [COPY], {'Tower 1': 'Stone Tower'})
@@ -67,12 +68,23 @@ class TerrainTests(unittest.TestCase):
                 if '-k' in arguments:
                     return json.dumps(PALETTE).encode()
                 Path(arguments[-1]).write_text(Path(arguments[1]).read_text(encoding='utf-8')); return b''
-            told = terrain.copy(repo, {'tileset': 'tst', 'copies': [COPY]}, repo / 'out', gff=gff)
+            spec = {'tileset': 'tst', 'provenance': 'Towers', 'copies': [COPY]}
+            told = terrain.copy(repo, spec, repo / 'out', gff=gff, source='specs/towers.json')
             self.assertEqual(told['Tower_2'], {'models': 2, 'tiles': [3, 4]})
-            self.assertEqual(sorted(path.name for path in (repo / 'out').iterdir()), ['n_t01.mdl', 'n_t01.wok', 'n_t02.mdl', 'tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
+            self.assertEqual(sorted(path.name for path in (repo / 'out').iterdir()), ['made-from.json', 'n_t01.mdl', 'n_t01.wok', 'n_t02.mdl', 'tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
             self.assertEqual((repo / 'out' / 'n_t01.wok').read_text(), 'node aabb n_t01walk\n')
+            record = json.loads((repo / 'out' / 'made-from.json').read_text(encoding='utf-8'))
+            self.assertEqual(sorted(record['from']), ['tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
+            self.assertEqual([(entry['terrain'], entry['tiles'], entry['models'], entry['source']) for entry in record['catalog']['terrainTiles']], [('Tower_2', [3, 4], ['n_t01', 'n_t02'], 'specs/towers.json')])
+            self.assertEqual([(entry['group'], entry['name'], entry['rows'], entry['columns'], entry['tiles'], entry['models']) for entry in record['catalog']['tileGroups']], [(1, 'Flats_Roof', 1, 1, [4], ['n_t02'])])
+            (repo / 'out' / 'n_t09.mdl').write_text(MODEL)  # left by an earlier run
+            with self.assertRaisesRegex(ValueError, 'models of an earlier run, which apply would install: n_t09.mdl'):
+                terrain.copy(repo, spec, repo / 'out', gff=gff)
+            for broken, message in (({**spec, 'provenance': ''}, 'names its section of PROVENANCE.md'), ({**spec, 'copies': [{**COPY, 'terrain': 'Tower 2'}]}, 'at most 16 letters')):
+                with self.assertRaisesRegex(ValueError, message):
+                    terrain.copy(repo, broken, repo / 'again', gff=gff)
             with self.assertRaisesRegex(ValueError, 'A pack holds n_t01.mdl already'):
-                (own / 'n_t01.mdl').write_text(MODEL); terrain.copy(repo, {'tileset': 'tst', 'copies': [COPY]}, repo / 'again', gff=gff)
+                (own / 'n_t01.mdl').write_text(MODEL); terrain.copy(repo, spec, repo / 'again', gff=gff)
 
 
 if __name__ == '__main__':

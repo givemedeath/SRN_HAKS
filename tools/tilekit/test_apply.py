@@ -83,6 +83,29 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'is new: the spec names the tileset'):
             (overlay / 'n_t01.wok').unlink(); (overlay / 'n_t02.mdl').write_bytes(b'model'); apply.plan(self.repo, None, overlay)
 
+    def test_a_copy_s_record_holds_its_tables_to_the_pack_files_they_were_made_from_and_writes_its_catalog_entries(self):
+        import hashlib
+        overlay = self.overlay.parent / 'copied'; overlay.mkdir(); (overlay / 'tstpalstd.itp').write_bytes(b'palette 2'); (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
+        entry = {'tileset': 'tst', 'pack': 'srn_t_tst', 'madeBy': 'tilekit', 'source': 'specs/towers.json', 'provenance': 'Towers', 'added': '2026-11-19'}
+        record = {'kind': 'tilekit-terrain-copy', 'from': {'tstpalstd.itp': hashlib.sha256(b'palette 1').hexdigest()},
+                  'catalog': {'terrainTiles': [{**entry, 'terrain': 'Tower_2', 'tiles': [3], 'models': ['n_t01']}],
+                              'tileGroups': [{**entry, 'group': 1, 'name': 'Flats_Roof', 'rows': 1, 'columns': 1, 'tiles': [3], 'models': ['n_t01']}]}}
+        (overlay / apply.MADE_FROM).write_text(json.dumps(record), encoding='utf-8')
+        (self.repo / 'docs' / 'additions').mkdir(parents=True)
+        (self.repo / 'docs' / 'additions' / 'catalog.json').write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-additions-catalog', 'placeables': [], 'tileGroups': [],
+            'baseline': {'placeables': {'table': 't.2da', 'lastImportedRow': 0}, 'tilesets': {'tst': {'set': 'srn_t_tst/tst.set', 'importedTiles': 3, 'importedGroups': 1}}}}), encoding='utf-8')
+        (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1b')  # changed since the copy was made
+        with self.assertRaisesRegex(ValueError, 'tstpalstd.itp: the pack copy changed since the overlay was made'):
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
+        told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
+        self.assertEqual((told['put'], told['not applied'], told['catalogued']), (1, [], 2))  # the record itself is no pack file
+        written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))
+        self.assertEqual(([one['terrain'] for one in written['terrainTiles']], [one['group'] for one in written['tileGroups']]), (['Tower_2'], [1]))
+        (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')  # applied again: one entry each still
+        apply.apply(self.repo, {'tileset': 'tst'}, overlay); written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))
+        self.assertEqual((len(written['terrainTiles']), len(written['tileGroups'])), (1, 1))
+
     def test_names_are_matched_in_any_case_and_a_pack_s_spelling_kept(self):
         (self.repo / 'srn_t_common' / 'wall.tga').rename(self.repo / 'srn_t_common' / 'Wall.TGA')
         apply.apply(self.repo, self.spec, self.overlay)

@@ -106,7 +106,8 @@ def enlarge_command(chosen):
 
 def terrain_command(chosen):
     from . import terrain
-    print(json.dumps(terrain.copy(chosen.repo, json.loads(chosen.spec.read_text(encoding='utf-8')), chosen.out), indent=1))
+    source = chosen.spec.resolve().relative_to(chosen.repo.resolve()).as_posix() if chosen.spec.resolve().is_relative_to(chosen.repo.resolve()) else chosen.spec.name
+    print(json.dumps(terrain.copy(chosen.repo, json.loads(chosen.spec.read_text(encoding='utf-8')), chosen.out, source=source), indent=1))
     return 0
 
 

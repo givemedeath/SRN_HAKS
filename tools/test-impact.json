@@ -5668,6 +5668,8 @@
     ],
     "tools/tilekit/apply.py": [
       "hakbuilder.json",
+      "tools/envkit/__init__.py",
+      "tools/envkit/catalog.py",
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/enlarge.py": [
@@ -5711,6 +5713,7 @@
       "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/terrain.py": [
+      "tools/tilekit/apply.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/review.py"
     ],
