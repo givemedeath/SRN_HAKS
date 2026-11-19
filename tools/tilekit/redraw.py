@@ -43,19 +43,22 @@ RULES = ('Hard requirements:\n- Exactly straight-on orthographic view: no perspe
          '- No real brand names, logos or trademarks, no people.\n')
 
 
-def prompt(name, how, size, tiles=False):
+def prompt(name, how, size, tiles=False, tool=True):
     """What the generator is asked for one texture. how: {kind, district, note (optional), of (a lit variant's day
-    texture), light (a lit variant's light, optional)}. size: the (width, height) the picture is saved at."""
+    texture), light (a lit variant's light, optional)}. size: the (width, height) the picture is saved at. tool: the
+    generator is an agent told to use its image tool and save the file; without it the text is the edit itself, and
+    the pictures are spoken of in the order they are given."""
     require(how.get('district') in DISTRICTS, f'{name}: a redraw\'s district is one of ' + ', '.join(DISTRICTS))
     require(how.get('kind') in KINDS, f'{name}: a redraw\'s kind is one of ' + ', '.join(KINDS))
     lines = [f'Use your built-in image generation tool to make one image, then save it in the current working directory as out.png, resized (not cropped) to exactly '
-             f'{size[0]}x{size[1]} pixels. Generate at the closest shape the tool offers. Do nothing else.', '']
+             f'{size[0]}x{size[1]} pixels. Generate at the closest shape the tool offers. Do nothing else.', ''] if tool else []
+    day, old = ('day.png', 'ref.png') if tool else ('The first image', 'The second image')
     if how.get('of'):
-        lines += [f'Two images are attached. day.png is a game texture, by day. ref.png is the old low-quality night version of the same texture, which shows which '
+        lines += [f'Two images are attached. {day} is a game texture, by day. {old} is the old low-quality night version of the same texture, which shows which '
                   f'parts are lit. {LIT}', f'The light is {how.get("light", "warm and dim")}. The setting is {DISTRICTS[how["district"]]}.']
     else:
-        lines += [f'The attached ref.png is an old low-quality game texture of {KINDS[how["kind"]]}. Redraw it as a new, detailed, photographic-quality texture of the '
-                  f'same thing for {DISTRICTS[how["district"]]}.']
+        lines += [f'The attached {"ref.png" if tool else "image"} is an old low-quality game texture of {KINDS[how["kind"]]}. Redraw it as a new, detailed, '
+                  f'photographic-quality texture of the same thing for {DISTRICTS[how["district"]]}.']
     if how.get('note'):
         lines.append(how['note'])
     lines += ['', RULES.rstrip()]
@@ -74,6 +77,31 @@ def codex(executable):
             command += ['-i', str(image)]
         done = subprocess.run(command + ['-o', str(Path(folder) / 'last.txt')], input=text, text=True, encoding='utf-8', capture_output=True, timeout=1500)
         require(done.returncode == 0, f'The generator failed in {folder}: ' + (done.stderr or done.stdout)[-600:])
+    return run
+
+
+def qwen(client, local, bindings, *, seed=1, deadline=2400):
+    """A `run` that asks the local Qwen edit model on the shared ComfyUI (envkit's reference profile), one job at a
+    time through headkit.shared_comfy.slot: run(folder, text, images) leaves out.png in `folder`. The model draws a
+    square, so the pictures go in squared and what comes back is brought to the texture's shape by `redraw`."""
+    import uuid
+    from PIL import Image
+    from tools.envkit import reference
+    from tools.headkit import design
+
+    def run(folder, text, images):
+        folder = Path(folder); token = uuid.uuid4().hex; base = f'{folder.name}-s{seed}'; sources = {}
+        for index, image in enumerate(images):
+            squared = folder / f'squared-{index}.png'
+            with Image.open(image) as picture:
+                picture.convert('RGB').resize((SIDE, SIDE), Image.LANCZOS).save(squared)
+            sources[f'reference-{index}.png'] = squared
+        graph = design.compile_design(text, [f'{design.SUBFOLDER}/{token}/{name}' for name in sources], seed, 1, f'{design.SUBFOLDER}/{token}/{base}', profile=reference.PROFILE)
+        receipt = {'schemaVersion': 1, 'kind': 'tilekit-redrawn', 'texture': folder.name, 'prompt': text, 'seed': seed, 'profile': reference.PROFILE, 'token': token,
+                   'outputPrefix': graph['9']['inputs']['filename_prefix'], 'outputs': []}
+        design._execute(client, local, bindings, graph, receipt, sources, folder, base, 1, None, queue={'deadline': deadline})
+        shutil.copyfile(folder / f'{base}-b0.png', folder / 'out.png')
+    run.tool = False  # the text is the edit itself
     return run
 
 
@@ -119,7 +147,7 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         if how.get('of'):
             day = folder / f'{how["of"]}.png'; require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
             Image.open(day).convert('RGB').resize(size, Image.LANCZOS).save(work / 'day.png'); images.insert(0, work / 'day.png')
-        text = prompt(name, how, size, tiles=bool(how.get('tiles'))); (work / 'prompt.txt').write_text(text, encoding='utf-8')
+        text = prompt(name, how, size, tiles=bool(how.get('tiles')), tool=getattr(run, 'tool', True)); (work / 'prompt.txt').write_text(text, encoding='utf-8')
         run(work, text, images)
         require((work / 'out.png').is_file(), 'the generator left no out.png')
         with Image.open(work / 'out.png') as made:

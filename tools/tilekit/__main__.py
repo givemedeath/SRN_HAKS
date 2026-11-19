@@ -54,8 +54,14 @@ def material_command(chosen):
 def redraw_command(chosen):
     from . import redraw
     spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
-    told = redraw.redraw(spec, chosen.repo, chosen.out, redraw.codex(chosen.codex), only=chosen.only.split(',') if chosen.only else None,
-                         enlarged=chosen.enlarged, workers=chosen.workers)
+    require(bool(chosen.codex) != bool(chosen.bindings), 'A redraw is drawn by --codex (the Codex CLI) or by --bindings (the local Qwen model on the shared ComfyUI)')
+    if chosen.bindings:
+        from tools.headkit.comfy import Client
+        run = redraw.qwen(Client(chosen.url), json.loads(chosen.bindings.read_text(encoding='utf-8')), chosen.bindings, seed=chosen.seed)
+    else:
+        run = redraw.codex(chosen.codex)
+    told = redraw.redraw(spec, chosen.repo, chosen.out, run, only=chosen.only.split(',') if chosen.only else None,
+                         enlarged=chosen.enlarged, workers=1 if chosen.bindings else chosen.workers)
     failed = {name: state for name, state in told.items() if state.startswith('failed')}
     print(json.dumps({'redrawn': sum(state == 'redrawn' for state in told.values()), 'kept': sum(state == 'kept' for state in told.values()), 'failed': failed}, indent=1))
     return 1 if failed else 0
@@ -101,7 +107,9 @@ def main(arguments=None):
     six = commands.add_parser('redraw', help='draw the textures of a redraw list again with an image generator, on the layout they have')
     six.add_argument('--spec', required=True, type=Path, help='the tileset\'s redraw list (docs/tilesets/<tileset>/redraw.json)')
     six.add_argument('--out', required=True, type=Path, help='the folder the redrawn pictures are kept in')
-    six.add_argument('--codex', required=True, type=Path, help='the Codex CLI (codex.exe), whose image generation draws them')
+    six.add_argument('--codex', type=Path, help='the Codex CLI (codex.exe), whose image generation draws them')
+    six.add_argument('--bindings', type=Path, help='instead of --codex: local JSON with absolute comfyInput and comfyOutput, for the Qwen edit model on the shared ComfyUI')
+    six.add_argument('--url', default='http://127.0.0.1:8188'); six.add_argument('--seed', type=int, default=1)
     six.add_argument('--enlarged', type=Path, help='the folder `enlarge` filled: a cleaner reference where it has one')
     six.add_argument('--workers', type=int, default=3, help='how many are drawn at a time'); six.add_argument('--only', help='only these textures, comma separated')
     six.add_argument('--repo', type=Path, default=REPO)
