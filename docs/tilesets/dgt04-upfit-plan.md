@@ -103,7 +103,7 @@ of tiles that have source lights and no main light are renamed from `sl1`/`sl2` 
 - 152 tile models are changed (60 in `srn_t_dgt04`, 92 in `srn_t_common`, none used by another tileset). The command
   refuses a model whose walkmesh would change.
 - 58 tiles that already have a main light are left alone; their lamps still burn as torches when their source lights
-  are on. Open.
+  are on. Left as they are (user, 2026-11-18).
 - Builders switch these lamps on with the tile's main-light setting. An area built with source lights on goes dark at
   those tiles until it is changed; this belongs in the release notes.
 - Not checked: other radii, and light colours other than white.
