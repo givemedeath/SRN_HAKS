@@ -160,7 +160,7 @@ def write_table(rows, path=TABLE):
         if not (parts and parts[0].isdigit()):
             return False
         row = int(parts[0])
-        return row in rows or (row >= min(rows) and len(parts) > 1 and parts[1].startswith('SRN_'))
+        return row in rows or (bool(rows) and row >= min(rows) and len(parts) > 1 and parts[1].startswith('SRN_'))
     kept = [line for line in lines if not ours(line)]
     for row in sorted(rows):
         label, cyclical, models = rows[row]
@@ -188,9 +188,8 @@ def preview_sheet(renderer, materials, folder):
 
 def build(args):
     PACK.mkdir(exist_ok=True)
-    for old in PACK.glob('srn_sky*'):  # the build owns every srn_sky* resource but the shaders: drop what it no longer writes
-        if old.name not in SHADERS:
-            old.unlink()
+    for table in (UPSCALED, NORMALS, DETAILED):  # this build's record only
+        table.clear()
     materials = profiles.materials()
     keys = sorted({key for key, _ in materials.values()})
     built = {key: build_panorama(key, 1 if args.no_upscale else 2) for key in keys}
@@ -229,6 +228,14 @@ def build(args):
                     to_dds(crunch, tga, PACK / f'{name}.dds', 'DXT1')
                     written.append(PACK / f'{name}.dds')
             print('contact sheet:', preview_sheet(renderer, mine, sheet_folder))
+    # the build owns every srn_sky* resource but the shaders: drop what it no longer writes, once the new set is
+    # written. Textures a --no-dds or --no-render build skipped are kept as they were.
+    expected = {f'{name}.{ext}' for name in materials for ext in ('mtr', 'mdl', 'dds')}
+    expected |= {f'{name}.dds' for key in keys for name in profiles.texture_names(key)}
+    for old in PACK.glob('srn_sky*'):
+        if old.name not in SHADERS and old.name not in expected:
+            old.unlink()
+    written = [p for p in PACK.glob('srn_sky*') if p.name not in SHADERS]
     manifest = {
         'schema': 1,
         'shaders': {name: sha(PACK / name) for name in SHADERS},

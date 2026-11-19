@@ -70,6 +70,10 @@ def generate(land, key, folder, prompt_file, seed, tiles=None, redo=False, url=N
         out = run_graph(url, tile_input(land, key, index), name, graph, timeout=1800, subfolder=SUBFOLDER, output='9')
         Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8)).save(target)
         print(f'tile {index:02d} of {len(starts)}: {target.name}', flush=True)
+    missing = [i for i in range(len(starts)) if not (folder / f'tile_{i:02d}.png').is_file()]
+    if missing:  # the build takes the tiles once detail.json is there: only a complete set gets one
+        print(f'{folder}: tiles {missing} still to draw; detail.json not written', flush=True)
+        return
     (folder / 'detail.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
@@ -99,6 +103,9 @@ def assemble(land, key, folder):
     width, starts, height = layout(land)
     if [width, starts, height] != [record['tileWidth'], record['starts'], record['height']]:
         raise ValueError(f'{folder}: the land strip changed shape since the tiles were drawn; redraw them')
+    missing = [i for i in range(len(starts)) if not (folder / f'tile_{i:02d}.png').is_file()]
+    if missing:
+        raise FileNotFoundError(f'{folder}: detail tiles {missing} are missing; draw them with python -m tools.skykit.detail')
     if record['inputSha256'] != digest(land):
         print(f'note: {folder.name} tiles were drawn from an earlier version of the strip', flush=True)
     total = land.shape[1]

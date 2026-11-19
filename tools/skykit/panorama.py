@@ -281,9 +281,7 @@ def row_gain(reference, image, key):
     """Per-row, per-channel gain that grades `image` like `reference` where both show the same land (an overlap):
     the redraw model drifts the grade of the part it was told to keep, which shows as a jump at the cut."""
     land = ((keyness(reference, key) < 0.1) & (keyness(image, key) < 0.1)).astype(np.float32)[..., None]
-    def profile(picture):
-        sums = (picture * land).sum(1)
-        return sums
+    profile = lambda picture: (picture * land).sum(1)
     count = land.sum(1)
     rows = np.arange(len(count), dtype=np.float32)
     kernel = np.exp(-0.5 * ((rows[:, None] - rows[None, :]) / GRADE_ROWS) ** 2)
