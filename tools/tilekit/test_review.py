@@ -46,6 +46,11 @@ class ReviewTests(unittest.TestCase):
             review.solve(TILES, G, 3, 3, [{'terrain': 'Lake', 'at': [1, 1], 'size': [1, 1]}])
         with self.assertRaisesRegex(ValueError, "reaches the area's edge"):
             review.solve(TILES, G, 3, 3, [{'terrain': T, 'at': [2, 1]}])
+        for at in ([2, 1], [-1, 1], [3, 1]):  # a border patch meets the edge (corner 3 is the area's east edge), and no further
+            try:
+                review.solve(TILES, G, 3, 3, [{'terrain': T, 'at': at, 'border': True}]); self.assertEqual(at, [2, 1])
+            except ValueError as error:
+                self.assertNotEqual(at, [2, 1]); self.assertIn("reaches the area's edge", str(error))
         with self.assertRaisesRegex(ValueError, 'lies over another patch'):
             review.solve(TILES, G, 5, 5, [{'terrain': T, 'at': [1, 1]}, {'terrain': T, 'at': [2, 2]}])
         with self.assertRaisesRegex(ValueError, 'is straight'):

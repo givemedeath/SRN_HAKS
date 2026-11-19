@@ -92,8 +92,8 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
     lays only as groups). Tiles with a raised corner are not laid. Where several tiles fit, cells take them in turn."""
     corner, edge = {}, {}
     for patch in patches:
-        (x0, y0), (columns, rows) = patch['at'], patch.get('size', (2, 2))
-        require(1 <= x0 and x0 + columns <= width and 1 <= y0 and y0 + rows <= height, f'{patch["terrain"]} at {x0},{y0} reaches the area\'s edge')
+        (x0, y0), (columns, rows) = patch['at'], patch.get('size', (2, 2)); low = 0 if patch.get('border') else 1  # a `border` patch may meet the area's edge, where the edge table lays its edge tiles
+        require(low <= x0 and x0 + columns <= width + 1 - low and low <= y0 and y0 + rows <= height + 1 - low, f'{patch["terrain"]} at {x0},{y0} reaches the area\'s edge')
         for x in range(x0, x0 + columns):
             for y in range(y0, y0 + rows):
                 require((x, y) not in corner, f'{patch["terrain"]} at {x0},{y0} lies over another patch')
