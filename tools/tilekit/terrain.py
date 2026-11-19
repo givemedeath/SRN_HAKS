@@ -173,25 +173,30 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     require(not stale, 'The folder holds models of an earlier run, which apply would install: ' + ', '.join(stale))
     made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
     set_path = own / f'{tileset}.set'; data = set_path.read_bytes(); before = data.decode('cp1252')
-    set_text, numbers = copied_set(before, copies); made_from[set_path.name] = sha(data)  # the spec's checks, before any file is written
+    set_text, numbers = copied_set(before, copies); made_from[set_path.name] = sha(data)
+    laid = inventory.read_set(before); outputs = []  # every model made and checked before any file is written
+    taken = {path.name.lower() for pack in repo.iterdir() if pack.is_dir() and pack.name.lower().startswith('srn_') for path in pack.iterdir()}  # apply would take a name any pack holds for that pack's file
     for one in copies:
         require(re.fullmatch(r'[A-Za-z0-9_]{1,16}', one['terrain']), f'{one["terrain"]}: a terrain is named by at most 16 letters, digits and underscores (the palette keeps it as a resref)')
+        theirs = {tile['model'] for tile in laid['tiles'] if one['from'] in tile['corners']}
+        extra = sorted({old.lower() for old in one['models']} - theirs); require(not extra, f'{one["terrain"]}: no tile of {one["from"]} is ' + ', '.join(extra))
         textures = {old.lower(): new for old, new in one.get('textures', {}).items()}
         for old, new in one['models'].items():
             require(len(new) <= 16 and new == new.lower(), f'{new}: a model is named by a lowercase resref')
             home = next((pack for pack in (own, repo / 'srn_t_common') if (pack, f'{old.lower()}.mdl') in held), None); require(home, f'No pack holds {old}.mdl')
-            require(not any((pack, f'{new}.mdl') in held for pack in (own, repo / 'srn_t_common')), f'A pack holds {new}.mdl already')
+            require(f'{new}.mdl' not in taken and f'{new}.wok' not in taken, f'A pack holds {new} already')
             data = held[(home, f'{old.lower()}.mdl')].read_bytes(); require(not inventory.compiled(data), f'{old} is compiled: its names cannot be changed here')
             text = data.decode('cp1252'); made = retextured(renamed(text, {old: new}), textures)
             require(inventory.walk_hash(renamed(made, {new: old})) == inventory.walk_hash(text), f'{new}: its walkmesh would differ from {old}\'s')
-            (folder / f'{new}.mdl').write_bytes(made.encode('cp1252'))
+            outputs.append((folder / f'{new}.mdl', made.encode('cp1252')))
             wok = held.get((home, f'{old.lower()}.wok'))
             if wok:
                 was = wok.read_bytes().decode('cp1252'); moved = renamed(was, {old: new})
                 require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
-                (folder / f'{new}.wok').write_bytes(moved.encode('cp1252'))
+                outputs.append((folder / f'{new}.wok', moved.encode('cp1252')))
         told[one['terrain']] = {'models': len(one['models'])}
-    (folder / set_path.name).write_bytes(set_text.encode('cp1252'))
+    for path, made in outputs + [(folder / set_path.name, set_text.encode('cp1252'))]:
+        path.write_bytes(made)
     for terrain, tiles in numbers.items():
         told[terrain]['tiles'] = sorted(tiles.values())
     edge = repo / 'srn_2da' / f'{tileset}_edge.2da'

@@ -63,6 +63,7 @@ class TerrainTests(unittest.TestCase):
             repo = Path(temporary); own = repo / 'srn_t_tst'; (repo / 'srn_t_common').mkdir(); (repo / 'srn_2da').mkdir(); own.mkdir()
             (own / 'tst.set').write_bytes(SET.encode('cp1252')); (repo / 'srn_2da' / 'tst_edge.2da').write_bytes(EDGE.encode('cp1252')); (own / 'tstpalstd.itp').write_bytes(b'ITP ')
             (own / 't_t01.mdl').write_text(MODEL); (own / 't_t01.wok').write_text('node aabb t_t01walk\n'); (own / 't_t02.mdl').write_text(MODEL.replace('t_t01', 't_t02'))
+            (repo / 'srn_t_other').mkdir(); (repo / 'srn_t_other' / 'ground_x.mdl').write_text(MODEL); (own / 't_a01.mdl').write_text(MODEL.replace('t_t01', 't_a01'))
 
             def gff(arguments):
                 if '-k' in arguments:
@@ -83,10 +84,13 @@ class TerrainTests(unittest.TestCase):
             for broken, message in (({**spec, 'provenance': ''}, 'names its section of PROVENANCE.md'), ({**spec, 'copies': [{**COPY, 'terrain': 'Tower 2'}]}, 'at most 16 letters')):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, broken, repo / 'again', gff=gff)
-            with self.assertRaisesRegex(ValueError, 'names no new model for t_t02'):  # refused before a file is written
-                terrain.copy(repo, {**spec, 'copies': [{**COPY, 'models': {'t_t01': 'n_t01'}}]}, repo / 'refused', gff=gff)
-            self.assertEqual(list((repo / 'refused').iterdir()), [])
-            with self.assertRaisesRegex(ValueError, 'A pack holds n_t01.mdl already'):
+            for broken, message in (({**COPY, 'models': {'t_t01': 'n_t01'}}, 'names no new model for t_t02'),  # each refused before a file is written
+                                    ({**COPY, 'models': {**COPY['models'], 't_a01': 'n_a01'}}, 'no tile of Tower is t_a01'),
+                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'ground_x'}}, 'A pack holds ground_x already')):
+                with self.assertRaisesRegex(ValueError, message):
+                    terrain.copy(repo, {**spec, 'copies': [broken]}, repo / 'refused', gff=gff)
+                self.assertEqual(list((repo / 'refused').iterdir()), [])
+            with self.assertRaisesRegex(ValueError, 'A pack holds n_t01 already'):
                 (own / 'n_t01.mdl').write_text(MODEL); terrain.copy(repo, spec, repo / 'again', gff=gff)
 
 
