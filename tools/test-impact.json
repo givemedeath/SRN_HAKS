@@ -5700,6 +5700,7 @@
       "tools/armorkit/client_fixture.py",
       "tools/envkit/__init__.py",
       "tools/envkit/checks.py",
+      "tools/envkit/placeables.py",
       "tools/envkit/prop_fixture.py",
       "tools/phenotypes/tool_runtime.py",
       "tools/tilekit/inventory.py"
@@ -5707,6 +5708,10 @@
     "tools/tilekit/shadows.py": [
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/terrain.py": [
+      "tools/phenotypes/tool_runtime.py",
+      "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/test_apply.py": [
       "hakbuilder.json",
@@ -5742,6 +5747,11 @@
     "tools/tilekit/test_shadows.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/shadows.py"
+    ],
+    "tools/tilekit/test_terrain.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/terrain.py"
     ]
   },
   "unresolved": [],
@@ -5942,6 +5952,9 @@
       "srn_body_tex",
       "srn_weapon"
     ],
+    "tools/tilekit/__main__.py": [
+      "srn_2da"
+    ],
     "tools/tilekit/inventory.py": [
       "srn_2da",
       "srn_t_common"
@@ -5962,6 +5975,10 @@
       "srn_t_common",
       "srn_t_dgt04",
       "srn_t_udp1"
+    ],
+    "tools/tilekit/terrain.py": [
+      "srn_2da",
+      "srn_t_common"
     ],
     "tools/tilekit/test_apply.py": [
       "srn_placeable",
@@ -5986,6 +6003,11 @@
       "srn_t_common"
     ],
     "tools/tilekit/test_shadows.py": [
+      "srn_2da",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_terrain.py": [
+      "srn_2da",
       "srn_t_common"
     ]
   },
@@ -6313,6 +6335,7 @@
     "tools/tilekit/test_material.py",
     "tools/tilekit/test_redraw.py",
     "tools/tilekit/test_review.py",
-    "tools/tilekit/test_shadows.py"
+    "tools/tilekit/test_shadows.py",
+    "tools/tilekit/test_terrain.py"
   ]
 }

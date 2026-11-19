@@ -21,7 +21,8 @@ REPO = Path(__file__).resolve().parents[2]
 def review_command(chosen):
     from . import review  # here, so that asking for help imports nothing of the client
     spec = json.loads(chosen.spec.read_text(encoding='utf-8')); require(isinstance(spec, dict) and spec.get('tileset'), 'A review spec names its tileset')
-    tileset = spec['tileset']; set_of = lambda name: (chosen.repo / f'srn_t_{name}' / f'{name}.set').read_bytes().decode('cp1252')
+    tileset = spec['tileset']  # an overlay's set file (a copied terrain's) is the one shown, so it is the one laid
+    set_of = lambda name: (chosen.overlay / f'{name}.set' if chosen.overlay and (chosen.overlay / f'{name}.set').is_file() else chosen.repo / f'srn_t_{name}' / f'{name}.set').read_bytes().decode('cp1252')
     shared = spec.get('shared', {})
     try:
         areas, shots = review.plan(set_of(tileset), spec, parts=tuple(part for part in chosen.parts.split(',') if part),
