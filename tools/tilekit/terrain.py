@@ -14,10 +14,11 @@ import hashlib
 import json
 import re
 import tempfile
+from collections import Counter
 from pathlib import Path
 
 from . import inventory, require
-from .apply import MADE_FROM
+from .apply import MADE_FROM, MODELS, TABLES
 
 HEADER = re.compile(r'(?m)^\[([^\]]+)\][ \t]*\r?$')
 CORNERS = ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')
@@ -61,6 +62,7 @@ def copied_set(text, copies):
     added = {'TERRAIN': [], 'TILE': [], 'GROUP': []}; numbers = {}; names = {name.lower() for name in laid['terrains']}  # the game reads terrain names in any case
     for one in copies:
         source, terrain = one['from'], one['terrain']
+        require(re.fullmatch(r'[A-Za-z0-9_]{1,16}', terrain), f'{terrain}: a terrain is named by at most 16 letters, digits and underscores (the palette keeps it as a resref)')
         require(source in laid['terrains'], f'The set has no terrain {source}'); require(terrain.lower() not in names, f'The set has a terrain {terrain} already')
         names.add(terrain.lower()); used = set()
         index = laid['terrains'].index(source)
@@ -177,35 +179,33 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     taken = {path.name.lower() for paths in listed.values() for path in paths}  # apply would take a name any pack holds for that pack's file
     require(not copies or spec.get('provenance'), 'A terrain spec names its section of PROVENANCE.md (provenance)')
     new_names = [new.lower() for one in copies for new in one['models'].values()]
-    twice = sorted({name for name in new_names if new_names.count(name) > 1}); require(not twice, 'The spec gives more than one model the name ' + ', '.join(twice))
+    twice = sorted(name for name, count in Counter(new_names).items() if count > 1); require(not twice, 'The spec gives more than one model the name ' + ', '.join(twice))
     edge = repo / 'srn_2da' / f'{tileset}_edge.2da'; itp = own / f'{tileset}palstd.itp'; set_path = own / f'{tileset}.set'
-    writing = {f'{new}{suffix}' for new in new_names for suffix in ('.mdl', '.wok')} | {set_path.name.lower(), itp.name.lower()} | ({edge.name.lower()} if edge.is_file() and copies else set())
-    stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in ('.mdl', '.wok', '.set', '.2da', '.itp') and path.name.lower() not in writing)
+    writing = {f'{new}{suffix}' for new in new_names for suffix in MODELS} | {set_path.name.lower(), itp.name.lower()} | ({edge.name.lower()} if edge.is_file() and copies else set())
+    stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in MODELS + TABLES and path.name.lower() not in writing)
     require(not stale, 'The folder holds files of an earlier run, which apply would install: ' + ', '.join(stale))
-    (folder / MADE_FROM).unlink(missing_ok=True)  # an earlier run's record, which would otherwise outlive a run that fails part way
     made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
     data = set_path.read_bytes(); before = data.decode('cp1252')
     set_text, numbers = copied_set(before, copies); made_from[set_path.name] = sha(data)
     laid = inventory.read_set(before); outputs = []  # every model made and checked before any file is written
     for one in copies:
-        require(re.fullmatch(r'[A-Za-z0-9_]{1,16}', one['terrain']), f'{one["terrain"]}: a terrain is named by at most 16 letters, digits and underscores (the palette keeps it as a resref)')
         theirs = {tile['model'] for tile in laid['tiles'] if one['from'] in tile['corners']}
         extra = sorted({old.lower() for old in one['models']} - theirs); require(not extra, f'{one["terrain"]}: no tile of {one["from"]} is ' + ', '.join(extra))
         textures = {old.lower(): new for old, new in one.get('textures', {}).items()}
         for old, new in one['models'].items():
-            require(len(new) <= 16 and new == new.lower(), f'{new}: a model is named by a lowercase resref')
+            require(re.fullmatch(r'[a-z0-9_]{1,16}', new), f'{new}: a model is named by a resref of at most 16 lowercase letters, digits and underscores')
             home = next((pack for pack in (own, repo / 'srn_t_common') if (pack, f'{old.lower()}.mdl') in held), None); require(home, f'No pack holds {old}.mdl')
             require(f'{new}.mdl' not in taken and f'{new}.wok' not in taken, f'A pack holds {new} already')
             data = held[(home, f'{old.lower()}.mdl')].read_bytes(); require(not inventory.compiled(data), f'{old} is compiled: its names cannot be changed here')
             text = data.decode('cp1252'); made = retextured(renamed(text, {old: new}), textures)
             require(inventory.walk_hash(renamed(made, {new: old})) == inventory.walk_hash(text), f'{new}: its walkmesh would differ from {old}\'s')
             outputs.append((folder / f'{new}.mdl', made.encode('cp1252')))
-            wok = held.get((home, f'{old.lower()}.wok'))
-            if wok:
-                was = wok.read_bytes().decode('cp1252'); moved = renamed(was, {old: new})
-                require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
-                outputs.append((folder / f'{new}.wok', moved.encode('cp1252')))
+            wok = held.get((home, f'{old.lower()}.wok')); require(wok, f'{home.name} has no {old}.wok: a copied tile needs its walkmesh')
+            was = wok.read_bytes().decode('cp1252'); moved = renamed(was, {old: new})
+            require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
+            outputs.append((folder / f'{new}.wok', moved.encode('cp1252')))
         told[one['terrain']] = {'models': len(one['models'])}
+    (folder / MADE_FROM).unlink(missing_ok=True)  # every check passed: an earlier run's record, which would otherwise outlive a run that fails part way
     for path, made in outputs + [(folder / set_path.name, set_text.encode('cp1252'))]:
         path.write_bytes(made)
     for terrain, tiles in numbers.items():

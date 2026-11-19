@@ -101,6 +101,8 @@ def plan(repo, spec, overlay):
             require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it')
             require((overlay / MADE_FROM).is_file(), f'{path.name} is new, and the overlay has no {MADE_FROM}: only a whole terrain copy brings new tiles')
             require(path.stem.lower() in recorded, f'{path.name} is new, and {MADE_FROM} catalogues no tile of it')
+            twin = sorted({path.stem.lower() + suffix for suffix in MODELS} - {other.name.lower() for other in overlay.iterdir()})
+            require(not twin, f'{path.name} is new, and the overlay lacks ' + ', '.join(twin) + ': a new tile comes with its model and its walkmesh')
             put.append((path, repo / own / path.name)); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
         (was,) = holders.values()

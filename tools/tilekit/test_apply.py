@@ -78,6 +78,10 @@ class ApplyTests(unittest.TestCase):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         self.catalog(); entry = {'tileset': 'tst', 'terrain': 'Tower_2', 'tiles': [2], 'models': ['n_t01'], 'pack': 'srn_t_tst', 'madeBy': 'tilekit', 'source': 's', 'provenance': 'p', 'added': '2026-11-19'}
         (overlay / apply.MADE_FROM).write_text(json.dumps({**bare, 'catalog': {'terrainTiles': [entry]}}), encoding='utf-8')
+        (overlay / 'n_t01.wok').unlink()
+        with self.assertRaisesRegex(ValueError, 'n_t01.mdl is new, and the overlay lacks n_t01.wok'):  # a new tile is its model and its walkmesh
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        (overlay / 'n_t01.wok').write_bytes(b'walk')
         told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
         self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), laid(3))

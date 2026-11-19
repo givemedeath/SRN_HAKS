@@ -70,7 +70,7 @@ class TerrainTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary); own = repo / 'srn_t_tst'; (repo / 'srn_t_common').mkdir(); (repo / 'srn_2da').mkdir(); own.mkdir()
             (own / 'tst.set').write_bytes(SET.encode('cp1252')); (repo / 'srn_2da' / 'tst_edge.2da').write_bytes(EDGE.encode('cp1252')); (own / 'tstpalstd.itp').write_bytes(b'ITP ')
-            (own / 't_t01.mdl').write_text(MODEL); (own / 't_t01.wok').write_text('node aabb t_t01walk\n'); (own / 't_t02.mdl').write_text(MODEL.replace('t_t01', 't_t02'))
+            (own / 't_t01.mdl').write_text(MODEL); (own / 't_t01.wok').write_text('node aabb t_t01walk\n'); (own / 't_t02.mdl').write_text(MODEL.replace('t_t01', 't_t02')); (own / 't_t02.wok').write_text('node aabb t_t02walk\n')
             (repo / 'srn_t_other').mkdir(); (repo / 'srn_t_other' / 'ground_x.mdl').write_text(MODEL); (own / 't_a01.mdl').write_text(MODEL.replace('t_t01', 't_a01'))
 
             def gff(arguments):
@@ -80,7 +80,7 @@ class TerrainTests(unittest.TestCase):
             spec = {'tileset': 'tst', 'provenance': 'Towers', 'copies': [COPY]}
             told = terrain.copy(repo, spec, repo / 'out', gff=gff, source='specs/towers.json')
             self.assertEqual(told['Tower_2'], {'models': 2, 'tiles': [3, 4]})
-            self.assertEqual(sorted(path.name for path in (repo / 'out').iterdir()), ['made-from.json', 'n_t01.mdl', 'n_t01.wok', 'n_t02.mdl', 'tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
+            self.assertEqual(sorted(path.name for path in (repo / 'out').iterdir()), ['made-from.json', 'n_t01.mdl', 'n_t01.wok', 'n_t02.mdl', 'n_t02.wok', 'tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
             self.assertEqual((repo / 'out' / 'n_t01.wok').read_text(), 'node aabb n_t01walk\n')
             record = json.loads((repo / 'out' / 'made-from.json').read_text(encoding='utf-8'))
             self.assertEqual(sorted(record['from']), ['tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
@@ -93,16 +93,25 @@ class TerrainTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'broken'):  # a run that fails part way leaves no record of an earlier one
                 terrain.copy(repo, spec, repo / 'out', gff=lambda arguments: (_ for _ in ()).throw(ValueError('broken')))
             self.assertFalse((repo / 'out' / 'made-from.json').exists())
+            terrain.copy(repo, spec, repo / 'out', gff=gff)
+            with self.assertRaisesRegex(ValueError, 'no tile of Tower is t_a01'):  # a refused run leaves the earlier record
+                terrain.copy(repo, {**spec, 'copies': [{**COPY, 'models': {**COPY['models'], 't_a01': 'n_a01'}}]}, repo / 'out', gff=gff)
+            self.assertTrue((repo / 'out' / 'made-from.json').exists())
             for broken, message in (({**spec, 'provenance': ''}, 'names its section of PROVENANCE.md'), ({**spec, 'copies': [{**COPY, 'terrain': 'Tower 2'}]}, 'at most 16 letters')):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, broken, repo / 'again', gff=gff)
             for broken, message in (({**COPY, 'models': {'t_t01': 'n_t01'}}, 'names no new model for t_t02'),  # each refused before a file is written
                                     ({**COPY, 'models': {**COPY['models'], 't_a01': 'n_a01'}}, 'no tile of Tower is t_a01'),
                                     ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'ground_x'}}, 'A pack holds ground_x already'),
-                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n_t01'}}, 'more than one model the name n_t01')):
+                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n_t01'}}, 'more than one model the name n_t01'),
+                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n t02'}}, 'n t02: a model is named by a resref')):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, {**spec, 'copies': [broken]}, repo / 'refused', gff=gff)
                 self.assertEqual(list((repo / 'refused').iterdir()), [])
+            (own / 't_t02.wok').unlink()
+            with self.assertRaisesRegex(ValueError, 'srn_t_tst has no t_t02.wok'):
+                terrain.copy(repo, spec, repo / 'refused', gff=gff)
+            self.assertEqual(list((repo / 'refused').iterdir()), [])
             with self.assertRaisesRegex(ValueError, 'A pack holds n_t01 already'):
                 (own / 'n_t01.mdl').write_text(MODEL); terrain.copy(repo, spec, repo / 'again', gff=gff)
 
