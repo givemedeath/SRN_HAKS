@@ -3,9 +3,9 @@ is its material file and the DDS maps that file names (or, for a plain one, its 
 every pack that held a copy of that name; the old TGA and DDS copies are deleted from every pack. A base-game texture,
 which no pack held, goes to the tileset's own pack. A changed tile model replaces the one pack copy it was made from.
 A name that ends up in more than one pack is an expected override in hakbuilder.json; one that no longer does is not.
-A tileset's set file, edge table and palette replace their pack copies, a set file or table only when it keeps every
-entry of the pack copy (`_extends`) and, where the overlay records it (`MADE_FROM`), only over the very pack file it was
-made from; that record's additions catalog entries are written, checked and dated the day of the apply. A new tile
+A tileset's set file, edge table and palette replace their pack copies only with the record of the copy that made
+them (`MADE_FROM`, a copied terrain's), only over the very pack file they were made from, and a set file or table only
+when it keeps every entry of the pack copy (`_extends`); that record's additions catalog entries are written, checked and dated the day of the apply. A new tile
 model and walkmesh come only with such a record (a copied terrain's, `terrain`) and go to the tileset's own pack; a walkmesh a pack holds is never replaced. Other files of the packs (a TXI of an old name, a placeable's own texture) are left as they are."""
 import datetime
 import hashlib
@@ -106,8 +106,8 @@ def plan(repo, spec, overlay):
             put.append((path, repo / own / path.name)); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
         (was,) = holders.values()
-        require(path.suffix.lower() != '.itp' or path.name in record['from'] or path.read_bytes() == was.read_bytes(),
-                f'{path.name}: a palette replaces its pack copy only with the {MADE_FROM} of the copy that made it')  # it cannot be compared entry by entry
+        require(path.suffix.lower() not in TABLES or path.name in record['from'] or path.read_bytes() == was.read_bytes(),
+                f'{path.name}: a set file, edge table or palette replaces its pack copy only with the {MADE_FROM} of the copy that made it')  # only terrain.copy makes them
         if path.suffix.lower() == '.mdl':
             require(inventory.walk_hash(path.read_bytes().decode('cp1252')) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
         if path.suffix.lower() == '.wok':

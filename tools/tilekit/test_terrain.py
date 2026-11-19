@@ -43,6 +43,8 @@ class TerrainTests(unittest.TestCase):
         for copies in ([COPY, COPY], [{**COPY, 'terrain': 'TOWER'}]):  # a terrain name is the set's once, in any case
             with self.assertRaisesRegex(ValueError, 'has a terrain (Tower_2|TOWER) already'):
                 terrain.copied_set(SET, copies)
+        with self.assertRaisesRegex(ValueError, 'no tile of the set has a corner of Tower'):  # a terrain no tile uses
+            terrain.copied_set(SET.replace('Tower\r\n', 'Brick\r\n').replace('Name=Ground\r\n\r\n[TERRAIN1]\r\nName=Brick', 'Name=Ground\r\n\r\n[TERRAIN1]\r\nName=Tower'), [{**COPY, 'models': {}, 'groups': {}}])
         with self.assertRaisesRegex(ValueError, 'names groups that hold none of its tiles: Tower_Rof'):
             terrain.copied_set(SET, [{**COPY, 'groups': {**COPY['groups'], 'Tower_Rof': 'Flats_Rof'}}])
         bare = SET[:SET.index('[GROUP0]')].replace('[GROUPS]\r\nCount=1', '[GROUPS]\r\nCount=0')  # a set with no groups

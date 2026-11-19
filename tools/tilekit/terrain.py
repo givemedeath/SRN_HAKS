@@ -54,10 +54,11 @@ def _counted(raw, count):
     return re.sub(r'(?m)^Count=\d+', f'Count={count}', raw, count=1)
 
 
-def copied_set(text, copies):
+def copied_set(text, copies, laid=None):
     """The set file with each copy's terrain, tiles and groups appended. copies: [{terrain, from, models: {old: new},
-    groups: {old: new}}]. Returns (text, {terrain: {old tile number: new}})."""
-    laid = inventory.read_set(text); parts = _sections(text); raw = dict(parts)
+    groups: {old: new}}]; laid: `text` as inventory.read_set reads it, where the caller has it. Returns (text, {terrain:
+    {old tile number: new}})."""
+    laid = laid or inventory.read_set(text); parts = _sections(text); raw = dict(parts)
     terrains, tiles, groups = len(laid['terrains']), len(laid['tiles']), len(laid['groups'])
     added = {'TERRAIN': [], 'TILE': [], 'GROUP': []}; numbers = {}; names = {name.lower() for name in laid['terrains']}  # the game reads terrain names in any case
     for one in copies:
@@ -68,7 +69,7 @@ def copied_set(text, copies):
         index = laid['terrains'].index(source)
         added['TERRAIN'].append(re.sub(r'^\[TERRAIN\d+\]', f'[TERRAIN{terrains}]', re.sub(r'(?m)^Name=.*?(\r?)$', f'Name={terrain}\\1', raw[f'TERRAIN{index}'], count=1)))
         terrains += 1
-        mine = [tile for tile in laid['tiles'] if source in tile['corners']]
+        mine = [tile for tile in laid['tiles'] if source in tile['corners']]; require(mine, f'{terrain}: no tile of the set has a corner of {source}')
         missing = sorted({tile['model'] for tile in mine} - {name.lower() for name in one['models']})
         require(not missing, f'{terrain}: the copy names no new model for ' + ', '.join(missing))
         models = {old.lower(): new for old, new in one['models'].items()}; numbers[terrain] = {}
@@ -186,8 +187,7 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     require(not stale, 'The folder holds files of an earlier run, which apply would install: ' + ', '.join(stale))
     made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
     data = set_path.read_bytes(); before = data.decode('cp1252')
-    set_text, numbers = copied_set(before, copies); made_from[set_path.name] = sha(data)
-    laid = inventory.read_set(before); outputs = []  # every model made and checked before any file is written
+    laid = inventory.read_set(before); set_text, numbers = copied_set(before, copies, laid); made_from[set_path.name] = sha(data); outputs = []  # every model made and checked before any file is written
     for one in copies:
         theirs = {tile['model'] for tile in laid['tiles'] if one['from'] in tile['corners']}
         extra = sorted({old.lower() for old in one['models']} - theirs); require(not extra, f'{one["terrain"]}: no tile of {one["from"]} is ' + ', '.join(extra))
@@ -217,19 +217,19 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
         document = json.loads(gff(['-i', read, '-k', 'json']))
         made = Path(work) / 'palette.json'; made.write_text(json.dumps(palette(document, copies, spec.get('names', {}))), encoding='utf-8')
         gff(['-i', made, '-o', folder / itp.name])
-    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'catalog': catalogued(spec, before, set_text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
+    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'catalog': catalogued(spec, len(laid['groups']), set_text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
     told['palette names'] = len(spec.get('names', {}))
     return told
 
 
-def catalogued(spec, before, text, numbers, source):
+def catalogued(spec, first, text, numbers, source):
     """The additions catalog's entries (docs/additions/README.md) for the tiles and groups a copy adds: each terrain's
-    tiles under `terrainTiles`, each new group under `tileGroups`."""
+    tiles under `terrainTiles`, each new group (those numbered from `first`, the count the set had) under `tileGroups`."""
     tileset = spec['tileset']; laid = inventory.read_set(text); models = {tile['number']: tile['model'] for tile in laid['tiles']}
     common = {'tileset': tileset, 'pack': f'srn_t_{tileset}', 'madeBy': 'tilekit', 'source': source, 'provenance': spec.get('provenance', ''),
               'added': datetime.date.today().isoformat()}
     terrains = [{**common, 'terrain': terrain, 'tiles': sorted(tiles.values()), 'models': [models[number] for number in sorted(tiles.values())]} for terrain, tiles in numbers.items()]
-    first = len(inventory.read_set(before)['groups']); sizes = {name: keys for name, keys in inventory.sections(text) if re.fullmatch(r'GROUP\d+', name)}
+    sizes ={name: keys for name, keys in inventory.sections(text) if re.fullmatch(r'GROUP\d+', name)}
     groups = [{**common, 'group': number, 'name': group['name'], 'rows': int(sizes[f'GROUP{number}'].get('Rows', 1)), 'columns': int(sizes[f'GROUP{number}'].get('Columns', 1)),
                'tiles': group['tiles'], 'models': [models.get(tile, '') for tile in group['tiles']]} for number, group in enumerate(laid['groups']) if number >= first]  # a blank cell (-1) has no model
     return {'terrainTiles': terrains, 'tileGroups': groups}

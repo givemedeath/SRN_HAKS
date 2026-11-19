@@ -1,4 +1,5 @@
 """Applying a review overlay: where each texture's files go, what is deleted, and the expected overrides."""
+import hashlib
 import json
 import tempfile
 import unittest
@@ -78,6 +79,10 @@ class ApplyTests(unittest.TestCase):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         self.catalog(); entry = {'tileset': 'tst', 'terrain': 'Tower_2', 'tiles': [2], 'models': ['n_t01'], 'pack': 'srn_t_tst', 'madeBy': 'tilekit', 'source': 's', 'provenance': 'p', 'added': '2026-11-19'}
         (overlay / apply.MADE_FROM).write_text(json.dumps({**bare, 'catalog': {'terrainTiles': [entry]}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'tst.set: a set file, edge table or palette replaces its pack copy only with the made-from.json'):  # the record holds no hash of it
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        made_from = lambda data: json.dumps({**bare, 'from': {'tst.set': hashlib.sha256(data).hexdigest()}, 'catalog': {'terrainTiles': [entry]}})
+        (overlay / apply.MADE_FROM).write_text(made_from(laid(2)), encoding='utf-8')
         (overlay / 'n_t01.wok').unlink()
         with self.assertRaisesRegex(ValueError, 'n_t01.mdl is new, and the overlay lacks n_t01.wok'):  # a new tile is its model and its walkmesh
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
@@ -90,6 +95,9 @@ class ApplyTests(unittest.TestCase):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (overlay / 'n_t01.wok').write_bytes(b'walk')
         (self.repo / 'srn_t_tst' / 'tst.set').write_bytes(laid(4))  # another addition since the overlay was made
+        with self.assertRaisesRegex(ValueError, 'tst.set: the pack copy changed since the overlay was made'):
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        (overlay / apply.MADE_FROM).write_text(made_from(laid(4)), encoding='utf-8')  # a record that matches, held to the entries all the same
         with self.assertRaisesRegex(ValueError, 'tst.set: it lacks or changes entries the pack copy has'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         with self.assertRaisesRegex(ValueError, 'is new: the spec names the tileset'):
@@ -103,7 +111,7 @@ class ApplyTests(unittest.TestCase):
 
     def test_a_palette_replaces_its_pack_copy_only_with_the_record_of_the_copy_that_made_it(self):
         overlay = self.overlay.parent / 'palette'; overlay.mkdir(); (overlay / 'tstpalstd.itp').write_bytes(b'palette 2'); (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
-        with self.assertRaisesRegex(ValueError, 'tstpalstd.itp: a palette replaces its pack copy only with the made-from.json'):
+        with self.assertRaisesRegex(ValueError, 'tstpalstd.itp: a set file, edge table or palette replaces its pack copy only with the made-from.json'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 2')  # one in place already is applied again
         self.assertEqual(len(apply.plan(self.repo, {'tileset': 'tst'}, overlay)['put']), 1)
