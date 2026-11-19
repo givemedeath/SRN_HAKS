@@ -124,17 +124,21 @@ through the box centre. The radii are taken from the head surfaces sampled every
 Heads are published for the Fit build only. Neck-slot headgear must clear the envelope of each race it is built
 for.
 
+Re-measured 2026-11-18 with the 40 head-library heads (docs/heads/head-library-40-v1.md; user decision). Their long
+hair and braids set several envelopes: Orc female now reaches 17.5 cm below the head bone and is 40 cm wide, Orc male
+35 cm. How headgear treats hair that hangs below the jaw is decided when headgear is fitted.
+
 | Body | Heads | Width (cm) | Depth back / front (cm) | Below / above head bone (cm) | Largest radius (cm) | Head bone height (m) |
 |---|---|---|---|---|---|---|
-| Human male | 2 | 22.6 | 9.9 / 13.9 | 7.5 / 17.4 | 12.7 | 1.753 |
-| Dwarf male | 4 | 32.5 | 12.8 / 14.0 | 14.1 / 19.8 | 17.7 | 1.167 |
-| Elf male | 4 | 23.3 | 11.6 / 11.2 | 9.5 / 20.4 | 12.1 | 1.902 |
-| Orc male | 2 | 22.2 | 14.3 / 14.3 | 5.7 / 18.6 | 14.5 | 1.900 |
+| Human male | 7 | 28.4 | 13.1 / 13.9 | 12.0 / 20.1 | 14.6 | 1.753 |
+| Dwarf male | 9 | 32.5 | 17.3 / 14.0 | 14.1 / 19.8 | 17.0 | 1.167 |
+| Elf male | 9 | 24.2 | 11.6 / 11.4 | 10.8 / 20.4 | 12.2 | 1.902 |
+| Orc male | 7 | 34.7 | 22.2 / 14.3 | 6.9 / 27.1 | 18.6 | 1.900 |
 | Troll male | 20 | 62.0 | 22.5 / 23.7 | 13.9 / 36.1 | 32.4 | 2.501 |
-| Human female | 4 | 23.3 | 11.7 / 12.1 | 7.3 / 23.8 | 13.1 | 1.665 |
-| Dwarf female | 4 | 24.1 | 15.6 / 12.6 | 11.0 / 16.1 | 14.5 | 1.115 |
-| Elf female | 4 | 25.5 | 12.8 / 11.8 | 11.8 / 18.0 | 12.8 | 1.770 |
-| Orc female | 4 | 24.6 | 12.4 / 13.5 | 4.7 / 24.6 | 13.0 | 1.800 |
+| Human female | 9 | 30.1 | 12.9 / 12.1 | 13.3 / 23.8 | 15.3 | 1.665 |
+| Dwarf female | 9 | 29.8 | 15.6 / 15.1 | 12.8 / 20.3 | 15.7 | 1.115 |
+| Elf female | 9 | 27.1 | 12.8 / 12.4 | 11.8 / 18.0 | 13.7 | 1.770 |
+| Orc female | 9 | 40.1 | 22.0 / 15.0 | 17.5 / 29.7 | 20.1 | 1.800 |
 | Troll female | 20 | 54.4 | 29.8 / 19.1 | 19.2 / 36.6 | 28.5 | 2.301 |
 
 ## Limits
