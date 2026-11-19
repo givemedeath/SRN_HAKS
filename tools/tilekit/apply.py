@@ -80,7 +80,8 @@ def plan(repo, spec, overlay):
             and all(isinstance(name, str) and name for name in record.get('textures', [])), f'{MADE_FROM} is not a terrain copy\'s record')
     named = {entry['tileset'] for kind in ('terrainTiles', 'tileGroups') for entry in record.get('catalog', {}).get(kind, [])}
     require(named <= {(spec or {}).get('tileset')}, f'{MADE_FROM} is a copy of ' + ', '.join(sorted(named)) + ', not of the spec\'s tileset')
-    recorded = {model.lower() for entry in record.get('catalog', {}).get('terrainTiles', []) for model in entry['models']}  # the new tiles the record catalogues
+    recorded = {str(model).lower() for entry in record.get('catalog', {}).get('terrainTiles', []) for model in entry.get('models', [])}  # the new tiles the record catalogues (its entries checked by `_catalogued`)
+    made_from = {name.lower(): sha for name, sha in record['from'].items()}  # the record's tables, by name in any case
     spec = {'textures': {}, **(spec or {})}  # an overlay of changed models alone, or a copied terrain's (its spec has no textures)
     held = {}  # lower-case name: {pack: its file there}
     for pack in packs:
@@ -98,7 +99,7 @@ def plan(repo, spec, overlay):
             require(key not in placed or placed[key] == holders, f'{path.name} belongs to two textures')
             placed[key] = holders; put += [(path, held.get(key, {}).get(pack, repo / pack / path.name)) for pack in holders]
     files = [path for path in overlay.iterdir() if path.is_file()]; present = {path.name.lower() for path in files}  # the overlay, listed once
-    lacking = sorted(({name.lower() for name in record['from']} | {model + suffix for model in recorded for suffix in MODELS}) - present)
+    lacking = sorted((set(made_from) | {model + suffix for model in recorded for suffix in MODELS}) - present)
     require(not lacking, f'The overlay lacks what its {MADE_FROM} says the copy made: ' + ', '.join(lacking) + ': make the overlay again')  # a copy applies whole
     for path in sorted(path for path in files if path.suffix.lower() in MODELS + TABLES):
         holders = held.get(path.name.lower(), {})
@@ -109,25 +110,24 @@ def plan(repo, spec, overlay):
             put.append((path, repo / own / path.name)); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
         (was,) = holders.values()
-        require(path.suffix.lower() not in TABLES or path.name in record['from'] or path.read_bytes() == was.read_bytes(),
+        require(path.suffix.lower() not in TABLES or path.name.lower() in made_from or path.read_bytes() == was.read_bytes(),
                 f'{path.name}: a set file, edge table or palette replaces its pack copy only with the {MADE_FROM} of the copy that made it')  # only terrain.copy makes them
         if path.suffix.lower() == '.mdl':
             require(inventory.walk_hash(path.read_bytes().decode('cp1252')) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
         if path.suffix.lower() == '.wok':
             require(path.read_bytes() == was.read_bytes(), f'{path.name}: a walkmesh in a pack is not replaced')
-        if path.name in record['from'] and path.read_bytes() != was.read_bytes():  # the palette too, which cannot be compared entry by entry; one in place already is applied again
-            require(hashlib.sha256(was.read_bytes()).hexdigest() == record['from'][path.name], f'{path.name}: the pack copy changed since the overlay was made from it: make the overlay again')
+        if path.name.lower() in made_from and path.read_bytes() != was.read_bytes():  # the palette too, which cannot be compared entry by entry; one in place already is applied again
+            require(hashlib.sha256(was.read_bytes()).hexdigest() == made_from[path.name.lower()],f'{path.name}: the pack copy changed since the overlay was made from it: make the overlay again')
         if path.suffix.lower() in ('.set', '.2da'):
             require(_extends(was, path), f'{path.name}: it lacks or changes entries the pack copy has (added since the overlay was made?): make the overlay again')
         put.append((path, was))
-    brought = set(held) | {target.name.lower() for _, target in put}  # a copy's renamed textures are in a pack already or come with this apply
-    bare = sorted(name for name in record.get('textures', []) if not any(name.lower() + suffix in brought for suffix in HELD))
-    require(not bare, f'The copied tiles name textures no pack holds and this apply brings none of: {", ".join(bare)} (apply them with the copies\' material spec)')
-    after = {name: set(holding) for name, holding in held.items()}
+    after = {name: set(holding) for name, holding in held.items()}  # what each pack holds once this apply is done
     for path in delete:
         after[path.name.lower()].discard(path.parent.name)
     for _, target in put:
         after.setdefault(target.name.lower(), set()).add(target.parent.name)
+    bare = sorted(name for name in record.get('textures', []) if not any(after.get(name.lower() + suffix) for suffix in HELD))  # a copy's renamed textures
+    require(not bare, f'The copied tiles name textures no pack holds and this apply brings none of: {", ".join(bare)} (apply them with the copies\' material spec)')
     touched = {path.name.lower() for path in delete} | {target.name.lower() for _, target in put}
     overrides = {name: sorted(after[name]) for name in sorted(touched) if len(after.get(name, ())) > 1}
     used = {path.name for path, _ in put} | {MADE_FROM}; left = sorted(path.name for path in files if path.name not in used)

@@ -128,7 +128,7 @@ class ApplyTests(unittest.TestCase):
         import hashlib
         overlay = self.overlay.parent / 'copied'; overlay.mkdir(); (overlay / 'tstpalstd.itp').write_bytes(b'palette 2'); (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
         entry = {'tileset': 'tst', 'pack': 'srn_t_tst', 'madeBy': 'tilekit', 'source': 'specs/towers.json', 'provenance': 'Towers', 'added': '2026-11-19'}
-        record = {'kind': 'tilekit-terrain-copy', 'from': {'tstpalstd.itp': hashlib.sha256(b'palette 1').hexdigest()},
+        record = {'kind': 'tilekit-terrain-copy', 'from': {'TstPalStd.itp': hashlib.sha256(b'palette 1').hexdigest()},  # a name read in any case
                   'catalog': {'terrainTiles': [{**entry, 'terrain': 'Tower_2', 'tiles': [3], 'models': ['n_t01']}],
                               'tileGroups': [{**entry, 'group': 1, 'name': 'Flats_Roof', 'rows': 1, 'columns': 1, 'tiles': [3], 'models': ['n_t01']}]}}
         (overlay / apply.MADE_FROM).write_text(json.dumps(record), encoding='utf-8'); self.catalog()
@@ -154,7 +154,8 @@ class ApplyTests(unittest.TestCase):
         (overlay / apply.MADE_FROM).write_text(json.dumps(clash), encoding='utf-8')
         with self.assertRaisesRegex(ValueError, 'more than one entry for'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
-        for wrong, message in (({**record, 'kind': 'other'}, 'is not a terrain copy'), ({**record, 'textures': [None]}, 'is not a terrain copy'), (record, 'is a copy of tst, not of the spec')):
+        for wrong, message in (({**record, 'kind': 'other'}, 'is not a terrain copy'), ({**record, 'textures': [None]}, 'is not a terrain copy'),
+                               ({**record, 'catalog': {'terrainTiles': [{'tileset': 'tst', 'terrain': 'Tower_4'}]}}, 'A terrain tiles entry is incomplete'), (record, 'is a copy of tst, not of the spec')):
             (overlay / apply.MADE_FROM).write_text(json.dumps(wrong), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, message):
                 apply.plan(self.repo, {'tileset': 'oth'} if wrong is record else {'tileset': 'tst'}, overlay)

@@ -110,7 +110,8 @@ class TerrainTests(unittest.TestCase):
                                     ({**COPY, 'models': {**COPY['models'], 't_a01': 'n_a01'}}, 'no tile of Tower is t_a01'),
                                     ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'ground_x'}}, 'A pack holds ground_x already'),
                                     ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n_t01'}}, 'more than one model the name n_t01'),
-                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n t02'}}, 'n t02: a model is named by a resref')):
+                                    ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n t02'}}, 'n t02: a model is named by a resref'),
+                                    ({**COPY, 'textures': {**COPY['textures'], 'Tower_Wal': 'flat_wal'}}, 'renames textures none of its models draws: tower_wal')):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, {**spec, 'copies': [broken]}, repo / 'refused', gff=gff)
                 self.assertEqual(list((repo / 'refused').iterdir()), [])

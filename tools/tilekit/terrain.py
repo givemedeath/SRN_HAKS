@@ -196,20 +196,22 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     data = set_path.read_bytes(); before = data.decode('cp1252')
     laid = inventory.read_set(before); set_text, numbers = copied_set(before, copies, laid); made_from[set_path.name] = sha(data); outputs = []; retextures = set()  # every model made and checked before any file is written
     for one in copies:
-        textures = {old.lower(): new for old, new in one.get('textures', {}).items()}
+        textures = {old.lower(): new for old, new in one.get('textures', {}).items()}; drawn = set()  # the textures the source's models draw
         for old, new in one['models'].items():
             require(re.fullmatch(r'[a-z0-9_]{1,16}', new), f'{new}: a model is named by a resref of at most 16 lowercase letters, digits and underscores')
             home = next((pack for pack in (own, repo / 'srn_t_common') if (pack, f'{old.lower()}.mdl') in held), None); require(home, f'No pack holds {old}.mdl')
             require(f'{new}.mdl' not in taken and f'{new}.wok' not in taken, f'A pack holds {new} already')
             data = held[(home, f'{old.lower()}.mdl')].read_bytes(); require(not inventory.compiled(data), f'{old} is compiled: its names cannot be changed here')
             text = data.decode('cp1252'); made = retextured(renamed(text, {old: new}), textures)
-            retextures |= {name.lower() for _, name in TEXTURE.findall(made)} & {name.lower() for name in textures.values()}  # the new names it draws, which apply wants in a pack
+            drawn |= {name.lower() for _, name in TEXTURE.findall(text)}
             require(inventory.walk_hash(renamed(made, {new: old})) == inventory.walk_hash(text), f'{new}: its walkmesh would differ from {old}\'s')
             outputs.append((folder / f'{new}.mdl', made.encode('cp1252')))
             wok = held.get((home, f'{old.lower()}.wok')); require(wok, f'{home.name} has no {old}.wok: a copied tile needs its walkmesh')
             was = wok.read_bytes().decode('cp1252'); moved = renamed(was, {old: new})
             require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
             outputs.append((folder / f'{new}.wok', moved.encode('cp1252')))
+        unused = sorted(set(textures) - drawn); require(not unused, f'{one["terrain"]}: the copy renames textures none of its models draws: ' + ', '.join(unused))
+        retextures |= {textures[name].lower() for name in drawn & set(textures)}  # the new names its tiles draw, which apply wants in a pack
         told[one['terrain']] = {'models': len(one['models'])}
     (folder / MADE_FROM).unlink(missing_ok=True)  # every check passed: an earlier run's record, which would otherwise outlive a run that fails part way
     for path, made in outputs + [(folder / set_path.name, set_text.encode('cp1252'))]:
