@@ -115,6 +115,18 @@ class TerrainTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, {**spec, 'copies': [broken]}, repo / 'refused', gff=gff)
                 self.assertEqual(list((repo / 'refused').iterdir()), [])
+            edged = EDGE + '2  Tower **** Ground 0 t_z01\r\n3  Ground **** Tower 0 tcn01_z15_01\r\n'  # an edge tile of this project's beside the source, and one of the game's
+            (repo / 'srn_2da' / 'tst_edge.2da').write_bytes(edged.encode('cp1252')); (own / 't_z01.mdl').write_text(MODEL.replace('t_t01', 't_z01'))
+            with self.assertRaisesRegex(ValueError, 'the edge table lays t_z01 beside Tower: the copy names a new model for each'):
+                terrain.copy(repo, spec, repo / 'refused', gff=gff)
+            with self.assertRaisesRegex(ValueError, 'no edge row of Tower lays t_a01'):
+                terrain.copy(repo, {**spec, 'copies': [{**COPY, 'edges': {'t_z01': 'n_z01', 't_a01': 'n_a01'}}]}, repo / 'refused', gff=gff)
+            told = terrain.copy(repo, {**spec, 'copies': [{**COPY, 'edges': {'t_z01': 'n_z01'}}]}, repo / 'edged', gff=gff)
+            self.assertEqual((told['Tower_2']['edges'], json.loads((repo / 'edged' / 'made-from.json').read_text(encoding='utf-8'))['edges']), (1, ['n_z01']))
+            self.assertIn('bitmap flat_wall', (repo / 'edged' / 'n_z01.mdl').read_text()); self.assertFalse((repo / 'edged' / 'n_z01.wok').exists())  # an edge tile with no walkmesh keeps none
+            rows = [line.split() for line in (repo / 'edged' / 'tst_edge.2da').read_text(encoding='cp1252').splitlines()[3:] if line.strip()]
+            self.assertEqual([row[1:] for row in rows[4:]], [['Tower_2', '****', 'Tower_2', '0', 'n_t02'], ['Tower_2', '****', 'Ground', '0', 'n_z01'], ['Ground', '****', 'Tower_2', '0', 'tcn01_z15_01']])
+            (repo / 'srn_2da' / 'tst_edge.2da').write_bytes(EDGE.encode('cp1252')); (own / 't_z01.mdl').unlink()
             (own / 't_t02.wok').unlink()
             with self.assertRaisesRegex(ValueError, 'srn_t_tst has no t_t02.wok'):
                 terrain.copy(repo, spec, repo / 'refused', gff=gff)

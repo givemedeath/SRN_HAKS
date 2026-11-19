@@ -114,18 +114,23 @@ def copied_set(text, copies, laid=None):
     return ''.join(out), numbers
 
 
+def edge_rows(text, terrain):
+    """The rows of an edge table (Corner1 Edge Corner2 Height Model) with `terrain` at a corner or as the edge, its
+    name read in any case as the game reads a table's words."""
+    return [line for line in text.split('\n')[3:] if line.strip() and terrain.lower() in line.lower().split()[1:4]]
+
+
 def copied_edge(text, copies):
-    """The edge table with each source terrain's rows again for its copy, the copied tiles' models renamed."""
+    """The edge table with each source terrain's rows again for its copy, the copied tiles' and edge tiles' models
+    renamed (`models`, `edges`)."""
     lines = text.split('\n'); end = '\r' if lines and lines[0].endswith('\r') else ''
-    rows = [line for line in lines[3:] if line.strip()]; count = len(rows); extra = []
+    count = len([line for line in lines[3:] if line.strip()]); extra = []
     for one in copies:
-        models = {old.lower(): new for old, new in one['models'].items()}
-        for line in rows:
-            words = line.lower().split()  # the game reads a table's words in any case
-            if one['from'].lower() in words[1:]:
-                new = re.sub(rf'(?i)(?<!\S){re.escape(one["from"])}(?!\S)', one['terrain'], line)
-                new = re.sub(r'(?<!\S)(\S+)(\s*)$', lambda found: models.get(found.group(1).lower(), found.group(1)) + found.group(2), new)
-                extra.append(re.sub(r'^\d+', lambda found: str(count).ljust(len(found.group(0))), new)); count += 1
+        models = {old.lower(): new for old, new in {**one['models'], **one.get('edges', {})}.items()}
+        for line in edge_rows(text, one['from']):
+            new = re.sub(rf'(?i)(?<!\S){re.escape(one["from"])}(?!\S)', one['terrain'], line)
+            new = re.sub(r'(?<!\S)(\S+)(\s*)$', lambda found: models.get(found.group(1).lower(), found.group(1)) + found.group(2), new)
+            extra.append(re.sub(r'^\d+', lambda found: str(count).ljust(len(found.group(0))), new)); count += 1
     body = '\n'.join(lines).rstrip('\r\n')
     return body + end + '\n' + ''.join(line.rstrip('\r') + end + '\n' for line in extra)
 
@@ -175,57 +180,67 @@ def _gff():
 
 def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     """Write each copy of `spec` ({tileset, provenance (its PROVENANCE.md section), names: {old: new}, copies:
-    [{terrain, from, display, models, groups, textures: {old: new}}]}) into `folder`: the new models and walkmeshes,
-    the set file, the edge table and the palette, and `MADE_FROM`: the hashes of the pack files those three were made
-    from, the new texture names the copied tiles draw and the additions catalog's entries for the new tiles and groups,
-    which `apply` checks and writes. A copied
-    walkmesh must be the source's, names apart. Returns {terrain: {tiles, models}, palette names}."""
+    [{terrain, from, display, models, edges, groups, textures: {old: new}}]}) into `folder`: the new models and
+    walkmeshes, the set file, the edge table and the palette, and `MADE_FROM`: the hashes of the pack files those three
+    were made from, the new texture names the copied tiles draw, the new edge tiles (`edges`: a copy of each of this
+    project's edge tiles the source's rows lay and the set does not) and the additions catalog's entries for the new
+    tiles and groups, which `apply` checks and writes. A copied walkmesh must be the source's, names apart. Returns
+    {terrain: {tiles, models, edges}, palette names}."""
     repo, folder = Path(repo), Path(folder); tileset = spec['tileset']; own = repo / f'srn_t_{tileset}'; gff = gff or _gff()
     folder.mkdir(parents=True, exist_ok=True); copies = spec.get('copies', []); told = {}
     listed = {pack: list(pack.iterdir()) for pack in repo.iterdir() if pack.is_dir() and pack.name.lower().startswith('srn_')}  # every pack, listed once
     held = {(pack, path.name.lower()): path for pack in (own, repo / 'srn_t_common') for path in listed.get(pack, [])}
     taken = {path.name.lower() for paths in listed.values() for path in paths}  # apply would take a name any pack holds for that pack's file
     require(not copies or spec.get('provenance'), 'A terrain spec names its section of PROVENANCE.md (provenance)')
-    new_names = [new.lower() for one in copies for new in one['models'].values()]
+    new_names = [new.lower() for one in copies for new in [*one['models'].values(), *one.get('edges', {}).values()]]
     twice = sorted(name for name, count in Counter(new_names).items() if count > 1); require(not twice, 'The spec gives more than one model the name ' + ', '.join(twice))
-    edge = repo / 'srn_2da' / f'{tileset}_edge.2da'; itp = own / f'{tileset}palstd.itp'; set_path = own / f'{tileset}.set'
+    edge = repo / 'srn_2da' / f'{tileset}_edge.2da'; itp = own / f'{tileset}palstd.itp'; set_path = own / f'{tileset}.set'; homes = (own, repo / 'srn_t_common')
     writing = {f'{new}{suffix}' for new in new_names for suffix in MODELS} | {set_path.name.lower(), itp.name.lower()} | ({edge.name.lower()} if edge.is_file() and copies else set())
     stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in MODELS + TABLES and path.name.lower() not in writing)
     require(not stale, 'The folder holds files of an earlier run, which apply would install: ' + ', '.join(stale))
     made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
-    data = set_path.read_bytes(); before = data.decode('cp1252')
+    data = set_path.read_bytes(); before = data.decode('cp1252'); edge_data = edge.read_bytes() if edge.is_file() and copies else None
     laid = inventory.read_set(before); set_text, numbers = copied_set(before, copies, laid); made_from[set_path.name] = sha(data); outputs = []; retextures = set()  # every model made and checked before any file is written
+    tiled = {tile['model'] for tile in laid['tiles']}
     for one in copies:
         textures = {old.lower(): new for old, new in one.get('textures', {}).items()}; drawn = set()  # the textures the source's models draw
-        for old, new in one['models'].items():
+        # An edge tile the source's rows lay at an area's border, and no tile of the set, is this project's to copy too (the
+        # game's own, tcn01's, are left): laid beside the copy, the source's would show the source's look there.
+        beside = {line.split()[-1].lower() for line in edge_rows(edge_data.decode('cp1252'), one['from'])} - tiled if edge_data else set()
+        ours = {model for model in beside if any((pack, f'{model}.mdl') in held for pack in homes)}; edges = {old.lower(): new for old, new in one.get('edges', {}).items()}
+        require(ours <= set(edges), f'{one["terrain"]}: the edge table lays ' + ', '.join(sorted(ours - set(edges))) + f' beside {one["from"]}: the copy names a new model for each (edges)')
+        require(set(edges) <= ours, f'{one["terrain"]}: no edge row of {one["from"]} lays ' + ', '.join(sorted(set(edges) - ours)))
+        for old, new, walked in [(old, new, True) for old, new in one['models'].items()] + [(old, new, False) for old, new in edges.items()]:
             require(re.fullmatch(r'[a-z0-9_]{1,16}', new), f'{new}: a model is named by a resref of at most 16 lowercase letters, digits and underscores')
-            home = next((pack for pack in (own, repo / 'srn_t_common') if (pack, f'{old.lower()}.mdl') in held), None); require(home, f'No pack holds {old}.mdl')
+            home = next((pack for pack in homes if (pack, f'{old.lower()}.mdl') in held), None); require(home, f'No pack holds {old}.mdl')
             require(f'{new}.mdl' not in taken and f'{new}.wok' not in taken, f'A pack holds {new} already')
             data = held[(home, f'{old.lower()}.mdl')].read_bytes(); require(not inventory.compiled(data), f'{old} is compiled: its names cannot be changed here')
             text = data.decode('cp1252'); made = retextured(renamed(text, {old: new}), textures)
             drawn |= {name.lower() for _, name in TEXTURE.findall(text)}
             require(inventory.walk_hash(renamed(made, {new: old})) == inventory.walk_hash(text), f'{new}: its walkmesh would differ from {old}\'s')
             outputs.append((folder / f'{new}.mdl', made.encode('cp1252')))
-            wok = held.get((home, f'{old.lower()}.wok')); require(wok, f'{home.name} has no {old}.wok: a copied tile needs its walkmesh')
-            was = wok.read_bytes().decode('cp1252'); moved = renamed(was, {old: new})
-            require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
-            outputs.append((folder / f'{new}.wok', moved.encode('cp1252')))
+            wok = held.get((home, f'{old.lower()}.wok')); require(wok or not walked, f'{home.name} has no {old}.wok: a copied tile needs its walkmesh')
+            if wok:  # an edge tile, laid outside the area, may have none
+                was = wok.read_bytes().decode('cp1252'); moved = renamed(was, {old: new})
+                require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
+                outputs.append((folder / f'{new}.wok', moved.encode('cp1252')))
         unused = sorted(set(textures) - drawn); require(not unused, f'{one["terrain"]}: the copy renames textures none of its models draws: ' + ', '.join(unused))
         retextures |= {textures[name].lower() for name in drawn & set(textures)}  # the new names its tiles draw, which apply wants in a pack
-        told[one['terrain']] = {'models': len(one['models'])}
+        told[one['terrain']] = {'models': len(one['models']), **({'edges': len(edges)} if edges else {})}
     (folder / MADE_FROM).unlink(missing_ok=True)  # every check passed: an earlier run's record, which would otherwise outlive a run that fails part way
     for path, made in outputs + [(folder / set_path.name, set_text.encode('cp1252'))]:
         path.write_bytes(made)
     for terrain, tiles in numbers.items():
         told[terrain]['tiles'] = sorted(tiles.values())
-    if edge.is_file() and copies:
-        data = edge.read_bytes(); (folder / edge.name).write_bytes(copied_edge(data.decode('cp1252'), copies).encode('cp1252')); made_from[edge.name] = sha(data)
+    if edge_data is not None:
+        (folder / edge.name).write_bytes(copied_edge(edge_data.decode('cp1252'), copies).encode('cp1252')); made_from[edge.name] = sha(edge_data)
     with tempfile.TemporaryDirectory() as work:  # the overlay holds pack files alone
         data = itp.read_bytes(); read = Path(work) / itp.name; read.write_bytes(data); made_from[itp.name] = sha(data)
         document = json.loads(gff(['-i', read, '-k', 'json']))
         made = Path(work) / 'palette.json'; made.write_text(json.dumps(palette(document, copies, spec.get('names', {}))), encoding='utf-8')
         gff(['-i', made, '-o', folder / itp.name])
-    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'textures': sorted(retextures), 'catalog': catalogued(spec, len(laid['groups']), set_text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
+    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'textures': sorted(retextures),
+                                                'edges': sorted(new.lower() for one in copies for new in one.get('edges', {}).values()), 'catalog': catalogued(spec, len(laid['groups']), set_text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
     told['palette names'] = len(spec.get('names', {}))
     return told
 

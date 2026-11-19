@@ -112,6 +112,14 @@ class ApplyTests(unittest.TestCase):
             (overlay / apply.MADE_FROM).write_text(json.dumps(bare), encoding='utf-8')
             (overlay / 'n_t01.wok').unlink(); (overlay / 'n_t02.mdl').write_bytes(b'model'); apply.plan(self.repo, None, overlay)
 
+    def test_a_copy_s_edge_tile_comes_with_its_record_and_needs_no_walkmesh(self):
+        overlay = self.overlay.parent / 'edged'; overlay.mkdir()
+        (overlay / apply.MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': {}, 'edges': ['n_z01']}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'lacks what its made-from.json says the copy made: n_z01.mdl'):
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        (overlay / 'n_z01.mdl').write_bytes(b'model')
+        self.assertEqual([(path.name, target.parent.name) for path, target in apply.plan(self.repo, {'tileset': 'tst'}, overlay)['put']], [('n_z01.mdl', 'srn_t_tst')])
+
     def catalog(self):
         (self.repo / 'docs' / 'additions').mkdir(parents=True)
         (self.repo / 'docs' / 'additions' / 'catalog.json').write_text(json.dumps({'schemaVersion': 1, 'kind': 'srn-additions-catalog', 'placeables': [], 'tileGroups': [],
