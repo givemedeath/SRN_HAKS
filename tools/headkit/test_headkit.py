@@ -2093,8 +2093,9 @@ class ToneMatchTests(Temporary):
         shades={name:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,:900] for name,r in (('whole',whole),('half',half))}
         fine=lambda s:np.std(s[1:-1,1:-1]-(s[:-2,1:-1]+s[2:,1:-1]+s[1:-1,:-2]+s[1:-1,2:])/4)
         self.assertLess(fine(shades['half']),.7*fine(shades['whole']))
-        trend=lambda s:s[:,400:500].mean()-s[:,10:110].mean();self.assertAlmostEqual(trend(shades['half']),trend(shades['whole']),delta=3)
-        self.assertEqual(half['layers']['0']['skinDetailContrast'],{'factor':.5,'applied':True});self.assertNotIn('skinDetailContrast',whole['layers']['0'])
+        trend=lambda s:s[:,400:500].mean()-s[:,10:110].mean();self.assertGreaterEqual(trend(shades['half']),.95*trend(shades['whole']))  # shading kept
+        report=half['layers']['0']['skinDetailContrast'];self.assertEqual((report['factor'],report['sigma']),(.5,.04))
+        self.assertLess(report['detailStdAfter'],report['detailStdBefore']);self.assertNotIn('skinDetailContrast',whole['layers']['0'])
         for factor,kw in ((.2,{'full_range':True,'shading_only':True,'positions':flat}),(.5,{'full_range':True})):
             with self.subTest(factor=factor),self.assertRaisesRegex(ValueError,'skinDetailContrast'):
                 quantize(self.root/'d.png',self.root/'o.png',palettes,rows,self.root/f'bad{factor}',skin_detail=factor,**kw)

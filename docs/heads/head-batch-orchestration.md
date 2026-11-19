@@ -285,7 +285,7 @@ intentional material color variations. No quality thresholds are reduced.
 
 For body-pinned skin with excessive cheek contrast, `palette.skinShadeContrast` scales runtime shades around the body-neck median. Compare the decoded face at game size and retain the span, feature-focus, darkness and seam checks.
 
-For bake mottling on skin (thin dark contour lines around pale patches, visible in the colour-only close-up and in the client but hidden by the material-lit sheet), `palette.skinDetailContrast` (0.3-1, needs `stretchShadingOnly`) scales the skin's fine detail, the luma above the surface-smoothed shading, before it is added back; the stretched shading and the span are kept. Start at 0.5 and check lids, lips and nostrils in the decoded close-up.
+For bake mottling on skin (thin dark contour lines around pale patches, visible in the colour-only close-up and in the client but hidden by the material-lit sheet), `palette.skinDetailContrast` (0.3-1, needs `stretchShadingOnly`) scales the skin's luma about its surface-smoothed field (0.04 head widths) before quantization, keeping hue and the broad shading. Quartz needed 0.3; check lids, lips and nostrils in the decoded close-up and the skin span (it fell from 0.545 to 0.518).
 
 The spooler logs `REVIEW` when a stage result names its sheet and `SHEET ... ready` once the background sheet job has written it, about a minute later; wait for the `SHEET` line before reading or redrawing a sheet. Manifest rebuilds also check `mesh.fineRelief` against the toolkit's supported profile, and a failed reduction names every fine-relief measure over its bound.
 
