@@ -1,15 +1,15 @@
 # SRN dynamic sky dome, written by tools/skykit
 filedependancy srn_skykit
-newmodel srn_skystm_d
-setsupermodel srn_skystm_d NULL
+newmodel srn_skyden_du
+setsupermodel srn_skyden_du NULL
 classification Effect
 setanimationscale 1.0
-beginmodelgeom srn_skystm_d
-node dummy srn_skystm_d
+beginmodelgeom srn_skyden_du
+node dummy srn_skyden_du
   parent NULL
 endnode
-node trimesh srn_skystm_d_dome
-  parent srn_skystm_d
+node trimesh srn_skyden_du_dome
+  parent srn_skyden_du
   position 0.0 0.0 0.0
   orientation 0.0 0.0 0.0 0.0
   wirecolor 1.0 1.0 1.0
@@ -26,7 +26,7 @@ node trimesh srn_skystm_d_dome
   tilefade 0
   transparencyhint 0
   alpha 1.0
-  bitmap srn_skystm_d
+  bitmap srn_skyden_du
   verts 2143
     66.1616 0.0000 -671.7497
     65.8430 6.4850 -671.7497
@@ -8285,5 +8285,5 @@ node trimesh srn_skystm_d_dome
     0.992188 0.000000 0
     0.992188 1.000000 0
 endnode
-endmodelgeom srn_skystm_d
-donemodel srn_skystm_d
+endmodelgeom srn_skyden_du
+donemodel srn_skyden_du

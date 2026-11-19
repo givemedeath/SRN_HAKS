@@ -42,7 +42,13 @@ def sha(path):
 def build_panorama(key):
     """(halves, (bottom, top) degrees) of one panorama, its intermediate pictures written to output/skykit/<key>/."""
     spec = profiles.PANORAMAS[key]
-    if 'joins' in spec:
+    if 'chain' in spec:
+        # one start view grown to the right by redrawn extensions, wrapped by a closing join
+        start, *extensions = [panorama.view_rgb(ART / name) for name in spec['chain']]
+        whole = panorama.chain(start, extensions, panorama.view_rgb(ART / spec['close']))
+        rgba = panorama.cut(whole, spec['key'])
+        strip = rgba[panorama.land_rows(rgba)[0]:]
+    elif 'joins' in spec:
         # views read left to right as a viewer turns clockwise; the joins between them are redrawn seams
         views = [panorama.view_rgb(ART / name) for name in spec['views']]
         joins = [panorama.view_rgb(ART / name) for name in spec['joins']]
@@ -186,7 +192,7 @@ def build(args):
         'shaders': {name: sha(PACK / name) for name in SHADERS},
         'vertexShader': VERTEX_SHADER,
         'panoramas': {key: {'key': profiles.PANORAMAS[key]['key'],
-                            'sources': {name: sha(ART / name) for name in profiles.PANORAMAS[key]['views'] + profiles.PANORAMAS[key]['joins']},
+                            'sources': {name: sha(ART / name) for name in profiles.sources(key)},
                             'band': [round(b, 4) for b in built[key][1]]} for key in keys},
         'rows': {str(row): {'label': label, 'cyclical': cyclical, 'models': models}
                  for row, (label, cyclical, models) in table_rows().items()},

@@ -12,6 +12,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 HALF = (4096, 512)  # texels of each half of the strip: 8192 round the horizon
+EDGE_ROWS = 14  # rows under a green-keyed silhouette cleared of key tint
 KEYS = {'green': (0.0, 1.0, 0.0), 'magenta': (1.0, 0.0, 1.0)}
 
 
@@ -47,6 +48,10 @@ def cut(rgb, key):
     spill = k[..., None] * 1.0
     if key == 'green':
         out[..., 1] = np.minimum(out[..., 1], np.maximum(out[..., 0], out[..., 2]) + (1 - spill[..., 0]) * 0.08)
+        # hazy far hills just under the silhouette can come back tinted by the key (green, or cyan once green is held
+        # to blue): there, green stays at most a little above red, which keeps snow, violet and orange as they are
+        near = (rows >= first[None, :] - 1) & (rows < first[None, :] + EDGE_ROWS)
+        out[..., 1] = np.where(near, np.minimum(out[..., 1], out[..., 0] + 0.06), out[..., 1])
     else:
         limit = out[..., 1] + (1 - spill[..., 0]) * 0.08
         out[..., 0] = np.minimum(out[..., 0], np.maximum(limit, out[..., 0] * (1 - spill[..., 0])))
@@ -223,6 +228,18 @@ def seam_path(a, b, margin=SEAM_MARGIN):
     return path
 
 
+def _place_join(canvas, start, join, left, right, keep, gap):
+    """Lay a redrawn join into `canvas` from column `start` (wrapping round): it takes over from `left` and hands back
+    to `right` along the seam paths through its two overlaps, blended band by band."""
+    span, total = join.shape[1], canvas.shape[1]
+    columns = np.arange(span, dtype=np.float32)[None, :]
+    enter = seam_path(left[:, -keep:], join[:, :keep]).astype(np.float32)[:, None]
+    leave = (keep + gap + seam_path(join[:, keep + gap:], right[:, :keep])).astype(np.float32)[:, None]
+    weight = (np.clip((columns - enter) / (2 * SEAM_SOFT) + 0.5, 0, 1) * np.clip((leave - columns) / (2 * SEAM_SOFT) + 0.5, 0, 1))[..., None]
+    place = (start + np.arange(span)) % total
+    canvas[:, place] = multiband(canvas[:, place], join, weight.astype(np.float32))
+
+
 def assemble(views, joins, layout=LAYOUT):
     """One wrapped strip from views [v0..vn-1] and joins [j01, j12, .., j(n-1)0] (float RGB, VIEW size).
 
@@ -232,21 +249,48 @@ def assemble(views, joins, layout=LAYOUT):
     repaint that drifted from the view it was meant to keep meets it where they agree, not at a fixed column."""
     height, width = views[0].shape[:2]
     keep, gap = layout[0], layout[1]
-    span = joins[0].shape[1]
     step = width + gap
-    total = step * len(views)
-    canvas = np.zeros((height, total, 3), np.float32)
+    canvas = np.zeros((height, step * len(views), 3), np.float32)
     for index, view in enumerate(views):
         canvas[:, index * step:index * step + width] = view
-    columns = np.arange(span, dtype=np.float32)[None, :]
     for index, join in enumerate(joins):
-        left, right = views[index], views[(index + 1) % len(views)]
-        start = index * step + width - keep
-        enter = seam_path(left[:, width - keep:], join[:, :keep]).astype(np.float32)[:, None]
-        leave = (keep + gap + seam_path(join[:, keep + gap:], right[:, :keep])).astype(np.float32)[:, None]
-        weight = (np.clip((columns - enter) / (2 * SEAM_SOFT) + 0.5, 0, 1) * np.clip((leave - columns) / (2 * SEAM_SOFT) + 0.5, 0, 1))[..., None]
-        place = (start + np.arange(span)) % total
-        canvas[:, place] = multiband(canvas[:, place], join, weight.astype(np.float32))
+        _place_join(canvas, index * step + width - keep, join, views[index], views[(index + 1) % len(views)], keep, gap)
+    return canvas
+
+
+# Chains: a panorama grown to the right from one start view. Each extension is redrawn from `extend_input` (the
+# strip's last JOIN_KEEP columns, then a blurred placeholder), so it continues the strip at the strip's own scale and
+# horizon; a closing join (from `join_input(strip, strip)`) then wraps the end back to the start.
+def extend_input(strip, key, keep=JOIN_KEEP):
+    """The VIEW-sized picture an extension is redrawn from: the strip's last `keep` columns, then a blurred mirror of
+    them as a placeholder for the new land, with the sky above it the flat key."""
+    width = VIEW[0]
+    tail = strip[:, -keep:]
+    rough = np.concatenate([tail[:, ::-1], tail] * 2, axis=1)[:, :width - keep]
+    sky = keyness(rough, key) > 0.3
+    fill = np.dstack([_blur(rough[..., c], 8) for c in range(3)])
+    fill[sky] = KEYS[key]
+    return np.concatenate([tail, fill], axis=1).astype(np.float32)
+
+
+def _extend(strip, extension, keep):
+    width = extension.shape[1]
+    path = seam_path(strip[:, -keep:], extension[:, :keep]).astype(np.float32)[:, None]
+    weight = np.clip((np.arange(width, dtype=np.float32)[None, :] - path) / (2 * SEAM_SOFT) + 0.5, 0, 1)[..., None]
+    old = np.concatenate([strip[:, -keep:], extension[:, keep:]], axis=1)
+    return np.concatenate([strip[:, :-keep], multiband(old, extension, weight.astype(np.float32))], axis=1)
+
+
+def chain(start, extensions, close=None, keep=JOIN_KEEP, gap=JOIN_GAP):
+    """One strip from a start view and its extensions (float RGB, VIEW size), wrapped by the closing join if given."""
+    strip = start
+    for extension in extensions:
+        strip = _extend(strip, extension, keep)
+    if close is None:
+        return strip
+    canvas = np.zeros((strip.shape[0], strip.shape[1] + gap, 3), np.float32)
+    canvas[:, :strip.shape[1]] = strip
+    _place_join(canvas, strip.shape[1] - keep, close, strip, strip, keep, gap)
     return canvas
 
 

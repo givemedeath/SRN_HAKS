@@ -1,11 +1,11 @@
 customshaderVS vsvt
 customshaderFS srn_sky_fs
-texture0 srn_skystm_pa
-texture1 srn_skystm_pb
-texture2 srn_skystm_ma
-texture3 srn_skystm_mb
+texture0 srn_skyden_pa
+texture1 srn_skyden_pb
+texture2 srn_skyden_ma
+texture3 srn_skyden_mb
 parameter float SkyPhase 0.0000
-parameter float SkyBand -2.0000 20.0332 0.1000 0.0000
+parameter float SkyBand -2.0000 10.5615 0.1000 0.0000
 parameter float SkyZenith 0.1600 0.1800 0.4000 1.0000
 parameter float SkyHorizon 0.9800 0.5800 0.4600 5.0000
 parameter float SkyCloud 0.6200 0.4200 0.5800 1.0000

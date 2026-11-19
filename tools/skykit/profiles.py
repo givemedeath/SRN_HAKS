@@ -11,6 +11,13 @@ Azimuths are the sky sphere's: 0 is the area's east (+x), 90 north (+y), 180 wes
 # panorama.assemble. `below` is the degrees of the strip's bottom under the horizon, `stretch` the vertical scale of
 # square texels (below 1 squats the land into a lower band).
 PANORAMAS = {
+    # Denver grows from the Codex west view: four redrawn extensions to the right (north, then east, then south) and a
+    # closing join back to the start, so every piece keeps the west view's scale and horizon (panorama.chain)
+    'den': {
+        'chain': ['denver/view_w.png', 'denver/ext_1.png', 'denver/ext_2.png', 'denver/ext_3.png', 'denver/ext_4.png'],
+        'close': 'denver/join_close.png',
+        'key': 'green', 'below': 2.0, 'stretch': 0.6,
+    },
     'stm': {
         'views': ['storm/view_a.png', 'storm/view_b.png', 'storm/view_c.png'],
         'joins': ['storm/join_ab.png', 'storm/join_bc.png', 'storm/join_ca.png'],
@@ -53,7 +60,8 @@ DEN_NIGHT = {
     'SkyCloud': (0.13, 0.09, 0.18, 1), 'SkyLand': (0.80, 0.80, 0.90, 0.0),
     'SkySun': (172.0, -30.0, 1.0, 0.0), 'SkySunColor': (0.0, 0.0, 0.0, 0.0),
     'SkyMotion': (2.4, 0.48, 0.0, 0.0), 'SkyNight': (1.0, 1.0, 0.0, 1.3),
-    'SkyExtra': (0.0, 1.0, 0.75, 0.0), 'SkyGlow': (1.0, 0.42, 0.72, 1), 'SkyBand': (0.0, 0.0, 0.05, 0.0),
+    # searchlights sweep the Denver night too (user, 2026-11-19)
+    'SkyExtra': (0.8, 1.0, 0.75, 0.0), 'SkyGlow': (1.0, 0.42, 0.72, 1), 'SkyBand': (0.0, 0.0, 0.05, 0.0),
 }
 STORM = {
     'SkyPhase': 3,
@@ -75,14 +83,22 @@ PK_NIGHT = dict(DEN_NIGHT, SkyLand=(0.22, 0.28, 0.42, 0.2), SkyCloud=(0.08, 0.09
 
 # skyboxes.2da rows: id -> (label, cyclical, panorama, {model suffix: phase parameters}, (dawn, day, dusk, night) suffixes)
 SKIES = {
-    # Denver and the acid storm share the megasprawl skyline (user, 2026-11-19: "can we just use that skyline for Denver?")
-    16: ('SRN_Denver_Dynamic', 1, 'stm', {'da': DEN_DAWN, 'd': DEN_DAY, 'du': DEN_DUSK, 'n': DEN_NIGHT}, ('da', 'd', 'du', 'n')),
+    16: ('SRN_Denver_Dynamic', 1, 'den', {'da': DEN_DAWN, 'd': DEN_DAY, 'du': DEN_DUSK, 'n': DEN_NIGHT, 'st': STORM}, ('da', 'd', 'du', 'n')),
     17: ('SRN_Sprawl_AcidStorm', 0, 'stm', {'st': STORM}, ('st', 'st', 'st', 'st')),
-    18: ('SRN_Denver_Dusk_Fixed', 0, 'stm', {}, ('du', 'du', 'du', 'du')),
-    19: ('SRN_Denver_Night_Fixed', 0, 'stm', {}, ('n', 'n', 'n', 'n')),
+    18: ('SRN_Denver_Dusk_Fixed', 0, 'den', {}, ('du', 'du', 'du', 'du')),
+    19: ('SRN_Denver_Night_Fixed', 0, 'den', {}, ('n', 'n', 'n', 'n')),
     20: ('SRN_Awakened_Peaks', 1, 'pk', {'da': PK_DAWN, 'd': PK_DAY, 'du': PK_DUSK, 'n': PK_NIGHT}, ('da', 'd', 'du', 'n')),
     21: ('SRN_Awakened_Aurora', 0, 'pk', {}, ('n', 'n', 'n', 'n')),
+    22: ('SRN_Denver_AcidStorm', 0, 'den', {}, ('st', 'st', 'st', 'st')),  # Denver's skyline under the acid storm
 }
+
+
+def sources(panorama):
+    """The art files a panorama is built from."""
+    spec = PANORAMAS[panorama]
+    if 'chain' in spec:
+        return spec['chain'] + [spec['close']]
+    return spec['views'] + spec['joins']
 
 
 def model_name(panorama, suffix):

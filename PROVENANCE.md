@@ -2224,19 +2224,19 @@ logs and generated HAKs remain outside the repository.
 
 ## Dynamic skies: Denver, Sprawl storm, Awakened peaks (`srn_skybox`, `srn_2da`; 2026-11-19)
 
-Six new skybox rows (16 `SRN_Denver_Dynamic`, 17 `SRN_Sprawl_AcidStorm`, 18 `SRN_Denver_Dusk_Fixed`, 19
-`SRN_Denver_Night_Fixed`, 20 `SRN_Awakened_Peaks`, 21 `SRN_Awakened_Aurora`) are appended to `skyboxes.2da`; no
-existing row changes. `srn_skybox` gains nine sky dome models (`srn_sky{stm,pk}_*.mdl`, ASCII, written by
-`tools/skykit`), their materials and fallback pictures, two land panoramas in two halves with two light masks each
-(`srn_sky*_pa/_pb/_ma/_mb.dds`) and the fragment shader with its include (`srn_sky_fs.shd`, `srn_sky_math.shd`). The
-vertex shader is the game's own `vsvt`, referenced and not copied; the fragment shader includes the game's
-`inc_standard` by name.
+Seven new skybox rows (16 `SRN_Denver_Dynamic`, 17 `SRN_Sprawl_AcidStorm`, 18 `SRN_Denver_Dusk_Fixed`, 19
+`SRN_Denver_Night_Fixed`, 20 `SRN_Awakened_Peaks`, 21 `SRN_Awakened_Aurora`, 22 `SRN_Denver_AcidStorm`) are appended
+to `skyboxes.2da`; no existing row changes. `srn_skybox` gains ten sky dome models (`srn_sky{den,stm,pk}_*.mdl`,
+ASCII, written by `tools/skykit`), their materials and fallback pictures, three land panoramas in two halves with two
+light masks each (`srn_sky*_pa/_pb/_ma/_mb.dds`) and the fragment shader with its include (`srn_sky_fs.shd`,
+`srn_sky_math.shd`). The vertex shader is the game's own `vsvt`, referenced and not copied; the fragment shader
+includes the game's `inc_standard` by name.
 
-Origin: each panorama is three views and three redrawn joins under `tools/skykit/art/`, prompts beside them; the
-Denver rows use the storm panorama with their own materials. Every view and join was drawn with the local Qwen-Image
-2.1 profile (`qwen21-int8-v1`) on the operator's shared ComfyUI, each view as an edit of `art/denver/view_w.png`, which
+Origin: the pictures are under `tools/skykit/art/`, prompts beside them. Denver's start view (`denver/view_w.png`)
 was drawn for the SRN project operator with the Codex CLI's image generation from the Denver skyline concept the
-operator supplied and is kept only as that edit reference; it ships in no resource. The sky, clouds, stars, moon, aurora, lightning,
+operator supplied; Denver's four extensions and closing join, and the storm and peaks views and joins, were drawn with
+the local Qwen-Image 2.1 profile (`qwen21-int8-v1`) on the operator's shared ComfyUI, the storm and peaks views as
+edits of that start view. The sky, clouds, stars, moon, aurora, lightning,
 searchlights and rain are procedural, written for this project (SRN project operator with Claude); the approach of a
 material-driven animated sky in a skybox model follows the community Dynamic Skies example by Bhaal in its general
 method only: no code, models or pictures of it are included.
