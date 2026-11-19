@@ -36,8 +36,8 @@ class Dome(unittest.TestCase):
                 self.assertAlmostEqual(np.cos(azimuth), np.cos(u * 2 * np.pi), places=4)
 
     def test_model_text_names_its_bitmap(self):
-        text = sphere.ascii_model('srn_skyden_d', 'srn_skyden_d')
-        self.assertIn('bitmap srn_skyden_d', text)
+        text = sphere.ascii_model('srn_skystm_d', 'srn_skystm_d')
+        self.assertIn('bitmap srn_skystm_d', text)
         self.assertIn('shadow 0', text)
         vertices, uvs, faces = sphere.mesh()
         self.assertIn(f'verts {len(vertices)}', text)
@@ -120,18 +120,23 @@ class Panorama(unittest.TestCase):
         # rows run up from the bottom: the top row is written last, as BGRA
         self.assertEqual(tuple(data[-4:]), (0, 0, 255, 255))
 
-    def test_assembled_strip_keeps_views_and_join_middles(self):
+    def test_assembled_strip_keeps_views_and_wraps(self):
         rng = np.random.default_rng(1)
         h, w = panorama.VIEW[1] // 8, panorama.VIEW[0]
         views = [rng.random((h, w, 3)).astype(np.float32) for _ in range(3)]
         joins = [panorama.join_input(views[i], views[(i + 1) % 3]) for i in range(3)]
         strip = panorama.assemble(views, joins)
-        keep, trim, span = panorama.JOIN_KEEP, panorama.JOIN_TRIM, joins[0].shape[1]
-        body = w - 2 * (keep - trim)
-        self.assertEqual(strip.shape[1], 3 * (body + span - 2 * trim))
-        # an unchanged join (the input itself) leaves the views' own columns in place across the meeting
-        self.assertTrue(np.allclose(strip[:, :body], views[0][:, keep - trim:w - keep + trim]))
-        self.assertTrue(np.allclose(strip[:, body:body + keep - trim], views[0][:, w - keep + trim:], atol=1e-5))
+        step = w + panorama.JOIN_GAP
+        self.assertEqual(strip.shape[1], 3 * step)
+        # an unchanged join (the input itself) leaves every view's own columns in place, the first one across the wrap
+        for i in range(3):
+            self.assertTrue(np.allclose(strip[:, i * step:i * step + w], views[i], atol=1e-5))
+
+    def test_seam_follows_where_pictures_agree(self):
+        a = np.zeros((20, 200, 3), np.float32); b = np.ones((20, 200, 3), np.float32)
+        b[:, 120:125] = 0.0  # the two pictures agree only in columns 120-124
+        path = panorama.seam_path(a, b)
+        self.assertTrue(((path >= 120) & (path < 125)).all())
 
     def test_band_degrees(self):
         strip = np.zeros((100, 3600, 4), np.float32)
@@ -171,7 +176,7 @@ class Render(unittest.TestCase):
         land[:20, :, 3] = 1.0
         mask = np.zeros((64, 256, 3), np.float32)
         renderer.bind([(land[::-1], mask), (land[::-1], mask)])
-        _, values = build.material_text('den', profiles.DEN_DUSK, (-2.0, 15.0))
+        _, values = build.material_text('stm', profiles.DEN_DUSK, (-2.0, 15.0))
         early = renderer.render(values, (128, 64), time_ms=100000, fade=0.4)
         late = renderer.render(values, (128, 64), time_ms=160000, fade=0.4)
         self.assertGreater(np.abs(early - late).max(), 0.0)          # the clouds move

@@ -6,16 +6,11 @@ Parameters (srn_skybox/srn_sky_math.shd documents each):
 Azimuths are the sky sphere's: 0 is the area's east (+x), 90 north (+y), 180 west, 270 south.
 """
 
-# A panorama: three views that read left to right as a viewer turns clockwise (west, north, east for Denver), each
+# A panorama: three views that read left to right as a viewer turns clockwise, each
 # 1248x832 with a flat chroma-key sky, and the three redrawn joins between them (view 0-1, 1-2, 2-0); see
 # panorama.assemble. `below` is the degrees of the strip's bottom under the horizon, `stretch` the vertical scale of
 # square texels (below 1 squats the land into a lower band).
 PANORAMAS = {
-    'den': {
-        'views': ['denver/view_w.png', 'denver/view_n.png', 'denver/view_e.png'],
-        'joins': ['denver/join_wn.png', 'denver/join_ne.png', 'denver/join_ew.png'],
-        'key': 'green', 'below': 2.0, 'stretch': 0.6, 'match': 0,  # the Qwen views take the Codex view's grade
-    },
     'stm': {
         'views': ['storm/view_a.png', 'storm/view_b.png', 'storm/view_c.png'],
         'joins': ['storm/join_ab.png', 'storm/join_bc.png', 'storm/join_ca.png'],
@@ -31,7 +26,7 @@ PANORAMAS = {
 DEN_DAWN = {
     'SkyPhase': 0,
     'SkyZenith': (0.16, 0.18, 0.40, 1), 'SkyHorizon': (0.98, 0.58, 0.46, 5.0),
-    'SkyCloud': (0.62, 0.42, 0.58, 1), 'SkyLand': (0.86, 0.80, 0.95, 0.15),
+    'SkyCloud': (0.62, 0.42, 0.58, 1), 'SkyLand': (1.05, 0.88, 0.92, 0.15),
     'SkySun': (8.0, 3.0, 1.6, 1.0), 'SkySunColor': (1.0, 0.62, 0.36, 0.9),
     'SkyMotion': (2.4, 0.52, 0.0, 0.0), 'SkyNight': (0.0, 0.0, 0.0, 0.55),
     'SkyExtra': (0.0, 0.6, 0.15, 0.0), 'SkyGlow': (1.0, 0.55, 0.65, 1), 'SkyBand': (0.0, 0.0, 0.10, 0.0),
@@ -39,7 +34,7 @@ DEN_DAWN = {
 DEN_DAY = {
     'SkyPhase': 1,
     'SkyZenith': (0.20, 0.40, 0.78, 1), 'SkyHorizon': (0.72, 0.80, 0.92, 4.0),
-    'SkyCloud': (0.96, 0.96, 0.98, 1), 'SkyLand': (1.12, 1.08, 1.02, 0.35),
+    'SkyCloud': (0.96, 0.96, 0.98, 1), 'SkyLand': (1.35, 1.25, 1.15, 0.45),
     'SkySun': (200.0, 62.0, 1.4, 0.45), 'SkySunColor': (1.0, 0.95, 0.85, 0.3),
     'SkyMotion': (2.4, 0.46, 0.0, 0.0), 'SkyNight': (0.0, 0.0, 0.0, 0.0),
     'SkyExtra': (0.0, 0.0, 0.0, 0.0), 'SkyGlow': (0.0, 0.0, 0.0, 1), 'SkyBand': (0.0, 0.0, 0.14, 0.9),
@@ -47,7 +42,7 @@ DEN_DAY = {
 DEN_DUSK = {
     'SkyPhase': 2,
     'SkyZenith': (0.16, 0.07, 0.30, 1), 'SkyHorizon': (0.96, 0.34, 0.46, 5.0),
-    'SkyCloud': (0.42, 0.18, 0.44, 1), 'SkyLand': (1.0, 1.0, 1.0, 0.0),
+    'SkyCloud': (0.42, 0.18, 0.44, 1), 'SkyLand': (1.08, 0.86, 1.0, 0.0),
     'SkySun': (172.0, 2.0, 1.8, 1.2), 'SkySunColor': (1.0, 0.42, 0.50, 1.1),
     'SkyMotion': (2.4, 0.64, 0.0, 0.0), 'SkyNight': (0.25, 0.0, 0.0, 0.8),
     'SkyExtra': (0.0, 0.9, 0.45, 0.0), 'SkyGlow': (1.0, 0.45, 0.70, 1), 'SkyBand': (0.0, 0.0, 0.06, 0.0),
@@ -55,7 +50,7 @@ DEN_DUSK = {
 DEN_NIGHT = {
     'SkyPhase': 3,
     'SkyZenith': (0.015, 0.02, 0.06, 1), 'SkyHorizon': (0.12, 0.06, 0.20, 4.0),
-    'SkyCloud': (0.13, 0.09, 0.18, 1), 'SkyLand': (0.50, 0.46, 0.66, 0.10),
+    'SkyCloud': (0.13, 0.09, 0.18, 1), 'SkyLand': (0.80, 0.80, 0.90, 0.0),
     'SkySun': (172.0, -30.0, 1.0, 0.0), 'SkySunColor': (0.0, 0.0, 0.0, 0.0),
     'SkyMotion': (2.4, 0.48, 0.0, 0.0), 'SkyNight': (1.0, 1.0, 0.0, 1.3),
     'SkyExtra': (0.0, 1.0, 0.75, 0.0), 'SkyGlow': (1.0, 0.42, 0.72, 1), 'SkyBand': (0.0, 0.0, 0.05, 0.0),
@@ -80,10 +75,11 @@ PK_NIGHT = dict(DEN_NIGHT, SkyLand=(0.22, 0.28, 0.42, 0.2), SkyCloud=(0.08, 0.09
 
 # skyboxes.2da rows: id -> (label, cyclical, panorama, {model suffix: phase parameters}, (dawn, day, dusk, night) suffixes)
 SKIES = {
-    16: ('SRN_Denver_Dynamic', 1, 'den', {'da': DEN_DAWN, 'd': DEN_DAY, 'du': DEN_DUSK, 'n': DEN_NIGHT}, ('da', 'd', 'du', 'n')),
-    17: ('SRN_Sprawl_AcidStorm', 0, 'stm', {'n': STORM}, ('n', 'n', 'n', 'n')),
-    18: ('SRN_Denver_Dusk_Fixed', 0, 'den', {}, ('du', 'du', 'du', 'du')),
-    19: ('SRN_Denver_Night_Fixed', 0, 'den', {}, ('n', 'n', 'n', 'n')),
+    # Denver and the acid storm share the megasprawl skyline (user, 2026-11-19: "can we just use that skyline for Denver?")
+    16: ('SRN_Denver_Dynamic', 1, 'stm', {'da': DEN_DAWN, 'd': DEN_DAY, 'du': DEN_DUSK, 'n': DEN_NIGHT}, ('da', 'd', 'du', 'n')),
+    17: ('SRN_Sprawl_AcidStorm', 0, 'stm', {'st': STORM}, ('st', 'st', 'st', 'st')),
+    18: ('SRN_Denver_Dusk_Fixed', 0, 'stm', {}, ('du', 'du', 'du', 'du')),
+    19: ('SRN_Denver_Night_Fixed', 0, 'stm', {}, ('n', 'n', 'n', 'n')),
     20: ('SRN_Awakened_Peaks', 1, 'pk', {'da': PK_DAWN, 'd': PK_DAY, 'du': PK_DUSK, 'n': PK_NIGHT}, ('da', 'd', 'du', 'n')),
     21: ('SRN_Awakened_Aurora', 0, 'pk', {}, ('n', 'n', 'n', 'n')),
 }

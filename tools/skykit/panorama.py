@@ -159,6 +159,9 @@ def save_png(array, path):
 VIEW = (1248, 832)       # every view is resized to this before joining
 JOIN_KEEP, JOIN_GAP, JOIN_FEATHER = 500, 248, 64
 JOIN_TRIM = 100          # columns of a join's kept ends that are trusted to the views rather than to the redraw
+# A panorama's joins are drawn for one layout and assembled with it: (keep, gap, feather, trim).
+LAYOUT = (JOIN_KEEP, JOIN_GAP, JOIN_FEATHER, JOIN_TRIM)
+WIDE = (400, 448, 128, 150)  # a wider repainted middle and longer blends, for views that differ more
 
 
 def view_rgb(path):
@@ -166,39 +169,85 @@ def view_rgb(path):
     return np.asarray(Image.open(path).convert('RGB').resize(VIEW, Image.LANCZOS), np.float32) / 255
 
 
-def join_input(left, right):
+def join_input(left, right, layout=LAYOUT):
     """The picture a join is redrawn from: left's end, a crossfade, right's start (float RGB, VIEW size)."""
-    a, b = left[:, -JOIN_KEEP:], right[:, :JOIN_KEEP]
-    t = np.linspace(0, 1, JOIN_GAP, dtype=np.float32)[None, :, None]
+    keep, gap_width = layout[0], layout[1]
+    a, b = left[:, -keep:], right[:, :keep]
+    t = np.linspace(0, 1, gap_width, dtype=np.float32)[None, :, None]
     gap = a[:, -1:] * (1 - t) + b[:, :1] * t
     return np.concatenate([a, gap, b], axis=1)
 
 
-def _feather(x, y):
-    """Blend from x to y across their shared width (equal-sized column blocks)."""
-    t = np.linspace(0, 1, x.shape[1], dtype=np.float32)[None, :, None]
-    return x * (1 - t) + y * t
+SEAM_MARGIN, SEAM_SOFT = 64, 5.0  # columns kept clear of an overlap's ends; half-width of the blend along a cut
+SEAM_LEVELS = 5  # pyramid levels of the blend: fine detail switches at the cut, broad colour over up to 2**5 times wider
 
 
-def assemble(views, joins):
+def _resize(array, size, mode):
+    return np.dstack([np.asarray(Image.fromarray(array[..., c], 'F').resize(size, mode), np.float32) for c in range(array.shape[2])])
+
+
+def multiband(a, b, weight, levels=SEAM_LEVELS):
+    """Blend a into b by `weight` (0 keeps a, 1 takes b) band by band (Burt and Adelson): each Laplacian band is mixed
+    by the mask blurred to its own scale, so a difference of colour is spread wide while edges stay sharp."""
+    ga, gb, gw = [a], [b], [weight]
+    for _ in range(levels):
+        h, w = ga[-1].shape[:2]
+        size = (max(1, w // 2), max(1, h // 2))
+        ga.append(_resize(ga[-1], size, Image.BOX)); gb.append(_resize(gb[-1], size, Image.BOX)); gw.append(_resize(gw[-1], size, Image.BOX))
+    out = ga[-1] * (1 - gw[-1]) + gb[-1] * gw[-1]
+    for level in range(levels - 1, -1, -1):
+        h, w = ga[level].shape[:2]
+        up = lambda x: _resize(x, (w, h), Image.BILINEAR)
+        band_a = ga[level] - up(ga[level + 1]); band_b = gb[level] - up(gb[level + 1])
+        out = up(out) + band_a * (1 - gw[level]) + band_b * gw[level]
+    return np.clip(out, 0, 1)
+
+
+def seam_path(a, b, margin=SEAM_MARGIN):
+    """The column, row by row, where two overlapping pictures of the same columns agree best: a minimum-cost path from
+    top to bottom that moves at most one column a row (image quilting), kept `margin` columns from either end."""
+    cost = ((a - b) ** 2).sum(-1)
+    cost = (cost + np.roll(cost, 1, 0) + np.roll(cost, -1, 0)) / 3  # a little vertical smoothing
+    width = cost.shape[1]
+    big = np.float32(1e9)
+    cost[:, :margin] = big; cost[:, width - margin:] = big
+    total = cost.copy(); back = np.zeros(cost.shape, np.int32)
+    for row in range(1, cost.shape[0]):
+        prev = total[row - 1]
+        left = np.concatenate([[big], prev[:-1]]); right = np.concatenate([prev[1:], [big]])
+        stack = np.stack([left, prev, right]); pick = stack.argmin(0)
+        total[row] += stack[pick, np.arange(width)]; back[row] = pick - 1
+    path = np.zeros(cost.shape[0], np.int32); path[-1] = int(total[-1].argmin())
+    for row in range(cost.shape[0] - 1, 0, -1):
+        path[row - 1] = path[row] + back[row, path[row]]
+    return path
+
+
+def assemble(views, joins, layout=LAYOUT):
     """One wrapped strip from views [v0..vn-1] and joins [j01, j12, .., j(n-1)0] (float RGB, VIEW size).
 
-    Join column c < JOIN_KEEP is the left view's column W - JOIN_KEEP + c; column c >= JOIN_KEEP + JOIN_GAP is the right
-    view's column c - JOIN_KEEP - JOIN_GAP. Each view keeps the columns between its joins, each join the columns between
-    JOIN_TRIM of its ends, and each meeting is feathered over JOIN_FEATHER columns inside the join."""
-    width = views[0].shape[1]
-    keep, trim, feather = JOIN_KEEP, JOIN_TRIM, JOIN_FEATHER
+    Join column c < keep is the left view's column W - keep + c; column c >= keep + gap is the right view's column
+    c - keep - gap. Views are laid every W + gap columns; each join covers its gap and overlaps both neighbours by
+    `keep` columns, and within each overlap the strip switches from view to join (and back) along `seam_path`, so a
+    repaint that drifted from the view it was meant to keep meets it where they agree, not at a fixed column."""
+    height, width = views[0].shape[:2]
+    keep, gap = layout[0], layout[1]
     span = joins[0].shape[1]
-    parts = []
+    step = width + gap
+    total = step * len(views)
+    canvas = np.zeros((height, total, 3), np.float32)
     for index, view in enumerate(views):
-        right = views[(index + 1) % len(views)]
-        join = joins[index].copy()
-        start = width - keep + trim
-        join[:, trim:trim + feather] = _feather(view[:, start:start + feather], join[:, trim:trim + feather])
-        end = keep - trim
-        join[:, span - trim - feather:span - trim] = _feather(join[:, span - trim - feather:span - trim], right[:, end - feather:end])
-        parts += [view[:, keep - trim:width - keep + trim], join[:, trim:span - trim]]
-    return np.concatenate(parts, axis=1)
+        canvas[:, index * step:index * step + width] = view
+    columns = np.arange(span, dtype=np.float32)[None, :]
+    for index, join in enumerate(joins):
+        left, right = views[index], views[(index + 1) % len(views)]
+        start = index * step + width - keep
+        enter = seam_path(left[:, width - keep:], join[:, :keep]).astype(np.float32)[:, None]
+        leave = (keep + gap + seam_path(join[:, keep + gap:], right[:, :keep])).astype(np.float32)[:, None]
+        weight = (np.clip((columns - enter) / (2 * SEAM_SOFT) + 0.5, 0, 1) * np.clip((leave - columns) / (2 * SEAM_SOFT) + 0.5, 0, 1))[..., None]
+        place = (start + np.arange(span)) % total
+        canvas[:, place] = multiband(canvas[:, place], join, weight.astype(np.float32))
+    return canvas
 
 
 def match_colours(image, reference, key, strength=0.75):

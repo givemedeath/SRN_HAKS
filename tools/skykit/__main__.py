@@ -50,7 +50,7 @@ def build_panorama(key):
             reference = views[spec['match']]
             views = [v if i == spec['match'] else panorama.match_colours(v, reference, spec['key']) for i, v in enumerate(views)]
             joins = [panorama.match_colours(j, reference, spec['key'], 0.5) for j in joins]
-        whole = panorama.assemble(views, joins)
+        whole = panorama.assemble(views, joins, panorama.WIDE if spec.get('wide') else panorama.LAYOUT)
         rgba = panorama.cut(whole, spec['key'])
         strip = rgba[panorama.land_rows(rgba)[0]:]
     else:
