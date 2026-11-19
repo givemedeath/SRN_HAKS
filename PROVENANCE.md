@@ -2207,3 +2207,39 @@ theirs changes. Generation intermediates, local bindings, HAK archives, ledger
 entries and client captures stay outside the repository. Shadowrun names and designs
 are third-party marks; this record asserts no ownership of them and adds no new
 rights claim.
+
+## Modern Exterior restyle, release 1 (`srn_t_common`, `srn_t_dgt04`, `srn_door`, `srn_placeable`; 2026-11-19)
+
+The textures D20 Modern Exterior (`dgt04`) draws are restyled in place for a 2070s Shadowrun city, under the plan in
+`docs/tilesets/dgt04-upfit-plan.md`, and the look was passed by the SRN project operator in the game client on
+2026-11-19 (review captures in ignored `output/tilekit/tkacc1` to `tkacc3`). Each of the 215 textures in
+`docs/tilesets/dgt04/materials.json` keeps its name and is now a material file (`<name>.mtr`, normal and specular
+mapped) with DDS colour, normal, specular and roughness maps (`<stem>`, `_n`, `_s`, `_r`), written by
+`tools/tilekit` (SRN project operator with Claude); the canal water `tcn01_water01` is a plain DDS beside the
+game's own TXI, so its moving water is kept. The old TGA and DDS copies of those names are deleted. Four names
+other packs share keep a copy in each pack that held them: `dumpster`, `dumpster_sign` and `tmi_metal01` in
+`srn_t_common` and `srn_placeable`, `manhole_tex2` in `srn_door` and `srn_placeable`.
+
+Origins, by route:
+
+- Master (43 textures): CC0 scans from [ambientCG](https://ambientcg.com/) (1K JPG), tinted, graded and stained:
+  Asphalt033, Bricks032, Bricks073C, Bricks090, Bricks094, Bricks097, Concrete034, Concrete046, Concrete047A,
+  CorrugatedSteel007A, CorrugatedSteel009, Gravel043, MetalPlates013, Planks023A, Road012A and Rust009. The fetched
+  archives and their hashes are recorded in `tilekit/masters/fetched.json` of the shared tool root.
+- Layout (56): the original D20 Modern picture's own layout kept, with the grain of one of those scans laid over it.
+- Upscale (116): the original picture doubled by the upscaling model of the shared local ComfyUI, with a normal map
+  derived from it. Of these, 90 were first redrawn on their own layout by an image generator (OpenAI image
+  generation through the Codex CLI, or the local Qwen image edit model on the shared ComfyUI), from prompts in
+  `docs/tilesets/dgt04/redraw.json`: signs carry generic 2070s wording and no brand names.
+- Ten base-game textures (`tcn01_bark02`, `tcn01_barnicle02`, `tcn01_blst02`, `tcn01_bridge02`,
+  `tcn01_splotch01`, `tcn01_stone18`, `tcn01_treefol02`, `tcn01_water01`, `ttr01_grass02`, `ttr01_wood03`) are
+  derivatives of Neverwinter Nights: Enhanced Edition stock textures, layout unchanged, in `srn_t_dgt04`; they
+  replace the stock look in any module that loads that pack. A licensed NWN:EE installation is required.
+
+Model edits, to 397 D20 Modern tile models in `srn_t_common` and `srn_t_dgt04` (the upstream D20 Modern Haks 2.2
+terms above apply): tile lamps on 152 models are moved from source lights, which the game draws as flames, to main
+lights of radius 7 (`tilekit lamps`); small trims and flat panels cast no shadow, which the game drew as wedges on
+the walls behind them (`tilekit shadows`). No walkmesh, texture name or geometry changes: all 467 walkmeshes hash
+as `docs/tilesets/dgt04/walkmesh.json` records. Areas built with a tile's source lights on go dark at those 152
+tiles until switched to main lights. Generation intermediates, scans, review captures and local bindings stay
+outside the repository.

@@ -1,0 +1,58 @@
+"""Applying a review overlay: where each texture's files go, what is deleted, and the expected overrides."""
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+from tools.tilekit import apply
+
+MATERIAL = 'renderhint NormalAndSpecMapped\n\ntexture0 {0}\ntexture1 {0}_n\ntexture2 null\n'
+
+
+class ApplyTests(unittest.TestCase):
+    def setUp(self):
+        holder = tempfile.TemporaryDirectory(); self.addCleanup(holder.cleanup)
+        self.repo = Path(holder.name) / 'repo'; self.overlay = Path(holder.name) / 'overlay'; self.overlay.mkdir()
+        packs = {'srn_t_common': ('wall.tga', 'wall.dds', 'bin.dds', 'wall.txi', 't_a01.mdl'), 'srn_t_tst': ('tst.set',), 'srn_placeable': ('bin.dds', 'crate.dds')}
+        for pack, names in packs.items():
+            (self.repo / pack).mkdir(parents=True)
+            for name in names:
+                (self.repo / pack / name).write_bytes(b'old')
+        configuration = {'HakList': [{'Name': pack, 'Path': f'./{pack}/'} for pack in packs],
+                         'ExpectedOverrides': [{'Resource': 'other.dds', 'Packs': ['srn_t_common', 'srn_placeable']}, {'Resource': 'bin.dds', 'Packs': ['srn_placeable', 'srn_t_common']}]}
+        (self.repo / 'hakbuilder.json').write_text(json.dumps(configuration, indent=2) + '\n', encoding='utf-8')
+        for name in ('wall', 'bin'):
+            (self.overlay / f'{name}.mtr').write_text(MATERIAL.format(name), encoding='ascii')
+            for stem in (name, f'{name}_n'):
+                (self.overlay / f'{stem}.dds').write_bytes(b'new')
+        (self.overlay / 'tcn_w.dds').write_bytes(b'new'); (self.overlay / 'tcn_w.txi').write_bytes(b'proceduretype arturo')
+        (self.overlay / 't_a01.mdl').write_bytes(b'model')
+        self.spec = {'tileset': 'tst', 'textures': {'wall': {}, 'bin': {}, 'tcn_w': {}}}
+
+    def names(self, pack):
+        return sorted(path.name for path in (self.repo / pack).iterdir())
+
+    def test_each_texture_goes_where_its_name_was_and_its_old_copies_go(self):
+        told = apply.apply(self.repo, self.spec, self.overlay)
+        self.assertEqual(self.names('srn_t_common'), ['bin.dds', 'bin.mtr', 'bin_n.dds', 't_a01.mdl', 'wall.dds', 'wall.mtr', 'wall.txi', 'wall_n.dds'])  # the old TXI is left
+        self.assertEqual(self.names('srn_placeable'), ['bin.dds', 'bin.mtr', 'bin_n.dds', 'crate.dds'])
+        self.assertEqual(self.names('srn_t_tst'), ['tcn_w.dds', 'tcn_w.txi', 'tst.set'])  # a base-game texture goes to the tileset's pack
+        self.assertEqual((self.repo / 'srn_t_common' / 'wall.dds').read_bytes(), b'new'); self.assertEqual((self.repo / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'model')
+        overrides = json.loads((self.repo / 'hakbuilder.json').read_text(encoding='utf-8'))['ExpectedOverrides']
+        self.assertEqual([(entry['Resource'], entry['Packs']) for entry in overrides],
+                         [('other.dds', ['srn_t_common', 'srn_placeable']), ('bin.dds', ['srn_placeable', 'srn_t_common']),
+                          ('bin.mtr', ['srn_placeable', 'srn_t_common']), ('bin_n.dds', ['srn_placeable', 'srn_t_common'])])
+        self.assertEqual(told, {'put': 12, 'deleted': 1, 'overrides': 3, 'overrides before': 1})
+
+    def test_a_map_named_like_another_packs_file_or_a_missing_one_is_refused(self):
+        (self.repo / 'srn_placeable' / 'wall_n.dds').write_bytes(b'theirs')
+        with self.assertRaisesRegex(ValueError, 'wall_n.dds is already a file of srn_placeable'):
+            apply.plan(self.repo, self.spec, self.overlay)
+        (self.repo / 'srn_placeable' / 'wall_n.dds').unlink(); (self.overlay / 'bin_n.dds').unlink()
+        with self.assertRaisesRegex(ValueError, 'bin: the overlay lacks bin_n.dds'):
+            apply.plan(self.repo, self.spec, self.overlay)
+        self.assertEqual((self.repo / 'srn_t_common' / 'wall.tga').read_bytes(), b'old')  # a refused plan changes nothing
+
+
+if __name__ == '__main__':
+    unittest.main()

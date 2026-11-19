@@ -227,20 +227,6 @@
       ]
     },
     {
-      "Resource": "dumpster_sign.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
-      "Resource": "dumpster.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
       "Resource": "gg_black.dds",
       "Packs": [
         "srn_door",
@@ -305,13 +291,6 @@
     },
     {
       "Resource": "glass.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
-      "Resource": "manhole_tex2.dds",
       "Packs": [
         "srn_door",
         "srn_placeable"
@@ -406,13 +385,6 @@
       "Packs": [
         "srn_placeable",
         "srn_t_shp02"
-      ]
-    },
-    {
-      "Resource": "tmi_metal01.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
       ]
     },
     {
@@ -889,6 +861,146 @@
       "Packs": [
         "srn_body",
         "srn_head"
+      ]
+    },
+    {
+      "Resource": "dumpster.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster_sign.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster_sign.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster_sign_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster_sign_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "dumpster_sign_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "manhole_tex2.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "manhole_tex2.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "manhole_tex2_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "manhole_tex2_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "manhole_tex2_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "tmi_metal01.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "tmi_metal01.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "tmi_metal01_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "tmi_metal01_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "tmi_metal01_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
       ]
     }
   ]

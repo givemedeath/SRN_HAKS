@@ -21,7 +21,7 @@ node trimesh Box3206.006
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -101,7 +101,7 @@ node trimesh Box3206.051
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -170,7 +170,7 @@ node trimesh Box3212.008
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -364,7 +364,7 @@ node trimesh e09_17_trim.005
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -451,7 +451,7 @@ node trimesh e09_17_trim.052
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -564,7 +564,7 @@ node trimesh e11_01_lamp01.017
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -709,7 +709,7 @@ node trimesh e11_01_lamp01.018
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -854,7 +854,7 @@ node trimesh e11_02_drblk.001
   shininess 13
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1012,7 +1012,7 @@ node trimesh e11_02_wall.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1139,7 +1139,7 @@ node trimesh e11_02_wall.003
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1275,7 +1275,7 @@ node trimesh e11_05_roof.001
   shininess 13
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1380,7 +1380,7 @@ node trimesh e11_05_winledge02.001
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1445,7 +1445,7 @@ node trimesh e11_05_winledge02.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1510,7 +1510,7 @@ node trimesh e11_05_winledge02.014
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1575,7 +1575,7 @@ node trimesh e11_05_winledge02.015
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1640,7 +1640,7 @@ node trimesh e11_05_winledge02.016
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1701,7 +1701,7 @@ node trimesh e11_05_winledge02.017
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1766,7 +1766,7 @@ node trimesh e11_05_winledge02.018
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1831,7 +1831,7 @@ node trimesh e11_05_winledge02.019
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1897,7 +1897,7 @@ node trimesh e11_05_winledge02.020
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1962,7 +1962,7 @@ node trimesh e11_05_winledge02.021
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2027,7 +2027,7 @@ node trimesh e11_05_winledge02.022
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2092,7 +2092,7 @@ node trimesh e11_05_winledge02.023
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2158,7 +2158,7 @@ node trimesh e11_05_winlrg01.001
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2191,7 +2191,7 @@ node trimesh e11_05_winlrg02.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2285,7 +2285,7 @@ node trimesh Object335.002
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2341,7 +2341,7 @@ node trimesh Object551.007
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2428,7 +2428,7 @@ node trimesh Object551.051
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2652,11 +2652,11 @@ node trimesh window_fixed.019
      0.000  0.000  0
      0.999  0.000  0
 endnode
-node light dgt05_s01_03sl1
+node light dgt05_s01_03ml1
   parent dgt05_s01_03
   position  0.00001 -5.79132  3.83619
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -2668,11 +2668,11 @@ node light dgt05_s01_03sl1
   lensflares 1
   flareradius 1.0
 endnode
-node light dgt05_s01_03sl2
+node light dgt05_s01_03ml2
   parent dgt05_s01_03
   position  5.79133 -0.00000  3.83619
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -2917,10 +2917,10 @@ newanim tiledefault dgt05_s01_03
   node trimesh window_fixed.019
     parent dgt05_s01_03
   endnode
-  node light dgt05_s01_03sl1
+  node light dgt05_s01_03ml1
     parent dgt05_s01_03
   endnode
-  node light dgt05_s01_03sl2
+  node light dgt05_s01_03ml2
     parent dgt05_s01_03
   endnode
   node aabb e11_05_wm.003
@@ -3049,10 +3049,10 @@ newanim animloop01 dgt05_s01_03
   node trimesh window_fixed.019
     parent dgt05_s01_03
   endnode
-  node light dgt05_s01_03sl1
+  node light dgt05_s01_03ml1
     parent dgt05_s01_03
   endnode
-  node light dgt05_s01_03sl2
+  node light dgt05_s01_03ml2
     parent dgt05_s01_03
   endnode
   node aabb e11_05_wm.003

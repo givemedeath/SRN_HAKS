@@ -21,7 +21,7 @@ node trimesh Box282
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -92,7 +92,7 @@ node trimesh Box3205.005
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -150,7 +150,7 @@ node trimesh Box3205.030
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -210,7 +210,7 @@ node trimesh Box3205.031
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -268,7 +268,7 @@ node trimesh Box3205.032
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -321,7 +321,7 @@ node trimesh Box3205.033
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -379,7 +379,7 @@ node trimesh Box3205.034
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -437,7 +437,7 @@ node trimesh Box3206.017
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -525,7 +525,7 @@ node trimesh motel_sign_lit
   shininess 11
   selfillumcolor  0.80  0.80  0.80
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -568,7 +568,7 @@ node trimesh motel_sign_unlit
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -611,7 +611,7 @@ node trimesh window_l_lit
   shininess 11
   selfillumcolor  0.80  0.80  0.80
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -644,7 +644,7 @@ node trimesh window_l_unlit
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -743,7 +743,7 @@ node trimesh e09_17_trim.001
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -830,7 +830,7 @@ node trimesh e11_01_lamp01.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -975,7 +975,7 @@ node trimesh e11_02_drblk.000
   shininess 13
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1133,7 +1133,7 @@ node trimesh e11_02_wall.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1267,7 +1267,7 @@ node trimesh Object145
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1318,7 +1318,7 @@ node trimesh Object335.005
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1374,7 +1374,7 @@ node trimesh Object551.000
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1461,7 +1461,7 @@ node trimesh Object578
   shininess 13
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1700,11 +1700,11 @@ node dummy dgt04_e09_19_D01
   position -4.90000 -3.00002  0.20000
   orientation  1.00000  0.00000  0.00000  0.00000
 endnode
-node light dgt04_e09_19sl1
+node light dgt04_e09_19ml1
   parent dgt04_e09_19
   position -5.79132 -0.00005  3.83620
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -1933,7 +1933,7 @@ newanim tiledefault dgt04_e09_19
   node dummy dgt04_e09_19_D01
     parent dgt04_e09_19
   endnode
-  node light dgt04_e09_19sl1
+  node light dgt04_e09_19ml1
     parent dgt04_e09_19
   endnode
   node aabb wokmesh.013
@@ -2035,7 +2035,7 @@ newanim animloop01 dgt04_e09_19
   node dummy dgt04_e09_19_D01
     parent dgt04_e09_19
   endnode
-  node light dgt04_e09_19sl1
+  node light dgt04_e09_19ml1
     parent dgt04_e09_19
   endnode
   node aabb wokmesh.013
@@ -2137,7 +2137,7 @@ newanim animloop02 dgt04_e09_19
   node dummy dgt04_e09_19_D01
     parent dgt04_e09_19
   endnode
-  node light dgt04_e09_19sl1
+  node light dgt04_e09_19ml1
     parent dgt04_e09_19
   endnode
   node aabb wokmesh.013
@@ -2239,7 +2239,7 @@ newanim animloop03 dgt04_e09_19
   node dummy dgt04_e09_19_D01
     parent dgt04_e09_19
   endnode
-  node light dgt04_e09_19sl1
+  node light dgt04_e09_19ml1
     parent dgt04_e09_19
   endnode
   node aabb wokmesh.013

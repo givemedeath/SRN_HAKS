@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 j_sign
+texture1 j_sign_n
+texture2 j_sign_s
+texture3 j_sign_r
+texture4 null
+texture5 null

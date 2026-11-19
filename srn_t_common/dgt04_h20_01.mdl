@@ -21,7 +21,7 @@ node trimesh Box01
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -120,7 +120,7 @@ node trimesh Box01.004
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -177,7 +177,7 @@ node trimesh Box01.008
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -234,7 +234,7 @@ node trimesh Box01.010
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -291,7 +291,7 @@ node trimesh Box01.011
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -344,7 +344,7 @@ node trimesh Box01.012
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -399,7 +399,7 @@ node trimesh Box01.018
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -454,7 +454,7 @@ node trimesh Box01.019
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -661,11 +661,11 @@ node trimesh windows_lit
      0.000  2.000  0
      1.000  0.000  0
 endnode
-node light dgt04_h20_01sl1
+node light dgt04_h20_01ml1
   parent dgt04_h20_01
   position -2.50000  0.00000  4.45341
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -776,7 +776,7 @@ node trimesh Object34
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -863,7 +863,7 @@ node trimesh Object34.003
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -914,7 +914,7 @@ node trimesh Object35
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1000,7 +1000,7 @@ node trimesh Plane375.000
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1097,7 +1097,7 @@ node trimesh Plane375.003
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1146,7 +1146,7 @@ node trimesh Plane375.004
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1195,7 +1195,7 @@ node trimesh Plane375.005
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1310,7 +1310,7 @@ node trimesh windows_fixed
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1568,7 +1568,7 @@ newanim tiledefault dgt04_h20_01
       0.00000 -4.97000  0.00000  32.27501
       0.03333 -4.97000  0.00000  32.27501
   endnode
-  node light dgt04_h20_01sl1
+  node light dgt04_h20_01ml1
     parent dgt04_h20_01
   endnode
   node trimesh Object15
@@ -1655,7 +1655,7 @@ newanim animloop01 dgt04_h20_01
       0.00000 -5.02000  0.00000  32.27501
       0.03333 -5.02000  0.00000  32.27501
   endnode
-  node light dgt04_h20_01sl1
+  node light dgt04_h20_01ml1
     parent dgt04_h20_01
   endnode
   node trimesh Object15

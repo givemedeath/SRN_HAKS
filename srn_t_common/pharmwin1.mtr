@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 pharmwin1
+texture1 pharmwin1_n
+texture2 pharmwin1_s
+texture3 pharmwin1_r
+texture4 null
+texture5 null

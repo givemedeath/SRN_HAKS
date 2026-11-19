@@ -82,6 +82,13 @@ def shadows_command(chosen):
     return 0
 
 
+def apply_command(chosen):
+    from . import apply
+    spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
+    print(json.dumps(apply.apply(chosen.repo, spec, chosen.overlay)))
+    return 0
+
+
 def enlarge_command(chosen):
     from tools.headkit.comfy import Client
     from . import enlarge
@@ -136,8 +143,13 @@ def main(arguments=None):
     eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     eight.add_argument('--repo', type=Path, default=REPO)
+    nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
+    nine.add_argument('--spec', required=True, type=Path, help='the tileset\'s material spec: the textures moved')
+    nine.add_argument('--overlay', required=True, type=Path, help='the review overlay the look was passed on'); nine.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
+        if chosen.command == 'apply':
+            return apply_command(chosen)
         if chosen.command == 'shadows':
             return shadows_command(chosen)
         if chosen.command == 'lamps':

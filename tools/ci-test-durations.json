@@ -316,6 +316,7 @@
   "tools/test_hak_copies.py": 5.4,
   "tools/test_shared_tools.py": 37.9,
   "tools/test_test_impact.py": 1.65,
+  "tools/tilekit/test_apply.py": 0.1,
   "tools/tilekit/test_enlarge.py": 0.2,
   "tools/tilekit/test_inventory.py": 0.2,
   "tools/tilekit/test_lamps.py": 0.1,
