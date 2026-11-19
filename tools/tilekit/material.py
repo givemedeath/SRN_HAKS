@@ -213,18 +213,18 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
                 shown = subprocess.run(['git', '-C', str(repo), 'show', f'{before}:{pack}/{file}'], capture_output=True)
                 require(shown.returncode == 0, f'git cannot read {pack}/{file} at {before}')
                 return pictures.read(file, shown.stdout)
-    refused = f'{name} is restyled already (%s): its old picture is read from the spec\'s `before` commit'
     restyled = [pack for pack in packs if (repo / pack / f'{name}.mtr').is_file()]
-    require(not restyled, refused % ', '.join(restyled))
-    for pack in packs:
+    for pack in packs if not restyled else ():
         for kind in ('dds', 'tga'):
             path = repo / pack / f'{name}.{kind}'
             if path.is_file():
-                require(kind != 'dds' or path.read_bytes()[:4] != b'DDS ', refused % pack)
+                if kind == 'dds' and path.read_bytes()[:4] == b'DDS ':
+                    restyled.append(pack); continue
                 return pictures.read(path)
-    for kind in ('dds', 'tga'):
+    for kind in ('dds', 'tga'):  # a base-game texture: its original is the game's own, whatever restyle a pack holds
         if stock and (Path(stock) / f'{name}.{kind}').is_file():
             return pictures.read(Path(stock) / f'{name}.{kind}')
+    require(not restyled, f'{name} is restyled already ({", ".join(restyled)}): its old picture is read from the spec\'s `before` commit')
     raise ValueError(f'No pack holds a picture of {name}' + ('' if stock else ' (a base-game texture needs --stock)'))
 
 
