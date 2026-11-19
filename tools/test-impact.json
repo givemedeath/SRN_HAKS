@@ -4159,10 +4159,7 @@
       "tools/phenotypes/pose_preview_render_settings.py",
       "tools/phenotypes/target_contract.py"
     ],
-    "tools/phenotypes/render_target_pilot_patch_detail.py": [
-      "tools/skykit/art/denver/detail/detail.json",
-      "tools/skykit/art/peaks/detail/detail.json"
-    ],
+    "tools/phenotypes/render_target_pilot_patch_detail.py": [],
     "tools/phenotypes/repair_parts_kit.py": [],
     "tools/phenotypes/repair_target_chest_connector.py": [
       "tools/headkit/templates/geometry.json",
@@ -5620,8 +5617,6 @@
     "tools/skykit/__init__.py": [],
     "tools/skykit/__main__.py": [
       "tools/phenotypes/tool_runtime.py",
-      "tools/skykit/art/denver/detail/detail.json",
-      "tools/skykit/art/peaks/detail/detail.json",
       "tools/skykit/detail.py",
       "tools/skykit/normals.py",
       "tools/skykit/panorama.py",
@@ -5639,8 +5634,6 @@
       "tools/headkit/__init__.py",
       "tools/headkit/design.py",
       "tools/skykit/__main__.py",
-      "tools/skykit/art/denver/detail/detail.json",
-      "tools/skykit/art/peaks/detail/detail.json",
       "tools/skykit/panorama.py",
       "tools/skykit/profiles.py",
       "tools/skykit/upscale.py"
@@ -5658,8 +5651,6 @@
     "tools/skykit/test_skykit.py": [
       "tools/skykit/__init__.py",
       "tools/skykit/__main__.py",
-      "tools/skykit/art/denver/detail/detail.json",
-      "tools/skykit/art/peaks/detail/detail.json",
       "tools/skykit/detail.py",
       "tools/skykit/panorama.py",
       "tools/skykit/preview.py",
@@ -5708,12 +5699,7 @@
       "tools/test_impact.py"
     ]
   },
-  "unresolved": [
-    "tools/phenotypes/render_target_pilot_patch_detail.py",
-    "tools/skykit/__main__.py",
-    "tools/skykit/detail.py",
-    "tools/skykit/test_skykit.py"
-  ],
+  "unresolved": [],
   "packReferences": {
     "tools/armorkit/__main__.py": [
       "srn_2da",
