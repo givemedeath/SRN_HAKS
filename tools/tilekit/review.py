@@ -309,7 +309,8 @@ def elsewhere(lines):
 
 def plan(set_text, spec, *, parts=PARTS, built_area=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
-    patches, runs, crossings, lights, near: {distance, pitch}, lamps: [{name, main, source, lights}] (the block again with
+    patches, runs, crossings, lights, views (which of a crossing's views are taken, as 'x03y03-ne'; all without it),
+    near: {distance, pitch, views}, lamps: [{name, main, source, lights}] (the block again with
     every tile's own lights on, `area_documents`; views `lamp-<name>-<light>`)}, grid: {across, lights}, area: {step, lights}}. built_area: (width, height, laid)
     of an area someone built (`read_area`), without which the `area` part is left out, as is a part the spec lacks.
     The grid holds every tile that is not an envkit building's; the block is laid only with tiles outside groups."""
@@ -326,18 +327,20 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None):
 
     if 'block' in parts and 'block' in spec:
         block = spec['block']
+        # Of the four views of each crossing, some stand inside a roof or face a wall: a spec names the ones worth taking.
+        chosen = lambda made, views: [shot for shot in made if not views or shot['label'].split('-', 2)[2] in views]
         cells = solve(tiles, laid['default'], block['width'], block['height'], block['patches'], block.get('runs', ()), avoid=grouped | envkit)
         for light in block['lights']:
             tag = 'tkb' + light[0]; add(tag, f'Block, {light}', block['width'], block['height'], cells, light)
-            shots += corner_shots(tag, f'block-{light}', [tuple(cell) for cell in block['crossings']])
+            shots += chosen(corner_shots(tag, f'block-{light}', [tuple(cell) for cell in block['crossings']]), block.get('views'))
             if 'near' in block:  # the same views from where a player's camera stands: a texture is judged there, a district from afar
-                shots += corner_shots(tag, f'near-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch'])
+                shots += chosen(corner_shots(tag, f'near-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch']), block['near'].get('views'))
         for lamps in block.get('lamps', ()):  # the block's own lights switched on: what a builder gets from a tile's light settings
             for light in lamps['lights']:
                 tag = f'tkl{lamps["name"][0]}{light[0]}'; add(tag, f'Block, {light}, {lamps["name"]} lights', block['width'], block['height'], cells, light, {'main': lamps.get('main', 0), 'source': lamps.get('source', 0)})
-                shots += corner_shots(tag, f'lamp-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']])
+                shots += chosen(corner_shots(tag, f'lamp-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']]), block.get('views'))
                 if 'near' in block:
-                    shots += corner_shots(tag, f'lampnear-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch'])
+                    shots += chosen(corner_shots(tag, f'lampnear-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch']), block['near'].get('views'))
     if 'grid' in parts and 'grid' in spec:
         width, height, cells, rows = grid([number for number in sorted(tiles) if number not in envkit], fill, spec['grid'].get('across', 32))
         for light in spec['grid']['lights']:

@@ -110,6 +110,8 @@ class ReviewTests(unittest.TestCase):
         lamped = {**spec, 'block': {**spec['block'], 'lights': ['night'], 'lamps': [{'name': 'source', 'source': 2, 'lights': ['night']}]}}
         areas, shots = review.plan(SET, lamped, parts=('block',)); self.assertEqual([(area['tag'], area.get('lamps')) for area in areas], [('tkbn', None), ('tklsn', {'main': 0, 'source': 2})])
         self.assertTrue(any(shot['label'].startswith('lamp-source-night') and shot['area'] == 'tklsn' for shot in shots))
+        few = review.plan(SET, {**lamped, 'block': {**lamped['block'], 'views': [shots[0]['label'].split('-', 2)[2]]}}, parts=('block',))[1]
+        self.assertEqual([shot['label'].split('-', 2)[2] for shot in few if shot['label'].startswith('block-')], [shots[0]['label'].split('-', 2)[2]])
         lit = review.area_documents('tklsn', 'Lamps', 'tst01', 1, 1, {(0, 0): (0, 0)}, 'night', {'source': 2})['tklsn.are']['Tile_List']['value'][0]
         self.assertEqual((lit['Tile_SrcLight1']['value'], lit['Tile_SrcLight2']['value'], lit['Tile_MainLight1']['value']), (2, 2, 0))
         self.assertEqual([area['tag'] for area in review.plan(SET, spec, parts=('grid', 'area'))[0]], ['tkgd'])  # no built area given: that part is left out
