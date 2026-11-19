@@ -132,6 +132,9 @@ docs/tilesets/dgt04/materials.json --overlay output/tilekit/ground/overlay10` mo
 - `dumpster`, `dumpster_sign`, `tmi_metal01` (`srn_t_common` and `srn_placeable`) and `manhole_tex2` (`srn_door` and
   `srn_placeable`) keep a copy in both packs, as before; their maps and materials are expected overrides.
 - 397 tile models with the lamp and shadow changes replace their pack copies. All 467 walkmeshes hash as the baseline.
+- Edge tiles (user, 2026-11-19): the 31 edge-table models drawn round an area's border take the same shadow rule (388
+  trims and panels; none has a source-light lamp). Looked at on an area with twelve buildings against its borders
+  (`tke1` before, `tke2` after, `tke3` on the built packs) and passed; in the packs the same day.
 - Old TXIs of restyled names are kept (`window_tex07` reflection, `checks` one-frame cycle): they were in place for
   the look the user passed.
 - Checked on the built packs with no overlay (`tkrel1`): the views match the passed overlay views (mean difference
