@@ -107,6 +107,11 @@ class ReviewTests(unittest.TestCase):
         self.assertEqual({number for number, _ in areas[0]['laid'].values()}, {0, 1, 2, 4})  # tile 9 is of a group and 10 an envkit building's: neither is painted
         self.assertEqual(sorted({number for number, _ in areas[2]['laid'].values()}), list(range(10)))  # the grid shows the group's tile, not the envkit one
         self.assertEqual([len([shot for shot in shots if shot['area'] == tag]) for tag in ('tkbd', 'tkbn', 'tkgd', 'tkao')], [4, 4, 6, 2])
+        lamped = {**spec, 'block': {**spec['block'], 'lights': ['night'], 'lamps': [{'name': 'source', 'source': 2, 'lights': ['night']}]}}
+        areas, shots = review.plan(SET, lamped, parts=('block',)); self.assertEqual([(area['tag'], area.get('lamps')) for area in areas], [('tkbn', None), ('tklsn', {'main': 0, 'source': 2})])
+        self.assertTrue(any(shot['label'].startswith('lamp-source-night') and shot['area'] == 'tklsn' for shot in shots))
+        lit = review.area_documents('tklsn', 'Lamps', 'tst01', 1, 1, {(0, 0): (0, 0)}, 'night', {'source': 2})['tklsn.are']['Tile_List']['value'][0]
+        self.assertEqual((lit['Tile_SrcLight1']['value'], lit['Tile_SrcLight2']['value'], lit['Tile_MainLight1']['value']), (2, 2, 0))
         self.assertEqual([area['tag'] for area in review.plan(SET, spec, parts=('grid', 'area'))[0]], ['tkgd'])  # no built area given: that part is left out
         with self.assertRaisesRegex(ValueError, 'does not agree with this set'):
             review.plan(SET, spec, built_area=(2, 1, [(2, 0), (0, 0)]))  # a tower's side beside plain ground

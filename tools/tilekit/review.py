@@ -202,9 +202,10 @@ def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
     return '\n'.join(lines) + '\n'
 
 
-def area_documents(tag, title, tileset, width, height, laid, light):
+def area_documents(tag, title, tileset, width, height, laid, light, lamps=None):
     """{file: document} of one area: its tiles as laid ({(column, row): (tile number, turn)}, every cell), its lighting
-    one of LIGHTS, nothing standing in it."""
+    one of LIGHTS, nothing standing in it. lamps: {main, source} switches every tile's own lights on, as a builder
+    does in the Toolset: each a row of lightcolor.2da for both of that kind, 0 for off."""
     require(NAME.fullmatch(tag) and len(tag) <= client_fixture.RESREF, 'An area\'s tag is a lowercase resref')
     require(light in LIGHTS, 'An area is lit by ' + ', '.join(LIGHTS)); require(len(laid) == width * height, f'{tag}: every cell of the area is laid')
     made = client_fixture.area_documents(tag, [], 1); are = made.pop(tag + '_a.are'); git = made.pop(tag + '_a.git'); plain = are['Tile_List']['value'][0]
@@ -212,7 +213,11 @@ def area_documents(tag, title, tileset, width, height, laid, light):
     for row in range(height):
         for column in range(width):
             cell = copy.deepcopy(plain); number, turn = laid[(column, row)]
-            cell['Tile_ID'] = field('int', number); cell['Tile_Orientation'] = field('int', turn); cells.append(cell)
+            cell['Tile_ID'] = field('int', number); cell['Tile_Orientation'] = field('int', turn)
+            for kind, key in (('main', 'Tile_MainLight'), ('source', 'Tile_SrcLight')):
+                for which in (1, 2):
+                    cell[f'{key}{which}'] = field('byte', int((lamps or {}).get(kind, 0)))
+            cells.append(cell)
     are.update({'Tileset': field('resref', tileset), 'Width': field('int', width), 'Height': field('int', height), 'Tile_List': field('list', cells),
                 'Name': field('cexolocstring', {'0': title}), 'Tag': field('cexostring', tag), 'ResRef': field('resref', tag),
                 'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 90.0)})
@@ -273,7 +278,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     ifo['Mod_Area_list']['value'] = [{'__struct_id': 6, 'Area_Name': field('resref', area['tag'])} for area in areas]
     ifo['Mod_Entry_Area'] = field('resref', shots[0]['area']); ifo['Mod_Name'] = field('cexolocstring', {'0': 'Tilekit review ' + name})
     for area in areas:
-        made.update(area_documents(area['tag'], area['title'], area['tileset'], area['width'], area['height'], area['laid'], area['light']))
+        made.update(area_documents(area['tag'], area['title'], area['tileset'], area['width'], area['height'], area['laid'], area['light'], area.get('lamps')))
     for filename, document in made.items():
         path = documents / (filename + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
         run('nwn_gff', ['-i', path, '-o', binary / filename])
@@ -304,7 +309,8 @@ def elsewhere(lines):
 
 def plan(set_text, spec, *, parts=PARTS, built_area=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
-    patches, runs, crossings, lights, near: {distance, pitch}}, grid: {across, lights}, area: {step, lights}}. built_area: (width, height, laid)
+    patches, runs, crossings, lights, near: {distance, pitch}, lamps: [{name, main, source, lights}] (the block again with
+    every tile's own lights on, `area_documents`; views `lamp-<name>-<light>`)}, grid: {across, lights}, area: {step, lights}}. built_area: (width, height, laid)
     of an area someone built (`read_area`), without which the `area` part is left out, as is a part the spec lacks.
     The grid holds every tile that is not an envkit building's; the block is laid only with tiles outside groups."""
     from . import inventory
@@ -314,9 +320,9 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None):
     grouped = {number for group in laid['groups'] for number in group['tiles']}
     areas, shots = [], []
 
-    def add(tag, title, width, height, cells, light):
+    def add(tag, title, width, height, cells, light, lamps=None):
         require(tag not in {area['tag'] for area in areas}, f'Two lightings of a part begin with the same letter ({light}): an area is named by it')
-        areas.append({'tag': tag, 'title': title, 'tileset': tileset, 'width': width, 'height': height, 'laid': cells, 'light': light})
+        areas.append({'tag': tag, 'title': title, 'tileset': tileset, 'width': width, 'height': height, 'laid': cells, 'light': light, **({'lamps': lamps} if lamps else {})})
 
     if 'block' in parts and 'block' in spec:
         block = spec['block']
@@ -326,6 +332,12 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None):
             shots += corner_shots(tag, f'block-{light}', [tuple(cell) for cell in block['crossings']])
             if 'near' in block:  # the same views from where a player's camera stands: a texture is judged there, a district from afar
                 shots += corner_shots(tag, f'near-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch'])
+        for lamps in block.get('lamps', ()):  # the block's own lights switched on: what a builder gets from a tile's light settings
+            for light in lamps['lights']:
+                tag = f'tkl{lamps["name"][0]}{light[0]}'; add(tag, f'Block, {light}, {lamps["name"]} lights', block['width'], block['height'], cells, light, {'main': lamps.get('main', 0), 'source': lamps.get('source', 0)})
+                shots += corner_shots(tag, f'lamp-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']])
+                if 'near' in block:
+                    shots += corner_shots(tag, f'lampnear-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch'])
     if 'grid' in parts and 'grid' in spec:
         width, height, cells, rows = grid([number for number in sorted(tiles) if number not in envkit], fill, spec['grid'].get('across', 32))
         for light in spec['grid']['lights']:

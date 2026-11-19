@@ -32,7 +32,11 @@
       {"crosser": "Street", "cells": [[0, 11], [14, 11]]}
     ],
     "crossings": [[3, 3], [11, 3], [3, 11], [11, 11]],
-    "near": {"distance": 15, "pitch": 64}
+    "near": {"distance": 15, "pitch": 64},
+    "lamps": [
+      {"name": "main", "main": 2, "source": 0, "lights": ["night"]},
+      {"name": "source", "main": 0, "source": 2, "lights": ["night"]}
+    ]
   },
   "grid": {"across": 32, "lights": ["day"]},
   "area": {"step": 4, "lights": ["day", "night", "overcast"]}
