@@ -65,6 +65,10 @@ class Shader(unittest.TestCase):
         body = MATH.split('#define SRN_TAU')[1]
         self.assertNotRegex(body, r'(?<![\w.])\d+\s*/\s*\d+(?![\d.])')
         self.assertNotIn('texture(', body)
+        # smoothstep with edge0 >= edge1 is undefined: a falling edge is written 1.0 - smoothstep(low, high, x)
+        for low, high in re.findall(r'smoothstep\(([^,()]+(?:\([^()]*\))?[^,()]*),\s*([^,()]+(?:\([^()]*\))?[^,()]*),', body):
+            self.assertNotEqual(high.strip(), '0.0', f'smoothstep({low}, {high}, ...)')
+            self.assertNotRegex(high, r'^\s*' + re.escape(low.strip()) + r'\s*\*\s*0\.\d+\s*$', f'smoothstep({low}, {high}, ...)')
 
 
 class Profiles(unittest.TestCase):

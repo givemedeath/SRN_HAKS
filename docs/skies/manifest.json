@@ -2,7 +2,7 @@
   "schema": 1,
   "shaders": {
     "srn_sky_fs.shd": "d60b13ddf48ea6506ba07301181e53c5d1e290189269aca98fe3a0214d255c91",
-    "srn_sky_math.shd": "73c49344ea818c1f7846c68a26451676e2704ad3039ac5c83b567479e815b098"
+    "srn_sky_math.shd": "41a01bcf26642ae3f7e909714d8664bc733fc95741746ef78918c55cb9f7a49f"
   },
   "vertexShader": "vsvt",
   "panoramas": {

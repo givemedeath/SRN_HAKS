@@ -78,10 +78,11 @@ def generate(land, key, folder, prompt_file, seed, tiles=None, redo=False, url=N
         print(f'{folder}: tiles {missing} still to draw; detail.json not written', flush=True)
         return
     previous = folder / 'detail.json'
-    if previous.is_file() and drawn != set(range(len(starts))):
-        # tiles kept from an earlier run were drawn from the input that record names: keep it, so a changed strip
-        # still shows as stale
-        record['inputSha256'] = json.loads(previous.read_text(encoding='utf-8')).get('inputSha256', record['inputSha256'])
+    if drawn != set(range(len(starts))):
+        # tiles kept from an earlier run were drawn from the input that run's record names: keep it, so a changed
+        # strip still shows as stale; with no record their input is unknown
+        old = json.loads(previous.read_text(encoding='utf-8')) if previous.is_file() else {}
+        record['inputSha256'] = old.get('inputSha256')
     (folder / 'detail.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
