@@ -62,6 +62,22 @@ SHADING_SIGMA=.02;SHADING_TAIL=.01;SKIN_HEADROOM=16
 # SKIN_DARK_FLOOR of it (the stock skin references' p1/p50, 0.15-0.24); a steeper power is used only where the gentler one
 # would leave the skin under FULL_RANGE_SPAN.
 SKIN_DARK_FLOOR=.2;SKIN_DARK_POWERS=(2.,3.,4.5)
+# Skin rows must be fully opaque: stock pal_skin01 rows 56-59 carry alpha 35-40 and row 175 alpha ~112, which the client draws
+# environment-mapped (elf-female-e on row 59 rendered a pale face over a dark olive, reflective body; RUNBOOK 407). Hair rows
+# (alpha ~215, the stock shine) and metallic tattoo rows (alpha ~112) are intended and stay eligible.
+OPAQUE_CHANNELS=('0',)
+# hairBroadContrast (palette, 0.2-1): the hair's tone above strand scale (surface-smoothed at HAIR_BROAD_SIGMA head widths, about
+# 1 mm on a game head) is scaled about its median before ranking; strand detail is kept. Tone matching restores the channel's
+# spread whatever the input, so this decides which texels are dark: curl-sized bake patches (elf-female-b, platinum row 50) became
+# olive camouflage in the client; at SHADING_SIGMA they stayed, at .005 they read as strand grain (RUNBOOK 408).
+HAIR_BROAD_RANGE=(.2,1.);HAIR_BROAD_SIGMA=.005
+# skinDetailContrast (palette, 0.3-1, needs stretchShadingOnly): before quantization, the skin's luma is scaled about its
+# surface-smoothed field at SKIN_DETAIL_SIGMA head widths (colours keep their hue), damping bake watercolour mottling: thin dark
+# contour lines around pale patches a few % of the head wide. Quartz (orc-female-b) showed it as cracked face patches in the
+# client; tone smooth 0.9/delight 1.0 and skinShadeContrast left it, and the span gate refused skinShadeContrast 0.5. Scaling
+# only the detail above SHADING_SIGMA (palette-07) left the patches, which sit inside the stretched shading; damping about
+# the wider field at 0.3 cleared cracks and patches, kept lids, lips and nose, and held the span at 0.52 (RUNBOOK 486).
+SKIN_DETAIL_RANGE=(.3,1.);SKIN_DETAIL_SIGMA=.04
 # Full-range shades also need an opaque next shade: in the client shade 254 picks up the transparent reserved 255 and renders as
 # dark blotches (elf-male-a brow highlights, 2026-10-29), so a shade whose upper neighbour is transparent is never used.
 # Design-referenced rows (toneMatch rowFrom 'design'): lightness weight of the Lab distance (the matched shades already
@@ -119,11 +135,23 @@ def design_reference(design_rgb, design_mask, value, layers, output):
     return {'channels':targets,'registration':{'scale':round(float(scale),4),'offset':[round(float(ox),1),round(float(oy),1)]},'image':pin(output)}
 
 
-def design_rows(target, shades, palette, *, keep=4):
+def partial_alpha(row):
+    """A palette row with any shade 0..254 neither transparent nor opaque: drawn environment-mapped in the client."""
+    alpha=np.asarray(row)[:255,3];return bool(np.any((alpha>0)&(alpha<255)))
+
+
+def shows_shades(palette, used, opaque):
+    """Rows that can show every used shade; for an opaque channel only rows with no partially transparent shade, as the
+    selection gate requires (stock skin row 175 mixes opaque and partial shades)."""
+    if not opaque: return np.all(palette[:,used,3]>0,axis=1)
+    alpha=palette[:,:255,3];return np.all(palette[:,used,3]==255,axis=1)&~np.any((alpha>0)&(alpha<255),axis=1)
+
+
+def design_rows(target, shades, palette, *, keep=4, opaque=False):
     """Rows ranked by Lab distance of their decoded mean colour (shades fixed, count-weighted) to the design's mean
     colour for the channel, lightness weighted DESIGN_LIGHTNESS_WEIGHT."""
     used=np.unique(shades);counts=np.bincount(shades,minlength=256)[used].astype(float)
-    usable=np.flatnonzero(np.all(palette[:,used,3]>0,axis=1))  # rows that can show every matched shade
+    usable=np.flatnonzero(shows_shades(palette,used,opaque))  # rows that can show every matched shade
     means=(lab(palette[usable][:,used,:3]).reshape(len(usable),len(used),3)*counts[None,:,None]).sum(1)/counts.sum()
     delta=means-np.asarray(target,float);distance=np.sqrt(DESIGN_LIGHTNESS_WEIGHT*delta[:,0]**2+delta[:,1]**2+delta[:,2]**2)
     rows=sorted(zip(distance.tolist(),usable.tolist()))
@@ -176,12 +204,13 @@ def match_shades(target, allowed, quantiles):
     _,near=cKDTree(allowed[:,None]).query(shade[:,None]);return allowed[near][inverse.ravel()]
 
 
-def rows_for_shades(target, shades, palette, *, keep=4):
+def rows_for_shades(target, shades, palette, *, keep=4, opaque=False):
     """Rows ranked by meanSquaredColorError (per RGB component) with the shades fixed: the rows that best show the source colours."""
     counts=np.bincount(shades,minlength=256);used=counts>0;target=np.asarray(target,float)
     sums=np.stack([np.bincount(shades,target[:,c],256) for c in range(3)],1);squares=np.bincount(shades,(target**2).sum(1),256)
+    usable=shows_shades(palette,used,opaque)
     scores=sorted((float((counts[used]*(t*t).sum(1)-2*(t*sums[used]).sum(1)+squares[used]).sum()/(3*len(shades))),row)
-                  for row in range(len(palette)) if np.all(palette[row,used,3]>0) for t in [palette[row,used,:3].astype(float)])
+                  for row in range(len(palette)) if usable[row] for t in [palette[row,used,:3].astype(float)])
     return [{'row':row,'meanSquaredColorError':error} for error,row in scores[:keep]]
 
 
@@ -196,6 +225,13 @@ def stretch(quantiles, lo, hi, *, tail=.005, median=None, rank=.5):
     if median is None:return np.clip(lo+(q-a)*gain,lo,hi)
     t=float(np.clip(median,lo,hi));up=min((hi-t)/max(b-m,1e-9),gain)
     return np.clip(np.where(q<m,t-(m-q)/max(m-a,1e-9)*(t-lo),t+(q-m)*up),lo,hi)
+
+
+def smoothed_luma(target, selected, positions, sigma_widths):
+    """A channel's texel luma and its surface-smoothed field at `sigma_widths` head widths (positions: 1K surface points)."""
+    points=np.asarray(positions,float);sigma=sigma_widths*float(np.ptp(points[...,0]))
+    luma=target@np.array([.299,.587,.114]);field=np.zeros(selected.shape);field[selected]=luma
+    return luma,surface_smooth(field,selected,points,sigma)[selected]
 
 
 def surface_smooth(values, mask, positions, sigma):
@@ -228,7 +264,7 @@ def shading_shades(luma, smooth, unstretched, allowed, quantiles):
 
 def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=None, tone_match=None, design=None, full_range=False, shading_only=False,
              positions=None, skin_median=None, skin_anchor=None, skin_contrast=1.0, focus_source=None, seam_surface=None,
-             feature_surface=None):
+             feature_surface=None, hair_broad=1.0, skin_detail=1.0):
     """Nearest-colour shades per channel. Opt-in `tone_match` ({channel: {'reference': name}}) instead remaps a channel's shades
     by luma rank onto a measured stock shade distribution, so every in-game palette row reads like it does on stock heads.
     A tone-matched 'auto' row comes from the source colours, or with `rowFrom: 'design'` from the design's colour for the
@@ -253,6 +289,10 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         layers=np.asarray(image).copy()
     require(rgb.shape==(1024,1024,3) and layers.shape==(1024,1024),'Runtime maps must be 1K')
     require(np.all(layers<=9),'Resolve all palette ownership before export')
+    require(type(hair_broad) in (int,float) and HAIR_BROAD_RANGE[0]<=hair_broad<=HAIR_BROAD_RANGE[1]
+            and (hair_broad==1 or np.shape(positions)==(1024,1024,3)),'hairBroadContrast needs a factor from 0.2 to 1 and the 1K texel surface points')
+    require(type(skin_detail) in (int,float) and SKIN_DETAIL_RANGE[0]<=skin_detail<=SKIN_DETAIL_RANGE[1] and (skin_detail==1 or shading_only),
+            'skinDetailContrast needs a factor from 0.3 to 1 and palette.stretchShadingOnly')
     shades=np.zeros_like(layers);decoded=np.zeros_like(rgb);report={};tables={};resolved=dict(rows)
     shade_offsets=shade_offsets or {};tone_match=tone_match or {}
     require(type(tone_match) is dict and set(tone_match)<={str(v) for v in np.unique(layers)},'Tone matching names a channel without mapped texels')
@@ -271,7 +311,20 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
     for layer in sorted(np.unique(layers), key=lambda layer: layer == 0):
         key=str(layer);require(key in rows and key in palette_files,'No palette binding for mapped channel')
         palette=np.asarray(Image.open(palette_files[key]).convert('RGBA'));row=rows[key];spec=tone_match.get(key)
-        selected=layers==layer;target=rgb[selected].astype(float)
+        selected=layers==layer;target=rgb[selected].astype(float);opaque=key in OPAQUE_CHANNELS;broad=None
+        if key=='1' and hair_broad!=1 and len(target):
+            # Broad hair tone scaled about its median, strand detail (luma minus the smooth field) kept; colours keep their hue.
+            luma,smooth=smoothed_luma(target,selected,positions,HAIR_BROAD_SIGMA);centre=float(np.median(smooth))
+            scaled=np.clip(centre+(smooth-centre)*hair_broad+(luma-smooth),0,255)
+            target=np.clip(target*(scaled/np.maximum(luma,1e-6))[:,None],0,255)
+            broad={'hairBroadContrast':{'factor':hair_broad,'broadStdBefore':round(float(smooth.std()),2),
+                                        'broadStdAfter':round(float(smooth.std())*hair_broad,2)}}
+        if key=='0' and skin_detail!=1 and len(target):
+            # Skin mottling below SKIN_DETAIL_SIGMA scaled about the smooth field; broad shading and hue kept (RUNBOOK 486).
+            luma,smooth=smoothed_luma(target,selected,positions,SKIN_DETAIL_SIGMA);damped=np.clip(smooth+(luma-smooth)*skin_detail,0,255)
+            target=np.clip(target*(damped/np.maximum(luma,1e-6))[:,None],0,255)
+            broad={'skinDetailContrast':{'factor':skin_detail,'sigma':SKIN_DETAIL_SIGMA,'detailStdBefore':round(float((luma-smooth).std()),2),
+                                         'detailStdAfter':round(float((luma-smooth).std())*skin_detail,2)}}
         if spec is not None:
             require(type(spec) is dict and set(spec)-{'rowFrom'}=={'reference'} and spec['reference'] in references
                     and spec.get('rowFrom','bake') in ('bake','design'),'Tone matching needs one known stock shade reference (rowFrom bake or design)')
@@ -279,16 +332,17 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         if row=='auto':
             # Matched shades depend only on luma rank, so the row follows them: the one that best shows the source colours.
             require(spec is not None and palette.shape[1]==256,'Rank automatic rows before quantization unless the channel is tone matched')
-            matched_shades=match_shades(target,np.arange(255),quantiles);candidates=rows_for_shades(target,matched_shades,palette,keep=1)
+            matched_shades=match_shades(target,np.arange(255),quantiles);candidates=rows_for_shades(target,matched_shades,palette,keep=1,opaque=opaque)
             require(candidates,'No palette row shows every tone-matched shade');row=candidates[0]['row']
             if spec.get('rowFrom')=='design':
                 reference=(design or {}).get(key,{'pixels':0});chosen={'bakeRow':row,'designPixels':reference['pixels']}
                 if reference['pixels']>=MINIMUM_DESIGN_PIXELS:
-                    ranked=design_rows(reference['lab'],matched_shades,palette);require(ranked,'No palette row shows every tone-matched shade')
+                    ranked=design_rows(reference['lab'],matched_shades,palette,opaque=opaque);require(ranked,'No palette row shows every tone-matched shade')
                     row=ranked[0]['row'];chosen.update(designLab=reference['lab'],rows=ranked)
                 else:chosen['fallback']=f'Fewer than {MINIMUM_DESIGN_PIXELS} design pixels in this channel: row from the source colours'
             resolved[key]=row
         require(type(row) is int and 0<=row<len(palette) and palette.shape[1]==256,'Invalid stock palette row')
+        require(not opaque or not partial_alpha(palette[row]),f'Skin row {row} is not fully opaque: the client draws its partial alpha environment-mapped (RUNBOOK 407)')
         eligible=(palette[row,:,3]>0)&(np.arange(256)<255);allowed=np.flatnonzero(eligible)
         require(len(allowed)>0,'No opaque palette shades available')
         table=palette[row,:,:3]
@@ -346,7 +400,8 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
             # Preserve shade-range and alpha contracts while ranking the actual exported tones.
             opacity = (palette[:, :, 3] > 0) & (np.arange(256) < 255)
             eligible_rows = opacity & np.roll(opacity, -1, axis=1)
-            cohort = np.flatnonzero(np.all(eligible_rows == eligible_rows[row], axis=1))
+            cohort = np.flatnonzero(np.all(eligible_rows == eligible_rows[row], axis=1)
+                                    & (~np.array([partial_alpha(r) for r in palette]) if opaque else True))
             if spec.get('rowFrom') == 'design' and 'designLab' in chosen:
                 final_rows = design_rows(chosen['designLab'], picked, palette[cohort], keep=1)
             else:
@@ -382,7 +437,7 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         if spec is not None:
             matched={'reference':spec['reference'],'referenceFile':pin(REFERENCES),'before':shade_stats(nearest),'after':shade_stats(picked),
                      'referencePercentiles':{f'p{round(q*100)}':float(np.interp(q,np.linspace(0,1,len(quantiles)),quantiles)) for q in GRID},
-                     'meanSquaredColorErrorBefore':float(np.mean((target-table[nearest])**2)),'rowsAfter':rows_for_shades(target,picked,palette)}
+                     'meanSquaredColorErrorBefore':float(np.mean((target-table[nearest])**2)),'rowsAfter':rows_for_shades(target,picked,palette,opaque=opaque)}
         if full_range:
             span=float(np.percentile(picked,99)-np.percentile(picked,1)) if len(picked) else 0.0
             # Share of the channel on its source luma value at p1 or p99, at the end with more unused shades, where a flat block of
@@ -402,6 +457,7 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
         report[key]={'pixels':int(selected.sum()),'meanSquaredColorError':float(np.mean((target-table[picked])**2)),'shadeOffset':offset}
         if spec is not None:report[key]['toneMatch']=matched
+        if broad is not None:report[key].update(broad)
         if full_range:report[key]['shadeRange']=range_report
         if spec is not None and spec.get('rowFrom')=='design' and rows[key]=='auto':report[key]['designRow']=chosen
     output=Path(output);output.mkdir(parents=True,exist_ok=False)

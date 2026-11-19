@@ -1,9 +1,9 @@
 """Keep upper eyelids on skin and recover only nearby, source-supported brow hairs."""
 import numpy as np
 from PIL import Image
-from scipy.ndimage import binary_dilation
+from scipy.ndimage import binary_dilation, binary_erosion
 from .common import require
-from .face_masks import EYE_RING, BROW_RING, IRIS, polygon, brow_seed, eye_contours, sample, project, HAIR
+from .face_masks import EYE_RING, BROW_RING, IRIS, polygon, brow_seed, eye_contours, nearest, sample, project, HAIR, SKIN
 from .textures import pad
 
 
@@ -57,6 +57,50 @@ def apply_regions(labels,mapped,brows,lids):
     return result,{'changedTexels':int(recovered.sum()),'upperLidHairToSkinTexels':int(removed.sum())}
 
 
+def lid_core(lids):
+    """The confident lid interior used by both encoding and the independent audit."""
+    return binary_erosion(lids, np.ones((3, 3), bool))
+
+
+def lid_source_hair(rgb, labels, pts, hit):
+    """Recognize near-neutral source brows in the upper gap when adjacent skin is clearly warmer."""
+    hair = labels == HAIR
+    eyes = polygon(labels.shape, pts, EYE_RING['R']) | polygon(labels.shape, pts, EYE_RING['L'])
+    parsed_brows = brow_seed(labels, pts, eyes, hit)
+    red_green = rgb[..., 0].astype(np.int16) - rgb[..., 1]
+    chroma = np.ptp(rgb, axis=2)
+    for ring in BROW_RING.values():
+        brow = polygon(labels.shape, pts, ring) & hit & parsed_brows
+        nearby = binary_dilation(brow, iterations=14) & hit & ~eyes
+        skin = nearby & (labels == SKIN) & ~parsed_brows
+        if min(int(brow.sum()), int(skin.sum())) < 32 or np.median(chroma[brow]) > 35:
+            continue
+        brow_warmth, skin_warmth = np.median(red_green[brow]), np.median(red_green[skin])
+        if skin_warmth - brow_warmth >= 12:
+            hair |= nearby & parsed_brows & (chroma <= 35) & (red_green <= (brow_warmth + skin_warmth) / 2)
+    return hair
+
+
+def protect_game_size_lids(labels, view, uv, lids):
+    """Clear hair in game atlas blocks directly sampled by confident visible lid pixels."""
+    core = lid_core(lids)
+    if not core.any():
+        return 0
+    block = 4  # Ownership reduces the 4K atlas to 1K by 4x4 block majority.
+    size = len(labels) // block
+    ids = np.arange(size * size, dtype=np.int32).reshape(size, size)
+    sampled = nearest(dict(view, hit=core), ids, uv)
+    y, x = np.divmod(np.unique(sampled[core]), size)
+    offsets = np.arange(block)
+    rows = (y[:, None, None] * block) + offsets[None, :, None]
+    cols = (x[:, None, None] * block) + offsets[None, None, :]
+    samples = labels[rows, cols]
+    counts = np.stack([(samples == channel).sum((1, 2)) for channel in range(10)], axis=1)
+    hair_blocks = counts.argmax(axis=1) == 1
+    labels[rows[hair_blocks], cols[hair_blocks]] = np.where(samples[hair_blocks] == 1, 0, samples[hair_blocks])
+    return int(hair_blocks.sum())
+
+
 def adjust(labels,value,masks,mapped,maximum_front_pixels=3,*,recover_brows=False,cybereye_image_side=None):
     require(type(recover_brows) is bool,'browSeedGuard must be boolean')
     files=masks['files']
@@ -64,7 +108,8 @@ def adjust(labels,value,masks,mapped,maximum_front_pixels=3,*,recover_brows=Fals
     with Image.open(files['frontLabels']['path']) as image:parsed=np.asarray(image)
     pts=np.load(files['frontLandmarks']['path'],allow_pickle=False)
     with np.load(files['frontView']['path'],allow_pickle=False) as saved:view={k:saved[k] for k in saved.files}
-    lids=upper_lids(parsed.shape,pts,view['hit'],cybereye_image_side,source_hair=parsed==HAIR)
+    source_hair = lid_source_hair(rgb, parsed, pts, view['hit'])
+    lids=upper_lids(parsed.shape,pts,view['hit'],cybereye_image_side,source_hair=source_hair)
     eyes=binary_dilation(polygon(parsed.shape,pts,EYE_RING['R']) | polygon(parsed.shape,pts,EYE_RING['L']),iterations=1)
     excluded=lids.copy()
     if 'eyeContours' in masks:
@@ -80,6 +125,7 @@ def adjust(labels,value,masks,mapped,maximum_front_pixels=3,*,recover_brows=Fals
     maps,_=project(value,view,{'browEdge':repair.astype(np.float32),'upperLid':lids.astype(np.float32)},size=len(labels),visible_only=('upperLid',))
     result,report=apply_regions(labels,mapped,maps['browEdge']>127,maps['upperLid']>127)
     result=pad(result[...,None],mapped)[...,0]
+    report['upperLidHairBlocksToSkin'] = protect_game_size_lids(result, view, value['uv'], lids)
     report.update(maximumFrontPixels=maximum_front_pixels if recover_brows else None,
                   sourceBrowPixels=int(seed.sum()),boundedBrowPixels=int(repair.sum()),upperLidPixels=int(lids.sum()))
     return result,report

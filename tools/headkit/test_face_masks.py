@@ -301,6 +301,27 @@ class Treatment(unittest.TestCase):
         out, report = treat(colour, np.zeros((4096, 4096), np.uint8), flat('iris', 'eye', 'brow', 'lips', 'nose', 'lipline', 'socket'), value, settings)
         self.assertLessEqual(float((out-colour).max()), 1e-3); self.assertLess(float(out[2048, 2048, 0]), float(colour[2048, 2048, 0]))
 
+    def test_brow_shift_moves_toward_the_hair_level_but_never_past_it(self):
+        # RUNBOOK 409: a brow mask grown onto temple hair at hair level must not be pushed below it.
+        from unittest.mock import patch
+        yy,xx=np.mgrid[:32,:32]
+        points=np.stack((xx*.005,yy*.005,np.ones_like(xx)),axis=-1).astype(float)
+        value={'positions':np.array([[0,0,1],[1,0,1],[0,1,1]],float),'faces':np.array([[0,1,2]]),'uv':np.array([[[0,0],[1,0],[0,1]]],float)}
+        labels=np.ones((32,32),np.uint8);colour=np.full((32,32,3),60,np.float32)
+        masks={name:np.zeros((32,32),np.float32) for name in ('iris','eye','brow','lips','nose','lipline','socket')}
+        masks['brow'][8:16,4:28]=1;colour[8:12,4:28]=100   # light brow over hair; rows 12-16 are hair-level texels in the mask
+        settings={key:0 for key in TREATMENT};settings['browEdge']=1
+        with patch('headkit.face_encode.surface',return_value=(points,np.zeros((32,32),int),None)),              patch('headkit.face_encode.face_region',return_value=(np.array([True]),None)),              patch('headkit.face_encode.chart_ids',return_value=np.array([0])),              patch('headkit.face_encode.pad',side_effect=lambda rgb,mapped:rgb):
+            result,_=treat(colour,labels,masks,value,settings)
+        np.testing.assert_allclose(result[12:16,4:28],60,atol=1e-3)      # at the hair level: unchanged, not darkened
+        np.testing.assert_allclose(result[8:12,4:28],80,atol=1e-3)       # lighter brow: moved by the median offset (-20)
+        np.testing.assert_array_equal(result[20:],colour[20:])
+        masks['hair']=np.zeros((32,32),np.float32);masks['hair'][8:16,24:28]=1;colour[8:12,24:28]=140   # bright temple strand
+        with patch('headkit.face_encode.surface',return_value=(points,np.zeros((32,32),int),None)),              patch('headkit.face_encode.face_region',return_value=(np.array([True]),None)),              patch('headkit.face_encode.chart_ids',return_value=np.array([0])),              patch('headkit.face_encode.pad',side_effect=lambda rgb,mapped:rgb):
+            result,report=treat(colour,labels,masks,value,settings)
+        np.testing.assert_array_equal(result[8:16,24:28],colour[8:16,24:28])   # parser hair inside the brow mask: left as hair
+        self.assertEqual(report['browHairExcluded'],32)
+
     def test_brow_skin_shadows_are_preserved_by_default_and_refill_is_explicit(self):
         from unittest.mock import patch
         yy,xx=np.mgrid[:32,:32]
@@ -457,6 +478,35 @@ class Quality(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:   # through quality(): the allow-list takes the key, and a bad value stops before any work
             with self.assertRaisesRegex(ValueError, 'seamStepApproved'):
                 quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'seamStepApproved': bads[0]}, embree='embree.dll')
+            self.assertFalse((Path(root)/'q').exists())
+
+    def test_brow_approval_lowers_one_heads_brow_minimum_to_its_accepted_coverage(self):
+        # RUNBOOK 393: a head's own accepted coverage, with its note; anything else keeps the shared limit or stops.
+        from headkit.quality import quality, brows_limit
+        self.assertEqual(brows_limit(.85, None), .85); self.assertEqual(brows_limit(.85, {'minimum': .78, 'approval': 'user 2026-11-14'}), .78)
+        bads = ({'minimum': .78}, {'minimum': .9, 'approval': 'x'}, {'minimum': .85, 'approval': 'x'}, {'minimum': 0, 'approval': 'x'},
+                {'minimum': True, 'approval': 'x'}, {'minimum': .78, 'approval': ' '}, {'minimum': .78, 'approval': 'x', 'more': 1}, .78)
+        for bad in bads:
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, 'browsOnHairApproved'):
+                brows_limit(.85, bad)
+        with tempfile.TemporaryDirectory() as root:   # through quality(): the allow-list takes the key, and a bad value stops before any work
+            with self.assertRaisesRegex(ValueError, 'browsOnHairApproved'):
+                quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'browsOnHairApproved': bads[0]}, embree='embree.dll')
+            self.assertFalse((Path(root)/'q').exists())
+
+    def test_face_hair_approval_raises_one_heads_hair_on_face_skin_maximum(self):
+        # RUNBOOK 474: a head's own accepted share, with its note; anything else keeps the shared limit or stops.
+        from headkit.quality import quality, face_hair_limit
+        self.assertEqual(face_hair_limit(.03, None), .03)
+        self.assertEqual(face_hair_limit(.03, {'maximum': .04, 'approval': 'user 2026-11-18'}), .04)
+        bads = ({'maximum': .04}, {'maximum': .02, 'approval': 'x'}, {'maximum': .03, 'approval': 'x'}, {'maximum': 1, 'approval': 'x'},
+                {'maximum': True, 'approval': 'x'}, {'maximum': .04, 'approval': ' '}, {'maximum': .04, 'approval': 'x', 'more': 1}, .04)
+        for bad in bads:
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, 'hairOnFaceSkinApproved'):
+                face_hair_limit(.03, bad)
+        with tempfile.TemporaryDirectory() as root:   # through quality(): the allow-list takes the key, and a bad value stops before any work
+            with self.assertRaisesRegex(ValueError, 'hairOnFaceSkinApproved'):
+                quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'hairOnFaceSkinApproved': bads[0]}, embree='embree.dll')
             self.assertFalse((Path(root)/'q').exists())
 
 

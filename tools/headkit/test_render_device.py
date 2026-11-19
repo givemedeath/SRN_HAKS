@@ -42,10 +42,26 @@ class RenderDevice(unittest.TestCase):
         from headkit.comfy import locked
         with tempfile.TemporaryDirectory() as root:
             cfg=self.config(root)
-            with patch('headkit.render_device.comfy_idle',return_value=False):
+            with patch('headkit.render_device.comfy_idle',return_value=False),patch('headkit.render_device.time.sleep'),\
+                 patch('headkit.render_device.time.monotonic',side_effect=[0,0,100,200,301]):
                 with self.assertRaisesRegex(ValueError,'ComfyUI is busy'):
                     with lease(cfg):self.fail('GPU admitted behind ComfyUI')
             with locked(Path(cfg['compute']['gpuLock'])):pass
+    def test_a_finishing_job_or_a_slow_queue_answer_is_waited_out(self):
+        # RUNBOOK 377: another session's job was running, then the shared queue took 11.4 s to answer.
+        import socket,urllib.error
+        from headkit.render_device import wait_comfy_idle
+        answers=[False,socket.timeout('slow'),urllib.error.URLError(TimeoutError('slow')),True]
+        def answer(url):
+            value=answers.pop(0)
+            if isinstance(value,Exception):raise value
+            return value
+        with patch('headkit.render_device.comfy_idle',side_effect=answer),patch('headkit.render_device.time.sleep') as sleep,\
+             patch('headkit.render_device.time.monotonic',side_effect=[0,5,10,15]):
+            self.assertTrue(wait_comfy_idle('http://localhost:8188'))
+        self.assertEqual(sleep.call_count,3)
+        with patch('headkit.render_device.comfy_idle',side_effect=urllib.error.URLError(ConnectionRefusedError())):
+            with self.assertRaises(urllib.error.URLError):wait_comfy_idle('http://localhost:8188')
     def test_gpu_lease_uses_the_existing_shared_mutex(self):
         from headkit.comfy import locked
         with tempfile.TemporaryDirectory() as root:

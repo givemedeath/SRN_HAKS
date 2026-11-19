@@ -2208,6 +2208,20 @@ entries and client captures stay outside the repository. Shadowrun names and des
 are third-party marks; this record asserts no ownership of them and adds no new
 rights claim.
 
+## Head library: 40 client-reviewed heads (srn_head; 2026-11-18)
+
+The SRN project operator selected 40 generated head designs, five per race and gender for Human, Elf, Dwarf and Orc.
+ImageGen supplied appearance and paired clay references; Pixal supplied geometry and saved-shape appearance.
+Headbatch/headkit performed fitting, repair, UVs, texture baking, PLT ownership/palette mapping, native compilation and
+review. The user delegated operator reviews through the private NWN:EE client, made the geometry, budget and threshold
+decisions quoted in the manifest, and authorized this publication.
+
+Only the 40 MDL/PLT pairs listed in docs/heads/head-library-40-v1.md are added: the exact bytes each head's final client
+session loaded. Resource and design hashes, submission counters, client sessions, gallery frame hashes, user-accepted
+exceptions and limitations are in that document and its JSON manifest. The heads reference the game's built-in head
+materials; stock material and palette payloads are not redistributed. Machine bindings, intermediate models, private
+logs and generated HAKs remain outside the repository.
+
 ## Modern Exterior restyle, release 1 (`srn_t_common`, `srn_t_dgt04`, `srn_door`, `srn_placeable`; 2026-11-19)
 
 The textures D20 Modern Exterior (`dgt04`) draws are restyled in place for a 2070s Shadowrun city, under the plan in

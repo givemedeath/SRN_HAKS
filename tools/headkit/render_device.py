@@ -2,6 +2,8 @@
 from contextlib import contextmanager
 from pathlib import Path
 import json
+import socket
+import urllib.error
 import urllib.request
 from urllib.parse import urlparse
 from .gpu_lock import locked
@@ -12,6 +14,9 @@ import subprocess
 import threading
 import time
 from .common import require,write
+
+QUEUE_TIMEOUT_SECONDS=30  # a shared Desktop instance answered /queue in 11.4 s while releasing models (RUNBOOK 377)
+IDLE_WAIT_SECONDS=300
 
 
 def settings(config):
@@ -46,7 +51,7 @@ def comfy_idle(url):
     require(parsed.scheme=='http' and parsed.hostname in ('localhost','127.0.0.1')
             and not parsed.username and not parsed.password and parsed.path in ('','/')
             and not parsed.query and not parsed.fragment,'Use the bound local ComfyUI instance')
-    with urllib.request.urlopen(url.rstrip('/')+'/queue',timeout=10) as response:
+    with urllib.request.urlopen(url.rstrip('/')+'/queue',timeout=QUEUE_TIMEOUT_SECONDS) as response:
         queue=json.loads(response.read(1048577))
     require(isinstance(queue,dict) and all(isinstance(queue.get(k),list) for k in ('queue_running','queue_pending')),
             'Invalid ComfyUI queue response')
@@ -64,9 +69,23 @@ def lease(config):
         except FileExistsError:
             require(time.monotonic()<deadline,'Timed out waiting for the shared GPU render lock');time.sleep(2)
     try:
-        require(comfy_idle(value['comfyUrl']),'ComfyUI is busy; GPU rendering refused')
+        require(wait_comfy_idle(value['comfyUrl']),'ComfyUI is busy; GPU rendering refused')
         yield
     finally:held.__exit__(None,None,None)
+
+
+def wait_comfy_idle(url,wait=IDLE_WAIT_SECONDS):
+    """Holding the render lock, give a shared ComfyUI's running job, or a slow queue answer, a bounded time to finish.
+    A queue that never empties, or never answers, still refuses the render (RUNBOOK 377)."""
+    deadline=time.monotonic()+wait
+    while True:
+        try:
+            if comfy_idle(url):return True
+        except (TimeoutError,socket.timeout):pass
+        except urllib.error.URLError as error:
+            if not isinstance(error.reason,(TimeoutError,socket.timeout)):raise
+        if time.monotonic()>=deadline:return False
+        time.sleep(5)
 
 
 def configure(bpy,config,identity):

@@ -5,9 +5,9 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import label, binary_erosion
 from headkit.common import pin, read, verify, write, require
-from headkit.face_masks import nearest, hair_locks, NOSE_BASE, HAIR
-from headkit.brow_edges import upper_lids
-from headkit.quality import focus_view, THRESHOLDS, lip_hair_pixels, upper_lid_hair_pixels
+from headkit.face_masks import nearest, hair_locks, NOSE_BASE
+from headkit.brow_edges import lid_source_hair, upper_lids
+from headkit.quality import focus_view, THRESHOLDS, lip_hair_pixels, upper_lid_hair_pixels, brows_limit, face_hair_limit
 from headkit.runner import Runner
 from headbatch.review._role_code import files as role_code_files
 
@@ -96,15 +96,19 @@ def draw(head,attempt,output,rules=None):
     verify(inputs,fresh=True)
     region=focus_view(masks['source']['path'],masks,layers)
     metrics,channel,brows,hair_spill=measure(region,layers,settings);limits=read(THRESHOLDS)['limits']
-    failed=[name for name,key in [('browsOnHair','browsOnHairMin'),('irisOnTattoo1','irisOnTattoo1Min'),('whitesOnSkin','whitesOnSkinMin')] if (metrics[name] or 0)<limits[key]]
+    # A user-accepted brow coverage or face-skin hair share moves this head's limit only (RUNBOOK 393, 474); the report keeps the shared limits.
+    floor={**limits,'browsOnHairMin':brows_limit(limits['browsOnHairMin'],settings.get('browsOnHairApproved')),
+           'hairOnFaceSkinMax':face_hair_limit(limits['hairOnFaceSkinMax'],settings.get('hairOnFaceSkinApproved'))}
+    failed=[name for name,key in [('browsOnHair','browsOnHairMin'),('irisOnTattoo1','irisOnTattoo1Min'),('whitesOnSkin','whitesOnSkinMin')] if (metrics[name] or 0)<floor[key]]
     failed += ['irisOnTattoo1-'+s for s,v in metrics['irisByEye'].items() if (v or 0)<limits['irisOnTattoo1Min']]
     if metrics['specks']>limits['specksMax']:failed.append('specks')
     if metrics['lipHairPx']:failed.append('lipHair')
     if metrics['upperLidHairPx']:failed.append('upperLidHair')
-    if metrics['hairOnFaceSkin'] is not None and metrics['hairOnFaceSkin']>limits['hairOnFaceSkinMax']:failed.append('hairOnFaceSkin')
+    if metrics['hairOnFaceSkin'] is not None and metrics['hairOnFaceSkin']>floor['hairOnFaceSkinMax']:failed.append('hairOnFaceSkin')
     if (metrics['hairLockOnSkinPx'] or 0)>limits['hairLockOnSkinPxMax']:failed.append('hairLockOnSkin')
     rgb=region['render'].copy();rgb[brows & (channel==1)]=[80,100,255];rgb[brows & (channel!=1)]=[255,30,30];rgb[hair_spill]=[255,160,0]
-    lid_spill=upper_lids(channel.shape,region['pts'],region['view']['hit'],settings.get('cybereyeImageSide'),source_hair=region['labels']==HAIR) & (channel==1)
+    lid_spill=upper_lids(channel.shape,region['pts'],region['view']['hit'],settings.get('cybereyeImageSide'),
+                     source_hair=lid_source_hair(region['render'],region['labels'],region['pts'],region['view']['hit'])) & (channel==1)
     rgb[lid_spill]=[255,30,30]
     output.parent.mkdir(parents=True,exist_ok=True)
     require(not output.exists() and not output.with_suffix('.json').exists(),'Role evidence already exists')

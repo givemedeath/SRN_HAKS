@@ -23,10 +23,33 @@ class MaterialEvidence(unittest.TestCase):
         eye=np.zeros_like(hair);eye[0,2]=26
         lips=np.zeros_like(hair);lips[0,3]=26
         mapped=np.ones_like(hair,bool);mapped[0,4]=False
-        result,selected=restore_source_hair(labels,hair,eye,lips,mapped)
+        facing=np.ones(hair.shape)
+        result,selected=restore_source_hair(labels,hair,eye,lips,mapped,facing)
         np.testing.assert_array_equal(result,[[1,0,0,0,0,8,3,0]])
         self.assertEqual(int(selected.sum()),1)
         self.assertEqual(int(labels.sum()),11)
+
+    def test_hair_rescue_skips_surfaces_the_front_render_sees_edge_on(self):
+        # RUNBOOK 380: Harbor's side jaw and Mica's cheek took parser hair from the face outline.
+        labels=np.zeros((1,4),np.uint8);hair=np.full((1,4),255,np.uint8);quiet=np.zeros_like(hair)
+        facing=np.array([[.95,.31,.29,-.4]])
+        result,selected=restore_source_hair(labels,hair,quiet,quiet,np.ones_like(hair,bool),facing)
+        np.testing.assert_array_equal(result,[[1,1,0,0]])
+        self.assertEqual(int(selected.sum()),2)
+
+    def test_a_dark_baked_ring_in_the_reviewed_lid_polygons_is_not_a_hair_lock(self):
+        # RUNBOOK 383: Flint's bake darkened the skin around one eye into a ring that met the temple hair; the lock search
+        # took it for hair entering the face. focus_view removes the reviewed skin-lid polygons from plain skin.
+        import inspect
+        from headkit import quality
+        from headkit.face_masks import hair_locks, HAIR, SKIN
+        labels=np.full((60,60),SKIN,np.uint8);labels[:,:10]=HAIR
+        rgb=np.full((60,60,3),[170,120,95],np.uint8);rgb[:,:10]=[20,18,16]
+        ring=np.zeros((60,60),bool);ring[25:35,8:30]=True;rgb[ring & (labels==SKIN)]=[24,21,19]
+        face=np.zeros((60,60),bool);face[:,5:]=True;hit=np.ones_like(face);plain=face & (labels==SKIN)
+        self.assertTrue((hair_locks(rgb,labels,hit,face,plain) & ring).any())
+        self.assertFalse((hair_locks(rgb,labels,hit,face,plain & ~ring) & ring).any())
+        self.assertIn("& ~lids",inspect.getsource(quality.focus_view))
 
     def test_runtime_iris_comparison_keeps_current_row_and_finds_the_source_match(self):
         rgb=np.full((2,2,3),[80,100,110],np.uint8);layers=np.array([[8,0],[8,0]],np.uint8);shades=np.array([[20,0],[40,0]],np.uint8)

@@ -645,7 +645,11 @@
       "tools/envkit/tile.py"
     ],
     "tools/headbatch/__init__.py": [],
+    "tools/headbatch/client_capture.py": [
+      "tools/headbatch/head_files.py"
+    ],
     "tools/headbatch/client_trial.py": [
+      "tools/headbatch/client_capture.py",
       "tools/headbatch/guards.py",
       "tools/headbatch/head_files.py",
       "tools/headbatch/launcher.py",
@@ -829,6 +833,8 @@
     "tools/headbatch/review/gamesize.py": [
       "tools/headkit/common.py",
       "tools/headkit/diagnostics.py",
+      "tools/headkit/gltf.py",
+      "tools/headkit/palette.py",
       "tools/headkit/runner.py"
     ],
     "tools/headbatch/review/gpuclay.py": [
@@ -973,6 +979,11 @@
       "tools/shared-tools.lock.json",
       "tools/shared_tools.py"
     ],
+    "tools/headbatch/test_client_capture.py": [
+      "tools/headbatch/client_capture.py",
+      "tools/headbatch/client_trial.py",
+      "tools/heads/verify_head_trial.py"
+    ],
     "tools/headbatch/test_fitassembly.py": [
       "tools/headbatch/review/fitassembly.py",
       "tools/headkit/body_neck.py"
@@ -995,6 +1006,7 @@
       "tools/headbatch/review/cutdry.py",
       "tools/headbatch/review/design_landmarks.py",
       "tools/headbatch/review/eyereference.py",
+      "tools/headbatch/review/gamesize.py",
       "tools/headbatch/review/irisrows.py",
       "tools/headbatch/review/roles.py",
       "tools/headbatch/review/rowramps.py",
@@ -1020,7 +1032,10 @@
     "tools/headbatch/test_material_evidence.py": [
       "tools/headbatch/review/hairgaps.py",
       "tools/headbatch/review/irisrows.py",
-      "tools/headkit/brow_edges.py"
+      "tools/headkit/__init__.py",
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/quality.py"
     ],
     "tools/headbatch/test_process_contracts.py": [
       "tools/headbatch/gpu_contract.py",
@@ -1244,6 +1259,7 @@
       "tools/headkit/common.py",
       "tools/headkit/diagnostics.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/intersections.py",
       "tools/headkit/mesh.py",
       "tools/headkit/uv.py"
     ],
@@ -1444,6 +1460,7 @@
     ],
     "tools/headkit/test_brow_edges.py": [
       "tools/headkit/brow_edges.py",
+      "tools/headkit/face_encode.py",
       "tools/headkit/face_masks.py",
       "tools/headkit/quality.py"
     ],
@@ -6015,6 +6032,7 @@
     "tools/envkit/test_toolset.py",
     "tools/envkit/test_track.py",
     "tools/envkit/test_view.py",
+    "tools/headbatch/test_client_capture.py",
     "tools/headbatch/test_fitassembly.py",
     "tools/headbatch/test_headbatch.py",
     "tools/headbatch/test_material_evidence.py",

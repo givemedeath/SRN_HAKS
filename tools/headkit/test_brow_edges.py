@@ -5,7 +5,8 @@ from pathlib import Path
 import tempfile
 from PIL import Image
 import numpy as np
-from headkit.brow_edges import upper_lids,apply_regions,fringe
+from headkit.brow_edges import upper_lids,apply_regions,fringe,lid_source_hair,protect_game_size_lids
+from headkit.face_encode import majority
 from headkit.face_masks import EYE_RING,BROW_RING
 from headkit.quality import upper_lid_hair_pixels
 
@@ -46,7 +47,7 @@ class UpperLids(unittest.TestCase):
         hair[36:42,35:45]=True
         protected=upper_lids(hit.shape,pts,hit,source_hair=hair)
         self.assertFalse(protected[38,40]);self.assertTrue(protected[45,40])
-        region={'labels':np.zeros(hit.shape,np.uint8),'pts':pts,'view':{'hit':hit}}
+        region={'labels':np.zeros(hit.shape,np.uint8),'render':np.zeros((*hit.shape,3),np.uint8),'pts':pts,'view':{'hit':hit}}
         channel=np.zeros(hit.shape,np.uint8);channel[38,40]=1
         self.assertEqual(upper_lid_hair_pixels(region,channel),1)
         region['labels'][hair]=17
@@ -68,7 +69,7 @@ class UpperLids(unittest.TestCase):
 
     def test_independent_gate_catches_shadow_even_with_perfect_brow_coverage(self):
         pts=landmarks();shape=(100,180)
-        region={'labels':np.zeros(shape,np.uint8),'pts':pts,'view':{'hit':np.ones(shape,bool)}}
+        region={'labels':np.zeros(shape,np.uint8),'render':np.zeros((*shape,3),np.uint8),'pts':pts,'view':{'hit':np.ones(shape,bool)}}
         channel=np.zeros(shape,np.uint8);channel[30,40]=channel[30,120]=1
         self.assertEqual(upper_lid_hair_pixels(region,channel),0)
         channel[45,40]=1
@@ -90,11 +91,45 @@ class UpperLids(unittest.TestCase):
                 self.assertEqual(visible_only,('upperLid',))
                 self.assertTrue(regions['upperLid'].any());self.assertFalse(regions['browEdge'].any())
                 return {'upperLid':lid,'browEdge':np.zeros_like(labels)},{}
-            with patch('headkit.brow_edges.project',side_effect=project):
-                result,report=adjust(labels,{}, {'files':files},mapped,recover_brows=False)
+            with patch('headkit.brow_edges.project',side_effect=project), patch('headkit.brow_edges.protect_game_size_lids',return_value=0):
+                result,report=adjust(labels,{'uv':None}, {'files':files},mapped,recover_brows=False)
             self.assertEqual(result[0,0],0);self.assertEqual(result[0,1],1);self.assertEqual(result[1,1],8)
             self.assertEqual(report['upperLidHairToSkinTexels'],1)
             self.assertIsNone(report['maximumFrontPixels'])
+
+    def test_game_size_lids_clear_only_sampled_hair_winning_blocks(self):
+        labels=np.ones((8,8),np.uint8)
+        labels[0,:4]=0
+        labels[1,0]=8
+        labels[4:,:4]=2
+        labels[4,0]=1
+        lids=np.ones((5,5),bool)
+        faces=np.zeros(lids.shape,int)
+        faces[3,:]=1
+        bary=np.zeros((*lids.shape,3));bary[...,0]=1
+        view={'hit':lids,'face':faces,'bary':bary}
+        uv=np.array([[[.25,.25]]*3,[[.25,.75]]*3])
+
+        self.assertEqual(protect_game_size_lids(labels,view,uv,lids),1)
+        np.testing.assert_array_equal(majority(labels),[[0,1],[2,1]])
+        self.assertEqual(labels[1,0],8)
+        self.assertEqual(labels[4,0],1)
+
+    def test_cool_brow_pigment_can_extend_past_landmark_without_exempting_lid(self):
+        pts=landmarks();hit=np.ones((100,180),bool)
+        labels=np.ones(hit.shape,np.uint8)
+        rgb=np.full((*hit.shape,3),(121,88,66),np.uint8)
+        labels[26:47,25:56]=2
+        rgb[26:40,25:56]=(91,77,66)
+        rgb[44:47,36:45]=(91,77,66)
+
+        hair=lid_source_hair(rgb,labels,pts,hit)
+        protected=upper_lids(hit.shape,pts,hit,source_hair=hair)
+        self.assertTrue(hair[38,40])
+        self.assertFalse(hair[41,40])
+        self.assertFalse(protected[38,40])
+        self.assertTrue(protected[41,40])
+        self.assertTrue(protected[45,40])
 
     def test_recovery_does_not_reintroduce_a_lid_classified_as_brow(self):
         shape=(100,180);lids=upper_lids(shape,landmarks(),np.ones(shape,bool))

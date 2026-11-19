@@ -118,6 +118,47 @@ class LocalPaintTests(unittest.TestCase):
         self.assertEqual(int(mask.sum()),9)
 
 
+    def test_patch_heal_rebuilds_smooth_target_from_whole_donor_patches(self):
+        from headkit.paint import heal
+        n=256;ys,xs=np.mgrid[:n,:n]
+        coords=np.array([[0.,0.],[1.,0.],[0.,1.],[1.,1.]]);faces=np.array([[0,1,2],[1,3,2]])
+        mesh={'uv':coords[faces],'positions':np.column_stack((coords,coords[:,1])),'faces':faces}
+        grain=np.random.default_rng(3).integers(20,60,(n,n))
+        def scene():
+            rgb=np.full((n,n,3),200,np.uint8)
+            rgb[106:142,88:126]=grain[106:142,88:126,None]  # textured hair band, every texel within 0.1 of the recess
+            rgb[118:130,100:114]=[66,36,22]                  # smooth recess fill inside it
+            return rgb
+        def values_for(rgb):
+            return lambda:{'mapped':np.ones((n,n),bool),'face':(xs+ys>=n).astype(int),'r':rgb[...,0],'g':rgb[...,1],'b':rgb[...,2],
+                           'lum':rgb.sum(-1)/3}
+        op={'name':'recess','target':{'all':[{'of':'r','ge':66,'le':66},{'of':'g','ge':36,'le':36}]},'donor':{'of':'lum','lt':100},'patches':{'size':8,'step':4,'seed':1}}
+        rgb=scene();initial=rgb.copy();report={}
+        mask=heal(mesh,rgb,op,report,values_for(rgb),{})['recess']
+        self.assertEqual(int(mask.sum()),12*14)
+        np.testing.assert_array_equal(rgb[~mask],initial[~mask])
+        painted=rgb[mask].astype(float)
+        self.assertGreater(painted[...,0].std(),3)                      # grain, not a flat colour
+        self.assertTrue(np.all(painted[:,0]==painted[:,1]) and np.all(painted[:,1]==painted[:,2]))  # donor greys only
+        ring=initial[106:142,88:126].sum(-1).mean()/3
+        self.assertAlmostEqual(painted.mean(),ring,delta=2)
+        self.assertEqual(report['patches']>0 and report['wholeDonorPatches']>=16,True)
+        again=scene();heal(mesh,again,op,{},values_for(again),{})
+        np.testing.assert_array_equal(again,rgb)                        # seeded: reproducible
+        for bad in ({'size':8,'step':6,'seed':1},{'size':4,'step':2,'seed':1},{'size':8,'step':4},{'size':8.0,'step':4,'seed':1}):
+            with self.subTest(patches=bad):
+                broken=scene()
+                with self.assertRaisesRegex(ValueError,'patch'):heal(mesh,broken,dict(op,patches=bad),{},values_for(broken),{})
+                np.testing.assert_array_equal(broken,initial)
+        both=scene()
+        with self.assertRaisesRegex(ValueError,'either'):heal(mesh,both,dict(op,offset=[0,0,0]),{},values_for(both),{})
+        tiny=scene()
+        with self.assertRaisesRegex(ValueError,'Too few'):heal(mesh,tiny,dict(op,patches={'size':64,'step':32,'seed':1}),{},values_for(tiny),{})
+        far=scene();far[10:15,60:100]=40;before=far.copy()   # a donor block 0.4 away from the recess
+        with self.assertRaisesRegex(ValueError,'too far'):heal(mesh,far,op,{},values_for(far),{})
+        np.testing.assert_array_equal(far,before)
+        self.assertGreater(report['targetInteriorDepth'],0)
+
     def test_declared_head_heal_side_checks_actual_target_and_donor_before_painting(self):
         from headkit.paint import heal
         n=64;ys,xs=np.mgrid[:n,:n]
@@ -201,6 +242,28 @@ class SourceRoleTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'another front render'):
                 source_regions(rgb, hit, hit, spec, output)
             self.assertFalse((output/'source-roles.png').exists())
+
+    def test_declared_absent_locks_trace_only_both_brows(self):
+        # RUNBOOK 390: hair that stays outside the face outline has no locks to trace; brows still need both sides.
+        import hashlib
+        from headkit.quality_reference import source_regions
+
+        rgb = np.zeros((32, 64, 3), dtype=np.uint8)
+        hit = np.ones(rgb.shape[:2], dtype=bool)
+        brows = np.indices(hit.shape)[0] < 8
+        empty = hashlib.sha256(np.zeros(hit.shape, np.uint8).tobytes()).hexdigest()
+        spec = {'rgbSha256': hashlib.sha256(rgb.tobytes()).hexdigest(), 'brows': {'of': 'y', 'lt': 8}, 'locks': None,
+                'maskSha256': {'brows': hashlib.sha256(brows.astype(np.uint8).tobytes()).hexdigest(), 'locks': empty}}
+        with tempfile.TemporaryDirectory() as tmp:
+            brow, locks, evidence = source_regions(rgb, hit, hit, spec, Path(tmp))
+            self.assertTrue((brow == brows).all())
+            self.assertFalse(locks.any())
+            self.assertTrue(Path(evidence['path']).is_file())
+            with self.assertRaisesRegex(ValueError, 'both brows'):
+                source_regions(rgb, hit, hit, {**spec, 'brows': {'all': [{'of': 'y', 'lt': 8}, {'of': 'x', 'lt': 32}]}}, Path(tmp))
+            missing = {key: value for key, value in spec.items() if key != 'locks'}
+            with self.assertRaisesRegex(ValueError, 'declare them absent'):
+                source_regions(rgb, hit, hit, missing, Path(tmp))
 
 
 class Conditioning(unittest.TestCase):

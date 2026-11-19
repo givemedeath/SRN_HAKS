@@ -127,10 +127,16 @@ def tone_every_channel(data, race, sex, name):
         raise guards.Refused(f'{name}: channels {clash} have both toneMatch and a shade offset; drop the offset (RUNBOOK 83)')
 
 
+# The toolkit's loader plus the repair's fineRelief bounds, which the repair stage would otherwise refuse only at launch (RUNBOOK 484).
+# A stage-pinned older neck.py has no fine_relief_bounds; its repair still checks the bounds at launch.
+VALIDATE_CODE = ('import sys; from headkit.common import manifest; import headkit.neck as neck; '
+                 "m = manifest(sys.argv[1]); check = getattr(neck, 'fine_relief_bounds', None); "
+                 "check and check((m.get('mesh') or {}).get('fineRelief', {}))")
+
+
 def validate(workspace, path):
     """The toolkit's own loader, in a child process with the bound packages. A misplaced override key otherwise surfaces as a failed launch (RUNBOOK 54)."""
-    code = 'import sys; from headkit.common import manifest; manifest(sys.argv[1])'
-    done = subprocess.run([PYTHON, '-B', '-c', code, str(path)], env=workspace.python_environment(packages=True, tools=True), capture_output=True, text=True)
+    done = subprocess.run([PYTHON, '-B', '-c', VALIDATE_CODE, str(path)], env=workspace.python_environment(packages=True, tools=True), capture_output=True, text=True)
     if done.returncode:
         raise guards.Refused(f'{path.parent.name}: manifest refused by the toolkit loader: {done.stderr.strip()[-600:]}')
 
@@ -232,18 +238,23 @@ def rewrite_manifest(workspace, name, check, overrides, replaced):
 def set_components(workspace, name, notes, check=validate):
     """The reviewed shell selection from `review shells`: keep the largest, bound = extra area rounded up + 10 %. The table's count includes the kept shell, and the repair expects the extras (RUNBOOK 93)."""
     head = workspace.head(name)
-    table = guards.read(head/'review-evidence'/'shells.json')
-    extra, area = len(table['extra']), table['deletedAreaFraction']
-    if table['count'] != extra+1:
-        raise guards.Refused(f"{name}: the shell table counts {table['count']} with {extra} extra: rerun review shells")
-    # Headkit requires a positive area bound. expectedDeleted=0 separately forbids any deletion.
-    bound = max(1, math.ceil(area*1.1*1e4))/1e4
-    overrides = guards.read(head/'overrides.json')
-    overrides.setdefault('mesh', {})['components'] = {'keep': 'largest', 'reviewed': True, 'maximumDeletedAreaFraction': bound, 'expectedDeleted': extra,
-                                                      'notes': f'review shells: {extra} extra shells, {area*100:.4f}% of area. {notes}'}
-    if extra and all(row.get('insideFraction') == 1.0 for row in table['extra']):
-        overrides['mesh']['components']['interiorOnly'] = True
-    write_manifest(workspace, name, check, overrides)
+    with guards.head_locks(workspace, [name]):
+        report = head/'review-evidence'/'shells.json'
+        table = guards.read(report) if report.exists() else {}
+        mesh = guards.read(head/'manifest.json')['mesh']
+        guards.shell_review_current(head, table.get('basis'), mesh)
+        extra, area = len(table['extra']), table['deletedAreaFraction']
+        if table['count'] != extra+1:
+            raise guards.Refused(f"{name}: the shell table counts {table['count']} with {extra} extra: rerun review shells")
+        # Headkit requires a positive area bound. expectedDeleted=0 separately forbids any deletion.
+        bound = max(1, math.ceil(area*1.1*1e4))/1e4
+        overrides = guards.read(head/'overrides.json')
+        selection = {'keep': 'largest', 'reviewed': True, 'maximumDeletedAreaFraction': bound, 'expectedDeleted': extra,
+                     'reviewBasis': table['basis'], 'notes': f'review shells: {extra} extra shells, {area*100:.4f}% of area. {notes}'}
+        if extra and all(row.get('insideFraction') == 1.0 for row in table['extra']):
+            selection['interiorOnly'] = True
+        overrides.setdefault('mesh', {})['components'] = selection
+        write_locked_manifest(workspace, name, check, overrides)
     return extra, bound
 
 

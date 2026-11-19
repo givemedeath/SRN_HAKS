@@ -35,12 +35,36 @@ class CaptureCoverage(unittest.TestCase):
     def test_missing_view_motion_and_second_look_are_reported(self):
         self.data['captures']=self.data['captures'][:3];self.write(self.record,self.data)
         self.assertEqual(len(self.check()['problems']),3)
+    def test_motion_cannot_replace_a_required_still_view(self):
+        captures=self.data['captures']
+        captures[3]['motionEvent']=captures.pop(4)['motionEvent']
+        self.write(self.record,self.data)
+        self.assertEqual(self.check()['problems'],['fixture: missing primary-look views backleft'])
+    def test_motion_cannot_replace_the_second_palette_still(self):
+        self.log.write_text(self.log.read_text()+'\n[time] HEAD_MOTION actor=second sequence=talk-look')
+        self.data['log']=pin(self.log)
+        self.data['captures'][-1]['motionEvent']=7
+        self.write(self.record,self.data)
+        self.assertEqual(self.check()['problems'],['fixture: missing second palette look'])
     def test_changed_asset_or_frame_cannot_reuse_coverage(self):
         (self.root/'trial.mod').write_bytes(b'changed')
         with self.assertRaisesRegex(ValueError,'changed'):self.check()
     def test_capture_cannot_claim_another_camera_event(self):
         self.data['captures'][0]['view']='backleft';self.write(self.record,self.data)
         with self.assertRaisesRegex(ValueError,'camera/actor'):self.check()
+    def test_repeated_initial_camera_requires_second_placement(self):
+        lines=self.log.read_text().splitlines()
+        lines.insert(1,lines[1])
+        self.log.write_text('\n'.join(lines))
+        self.data['log']=pin(self.log)
+        for row in self.data['captures'][1:]:
+            row['inspectionEvent']+=1
+            if 'motionEvent' in row:row['motionEvent']+=1
+        self.write(self.record,self.data)
+        with self.assertRaisesRegex(ValueError,'warm-up'):self.check()
+        self.data['captures'][0]['inspectionEvent']=1
+        self.write(self.record,self.data)
+        self.assertTrue(self.check()['passed'])
     def test_reusing_one_image_for_multiple_views_is_rejected(self):
         self.data['captures'][1]['frame']=self.data['captures'][0]['frame'];self.write(self.record,self.data)
         with self.assertRaisesRegex(ValueError,'several captures'):self.check()
