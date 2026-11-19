@@ -88,7 +88,7 @@ python -m tools.skykit.client_fixture --nwn-root <game install>               # 
 python -m tools.skykit.client_fixture --nwn-root <game install> --transition  # time runs through dusk and dawn
 ```
 
-Each assembled panorama is upscaled 2x with RealESRGAN (`RealESRGAN_x2plus.pth`) on the shared ComfyUI before keying
+A panorama without detail tiles is upscaled 2x with RealESRGAN (`RealESRGAN_x2plus.pth`) on the shared ComfyUI before keying
 (`tools/skykit/upscale.py`, its HTTP API only; `SRN_COMFY_URL` overrides the address). The result is cached in
 `output/skykit/<key>/x2-<hash>.png` by input and model, so a rebuild of unchanged art needs no GPU; `--no-upscale`
 builds at the source size. The manifest names the model and cache file.
@@ -107,7 +107,8 @@ and resource hashes; the tests check the pack against it and the materials again
 
 ## Client check (2026-11-19)
 
-- All five materials draw with the custom shader; the engine log names no shader or material error.
+- All five materials of that first build draw with the custom shader; the engine log names no shader or material
+  error. The pack now has nine; all of them appear in the later `--play` cycle (rows 16, 17 and 20).
 - Letting time run (two-minute hours): day fades to dusk over about 15 to 30 seconds after 18:00, night to dawn
   after 6:00. A `SetTime` jump also fades, over several seconds.
 

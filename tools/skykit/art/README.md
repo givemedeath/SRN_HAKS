@@ -1,7 +1,12 @@
 # Sky panorama sources
 
-Each view is one 1536x1024 picture from Codex CLI image generation, its sky a flat chroma key, its land in the bottom
-part of the frame; `view_<x>.png` beside `view_<x>.prompt.txt` is in use. `pending_<x>.prompt.txt` are the next set,
-written 2026-11-19 and not yet generated (the Codex image quota ran out): three views of 120 degrees per panorama,
-Denver passed the user's concept as `-i`, the storm megasprawl and the Awakened peaks on a magenta key. The views of a
-panorama still need joins drawn between them before `profiles.PANORAMAS` can list them in place of the mirrored view.
+`profiles.PANORAMAS` names every picture a build reads; each has its prompt beside it.
+
+- `denver/`: `view_w.png` (Codex CLI image generation from the user's concept, `view_w.prompt.txt`), four extensions
+  `ext_<n>.png` and the closing join `join_close.png`, each redrawn by the local Qwen-Image 2.1 profile from its
+  `.qwen-prompt.txt` (`panorama.chain`). Green key.
+- `peaks/`: three views `view_<x>.png` and the joins between them `join_<xy>.png` (`panorama.assemble`), Qwen edits;
+  the Codex prompts of a painted set are kept as `view_<x>.codex-prompt.txt`. Magenta key.
+- `<set>/detail/`: the detail pass (`python -m tools.skykit.detail den|pk`), tiles `tile_NN.png` and `detail.json`
+  naming the input they were drawn from, from `<set>/detail.qwen-prompt.txt`.
+- `join.qwen-prompt.txt`: the generic join prompt; `denver/join_close.qwen-prompt.txt` is a copy of it.
