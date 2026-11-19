@@ -128,9 +128,10 @@ class Panorama(unittest.TestCase):
         strip = panorama.assemble(views, joins)
         step = w + panorama.JOIN_GAP
         self.assertEqual(strip.shape[1], 3 * step)
-        # an unchanged join (the input itself) leaves every view's own columns in place, the first one across the wrap
+        # every view's columns outside the joins' overlaps stay as they were; the joins themselves are blended
+        keep = panorama.JOIN_KEEP
         for i in range(3):
-            self.assertTrue(np.allclose(strip[:, i * step:i * step + w], views[i], atol=1e-5))
+            self.assertTrue(np.allclose(strip[:, i * step + keep:i * step + w - keep], views[i][:, keep:w - keep], atol=1e-5))
 
     def test_seam_follows_where_pictures_agree(self):
         a = np.zeros((20, 200, 3), np.float32); b = np.ones((20, 200, 3), np.float32)
@@ -145,6 +146,13 @@ class Panorama(unittest.TestCase):
         self.assertEqual(panorama.roof_degrees(np.zeros_like(mask), (-2.0, 8.0)), -2.0)
         _, values = build.material_text('den', profiles.DEN_NIGHT, (-2.0, 15.0, 3.0))
         self.assertEqual(values['SkyGlow'][3], 3.0)
+
+    def test_grade_follows_the_overlap(self):
+        rng = np.random.default_rng(2)
+        land = rng.random((60, 80, 3)).astype(np.float32) * 0.5 + 0.2
+        drifted = np.clip(land * np.array([0.8, 1.1, 0.9], np.float32), 0, 1)
+        fixed = panorama.apply_gain(drifted, panorama.row_gain(land, drifted, 'magenta'), 'magenta')
+        self.assertLess(np.abs(fixed - land).mean(), np.abs(drifted - land).mean() * 0.25)
 
     def test_band_degrees(self):
         strip = np.zeros((100, 3600, 4), np.float32)

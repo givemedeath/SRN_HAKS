@@ -47,11 +47,12 @@ def _land(whole, spec, key, scale):
         from . import upscale
         whole, cache = upscale.upscale(whole, OUTPUT / key)
         UPSCALED[key] = cache
-    rgba = panorama.cut(whole, spec['key'])
+    rgba = panorama.cut(whole, spec['key'], scale)
     return rgba[panorama.land_rows(rgba)[0]:]
 
 
 UPSCALED = {}
+NORMALS = {}
 
 
 def build_panorama(key, scale=2):
@@ -60,7 +61,7 @@ def build_panorama(key, scale=2):
     if 'chain' in spec:
         # one start view grown to the right by redrawn extensions, wrapped by a closing join
         start, *extensions = [panorama.view_rgb(ART / name) for name in spec['chain']]
-        whole = panorama.chain(start, extensions, panorama.view_rgb(ART / spec['close']))
+        whole = panorama.chain(start, extensions, panorama.view_rgb(ART / spec['close']), key=spec['key'])
         strip = _land(whole, spec, key, scale)
     elif 'joins' in spec:
         # views read left to right as a viewer turns clockwise; the joins between them are redrawn seams
@@ -70,13 +71,20 @@ def build_panorama(key, scale=2):
             reference = views[spec['match']]
             views = [v if i == spec['match'] else panorama.match_colours(v, reference, spec['key']) for i, v in enumerate(views)]
             joins = [panorama.match_colours(j, reference, spec['key'], 0.5) for j in joins]
-        whole = panorama.assemble(views, joins, panorama.WIDE if spec.get('wide') else panorama.LAYOUT)
+        whole = panorama.assemble(views, joins, panorama.WIDE if spec.get('wide') else panorama.LAYOUT, spec['key'])
         strip = _land(whole, spec, key, scale)
     else:
         raise ValueError(f'{key}: a panorama is a chain or views with joins')
     # u grows counter-clockwise, which from inside the dome is to the viewer's left: flip so pictures read the right way
     strip = np.ascontiguousarray(strip[:, ::-1])
     mask = panorama.lights(strip, spec.get('city_from', 0.0), scale)
+    if scale > 1:  # faces' normals (MoGe-2) go in the mask's b and a, for the shader's relighting
+        from . import normals
+        field, cache = normals.normals(strip, OUTPUT / key)
+        NORMALS[key] = cache
+    else:
+        field = np.zeros(strip.shape[:2] + (3,), np.float32)
+    mask = np.dstack([mask[..., :2], field[..., :2] * 0.5 + 0.5]).astype(np.float32)
     band = panorama.band_degrees(strip, spec['below'], spec['stretch'])
     band = (*band, panorama.roof_degrees(mask, band))
     halves = panorama.halves(strip, mask, panorama.half_size(strip))
@@ -172,7 +180,7 @@ def build(args):
     if crunch:
         for key in keys:
             for name in profiles.texture_names(key):
-                compression = 'DXT5' if name.endswith(('_pa', '_pb')) else 'DXT1'
+                compression = 'DXT5'  # land: alpha is coverage; masks: b and a carry the normals
                 to_dds(crunch, OUTPUT / key / f'{name}.tga', PACK / f'{name}.dds', compression)
                 written.append(PACK / f'{name}.dds')
     resolved = {}
@@ -210,7 +218,9 @@ def build(args):
                             'sources': {name: sha(ART / name) for name in profiles.sources(key)},
                             'band': [round(b, 4) for b in built[key][1]],
                             'upscale': ({'model': 'RealESRGAN_x2plus.pth', 'scale': 2, 'cache': UPSCALED[key].name}
-                                        if key in UPSCALED else None)} for key in keys},
+                                        if key in UPSCALED else None),
+                            'normals': ({'model': 'moge_2_vitl_normal_fp16.safetensors', 'cache': NORMALS[key].name}
+                                        if key in NORMALS else None)} for key in keys},
         'rows': {str(row): {'label': label, 'cyclical': cyclical, 'models': models}
                  for row, (label, cyclical, models) in table_rows().items()},
         'resources': {p.name: sha(p) for p in sorted(set(written))},

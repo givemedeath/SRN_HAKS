@@ -44,27 +44,36 @@ def _upload(url, name, payload):
     return f"{reply['subfolder']}/{reply['name']}" if reply.get('subfolder') else reply['name']
 
 
-def _run(url, picture, name, timeout=900):
+def run_graph(url, picture, name, nodes, timeout=900):
+    """Upload `picture`, queue the graph `nodes(image, prefix)` (its saving node is 'out') and return the saved image."""
     image = _upload(url, f'{name}.png', _png(picture))
-    graph = {
-        '1': {'class_type': 'LoadImage', 'inputs': {'image': image}},
-        '2': {'class_type': 'UpscaleModelLoader', 'inputs': {'model_name': MODEL}},
-        '3': {'class_type': 'ImageUpscaleWithModel', 'inputs': {'upscale_model': ['2', 0], 'image': ['1', 0]}},
-        '4': {'class_type': 'SaveImage', 'inputs': {'images': ['3', 0], 'filename_prefix': f'skykit/{name}'}},
-    }
+    graph = nodes(image, f'skykit/{name}')
     prompt = json.loads(_request(url + '/prompt', json.dumps({'prompt': graph, 'client_id': uuid.uuid4().hex}).encode(),
                                  {'Content-Type': 'application/json'}))['prompt_id']
     deadline = time.time() + timeout
     while time.time() < deadline:
         history = json.loads(_request(f'{url}/history/{prompt}')).get(prompt)
         if history and history.get('status', {}).get('completed'):
-            saved = history['outputs']['4']['images'][0]
+            saved = history['outputs']['out']['images'][0]
             query = urllib.parse.urlencode({'filename': saved['filename'], 'subfolder': saved['subfolder'], 'type': saved['type']})
             return np.asarray(Image.open(io.BytesIO(_request(f'{url}/view?{query}'))).convert('RGB'), np.float32) / 255
         if history and history.get('status', {}).get('status_str') == 'error':
-            raise RuntimeError(f'ComfyUI upscale failed: {history["status"]}')
+            raise RuntimeError(f'ComfyUI job {name} failed: {history["status"]}')
         time.sleep(2)
-    raise TimeoutError(f'ComfyUI upscale {prompt} did not finish in {timeout} s')
+    raise TimeoutError(f'ComfyUI job {prompt} did not finish in {timeout} s')
+
+
+def comfy_url(url=None):
+    return (url or os.environ.get('SRN_COMFY_URL') or 'http://127.0.0.1:8188').rstrip('/')
+
+
+def _upscale_graph(image, prefix):
+    return {
+        '1': {'class_type': 'LoadImage', 'inputs': {'image': image}},
+        '2': {'class_type': 'UpscaleModelLoader', 'inputs': {'model_name': MODEL}},
+        '3': {'class_type': 'ImageUpscaleWithModel', 'inputs': {'upscale_model': ['2', 0], 'image': ['1', 0]}},
+        'out': {'class_type': 'SaveImage', 'inputs': {'images': ['3', 0], 'filename_prefix': prefix}},
+    }
 
 
 def key(array):
@@ -76,9 +85,9 @@ def upscale(array, folder, url=None):
     folder = Path(folder)
     target = folder / f'x{SCALE}-{key(array)}.png'
     if not target.is_file():
-        url = (url or os.environ.get('SRN_COMFY_URL') or 'http://127.0.0.1:8188').rstrip('/')
+        url = comfy_url(url)
         padded = np.concatenate([array[:, -PAD:], array, array[:, :PAD]], axis=1)
-        out = _run(url, padded, f'{folder.name}-{target.stem}')
+        out = run_graph(url, padded, f'{folder.name}-{target.stem}', _upscale_graph)
         if out.shape[:2] != (padded.shape[0] * SCALE, padded.shape[1] * SCALE):
             raise RuntimeError(f'upscaled to {out.shape[:2]}, expected {SCALE} times {padded.shape[:2]}')
         folder.mkdir(parents=True, exist_ok=True)

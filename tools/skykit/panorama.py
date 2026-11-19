@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 HALF = (8192, 512)  # texels of each half of the strip: 16384 round the horizon (half_size picks the height)
-EDGE_ROWS = 14  # rows under a green-keyed silhouette cleared of key tint
+EDGE_ROWS = 20  # rows (at source scale) under a green-keyed silhouette cleared of key tint
 KEYS = {'green': (0.0, 1.0, 0.0), 'magenta': (1.0, 0.0, 1.0)}
 
 
@@ -30,7 +30,7 @@ def keyness(rgb, key):
     raise ValueError(f'unknown key {key}')
 
 
-def cut(rgb, key):
+def cut(rgb, key, scale=1):
     """RGBA of a keyed view: alpha from the key with a soft one-texel edge, key spill removed from the edge colours.
 
     Everything above the highest land in each column is sky, so specks of key colour inside the land (a green
@@ -50,7 +50,7 @@ def cut(rgb, key):
         out[..., 1] = np.minimum(out[..., 1], np.maximum(out[..., 0], out[..., 2]) + (1 - spill[..., 0]) * 0.08)
         # hazy far hills just under the silhouette can come back tinted by the key (green, or cyan once green is held
         # to blue): there, green stays at most a little above red, which keeps snow, violet and orange as they are
-        near = (rows >= first[None, :] - 1) & (rows < first[None, :] + EDGE_ROWS)
+        near = (rows >= first[None, :] - 1) & (rows < first[None, :] + EDGE_ROWS * scale)
         out[..., 1] = np.where(near, np.minimum(out[..., 1], out[..., 0] + 0.06), out[..., 1])
     else:
         limit = out[..., 1] + (1 - spill[..., 0]) * 0.08
@@ -212,7 +212,7 @@ def join_input(left, right, layout=LAYOUT):
 
 
 SEAM_MARGIN, SEAM_SOFT = 64, 5.0  # columns kept clear of an overlap's ends; half-width of the blend along a cut
-SEAM_LEVELS = 5  # pyramid levels of the blend: fine detail switches at the cut, broad colour over up to 2**5 times wider
+SEAM_LEVELS = 7  # pyramid levels of the blend: fine detail switches at the cut, broad colour over up to 2**7 times wider
 
 
 def _resize(array, size, mode):
@@ -256,10 +256,44 @@ def seam_path(a, b, margin=SEAM_MARGIN):
     return path
 
 
-def _place_join(canvas, start, join, left, right, keep, gap):
+GRADE_ROWS = 24.0  # vertical smoothing (rows) of the grade measured in an overlap
+
+
+def row_gain(reference, image, key):
+    """Per-row, per-channel gain that grades `image` like `reference` where both show the same land (an overlap):
+    the redraw model drifts the grade of the part it was told to keep, which shows as a jump at the cut."""
+    land = ((keyness(reference, key) < 0.1) & (keyness(image, key) < 0.1)).astype(np.float32)[..., None]
+    def profile(picture):
+        sums = (picture * land).sum(1)
+        return sums
+    count = land.sum(1)
+    rows = np.arange(len(count), dtype=np.float32)
+    kernel = np.exp(-0.5 * ((rows[:, None] - rows[None, :]) / GRADE_ROWS) ** 2)
+    smooth = lambda values: kernel @ values
+    weight = smooth(count)
+    a = smooth(profile(reference)) / np.maximum(weight, 1e-6)
+    b = smooth(profile(image)) / np.maximum(weight, 1e-6)
+    gain = np.clip((a + 0.02) / (b + 0.02), 0.6, 1.6)
+    trust = np.clip(weight / (weight.max() * 0.05 + 1e-6), 0, 1)  # rows with almost no land keep their colours
+    return 1 + (gain - 1) * trust
+
+
+def apply_gain(image, gain, key):
+    """`image` with a gain (rows x 3, or rows x columns x 3) on its land; the chroma key stays the key."""
+    land = 1 - np.clip(keyness(image, key) * 3, 0, 1)[..., None]
+    gain = gain[:, None, :] if gain.ndim == 2 else gain
+    return np.clip(image * (1 + (gain - 1) * land), 0, 1).astype(np.float32)
+
+
+def _place_join(canvas, start, join, left, right, keep, gap, key=None):
     """Lay a redrawn join into `canvas` from column `start` (wrapping round): it takes over from `left` and hands back
     to `right` along the seam paths through its two overlaps, blended band by band."""
     span, total = join.shape[1], canvas.shape[1]
+    if key:  # grade the join like the left view at its left end and like the right view at its right end
+        g0 = row_gain(left[:, -keep:], join[:, :keep], key)
+        g1 = row_gain(right[:, :keep], join[:, keep + gap:], key)
+        t = np.clip((np.arange(span, dtype=np.float32) - keep / 2) / (span - keep), 0, 1)[None, :, None]
+        join = apply_gain(join, g0[:, None, :] * (1 - t) + g1[:, None, :] * t, key)
     columns = np.arange(span, dtype=np.float32)[None, :]
     enter = seam_path(left[:, -keep:], join[:, :keep]).astype(np.float32)[:, None]
     leave = (keep + gap + seam_path(join[:, keep + gap:], right[:, :keep])).astype(np.float32)[:, None]
@@ -268,7 +302,7 @@ def _place_join(canvas, start, join, left, right, keep, gap):
     canvas[:, place] = multiband(canvas[:, place], join, weight.astype(np.float32))
 
 
-def assemble(views, joins, layout=LAYOUT):
+def assemble(views, joins, layout=LAYOUT, key=None):
     """One wrapped strip from views [v0..vn-1] and joins [j01, j12, .., j(n-1)0] (float RGB, VIEW size).
 
     Join column c < keep is the left view's column W - keep + c; column c >= keep + gap is the right view's column
@@ -282,7 +316,7 @@ def assemble(views, joins, layout=LAYOUT):
     for index, view in enumerate(views):
         canvas[:, index * step:index * step + width] = view
     for index, join in enumerate(joins):
-        _place_join(canvas, index * step + width - keep, join, views[index], views[(index + 1) % len(views)], keep, gap)
+        _place_join(canvas, index * step + width - keep, join, views[index], views[(index + 1) % len(views)], keep, gap, key)
     return canvas
 
 
@@ -301,7 +335,9 @@ def extend_input(strip, key, keep=JOIN_KEEP):
     return np.concatenate([tail, fill], axis=1).astype(np.float32)
 
 
-def _extend(strip, extension, keep):
+def _extend(strip, extension, keep, key=None):
+    if key:  # grade the whole redraw like the strip it continues
+        extension = apply_gain(extension, row_gain(strip[:, -keep:], extension[:, :keep], key), key)
     width = extension.shape[1]
     path = seam_path(strip[:, -keep:], extension[:, :keep]).astype(np.float32)[:, None]
     weight = np.clip((np.arange(width, dtype=np.float32)[None, :] - path) / (2 * SEAM_SOFT) + 0.5, 0, 1)[..., None]
@@ -309,16 +345,16 @@ def _extend(strip, extension, keep):
     return np.concatenate([strip[:, :-keep], multiband(old, extension, weight.astype(np.float32))], axis=1)
 
 
-def chain(start, extensions, close=None, keep=JOIN_KEEP, gap=JOIN_GAP):
+def chain(start, extensions, close=None, keep=JOIN_KEEP, gap=JOIN_GAP, key=None):
     """One strip from a start view and its extensions (float RGB, VIEW size), wrapped by the closing join if given."""
     strip = start
     for extension in extensions:
-        strip = _extend(strip, extension, keep)
+        strip = _extend(strip, extension, keep, key)
     if close is None:
         return strip
     canvas = np.zeros((strip.shape[0], strip.shape[1] + gap, 3), np.float32)
     canvas[:, :strip.shape[1]] = strip
-    _place_join(canvas, strip.shape[1] - keep, close, strip, strip, keep, gap)
+    _place_join(canvas, strip.shape[1] - keep, close, strip, strip, keep, gap, key)
     return canvas
 
 

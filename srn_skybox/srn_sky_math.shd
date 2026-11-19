@@ -23,7 +23,7 @@
 
 uniform float SkyPhase;    // 0 dawn, 1 day, 2 dusk, 3 night
 uniform vec4 SkyBand;      // x/y elevation (degrees) of the panorama's bottom/top edge, z land haze, w day window dimming
-uniform vec4 SkyZenith;    // rgb zenith colour
+uniform vec4 SkyZenith;    // rgb zenith colour, a sun relighting of the land's faces (texUnit2/3 b, a: normals)
 uniform vec4 SkyHorizon;   // rgb horizon colour, a horizon band sharpness
 uniform vec4 SkyCloud;     // rgb cloud colour, a cloud opacity
 uniform vec4 SkyLand;      // rgb land tint, a land desaturation
@@ -100,14 +100,15 @@ float SrnAngleDiff(float a, float b)
 
 //----------------------------------------------------------------------------- panorama
 
-// The land at this direction: rgb, alpha (coverage), light mask (r windows, g beacons), and its colour blurred
+// The land at this direction: rgb, alpha (coverage), light mask (r windows, g beacons, b/a the face's normal to
+// the right and up, 0.5 for none), and its colour blurred
 // over a few texels (what a lit window is replaced by in daylight).
-vec4 SrnLand(vec2 uv, float elevation, out vec2 lights, out vec3 blurred)
+vec4 SrnLand(vec2 uv, float elevation, out vec4 lights, out vec3 blurred)
 {
     float bottom = radians(SkyBand.x);
     float top = radians(SkyBand.y);
     float tv = (elevation - bottom) / (top - bottom);
-    lights = vec2(0.0);
+    lights = vec4(0.0, 0.0, 0.5, 0.5);
     blurred = vec3(0.0);
     if (tv > 1.0)
         return vec4(0.0);
@@ -117,7 +118,7 @@ vec4 SrnLand(vec2 uv, float elevation, out vec2 lights, out vec3 blurred)
     float second = step(0.5, uv.x);
     vec4 land = mix(texture2D(texUnit0, ta), texture2D(texUnit1, tb), second);
     vec4 mask = mix(texture2D(texUnit2, ta), texture2D(texUnit3, tb), second);
-    lights = mask.rg;
+    lights = mask;
     blurred = mix(texture2D(texUnit0, ta, 3.5).rgb, texture2D(texUnit1, tb, 3.5).rgb, second);
     if (tv < 0.0)
     {
@@ -126,7 +127,7 @@ vec4 SrnLand(vec2 uv, float elevation, out vec2 lights, out vec3 blurred)
         vec2 gb = vec2(tb.x, 0.004);
         vec3 ground = mix(texture2D(texUnit0, ga, 7.0).rgb, texture2D(texUnit1, gb, 7.0).rgb, second);
         land = vec4(ground * mix(0.7, 0.25, clamp(-tv * 2.0, 0.0, 1.0)), 1.0);
-        lights = vec2(0.0);
+        lights = vec4(0.0, 0.0, 0.5, 0.9);  // the ground faces up
     }
     return land;
 }
@@ -333,7 +334,7 @@ vec3 SrnSkyColour(vec2 uv, float timeOfDayMs, float dayLengthMs, float weather)
     sky += (SkyHorizon.rgb + SkyGlow.rgb * 0.3) * smoothstep(0.72, 1.0, rain) * SkyExtra.w * storm * 0.35;
 
     // the land
-    vec2 lights;
+    vec4 lights;
     vec3 blurred;
     vec4 land = SrnLand(uv, elevation, lights, blurred);
     if (land.a > 0.0)
@@ -350,8 +351,21 @@ vec3 SrnSkyColour(vec2 uv, float timeOfDayMs, float dayLengthMs, float weather)
         float phase = SrnHash1(vec3(floor(uv * vec2(1400.0, 240.0)), 9.0));
         float blink = step(0.55, fract(seconds * 0.6 + phase));
         base += vec3(1.0, 0.12, 0.08) * lights.g * blink * SkyExtra.y;
-        // lightning lights the land facing it
-        base += land.rgb * lightning.x * 0.6;
+        // the face's normal in the viewer's frame here: x right, y up, z toward the viewer
+        vec3 n = vec3(lights.b * 2.0 - 1.0, lights.a * 2.0 - 1.0, 0.0);
+        n.z = sqrt(max(1.0 - dot(n.xy, n.xy), 0.0));
+        // the sun relights faces turned toward it and shades those turned away
+        if (SkyZenith.a > 0.0)
+        {
+            vec3 toSun = vec3(dot(sunDir.xy, vec2(sin(azimuth), -cos(azimuth))), sunDir.z,
+                              -dot(sunDir.xy, vec2(cos(azimuth), sin(azimuth))));
+            float facing = dot(n, toSun);
+            float shine = SkyZenith.a * smoothstep(-0.08, 0.12, sunDir.z);
+            base *= 1.0 + shine * (facing - 0.2) * 0.8;
+            base += land.rgb * SkySunColor.rgb * shine * max(facing, 0.0) * 0.35;
+        }
+        // lightning lights the land, most the faces turned up and toward the viewer
+        base += land.rgb * lightning.x * (0.25 + 0.6 * max(n.y, 0.0) + 0.3 * n.z);
         // distance haze, more in rain
         float haze = clamp(SkyBand.z + SkyExtra.w * storm * 0.45, 0.0, 1.0);
         base = mix(base, SkyHorizon.rgb, haze * (1.0 - smoothstep(radians(SkyBand.x), radians(SkyBand.y), elevation) * 0.5));

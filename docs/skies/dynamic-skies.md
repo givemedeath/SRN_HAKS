@@ -46,6 +46,12 @@ skyboxes.2da row -> dawn/day/dusk/night model (srn_sky*_*.mdl, a 675 m inward sp
   middles darker. They drift in a slow circle once per game day, so midnight's clock wrap is seamless.
 - **Light masks.** Windows and neon (R) dim into their surroundings by day and flicker gently at night; beacons (G)
   blink each to its own clock. The masks are found from the picture (`panorama.lights`).
+- **Relighting.** The light masks' b and a carry each face's normal (to the right and up), estimated by MoGe-2
+  (`moge_2_vitl_normal_fp16`) on the shared ComfyUI in overlapping 60-degree tiles (`tools/skykit/normals.py`, cached
+  by content). The sun brightens and warms faces turned toward it and shades those turned away (`SkyZenith.a`);
+  lightning lights faces turned up and toward the viewer most. Masks are DXT5 for it.
+- **Seams.** Every redraw is graded like the picture it continues, row by row from the overlap they share
+  (`panorama.row_gain`): the image model drifts the grade of the part it keeps. Blends run over seven pyramid levels.
 - **City glow.** The masks' smallest mip gives the light of the sprawl toward each azimuth; it lights the
   undersides of low clouds in the phase's `SkyGlow` colour.
 - **Weather.** `areaWeatherDensity` raises cloud cover and darkens the land. The storm material adds lightning (a
@@ -65,7 +71,7 @@ Set in `tools/skykit/profiles.py`; the build writes them into the materials. Uni
 |---|---|
 | `SkyPhase` | 0 dawn, 1 day, 2 dusk, 3 night (day dims windows; night shows stars, moon, aurora) |
 | `SkyBand` | band bottom and top (degrees, from the build), land haze, day window dimming |
-| `SkyZenith`, `SkyHorizon` | sky gradient; horizon alpha is the sunset band's sharpness |
+| `SkyZenith`, `SkyHorizon` | sky gradient; zenith alpha is how strongly the sun relights the land's faces, horizon alpha the sunset band's sharpness |
 | `SkyCloud` | cloud colour; alpha is cloud opacity |
 | `SkyLand` | land tint; alpha is desaturation |
 | `SkySun`, `SkySunColor` | sun azimuth, elevation, disc size and glow; colour and cloud rim light |
