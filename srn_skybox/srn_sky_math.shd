@@ -116,7 +116,8 @@ vec4 SrnLand(vec2 uv, float elevation, out vec4 lights, out vec3 blurred)
     vec2 ta = vec2(uv.x * 2.0, clamp(tv, 0.002, 0.998));
     vec2 tb = vec2(uv.x * 2.0 - 1.0, ta.y);
     float second = step(0.5, uv.x);
-    vec4 land = mix(texture2D(texUnit0, ta), texture2D(texUnit1, tb), second);
+    // a slightly sharper mip than the screen asks for: the land is seen minified, and the default mip blurs it
+    vec4 land = mix(texture2D(texUnit0, ta, -0.5), texture2D(texUnit1, tb, -0.5), second);
     vec4 mask = mix(texture2D(texUnit2, ta), texture2D(texUnit3, tb), second);
     lights = mask;
     blurred = mix(texture2D(texUnit0, ta, 1.5).rgb, texture2D(texUnit1, tb, 1.5).rgb, second);

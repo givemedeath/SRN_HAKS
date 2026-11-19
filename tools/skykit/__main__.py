@@ -47,6 +47,7 @@ def _land(whole, spec, key, scale):
         from . import upscale
         whole, cache = upscale.upscale(whole, OUTPUT / key)
         UPSCALED[key] = cache
+        whole = panorama.sharpen(whole)
     rgba = panorama.cut(whole, spec['key'], scale)
     return rgba[panorama.land_rows(rgba)[0]:]
 

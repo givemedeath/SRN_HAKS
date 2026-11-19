@@ -83,6 +83,20 @@ def _blur(channel, radius):
     return np.asarray(image.filter(ImageFilter.GaussianBlur(radius)), np.float32) / 255
 
 
+SHARPEN = (2.0, 70, 2)  # unsharp mask after the upscale: radius (texels), percent, threshold (levels)
+
+
+def sharpen(rgb, settings=SHARPEN):
+    """An unsharp mask over the upscaled picture: the upscaler keeps edges but softens what lies between them. The
+    picture's ends are padded with each other so the wrap stays seamless."""
+    pad = 16
+    wrapped = np.concatenate([rgb[:, -pad:], rgb, rgb[:, :pad]], axis=1)
+    image = Image.fromarray(np.clip(wrapped * 255 + 0.5, 0, 255).astype(np.uint8))
+    radius, percent, threshold = settings
+    out = np.asarray(image.filter(ImageFilter.UnsharpMask(radius, percent, threshold)), np.float32) / 255
+    return out[:, pad:-pad]
+
+
 def _blur_rows(channel, radius):
     """Mean over `radius` columns either side, along each row only."""
     padded = np.pad(channel, ((0, 0), (radius + 1, radius)), mode='edge')
