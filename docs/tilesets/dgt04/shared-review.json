@@ -105,11 +105,11 @@
       "vos_stairrail1",
       "vos_stairrail2"
      ],
-     "across": 5,
-     "spacing": 6,
+     "across": 3,
+     "spacing": 4,
      "apart": 10,
-     "distance": 18,
-     "pitch": 55
+     "distance": 10,
+     "pitch": 75
     },
     {
      "name": "medium",
@@ -137,11 +137,11 @@
       "udp-p-42",
       "udp-p-96"
      ],
-     "across": 3,
-     "spacing": 14,
-     "apart": 16,
-     "distance": 32,
-     "pitch": 45
+     "across": 2,
+     "spacing": 12,
+     "apart": 18,
+     "distance": 22,
+     "pitch": 70
     },
     {
      "name": "large",
