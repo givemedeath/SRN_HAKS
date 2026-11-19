@@ -328,7 +328,8 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None):
     if 'block' in parts and 'block' in spec:
         block = spec['block']
         # Of the four views of each crossing, some stand inside a roof or face a wall: a spec names the ones worth taking.
-        chosen = lambda made, views: [shot for shot in made if not views or shot['label'].split('-', 2)[2] in views]
+        # A view is the label's last two parts (x03y03-ne), however many parts its prefix has (lamp-main-night).
+        chosen = lambda made, views: [shot for shot in made if not views or '-'.join(shot['label'].rsplit('-', 2)[-2:]) in views]
         cells = solve(tiles, laid['default'], block['width'], block['height'], block['patches'], block.get('runs', ()), avoid=grouped | envkit)
         for light in block['lights']:
             tag = 'tkb' + light[0]; add(tag, f'Block, {light}', block['width'], block['height'], cells, light)
