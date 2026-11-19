@@ -5,6 +5,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from PIL import Image
+
 from . import meshy, sheet
 from .test_meshy import FakeMeshy
 
@@ -24,7 +26,7 @@ class SheetTests(unittest.TestCase):
         self.sets = self.root / 'sets'; self.sets.mkdir(); (self.sets / 'yard.json').write_text(json.dumps({'sheet': SHEET, 'assets': ASSETS}), encoding='utf-8')
         self.selected = self.root / 'selected'; self.selected.mkdir()
         for name in ('desk', 'gate', 'building-hero', 'building-rear'):
-            (self.selected / f'{name}-s101-b0.png').write_bytes(b'png')
+            Image.new('L', (2048, 4)).save(self.selected / f'{name}-s101-b0.png')  # at Meshy's size
         self.work, self.models, self.masters = (self.root / part for part in ('work', 'models', 'masters'))
         self.said = []; self.say = lambda text, **_: self.said.append(json.loads(text))
 
@@ -169,6 +171,7 @@ class SheetTests(unittest.TestCase):
         with mock.patch.object(sheet, 'collect', return_value={'failed': [], 'downloaded': [], 'unsent': ['yd-desk-a1']}), mock.patch('builtins.print') as said:
             command.command_sheet(asked)  # what is only unsent is no failure
         self.assertIn('unsentCredits', said.call_args_list[-1].args[0])
+        self.assertEqual(json.loads(said.call_args_list[-1].args[0])['ledger'], str(ledger.path))  # which ledger it was, as none need be named
 
     def test_a_remesh_of_an_earlier_generation_is_not_kept_for_the_new_one(self):
         """A building generated again under a new key with its remesh key left as it was: the ledger's remesh is the
@@ -233,6 +236,42 @@ class SheetTests(unittest.TestCase):
         plan = sheet.load_plan(Path(__file__).with_name('sets') / 'ares-depot-meshy.json')
         self.assertEqual(len(plan['props']), 15); self.assertEqual(plan['props']['turret']['key'], 'ares-turret-a2')  # its first call was refused: the queue was full
         self.assertEqual(plan['building']['remesh'], 'ares-building-a1-remesh2')  # remeshed again when the building budget went to 200k
+
+
+    def test_a_reference_under_meshys_size_is_not_sent(self):
+        """User, 2026-11-14: "a minimum of 2k input". Nothing of the sheet goes while one unsent reference is small."""
+        ledger = meshy.Ledger.create(self.root / 'ledger.json', 500); plan = self.plan(); fake = FakeMeshy()
+        Image.new('L', (1024, 1280)).save(self.selected / 'gate-s101-b0.png')
+        with self.assertRaisesRegex(ValueError, r'2048 pixels or more on its longer side; run `envkit enlarge` for gate-s101-b0.png \(1024x1280\)'):
+            sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say)
+        self.assertEqual(fake.calls, [])
+        Image.new('L', (4, 2048)).save(self.selected / 'gate-s101-b0.png')  # the longer side counts, whichever it is
+        self.assertEqual(len(sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say)), 3)
+        Image.new('L', (64, 64)).save(self.selected / 'gate-s101-b0.png')  # a call that has gone is not measured again
+        self.assertEqual(sheet.submit(ledger, plan, self.selected, self.work, run=fake, say=self.say), [])
+
+    def test_the_picture_sent_is_the_enlarged_one_of_the_reference_chosen_now(self):
+        """Review, 2026-11-14: an asset chosen again with another seed left the seed enlarged before in the folder of
+        sent pictures, and looking there for the asset's reference found two."""
+        import shutil
+        from . import reference
+        ledger = meshy.Ledger.create(self.root / 'ledger.json', 500); plan = self.plan(); fake = FakeMeshy()
+        enlarged = self.root / 'sent'; quiet = lambda *_, **__: None
+        go = lambda: sheet.submit(ledger, plan, self.selected, self.work, sent=enlarged, run=fake, say=self.say)
+        with self.assertRaisesRegex(ValueError, 'run `envkit enlarge`.*: building-hero-s101-b0.png, building-rear-s101-b0.png, desk-s101-b0.png, gate-s101-b0.png$'):
+            go()  # nothing enlarged yet
+        reference.enlarge(None, None, None, self.selected, enlarged, say=quiet)  # each is large enough and is copied
+        Image.new('L', (4096, 8)).save(enlarged / 'gate-s100-b0.png')  # the seed chosen before, still lying there
+        Image.new('L', (2048, 6)).save(self.selected / 'gate-s101-b0.png')  # and the gate chosen again under its name
+        with self.assertRaisesRegex(ValueError, 'run `envkit enlarge`.*: gate-s101-b0.png$'):
+            go()
+        self.assertEqual(fake.calls, [])
+        (enlarged / 'gate-s101-b0.png').unlink(); (enlarged / 'gate-s101.json').unlink(); reference.enlarge(None, None, None, self.selected, enlarged, say=quiet)
+        self.assertEqual(len(go()), 3)
+        said = ' '.join(str(word) for call in fake.calls for word in call)
+        # The call names each picture by its resolved path, which a short temporary folder name (RUNNER~1 on the CI's Windows) is not.
+        self.assertIn(str((enlarged / 'gate-s101-b0.png').resolve()), said); self.assertNotIn(str(self.selected.resolve()), said); self.assertNotIn('gate-s100', said)
+        shutil.rmtree(enlarged); self.assertEqual(go(), [])  # what has gone needs no enlarged picture any more
 
 
 if __name__ == '__main__':

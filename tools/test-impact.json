@@ -3,19 +3,37 @@
   "dependencies": {
     "tools/armorkit/__init__.py": [],
     "tools/armorkit/__main__.py": [
+      "tools/armorkit/accessory.py",
       "tools/armorkit/bake.py",
+      "tools/armorkit/bodies.py",
+      "tools/armorkit/brassard.py",
       "tools/armorkit/brief.py",
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/generate.py",
       "tools/armorkit/head-envelopes.json",
+      "tools/armorkit/headgear.py",
       "tools/armorkit/measure.py",
       "tools/armorkit/poses.py",
+      "tools/armorkit/publish.py",
       "tools/armorkit/reference.py",
+      "tools/armorkit/refit.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/seam-contract.json",
       "tools/armorkit/tables.py",
       "tools/armorkit/view.py"
+    ],
+    "tools/armorkit/accessory.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/brief.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/repose.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/texture.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/gltf.py"
     ],
     "tools/armorkit/bake.py": [
       "tools/armorkit/bodyskin.py",
@@ -33,6 +51,14 @@
       "tools/headkit/gltf.py",
       "tools/robes/mesh_ops.py"
     ],
+    "tools/armorkit/bodies.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/poses.py",
+      "tools/armorkit/registry.py"
+    ],
     "tools/armorkit/bodyskin.py": [
       "tools/armorkit/export.py",
       "tools/armorkit/measure.py",
@@ -41,6 +67,13 @@
       "tools/armorkit/texture.py",
       "tools/headkit/__init__.py",
       "tools/headkit/native_reader.py"
+    ],
+    "tools/armorkit/brassard.py": [
+      "tools/armorkit/export.py",
+      "tools/armorkit/logo.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py"
     ],
     "tools/armorkit/brief.py": [
       "tools/armorkit/registry.py",
@@ -56,7 +89,8 @@
     ],
     "tools/armorkit/ends.py": [
       "tools/armorkit/registry.py",
-      "tools/armorkit/seams.py"
+      "tools/armorkit/seams.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/export.py": [
       "tools/armorkit/registry.py",
@@ -81,6 +115,19 @@
       "tools/headkit/reference_background.py",
       "tools/headkit/shared_comfy.py"
     ],
+    "tools/armorkit/headgear.py": [
+      "tools/armorkit/accessory.py",
+      "tools/armorkit/bodyskin.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/head-envelopes.json",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/texture.py"
+    ],
+    "tools/armorkit/logo.py": [
+      "tools/armorkit/registry.py",
+      "tools/armorkit/texture.py"
+    ],
     "tools/armorkit/measure.py": [
       "tools/armorkit/registry.py",
       "tools/armorkit/seams.py",
@@ -91,10 +138,29 @@
       "tools/phenomorpher/phenomorpher/engine/native_motion.py"
     ],
     "tools/armorkit/poses.py": [
+      "tools/armorkit/bodies.py",
       "tools/armorkit/client.py",
       "tools/armorkit/client_fixture.py",
+      "tools/armorkit/logo.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/tables.py"
+    ],
+    "tools/armorkit/publish.py": [
+      "PROVENANCE.md",
+      "docs/armorkit/parts-copies.json",
+      "docs/armorkit/parts-handoff.json",
+      "docs/armorkit/parts-registry.json",
+      "hakbuilder.json",
+      "tools/armorkit/export.py",
+      "tools/armorkit/logo.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/tables.py",
+      "tools/armorkit/toolchain.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/native_reader.py",
+      "tools/shared_tools.py"
     ],
     "tools/armorkit/reduce.py": [
       "tools/armorkit/registry.py"
@@ -105,6 +171,19 @@
       "tools/headkit/__init__.py",
       "tools/headkit/comfy.py",
       "tools/headkit/design.py"
+    ],
+    "tools/armorkit/refit.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/bodyskin.py",
+      "tools/armorkit/ends.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/publish.py",
+      "tools/armorkit/reduce.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/repose.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/split.py",
+      "tools/robes/mesh_ops.py"
     ],
     "tools/armorkit/registry.py": [],
     "tools/armorkit/repose.py": [
@@ -127,6 +206,19 @@
     "tools/armorkit/tables.py": [
       "tools/armorkit/registry.py"
     ],
+    "tools/armorkit/test_accessories.py": [
+      "tools/armorkit/accessory.py",
+      "tools/armorkit/bodies.py",
+      "tools/armorkit/brassard.py",
+      "tools/armorkit/brief.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/headgear.py",
+      "tools/armorkit/logo.py",
+      "tools/armorkit/poses.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/test_brief.py",
+      "tools/armorkit/test_poses.py"
+    ],
     "tools/armorkit/test_bake.py": [
       "tools/armorkit/bake.py",
       "tools/armorkit/bodyskin.py",
@@ -137,6 +229,14 @@
       "tools/armorkit/split.py",
       "tools/armorkit/test_bodyskin.py",
       "tools/armorkit/test_split.py"
+    ],
+    "tools/armorkit/test_bodies.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/bodies.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/armorkit/poses.py",
+      "tools/armorkit/registry.py"
     ],
     "tools/armorkit/test_bodyskin.py": [
       "tools/armorkit/bodyskin.py",
@@ -155,7 +255,9 @@
     ],
     "tools/armorkit/test_cli.py": [
       "tools/armorkit/__main__.py",
+      "tools/armorkit/accessory.py",
       "tools/armorkit/bake.py",
+      "tools/armorkit/brassard.py",
       "tools/armorkit/brief.py",
       "tools/armorkit/briefs/corpsec-siteguard-male-2.json",
       "tools/armorkit/client.py",
@@ -163,7 +265,9 @@
       "tools/armorkit/examples/registry.json",
       "tools/armorkit/generate.py",
       "tools/armorkit/poses.py",
+      "tools/armorkit/publish.py",
       "tools/armorkit/reference.py",
+      "tools/armorkit/refit.py",
       "tools/armorkit/registry.py",
       "tools/armorkit/view.py"
     ],
@@ -172,6 +276,7 @@
       "tools/armorkit/client_fixture.py",
       "tools/armorkit/registry.py"
     ],
+    "tools/armorkit/test_collected.py": [],
     "tools/armorkit/test_ends.py": [
       "tools/armorkit/bake.py",
       "tools/armorkit/ends.py",
@@ -192,12 +297,28 @@
     "tools/armorkit/test_measure.py": [
       "tools/armorkit/head-envelopes.json",
       "tools/armorkit/measure.py",
-      "tools/armorkit/seams.py"
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/test_bake.py",
+      "tools/armorkit/test_split.py"
     ],
     "tools/armorkit/test_poses.py": [
       "tools/armorkit/client.py",
       "tools/armorkit/poses.py",
       "tools/armorkit/registry.py",
+      "tools/armorkit/test_tables.py"
+    ],
+    "tools/armorkit/test_publish.py": [
+      "PROVENANCE.md",
+      "docs/armorkit/parts-copies.json",
+      "hakbuilder.json",
+      "tools/armorkit/examples/registry.json",
+      "tools/armorkit/export.py",
+      "tools/armorkit/logo.py",
+      "tools/armorkit/publish.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/tables.py",
+      "tools/armorkit/test_registry.py",
       "tools/armorkit/test_tables.py"
     ],
     "tools/armorkit/test_reduce.py": [
@@ -208,6 +329,20 @@
       "tools/armorkit/brief.py",
       "tools/armorkit/reference.py",
       "tools/armorkit/test_brief.py"
+    ],
+    "tools/armorkit/test_refit.py": [
+      "tools/armorkit/bake.py",
+      "tools/armorkit/bodyskin.py",
+      "tools/armorkit/measure.py",
+      "tools/armorkit/publish.py",
+      "tools/armorkit/refit.py",
+      "tools/armorkit/registry.py",
+      "tools/armorkit/seams.py",
+      "tools/armorkit/split.py",
+      "tools/armorkit/test_bake.py",
+      "tools/armorkit/test_bodyskin.py",
+      "tools/armorkit/test_publish.py",
+      "tools/armorkit/test_seams.py"
     ],
     "tools/armorkit/test_registry.py": [
       "tools/armorkit/examples/registry.json",
@@ -293,19 +428,21 @@
     "tools/envkit/__init__.py": [],
     "tools/envkit/__main__.py": [
       "docs/additions/catalog.json",
-      "tools/armorkit/__init__.py",
-      "tools/armorkit/export.py",
       "tools/envkit/additions.py",
       "tools/envkit/checks.py",
       "tools/envkit/convert.py",
       "tools/envkit/local.py",
+      "tools/envkit/measure.py",
       "tools/envkit/meshy.py",
       "tools/envkit/onboard.py",
       "tools/envkit/reference.py",
+      "tools/envkit/restore.py",
       "tools/envkit/sheet.py",
+      "tools/envkit/smears.py",
       "tools/envkit/study.py",
       "tools/envkit/tile.py",
       "tools/envkit/toolset.py",
+      "tools/envkit/track.py",
       "tools/envkit/view.py",
       "tools/headkit/comfy.py",
       "tools/shared_tools.py"
@@ -321,6 +458,7 @@
     "tools/envkit/blueprints.py": [
       "tools/envkit/placeables.py"
     ],
+    "tools/envkit/cache.py": [],
     "tools/envkit/catalog.py": [
       "docs/additions/catalog.json"
     ],
@@ -334,15 +472,26 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/envkit/convert.py": [
-      "tools/envkit/glow.py"
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/toolchain.py",
+      "tools/envkit/cache.py",
+      "tools/envkit/glow.py",
+      "tools/envkit/placeables.py"
     ],
-    "tools/envkit/glow.py": [],
+    "tools/envkit/glow.py": [
+      "tools/envkit/cache.py"
+    ],
     "tools/envkit/local.py": [
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
     ],
+    "tools/envkit/measure.py": [
+      "tools/envkit/convert.py"
+    ],
     "tools/envkit/meshy.py": [
-      "tools/headkit/gpu_lock.py"
+      "tools/headkit/gpu_lock.py",
+      "tools/shared_tools.py"
     ],
     "tools/envkit/onboard.py": [
       "tools/envkit/reference.py"
@@ -362,14 +511,22 @@
       "tools/headkit/__init__.py",
       "tools/headkit/design.py"
     ],
+    "tools/envkit/restore.py": [],
     "tools/envkit/sheet.py": [
       "tools/envkit/meshy.py",
       "tools/envkit/reference.py"
+    ],
+    "tools/envkit/smears.py": [
+      "tools/envkit/convert.py"
     ],
     "tools/envkit/study.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/toolchain.py",
       "tools/envkit/tile.py"
+    ],
+    "tools/envkit/test_cache.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/cache.py"
     ],
     "tools/envkit/test_catalog.py": [
       "tools/envkit/blueprints.py",
@@ -382,6 +539,9 @@
       "tools/envkit/prop_fixture.py"
     ],
     "tools/envkit/test_convert.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/export.py",
+      "tools/armorkit/toolchain.py",
       "tools/envkit/convert.py",
       "tools/envkit/glow.py",
       "tools/envkit/prop_fixture.py"
@@ -395,7 +555,13 @@
     "tools/envkit/test_local.py": [
       "tools/envkit/local.py"
     ],
+    "tools/envkit/test_measure.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/measure.py",
+      "tools/envkit/test_tile.py"
+    ],
     "tools/envkit/test_meshy.py": [
+      "tools/envkit/__main__.py",
       "tools/envkit/meshy.py",
       "tools/headkit/gpu_lock.py"
     ],
@@ -413,14 +579,25 @@
     "tools/envkit/test_reference.py": [
       "tools/envkit/__main__.py",
       "tools/envkit/reference.py",
-      "tools/envkit/sets/stuffer-shack.json"
+      "tools/envkit/sets/stuffer-shack.json",
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py"
+    ],
+    "tools/envkit/test_restore.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/restore.py"
     ],
     "tools/envkit/test_sheet.py": [
       "tools/envkit/__main__.py",
       "tools/envkit/meshy.py",
+      "tools/envkit/reference.py",
       "tools/envkit/sets/ares-depot-meshy.json",
       "tools/envkit/sheet.py",
       "tools/envkit/test_meshy.py"
+    ],
+    "tools/envkit/test_smears.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/smears.py"
     ],
     "tools/envkit/test_study.py": [
       "tools/envkit/study.py"
@@ -435,6 +612,12 @@
     "tools/envkit/test_toolset.py": [
       "tools/armorkit/client_fixture.py",
       "tools/envkit/toolset.py"
+    ],
+    "tools/envkit/test_track.py": [
+      "tools/envkit/convert.py",
+      "tools/envkit/local.py",
+      "tools/envkit/tile.py",
+      "tools/envkit/track.py"
     ],
     "tools/envkit/test_view.py": [
       "tools/envkit/__main__.py",
@@ -451,6 +634,10 @@
       "tools/armorkit/__init__.py",
       "tools/armorkit/client_fixture.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/envkit/track.py": [
+      "tools/envkit/convert.py",
+      "tools/envkit/local.py"
     ],
     "tools/envkit/view.py": [
       "tools/envkit/convert.py",
@@ -1774,6 +1961,7 @@
       "tools/itemkit/generation.py",
       "tools/itemkit/native.py",
       "tools/itemkit/profiles/cougar-shortsword.json",
+      "tools/itemkit/recovery.py",
       "tools/itemkit/resize.py",
       "tools/itemkit/runner.py",
       "tools/itemkit/shield_native.py"
@@ -1844,6 +2032,7 @@
       "tools/phenomorpher/phenomorpher/engine/anim_library.py",
       "tools/phenomorpher/phenomorpher/engine/rig_native.py"
     ],
+    "tools/itemkit/dds.py": [],
     "tools/itemkit/donor.py": [
       "tools/headkit/common.py",
       "tools/headkit/gltf.py",
@@ -1881,18 +2070,24 @@
       "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/firearm_fx_pilot.py": [
+      "docs/items/firearm-grip-standard-v1.json",
       "tools/Invoke-NwnMdlComp.ps1",
       "tools/itemkit/__init__.py",
-      "tools/itemkit/combat_clip_pilot.py"
+      "tools/itemkit/combat_clip_pilot.py",
+      "tools/itemkit/firearm_lean.py"
     ],
     "tools/itemkit/firearm_grip.py": [
       "tools/headkit/common.py",
+      "tools/itemkit/firearm_lean.py",
       "tools/itemkit/geometry.py",
       "tools/itemkit/grip.py"
     ],
     "tools/itemkit/firearm_intake.py": [
       "tools/headkit/common.py",
       "tools/itemkit/contracts.py"
+    ],
+    "tools/itemkit/firearm_lean.py": [
+      "tools/headkit/common.py"
     ],
     "tools/itemkit/firearm_native.py": [
       "tools/headkit/common.py",
@@ -1967,12 +2162,14 @@
       "tools/headkit/native_reader.py",
       "tools/heads/verify_head_hak.py",
       "tools/itemkit/contracts.py",
+      "tools/itemkit/dds.py",
       "tools/itemkit/firearm_native.py",
       "tools/itemkit/geometry.py",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
       "tools/phenomorpher/phenomorpher/engine/stock_armor.py",
-      "tools/phenotypes/native_compile.py"
+      "tools/phenotypes/native_compile.py",
+      "tools/phenotypes/tool_runtime.py"
     ],
     "tools/itemkit/native_stack.py": [
       "tools/headkit/common.py"
@@ -2019,12 +2216,15 @@
       "docs/items/approved-weapon-waves-release-validation.json",
       "docs/items/approved-weapons-v1.json",
       "tools/combat_release_manifest.py",
+      "tools/itemkit/dds.py",
+      "tools/itemkit/native_stack.py",
       "tools/phenomorpher/validation.json",
       "tools/shared_tools.py"
     ],
     "tools/itemkit/recovery.py": [
       "tools/headkit/common.py",
-      "tools/itemkit/contracts.py"
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/transfer.py"
     ],
     "tools/itemkit/reduction.py": [
       "tools/headkit/common.py",
@@ -2040,11 +2240,22 @@
       "tools/headkit/common.py",
       "tools/itemkit/blender_worker.py"
     ],
+    "tools/itemkit/review_session.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/combat_release_manifest.py",
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/client_capture.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/publish.py"
+    ],
     "tools/itemkit/routes.py": [],
     "tools/itemkit/run_itemkit.py": [
       "tools/itemkit/__main__.py"
     ],
     "tools/itemkit/runner.py": [
+      "tools/headkit/__init__.py",
       "tools/headkit/common.py",
       "tools/itemkit/atlas.py",
       "tools/itemkit/blender_worker.py",
@@ -2054,6 +2265,7 @@
       "tools/itemkit/geometry.py",
       "tools/itemkit/native.py",
       "tools/itemkit/parts.py",
+      "tools/itemkit/recovery.py",
       "tools/itemkit/reduction.py",
       "tools/itemkit/routes.py",
       "tools/itemkit/shadow.py",
@@ -2065,7 +2277,8 @@
     "tools/itemkit/shadow.py": [
       "tools/headkit/common.py",
       "tools/itemkit/geometry.py",
-      "tools/itemkit/parts.py"
+      "tools/itemkit/parts.py",
+      "tools/itemkit/shell_repair.py"
     ],
     "tools/itemkit/shell_repair.py": [
       "tools/headkit/common.py",
@@ -2177,7 +2390,11 @@
     ],
     "tools/itemkit/test_firearm_fx_pilot.py": [
       "tools/itemkit/__init__.py",
-      "tools/itemkit/firearm_fx_pilot.py"
+      "tools/itemkit/firearm_fx_pilot.py",
+      "tools/itemkit/test_firearm_lean.py"
+    ],
+    "tools/itemkit/test_firearm_lean.py": [
+      "tools/itemkit/firearm_lean.py"
     ],
     "tools/itemkit/test_firearm_package.py": [
       "tools/headkit/common.py",
@@ -2221,6 +2438,7 @@
       "tools/itemkit/test_itemkit.py"
     ],
     "tools/itemkit/test_itemkit.py": [
+      "tools/headkit/__init__.py",
       "tools/headkit/comfy.py",
       "tools/headkit/common.py",
       "tools/itemkit/__init__.py",
@@ -2238,6 +2456,10 @@
       "tools/itemkit/transfer.py"
     ],
     "tools/itemkit/test_material_palette.py": [
+      "tools/itemkit/textures.py"
+    ],
+    "tools/itemkit/test_metal_treatment.py": [
+      "tools/itemkit/native.py",
       "tools/itemkit/textures.py"
     ],
     "tools/itemkit/test_miss_patch.py": [
@@ -2267,13 +2489,20 @@
     ],
     "tools/itemkit/test_publish.py": [
       "tools/itemkit/__init__.py",
-      "tools/itemkit/publish.py"
+      "tools/itemkit/publish.py",
+      "tools/itemkit/test_native_stack.py"
+    ],
+    "tools/itemkit/test_publish_firearms.py": [
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/publish.py",
+      "tools/itemkit/test_publish.py"
     ],
     "tools/itemkit/test_recovery.py": [
       "tools/headkit/common.py",
       "tools/itemkit/recovery.py"
     ],
     "tools/itemkit/test_reduction.py": [
+      "tools/headkit/common.py",
       "tools/itemkit/reduction.py"
     ],
     "tools/itemkit/test_reference_conditioning.py": [
@@ -2282,6 +2511,12 @@
     "tools/itemkit/test_review.py": [
       "tools/headkit/common.py",
       "tools/itemkit/review.py"
+    ],
+    "tools/itemkit/test_review_session.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/fixture.py",
+      "tools/itemkit/review_session.py"
     ],
     "tools/itemkit/test_rigged_contracts.py": [
       "tools/headkit/common.py",
@@ -2329,6 +2564,27 @@
       "tools/itemkit/contracts.py",
       "tools/itemkit/test_itemkit.py"
     ],
+    "tools/itemkit/test_stage_adoption.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/drive.py",
+      "tools/itemkit/miss_patch.py",
+      "tools/itemkit/runner.py",
+      "tools/itemkit/test_itemkit.py"
+    ],
+    "tools/itemkit/test_stock_slots.py": [
+      "tools/headkit/common.py",
+      "tools/itemkit/__init__.py",
+      "tools/itemkit/contracts.py",
+      "tools/itemkit/dds.py",
+      "tools/itemkit/drive.py",
+      "tools/itemkit/family_contract.py",
+      "tools/itemkit/native.py",
+      "tools/itemkit/test_itemkit.py",
+      "tools/itemkit/test_publish.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/shared_tools.py"
+    ],
     "tools/itemkit/test_straightness.py": [
       "tools/headkit/gltf.py",
       "tools/itemkit/generation.py",
@@ -2347,9 +2603,11 @@
       "tools/itemkit/family_contract.py",
       "tools/itemkit/fit_manifest.py",
       "tools/itemkit/fixture.py",
+      "tools/itemkit/geometry.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/oblique.py",
       "tools/itemkit/opening_probes.py",
+      "tools/itemkit/parts.py",
       "tools/itemkit/routes.py",
       "tools/itemkit/straightness.py",
       "tools/itemkit/texture_check.py",
@@ -2361,6 +2619,11 @@
       "tools/headkit/templates/geometry.json",
       "tools/itemkit/generation.py"
     ],
+    "tools/itemkit/test_visible_only_probe.py": [
+      "tools/itemkit/geometry.py",
+      "tools/itemkit/shadow.py",
+      "tools/itemkit/shell_repair.py"
+    ],
     "tools/itemkit/test_workflow.py": [
       "tools/headkit/common.py",
       "tools/itemkit/__init__.py",
@@ -2369,6 +2632,7 @@
       "tools/itemkit/fixture.py",
       "tools/itemkit/grip.py",
       "tools/itemkit/resize.py",
+      "tools/itemkit/routes.py",
       "tools/itemkit/runner.py",
       "tools/itemkit/test_itemkit.py",
       "tools/itemkit/verification.py"
@@ -5365,6 +5629,10 @@
       "tools/itemkit/__init__.py",
       "tools/itemkit/publish.py"
     ],
+    "tools/test_hak_copies.py": [
+      "tools/SrnHaks.Common.psm1",
+      "tools/SrnTools.psm1"
+    ],
     "tools/test_impact.py": [
       "tools/ci-scope.json",
       "tools/ci-test-durations.json",
@@ -5387,12 +5655,24 @@
   },
   "unresolved": [],
   "packReferences": {
+    "tools/armorkit/__main__.py": [
+      "srn_2da",
+      "srn_body",
+      "srn_parts"
+    ],
+    "tools/armorkit/publish.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body",
+      "srn_parts"
+    ],
     "tools/armorkit/test_bake.py": [
       "srn_body"
     ],
     "tools/armorkit/test_cli.py": [
       "srn_armor",
-      "srn_body"
+      "srn_body",
+      "srn_parts"
     ],
     "tools/armorkit/test_measure.py": [
       "srn_body",
@@ -5400,6 +5680,13 @@
     ],
     "tools/armorkit/test_poses.py": [
       "srn_body"
+    ],
+    "tools/armorkit/test_publish.py": [
+      "srn_2da",
+      "srn_armor",
+      "srn_body",
+      "srn_head",
+      "srn_parts"
     ],
     "tools/combat_release_manifest.py": [
       "srn_2da",
@@ -5472,6 +5759,9 @@
       "srn_body_tex",
       "srn_weapon"
     ],
+    "tools/itemkit/family_contract.py": [
+      "srn_weapon"
+    ],
     "tools/itemkit/firearm_fx_pilot.py": [
       "srn_body",
       "srn_weapon"
@@ -5495,6 +5785,9 @@
     ],
     "tools/itemkit/test_publish.py": [
       "srn_2da",
+      "srn_weapon"
+    ],
+    "tools/itemkit/test_stock_slots.py": [
       "srn_weapon"
     ],
     "tools/phenomorpher/phenomorpher/engine/body_sweep.py": [
@@ -5560,18 +5853,23 @@
     ]
   },
   "tests": [
+    "tools/armorkit/test_accessories.py",
     "tools/armorkit/test_bake.py",
+    "tools/armorkit/test_bodies.py",
     "tools/armorkit/test_bodyskin.py",
     "tools/armorkit/test_brief.py",
     "tools/armorkit/test_cli.py",
     "tools/armorkit/test_client_fixture.py",
+    "tools/armorkit/test_collected.py",
     "tools/armorkit/test_ends.py",
     "tools/armorkit/test_export.py",
     "tools/armorkit/test_generate.py",
     "tools/armorkit/test_measure.py",
     "tools/armorkit/test_poses.py",
+    "tools/armorkit/test_publish.py",
     "tools/armorkit/test_reduce.py",
     "tools/armorkit/test_reference.py",
+    "tools/armorkit/test_refit.py",
     "tools/armorkit/test_registry.py",
     "tools/armorkit/test_repose.py",
     "tools/armorkit/test_seams.py",
@@ -5580,19 +5878,24 @@
     "tools/armorkit/test_texture.py",
     "tools/armorkit/test_toolchain.py",
     "tools/armorkit/test_view.py",
+    "tools/envkit/test_cache.py",
     "tools/envkit/test_catalog.py",
     "tools/envkit/test_checks.py",
     "tools/envkit/test_convert.py",
     "tools/envkit/test_glow.py",
     "tools/envkit/test_local.py",
+    "tools/envkit/test_measure.py",
     "tools/envkit/test_meshy.py",
     "tools/envkit/test_onboard.py",
     "tools/envkit/test_placeables.py",
     "tools/envkit/test_reference.py",
+    "tools/envkit/test_restore.py",
     "tools/envkit/test_sheet.py",
+    "tools/envkit/test_smears.py",
     "tools/envkit/test_study.py",
     "tools/envkit/test_tile.py",
     "tools/envkit/test_toolset.py",
+    "tools/envkit/test_track.py",
     "tools/envkit/test_view.py",
     "tools/headbatch/test_client_capture.py",
     "tools/headbatch/test_fitassembly.py",
@@ -5648,6 +5951,7 @@
     "tools/itemkit/test_donor.py",
     "tools/itemkit/test_donor_caps.py",
     "tools/itemkit/test_firearm_fx_pilot.py",
+    "tools/itemkit/test_firearm_lean.py",
     "tools/itemkit/test_firearm_package.py",
     "tools/itemkit/test_firearm_processing.py",
     "tools/itemkit/test_firearms.py",
@@ -5655,16 +5959,19 @@
     "tools/itemkit/test_greatsword.py",
     "tools/itemkit/test_itemkit.py",
     "tools/itemkit/test_material_palette.py",
+    "tools/itemkit/test_metal_treatment.py",
     "tools/itemkit/test_miss_patch.py",
     "tools/itemkit/test_native_stack.py",
     "tools/itemkit/test_onehand_fire_motion.py",
     "tools/itemkit/test_preflight.py",
     "tools/itemkit/test_profile_mesh.py",
     "tools/itemkit/test_publish.py",
+    "tools/itemkit/test_publish_firearms.py",
     "tools/itemkit/test_recovery.py",
     "tools/itemkit/test_reduction.py",
     "tools/itemkit/test_reference_conditioning.py",
     "tools/itemkit/test_review.py",
+    "tools/itemkit/test_review_session.py",
     "tools/itemkit/test_rigged_contracts.py",
     "tools/itemkit/test_routes.py",
     "tools/itemkit/test_shadow.py",
@@ -5673,10 +5980,13 @@
     "tools/itemkit/test_skinned_native.py",
     "tools/itemkit/test_source_atlas.py",
     "tools/itemkit/test_staff.py",
+    "tools/itemkit/test_stage_adoption.py",
+    "tools/itemkit/test_stock_slots.py",
     "tools/itemkit/test_straightness.py",
     "tools/itemkit/test_thrown.py",
     "tools/itemkit/test_toolkit_driver.py",
     "tools/itemkit/test_trial_policy.py",
+    "tools/itemkit/test_visible_only_probe.py",
     "tools/itemkit/test_workflow.py",
     "tools/phenomorpher/phenomorpher/engine/test_anim_library.py",
     "tools/phenomorpher/phenomorpher/engine/test_body_sweep.py",
@@ -5856,6 +6166,7 @@
     "tools/test_ci_scope.py",
     "tools/test_clean_checkout.py",
     "tools/test_combat_release_manifest.py",
+    "tools/test_hak_copies.py",
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py"
   ]

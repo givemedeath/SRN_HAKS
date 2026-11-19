@@ -7,20 +7,20 @@ Build the normal release through the existing pack builder:
 ```
 
 `srn_weapon` contains the approved models, runtime diffuse maps, inventory icons
-and thirty-one builder blueprints for twenty-nine weapon designs. `srn_2da` supplies
+and thirty-six builder blueprints for thirty-four weapon designs. `srn_2da` supplies
 the native carrier table. No custom TLK is required. The inventory and resource
 hashes are in `approved-weapons-v1.json`; the generated combat release manifest
 describes the complete resource closure.
 
 | Family | BaseItem / ItemClass | Released designs |
 |---|---|---|
-| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Survival Knife; Ceramic Knife; Vibro Blades — Knife |
-| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Sword; Club; Extendable Baton; Tomahawk; Rapier |
-| F4 | 13 / WSwGs | Katana; Claymore; Baseball Bat; Combat Axe |
-| F5 | 50 / WDbQs | Staff; Stun Staff; Spear |
+| F1 | 22 / WSwDg | Cougar Fineblade Knife; Cougar Fineblade Longblade; Survival Knife; Ceramic Knife; Vibro Blades — Knife; Sai |
+| F2 | 1 / WSwLs | Cougar Fineblade Longsword; Stun Baton; Vibro Blades — Sword; Sword; Club; Extendable Baton; Tomahawk; Rapier; Mace; Macauitl |
+| F4 | 13 / WSwGs | Katana; Claymore; Baseball Bat; Combat Axe; Nodachi |
+| F5 | 50 / WDbQs | Staff; Stun Staff; Spear; Pole Arm |
 | F6 | 111 / WWhip | Whip |
-| F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV |
-| F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow |
+| F7 | 61 / WBwSl | Colt L36 (both finishes); Ingram Smartgun X; Ares Predator IV; Fichetti Security 600; Yamaha Pulsar; HK MP-5 TX |
+| F8 | 6 / WBwXh | AK-98 and its separate launcher entry; Heavy Crossbow; AK-97; Defiance T-250 |
 | F9 | 8 / WBwLn | Bow |
 | F11 | 63 / WThAx | Throwing Knife |
 | F12 | 56 / AShLw | Riot Shield |
@@ -192,6 +192,166 @@ Table changes are appearance-picker extensions only:
 F5 (071) already falls inside its range. No gameplay, price or item-property field changes. The comparison module
 gained a male/female reviewer pair for each (`sw7_`), but those pairs have not been run in its client.
 
+## Melee wave 4 (2026-11-14)
+
+Wave 4 adds five SR4 catalog designs through the same pipeline: geometry comes from the colour detail image through
+the shared ComfyUI. All five went in through `drive publish`. Each package is the exact bytes of its reviewed native
+HAK, and each blueprint is the exact bytes from its private fixture module. Hashes are in `approved-weapons-v1.json`.
+The user approved them after seeing unattended in-client captures on both shipped Human bodies: "Approve all five".
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Sai | F1 / row 22 | `sr6a19234a` | `wswdg_*_131`, diffuse `sr6a19234a_13` | 0.62 m |
+| Mace | F2 / row 1 | `sr4c45ec83` | `wswls_*_201`, diffuse `sr4c45ec83_20` | 0.75 m |
+| Macauitl | F2 / row 1 | `sr994ca81b` | `wswls_*_211`, diffuse `sr994ca81b_21` | 1.11 m |
+| Nodachi | F4 / row 13 | `sr36b5c592` | `wswgs_*_111`, diffuse `sr36b5c592_11` | 1.50 m |
+| Pole Arm | F5 / row 50 | `src3ccd3b0` | `wdbqs_*_091`, diffuse `src3ccd3b0_09` | 2.00 m |
+
+- **Sai:** the user chose a shorter Sai. To keep the standard grip, only the cord handle was lengthened ("just stretch
+  the handle part if needed"). After the first capture, the prong arms were shortened so the spread is 20% narrower
+  ("the side blades fan out too wide"); the tips keep their shape.
+- **Mace:** made from the third geometry attempt, straightened through its head (`straighten --whole`). Four target
+  faces bake with a reviewed colour patch that the user approved.
+- **Macauitl:** its ring pommel stays open through a reviewed opening probe. Six faces at the paddle base bake with a
+  reviewed patch, and the colour transfer reaches 3.8 mm; the user approved both.
+- **Nodachi:** carried as a two-hand greatsword. Its round grip is a user-authorised departure from the grip standard.
+- **Pole Arm:** the staff carrier sizes the whole section from the grip, so the design is stretched 2.3x along its
+  length, axe head included, as the user chose. Its colour transfer reaches 4.2 mm, which the user approved.
+
+The fit records stay with the private itemkit runs.
+
+Table changes are appearance-picker extensions only:
+
+- F1 `MaxRange` 121 to 131
+- F2 `MaxRange` 191 to 211
+- F4 `MaxRange` 101 to 111
+
+F5 (091) already falls inside its range. No gameplay, price or item-property field changes. The comparison module
+gained a male/female reviewer pair for each in the `sw1_` row (`sw8_`), but those pairs have not been run in its
+client.
+
+## Melee wave 5 (2026-11-14)
+
+Wave 5 adds three SR4 catalog designs through the same pipeline: geometry comes from the colour detail image through
+the shared ComfyUI. All three went in through `drive publish`. Each package is the exact bytes of its reviewed native
+HAK, and each blueprint is the exact bytes from its private fixture module. Hashes are in `approved-weapons-v1.json`.
+The user approved them after seeing unattended in-client captures on both shipped Human bodies: "Looks good".
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Katar | F1 / row 22 | `srdaa6941e` | `wswdg_*_141`, diffuse `srdaa6941e_14` | 0.60 m |
+| Tonfa | F2 / row 1 | `srb8bdf709` | `wswls_*_221`, diffuse `srb8bdf709_22` | 0.54 m |
+| Telescopic Staff | F5 / row 50 | `sr893e13e4` | `wdbqs_*_101`, diffuse `sr893e13e4_10` | 1.80 m |
+
+- **Katar** and **Tonfa** are side grips: the fist closes on a grip that crosses the weapon (the Katar's crossbar, the
+  Tonfa's side handle), so each takes one uniform scale from its chosen length. Both handles are user-authorised
+  departures from the grip standard.
+- **Katar:** the fist is on the crossbar and the blade points forward past the knuckles ("Fist on crossbar"). The first
+  fit held it backwards and was turned half a turn about the crossbar before the user saw it.
+- **Tonfa:** the shaft runs along the back of the forearm at the little-finger end of the fist, and the knob points
+  forward past the thumb. The first capture was too long and held back to front ("Tonfa is too long and not facing the
+  right direction"). Only the long arm of the shaft was shortened ("Shorten shaft only"), so the handle keeps its
+  0.75 fit scale. Its shadow mesh is a simplified copy bounded at 8 mm from the shaft.
+- **Telescopic Staff:** meshed by turning its profile about the long axis, then the tubes were stretched to 1.80 m
+  ("1.8 m, tubes only").
+
+The fit records stay with the private itemkit runs.
+
+Table changes are appearance-picker extensions only:
+
+- F1 `MaxRange` 131 to 141
+- F2 `MaxRange` 211 to 221
+- F5 `MaxRange` 100 to 101
+
+No gameplay, price or item-property field changes. The comparison module gained a male/female reviewer pair for each
+in the `sw1_` row (`sw9_`), but those pairs have not been run in its client.
+
+## Melee wave 6 (2026-11-15)
+
+Wave 6 adds four SR4 catalog designs through the same pipeline and `drive publish`. Each package is the exact bytes of
+its reviewed native HAK, and each blueprint is the exact bytes from its private fixture module. Hashes are in
+`approved-weapons-v1.json`. The user approved them after seeing unattended in-client captures on both shipped Human
+bodies: "Approve all three" for the Kris, Jupiter Taser Club and Monofilament Sword, then "Approve the Rattan" after the
+Rattan Stick was rebuilt. The Sap is on hold and the Bottle was dropped ("drop the bottle"); neither is published.
+
+| Item | Family | Blueprint | Appearance | Length |
+|---|---|---|---|---|
+| Kris | F1 / row 22 | `sr8070eecb` | `wswdg_*_151`, diffuse `sr8070eecb_15` | 0.60 m |
+| Monofilament Sword | F2 / row 1 | `sr79104ee8` | `wswls_*_151`, diffuse `sr79104ee8_15` | 0.96 m |
+| Jupiter Taser Club | F2 / row 1 | `srd88e01a2` | `wswls_*_161`, diffuse `srd88e01a2_16` | 0.75 m |
+| Rattan Stick | F2 / row 1 | `sr48d86616` | `wswls_*_231`, diffuse `sr48d86616_23` | 0.70 m |
+
+- **Kris:** the handle was stretched 3x to take the standard hand ("Stretch handle 3x, 0.57 m"). With the handle
+  sized to the hand the fitted Kris is 0.60 m, not the 0.57 m that option named. Its guard openings are measured
+  through that stretch.
+- **Monofilament Sword:** chosen at 1.0 m ("Sword 1.0 m"), it fits at 0.96 m: the grip is sized to the hand and the
+  pommel cannot extend further. The curled crossguard arms were levelled back into the blade plane ("and the sword
+  crossguard too"). Its eight crossguard slits are closed in the working shell ("Close the slits"). The bake could not
+  colour the closed slits or the shell's blade edge, so the donor carries matching plug faces there in the nearest donor
+  colour ("Plug the donor too", "Plug the edge too"). With the edge plugged it needs no colour patch.
+- **Jupiter Taser Club:** the clay was straightened ("Straighten Jupiter first"). The user chose a stretched grip for a
+  round 0.75 m club ("Stretch grip 1.3x, 0.75 m"); the measured stretch that fills the hand is 1.42x, and the user
+  approved that fit's preview ("Approve both fits"). The tip notch stays closed.
+- **Rattan Stick:** a round 0.70 m stick at the grip depth, about 3.0 cm. The first in-game look was "a little too
+  thick" with defects at one end ("3.0 cm", "Trim and repaint"). The tip end is cut past a stub and capped, and the
+  broken wrap there is black all the way round. The colour model's grey patches on the hidden side are repainted wood
+  ("Repaint them wood").
+
+On this release record the user said "the sizes are fine": the four lengths in the table are the approved ones.
+The fit records stay with the private itemkit runs.
+
+Table changes are appearance-picker extensions only:
+
+- F1 `MaxRange` 141 to 151
+- F2 `MaxRange` 221 to 231
+
+The release validation now counts 29 `srn_2da` resources, up from 22. The seven others are 2DA files other packs added
+on main since wave 5; this wave changes only `baseitems.2da`.
+
+No gameplay, price or item-property field changes. The comparison module gained a male/female reviewer pair for each
+in the `sw1_` row (`sw10_`), but those pairs have not been run in its client.
+
+## Firearm wave 1 (2026-11-17)
+
+Five SR4 catalog firearms through the itemkit firearm route, published with `tools.itemkit.publish` from their firearm
+packages (`--effects` for the firing-effect models). Every file but the shown model is the exact bytes of its reviewed
+native HAK. The shown model ships as its firing-effect build: the package model plus the muzzle flash and casing
+emitters and fire clips of `firearm-fx-pilot.md`, compiled by the game's own compiler; the record keeps the package
+model's hash as `preEffectsSha256`.
+
+| Item | Family | Blueprint | Appearance | Size |
+|---|---|---|---|---|
+| Fichetti Security 600 | F7 / row 61 | `sr186f9abc_6` | bottom `076`, others `016` (hidden), diffuse `sr186f9abc_076` | 0.22 m, 14,986 triangles |
+| Yamaha Pulsar | F7 / row 61 | `sr4ec98e3a_7` | bottom `077`, others `017` (hidden), diffuse `sr4ec98e3a_077` | 0.23 m, 14,988 |
+| HK MP-5 TX | F7 / row 61 | `srade01f23_8` | middle `038`, others `018` (hidden), diffuse `srade01f23_038` | 0.44 m, 24,988 |
+| AK-97 | F8 / row 6 | `sr32dc7d7e_7` | top `017`, others `017` (hidden), diffuse `sr32dc7d7e_017` | 0.68 m, 37,488 |
+| Defiance T-250 | F8 / row 6 | `sr65882fcd_8` | top `018`, others `018` (hidden), diffuse `sr65882fcd_018` (+ `.txi`) | 0.75 m, 29,988 |
+
+- **Approval:** the user saw the first fits of all five in unattended client captures on both Human bodies ("Looks
+  good, do effects"). The Fichetti, Pulsar, MP-5 TX and Defiance were then refitted square to their own middle plane
+  (they leaned 2.9 to 6 degrees sideways in the hand), the effects were added, and Claude fired all five in the firing
+  test module on the Human male. The user accepted them without a further in-game look ("accepted, finish everything
+  up"). The Defiance's muzzle flash was not caught on a frame after its refit.
+- **Sizes:** the pistols and the MP-5 TX are sized by grip thickness to the Colt firearm grip standard. The AK-97 and
+  Defiance are two-handed on the Heavy Crossbow carrier; the Defiance is sized by length ("Full, 0.75 m") and its
+  wrist departs from the standard thickness in the user's words.
+- **Colour patches:** MP-5 TX 29 faces (27 approved by the user, "Approve patch (Recommended)"; 2 added on Claude's
+  review), Fichetti 4, Pulsar 8, Defiance 2, all inside the reviewed scope.
+- **Effects:** flash and casing on four guns. The Pulsar is a taser: an electric flash (nine blue-white sprites from
+  stock `fxpa_elect`) and no casing. The Defiance's metal is darkened at bake and its texture carries a reflection
+  mask, so it ships a TXI naming `chrome1`.
+- **Budgets:** the firearm cap is 37,500 visible triangles (user, 2026-11-17: "raise the firearm cap to 37,500").
+
+Table change: F7 `MaxRange` 65 to 77 (appearance picker only). Row 6 already reaches 100.
+
+The same change set stands the published Ares Predator IV, Colt L36 (both finishes) and Ingram Smartgun X upright:
+they leaned 3.8, 2.6 and 2.1 degrees. Each shipped shape is turned rigidly about the grip point by the effects build
+(`STRAIGHTEN`), with the same size, proportions and texture (user: "Refit published"); their records carry
+`sidewaysLeanStraightened`. Fired in game on the Human male from the ASCII build.
+
+No gameplay, price or item-property field changes. The comparison module gained a male/female reviewer pair for each
+(`sw11_`, holding bullets or bolts), but those pairs have not been run in its client. No production acceptance.
+
 ## Publishing a client-approved design
 
 `tools/itemkit/publish.py` publishes designs the user has approved in the client. It replaces the ad-hoc scripts the
@@ -212,8 +372,21 @@ For each item, the command:
    It reads the blueprint UTI from the run's fixture module, or from the latest refixture when there is no first
    fixture. It refuses the item if the UTI's base item or model parts disagree with the package.
 2. **Refuses collisions.** Any file name already in `srn_weapon`, any name listed twice, and any item already in
-   `approved-weapons-v1.json` stop the whole run before anything is written.
-3. **Copies byte-exact.** Every HAK resource and the UTI go into `srn_weapon` unchanged. Each is recorded in
+   `approved-weapons-v1.json` stop the whole run before anything is written. With the NWN:EE install (always through
+   the driver, and with `--nwn-root`), it also reads the install's KEY indexes (`data` and `lang/en/data`). A package
+   file the base game holds is refused unless the package's contract recorded it as a stock replacement
+   (`allocation.replacesStock`, from `drive contract --replace-stock`; see `item-generation-toolkit.md`). A recorded
+   replacement is copied over the stock name like any other file, including its BioWare DDS icon twins (a package
+   must carry every recorded name). The item's record gets `replacesStock` (the
+   contract's list), its overriding resources get `"replacesStock": true`, and the policy text names them. The plan
+   shows them per item and says whether the stock check ran (`stockCheck`); a direct `--dry-run` without
+   `--nwn-root` skips it. Stock slots lie inside every carrier's `MinRange`..`MaxRange`, so they never change the
+   table.
+3. **Copies byte-exact.** Every HAK resource and the UTI go into `srn_weapon` unchanged. That includes the BioWare
+   DDS twins newer packages carry beside each icon and diffuse TGA (NWN Crunch, `item-generation-toolkit.md`). A DDS
+   without its TGA in the same package is refused. So is one whose header is not a three- or four-channel BioWare
+   DDS, whose payload is not a whole mip chain, or whose size differs from its TGA (`tools/itemkit/dds.py`). Each is
+   recorded in
    `approved-weapons-v1.json` with its source archive and hash. The item's family is taken from the grouping plan.
 4. **Extends the table only when needed.** If an appearance number is above its row's `MaxRange`, only that token in
    `srn_2da/baseitems.2da` changes. A longer number takes the padding after it, and no other byte of the table moves.
@@ -226,11 +399,13 @@ For each item, the command:
    `sw_pairs.nss`, the pair table `c.nss` and `sw_review.nss` include. Then it recompiles the module scripts. Before
    anything is written (and in `--dry-run`, as `plannedReviewers` and `plannedReviewerPositions`) it refuses if no
    row has room for a group (a row past the area's edge, or with any other object within half a step of a spot, is
-   skipped), or past group `sw9_`, since the selector reads a group from the first four
-   characters of a tag. Ranged weapons are refused: their reviewers need ammunition and bow equip lines written by hand.
+   skipped), or past group `sw99_`. The selector reads a group up to the tag's first underscore (it read only the
+   first four characters, `sw1_` to `sw9_`, until wave 6 needed `sw10_`). A firearm package (`firearm-package-*`) is published with its carrier's ammunition for the reviewers and, with `--effects ITEM=DIR`, its firing-effect models; other ranged weapons are refused: a bow's equip lines are written by hand.
    So are items that are not three-part (b/m/t) models or cannot go in the right hand, such as shields.
 6. **Rebuilds and verifies.** It rebuilds `srn_weapon`, `srn_2da` and the comparison module. It checks that each
-   built archive holds exactly its source files, refreshes the release validation, the module manifest and the module
+   built archive holds exactly its source files and repeats the DDS twin check on every DDS in `srn_weapon`
+   (`ddsTwinsChecked` in the release validation; `imagesChecked` still counts the TGAs). It refreshes the release
+   validation, the module manifest and the module
    validation (a new `extension` entry, not run in the client), and regenerates the combat release manifest.
 
 If any step fails, the command puts every tracked file it touched back as it was and removes the files it added, then

@@ -54,6 +54,35 @@ def arm(start, end, radius):
     return {'v': v, 'f': f}
 
 
+def closed(start, end, radius, near='flat', far='flat', depth=0.03, shape=None):
+    """A part along the left arm, {'v', 'f', 'added'}: a tube from x = `start` to `end`, each end closed as asked: `flat`
+    (a lid), `dome` (a dome on past it, `shape` the depth and most as `split.lid` takes them), `cap` (`depth` back past
+    it) or None (open)."""
+    shape = shape or {}
+    v, f, t = tube((start, 0, 0), (end, 0, 0), radius, around=32, along=8)
+    own = len(f)
+    for x, way, kind in ((start, -1.0, near), (end, 1.0, far)):
+        point, normal = np.array((x, 0.0, 0.0)), np.array((way, 0.0, 0.0))
+        if kind == 'cap':
+            more = split.cap(v, t, f, len(v), point, -normal, depth, 2 * radius, bounded=False)
+        elif kind is not None:
+            more = split.lid(v, t, f, len(v), point, normal, 2 * radius, **({'dome': [(point, normal)], **shape} if kind == 'dome' else {}))
+        else:
+            continue
+        v, t, f = np.concatenate([v, more[0]]), np.concatenate([t, more[1]]), np.concatenate([f, more[2]])
+    return {'v': v, 'f': f, 'added': np.arange(len(f)) >= own}
+
+
+def laid_out(part):
+    """`part` as a bake lays it out: what the split added drawn on copies of the points it shares with the outfit's own faces."""
+    v, f, added = part['v'], part['f'].copy(), part['added']
+    shared = np.intersect1d(f[added].ravel(), f[~added].ravel())
+    copy = np.arange(len(v))
+    copy[shared] = len(v) + np.arange(len(shared))
+    f[added] = copy[f[added]]
+    return {**part, 'v': np.concatenate([v, v[shared]]), 'f': f}
+
+
 def part(faces=1, size=4):
     """A baked part of `faces` triangles with flat maps of `size` texels a side."""
     v = np.array([(0.0, 0.0, 0.0), (0.1, 0.0, 0.0), (0.0, 0.1, 0.0)])
@@ -66,6 +95,37 @@ def part(faces=1, size=4):
 
 
 class BakeTests(unittest.TestCase):
+    def test_a_parts_texture_is_named_by_all_it_is_drawn_from_and_read_again_under_that_name(self):
+        one = np.arange(6, dtype=float).reshape(2, 3)
+        name = bake.digest(one, {'b': 1, 'a': one}, ('cloth', None), 0.3)
+        self.assertEqual(name, bake.digest(one.copy(), {'a': one, 'b': 1}, ('cloth', None), 0.3))
+        for other in ((one + 1, {'b': 1, 'a': one}, ('cloth', None), 0.3), (one.reshape(3, 2), {'b': 1, 'a': one}, ('cloth', None), 0.3),
+                      (one.astype(np.float32), {'b': 1, 'a': one}, ('cloth', None), 0.3), (one, {'b': 2, 'a': one}, ('cloth', None), 0.3),
+                      (one, {'b': 1, 'a': one}, ('leather', None), 0.3), (one, {'b': 1, 'a': one}, ('cloth', None), 0.4)):
+            self.assertNotEqual(name, bake.digest(*other))
+        self.assertNotEqual(bake.digest([1, 2], 3), bake.digest([1], 2, 3))  # where a list ends is part of the name
+        drawn = []
+        draw = lambda: drawn.append(1) or (np.full((4, 4), 170, np.uint8), np.full((4, 4), 4, np.uint8))
+        self.assertEqual((bake.drawn(None, None, draw)[0][0, 0], len(drawn)), (170, 1))  # no cache: drawn, nothing kept
+        with tempfile.TemporaryDirectory() as folder:
+            cache = Path(folder) / 'cache'
+            first = bake.drawn(cache, name, draw)
+            again = bake.drawn(cache, name, lambda: self.fail('drawn again'))
+            self.assertTrue(np.array_equal(first[0], again[0]) and np.array_equal(first[1], again[1]))
+            self.assertEqual(([path.name for path in cache.iterdir()], len(drawn)), ([name + '.npz'], 2))
+            (cache / (name + '.npz')).write_bytes(b'cut short')  # a file that cannot be read is drawn and written again
+            self.assertEqual((bake.drawn(cache, name, draw)[0][0, 0], len(drawn)), (170, 3))
+            bake.drawn(cache, name, lambda: self.fail('drawn again'))
+            bake.drawn(cache, 'other', draw)
+            self.assertEqual(len(drawn), 4)
+
+    def test_a_bake_says_how_long_each_stage_took(self):
+        said, ticks = [], iter([10.0, 12.5, 12.5, 20.0, 21.0])
+        mark, seconds = bake.stages(said.append, clock=lambda: next(ticks))
+        mark('split'); mark('nothing'); mark('reduce'); mark('split')  # a stage marked twice is added up
+        self.assertEqual(seconds, {'split': 3.5, 'nothing': 0.0, 'reduce': 7.5})
+        self.assertEqual(said, ['time: split 2.5 s', 'time: nothing 0.0 s', 'time: reduce 7.5 s', 'time: split 3.5 s'])
+
     def test_what_the_split_made_is_drawn_by_the_part_it_is_on(self):
         made = np.array([split.OWN, split.CLOSING, split.CAP, split.GUSSET, split.WALL, split.PADDED])
         flags = lambda name, key: bake.roles(name, made)[key].tolist()
@@ -160,6 +220,94 @@ class BakeTests(unittest.TestCase):
         self.assertEqual(bake.surface(*joined((v, f), pad))['debris'], [])  # a pad standing off the rest is a piece, not debris
         self.assertEqual(bake.surface(*joined((v, f), sunk))['debris'], [])  # a crumb set into the rest touches it
 
+    def test_crumbs_of_the_generated_outfit_are_dropped_before_it_is_baked_and_much_debris_is_left_for_the_gate(self):
+        v, f = box(side=0.1)
+        crumb, pad = box((0.1, 0.0, 0.0), 0.01), box((0.085, 0.0, 0.0), 0.05)
+        flags, areas, pieces = bake.loose(*joined((v, f), pad, crumb))
+        self.assertEqual((flags.tolist(), pieces), ([False] * 24 + [True] * 12, 3))
+        self.assertTrue(np.allclose(areas, [6 * 0.01 ** 2]))
+        kept_v, kept_f, dropped = bake.swept(*joined((v, f), crumb, pad))
+        self.assertTrue(np.allclose(dropped, [6 * 0.01 ** 2]))
+        self.assertTrue(np.array_equal(kept_v, np.concatenate([v, pad[0]])) and np.array_equal(kept_f, np.concatenate([f, pad[1] + 8])))  # only the vertices left in use
+        self.assertEqual(bake.surface(kept_v, kept_f)['debris'], [])
+        # read at the body's size: half as large, the outfit's crumb is one at twice its size
+        small = joined((v, f), crumb)
+        self.assertTrue(np.allclose(bake.swept(small[0] / 2, small[1], 2.0)[2], [6 * 0.01 ** 2]))
+        whole = bake.swept(v, f)
+        self.assertTrue(np.array_equal(whole[0], v) and np.array_equal(whole[1], f) and whole[2] == [])  # nothing loose: as it was
+        # more loose than a crumb is: left in, for the gate to fail and the export to be looked at
+        many = joined((v, f), *[box((0.1 + 0.02 * k, 0.0, 0.0), 0.01) for k in range(2)])
+        with mock.patch.object(bake, 'SWEPT', 6 * 0.01 ** 2 * 1.5):
+            self.assertEqual((len(bake.swept(*many)[1]), bake.swept(*many)[2]), (len(many[1]), []))
+        self.assertEqual(len(bake.surface(*many)['debris']), 2)
+
+    def test_faces_the_client_would_show_a_hole_at_are_turned_out_and_what_is_left_fails(self):
+        bones = rig()
+        sleeve = closed(0.05, 0.3, 0.04)  # along the left arm's bone, closed flat at both ends
+        normals = np.tile([[0.0, 0.0, 1.0]], (len(sleeve['v']), 1))
+        self.assertEqual(bake.facing({'bicepl': sleeve}, bones), ({'bicepl': 0.0}, []))
+        faces, kept, turned = bake.faced_out('bicepl', sleeve['v'], sleeve['f'], normals, bones)
+        self.assertTrue(np.array_equal(faces, sleeve['f']) and np.array_equal(kept, normals) and turned == 0)
+        inward = sleeve['f'].copy(); inward[[3, 4, 40]] = inward[[3, 4, 40]][:, ::-1]  # three of its faces wound to face the arm
+        report, failures = bake.facing({'bicepl': {**sleeve, 'f': inward}}, bones)
+        self.assertGreater(report['bicepl'], bake.FACING)
+        self.assertRegex(failures[0], r'^bicepl: 3 faces of \d+\.\d cm² turned in with nothing behind them, where the client shows a hole$')
+        faces, kept, turned = bake.faced_out('bicepl', sleeve['v'], inward, normals, bones)
+        self.assertTrue(np.array_equal(faces, sleeve['f']) and turned == 3)
+        self.assertTrue(np.array_equal(kept, normals))  # every vertex of theirs is another face's too: no normal is turned
+        # a vertex only such faces use has its normal turned with them
+        own = np.concatenate([sleeve['v'], sleeve['v'][inward[3]]])
+        alone = inward.copy(); alone[3] = len(sleeve['v']) + np.arange(3)
+        _, kept, turned = bake.faced_out('bicepl', own, alone, np.tile([[0.0, 0.0, 1.0]], (len(own), 1)), bones)
+        self.assertTrue(turned == 3 and (kept[-3:] == [0.0, 0.0, -1.0]).all() and (kept[:-3] == [0.0, 0.0, 1.0]).all())
+        # two faces that share a vertex of their own, turned out in two reads: its normal is turned once both are
+        beside = next(k for k in range(len(sleeve['f'])) if k != 3 and len(np.intersect1d(sleeve['f'][3], sleeve['f'][k])))
+        theirs = np.unique(sleeve['f'][[3, beside]])
+        copy = np.arange(len(sleeve['v'])); copy[theirs] = len(sleeve['v']) + np.arange(len(theirs))
+        apart = sleeve['f'].copy(); apart[[3, beside]] = copy[apart[[3, beside]]]
+        both = np.concatenate([sleeve['v'], sleeve['v'][theirs]])
+        reads = iter([[3], [beside], []])
+        with mock.patch.object(bake.measure, 'seen_through', side_effect=lambda v, f, within: np.isin(np.arange(len(f)), next(reads))):
+            _, kept, turned = bake.faced_out('bicepl', both, apart, np.tile([[0.0, 0.0, 1.0]], (len(both), 1)), bones)
+        self.assertTrue(turned == 2 and (kept[len(sleeve['v']):] == [0.0, 0.0, -1.0]).all() and (kept[:len(sleeve['v'])] == [0.0, 0.0, 1.0]).all())
+        # a part with no bone of two ends is read round its middle, and copies of its vertices (a layout's) do not move it
+        copied = np.concatenate([sleeve['v'], sleeve['v'][:7]])
+        again = sleeve['f'].copy(); again[again < 7] += len(sleeve['v'])
+        again[0] = sleeve['f'][0]  # both a vertex and its copy are used
+        middle = bake.within(bones, 'pelvis', sleeve['v'], sleeve['f'])
+        self.assertTrue(np.allclose(bake.within(bones, 'pelvis', copied, again), middle, atol=1e-9) and middle.shape == (len(again), 3))
+        self.assertFalse(np.allclose(copied[np.unique(again)].mean(axis=0), middle[0], atol=1e-6))  # counted per vertex it would
+        # a face turned out may bare another: it is read until none is found, each read one face here
+        bared = iter([[3], [4], [40], [7], [9], []])
+        with mock.patch.object(bake.measure, 'seen_through', side_effect=lambda v, f, within: np.isin(np.arange(len(f)), next(bared))):
+            faces, _, turned = bake.faced_out('bicepl', sleeve['v'], sleeve['f'], normals, bones)
+        self.assertEqual(turned, 5)
+        self.assertTrue(np.array_equal(faces[[3, 4, 40, 7, 9]], sleeve['f'][[3, 4, 40, 7, 9]][:, ::-1]) and next(bared, None) is None)
+        # the body's own skin beside the outfit is neither read nor counted as what lies under a face
+        skin = arm(0.05, 0.3, 0.03)
+        worn = {'v': np.concatenate([sleeve['v'], skin['v']]), 'f': np.concatenate([inward, skin['f'][:, ::-1] + len(sleeve['v'])]),
+                'skin': np.arange(len(inward) + len(skin['f'])) >= len(inward)}
+        self.assertEqual(bake.facing({'bicepl': worn}, bones)[0], report)
+        # a part with a bone of one end, or on a rig without its bone, is read round its own middle
+        v, f = box(side=0.1)
+        f = f.copy(); f[5] = f[5][::-1]
+        for name, some in (('pelvis', bones), ('chest', {})):
+            self.assertEqual(len(bake.facing({name: {'v': v, 'f': f}}, some)[1]), 1)
+            self.assertEqual(bake.faced_out(name, v, f, np.zeros((8, 3)), some)[2], 1)
+
+    def test_an_end_at_a_torso_opening_is_asked_to_run_no_deeper_than_the_torso_stands_over_the_joint(self):
+        bones, terms = rig(), contract(rings={'shoulder': 0.08})
+        short = {'bicepl': arm(-0.025, 0.3, 0.075)}  # 2.5 cm past the shoulder plane, where tier 2 asks 4 cm
+        self.assertEqual(bake.ends(short, bones, 'test', 2, terms)[1],
+                         ['bicepl at the shoulder: 2.5 cm past the plane, short of the tier 2 overlap of 4.0 cm'])
+        # the torso's top crosses the arm's axis 3 cm past the plane: an end runs no deeper than that, less the gaps
+        top = {'v': np.array([(-0.03, -0.2, -0.2), (-0.03, 0.2, -0.2), (-0.03, 0.2, 0.2), (-0.03, -0.2, 0.2)]), 'f': np.array([(0, 1, 2), (0, 2, 3)])}
+        arms = lambda chest: [failure for failure in bake.ends({**short, 'chest': chest}, bones, 'test', 2, terms)[1] if failure.startswith('bicepl')]
+        self.assertEqual(arms(top), [])
+        report = bake.ends({**short, 'chest': top}, bones, 'test', 2, terms)[0]
+        self.assertAlmostEqual(report['shoulder']['l']['under']['overlap'], 0.03 - split.SEAT_GAP - bake.ROOM_SLACK, places=4)
+        self.assertEqual(len(arms(arm(-0.3, 0.0, 0.2))), 1)  # a torso round the axis asks it all
+
     def test_each_end_is_held_to_its_tiers_envelope_and_overlap_at_its_joint(self):
         # the elbow's body ring 4 cm round: tier 2 envelope 6.5 cm, overlap 4 cm; tier 3 overlap 6 cm
         bones, terms = rig(), contract(rings={'shoulder': 0.08, 'wrist': 0.01})
@@ -190,6 +338,8 @@ class BakeTests(unittest.TestCase):
         closed = {'v': np.concatenate([fit['bicepl']['v'], plug['v']]), 'f': np.concatenate([fit['bicepl']['f'], plug['f'] + len(fit['bicepl']['v'])])}
         self.assertEqual(bake.ends({**fit, 'bicepl': closed}, bones, 'test', 2, terms)[1],
                          ['bicepl at the elbow: up to 6.0 cm inside the tier 2 envelope, in 16 of 16 directions'])
+        dome = {**closed, 'added': np.arange(len(closed['f'])) >= len(fit['bicepl']['f'])}  # what closes it is the split's: not the end
+        self.assertEqual(bake.ends({**fit, 'bicepl': dome}, bones, 'test', 2, terms)[1], [])
         # a part that does not reach its joint, unless the body's own part ends there
         self.assertEqual(bake.ends({**fit, 'forel': arm(0.32, 0.6, 0.06)}, bones, 'test', 2, terms)[1], ['forel does not reach the elbow plane'])
         bracer = arm(0.32, 0.5, 0.06)
@@ -203,6 +353,76 @@ class BakeTests(unittest.TestCase):
         # a torso piece is not measured at its openings; a body the contract has no rings of is not measured at all
         self.assertNotIn('over', bake.ends({'chest': arm(-0.3, 0.0, 0.2), 'bicepl': arm(-0.05, 0.3, 0.05)}, bones, 'test', 2, terms)[0]['shoulder']['l'])
         self.assertIsNone(bake.ends(fit, bones, 'pmh0', 2, terms))
+
+    def test_the_bodys_own_skin_beside_a_sleeve_never_stands_out_through_it(self):
+        # the body's upper arm 4 cm round from x = 0.05 to 0.3; a sleeve to x = 0.2, the arm below its hem kept beside it
+        arm_ = closed(0.05, 0.3, 0.04, near=None, far=None)
+
+        def sleeve(radius, dome=False):
+            cloth = closed(0.05, 0.25, radius, near=None, far=None)
+            below = arm_['f'][arm_['v'][arm_['f']][:, :, 0].min(axis=1) > 0.18]
+            return {'v': np.concatenate([cloth['v'], arm_['v']]), 'f': np.concatenate([cloth['f'], below + len(cloth['v'])]),
+                    'added': np.arange(len(cloth['f']) + len(below)) < len(cloth['f']) * dome,
+                    'skin': np.arange(len(cloth['f']) + len(below)) >= len(cloth['f'])}
+        bones = rig()
+        report, failures = bake.through({'bicepl': sleeve(0.05), 'chest': part()}, bones)
+        self.assertEqual((report, failures), ({'bicepl': 0.0}, []))  # the arm under the sleeve; a part with no skin is not measured
+        for dome in (False, True):  # the sleeve's own cloth, or a dome closing it: the client draws both over the arm
+            report, failures = bake.through({'bicepl': sleeve(0.035, dome)}, bones)
+            self.assertAlmostEqual(report['bicepl'], 0.005, places=3)
+            self.assertEqual(failures, ["bicepl: the body's own skin beside it stands up to 0.5 cm out through the outfit over it"])
+        inward = sleeve(0.05)
+        inward['f'] = np.where(~inward['skin'][:, None], inward['f'][:, ::-1], inward['f'])  # its cloth turned in: the client draws none of it
+        report, failures = bake.through({'bicepl': inward}, bones)
+        self.assertEqual(report, {'bicepl': 0.0})
+        self.assertEqual(len(failures), 1)
+        self.assertRegex(failures[0], r"^bicepl: \d+ points of the body's own skin beside it are covered only by faces turned in")
+        self.assertEqual(bake.gates({'bicepl': part()}, {}, Path('nowhere'), skin=(report, failures))['through'], report)
+
+    def test_every_end_is_closed_domed_and_hidden_as_the_body_stands_and_turned(self):
+        bones, terms = rig(), {**contract(), 'designBend': 'p95', 'ends': dict(seams.ENDS)}
+        for joint in terms['joints'].values():
+            joint['bodies']['test']['bend'] = {'p95': 90.0}
+        gate = lambda parts, **given: bake.hidden(parts, bones, 'test', terms, **given)
+        sleeve = closed(0.05, 0.3, 0.06, near=None, far='dome')  # the upper arm, domed on past the elbow's plane (x = 0.3)
+        cuff = closed(0.3, 0.5, 0.04, near='cap', far=None)  # the forearm, its end 3 cm back into the sleeve, 4 cm round
+        report, failures = gate({'bicepl': sleeve, 'forel': cuff})
+        self.assertEqual(failures, [])
+        elbow = report['elbow']['l']
+        self.assertEqual((elbow['over'], elbow['under'], elbow['open']), ('bicepl', 'forel', {'bicepl': 0.0, 'forel': 0.0}))
+        self.assertAlmostEqual(elbow['rise'], split.DOME_DEPTH * 0.06, places=3)  # the pole 30% of the sleeve's radius past its rim
+        self.assertAlmostEqual(elbow['past'], elbow['rise'], places=6)
+        self.assertEqual((elbow['rest'], elbow['bent']), (0.0, 0.0))  # the end within its own ring turns within it
+        json.dumps(report)
+        self.assertIsNone(bake.hidden({'forel': cuff}, bones, 'pmh0', terms))  # a body the contract has no rings of
+        # an end left open
+        report, failures = gate({'bicepl': closed(0.05, 0.3, 0.06, near=None, far=None), 'forel': cuff})
+        self.assertEqual(len(failures), 1)
+        self.assertTrue(failures[0].startswith('bicepl at the elbow: open on its plane, 37.'), failures)
+        # closed by a flat lid on the plane: closed, but not domed
+        self.assertEqual(gate({'bicepl': closed(0.05, 0.3, 0.06, near=None, far='flat'), 'forel': cuff})[1],
+                         ['bicepl at the elbow: not domed, what closes it stands no farther past the plane than its rim'])
+        # a dome deeper past its rim than the contract lets it stand
+        deep = closed(0.05, 0.3, 0.06, near=None, far='dome', shape={'depth': 1.0, 'most': 0.05})
+        self.assertEqual(gate({'bicepl': deep, 'forel': cuff})[1], ["bicepl at the elbow: its dome stands 5.0 cm past its rim, over the contract's 2.0 cm"])
+        # an end running back past what is over it as the body stands: 6 cm into a sleeve 3 cm long
+        report, failures = gate({'bicepl': closed(0.27, 0.3, 0.06, far='dome'), 'forel': closed(0.3, 0.5, 0.04, near='cap', far=None, depth=0.06)})
+        self.assertIn('forel at the elbow: what the split added stands up to 3.0 cm outside the outfit as the body stands', failures)
+        # an end 8 cm long, beyond its 4 cm ring: inside the sleeve standing, 2 cm out of it with the forearm swung forward 90 degrees
+        report, failures = gate({'bicepl': sleeve, 'forel': closed(0.3, 0.5, 0.04, near='cap', far=None, depth=0.08)})
+        self.assertEqual(report['elbow']['l']['rest'], 0.0)
+        self.assertEqual(len(failures), 1)
+        self.assertTrue(failures[0].startswith("forel at the elbow: turned forward by 90 degrees of the design bend's 90, its end stands up to 2."), failures)
+        # under a slot left to the body, an end is measured against the body's own skin, when it is given
+        glove = {'handl': closed(0.55, 0.7, 0.03, near='cap', far=None)}
+        self.assertIsNone(gate(glove, left={'forel'})[0]['wrist']['l']['rest'])
+        skin = closed(0.4, 0.6, 0.035)
+        self.assertEqual(gate(glove, left={'forel'}, skin={'forel': (skin['v'], skin['f'])})[0]['wrist']['l']['rest'], 0.0)
+        # parts as a bake lays them out read as they did split: a rim is the outfit's own however its points are copied
+        self.assertEqual(gate({'bicepl': laid_out(sleeve), 'forel': laid_out(cuff)}), gate({'bicepl': sleeve, 'forel': cuff}))
+        narrow = closed(0.4, 0.6, 0.028)  # the glove's rim 2 mm out of the skin, what closes it within
+        for handl in (glove['handl'], laid_out(glove['handl'])):
+            self.assertEqual(gate({'handl': handl}, left={'forel'}, skin={'forel': (narrow['v'], narrow['f'])})[0]['wrist']['l']['rest'], 0.0)
 
     def test_the_gates_tell_budgets_names_and_missing_textures(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -221,6 +441,10 @@ class BakeTests(unittest.TestCase):
             self.assertEqual(bake.gates(parts, models, resources, whole=faulty)['failures'],
                              ['the generated outfit: an opening 1.2 cm round', 'the generated outfit: a piece of 4.0 cm² standing apart from the rest'])
             json.dumps(bake.gates(parts, models, resources, whole=faulty))
+            # with what `facing` found, faces the client would show a hole at are gated too
+            report = bake.gates(parts, models, resources, faced=({'chest': 0.0004, 'pelvis': 0.0}, ['chest: 3 faces turned in']))
+            self.assertEqual((report['passed'], report['failures'], report['facing']), (False, ['chest: 3 faces turned in'], {'chest': 0.0004, 'pelvis': 0.0}))
+            self.assertNotIn('facing', bake.gates(parts, models, resources))
             # with what `ends` found, the seam contract is gated too
             report = bake.gates(parts, models, resources, joined=({'elbow': {}}, ['forel does not reach the elbow plane']))
             self.assertEqual((report['passed'], report['failures'], report['seams']), (False, ['forel does not reach the elbow plane'], {'elbow': {}}))
@@ -288,10 +512,10 @@ class BakeTests(unittest.TestCase):
             models = bake.write(folder, out, tinted, bones, 'pmh0', 332)
             resources = Path(folder) / 'resources'
             self.assertEqual(bodyskin.image((resources / 'pmh0_bicepl332n.tga').read_bytes()).shape, (8, 8, 3))
-            self.assertEqual(bodyskin.image((resources / 'pmh0_chest332n.tga').read_bytes()).shape, (2, 2, 3))  # at half size, as before
+            self.assertEqual(bodyskin.image((resources / 'pmh0_chest332n.tga').read_bytes()).shape, (4, 4, 3))  # whole too: no longer at half size
             rough = bodyskin.image((resources / 'pmh0_bicepl332r.tga').read_bytes())[..., 0]
             self.assertTrue(np.allclose(rough, arm_part['skin_rough'] / 255, atol=1 / 255))
-            self.assertEqual(bodyskin.material(resources, 'pmh0_bicepl332'), {'normal': 'pmh0_bicepl332n', 'rough': 'pmh0_bicepl332r'})
+            self.assertEqual(bodyskin.material(resources, 'pmh0_bicepl332'), {'normal': 'pmh0_bicepl332n', 'rough': 'pmh0_bicepl332r', 'roughness': 0.0})
             self.assertIn('Roughness 0\n', (resources / 'pmh0_bicepl332.mtr').read_text())
             self.assertFalse((resources / 'pmh0_chest332r.tga').exists())
             self.assertTrue(bake.gates(out, models, resources)['passed'])
@@ -306,9 +530,10 @@ class BakeTests(unittest.TestCase):
             (output / 'ascii' / 'pmh0_chest331.mdl').write_text('')  # an earlier run's, under another number
             (output / 'ascii' / 'pmh0_shol332.mdl').write_text('')  # and a part this outfit does not have
             tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
-            with mock.patch.object(bake, 'tints', lambda parts, document: (tinted, {'materials': []})), \
+            with mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
                     mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4), 'pelvis_g': np.eye(4)}, {})), \
                     mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({'waist': {}}, [])), \
+                    mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({'waist': {}}, [])), \
                     mock.patch.object(export, 'compile_models', lambda sources, into, **given: compiled.append((sources, into, given)) or sources):
                 record = bake.run({'model': 'outfit', 'materials': []}, output, 'bodies', 332, kept=Path(folder) / 'kept', game='game', resources=['srn_body'])
             self.assertEqual(compiled, [([output / 'ascii' / 'pmh0_chest332.mdl', output / 'ascii' / 'pmh0_pelvis332.mdl'], output / 'resources',
@@ -316,6 +541,49 @@ class BakeTests(unittest.TestCase):
             self.assertEqual((record['compiled'], record['models'], record['gates']['passed'], record['gates']['seams']),
                              (2, {'chest': 'pmh0_chest332', 'pelvis': 'pmh0_pelvis332'}, True, {'waist': {}}))
             self.assertEqual(json.loads((output / 'bake.json').read_text(encoding='utf-8')), record)
+
+    def test_a_fresh_bakes_stages_are_in_its_record(self):
+        # the bake's own stages were said in the log and left out of the record: `run` gives the bake its count
+        parts = {'chest': part()}
+        tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
+
+        def baked(*given, mark=None):
+            mark('split')
+            return parts, {'torso_g': np.eye(4)}, None
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(bake, 'bake', baked), \
+                mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
+                mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
+                mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({}, [])), \
+                mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({}, [])):
+            record = bake.run({'model': 'outfit', 'materials': []}, Path(folder) / 'out', 'bodies', 332, mesh='m', colours='c', raw='r', xatlas='x')
+        self.assertEqual(list(record['seconds']), ['split', 'tint', 'write', 'gates'])
+
+    def test_parts_kept_apart_are_combined_into_one_outfit(self):
+        document = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}
+        skin = dict(part(), skin=np.zeros(1, bool))
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            bake.store({'chest': part(3), 'bicepl': part()}, root / 'own', document)  # the body's own bake: its upper arm is left out
+            bake.store({'bicepl': skin, 'pelvis': part(2), 'legl': part()}, root / 'carried', document)
+            bake.store({'pelvis': part(2)}, root / 'other', {'skin': ['bicep']})  # baked with the forearm covered
+            origin = bake.combine([(root / 'own', ['chest']), (root / 'carried', ['bicepl', 'pelvis'])], root / 'out', document)
+            self.assertEqual(origin, {'chest': str(root / 'own'), 'bicepl': str(root / 'carried'), 'pelvis': str(root / 'carried')})
+            back = bake.stored(root / 'out')
+            self.assertEqual((sorted(back), len(back['chest']['f']), 'skin' in back['bicepl']), (['bicepl', 'chest', 'pelvis'], 3, True))
+            self.assertEqual(bake.declared(root / 'out'), {'bare': {'forearm'}, 'skin': {'bicep'}})  # the brief's slots, for `bake --kept`
+            (root / 'file').write_text('')
+            refused = {'is not an empty folder': ([(root / 'own', ['chest'])], root / 'out'),
+                       'is not an empty folder ': ([(root / 'own', ['chest'])], root / 'file'),  # a file, not a folder
+                       'holds no shinl': ([(root / 'own', ['shinl'])], root / 'b'),
+                       'take each part from one folder': ([(root / 'own', ['bicepl']), (root / 'carried', ['bicepl'])], root / 'c'),
+                       'once': ([(root / 'own', ['chest', 'chest'])], root / 'c'),
+                       'Name the parts': ([(root / 'own', [])], root / 'd'),
+                       'shared with its skin than': ([(root / 'own', ['chest', 'bicepl'])], root / 'e'),  # an upper arm without the skin
+                       'bake or refit them for it': ([(root / 'own', ['chest']), (root / 'other', ['pelvis'])], root / 'f')}
+            for words, (sources, out) in refused.items():
+                with self.assertRaisesRegex(ValueError, words.strip()):
+                    bake.combine(sources, out, document)
+            self.assertFalse(any((root / name).exists() for name in 'bcdef'))  # nothing kept where it was refused
 
     def test_kept_parts_baked_for_other_slots_left_to_the_body_or_its_skin_are_refused(self):
         skin = dict(part(), skin=np.zeros(1, bool))
@@ -326,7 +594,7 @@ class BakeTests(unittest.TestCase):
                  ({'chest': part(), 'bicepl': skin}, None, plain),  # and with it, where the brief shows none
                  ({'chest': part()}, {**plain, 'bare': ['forearm']}, plain))  # no forearm, left to the body by the brief baked from and no longer
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
-                mock.patch.object(bake, 'tints', lambda parts, document: self.fail('tinted')):
+                mock.patch.object(bake, 'tints', lambda parts, document, **given: self.fail('tinted')):
             for parts, baked_from, brief in cases:
                 bake.store(parts, Path(folder) / 'kept', baked_from)
                 with self.assertRaisesRegex(ValueError, 'bake the outfit again'):
@@ -390,6 +658,30 @@ class BudgetTests(unittest.TestCase):
         self.assertTrue(set(np.flatnonzero(self.v[:, 2] > self.joints['lthigh_g'][2] - 1e-9).tolist()) <= kept)  # the open rim
         self.assertTrue(np.array_equal(origin[made == split.OWN], np.sort(origin[made == split.OWN])))  # faces kept in their order
 
+    def test_an_under_ends_ring_on_its_plane_keeps_every_point_however_far_the_part_is_cut_down(self):
+        # a thigh standing on the hip plane, its end domed on past the plane into the pelvis, both dense
+        point, normal = split.planes(self.joints)[('hip', 'l')]
+        unit = seams.unit(normal)
+        a, b = seams.frame(unit)
+        around = np.linspace(0, 2 * np.pi, 48, endpoint=False)
+        round_ = np.cos(around)[:, None] * a + np.sin(around)[:, None] * b
+        heights = np.r_[-0.05 * np.sin(np.radians([75, 60, 45, 30, 15])), np.linspace(0, 0.3, 31)]  # the dome, then the tube
+        widths = np.r_[0.07 * np.cos(np.radians([75, 60, 45, 30, 15])), np.full(31, 0.07)]
+        v = np.concatenate([point + w * round_ + h * unit for h, w in zip(heights, widths)] + [[point - 0.05 * unit]])
+        rows, pole = len(heights), len(heights) * 48
+        f = [face for r in range(rows - 1) for k in range(48) for i, j in [(r * 48 + k, r * 48 + (k + 1) % 48)]
+             for face in ((i, j, j + 48), (i, j + 48, i + 48))]
+        f = np.array([(pole, k, (k + 1) % 48) for k in range(48)] + f)
+        made = np.where(np.arange(len(f)) < 48 + 2 * 48 * 5, split.CAP, split.OWN)
+        origin = np.where(made == split.OWN, np.arange(len(f)), -1)
+        made_out, origins_out = {'legl': made}, {'legl': origin}
+        with mock.patch.dict(bake.BUDGET, {'slot': 150}):
+            pv, pf, _ = bake.within_budget({'legl': (v, f, np.c_[v, np.arange(len(v))])}, made_out, origins_out, self.joints,
+                                           self.radii)['legl']
+        self.assertLess(len(pf), len(f))
+        on_plane = np.abs((pv[np.unique(pf)] - point) @ unit) < split.WELD
+        self.assertEqual(int(on_plane.sum()), 48)  # the ring on the hip plane, whole
+
     def test_a_part_within_its_budget_or_left_to_the_body_is_not_touched(self):
         for budget, left in ((len(self.f), ()), (100, ('legl',))):
             (pv, pf, pc), made, origin = self.run_budget(budget, left=left)
@@ -445,8 +737,9 @@ class SplitCaptureTests(unittest.TestCase):
         def ends(parts, bones, body, tier, contract):
             measured.append(parts)
             return {'elbow': {}}, ['forel does not reach the elbow plane']
+        covered = lambda parts, bones, body, contract, skin, left: ({'elbow': {}}, ['chest at the waist: open on its plane, 1.0 cm of edge'])
         with mock.patch.object(bake, 'kept_split', lambda path: given), mock.patch.object(bake, 'cut', lambda kept, contract: (result, made, origins)), \
-                mock.patch.object(bake, 'ends', ends):
+                mock.patch.object(bake, 'ends', ends), mock.patch.object(bake, 'hidden', covered):
             parts, report = bake.resplit('kept.npz')
         self.assertEqual(set(parts), {'chest'})  # the hand is the body's
         # a part sharing its slot with the body's skin is measured as the bake measures it: it may end short of its joint
@@ -454,8 +747,9 @@ class SplitCaptureTests(unittest.TestCase):
         self.assertEqual(report['triangles'], {'chest': 1})
         self.assertEqual(report['collapsed'], {'chest': 1})
         self.assertEqual(report['seams'], {'elbow': {}})
+        self.assertEqual((report['seams'], report['hidden']), ({'elbow': {}}, {'elbow': {}}))
         self.assertEqual(report['failures'], ['chest: 1 triangles with two corners at one point, which the model compiler drops',
-                                              'forel does not reach the elbow plane'])
+                                              'forel does not reach the elbow plane', 'chest at the waist: open on its plane, 1.0 cm of edge'])
         with self.assertRaises(ValueError):  # parts tinted again were split long ago
             bake.run({'model': 'x'}, 'out', 'bodies', 332, kept='kept', capture='split.npz')
 

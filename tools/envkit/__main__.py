@@ -14,7 +14,8 @@ grid to read a game set's boxes from, `check` looks at props, lights, a tile gro
 Two commands stand beside a sheet's run. `onboard` brings a new concept sheet into the kit and reviews the sets
 against each other: boxes proposed on the sheet, set files written from a spec, pictures of the boxes, the reused
 props and the props of a type, a mechanical audit, and the decisions of a review applied. `study` reads the stock
-tiles of a tileset, for a question about how the engine wants a tile made."""
+tiles of a tileset, for a question about how the engine wants a tile made. `smears` tells where a generated model's
+picture is smudged or printed through, from what stood in front of each surface in its references."""
 import argparse
 import json
 import math
@@ -70,8 +71,13 @@ def command_reference(args):
     names = args.asset or [name for name, asset in data['assets'].items() if 'same' not in asset]  # a same is not made
     for name in names:
         asset = data['assets'][name]
-        require('cut' not in asset or args.selected, f'{name} is cut from the chosen reference of {asset.get("cut", {}).get("from")}: give --selected')
-    local = json.loads(Path(args.bindings).read_text(encoding='utf-8')); client = Client(args.url); output = Path(args.output); missed = []
+        taken = asset.get('cut') or asset.get('turn')  # a view drawn from another's chosen reference
+        require(not taken or args.selected, f'{name} is drawn from the chosen reference of {(taken or {}).get("from")}: give --selected')
+    output = Path(args.output); missed = []
+    # A drawn asset is taken as it is (`reference.as_drawn`): only a run that redraws one needs the shared ComfyUI.
+    redrawn = any(not data['assets'][name].get('drawn') for name in names)
+    require(not redrawn or args.bindings, 'Redrawing a reference needs --bindings, the local JSON of the shared ComfyUI')
+    local, client = (json.loads(Path(args.bindings).read_text(encoding='utf-8')), Client(args.url)) if redrawn else (None, None)
     for name in names:
         # Each job waits for the shared ComfyUI (`reference.make`). With --keep-going an asset that fails is said and
         # passed over, so that one long busy spell or lost poll does not stop the rest, and the run fails at the end;
@@ -79,8 +85,11 @@ def command_reference(args):
         asset = data['assets'][name]
         try:
             source = reference.source(data, name, sheet, args.selected, output / 'crops' / f'{name}.png')
-            text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False))
-            result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
+            if asset.get('drawn'):
+                result = reference.as_drawn(name, source, args.seed, output)
+            else:
+                text = reference.prompt(asset['kind'], asset['subject'], asset.get('notes', ''), asset.get('unbranded', False), reference.turned(asset), asset.get('slab', True))
+                result = reference.make(client, local, args.bindings, name, text, source, args.seed, output, deadline=args.deadline)
         except Exception as failure:
             if not args.keep_going:
                 raise
@@ -91,6 +100,16 @@ def command_reference(args):
     require(not missed, f'{len(missed)} of {len(names)} assets were not made: ' + ', '.join(missed))
 
 
+def command_enlarge(args):
+    """The chosen references of a sheet at Meshy's size: references/selected is read, references/sent is written."""
+    from tools.headkit.comfy import Client
+    # A reference large enough already is only copied: the shared ComfyUI is needed where one is doubled (`reference.enlarge`).
+    local, client = (json.loads(Path(args.bindings).read_text(encoding='utf-8')), Client(args.url)) if args.bindings else (None, None)
+    root = Path(args.root) / 'references'
+    told = reference.enlarge(client, local, args.bindings, root / 'selected', root / 'sent', deadline=args.deadline)
+    print(json.dumps({state: sum(one == state for one in told.values()) for state in ('enlarged', 'copied', 'kept')}))
+
+
 def _retouching(model):
     """What a game set says of turning a model and retouching its colour, as `convert.shape` takes it."""
     from . import convert
@@ -99,7 +118,6 @@ def _retouching(model):
 
 def command_game(args):
     """Convert generated models to compiled game placeables, as the game set states them."""
-    from tools.armorkit import export
     from . import convert
     models = convert.load_models(args.models); output = Path(args.output)
     unknown = [name for name in args.model if name not in models]
@@ -110,10 +128,13 @@ def command_game(args):
         with fresh(output / name) as folder:  # a model that fails leaves nothing in the way of the next attempt
             report = convert.placeable(name, source / 'model.glb', maps, folder / 'source', crunch, height=model['height'],
                                        colour=model.get('colour', 1024), sign_tilt=model.get('signTilt'), lit=model.get('lit'), halo=model.get('halo'),
-                                       lift=model.get('lift', 0.0), **_retouching(model))
-            report['compiled'] = {path.name: path.stat().st_size for path in export.compile_models([folder / 'source' / f'{name}.mdl'], folder / 'compiled')}
+                                       lift=model.get('lift', 0.0), light=(model.get('placeable') or {}).get('light'), fire=model.get('fire'),
+                                       underfoot=model.get('underfoot', False), walk_under=model.get('walkUnder', False), **_retouching(model))
+            report['compiled'] = {path.name: path.stat().st_size for path in convert.compile_placeable(folder / 'source' / f'{name}.mdl', folder / 'compiled')}
             (folder / 'report.json').write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
         print(json.dumps(report), flush=True)
+        for note in convert.blank_notes(name, report['blankPanels']):  # beside the report, which stays the only thing on standard output
+            print('note: ' + note, file=sys.stderr, flush=True)
 
 
 def _ground_colour(pack, texture):
@@ -141,7 +162,7 @@ def command_tiles(args):
         """A model of the set as finished, its maps and its picture for the area map (as retouched, which `skin` still has to write)."""
         one = models[name]; source, maps = _generated(args.root, one)
         made = convert.shape(source / 'model.glb', maps, height=one['height'], colour=one.get('colour', 1024), sign_tilt=one.get('signTilt'),
-                             lit=one.get('lit'), halo=one.get('halo'), lift=one.get('lift', 0.0), **_retouching(one))
+                             lit=one.get('lit'), halo=one.get('halo'), lift=one.get('lift', 0.0), sight=False, **_retouching(one))
         if made['colour'] is not None:
             colour = np.asarray(made['colour'].convert('RGB').resize((512, 512)), float) / 255
         else:
@@ -152,34 +173,65 @@ def command_tiles(args):
         made, maps, colour = shaped(args.model); textures = convert.part_textures(args.model, tiles.get('parts', [])); placed, crunch = [], _crunch()
         counts = {args.model: len(made['faces'])}; shapes = {}
         for name in textures:  # each model placed in the group, shaped once; the building is counted before anything is written
-            shapes[name] = shaped(name); counts[name] = len(shapes[name][0]['faces'])
+            shapes[name] = shaped(name); counts[name] = len(shapes[name][0]['faces']); shapes[name][0]['underfoot'] = models[name].get('underfoot', False)
         built = convert.building_triangles(models, args.model, counts)
         require(built <= meshy.BUILDING_TRIANGLES, f'The building of {args.model} is {built} triangles, its own and those of the models placed in it that are '
                 f'no placeables: more than the building budget of {meshy.BUILDING_TRIANGLES}; remesh its pieces lower')
+        report_blank = convert.blank_panels_of({args.model: (made, maps), **{name: one[:2] for name, one in shapes.items()}}, models)
         files = convert.skin(args.model, maps, folder / 'shared', crunch, made, colour=model.get('colour', 1024))
         for name, texture in textures.items():  # each model placed in the group, once for its pictures, then where it stands
             part, part_maps, part_colour = shapes[name]
             files += convert.skin(texture, part_maps, folder / 'shared', crunch, part, colour=models[name].get('colour', 1024))
             placed += [(texture, convert.place(part, stand['at'], stand.get('turn', 0)), part_colour) for stand in tiles['parts'] if stand['model'] == name]
-        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'), nodes=tiles.get('nodes'),
+        report = tile.group(args.model, made, folder / 'source', ground=tiles['ground'], colour=colour, fade=tiles.get('fade'), door=tiles.get('door'), nodes=tiles.get('nodes'), lamps=tiles.get('lamps', ()),
                             ground_colour=_ground_colour(Path(args.repo) / args.pack, tiles['ground']),
                             parts=placed)  # a model placed twice is joined there into one model of the group
         compiled = tile.compile_tiles([folder / 'source' / f'{one["model"]}.mdl' for one in report['tiles']], folder / 'compiled')
         report['parts'] = textures; report['buildingTriangles'] = built
+        # The fences built on to the group are drawn by the same tiles and are no part of that count.
+        report['fenceTriangles'] = sum(len(one['wire']['faces']) for one in [made, *[one for _, one, _ in placed]] if one.get('wire'))
+        report['notes'] += convert.fence_notes(args.model, built, report['fenceTriangles'], meshy.BUILDING_TRIANGLES)
+        # A stray face across a window hides what was modelled behind it and is passed over in a view of the whole front.
+        report['veils'] = {name: found for name, one in {args.model: made, **{name: shapes[name][0] for name in textures}}.items() if (found := convert.veils(one['vertices'], one['faces']))}
+        report['notes'] += [f'{name}: a face of {one["m2"]} m² at {one["at"]} lies over fine detail ({round(one["covers"] * 100)}% of it): look at it close up '
+                            f'with `view --eye`; a stray face over an opening takes `clear`' for name, found in report['veils'].items() for one in found]
+        report['blankPanels'] = report_blank
+        every = {args.model: made, **{name: shapes[name][0] for name in textures}}
+        report['relaid'] = {name: len(one['relaid']) for name, one in every.items() if one.get('relaid')}
+        report['notes'] += [f'{name}: a face of {face["m2"]} m² at {face["at"]} shows its picture drawn out, and no sound surface of its plane was found to draw it with: '
+                            'look at it close up with `view --eye`' for name, one in every.items() for face in one.get('drawnOut') or []]
+        report['notes'] += [note for name, found in report['blankPanels'].items() for note in convert.blank_notes(name, found)]
         report.update({'name': args.model, 'compiled': {path.name: path.stat().st_size for path in compiled}, 'textures': {path.name: path.stat().st_size for path in files}})
+        report['notes'] += convert.oversize_notes(report['textures'])
         (folder / 'report.json').write_text(json.dumps(report, indent=1) + chr(10), encoding='utf-8')
     print(json.dumps(report), flush=True)
     for note in report['notes']:  # beside the report, which stays the only thing on standard output
         print('note: ' + note, file=sys.stderr, flush=True)
 
 
+def command_track(args):
+    from . import track
+    print(json.dumps(track.build(Path(args.output), args.seed, args.piece)))
+
+
+def ledger_path(args):
+    """The ledger a command works under: the one --ledger names, or the shared one where it is left out. An empty
+    name is a script's unset variable, not a wish for the shared ledger and its cap."""
+    from . import meshy
+    if args.ledger is None:
+        return meshy.shared_ledger()
+    require(args.ledger.strip(), '--ledger names a file; leave it out for the shared ledger')
+    return Path(args.ledger)
+
+
 def command_meshy(args):
     from . import meshy
     missing = ['--' + name for name in MESHY_NEEDS.get(args.action, ()) if not getattr(args, name)]
     require(not missing, f'envkit meshy {args.action} needs ' + ', '.join(missing))  # said before the ledger is touched
+    path = ledger_path(args)
     if args.action == 'init':
-        meshy.Ledger.create(args.ledger, args.cap)
-    ledger = meshy.Ledger(args.ledger)
+        meshy.Ledger.create(path, args.cap)
+    ledger = meshy.Ledger(path)
     if args.action == 'cap':
         ledger.raise_cap(args.cap, args.reason)
     elif args.action in ('prop', 'building', 'remesh'):
@@ -192,7 +244,7 @@ def command_meshy(args):
     elif args.action in ('download', 'master'):
         print(json.dumps(meshy.download(ledger, args.key, args.work, args.bank, master=args.action == 'master')))
     rows = [{k: row.get(k) for k in ('key', 'asset', 'operation', 'state', 'estimate', 'credits', 'taskId')} for row in ledger.data['entries']]
-    print(json.dumps({'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
+    print(json.dumps({'ledger': str(ledger.path), 'cap': ledger.data['cap'], 'committed': ledger.committed(), 'entries': rows if args.action == 'status' else len(rows)}, indent=1))
 
 
 def command_contact(args):
@@ -202,13 +254,13 @@ def command_contact(args):
 
 def command_sheet(args):
     from . import meshy, sheet
-    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(args.ledger); root = Path(args.root); work = root / 'meshy' / 'work'
+    plan = sheet.load_plan(args.plan); ledger = meshy.Ledger(ledger_path(args)); root = Path(args.root); work = root / 'meshy' / 'work'
     failed = []
     if args.action == 'submit':
-        print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work)}))
+        print(json.dumps({'sent': sheet.submit(ledger, plan, root / 'references' / 'selected', work, sent=root / 'references' / 'sent')}))
     elif args.action == 'collect':
         made = sheet.collect(ledger, plan, work, root / 'meshy' / 'models', root / 'meshy' / 'masters'); failed = made['failed']; print(json.dumps(made))
-    print(json.dumps(sheet.status(ledger, plan), indent=1))
+    print(json.dumps({'ledger': str(ledger.path), **sheet.status(ledger, plan)}, indent=1))  # which ledger: none need be named now
     require(not failed, 'Calls of the plan have no working model: ' + ', '.join(failed))  # after the status, so that a failed collect does not end as a good one
 
 
@@ -252,10 +304,15 @@ def command_view(args):
         print(json.dumps({'page': args.page, 'models': view.page(drawn, args.page)}), flush=True)
 
 
+def command_restore(args):
+    from . import restore
+    print(json.dumps(restore.sources(args.archive, args.output, args.models, args.model)))
+
+
 def command_onboard(args):
     from . import onboard
     needs = {'boxes': ('sheet', 'output'), 'sets': ('spec', 'sheets'), 'crops': ('set', 'sheets', 'output'), 'overlay': ('sheets', 'output'), 'audit': ('sheets',),
-             'types': ('sheets', 'output', 'type'), 'same': ('sheets', 'output'), 'revise': ('decisions',)}[args.action]
+             'types': ('sheets', 'output', 'type'), 'same': ('sheets', 'output'), 'revise': ('decisions',), 'layout': ('set',)}[args.action]
     missing = [name for name in needs if not getattr(args, name)]; require(not missing, f'onboard {args.action} needs ' + ', '.join('--' + name for name in missing))
     takes = needs + {'boxes': ('split',), 'same': ('only',)}.get(args.action, ())
     extra = [name for name in ('sheets', 'sheet', 'split', 'spec', 'set', 'type', 'only', 'decisions', 'output') if getattr(args, name) not in (None, []) and name not in takes]
@@ -274,9 +331,29 @@ def command_onboard(args):
         told = {'props': onboard.type_page(args.sets, args.sheets, args.output, args.type)}
     elif args.action == 'same':
         told = onboard.same_pages(args.sets, args.sheets, args.output, only=args.only)
+    elif args.action == 'layout':
+        told = {'changed': onboard.relayout(args.set)}
     else:
         told = {'changed': onboard.revise(args.decisions, args.sets)}
     print(json.dumps(told, indent=1))
+
+
+def command_measure(args):
+    """Measure a generated building before its game set is written (`measure.study`)."""
+    from . import measure
+    boxes = {}
+    for one in args.probe or []:
+        label, _, numbers = one.partition('='); values = [float(value) for value in numbers.split(',')] if numbers else []
+        require(label and len(values) == 6, 'A probe is label=x0,y0,z0,x1,y1,z1 in metres on the model as it stands'); boxes[label] = [values[:3], values[3:]]
+    print(json.dumps(measure.study(Path(args.source) / 'model.glb', args.height, args.leaf, boxes), indent=1))
+
+
+def command_smears(args):
+    """The places a generated model's picture is smudged or printed through, as patches with their boxes."""
+    from . import smears
+    told = smears.study(args.source, args.height, args.view, args.output)
+    print(json.dumps({**{key: told[key] for key in ('surface', 'shares', 'found', 'marked')}, 'patches': len(told['patches']),
+                      'largest': told['patches'][:12]}, indent=1))
 
 
 def command_study(args):
@@ -325,7 +402,7 @@ def command_check(args):
 def command_toolset(args):
     from . import toolset
     if args.action == 'prepare':
-        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or tuple(toolset.AREAS), game=args.game)
+        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or tuple(toolset.AREAS), game=args.game, size=toolset.SIZE if args.size is None else args.size)
     elif args.action == 'saved':
         made = toolset.saved(Path(args.user) / 'modules' / f'{toolset.MODULE}.mod', args.repo)
     else:
@@ -335,10 +412,11 @@ def command_toolset(args):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='envkit')
+    LEDGER = "another ledger than the shared one, <shared tool root>/envkit/meshy-ledger.json"
     commands = parser.add_subparsers(dest='command', required=True)
     sub = commands.add_parser('meshy', help='paid Meshy calls under the ledger cap')
     sub.add_argument('action', choices=['init', 'status', 'cap', 'prop', 'building', 'remesh', 'wait', 'download', 'master'])
-    sub.add_argument('--ledger', required=True)
+    sub.add_argument('--ledger', help=LEDGER)
     sub.add_argument('--cap', type=int); sub.add_argument('--reason', help='cap: the approval a raise rests on, in a few words')
     sub.add_argument('--key', help='ledger key of this call')
     sub.add_argument('--asset')
@@ -380,9 +458,14 @@ def main(argv=None):
     sub.add_argument('--columns', type=int, default=3); sub.set_defaults(run=command_contact)
     sub = commands.add_parser('sheet', help="a sheet's models through Meshy, as its plan states them")
     sub.add_argument('action', choices=['status', 'submit', 'collect'])
-    sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', required=True)
-    sub.add_argument('--root', required=True, help="the sheet's output root: references/selected is read, meshy/ is written")
+    sub.add_argument('--plan', required=True, help="the sheet's plan, sets/<sheet>-meshy.json"); sub.add_argument('--ledger', help=LEDGER)
+    sub.add_argument('--root', required=True, help="the sheet's output root: references/selected and references/sent are read, meshy/ is written")
     sub.set_defaults(run=command_sheet)
+    sub = commands.add_parser('enlarge', help="a sheet's chosen references at Meshy's size (2048 pixels or more on the longer side)")
+    sub.add_argument('--root', required=True, help="the sheet's output root: references/selected is read, references/sent is written")
+    sub.add_argument('--bindings', help='local JSON with absolute comfyInput and comfyOutput; needed where a reference is under 2048 pixels')
+    sub.add_argument('--url', default='http://127.0.0.1:8188'); sub.add_argument('--deadline', type=int, default=2400)
+    sub.set_defaults(run=command_enlarge)
     sub = commands.add_parser('view', help='a model seen square on with a metre grid, to read a game set\'s boxes from')
     sub.add_argument('--models', help='game set file'); sub.add_argument('--root', help="the set's output root")
     sub.add_argument('--source', action='append', default=[], help='instead of a game set: a generated model folder (repeatable, each with a --height)')
@@ -393,15 +476,33 @@ def main(argv=None):
     sub.add_argument('--grid', type=float, help='with --eye: a measuring grid this many metres apart on the upright plane through each target; the eyes level with their targets')
     sub.add_argument('--page', help='also one picture of every model drawn, side by side under their names')
     sub.set_defaults(run=command_view)
+    sub = commands.add_parser('measure', help='measure a generated building: footprint, slab, the heights that fit its door and its tiles, and its walls')
+    sub.add_argument('--source', required=True, help='a generated model folder'); sub.add_argument('--height', type=float, required=True, help='the height in metres it is stood at')
+    sub.add_argument('--leaf', type=float, help="its door leaf's height in metres as measured at that height")
+    sub.add_argument('--probe', action='append', help='label=x0,y0,z0,x1,y1,z1: what of the model a box holds (repeatable)'); sub.set_defaults(run=command_measure)
+    sub = commands.add_parser('smears', help="where a generated model's picture is smeared: what stood in front of each surface in its references")
+    sub.add_argument('--source', required=True, help='a generated model folder'); sub.add_argument('--height', type=float, required=True, help='the height in metres it is stood at')
+    sub.add_argument('--view', action='append', required=True, choices=['front', 'back', 'east', 'west'], help='a side a reference was drawn from, square on (repeatable)')
+    sub.add_argument('--output', required=True, help='a folder for smears.json and the marked copy of the model')
+    sub.set_defaults(run=command_smears)
+    sub = commands.add_parser('track', help='a piece of railway track, built to gauge, as a model folder a game set reads')
+    sub.add_argument('--output', required=True, help="a fresh folder under the set's output root"); sub.add_argument('--seed', type=int, default=0, help='the seed of its maps')
+    sub.add_argument('--piece', choices=['straight', 'merge', 'crane'], default='straight',
+                     help="a straight 10 m piece, a 30 m merge of the next row's track into this one, or 10 m of a gantry crane's runway rail")
+    sub.set_defaults(run=command_track)
     sets = str(Path(__file__).with_name('sets'))
     sub = commands.add_parser('onboard', help='bring a concept sheet into the kit and review the sets against each other')
-    sub.add_argument('action', choices=['boxes', 'sets', 'crops', 'overlay', 'audit', 'types', 'same', 'revise'])
+    sub.add_argument('action', choices=['boxes', 'sets', 'crops', 'overlay', 'audit', 'types', 'same', 'revise', 'layout'])
     sub.add_argument('--sets', default=sets, help='the folder of set files'); sub.add_argument('--sheets', help='the folder holding the concept sheets')
     sub.add_argument('--sheet', help='boxes: the sheet to find drawings on'); sub.add_argument('--split', type=int, help='boxes: the row the prop set starts at')
-    sub.add_argument('--spec', help='sets: the spec naming each box'); sub.add_argument('--set', help='crops: the set file')
+    sub.add_argument('--spec', help='sets: the spec naming each box'); sub.add_argument('--set', help='crops, layout: the set file')
     sub.add_argument('--type', action='append', default=[], help='types: a prop type (repeatable)'); sub.add_argument('--only', action='append', default=[], help='same: only rows with a prop of this set (repeatable)')
     sub.add_argument('--decisions', help='revise: the decisions of a review'); sub.add_argument('--output', help='the picture to write, or for overlay and same the start of its pages\' names')
     sub.set_defaults(run=command_onboard)
+    sub = commands.add_parser('restore', help="copy models' generated sources out of an archive of a retired worktree, hashes checked")
+    sub.add_argument('--archive', required=True, help='the archive folder, holding archive-manifest.json and objects/'); sub.add_argument('--models', required=True, help='game set file')
+    sub.add_argument('--model', action='append', required=True, help='a model of the game set (repeatable)'); sub.add_argument('--output', required=True, help='a folder of your own; never the archive')
+    sub.set_defaults(run=command_restore)
     sub = commands.add_parser('study', help='read the stock tiles of a tileset in the packs')
     sub.add_argument('action', choices=['pathnodes', 'tiles']); sub.add_argument('--packs', default=str(Path(__file__).resolve().parents[2]), help='the folder holding srn_t_<tileset> and srn_t_common')
     sub.add_argument('--tileset', action='append', required=True, help='a tileset name, as in srn_t_<name> (pathnodes: repeatable)')
@@ -421,7 +522,9 @@ def main(argv=None):
     sub = commands.add_parser('toolset', help='prepare a Toolset check of tile groups, read what it saved, retire it')
     sub.add_argument('action', choices=['prepare', 'saved', 'retire']); sub.add_argument('--user', required=True, help='the Toolset user folder (fresh for prepare)')
     sub.add_argument('--repo', default='.'); sub.add_argument('--game', help='prepare: the game install folder, to say how the Toolset is started')
-    sub.add_argument('--tileset', action='append', default=[], choices=['dgt04', 'udp1']); sub.set_defaults(run=command_toolset)
+    sub.add_argument('--tileset', action='append', default=[], choices=['dgt04', 'udp1'])
+    sub.add_argument('--size', type=int, help='prepare: tiles along each side of an area; wider than the group, for the start point')
+    sub.set_defaults(run=command_toolset)
     sub = commands.add_parser('props', help='the props of every onboarded sheet by type; refuses undeclared duplicates')
     sub.add_argument('--sets', default=str(Path(__file__).with_name('sets'))); sub.set_defaults(run=command_props)
     parsers = {}
@@ -434,7 +537,7 @@ def main(argv=None):
         sub.add_argument('--selected', help='folder of the chosen references, which the pieces of a building (cut) are drawn from')
         sub.set_defaults(run=run)
     sub = parsers['reference']
-    sub.add_argument('--bindings', required=True, help='local JSON with absolute comfyInput and comfyOutput')
+    sub.add_argument('--bindings', help='local JSON with absolute comfyInput and comfyOutput; not needed when every asset is drawn')
     sub.add_argument('--url', default='http://127.0.0.1:8188')
     sub.add_argument('--seed', type=int, default=101)
     sub.add_argument('--deadline', type=int, default=2400)

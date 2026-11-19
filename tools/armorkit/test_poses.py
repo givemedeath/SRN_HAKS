@@ -63,6 +63,19 @@ class PosesTests(unittest.TestCase):
             self.assertTrue(crouching and all(shot['height'] == poses.PRESETS['shoulders']['heights']['crouching'] for shot in crouching))
             self.assertEqual(layout['labels'][len(views)], 'standing, without shoulder, shoulders front')
             self.assertNotIn('tlk', document)
+            # every actor wears the six channels in six colours, each a colour of the game's palettes
+            for actor in document['actors']:
+                self.assertEqual(actor['colours'], poses.COLOURS)
+            self.assertEqual((set(poses.COLOURS), len(set(poses.COLOURS.values()))), (set(poses.CHANNELS), 6))
+            self.assertTrue(all(type(value) is int and 0 <= value <= 175 for value in poses.COLOURS.values()))
+            self.assertEqual(poses.worn_colours({'cloth1': 100})['cloth1'], 100)
+            for same in ({'cloth2': poses.COLOURS['cloth1']}, {'metal1': 5, 'metal2': 5}, {'silk': 3}):
+                with self.assertRaises(ValueError):  # two channels in one colour, or a channel there is none of
+                    poses.worn_colours(same)
+            with self.assertRaisesRegex(ValueError, 'not silk'):  # and each of the two is told by its own name
+                poses.worn_colours({'silk': 3})
+            with self.assertRaisesRegex(ValueError, 'six different colours'):
+                poses.worn_colours({'metal1': 5, 'metal2': 5})
 
     def test_a_bake_that_cannot_be_worn_is_refused_before_anything_is_written(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -90,6 +103,10 @@ class PosesTests(unittest.TestCase):
         checked = poses.entries(['chest', 'bicep'], 332, 2)
         self.assertEqual(sorted((part['slot'], part['number'], part['genderedCut']) for part in checked), [('bicep', 332, False), ('chest', 332, True)])
         self.assertTrue(all(set(part['tiers']) == set(registry.SLOT_JOINTS[part['slot']]) for part in checked))
+        # A bake at its registry number, the one a publication takes, is checked as its family's: 6020 is security's.
+        family = poses.entries(['chest', 'bicep'], 6020, 2)
+        self.assertTrue(all(part['families'] == ['security'] and part['set'] == part['group'] == 'ak-poses' for part in family))
+        self.assertTrue(all('set' not in part and part['families'] == ['accessory'] for part in poses.entries(['chest'], 1200, 2) + checked))
 
     def test_waiting_for_the_client_needs_it_closed_twice_running(self):
         seen = iter([[7], [], [8], [], []])

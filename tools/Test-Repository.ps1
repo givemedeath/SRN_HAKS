@@ -59,6 +59,7 @@ function Get-SizeExceptions {
 
 $packByName = @{}
 $packByPath = @{}
+$copiesByPack = @{}
 foreach ($pack in @($configuration.HakList)) {
     $name = [string]$pack.Name
     $relativePath = Normalize-RelativePath ([string]$pack.Path)
@@ -71,6 +72,9 @@ foreach ($pack in @($configuration.HakList)) {
     if ($packByPath.ContainsKey($relativePath)) { Add-ValidationError "Duplicate HAK path '$relativePath'." }
     else { $packByPath[$relativePath] = $pack }
     if ($pack.CompileModels -ne $false) { Add-ValidationError "HAK '$name' must set CompileModels to false." }
+    # A copies list (Get-SrnHakCopies) names real files of the pack and no file the pack holds. It is read once:
+    # an invalid one is said here, and the checks below go on without it.
+    try { $copiesByPack[$name] = Get-SrnHakCopies -Hak $pack } catch { Add-ValidationError "Invalid copies list: $($_.Exception.Message)" }
 }
 
 $registeredNames = @($packByName.Keys)
@@ -131,6 +135,15 @@ foreach ($name in $registeredNames) {
                 $setLineNumber = $setText.Substring(0, $loneLineFeed.Index).Split("`n").Count
                 Add-ValidationError "SET resource '$relativeFile`:$setLineNumber' has a lone LF; SET files must use CRLF."
             }
+        }
+    }
+    # A copy is a resource of the built pack though the folder has no file of its name: another pack holding
+    # that name is a cross-HAK duplicate all the same.
+    if ($copiesByPack.ContainsKey($name)) {
+        foreach ($copy in $copiesByPack[$name].Keys) {
+            if (-not $identities.Add($copy)) { Add-ValidationError "HAK '$name' has a case-insensitive duplicate resource '$copy'." }
+            if (-not $resourceProviders.ContainsKey($copy)) { $resourceProviders[$copy] = [System.Collections.Generic.List[string]]::new() }
+            $resourceProviders[$copy].Add($name)
         }
     }
 }
@@ -340,6 +353,108 @@ try {
 }
 catch { Add-ValidationError "Additions catalog validation failed: $($_.Exception.Message)" }
 
+# Armor parts (tools/armorkit/publish.py): once the part registry is published, srn_parts holds every model and
+# inventory icon it implies and no other model, holds exactly the files the handoff records, every part has its
+# live row in its parts table, the table's rows count from 0 without a gap, and the pack is registered. The names are derived as tools/armorkit/registry.py does.
+$partsRegistryPath = Join-Path $repoRoot 'docs/armorkit/parts-registry.json'
+$partsPackPath = Join-Path $repoRoot 'srn_parts'
+if ((Test-Path -LiteralPath $partsRegistryPath -PathType Leaf) -or (Test-Path -LiteralPath $partsPackPath -PathType Container)) {
+    try {
+        if (-not (Test-Path -LiteralPath $partsRegistryPath -PathType Leaf)) { throw 'srn_parts exists without docs/armorkit/parts-registry.json' }
+        $partsRegistry = Get-Content -LiteralPath $partsRegistryPath -Raw | ConvertFrom-Json
+        if ($partsRegistry.kind -cne 'srn-armorkit-registry' -or $partsRegistry.schemaVersion -ne 1) { throw 'not a part registry (schema 1)' }
+        $partsHandoffPath = Join-Path $repoRoot 'docs/armorkit/parts-handoff.json'
+        if (-not (Test-Path -LiteralPath $partsHandoffPath -PathType Leaf)) { Add-ValidationError 'The part registry is published without docs/armorkit/parts-handoff.json, which holds the hashes of what was published.' }
+        else {
+            # The pack holds exactly the files the handoff records: each outfit's resources and the inventory icons.
+            $partsHandoff = Get-Content -LiteralPath $partsHandoffPath -Raw | ConvertFrom-Json
+            $partsRecorded = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+            $partsHashes = [System.Collections.Generic.Dictionary[string, string]]::new([System.StringComparer]::Ordinal)
+            $partsResources = @(foreach ($outfit in @($partsHandoff.outfits)) { @($outfit.resources) })
+            if ($partsHandoff.PSObject.Properties['iconFiles']) { $partsResources += @($partsHandoff.iconFiles) }
+            foreach ($resource in $partsResources) {
+                [void]$partsRecorded.Add([string]$resource.name)
+                $partsHashes[[string]$resource.name] = [string]$resource.sha256
+            }
+            # A published file is the one its handoff records, by hash: one changed afterwards passed here until
+            # the next publication's own gate met it (review of PR 158, 2026-11-15).
+            # A published file the pack leaves out is a copy its copies list packs from a held file of the same
+            # bytes (Get-SrnHakCopies; user decision 2026-11-15: tint textures that are one image are kept once).
+            $partsCopies = if ($copiesByPack.ContainsKey('srn_parts')) { $copiesByPack['srn_parts'] } else { [ordered]@{} }
+            $partsHeldHashes = @{}
+            foreach ($name in $partsRecorded) {
+                $held = if ($partsCopies.Contains($name)) { [string]$partsCopies[$name] } else { $name }
+                $partsFile = Join-Path $partsPackPath $held
+                if (-not (Test-Path -LiteralPath $partsFile -PathType Leaf)) { Add-ValidationError "srn_parts has no $name, which the parts handoff records as published."; continue }
+                if (-not $partsHeldHashes.ContainsKey($held)) { $partsHeldHashes[$held] = (Get-FileHash -LiteralPath $partsFile -Algorithm SHA256).Hash }
+                if ($partsHeldHashes[$held] -ine $partsHashes[$name]) {
+                    if ($held -ceq $name) { Add-ValidationError "srn_parts/$name is not the file the parts handoff records as published: its hash differs." }
+                    else { Add-ValidationError "The copies list packs srn_parts/$held as $name, and it is not the file the parts handoff records as published under that name: its hash differs." }
+                }
+            }
+            foreach ($name in $partsCopies.Keys) {
+                if (-not $partsRecorded.Contains($name)) { Add-ValidationError "The copies list of srn_parts names $name, which is not a file the parts handoff records as published." }
+            }
+            if (Test-Path -LiteralPath $partsPackPath -PathType Container) {
+                foreach ($file in @(Get-ChildItem -LiteralPath $partsPackPath -File)) {
+                    if (-not $partsRecorded.Contains($file.Name)) { Add-ValidationError "srn_parts/$($file.Name) is not a file the parts handoff records as published." }
+                }
+            }
+        }
+        if (-not $packByName.ContainsKey('srn_parts')) { Add-ValidationError 'The part registry is published and hakbuilder.json does not register srn_parts.' }
+        $partTokens = @{ neck = @('neck'); chest = @('chest'); belt = @('belt'); pelvis = @('pelvis'); robe = @('robe'); shoulder = @('shol', 'shor')
+            bicep = @('bicepl', 'bicepr'); forearm = @('forel', 'forer'); hand = @('handl', 'handr'); thigh = @('legl', 'legr'); shin = @('shinl', 'shinr'); foot = @('footl', 'footr') }
+        $partIconSlots = @('chest', 'pelvis', 'belt', 'shoulder', 'robe')
+        $partModels = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+        $partTables = @{}
+        foreach ($part in @($partsRegistry.parts)) {
+            $slot = [string]$part.slot; $number = [int]$part.number
+            if (-not $partTokens.ContainsKey($slot)) { Add-ValidationError "The part registry has a part in the unknown slot '$slot'."; continue }
+            if ($number -lt 1000) { Add-ValidationError "The part registry publishes $slot $number, a stock, buffer or test number." }
+            if ($number -gt 9999) { Add-ValidationError "The part registry publishes $slot $number, above the last open number 9999." }
+            if (@($part.bodies | Sort-Object -Unique).Count -ne 20) { Add-ValidationError "Published part $slot $number does not list all 20 bodies." }
+            $tokens = @($partTokens[$slot])
+            if ($part.PSObject.Properties['sides']) { $tokens = @($tokens | Where-Object { @($part.sides) -ccontains $_.Substring($_.Length - 1) }) }
+            foreach ($token in $tokens) {
+                foreach ($body in @($part.bodies)) {
+                    $model = '{0}_{1}{2:000}' -f $body, $token, $number
+                    [void]$partModels.Add($model)
+                    if (-not (Test-Path -LiteralPath (Join-Path $partsPackPath "$model.mdl") -PathType Leaf)) { Add-ValidationError "srn_parts has no $model.mdl for $slot $number of the part registry." }
+                }
+                if ($partIconSlots -ccontains $slot) {
+                    foreach ($gender in 'm', 'f') {
+                        $icon = 'ip{0}_{1}{2:000}.plt' -f $gender, $token, $number
+                        if (-not (Test-Path -LiteralPath (Join-Path $partsPackPath $icon) -PathType Leaf)) { Add-ValidationError "srn_parts has no inventory icon $icon for $slot $number of the part registry." }
+                    }
+                }
+            }
+            $table = if ($slot -eq 'thigh') { 'parts_legs' } else { "parts_$slot" }
+            if (-not $partTables.ContainsKey($table)) {
+                $rows = [System.Collections.Generic.List[string[]]]::new()
+                $tablePath = Join-Path $repoRoot "srn_2da/$table.2da"
+                if (Test-Path -LiteralPath $tablePath -PathType Leaf) {
+                    $tableLines = @([IO.File]::ReadAllLines($tablePath, [Text.Encoding]::GetEncoding(1252)) | Where-Object { $_.Trim() })
+                    for ($index = 2; $index -lt $tableLines.Count; $index++) {
+                        $cells = @($tableLines[$index].Trim() -split '\s+')
+                        if ($cells[0] -cne [string]($index - 2)) { Add-ValidationError "srn_2da/$table.2da has a gap: row $($index - 2) is labelled $($cells[0])."; break }
+                        $rows.Add($cells)
+                    }
+                }
+                else { Add-ValidationError "srn_2da has no $table.2da for the part registry." }
+                $partTables[$table] = $rows
+            }
+            $rows = $partTables[$table]
+            if ($number -ge $rows.Count -or $rows[$number][1] -ceq '****') { Add-ValidationError "srn_2da/$table.2da has no live row $number for the part registry." }
+        }
+        if (Test-Path -LiteralPath $partsPackPath -PathType Container) {
+            foreach ($file in @(Get-ChildItem -LiteralPath $partsPackPath -File -Filter '*.mdl')) {
+                if (-not $partModels.Contains($file.BaseName)) { Add-ValidationError "srn_parts/$($file.Name) is no model of the part registry." }
+            }
+        }
+    }
+    catch { Add-ValidationError "Armor parts validation failed: $($_.Exception.Message)" }
+}
+
 if ($errors.Count -gt 0) {
     foreach ($validationError in $errors) { Write-Error $validationError -ErrorAction Continue }
     throw "Repository validation failed with $($errors.Count) error(s)."
@@ -362,6 +477,10 @@ else {
         if ($packBuildPatterns | Where-Object { $normalized -match $_ }) { $mustBuildAll = $true }
         $firstSegment = $normalized.Split('/')[0]
         if ($packByName.ContainsKey($firstSegment)) { [void]$packsToBuild.Add($firstSegment) }
+        # A pack's copies list is packed with it, and lies outside its folder.
+        foreach ($pack in @($configuration.HakList)) {
+            if ($pack.PSObject.Properties['Copies'] -and (Normalize-RelativePath ([string]$pack.Copies)) -ceq $normalized) { [void]$packsToBuild.Add([string]$pack.Name) }
+        }
     }
     if ($mustBuildAll) { foreach ($name in $registeredNames) { [void]$packsToBuild.Add($name) } }
 }

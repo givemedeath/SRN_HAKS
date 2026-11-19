@@ -23,8 +23,8 @@
     },
     {
       "archive": "sw_weapon_w2.mod",
-      "resources": 94,
-      "sha256": "bbaa8569bd04339ad450ae3de29a0182fdffc7a3487f1733e8332bb85726fc9d",
+      "resources": 128,
+      "sha256": "b1072c06e108bbb7f750e098b9139923d33cf5a6ffab167f5551726e56338da3",
       "exactPayload": true
     }
   ],
@@ -32,8 +32,8 @@
   "motionOverlaysTestingOnly": true,
   "newClientAcceptanceClaimed": true,
   "reviewers": {
-    "pairs": 30,
-    "NPCs": 60,
+    "pairs": 47,
+    "NPCs": 94,
     "allWeaponFinishesOnBothHumanBodies": true,
     "initialPair": "Cougar Fineblade Knife",
     "clientReviewPending": false
@@ -89,6 +89,48 @@
       ],
       "moduleSha256": "bbaa8569bd04339ad450ae3de29a0182fdffc7a3487f1733e8332bb85726fc9d",
       "note": "Vibro Blades Knife, Rapier, Combat Axe, Spear reviewer pairs were added (sw7_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
+    },
+    "extension5": {
+      "date": "2026-11-14",
+      "addedPairs": 5,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Approve all five"
+      ],
+      "moduleSha256": "3f31a9c9a075fbf9f5598acbeb06eb02cf1453c443c645dd47e056692217ec32",
+      "note": "Sai, Mace, Macauitl, Nodachi, Pole Arm reviewer pairs were added (sw8_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
+    },
+    "extension6": {
+      "date": "2026-11-14",
+      "addedPairs": 3,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Looks good"
+      ],
+      "moduleSha256": "9207eba286980f0c988916b7c06553f75b18ffc8f5a89c4d78b10069d8af3581",
+      "note": "Katar, Tonfa, Telescopic Staff reviewer pairs were added (sw9_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
+    },
+    "extension7": {
+      "date": "2026-11-15",
+      "addedPairs": 4,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Approve all three",
+        "Approve the Rattan"
+      ],
+      "moduleSha256": "6839830bf5d632ff13b054176f02ab97f6a134ac2ec6780f622714e9699915fb",
+      "note": "Kris, Monofilament Sword, Jupiter Taser Club, Rattan Stick reviewer pairs were added (sw10_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
+    },
+    "extension8": {
+      "date": "2026-11-17",
+      "addedPairs": 5,
+      "status": "items-approved-from-private-itemkit-fixtures",
+      "statements": [
+        "Looks good, do effects",
+        "accepted, finish everything up"
+      ],
+      "moduleSha256": "b1072c06e108bbb7f750e098b9139923d33cf5a6ffab167f5551726e56338da3",
+      "note": "Fichetti Security 600, Yamaha Pulsar, HK MP-5 TX, AK-97, Defiance T-250 reviewer pairs were added (sw11_). They were not run in this module's client; each item was reviewed in its own itemkit fixture."
     }
   }
 }

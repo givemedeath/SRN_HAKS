@@ -147,7 +147,8 @@ class RepositoryManifestTests(unittest.TestCase):
 
     def test_sling_is_flagged_and_loads_table_pack(self):
         sling = [i for i in self.manifest['items'] if i['slingRelevant']]
-        self.assertEqual({i['id'] for i in sling}, {'colt-l36-pistol','ingram-smartgun-x','sr4-ares-predator-iv-3ab64906ed'})
+        self.assertEqual({i['id'] for i in sling}, {'colt-l36-pistol','ingram-smartgun-x','sr4-ares-predator-iv-3ab64906ed',
+                                                    'sr4-fichetti-security-600-186f9abc33','sr4-yamaha-pulsar-4ec98e3ab9','sr4-hk-mp-5-tx-ade01f2396'})
         self.assertIn('srn_2da', sling[0]['packs'])
         roles = {r['row']: r['role'] for r in self.manifest['tables'][0]['rows']}
         self.assertIn('sling ammunition', roles[27])
@@ -162,6 +163,31 @@ class RepositoryManifestTests(unittest.TestCase):
         knife = next(i for i in manifest['items'] if i['id'] == 'cougar-fineblade-knife')
         self.assertIn('sr_cfk_07.tga', knife['closureMissing'])
         self.assertIn('closure-missing-cougar-fineblade-knife', [g['id'] for g in manifest['gaps']])
+
+    def test_dds_twins_join_their_tga_in_the_item_closure(self):
+        import hashlib, tempfile
+        from pathlib import Path
+        knife = 'cougar-fineblade-knife'
+        publication = crm.load_json(crm.PUBLICATION)
+        twins = ['sr_cfk_07.dds', 'iwswdg_t_071.dds']           # the knife's diffuse and blade icon
+        with tempfile.TemporaryDirectory() as folder:
+            files = []
+            for name in twins:
+                (Path(folder)/name).write_bytes(b'bioware dds ' + name.encode()); files.append(Path(folder)/name)
+                body = (Path(folder)/name).read_bytes()
+                publication['resources'].append({'item': knife, 'path': f'{crm.WEAPON_PACK}/{name}',
+                                                 'sha256': hashlib.sha256(body).hexdigest(), 'bytes': len(body)})
+            original_files, original_load = crm.list_weapon_files, crm.load_json
+            crm.list_weapon_files = lambda: sorted(original_files() + files)
+            crm.load_json = lambda path: publication if path == crm.PUBLICATION else original_load(path)
+            try:
+                manifest = crm.build(check_git=False)
+            finally:
+                crm.list_weapon_files, crm.load_json = original_files, original_load
+        item = next(i for i in manifest['items'] if i['id'] == knife)
+        self.assertTrue(set(twins) <= set(item['resourceClosure']))
+        self.assertTrue(item['closureMatchesPublicationOwnership']); self.assertEqual(item['closureMissing'], [])
+        self.assertEqual({r['resourceType'] for r in manifest['resources'] if r['path'].endswith('.dds')}, {2033})
 
     def test_tracked_manifest_is_current_apart_from_git_comparison(self):
         tracked = json.loads((crm.ROOT / crm.JSON_OUT).read_text(encoding='utf-8'))

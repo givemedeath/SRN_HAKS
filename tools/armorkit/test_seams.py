@@ -122,10 +122,12 @@ class ContractTests(unittest.TestCase):
             self.assertIn(joint, registry.SLOT_JOINTS[over])
             self.assertIn(joint, registry.SLOT_JOINTS[under])
 
-    def test_every_joint_has_both_bodies_and_growing_tiers(self):
+    def test_every_joint_has_all_20_bodies_and_growing_tiers(self):
         self.assertEqual({float(v) for v in self.contract['tierOffsets'].values()}, set(seams.TIER_OFFSETS.values()))
+        self.assertEqual((self.contract['version'], self.contract['ends']), (4, seams.ENDS))  # every end domed (2026-11-13); all 20 bodies (2026-11-14)
         for joint, row in self.contract['joints'].items():
-            for body in ('pmh0', 'pfh0'):
+            self.assertEqual(set(row['bodies']), set(registry.BODIES), joint)  # a race body is gated and refit on its own rings
+            for body in registry.BODIES:
                 tiers = row['bodies'][body]['tiers']
                 radii = [tiers[str(t)]['envelopeRadius'] for t in registry.TIERS]
                 self.assertEqual(radii, sorted(radii), joint)
@@ -138,7 +140,7 @@ class ContractTests(unittest.TestCase):
         self.assertEqual({joint: seams.sides(joint) for joint in ('neck', 'waist', 'elbow')},
                          {'neck': ('c',), 'waist': ('c',), 'elbow': ('l', 'r')})
         for joint, row in self.contract['joints'].items():
-            for body in seams.AUTHORING_BODIES:
+            for body in registry.BODIES:
                 self.assertEqual(tuple(row['bodies'][body]['sides']), seams.sides(joint))
         with self.assertRaisesRegex(ValueError, 'side must be one of'):
             seams.envelope(self.contract, 'elbow', 'pmh0', 1)
@@ -162,6 +164,11 @@ class ContractTests(unittest.TestCase):
                                 (lambda c: c['joints']['waist']['bodies']['pfh0']['bend'].update(p95=20.0), 'tier 0 disagrees'),
                                 (lambda c: c['tierOffsets'].update({'3': 0.08}), 'tier 3 disagrees'),
                                 (lambda c: c.update(designBend='median'), 'designBend must be'),
+                                (lambda c: c.pop('ends'), 'how every end is closed'),
+                                (lambda c: c['ends'].pop('bent'), 'how every end is closed'),
+                                (lambda c: c['ends'].update(domeMost=0.0), 'stands past its opening'),
+                                (lambda c: c['ends'].update(domeRings=1.5), 'in one ring or more'),
+                                (lambda c: c['ends'].update(rest=-0.001), 'tolerance of zero or more'),
                                 (lambda c: c.update(directions=8), 'records 16 directions')):
             broken = copy.deepcopy(self.contract)
             change(broken)

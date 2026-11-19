@@ -133,6 +133,16 @@ class TaggedGun(unittest.TestCase):
             self.assertGreater(spans[0], 2 * spans[4])
             self.assertEqual(spans[0], spans[8])
 
+    def test_a_straightened_gun_takes_its_port_with_it(self):
+        import numpy as np
+        from tools.itemkit.test_firearm_lean import StraightenTests, gun, rolled
+        self.assertLessEqual(set(fx.STRAIGHTEN), set(fx.GUNS)); self.assertNotIn('ak98', fx.STRAIGHTEN)
+        vertices, faces = gun(); text = StraightenTests().model(rolled(vertices, 3.8), faces)
+        done, port, turned = fx.straightened(text, (.022, .125, -.05))
+        self.assertLess(turned['after']['leanDegrees'], .3); self.assertNotEqual(done, text)
+        pivot = np.array(turned['pivot']); expected = np.array(turned['matrix']) @ (np.array([.022, .125, -.05]) - pivot) + pivot
+        np.testing.assert_allclose(port, expected, atol=1e-5); self.assertGreater(abs(port[0] - .022), .004)
+
     def test_every_shipped_gun_has_a_port_and_a_shipped_part(self):
         self.assertEqual(sorted(fx.GUNS), sorted(fx.PORTS))
         for part, stem in fx.GUNS.values():

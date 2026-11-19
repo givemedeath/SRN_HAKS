@@ -126,8 +126,10 @@ the registry into `srn_2da`: stock rows unchanged, padded with no gaps, live row
 SR_NWN swaps it per wearer. Logo textures are plain (not tintable) and their names are at most 16 characters.
 This is the accepted exception to "one PLT per part" (decision 13).
 
-**Budgets (starting values, tuned in the pilot).** Chest up to 6,000 triangles, other body slots up to 2,250,
-accessories up to 2,000, a whole worn outfit up to 30,000 (user decision 2026-11-11, raised from the robe
+**Budgets (starting values, tuned in the pilot).** Chest up to 8,000 triangles, other body slots up to 2,900,
+accessories up to 2,000, a whole worn outfit up to 40,000 (user decision 2026-11-13, raised from 30,000 so that
+the rounded ends at every joint fit; a chest and eleven parts at their budgets come to 39,900). Before that
+the chest had 6,000, the other slots 2,250 and the outfit 30,000 (user decision 2026-11-11, raised from the robe
 trial's 20,000 with the body slots in proportion, to make the needed quality easier to reach on the next
 outfit). The split adds about seven tenths to the faces a generated mesh is exported with (closings, caps,
 the crotch strip, faces cut in two): siteguard-male was exported at 12,000 and is worn at 20,704, so an
@@ -146,8 +148,8 @@ matching rings, each part end is built to overlap:
 * Each joint has a fixed plane and a fixed layering order measured on the locked c7 Human bodies (for example
   the thigh tucks under the pelvis, the chest hangs over the pelvis).
 * Each part end declares a **tier**: 0 skin-tight, 1 cloth, 2 padded or armored, 3 heavy.
-* The "under" end continues past the joint plane by a minimum overlap and tapers; the "over" end is open and at
-  least as wide as its tier's envelope.
+* The "under" end continues past the joint plane by a minimum overlap and tapers; the "over" end is at least as
+  wide as its tier's envelope and closed by a shallow dome on past the plane (revision 2026-11-13 below).
 * Two parts mix cleanly at a joint when the over part's tier is at least the under part's. Other pairs still
   assemble; the registry marks them so SR_NWN can avoid or allow them.
 * Tapered ends follow the repository's no-shelves rule: one continuous slope, no ledge or rolled lip.
@@ -215,7 +217,8 @@ New code lives in `tools/armorkit/`, documents in `docs/armorkit/`. New parts pu
 10. **Human female:** generate, split and fit the separate female cuts; fit the shared slots; review.
 11. **Race versions** for the other 18 bodies, gates, then a sampled client review on the hardest bodies.
 12. **Publish:** models and textures to the pack, table rows, registry entry, publication validation and a pack
-    build.
+    build: `python -m tools.armorkit publish` (`tools/armorkit/publish.py`; runbook in `tools/armorkit/README.md`,
+    revision 2026-11-14 below).
 
 ## Gates
 
@@ -224,7 +227,8 @@ Automatic, per part:
 * Names, 16-character limit, no clash with `srn_body` or `srn_armor`.
 * Triangle and texture budgets.
 * Texture closure: the PLT and material file exist and every referenced map resolves.
-* Seam contract: each end meets its tier's overlap and envelope against the body joint.
+* Seam contract: each end meets its tier's overlap and envelope against the body joint, and every end is
+  closed and domed, what closes it hidden at rest and in the design bend.
 * Clearance: no body surface showing through at rest; no holes or detached pieces.
 * Skin checks from cleanmodels: no unbound vertices, at most four influences, every bone in the skeleton.
 * All 20 body versions exist, and their table rows exist.
@@ -290,6 +294,62 @@ Notes SR_NWN needs:
 * Item blueprints must write `xArmorPart_*` fields for numbers above 255.
 * A logo swap is applied to the wearing creature and reapplied whenever the item is equipped.
 * New chest rows carry no armor value.
+
+## Revision 2026-11-14: the Human pair, what a bake mends and checks, and decisions not yet written down
+
+User decisions from the Facility Security work of 2026-11-13 and 2026-11-14 that still stand and were not in
+this plan:
+
+- Parts are meant to clip into each other (2026-11-13). An end drawn in toward its part's axis and closed is
+  enough in most cases; the domes of the revision above came out of this, and replaced the rounded sockets
+  asked for at both sides of a joint the same evening.
+- The Human female's Facility Security is her own generated chest and the male's other parts carried to her
+  (`refit`, `combine`): his sleeves, because her own shirt had no cloth inside the upper arm, and his pelvis
+  and thighs, by the user's word of 2026-11-14, instead of her own generation's hips. Her own bake is made
+  from a brief of two materials (her generation's knee and shin plates came out pale), and only its chest is
+  used.
+- A client check needs no comparison crops (2026-11-14): the six-pose sheet and its single shots are the
+  evidence, and `poses` makes no crops.
+
+Stop rule for the Human female (user decision 2026-11-14, passed on by the session that plans the outfit
+work): she is done when every bake gate passes and the six-pose client sheet shows no holes, no skin where
+cloth belongs and nothing see-through. A defect of shade or colour gets one diagnosis and one fix round with
+a client check, and is then recorded and accepted. Textures stay at 1024 texels a side (same decision).
+
+What changed in the kit on 2026-11-14 (`tools/armorkit/README.md`, Invariants):
+
+- The slit along the right sleeve's inner seam was a real gap, not faces turned in. The trough's planes cut a
+  slab off the sleeve's inner side, the slab went to the chest, and the sleeve's end at the shoulder was grown
+  from a rim that no longer came round the joint. A slab the trough cuts off a sleeve past the armpit is
+  now the arm's (`split.slabbed`); before the armpit a piece cut off is the torso's, as her vest's shoulders
+  are.
+- A new gate, `facing`, on every bake, `bake --kept`, split and refit: no part may hold faces the client
+  would show a hole at (turned in, bare behind, nothing close under them). A bake and a refit turn such faces
+  out first. Turning a part's faces one way by a flood fill over shared edges was looked at and not done: the
+  split winds a closing against the lining it closes, on purpose.
+- A bake drops crumbs of debris from the generated outfit (10 cm² together at most) and records them, instead
+  of failing on them after the bake: the debris gate still fails on more.
+- A refit reads a sleeve once more after pushing it out over the other body's arm, fails where the skin still
+  stands through it, and reports what is left in `refit.json`.
+- A part's middle counts each place its vertices stand at once: the copies a texture layout makes of
+  vertices moved it between the mend and the gate.
+- Relief shading is evened with the texels beside each texel. The vest's flecked hem and collar were the
+  kit's shading, not the generation's colours, which are clean there.
+
+Accepted as they are on the Human pair (user decisions 2026-11-14):
+
+- With an arm lifted the female's armpit shows a panel, pale and streaked dark. It is the chest's own closing
+  round the arm, which the split makes and the bake shades as the cloth it lies under, vest on one face and
+  shirt on the next. The one fix round went to the sleeve's cap instead, changed nothing to see and was taken
+  out again. The user accepted the panel as it is. Drawing that closing as the sleeves' closings are, in one
+  shade of the shirt's cloth, was written and not tried in the client: it is not in the kit. A new generation
+  would not change the panel.
+- With an arm lifted the male shows two thin lighter slivers where the right sleeve meets the chest at the
+  armpit. They are the cloth's colour and nothing shows through them.
+
+By the stop rule above the Human female is done: her gates pass, and her six-pose sheet shows no holes, no
+skin where cloth belongs and nothing see-through.
+
 
 ## Open decisions
 
@@ -674,3 +734,185 @@ says nothing is worn on the shoulders, no new reference folder is sealed with ve
 version 2 lists no `pads`. Still to build: the pad needs its own brief and a fitting step that places and scales it on the shoulder bone, with its
 clearance over the upper arm checked with the arms up and forward (`python -m tools.armorkit render`) before
 the client. The Site Guard keeps its pads, and the pad split stays for an outfit generated with them.
+
+## Revision 2026-11-13: every joint domed, and the gate on it (user decisions)
+
+Facility Security male, cut from the 200,000-face export, showed in the client that ends left open or closed
+flat part as the joints turn. The user decided that every joint is at least slightly domed, so that the parts
+overlap as they turn and the engine's depth test hides whichever surface lies behind, and raised the whole
+outfit's budget to 40,000 triangles for the rounder ends (Budgets above). Seen in the client with every end
+domed (standing, arms up, arms forward, sitting, crouching and talking), the user accepted the domes once a
+dome as deep as the seat line's slant, which hung below the seat as bulk, was held to 2 cm.
+
+The split now has one way of closing an end (`tools/armorkit/split.py`): an over part's opening is closed by a
+dome on past its plane into the under part (the chest at the waist and round each arm, the pelvis round each
+leg hole, an upper arm at the elbow, a forearm at the wrist, a thigh at the knee, a shin at the ankle), and an
+under end by a cap or a seat end rounded in to its pole, each built from twice the rings it had. A pad's half
+on a plane is left open. The rule is the seam contract's, version 3 (`ends`, docs/armorkit/seam-contract.md),
+and the bake follows the contract's numbers.
+
+The user asked for the rule to be gated (`tools/armorkit/bake.py`, `hidden`, on every bake and split run): at
+each joint, no part open on the plane but a pad's half; the over part's dome no more than 2 cm past its rim;
+what closes the under end inside the outfit as the body stands, within 5 mm; and turned by the design bend, the
+under end's points beyond its own ring inside the over part, within 1 cm. The bend tolerance comes from the
+male outfit the user saw clean, which stands at most 0.7 cm out and passes. The gate found the female's right thigh open
+20 cm round the front of the knee, where a cut that stops at whole edges ran past the reach its dome closed
+within; the dome now closes the whole rim. Her right thigh's end stands 1.2 cm out of the pelvis with the
+leg swung back the hip's whole 67 degrees, and fails until her hips are fitted again. The gate measures
+geometry; the client is still the evidence for how an end looks.
+
+## Revision 2026-11-14: the publish command, and a dry run
+
+Step 12 has its command (`tools/armorkit/publish.py`). It copies bakes written at their registry number into
+`srn_parts`, merges the parts tables into `srn_2da`, draws inventory icons, writes the registry and the SR_NWN
+handoff with each outfit's hashes, and runs the publication gates, each failing with the model and the reason.
+`tools/Test-Repository.ps1` checks a published registry against the pack and the tables. Nothing is published:
+there is no `srn_parts` folder and no change to `srn_2da`.
+
+Dry run on Facility Security as number 6020, Human male and female, into a scratch root, built and worn in the
+client from the built packs:
+
+* **Gates.** 216 `bodies` failures, the 12 models of each of the 18 other bodies, and one `bake` failure: the
+  male's kept parts, tinted again on the merged code, fail the bake's skin gate that was added after they were
+  kept (9 points of the right upper arm's skin covered only by faces turned in). The female passes. Texture
+  closure, name clashes, tables, icons and both necks pass.
+* **The torso's neck measure** is built (`publish.neck`). The body's neck and an outfit's chest are closed
+  surfaces, so it reads the neck's surface against the chest in place of a section of a hole. The armholes and
+  leg holes still have no measure of their own; the bake's `hidden` gate covers what closes them.
+* **Tint fallback across gender and build is proven for the tint texture** (the item left unchecked in Phase 0):
+  a Human female and a Large male shin model, each naming a tint texture no pack holds, were drawn in the Human
+  male's of the same number. Whether the material file and normal map are found the same way was not told
+  apart in the client.
+* **Inventory icons** work for a number above 999 under `ip<m|f>_<token><number>`, tinted by the item's colours
+  (seen for the female icons; the male ones were not on screen). Drawn from the model they are paler than the
+  stock ones.
+* **Size.** One outfit on two bodies is 66 MB in the pack, because each body carries its own tint textures and
+  maps. Twenty bodies with their own textures are about 650 MB an outfit. Naming the Human Fit textures from
+  the race models is not a way round it: an armor part's texture is coloured in game only when the model and
+  the tint texture have the same name (user, 2026-11-14), and the `closure` gate now fails a model that names
+  another's. What can shrink it is smaller maps, or leaving a body's own tint texture out so that the game's
+  fallback finds the Human male's (the probe above). That fallback takes the item's colours (client,
+  2026-11-14): shin 398 on a Human female and a Large male, their models naming textures of their own names
+  that no pack holds, was drawn in the Human male's texture and changed with him between two colour sets, all
+  channels 88 and all channels 132. The publish command does not use it yet: `survey` and the `closure` gate
+  still ask every body for its own tint texture.
+
+What still blocks a publication: the 18 race bodies (refit and bake each, or race versions that pass the seam
+gate); a male bake that passes on the merged code, and the female refit from it; the female's open client
+defects; the `PROVENANCE.md` entry; the user's review of the outfits and of the pale icons; and the registry's
+set and group names for 6020, which the dry run made up (`facility-security`, `corpsec`).
+
+## Revision 2026-11-14: the seam contract holds all 20 bodies (user decision)
+
+Facility Security was carried from the Human pair to the other 18 bodies with `refit`, baked and gated on each,
+and passed a trial publication of all 20 (`publish --trial`; nothing published). The 18 were built on a seam
+contract measured for them in a scratch file, the kit's own holding the Human pair only. The user decided that
+the 20-body contract goes into the kit (2026-11-14): `measure` now measures every body, and
+`tools/armorkit/seam-contract.json` is version 4 ([seam-contract.md](seam-contract.md)). The Human rows and the
+rules are unchanged, so a bake of the Human pair reads what it read before.
+
+Of what the dry run's revision listed as blocking a publication, the 18 race bodies are done as a trial. Still
+open: the `PROVENANCE.md` entry (drafted, not written), the user's review of the outfits on the race bodies and
+of the pale icons, and the registry's set and group names for 6020.
+
+## Revision 2026-11-15: wear in the tint texture and suggested colours (user decisions)
+
+The concept sheets in `SRN_Concept_Art/Metahumans/Clothing` guide the kit's art style; they are not a build list
+(user, 2026-11-15). Two things they show that the kit did not carry are now in it:
+
+* **Wear.** "Bake in a bit of wear based on the concepts." A brief's `wear` (0-1) mottles the outfit's own
+  surface, rubs its raised edges pale in patches and darkens its creases, in the tint texture's shade
+  (`texture.wear_fields`, `texture.tint_maps`). The reference image stays clean. Street, gang and work clothes
+  are drawn more worn than corporate and security ones. The normal and roughness maps are not changed.
+* **Colours.** The user accepted the recommendation of a dark base and one accent per outfit. A brief's material
+  may name the colour its concept wears it in (`suggested`), the bake records it, and a registry part may carry
+  `colours` per channel into the handoff, for SR_NWN to start an item's colours from.
+
+Also decided that day: a chest print exists only on T-shirts and has nothing to do with the shoulder and lanyard
+badge. Its mechanism is not designed. Facility Security's briefs carry `wear` 0.3 and suggested colours; its 20
+bodies are not rebaked with them.
+
+## Revision 2026-11-15: a repeated tint texture is kept once (user decision, after the storage study)
+
+The Size note of the publish revision above is superseded for tint textures. Measured on the published
+Facility Security: 404 MB in `srn_parts/`, of which 254 MB were 208 tint textures that are byte for byte the
+image of another body's (a refit keeps the Human's). Git stored each image once already; the checkout and
+the hak did not. The user chose plain git, no LFS, and to make those copies at build time.
+
+* **The copies list.** `srn_parts/` holds each tint image once, the Human Fit body's where it is among them.
+  The other names are in `docs/armorkit/parts-copies.json`, which the pack's `hakbuilder.json` entry names
+  (`Copies`). `tools/Build-Haks.ps1` packs the kept file under every name, so the hak is what it was: every
+  body still has a tint texture of its own model's name, as the game needs to colour it.
+* **The folder alone is not the pack.** Build it with `tools/Build-Haks.ps1` (or a trial with `publish
+  --build`); packing `srn_parts/` directly leaves the copies out.
+* **Unchanged.** The handoff records every name and hash, and `publish` and `tools/Test-Repository.ps1` hold a
+  copy to it through the file kept. Maps were shared by name already (`shared_maps`). The hak is not smaller:
+  an outfit is still about 423 MB there, so `srn_parts` is split into several haks before about ten outfits.
+
+## Revision 2026-11-17: the first three accessories (belt, shoulder brassard, respirator)
+
+Made for corporate security and looked at in the client on the Human pair, worn with Facility Security 6020.
+Nothing here is published; the other 18 bodies, the registry entries and the packs are separate steps.
+
+* **Budget (user decision).** An accessory has up to 4,000 triangles and a texture of up to 1,024 texels
+  (`accessory.BUDGET`), twice the 2,000 of the part rules. A whole worn outfit's 40,000 is unchanged.
+* **Numbers (user decision).** The duty belt takes its outfit's number, 6020, on the belt slot. The brassard is
+  shoulder 1000 and the respirator neck 1000, the first of the standalone numbers.
+* **A brief for an accessory.** `accessory` names the slot (`belt`, `shoulder`, `neck`) in place of a
+  construction; a material may name its colour `channel` (1 or 2 of its kind), and no two materials of one kind
+  share one. An object with depth to the side (a holster) is drawn in three-quarter view: a straight front view
+  generated the holster as a flat slab.
+* **One piece, every body.** A generated piece is prepared once (`accessory prepare`: stood level or centred,
+  laid out, colours and relief read) and fitted per body. A belt is wrapped over the worn outfit's waist,
+  direction by direction (`accessory fit`); headgear is brought to its race's head envelope (`headgear`). A race
+  version cannot scale either (spikes.md, section 13).
+* **The brassard is drawn, not generated.** `brassard` makes a band round the upper arm over the outfit's
+  sleeve, with a curved badge, on both shoulders. It needs no reference image and no generation. The first one
+  took one outline for its whole height and stood off a lifted arm as a loose ring (user, 2026-11-17); the band
+  now follows what is worn ring by ring, about the sleeve's own middle, and is gated on how far it stands off.
+  Refitted on all 20 bodies (nine tenths of the band within 1 cm of the sleeve, nothing through it) and seen in the
+  client on the Human female, Large Orc female and Large Troll male. On the female bodies the published 6020 vest
+  has a piece over the left upper arm that hides the band's upper part with the arm down: the band is fitted to
+  the sleeve, not over the vest, and stays so (user, 2026-11-17: leave it on the sleeve); the cause is in the
+  female cut's vest.
+* **Logo resources.** `logo.write` makes the shared material `srn_logo`, the vertex shader `srn_vslogo` and the
+  strip `srn_logos` of sixteen cells, 128 texels each. Cells (user: the major corporations' logos are in the
+  concept sheets; cut from the corporate security sheet): 0 blank, 1 Ares, 2 Renraku, 3 Saeder-Krupp, 4 Wuxing,
+  5 Mitsuhama. The rest of the major corporations followed (user, 2026-11-17): 6 Aztechnology and 11 Lone Star,
+  cut from the battle armour and magical response sheets, and 7 Evo, 8 Horizon, 9 NeoNET, 10 Shiawase, which are
+  on no sheet and were cut from one image drawn in the sheets' header style (the four designs approved by the
+  user, 2026-11-17). 12 to 15 are blank. A cell once
+  given keeps its number. SR_NWN sets a wearer's logo with
+  `SetMaterialShaderUniformVec4(creature, "srn_logo", "LogoCell", cell)`; an unset wearer shows cell 0.
+  A badge is gated to read the right way round (`logo.reads_right`) and was looked at with all five logos, none
+  of them symmetric, on both shoulders. They are published with the brassard, once for the pack, and the
+  handoff carries the material, parameter and cells as `logo`.
+* **Published (2026-11-17, user: publish the belt and brassard).** Belt 6020 (set `facility-security`) and
+  shoulder 1000 (standalone, badge left and right) are in `srn_parts` on all 20 bodies, with their icons and
+  table rows. `publish` takes a drawn piece (no brief, no material file) and the logo's shared files. The
+  respirator is not published: it is on hold. A new logo means a new strip: `logos` puts the kit's strip in
+  place of the published one and holds every published cell to its name and number. What SR_NWN does with the
+  parts and the logo is in [sr-nwn-instructions.md](sr-nwn-instructions.md).
+* **The respirator (user decision: full face, opaque visor).** A skinned mesh bound whole to the head bone, in
+  a neck part that keeps the body's neck; one tint texture named like the model holds both. Gated to stand no
+  more than 2 mm inside the head envelope and to cover the face. It came out of generation as a whole-head
+  hood, and since it clears every published head of a race it is as roomy as that race's envelope: a Troll's
+  includes the horns. The user then ruled that a respirator covers the front of the face only, not the horns, the
+  side or the top of the head (2026-11-17): `headgear` cuts the fitted piece to a rounded outline from the chin to
+  the brow, short of the ears, and turns the cut edge in, so the head's own hair, ears, horns and skull show (`--cover head` keeps a piece whole, for a hood). The piece's hem hangs below the chin
+  by a share of the piece, so the cut removes its flare on every race.
+  **On hold (user, 2026-11-17):** the respirator is halted, to be tried again later. The face-only cut passes its
+  gates on the six bodies checked and was seen in the client on the Human male only; it is not approved, and it is
+  not part of the step to the other bodies or of any publication until the user takes it up again.
+* **Client check.** `poses` gained `--under REGISTRY=NUMBER` (the actors also wear a published outfit),
+  `--cells` (logo cells in turn), the presets `waist` and `head`, and `--body-pack` (camera set for the body's
+  height). A client check and a generation on the shared ComfyUI are not run at the same time: the shots stall.
+* **The other 18 bodies (2026-11-17, user go-ahead for belt and brassard only).** `accessory fit` and `brassard`
+  were run for each of the 18 remaining bodies over its published 6020; all 36 fits pass their gates. Seen in the
+  client on four of them, both pieces: Large Troll male, Elf female, Large Dwarf male, Large Orc female. No holes,
+  nothing see-through, logos upright and unmirrored. The brassard stands clear of the arm as a loose ring with the
+  arm raised or forward, most on the Large bodies; on the Large Orc female the belt's band runs at a slant across
+  the back. The other 14 bodies were gated, not seen. Not published.
+
+Not checked: motion beyond the six poses, a logo value across a save or in multiplayer, Dwarf and Elf heads,
+Large bodies, publication gates, item icons.

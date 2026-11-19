@@ -14,6 +14,54 @@ from .geometry import topology, check_budgets
 EXTRA_RESOURCE_TYPES = {'2da': 2017, 'uti': 2025}
 
 
+DDS_CHANNELS = {'DXT1': 3, 'DXT5': 4}
+
+
+def dds_converter(inputs):
+    """The vendored NWN Crunch, hash-checked once and registered with the TGAs it will convert."""
+    sys.path.insert(0, str(ROOT/'tools/phenotypes')); from tool_runtime import tool
+    return tool('crunch', inputs=[pin(p) for p in inputs])
+
+
+# The game reads a texture's alpha as transparency unless a TXI beside it names an environment map; then alpha is the
+# map's mask (low alpha reflects). chrome1 is the base game's metal map. Its in-game look is unreviewed (2026-11-17).
+ENVIRONMENT_MAP = 'chrome1'
+
+
+def reflection_txi(tga):
+    """The TXI that makes a reflection-masked diffuse (textures.metal_policy) reflect instead of turning see-through."""
+    target = Path(tga).with_suffix('.txi'); target.write_bytes(f'envmaptexture {ENVIRONMENT_MAP}\r\n'.encode('ascii')); return target
+
+
+def nwn_dds(tga, target, compression='DXT5', *, crunch=None):
+    """A BioWare DDS of a TGA by the vendored NWN Crunch, with a generated mip chain: DXT5 for an RGBA icon (the base
+    game's own part icons), DXT1 for an RGB diffuse. Every package ships these beside its TGAs, as the base game ships
+    its part icons. `crunch` is a dds_converter() resolved for a batch; without it this one TGA resolves its own."""
+    from .dds import bioware_dds
+    require(compression in DDS_CHANNELS, 'Unsupported DDS compression')
+    tga, target = Path(tga), Path(target)
+    crunch = crunch or dds_converter([tga])
+    require(not target.exists(), f'{target.name} exists')
+    done = subprocess.run([str(crunch), '-file', str(tga), '-out', str(target), '-fileformat', 'nwn', '-'+compression, '-mipMode', 'Generate',
+                           '-noprogress', '-nostats'], capture_output=True, text=True, errors='replace', timeout=300,
+                          creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    require(done.returncode == 0 and target.is_file(), 'NWN Crunch failed: '+(done.stdout+done.stderr)[-1500:])
+    with Image.open(tga) as image: size = image.size
+    channels = DDS_CHANNELS[compression]
+    try: header = bioware_dds(target.read_bytes())
+    except ValueError as error: header = str(error)
+    require(isinstance(header, tuple) and header[:3] == (*size, channels) and header[3] > 1,
+            f'{target.name} is not a {size[0]}x{size[1]} {channels}-channel mipped BioWare DDS: {header}')
+
+
+def package_names_ok(names, twins):
+    """Models, TGAs and, for a preparation made with nwn_dds (`twins`), exactly one DDS twin per TGA; an earlier
+    preparation has no DDS. A TXI belongs to a TGA of its own name (reflection_txi)."""
+    stems = lambda suffix: {Path(n).stem for n in names if Path(n).suffix == suffix}
+    return (all(Path(n).suffix in ('.mdl', '.tga', '.dds', '.txi') for n in names) and stems('.dds') == (stems('.tga') if twins else set())
+            and stems('.txi') <= stems('.tga'))
+
+
 def archive_helpers():
     sys.path.insert(0, str(ROOT/'tools/heads'))
     import verify_head_hak
@@ -101,13 +149,17 @@ def ascii_model(name, texture, positions, normals, uv, shadow_vertices, shadow_f
 
 
 def prepare(profile_path, profile, arrays, texture, icons, output):
-    native, resources = native_contract(profile_path, profile)
-    allocation = reserve(profile, resources, profile.get('resources', {}).get('appearanceIndex'))
+    stock = set(); native, resources = native_contract(profile_path, profile, stock=stock)
+    # A contract that took a base-game slot recorded the stock names it overrides; reserve checks they are still stock-only.
+    allocation = reserve(profile, resources, profile.get('resources', {}).get('appearanceIndex'), stock=stock)
     output = Path(output); (output/'ascii').mkdir(parents=True); (output/'resources').mkdir()
     texture_name = allocation['texture']
     with Image.open(texture) as image:
         require(image.size == (profile['runtimeTextureSize'],)*2, 'Runtime texture size differs from family')
-        image.convert('RGB').save(output/'resources'/f'{texture_name}.tga')
+        # A bake with a metal reflection mask carries it as alpha (textures.metal_policy); any other diffuse is RGB.
+        reflective = image.mode == 'RGBA'
+        image.convert('RGBA' if reflective else 'RGB').save(output/'resources'/f'{texture_name}.tga')
+    if reflective: reflection_txi(output/'resources'/f'{texture_name}.tga')
     counts = {'visible': {}, 'shadow': {}}; expected = {}
     for part in PARTS:
         verify([arrays[part], icons[part]])
@@ -131,9 +183,17 @@ def prepare(profile_path, profile, arrays, texture, icons, output):
             image.save(output/'resources'/f"{allocation['icons'][part]}.tga")
         target = output/f'expected-{part}.npz'; shutil.copyfile(arrays[part]['path'], target); expected[part] = pin(target)
     for kind in counts: check_budgets(counts[kind], profile['budgets'], kind)
+    # BioWare DDS twins of the diffuse (DXT1, or DXT5 with a reflection mask) and every icon (DXT5), from one converter resolution.
+    twins = [(output/'resources'/f'{texture_name}.tga', 'DXT5' if reflective else 'DXT1')] + [(output/'resources'/f"{allocation['icons'][p]}.tga", 'DXT5') for p in PARTS]
+    # The converter's pin is frozen before the first conversion and verified after the last, so a binary that changes
+    # during the batch invalidates the preparation instead of recording a hash some of its DDS files did not come from.
+    crunch = dds_converter([tga for tga, _ in twins]); converter = pin(crunch)
+    for tga, compression in twins: nwn_dds(tga, tga.with_suffix('.dds'), compression, crunch=crunch)
+    verify([converter], fresh=True)
     result = {'allocation': allocation, 'baseItem': native['baseItem'], 'texture': texture_name,
               'expected': expected, 'budgets': counts, 'clientValidated': False, 'productionAccepted': False}
     if profile.get('resources'): result['identity'] = profile['resources']
+    result['ddsConverter'] = converter
     result['inputs'] = [pin(profile_path), pin(texture)]+list(arrays.values())+list(icons.values())
     result['outputs'] = [pin(p) for folder in ('ascii', 'resources') for p in sorted((output/folder).iterdir())]
     write(output/'prepared.json', result, fresh=True)
@@ -204,9 +264,10 @@ def compile_package(prepared_dir, client, output, *, compiler=None):
         clean, audits[part] = sanitize_and_audit(binary, name, preparation['texture'], preparation['expected'][part])
         binary.write_bytes(clean)
     resources = sorted((converted/'resources').iterdir())
-    require(all(p.suffix in ('.mdl', '.tga') for p in resources), 'Unexpected package resources')
+    require(package_names_ok([p.name for p in resources], bool(preparation.get('ddsConverter'))), 'Unexpected package resources')
     target = output/(preparation.get('identity', {}).get('hak', 'srn_cougar_test')+'.hak'); write_verified_hak(target, resources)
-    verify(tool_inputs+preparation['inputs']+preparation['outputs'], fresh=True)
+    converter = [preparation['ddsConverter']] if preparation.get('ddsConverter') else []
+    verify(tool_inputs+converter+preparation['inputs']+preparation['outputs'], fresh=True)
     result = {'hak': pin(target), 'resources': [pin(p) for p in resources], 'audits': audits,
               'allocation': preparation['allocation'], 'baseItem': preparation['baseItem'],
               'clientValidated': False, 'productionAccepted': False}

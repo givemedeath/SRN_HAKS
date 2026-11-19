@@ -1,0 +1,53 @@
+{
+  "models": {
+    "ek_isa_shop": {"source": "meshy/models/isa-building-shop-a2-remesh", "height": 5.9, "measuredAt": 5.9, "colour": 4096, "copy": [
+      {"part": "smeared mirrored lettering on the back wall", "box": [[-5.0, -3.75, 0.22], [5.15, -3.45, 4.3]], "from": [[4.9, -3.4, 0.22], [5.15, -1.4, 4.3]]}
+    ], "lit": [
+      {"part": "sign", "box": [[-3.87, 1.86, 2.9], [3.0, 2.05, 4.27]], "gain": 0.5},
+      {"part": "pistol blade sign", "box": [[3.4, 1.95, 2.55], [4.1, 3.9, 3.9]], "gain": 0.8, "saturation": 0.3},
+      {"part": "shop windows and door", "box": [[-3.52, 0.85, 0.75], [3.52, 1.5, 2.8]], "gain": 0.35},
+      {"part": "strip lights over the windows", "box": [[-4.05, 1.6, 2.35], [3.6, 1.78, 2.8]], "value": 0.8},
+      {"part": "security camera light", "box": [[-4.55, 2.6, 3.12], [-4.35, 2.78, 3.3]], "saturation": 0.6, "value": 0.6}
+    ], "halo": {"reach": 0.3, "strength": 0.4},
+      "tiles": {"ground": "pavement", "group": "Iron_Sight_Arms", "label": "Iron Sight Arms 2x3", "sets": {"dgt04": "Concrete", "udp1": "Asphalt"},
+        "door": {"at": [-0.59, 1.75, 0.2], "facing": 90.0, "type": 58, "leaf": 2.1},
+        "parts": [{"model": "ek_isa_range", "at": [-3.11, -12.53, 0.0], "turn": 90}]}},
+    "ek_isa_range": {"source": "meshy/models/isa-building-range-a1-remesh", "height": 6.11, "measuredAt": 6.11, "colour": 4096, "tone": [0.95, 0.9, 0.86], "copy": [
+      {"part": "plain grey block on the rear end, its face", "box": [[-9.6, -1.2, 0.22], [-9.3, 1.2, 4.6]], "from": [[-8.0, -1.95, 0.22], [-5.5, -1.7, 4.6]]},
+      {"part": "plain grey block on the rear end, its side towards the door", "box": [[-9.3, 0.9, 0.22], [-8.86, 1.2, 4.6]], "from": [[-8.0, -1.95, 0.22], [-5.5, -1.7, 4.6]]},
+      {"part": "plain grey block on the rear end, its far side", "box": [[-9.3, -1.2, 0.22], [-8.86, -0.9, 4.6]], "from": [[-8.0, -1.95, 0.22], [-5.5, -1.7, 4.6]]},
+      {"part": "mirrored lettering on the far wall", "box": [[0.1, -2.0, 1.29], [5.35, -1.6, 2.7]], "from": [[-8.6, -1.95, 1.29], [-3.3, -1.7, 2.7]]}
+    ], "lit": [
+      {"part": "range windows", "box": [[-3.05, 1.5, 2.64], [8.0, 1.66, 3.31]], "gain": 0.4},
+      {"part": "range windows on the far wall", "box": [[-3.05, -1.72, 2.64], [8.0, -1.5, 3.31]], "gain": 0.4},
+      {"part": "door lamp", "box": [[-7.5, 1.5, 3.1], [-5.45, 2.9, 3.5]], "value": 0.7},
+      {"part": "roof mast lamps", "box": [[3.8, 0.3, 5.8], [4.9, 0.85, 6.11]], "saturation": 0.5, "value": 0.65}
+    ], "halo": {"reach": 0.3, "strength": 0.4}},
+    "ek_isa_counter": {"source": "meshy/models/isa-pistol-counter-a1", "height": 1.15, "measuredAt": 1.15, "colour": 2048, "lit": [{"part": "case strip lights", "box": [[-0.82, -0.4, 0.97], [0.82, 0.4, 1.1]], "value": 0.85}],
+      "placeable": {"label": "Iron Sight Arms, Pistol Counter", "sound": 28, "category": 174, "light": null}},
+    "ek_isa_gunwall": {"source": "meshy/models/isa-rifle-wall-a2", "height": 2.0, "colour": 2048, "placeable": {"label": "Iron Sight Arms, Rifle Wall", "sound": 28, "category": 204}},
+    "ek_isa_shelf": {"source": "meshy/models/isa-ammo-shelf-a1", "height": 2.0, "colour": 2048, "placeable": {"label": "Iron Sight Arms, Ammo Shelf", "sound": 28, "category": 164}},
+    "ek_isa_bench": {"source": "meshy/models/isa-gunsmith-bench-a1", "height": 1.8, "measuredAt": 1.8, "colour": 2048, "lit": [{"part": "lamp lens", "box": [[0.2, -0.75, 1.42], [0.65, 0.75, 1.7]], "value": 0.75}],
+      "placeable": {"label": "Iron Sight Arms, Gunsmith Bench", "sound": 28, "category": 161, "light": {"colour": 2, "at": [0.35, -0.03, 1.4]}}},
+    "ek_isa_cabinet": {"source": "meshy/models/isa-rifle-cabinet-a1", "height": 2.1, "measuredAt": 2.1, "colour": 2048, "copy": [
+      {"part": "left door, drawn dark and without its strip light", "box": [[0.03, 0.3, 0.27], [0.55, 0.52, 1.9]], "from": [[-0.55, 0.3, 0.27], [-0.03, 0.52, 1.9]]}
+    ], "lit": [{"part": "cabinet strip light, right door", "box": [[-0.47, 0.3, 1.76], [-0.04, 0.52, 1.88]], "value": 0.6},
+      {"part": "cabinet strip light, left door (the copy is a little duller)", "box": [[0.04, 0.3, 1.76], [0.47, 0.52, 1.88]], "value": 0.45, "gain": 1.2}],
+      "placeable": {"label": "Iron Sight Arms, Rifle Cabinet", "sound": 28, "category": 204, "light": null}},
+    "ek_isa_vending": {"source": "meshy/models/isa-ammo-vending-a1", "height": 1.9, "measuredAt": 1.9, "colour": 2048, "lit": [{"part": "AMMO sign", "box": [[-0.4, 0.1, 1.5], [0.42, 0.45, 1.83]], "value": 0.6},
+      {"part": "screen", "box": [[-0.42, 0.1, 1.15], [-0.22, 0.45, 1.45]], "saturation": 0.4, "value": 0.5},
+      {"part": "product window", "box": [[-0.2, 0.1, 0.52], [0.44, 0.45, 1.49]], "gain": 0.45}],
+      "placeable": {"label": "Iron Sight Arms, Ammo Vending Machine", "sound": 28, "category": 161, "light": null}},
+    "ek_isa_ppe": {"source": "meshy/models/isa-protection-rack-a1", "height": 2.0, "measuredAt": 2.0, "colour": 2048, "lit": [{"part": "sign lettering", "box": [[-0.56, 0.0, 1.8], [0.56, 0.36, 1.97]], "value": 0.6, "gain": 0.5},
+      {"part": "sign lamps", "box": [[-0.56, 0.0, 1.66], [0.56, 0.36, 1.76]], "value": 0.6}],
+      "placeable": {"label": "Iron Sight Arms, Hearing and Eye Protection Rack", "sound": 28, "category": 164, "light": null}},
+    "ek_isa_cart": {"source": "meshy/models/isa-cleaning-cart-a1", "height": 1.2, "colour": 1024, "placeable": {"label": "Iron Sight Arms, Cleaning Cart", "sound": 28, "category": 164}},
+    "ek_isa_target": {"source": "meshy/models/isa-paper-target-a1", "height": 1.8, "colour": 1024, "placeable": {"label": "Iron Sight Arms, Paper Target", "sound": 27, "category": 161}},
+    "ek_isa_gong": {"source": "meshy/models/isa-steel-target-a1", "height": 1.7, "colour": 1024, "placeable": {"label": "Iron Sight Arms, Steel Target", "sound": 28, "category": 161}},
+    "ek_isa_booths": {"source": "meshy/models/isa-shooting-booths-a1", "height": 2.2, "measuredAt": 2.2, "colour": 2048, "lit": [{"part": "lane screens", "box": [[-1.25, -0.32, 0.8], [1.97, -0.12, 1.05]], "saturation": 0.5, "value": 0.6},
+      {"part": "booth lamp, left", "box": [[1.08, 0.0, 1.95], [1.82, 0.7, 2.22]], "value": 0.65},
+      {"part": "booth lamp, middle", "box": [[-0.38, 0.0, 1.95], [0.41, 0.7, 2.22]], "value": 0.65},
+      {"part": "booth lamp, right", "box": [[-1.78, 0.0, 1.95], [-1.04, 0.7, 2.22]], "value": 0.65}],
+      "placeable": {"label": "Iron Sight Arms, Shooting Booths", "sound": 28, "category": 161, "light": {"colour": 2, "at": [0.0, 0.35, 2.1]}}}
+  }
+}

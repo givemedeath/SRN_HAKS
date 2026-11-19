@@ -32,6 +32,40 @@ function Resolve-SrnRepositoryPath {
     return $resolved
 }
 
+# A pack may leave out files that are byte for byte copies of files it holds. Its hakbuilder.json entry then names
+# a copies list (`Copies`): {copy's file name: the held file it is a copy of}. Build-Haks.ps1 packs each held file
+# under both names, so the archive is whole and the checkout holds each image once.
+function Get-SrnHakCopies {
+    param([Parameter(Mandatory)]$Hak)
+    $copies = [ordered]@{}
+    if (-not $Hak.PSObject.Properties['Copies']) { return $copies }
+    $name = [string]$Hak.Name
+    $path = Resolve-SrnRepositoryPath -Path ([string]$Hak.Copies)
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "HAK '$name' names a copies list that does not exist: $($Hak.Copies)" }
+    $refused = "$($Hak.Copies) is no copies list of '$name' (kind srn-hak-copies, schema 1, a map of copies)."
+    try { $document = Get-Content -Raw -LiteralPath $path | ConvertFrom-Json -Depth 8 } catch { throw $refused }
+    # Each field is looked for before it is read: strict mode fails on a missing one with its own words.
+    if ($document -isnot [pscustomobject] -or @('kind', 'schemaVersion', 'pack', 'copies' | Where-Object { -not $document.PSObject.Properties[$_] }).Count -gt 0) { throw $refused }
+    # The version is the number 1 (the string "1" compares equal to it here) and the copies a map, as tools/armorkit/publish.py reads them.
+    $version = $document.schemaVersion
+    if ($document.kind -cne 'srn-hak-copies' -or ($version -isnot [long] -and $version -isnot [int]) -or $version -ne 1 -or $document.pack -cne $name -or $document.copies -isnot [pscustomobject]) { throw $refused }
+    $source = Resolve-SrnRepositoryPath -Path ([string]$Hak.Path)
+    $listed = [System.Collections.Generic.SortedDictionary[string, string]]::new([System.StringComparer]::Ordinal)
+    foreach ($property in $document.copies.PSObject.Properties) { $listed[$property.Name] = [string]$property.Value }
+    foreach ($copy in $listed.Keys) {
+        $held = $listed[$copy]
+        foreach ($file in $copy, $held) {
+            # \z, not `$`, which would pass a name that ends in a line break.
+            if ($file -cnotmatch '\A[a-z0-9_]{1,16}\.[a-z0-9]{2,4}\z') { throw "$($Hak.Copies) lists '$file', which is no resource file name." }
+        }
+        if ([IO.Path]::GetExtension($copy) -cne [IO.Path]::GetExtension($held)) { throw "$($Hak.Copies) lists $copy as a copy of $held, a file of another type." }
+        if (Test-Path -LiteralPath (Join-Path $source $copy)) { throw "$name holds $copy, which $($Hak.Copies) lists as a copy of $held." }
+        if (-not (Test-Path -LiteralPath (Join-Path $source $held) -PathType Leaf)) { throw "$name holds no $held, which $($Hak.Copies) lists $copy as a copy of." }
+        $copies[$copy] = $held
+    }
+    return $copies
+}
+
 function Get-SrnTool {
     param([Parameter(Mandatory)][ValidateSet('erf', 'gff', 'tlk', 'resman_cat', 'resman_grep', 'script_comp')][string]$Name,
           [string]$ToolsRoot)
@@ -144,4 +178,4 @@ function Publish-SrnDirectorySet {
     }
 }
 
-Export-ModuleMember -Function Get-SrnRepositoryRoot, Get-SrnConfiguration, Resolve-SrnRepositoryPath, Get-SrnTool, Read-SrnCp1252Text, Read-SrnCp1252Lines, Invoke-SrnCp1252Native, Write-SrnJsonAtomic, Resolve-SrnQuarantinePath, Publish-SrnDirectorySet
+Export-ModuleMember -Function Get-SrnRepositoryRoot, Get-SrnConfiguration, Get-SrnHakCopies, Resolve-SrnRepositoryPath, Get-SrnTool, Read-SrnCp1252Text, Read-SrnCp1252Lines, Invoke-SrnCp1252Native, Write-SrnJsonAtomic, Resolve-SrnQuarantinePath, Publish-SrnDirectorySet

@@ -1,0 +1,21 @@
+{
+  "sheet": {
+    "file": "58_chop_shop_cyberware_clinic.png",
+    "sha256": "644aeb9a0863d86d486a5389a1aead6b85d8409dd7028a99c56988c46f761508",
+    "size": [1448, 1086]
+  },
+  "assets": {
+    "building-hero": {"kind": "building", "subject": "single-storey riveted steel street clinic with a neon CHOP SHOP sign, a display window, an open double door, a roller shutter, a side door and rooftop air units", "box": [26, 0, 1188, 553], "notes": "The building stands alone on white: keep its signs, pipes and rooftop gear."},
+    "cross-sign": {"kind": "prop", "type": "neon-sign", "variant": "Branding: neon cross with the Chop Shop cyberarm emblem on a wall bracket.", "subject": "projecting neon cross sign with a cyberarm emblem on a wall bracket", "box": [1211, 50, 1428, 244]},
+    "hanging-banner": {"kind": "prop", "type": "banner-set", "variant": "Single burgundy caduceus banner on a wall bracket.", "subject": "single tattered burgundy banner with a caduceus hanging from a wall bracket", "box": [1244, 255, 1418, 527]},
+    "cyberware-case": {"kind": "prop", "type": "display-case", "variant": "Slant-front glass counter of cyberlimbs on stands.", "subject": "slant-front glass shop counter displaying a cyberhand, a cybereye, a cyberleg and a spine on stands", "box": [12, 565, 343, 839]},
+    "gurney": {"kind": "prop", "type": "gurney", "variant": "Scissor-frame gurney with a green mattress, straps and an IV hook.", "subject": "scissor-frame patient gurney with a green mattress, straps and an IV hook", "box": [350, 592, 669, 839], "notes": "The lamp at the right edge is another prop."},
+    "surgical-light": {"kind": "prop", "type": "surgical-light", "variant": "Floor-standing lamp on a wheeled base.", "subject": "floor-standing surgical lamp on a jointed arm and a wheeled base", "box": [614, 546, 812, 822], "notes": "The gurney at the left edge is another prop."},
+    "instrument-cart": {"kind": "prop", "type": "medical-cart", "variant": "Three-tier steel cart with drawers, an instrument tray and bottles.", "subject": "three-tier steel medical cart with drawers, an instrument tray and bottles", "box": [828, 602, 1049, 829]},
+    "biohazard-bin": {"kind": "prop", "type": "trash-can", "variant": "Red lidded biohazard bin.", "subject": "red lidded biohazard waste bin", "box": [1066, 600, 1210, 819]},
+    "case-stack": {"kind": "prop", "type": "hard-case", "same": "pulse-tech/case-stack", "subject": "stack of three hard equipment cases, grey, purple and olive", "box": [1220, 578, 1440, 831]},
+    "bench": {"kind": "prop", "type": "bench", "same": "pulse-tech/bench", "subject": "row of four perforated steel seats on a tube frame", "box": [72, 876, 538, 1079]},
+    "vending-machine": {"kind": "prop", "type": "vending-machine", "variant": "Red and grey machine selling medicine bottles, with a neon cross.", "subject": "red and grey vending machine selling medicine bottles with a neon cross", "box": [622, 831, 802, 1086]},
+    "dumpster": {"kind": "prop", "type": "dumpster", "variant": "Wide green wheeled dumpster with two ribbed lids.", "subject": "wide rusty weathered green wheeled dumpster with two ribbed lids", "box": [934, 852, 1278, 1086], "notes": "Keep the heavy rust, grime and streaked, faded paint of the drawing: it is old and dirty, not clean or new."}
+  }
+}

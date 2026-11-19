@@ -34,9 +34,11 @@ class BodySkinTests(unittest.TestCase):
     def test_a_skin_material_binds_a_normal_map_and_no_colour_texture(self):
         with tempfile.TemporaryDirectory() as folder:
             (Path(folder) / 'skin.mtr').write_text('renderhint NormalTangents\ntexture1 skinn\nparameter float Roughness 0\ntexture3 skinr\n')
-            self.assertEqual(bodyskin.material(folder, 'skin'), {'normal': 'skinn', 'rough': 'skinr'})
+            self.assertEqual(bodyskin.material(folder, 'skin'), {'normal': 'skinn', 'rough': 'skinr', 'roughness': 0.0})
             (Path(folder) / 'plain.mtr').write_text('texture1 skinn\n')
-            self.assertEqual(bodyskin.material(folder, 'plain'), {'normal': 'skinn', 'rough': None})
+            self.assertEqual(bodyskin.material(folder, 'plain'), {'normal': 'skinn', 'rough': None, 'roughness': None})
+            (Path(folder) / 'large.mtr').write_text('renderhint NormalTangents\ntexture1 flat\nparameter float Roughness 0.85\nparameter float Specularity 0.04\n')
+            self.assertEqual(bodyskin.material(folder, 'large'), {'normal': 'flat', 'rough': None, 'roughness': 0.85})
             (Path(folder) / 'painted.mtr').write_text('texture0 skin\ntexture1 skinn\n')
             for wrong in ('painted', 'none'):
                 with self.assertRaises(ValueError):
@@ -63,9 +65,22 @@ class BodySkinTests(unittest.TestCase):
                 self.assertTrue(np.allclose(read['n'], [0.0, 1.0, 0.0]))  # turned with the bone
                 self.assertTrue(np.array_equal(read['tint'], own['tint']))
                 self.assertTrue(np.allclose(read['relief'], own['relief'], atol=1 / 255) and np.allclose(read['rough'], own['rough'], atol=1 / 255))
+                # A Large body gives its roughness as a number, and another race's Fit body has no material file.
+                (maps / 'skin.mtr').write_text('texture1 skinn\nparameter float Roughness 0.85\n')
+                large = bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})
+                self.assertTrue(np.allclose(large['relief'], own['relief'], atol=1 / 255) and np.allclose(large['rough'], 0.85))
+                self.assertEqual(large['rough'].shape, large['relief'].shape[:2])
                 (maps / 'skin.mtr').write_text('texture1 skinn\n')
-                with self.assertRaises(ValueError):  # no roughness map: the part's own roughness cannot stand beside the cloth's
+                self.assertTrue(np.allclose(bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})['rough'], texture.ROUGHNESS))
+                (maps / 'skin.mtr').unlink()
+                with self.assertRaisesRegex(ValueError, 'holds none'):  # no material file at all: not the bodies' folder
                     bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})
+                with self.assertRaisesRegex(ValueError, 'holds none'):
+                    bodyskin.body_part(pack, maps / 'missing', 'pmh0', 'bicepl', {'lbicep_g': bone})
+                (maps / 'other.mtr').write_text('texture1 skinn\n')  # another body's: this one binds none
+                plain = bodyskin.body_part(pack, maps, 'pmh0', 'bicepl', {'lbicep_g': bone})
+                self.assertTrue(np.allclose(plain['relief'], [0.5, 0.5, 1.0]) and np.allclose(plain['rough'], texture.ROUGHNESS))
+                self.assertTrue(np.array_equal(plain['tint'], own['tint']))
 
     def test_what_a_sleeve_hides_of_the_arm_is_left_out_but_for_a_band_under_its_hem(self):
         own = arm()
@@ -117,8 +132,19 @@ class BodySkinTests(unittest.TestCase):
         mine, own = part(faces=2, size=size), arm()
         mine['rgb'] = np.random.default_rng(1).random((size, size, 3))
         mine['closing'][0, 1] = True
-        mine['v'] = np.array([(0.07, 0.0, 1.5), (0.07, 0.01, 1.5), (0.07, 0.0, 1.45)])  # a sleeve's scrap, 5 cm down the arm
+        mine['v'] = np.array([(0.07, 0.0, 1.5), (0.07, 0.0, 1.45), (0.07, 0.01, 1.5)])  # a sleeve's scrap, 5 cm down the arm, facing out
         return mine, own, bodyskin.worn(mine, own, (0, 0, 1.5), (0, 0, 1.2), limit)
+
+    def test_the_outfits_faces_turned_in_over_the_skin_are_turned_out(self):
+        mine, own, both = self.worn()
+        self.assertIs(bodyskin.turned_out(both, (0, 0, 1.5), (0, 0, 1.2)), both)  # the scrap faces out: as it was
+        one = np.arange(len(both['f'])) != 1  # the scrap's one face (the part has it twice)
+        inward = {key: np.asarray(value)[one] if key in ('f', 'added', 'domed', 'trimmed', 'skin') else value for key, value in both.items()}
+        facing = inward['f'].copy()
+        inward['f'][0] = inward['f'][0][::-1]  # the scrap wound to face the arm, which the client would not draw
+        out = bodyskin.turned_out(inward, (0, 0, 1.5), (0, 0, 1.2))
+        self.assertTrue(np.array_equal(out['f'], facing))  # turned out again, the arm's own faces as they were
+        self.assertTrue(np.allclose(out['n'][:3], -both['n'][:3]) and np.allclose(out['n'][3:], both['n'][3:]))  # its own vertices' normals turned
 
     def test_the_bodys_part_is_added_with_its_textures_in_a_quarter_of_their_own(self):
         mine, own, both = self.worn()
@@ -147,6 +173,16 @@ class BodySkinTests(unittest.TestCase):
         for key in ('added', 'domed'):
             self.assertFalse(both[key][skin].any())
         self.assertTrue((both['trimmed'][skin] == -1).all() and len(both['src']) == len(both['v']))
+
+    def test_a_worn_part_unworn_is_the_outfits_part_again(self):
+        mine, own, both = self.worn()
+        back = bodyskin.unworn(both)
+        self.assertFalse(set(bodyskin.KEYS) & set(back))
+        for key in ('v', 'f', 'uv', 'n', 'src', 'rgb', 'covered', 'relief', 'closing', 'cap', 'padded', 'added', 'domed', 'trimmed'):
+            self.assertTrue(np.allclose(back[key], mine[key]), key)
+        self.assertIs(bodyskin.unworn(mine), mine)  # no skin: nothing to take off
+        mine, own, both = self.worn(size=8, limit=8)  # at the largest texture the outfit's maps come back as `worn` halved them
+        self.assertTrue(np.allclose(bodyskin.unworn(both)['rgb'], bodyskin.resized(mine['rgb'], 4)))
 
     def test_the_skin_keeps_half_the_bodys_texels_whatever_size_the_sleeve_was_laid_out_at(self):
         mine, own, both = self.worn(size=2)  # a sleeve at 2 texels a side, the body's arm at 8

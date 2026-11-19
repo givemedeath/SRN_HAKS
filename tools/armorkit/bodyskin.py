@@ -27,6 +27,7 @@ BAND = 0.04  # the arm is kept this far up under the sleeve's hem: what a look u
 SECTORS = 16  # the hem is found in this many directions round the arm
 APART = 0.015  # the outfit's surface in one direction, parted by more than this along the bone, is two pieces
 TOP = 0.2  # a piece that begins within this share of the bone from its start comes down from the shoulder: a sleeve
+FLAT_SIDE = 4  # texels a side of the flat relief a part without a material file is given
 KEYS = ('skin', 'skin_at', 'skin_tint', 'skin_rough')  # what a part with skin holds beside a baked part's keys
 
 
@@ -40,13 +41,24 @@ def image(blob):
 
 
 def material(folder, name):
-    """{normal, rough}: the maps a material file `<name>.mtr` binds as texture1 and texture3; `rough` is None without one."""
+    """{normal, rough, roughness}: the maps a material file `<name>.mtr` binds as texture1 and texture3, `rough`
+    None without one, and the roughness it gives as a number (`parameter float Roughness`), None without."""
     path = Path(folder) / (name + '.mtr')
     require(path.is_file(), f'{path}: the body part has no material file')
     words = [line.split() for line in path.read_text(encoding='ascii').splitlines()]
     named = {row[0]: row[1] for row in words if len(row) == 2 and row[0].startswith('texture')}
     require('texture1' in named and 'texture0' not in named, f'{path}: a skin material binds a normal map and no colour texture')
-    return {'normal': named['texture1'], 'rough': named.get('texture3')}
+    given = [row[3] for row in words if len(row) == 4 and row[:3] == ['parameter', 'float', 'Roughness']]
+    return {'normal': named['texture1'], 'rough': named.get('texture3'), 'roughness': float(given[-1]) if given else None}
+
+
+def material_folder(textures):
+    """The folder `textures` of the bodies' material files and maps, refused where it holds no material file at
+    all: another folder (the model pack, a path mistyped) read as a body that binds none, every skin came out
+    flat and no one was told (review, 2026-11-14)."""
+    textures = Path(textures)
+    require(textures.is_dir() and next(textures.glob('*.mtr'), None) is not None, f'{textures}: the folder of the bodies\' material files holds none')
+    return textures
 
 
 def body_part(pack, textures, body, token, bones, number=1):
@@ -54,7 +66,12 @@ def body_part(pack, textures, body, token, bones, number=1):
     layer), `relief` (its normal map, 0-1) and `rough` (its roughness, 0-1), each from v = 0.
 
     `pack` is the folder of the body's models and tint textures, `textures` that of its material files and
-    maps, `bones` its rig (`measure.body`)."""
+    maps, `bones` its rig (`measure.body`). The 20 bodies bind their skin three ways: the two Human Fit
+    bodies a normal map and a roughness map, the Large bodies a flat normal map and their roughness as a
+    number in the material file, and the other races' Fit bodies no material file at all, the Human tint
+    texture drawn plain. Without a roughness map the part's roughness is that number at every texel, or the
+    kit's own (`texture.ROUGHNESS`) where the file gives none; without a material file its relief is flat.
+    A `textures` folder that holds no material file at all is not the bodies' and is refused."""
     pack, textures, name = Path(pack), Path(textures), registry.model_name(body, token, number)
     meshes = native_reader.decode((pack / (name + '.mdl')).read_bytes(), name, require_tangents=False, apply_rigid_transforms=True)
     require(meshes, 'Model has no rigid mesh: ' + name)
@@ -63,15 +80,20 @@ def body_part(pack, textures, body, token, bones, number=1):
     world = np.asarray(bones[seams.BONES[token]], float)
     offsets = np.cumsum([0] + [len(mesh['position']) for mesh in meshes])
     normals = np.concatenate([mesh['normal'] for mesh in meshes]) @ world[:3, :3].T
-    bound = material(textures, bitmaps.pop())
-    relief = image((textures / (bound['normal'] + '.tga')).read_bytes())
-    require(bound['rough'] is not None, f'{name}: its material binds no roughness map')
+    bitmap = bitmaps.pop()
+    material_folder(textures)
+    bound = material(textures, bitmap) if (textures / (bitmap + '.mtr')).is_file() else {'normal': None, 'rough': None, 'roughness': None}
+    relief = np.full((FLAT_SIDE, FLAT_SIDE, 3), (0.5, 0.5, 1.0)) if bound['normal'] is None else image((textures / (bound['normal'] + '.tga')).read_bytes())
+    if bound['rough'] is None:  # one roughness over the whole part: the material file's own number, or the kit's
+        rough = np.full(relief.shape[:2], texture.ROUGHNESS if bound['roughness'] is None else bound['roughness'])
+    else:
+        rough = image((textures / (bound['rough'] + '.tga')).read_bytes())[:, :, 0]
     return {'v': np.concatenate([mesh['position'] for mesh in meshes]) @ world[:3, :3].T + world[:3, 3],
             'f': np.concatenate([mesh['faces'].astype(int) + offset for mesh, offset in zip(meshes, offsets)]),
             'uv': np.concatenate([mesh['uv'] for mesh in meshes]).astype(float),
             'n': normals / np.maximum(np.linalg.norm(normals, axis=1, keepdims=True), 1e-12),
             'tint': np.stack(export.read_tint((pack / (name + '.plt')).read_bytes()), axis=2),
-            'relief': relief, 'rough': image((textures / (bound['rough'] + '.tga')).read_bytes())[:, :, 0]}
+            'relief': relief, 'rough': rough}
 
 
 def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS):
@@ -150,6 +172,22 @@ def tinted(part, tint):
     return tuple(np.where(part['skin_at'], part['skin_tint'][..., k], tint[k]) for k in (0, 1))
 
 
+def unworn(part):
+    """A part `worn` made, without the body's skin: the outfit's faces, vertices and maps as `worn` was given
+    them, its maps at the size `worn` laid them out at in their quarter. A part with no skin is as it was."""
+    if 'skin' not in part:
+        return part
+    skin = np.asarray(part['skin'], bool)
+    count = int(np.asarray(part['f'], int)[skin].min()) if skin.any() else len(part['v'])  # `worn` adds the body's vertices after the outfit's
+    half = len(part['rgb']) // 2
+    out = {key: value for key, value in part.items() if key not in KEYS}
+    out.update({key: np.asarray(part[key])[:count] for key in ('v', 'n', 'src')})
+    out['uv'] = np.asarray(part['uv'], float)[:count] * 2
+    out.update({key: np.asarray(part[key])[~skin] for key in ('f', 'added', 'domed', 'pad', 'trimmed') if key in part})
+    out.update({key: np.asarray(part[key])[:half, :half] for key in ('rgb', 'covered', 'relief', 'closing', 'cap', 'padded')})
+    return out
+
+
 def worn(part, skin, start, end, limit=1024):
     """A baked part (`bake.bake`) with the body's skin part beside the outfit's surface, where the outfit shows it.
 
@@ -161,7 +199,7 @@ def worn(part, skin, start, end, limit=1024):
     and layer there; and `skin_rough`, the roughness of every texel, the body's map there and the outfit's
     own (`texture.ROUGHNESS`) elsewhere. The body's faces are no closing's or cap's and of no material:
     `added`, `domed` and `trimmed` say so, and their vertices have no place on the generated mesh (`src`,
-    zero)."""
+    zero). The outfit's faces turned in over the skin are turned out (`turned_out`)."""
     size = len(part['rgb'])
     side = min(max(2 * size, len(skin['tint'])), limit)
     half = side // 2
@@ -191,7 +229,7 @@ def worn(part, skin, start, end, limit=1024):
     tint = laid(np.zeros((size, size, 2), np.uint8), None, 0)
     tint[..., 0] = np.round(laid(np.zeros((size, size)), skin['tint'][..., 0].astype(float), 0.0))
     tint[..., 1] = laid(np.zeros((size, size), np.uint8), skin['tint'][..., 1], 0, 'pick')
-    return {'v': np.concatenate([part['v'], skin['v'][used]]), 'f': np.concatenate([part['f'], faces]),
+    return turned_out({'v': np.concatenate([part['v'], skin['v'][used]]), 'f': np.concatenate([part['f'], faces]),
             'uv': np.concatenate([np.asarray(part['uv'], float) / 2, 0.5 + skin['uv'][used] / 2]),
             'n': np.concatenate([part['n'], skin['n'][used]]), 'src': np.concatenate([part['src'], np.zeros((len(used), 3))]),
             'rgb': laid(part['rgb'], None, 0.5), 'covered': flags(part['covered']),
@@ -200,4 +238,34 @@ def worn(part, skin, start, end, limit=1024):
             **{key: np.concatenate([part[key], np.zeros(count, bool)]) for key in ('added', 'domed', 'pad') if key in part},
             'trimmed': np.concatenate([part['trimmed'], np.full(count, -1)]),
             'skin': np.concatenate([np.zeros(len(part['f']), bool), np.ones(count, bool)]), 'skin_at': skin_at, 'skin_tint': tint,
-            'skin_rough': np.clip(np.round(laid(np.full((size, size), texture.ROUGHNESS), skin['rough'], texture.ROUGHNESS) * 255), 0, 255).astype(np.uint8)}
+            'skin_rough': np.clip(np.round(laid(np.full((size, size), texture.ROUGHNESS), skin['rough'], texture.ROUGHNESS) * 255), 0, 255).astype(np.uint8)},
+                      start, end)
+
+
+def turned_out(part, start, end):
+    """`part`, holding the body's own skin beside the outfit's (`worn`), with each of the outfit's faces that
+    is the last over the skin, read along the ray square out from the part's bone (`start` to `end`) through
+    each of the skin's vertices and the middle of each of its faces (`measure.beyond`), turned out where the
+    ray crosses no face of the outfit's turned out: the client draws no face from behind, and through a
+    sleeve whose cloth over her arm was all turned in, wound so by the generated mesh's folds, the user saw
+    the Human female's arm in the same place on every bake (2026-11-13). A vertex only such faces use has
+    its normal turned too."""
+    f = np.asarray(part['f'], int)
+    skin = np.asarray(part.get('skin', np.zeros(len(f), bool)), bool)
+    if not skin.any() or skin.all():
+        return part
+    v = np.asarray(part['v'], float)
+    start = np.asarray(start, float)
+    axis = seams.unit(np.asarray(end, float) - start)
+    points = np.concatenate([v[np.unique(f[skin])], v[f[skin]].mean(axis=1)])
+    cover = np.flatnonzero(~skin)
+    shown, _, face = measure.beyond(points, start, axis, v, f[cover], facing=True)
+    turn = np.unique(cover[face[np.isnan(shown) & (face >= 0)]])
+    if not len(turn):
+        return part
+    out = f.copy()
+    out[turn] = out[turn][:, ::-1]
+    alone = np.setdiff1d(np.unique(f[turn]), np.unique(np.delete(f, turn, axis=0)))
+    n = np.asarray(part['n'], float).copy()
+    n[alone] = -n[alone]
+    return {**part, 'f': out, 'n': n}

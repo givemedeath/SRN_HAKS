@@ -30,16 +30,20 @@ def _home(args, path):
 def _lit(old, core, lights):
     """`core` with what a script swaps to put the model's lights out; an entry of a model no longer lit forgets its own."""
     for entry in old:
-        entry.pop('lights', None)
+        if lights and 'lights' in entry:
+            entry['lights'] = lights  # in its place: taken out and put back it went to the entry's end, and every entry converted again read as changed
+        else:
+            entry.pop('lights', None)
     return {**core, 'lights': lights} if lights else core
 
 
 def _unlit(pack, name, built, models):
     """Remove from a pack the light files of a model built again without them, and return their names: a glow map
     left behind would read as a lit model whose entry records no lights. A fence's wire picture goes the same way
-    when the model is built again without its fence. Only the three names of the lights standard and the wire
-    picture's are looked at, and never one that is a model of the set in its own right."""
-    gone = [path for stem in (f'{name}_i', f'{name}_o', f'{name}_h', f'{name}_w') if stem not in models for path in sorted(Path(pack).glob(stem + '.*'))
+    when the model is built again without its fence, and its glass's when it is built again without glass, and its
+    embers' without them. Only the three names of the lights standard and the wire's, the glass's and the embers'
+    pictures are looked at, and never one that is a model of the set in its own right."""
+    gone = [path for stem in (f'{name}_i', f'{name}_o', f'{name}_h', f'{name}_w', f'{name}_g', f'{name}_e') if stem not in models for path in sorted(Path(pack).glob(stem + '.*'))
             if path.suffix in ('.mtr', '.dds', '.txi') and not (Path(built) / path.name).is_file()]
     for path in gone:
         path.unlink()
@@ -121,10 +125,16 @@ def command_placeables(args):
     require(chosen and pack.is_dir() and (repo / args.dark_pack).is_dir() and table.is_file(), 'No model to register, or the pack or table is missing')
     missing = [name for name in chosen if not (built / name / 'compiled' / f'{name}.mdl').is_file()]
     require(not missing, 'Convert these first (envkit game): ' + ', '.join(missing))
+    # A light is measured from the model when it is converted (`convert.placeable`, LIGHT_NEAR). A light moved in the
+    # game set since, or given to a model converted before it had one, would go into the table unmeasured.
+    told = lambda name: json.loads(report.read_text(encoding='utf-8')) if (report := built / name / 'report.json').is_file() else {}
+    moved = [name for name, placed in chosen.items() if placed.get('light') and told(name).get('lightAt') != [float(value) for value in placed['light']['at']]]
+    require(not moved, 'Convert these again (envkit game): their light is not the one their conversion measured from the model: ' + ', '.join(moved))
     text = table.read_bytes().decode('cp1252'); there = placeables.rows(text)
     require(all(name in there for name in chosen) or not any(name in there for name in chosen), 'Some of these models have rows and some have none: register them apart')
     if all(name in there for name in chosen):
         rows = {name: there[name] for name in chosen}
+        text = placeables.lights(text, {name: placed.get('light') for name, placed in chosen.items()})  # a light follows the game set
     else:
         text, rows = placeables.register(text, [{'model': name, **placed} for name, placed in chosen.items()])
     written = game_bytes(text, table.name)  # refused here, not after the copying, if a label has a character the game lacks
@@ -178,7 +188,7 @@ def command_blueprints(args):
             placed = models.get(entry['model'], {}).get('placeable')
             if placed is None or 'category' not in placed:
                 continue
-            static = placed.get('static', not models[entry['model']].get('lit'))
+            static = placed.get('static', not convert.scripted(models[entry['model']]))
             made[entry['model']] = blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
                                                         comment='envkit: ' + entry['source'])
             catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']})

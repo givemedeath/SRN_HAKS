@@ -11,6 +11,9 @@ GENERATION = {'preset': 'pixal-single-v1', 'shapeResolution': 1536, 'shapeCFG': 
 # Whole-item cap for the firearm and shield routes. The user raised every visible budget by 50% on 2026-11-11
 # (10000 -> 15000); shadow budgets are unchanged. Profiles under the cap, such as the shipped 10000 ones, stay valid.
 FIXED_ROUTE_BUDGET = {'visible': 15000, 'shadow': 500}
+# The firearm route's own cap is the top of budget-policy.json's firearm range (user, 2026-11-17: "raise the firearm cap
+# to 37,500"); a pistol still starts near the bottom of that range. The shield route keeps FIXED_ROUTE_BUDGET.
+FIREARM_ROUTE_BUDGET = {'visible': 37500, 'shadow': 500}
 
 
 def resref(value):
@@ -62,7 +65,8 @@ def family(path, *, validate_native=True):
     require(data.get('materialRoute') == 'diffuse', 'Only diffuse materials are qualified for this pilot')
     require(data.get('runtimeTextureSize') in (512, 1024, 2048), 'Unsupported runtime texture size')
     if route.runtime_size:
-        require(data['runtimeTextureSize'] == route.runtime_size, 'The firearm package route is qualified for 1K diffuse only')
+        # 1K is the size the route was qualified at; 2K is the size of every new item (user, 2026-11-15).
+        require(data['runtimeTextureSize'] in (route.runtime_size, NEW_ITEM_TEXTURE_SIZE), 'The firearm package route takes a 1K or 2K diffuse')
     require(data.get('bakeSize') == 4096, 'Source bake must be 4K')
     require(data.get('nativePackaging') in ('pending-contract', 'enabled', 'blocked'), 'Explicit native packaging state required')
     if generation_only:
@@ -70,11 +74,19 @@ def family(path, *, validate_native=True):
         require(data.get('sourceExport') == {'remeshResolution':768, 'targetFaceCount':200000, 'signMode':'udf'},
                 'Catalog generation uses the qualified 200K UDF donor route')
     settings=data.get('resources', {})
-    require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName','appearanceIndex'}, 'Unsupported resource identity')
+    require(set(settings) <= {'texturePrefix','hak','module','blueprint','displayName','appearanceIndex','replacesStock'},
+            'Unsupported resource identity')
     for key in ('texturePrefix','hak','module','blueprint'):
         if key in settings: resref(settings[key])
     # Designs sharing a carrier in one wave pin distinct slots; first-free would hand each the same one.
     if 'appearanceIndex' in settings: integer(settings['appearanceIndex'], 1, 25, 'appearance index')
+    if 'replacesStock' in settings:
+        replaced = settings['replacesStock']
+        require('appearanceIndex' in settings and isinstance(replaced, list) and replaced
+                and replaced == sorted(set(replaced)) and all(isinstance(n, str) for n in replaced),
+                'replacesStock is the sorted list of stock names the pinned appearance slot overrides')
+        require(set(replaced) <= slot_names(data, settings['appearanceIndex']),
+                'replacesStock names resources outside its appearance slot')
     if 'texturePrefix' in settings: require(len(settings['texturePrefix'])<=13,'Texture prefix leaves no appearance suffix')
     if data['family'] == 'shield' and not shield or route.subtypes is None and 'firearm' not in data:
         require(data['nativePackaging'] == 'blocked', 'Shield and unqualified Sling native adapters are deferred')
@@ -88,8 +100,9 @@ def family(path, *, validate_native=True):
                 and data['firearm']['subtype'] in SLOTS, 'Explicit supported firearm slot required')
         firearm_slot = SLOTS[data['firearm']['subtype']]
     if firearm_slot or shield:
-        require(budgets['visible'] <= FIXED_ROUTE_BUDGET['visible'] and budgets['shadow'] == FIXED_ROUTE_BUDGET['shadow'],
-                'This route has a {visible}/{shadow} budget'.format(**FIXED_ROUTE_BUDGET))
+        cap = FIREARM_ROUTE_BUDGET if firearm_slot else FIXED_ROUTE_BUDGET
+        require(budgets['visible'] <= cap['visible'] and budgets['shadow'] == cap['shadow'],
+                'This route has a {visible}/{shadow} budget'.format(**cap))
     require(set(budgets) == {'visible', 'shadow', 'parts'}, 'Explicit whole-object and per-part budgets required')
     for kind in ('visible', 'shadow'):
         integer(budgets[kind], 4, 200000, kind + ' assembly budget')
@@ -154,7 +167,11 @@ def rigged_motion_inputs(path, data):
     return rows,proof,review
 
 
-def native_contract(path, data):
+def native_contract(path, data, *, stock=None):
+    """The verified native contract and its effective stack's resources.
+
+    `stock`, when a set, receives the stack names only the installed base game holds: names in a verified installed KEY
+    namespace that no other layer lists or inventories. Those are the names a stock-slot replacement may override."""
     import numpy as np
     require(data.get('family') != 'catalog-object', 'Catalog objects have no qualified native attachment or resource contract')
     native = data.get('native', {})
@@ -165,11 +182,13 @@ def native_contract(path, data):
     layers = evidence.get('layers', [])
     require(layers and all(isinstance(row.get('resources'), list) and (row['resources'] or row.get('nameInventory'))
                            for row in layers), 'Empty content-stack inventory')
-    resources = {}
+    resources = {}; installed = set(); project = set()
     for layer in layers:
         from .native_stack import namespace
         occupied,selected,_=namespace(stack['path'],layer)
         resources.update(dict.fromkeys(occupied))
+        # A KEY inventory (selected is not None) is the installed base game; any other inventory is project content.
+        (installed if selected is not None else project).update(occupied)
         require(len({row['resource'].lower() for row in layer['resources']}) == len(layer['resources']),
                 'Duplicate resources within a content-stack layer')
         for row in layer['resources']:
@@ -179,6 +198,12 @@ def native_contract(path, data):
             if selected is not None:
                 require(selected.get(name)==bound['sha256'],'Selected resource differs from its stock extraction')
             resources[name] = bound
+            # Stock extraction layers (extract_stock: installed-stock-<class>-donors) list base-game files; every other
+            # layer's files (published srn_weapon, shipped bodies, comparison weapons, templates) are project content.
+            # A listed file counts as stock only when the KEY index also names it (installed, below).
+            if selected is None and not str(layer.get('name', '')).startswith('installed-stock-'): project.add(name)
+    if stock is not None:
+        stock.clear(); stock.update(installed - project)
     table = resources.get('baseitems.2da')
     require(table is not None and table['sha256'] == native.get('baseitemsSha256'), 'Effective baseitems pin mismatch')
     row = twoda(Path(table['path']).read_text(encoding='utf-8-sig')).get(str(native['baseItem']))
@@ -279,33 +304,68 @@ def model_names(data, index, colour=1):
     return {part: resref(f"{data['native']['itemClass']}_{part}_{index*10+colour:03d}") for part in PARTS}
 
 
-def reserve(data, resources, index=None):
+def slot_names(data, index):
+    """The part model and icon resource names (.mdl, .tga, .dds) of one appearance slot's colour-1 variant."""
+    names = model_names(data, index)
+    return {name+'.mdl' for name in names.values()} | {'i'+name+suffix for name in names.values() for suffix in ('.tga', '.dds')}
+
+
+def reserve(data, resources, index=None, *, stock=(), replace_stock=False):
+    """The appearance slot of a new design: its model, icon and texture names.
+
+    A free slot in 1..25 comes first. With `replace_stock` and no free slot, the highest stock slot whose held names are
+    all in `stock` (names only the installed base game holds: native_contract(stock=...), minus project and sibling
+    names) is taken, and the result lists them in `replacesStock`. A pinned `index` (the contract's appearanceIndex)
+    must be free, or hold exactly the stock names its contract recorded in resources.replacesStock."""
     occupied = {name.lower() for name in resources}
+    stock = {name.lower() for name in stock} & occupied
     settings = data.get('resources', {})
     if settings.get('blueprint'):
         require(resref(settings['blueprint'])+'.uti' not in occupied, 'Blueprint resref collision')
-    for candidate in ([index] if index is not None else range(1, 26)):
+    def slot(candidate):
         names = model_names(data, candidate)
         # Native composite icons share the model-part naming convention, prefixed by i.
         icons = {p: resref('i'+name) for p, name in names.items()}
         texture = resref(settings.get('texturePrefix', 'sr_cfl')+'_'+str(candidate).zfill(2))
-        if all(name+'.mdl' not in occupied and icons[p]+'.tga' not in occupied
-               and icons[p]+'.dds' not in occupied for p, name in names.items()) and not any(
-                   texture+suffix in occupied for suffix in ('.tga', '.dds', '.mtr', '.txi')):
-            return {'modelIndex': candidate, 'colourIndex': 1, 'models': names, 'icons': icons, 'texture': texture}
-    raise ValueError('No collision-free native appearance slot in the supported 1..25 pilot range')
+        # The texture is the design's own (its prefix is the design stem): it never replaces anything.
+        texture_free = not any(texture+suffix in occupied for suffix in ('.tga', '.dds', '.mtr', '.txi'))
+        result = {'modelIndex': candidate, 'colourIndex': 1, 'models': names, 'icons': icons, 'texture': texture}
+        return result, slot_names(data, candidate) & occupied, texture_free
+    if index is not None:
+        result, held, texture_free = slot(index); recorded = set(settings.get('replacesStock', ()))
+        if texture_free and not held and not recorded: return result
+        if texture_free and held and held == recorded:
+            require(held <= stock, 'A recorded stock replacement now overlaps project or sibling resources: '
+                    + ', '.join(sorted(held - stock)))
+            return {**result, 'replacesStock': sorted(held)}
+        raise ValueError(f'No collision-free native appearance slot at the pinned index {index}'
+                         + (f' (recorded stock replacement {sorted(recorded)}, held {sorted(held)})' if recorded else ''))
+    for candidate in range(1, 26):
+        result, held, texture_free = slot(candidate)
+        if texture_free and not held: return result
+    if replace_stock:
+        # Highest first: the low shapes are the base game's default looks (shape 1 is the stock donor and the
+        # toolset's first appearance), so they are kept the longest.
+        for candidate in range(25, 0, -1):
+            result, held, texture_free = slot(candidate)
+            if texture_free and held and held <= stock: return {**result, 'replacesStock': sorted(held)}
+        raise ValueError('No free or stock-only native appearance slot in the supported 1..25 range: '
+                         'every slot holds project or sibling resources')
+    raise ValueError('No collision-free native appearance slot in the supported 1..25 pilot range '
+                     '(replacing a base-game slot needs the explicit replace-stock opt-in)')
 
 
 def manifest(path, *, input_roles=None, validate_native=True):
     data = read(path)
     allowed = {'schemaVersion', 'kind', 'id', 'profile', 'familyProfile', 'inputs', 'features', 'openings',
                'camera', 'approval', 'fit', 'processing', 'render', 'clientCoverage', 'notes',
-               'landmarks', 'materials', 'generationSettings', 'geometrySeedOffset', 'conditioning'}
+               'landmarks', 'materials', 'generationSettings', 'geometrySeedOffset', 'appearanceSeedOffset', 'conditioning'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1 and data.get('kind') == 'item-asset', 'Unsupported item manifest')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')), 'Safe item ID required')
     require(data.get('profile') == 'pixal-single-v1', 'Items currently qualify only the single-image workflow')
     require(data.get('generationSettings') == GENERATION, 'Item generation settings must match the frozen preset')
     integer(data.get('geometrySeedOffset', 0), 0, 2147483647, 'geometry seed offset')
+    integer(data.get('appearanceSeedOffset', 0), 0, 2147483647, 'appearance seed offset')
     require(isinstance(data.get('landmarks'), list), 'Explicit measured landmark inventory required')
     require(data.get('materials') and all(isinstance(row.get('name'), str) and row.get('region')
             for row in data['materials']), 'Explicit material inventory required')
@@ -347,6 +407,17 @@ def manifest(path, *, input_roles=None, validate_native=True):
     return data
 
 
+def bindings(path):
+    """Item bindings. They also carry headkit's face libraries (2,500 files, 350 MB) that no item stage loads, and a
+    stage pins and verifies the libraries it does load (runner.STAGE_LIBRARIES, headkit's `library()`), so the loader
+    does not read every bound library at each process start."""
+    from tools.headkit.common import bindings as load
+    return load(path, verify_libraries=False)
+
+
+NEW_ITEM_TEXTURE_SIZE = 2048      # user, 2026-11-15: "also up all items to 2k"; a 1K contract already written keeps its size
+
+
 def code_pins():
     from tools.headkit.common import code_pins as head_pins
     files = [p for p in sorted(Path(__file__).parent.rglob('*')) if p.is_file()
@@ -374,7 +445,7 @@ def source_version():
 
 def stage_roles(stage):
     return {'prepare':{'reference'},'inspect':{'geometryRaw'},'donor':{'geometryDonor','field'},
-            'fit':{'texturedDonor','workingMesh','gripStandard'},'finish':{'reference'},'bake':{'reference'},
+            'fit':{'texturedDonor','workingMesh','gripStandard'},'finish':{'reference'},'bake':{'reference','donorMetallic'},
             'fixture':{'fixtureTemplate','maleCreature','femaleCreature','nwscript','comparisonBlueprint'},
             'calibrate':{'reference','geometry','detail','mask','calibrationReference','calibrationDetail','sourceAudit','referenceApproval'},
             'geometry':{'reference','clayReference','geometry','detail','foregroundMask','geometryForegroundMask','sourceAudit','referenceApproval'},

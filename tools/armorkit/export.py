@@ -10,6 +10,7 @@ import json
 import re
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 import numpy as np
@@ -164,6 +165,23 @@ def report(text):
     return []
 
 
+def decompiled(model, *, tool=None, game=None):
+    """The ASCII text the model tool reads back from a compiled model. The kit's own reader takes rigid meshes
+    only (`native_reader.decode`); a model with a skin is read this way."""
+    model = Path(model)
+    tool = tool or toolchain.cleanmodels()
+    with tempfile.TemporaryDirectory() as scratch:
+        back = Path(scratch) / model.name
+        try:
+            read = subprocess.run([tool['path'], 'decompile', '--overwrite', *(['--game-dir', str(game)] if game is not None else []),
+                                   str(model), str(back)], capture_output=True, text=True, timeout=600,
+                                  creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        except subprocess.TimeoutExpired as error:  # said as a model that cannot be read, which a publication's gates report and go on from
+            raise ValueError(f'{model.name} is a compiled model the model tool did not read back in {error.timeout:g} s') from error
+        require(read.returncode == 0 and back.is_file(), f'{model.name} is a compiled model that cannot be read back: {(read.stdout + read.stderr)[-400:]}')
+        return back.read_text(encoding='cp1252')
+
+
 def compile_models(sources, output, *, tool=None, game=None, resources=()):
     """Compile ASCII models into the folder `output` with the pinned cleanmodels; returns the compiled paths.
 
@@ -205,12 +223,16 @@ def compile_models(sources, output, *, tool=None, game=None, resources=()):
         require(result.returncode == 0 and len(entries) == len(batch), 'The models did not compile: ' + said)
     for source, target in zip(sources, targets):
         require(target.is_file(), f'{source.name} did not compile: {said}')
-        wanted = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', source.read_text(encoding='cp1252'), re.M))
+        text = source.read_text(encoding='cp1252')
+        wanted = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', text, re.M))
         require(wanted > 0, f'{source.name} holds no faces')
-        try:
-            got = sum(len(mesh['faces']) for mesh in native_reader.decode(target.read_bytes(), source.stem, require_tangents=False, apply_rigid_transforms=True))
-        except ValueError as error:
-            raise ValueError(f'{source.name} compiled to a model that cannot be read back: {error}') from error
+        if re.search(r'^node skin ', text, re.M):  # the rigid reader takes no skin: the tool reads its own model back
+            got = sum(int(count) for count in re.findall(r'^\s*faces (\d+)', decompiled(target, tool=tool, game=game), re.M))
+        else:
+            try:
+                got = sum(len(mesh['faces']) for mesh in native_reader.decode(target.read_bytes(), source.stem, require_tangents=False, apply_rigid_transforms=True))
+            except ValueError as error:
+                raise ValueError(f'{source.name} compiled to a model that cannot be read back: {error}') from error
         require(got == wanted, f'{source.name} compiled to {got} faces, not the {wanted} of its source')
         texture = source.with_suffix('.plt')
         if texture.is_file():

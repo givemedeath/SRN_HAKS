@@ -1,0 +1,21 @@
+{
+  "set": "night-bazaar",
+  "prefix": "nb",
+  "props": {
+    "vendor-stall": {"triangles": 10000},
+    "tarped-kiosk": {"triangles": 8000},
+    "neon-sign": {"triangles": 4000},
+    "gateway-sign": {"triangles": 4000},
+    "market-neon-panel": {"triangles": 4000},
+    "food-cart": {"triangles": 10000},
+    "folding-table": {"triangles": 6000},
+    "case-stack": {"triangles": 5000},
+    "generator": {"triangles": 6000},
+    "shutter-booth": {"triangles": 8000},
+    "bench": {"triangles": 6000},
+    "light-string": {"triangles": 4000},
+    "pylon-sign": {"triangles": 5000},
+    "fence-segment": {"triangles": 8000}
+  },
+  "building": {"views": ["building-hero", "building-front", "building-rear"], "triangles": 120000}
+}

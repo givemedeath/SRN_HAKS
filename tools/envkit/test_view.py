@@ -42,6 +42,37 @@ class ViewTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'A view'):
                 _views(text)
 
+    def test_a_dark_twin_of_a_lit_part_is_told(self):
+        import numpy as np
+        # A block 2 m wide and 1 m deep: a row of texels along its front wall (y 0.5) and one along its back (y -0.5).
+        across = np.linspace(-0.95, 0.95, 40); where = np.zeros((2, 40, 3)); where[..., 0] = across; where[0, :, 1], where[1, :, 1] = 0.5, -0.5; where[..., 2] = 1.0
+        covered = np.ones((2, 40), bool); window = {'part': 'window', 'box': [[-0.9, 0.4, 0.5], [0.9, 0.6, 1.5]]}; lamp = {'part': 'lamp', 'box': [[-0.9, 0.4, 0.5], [-0.5, 0.6, 1.5]]}
+        front = np.zeros((2, 40), bool); front[0] = np.abs(across) < 0.9
+        (told,) = view._mirrors(where, covered, [window], front)  # the front windows are lit, the same glass on the back wall is not
+        self.assertEqual((told['part'], told['across'], told['box'], told['lit']), ('window', 'y', [[-0.9, -0.6, 0.5], [0.9, -0.4, 1.5]], 0)); self.assertEqual(told['held'], int(front.sum()))
+        both = front.copy(); both[1] = front[0]; self.assertEqual(view._mirrors(where, covered, [window], both), [])  # lit on both walls
+        left = np.zeros((2, 40), bool); left[0] = (across > -0.9) & (across < -0.5)
+        self.assertEqual([(told['part'], told['across']) for told in view._mirrors(where, covered, [lamp], left)], [('lamp', 'x'), ('lamp', 'y')])  # one door's lamp: its twin on the other door, and the wall behind
+        self.assertEqual(view._mirrors(where, covered, [lamp], np.zeros((2, 40), bool)), [])  # a part that lights nothing has no twin to miss
+
+    def test_how_far_a_lit_part_stands_behind_its_halo_card_is_told(self):
+        """A window's glow hung on the card of the sign above it, three quarters of a metre out (the Iron Sight Arms
+        shop, 2026-11-14), and thirteen lit parts of the older sets still stand 0.3 metres or more behind theirs."""
+        import numpy as np
+        across = np.linspace(-0.5, 0.5, 20); where = np.zeros((1, 20, 3)); where[..., 0] = across; where[..., 1] = 0.5; where[..., 2] = 1.0  # a window on the front wall
+        toward = np.zeros_like(where); toward[..., 1] = 1.0; shining = np.ones((1, 20), bool)
+        card = lambda front, low=-1.0, high=1.0, foot=0.5, top=1.5: [((high, front, foot), (0, 1)), ((low, front, foot), (1, 1)), ((low, front, top), (1, 0)), ((high, front, top), (0, 0))]
+        self.assertEqual(view._stand_off([card(0.54)], where, toward, shining), 0.0)  # its own card, 4 cm in front of it
+        self.assertEqual(view._stand_off([card(1.29), card(0.54, foot=3.0, top=4.0)], where, toward, shining), 0.75)  # the sign's card, standing over it: its own is elsewhere
+        self.assertEqual(view._stand_off([card(1.29), card(0.64)], where, toward, shining), 0.1)  # the nearest of two
+        self.assertIsNone(view._stand_off([], where, toward, shining)); self.assertIsNone(view._stand_off([card(0.54)], where, toward, np.zeros((1, 20), bool)))
+        back = [((-1.0, -0.54, 0.5), (0, 1)), ((1.0, -0.54, 0.5), (1, 1)), ((1.0, -0.54, 1.5), (1, 0)), ((-1.0, -0.54, 1.5), (0, 0))]  # a card of the back wall, and one behind the glass
+        self.assertIsNone(view._stand_off([back, card(0.3)], where, toward, shining))
+        # Drawn with `lit`, a model with a halo tells it for each lit part.
+        self.models['ek_wall']['halo'] = {'reach': 0.2, 'strength': 0.5}
+        (told,) = view.elevations(self.models, self.root, 'ek_wall', self.root / 'lit', fine=128, lit=True)['litParts']
+        self.assertEqual(told['standOff'], 0.0)
+
     def test_a_game_set_model_is_drawn_as_it_will_ship(self):
         told = view.elevations(self.models, self.root, 'ek_wall', self.root / 'views', fine=128)
         self.assertEqual(told['bounds'], [[-0.5, 0.0, 0.0], [0.5, 0.0, 2.0]]); self.assertEqual([Path(path).name for path in told['pictures']], ['ek_wall-side0.png'])
@@ -53,9 +84,12 @@ class ViewTests(unittest.TestCase):
         lit = view.elevations(self.models, self.root, 'ek_wall', self.root / 'lit', fine=128, lit=True)
         self.assertGreater(lit['litShare'], 0.3); self.assertLess(lit['litShare'], 0.7)  # the upper half is lit
         (part,) = lit['litParts']; self.assertEqual(part['part'], None); self.assertGreater(part['held'], 0); self.assertEqual(part['lit'], part['held'])  # what its box holds, it lights
+        self.assertEqual((part['side'], part['planes']), (0, [[0.0, 1.0]]))  # all of its light faces front and stands at the wall's one depth
         dark = {**self.models['ek_wall'], 'paint': [{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 2.1]], 'colour': [0, 0, 0]}], 'lit': [{'part': 'sign', 'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]]}]}
         (part,) = view.elevations({'ek_wall': dark}, self.root, 'ek_wall', self.root / 'dark', fine=128, lit=True)['litParts']
         self.assertEqual((part['part'], part['lit']), ('sign', 0)); self.assertGreater(part['held'], 0)  # a box on a part with nothing to light is told
+        self.assertEqual((part['side'], part['planes']), (None, []))
+        self.assertEqual(lit['mirrors'], [])  # a wall of one face has nothing across from its lit half
         with self.assertRaisesRegex(ValueError, 'states no lit parts'):
             view.elevations(self.models, self.root, 'ek_plain', self.root / 'lit', lit=True)
         with self.assertRaisesRegex(ValueError, 'No such model'):

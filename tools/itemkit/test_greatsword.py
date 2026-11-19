@@ -1,4 +1,5 @@
 import numpy as np
+from unittest.mock import patch
 from .firearm_grip import GripDeparture
 from pathlib import Path
 from PIL import Image
@@ -37,7 +38,18 @@ class GreatswordTests(Fixture):
             file=self.root/(part+'.npz');np.savez(file,**g,shadowVertices=g['positions'].reshape(-1,3),shadowFaces=np.arange(12).reshape(-1,3));arrays[part]=pin(file)
             file=self.root/(part+'.png');image=Image.new('RGBA',(64,160),(17,29,93,255));image.putpixel((5,159),(2,3,4,128));image.save(file);icons[part]=pin(file)
         texture=self.root/'diffuse.png';Image.new('RGB',(1024,1024)).save(texture)
-        out=self.root/'native';result=native.prepare(self.profile_path,self.profile,arrays,texture,icons,out)
+        # NWN Crunch (Windows only) is exercised in test_stock_slots; here each DDS twin is a placeholder file.
+        twin=lambda tga,target,compression='DXT5',*,crunch=None:Path(target).write_bytes(b'dds '+compression.encode())
+        out=self.root/'native'
+        with patch.object(native,'dds_converter',lambda inputs:Path(__file__)),patch.object(native,'nwn_dds',twin):
+            result=native.prepare(self.profile_path,self.profile,arrays,texture,icons,out)
+        self.assertEqual(sorted(p.name for p in (out/'resources').glob('*.dds')),
+                         sorted([result['texture']+'.dds']+[n+'.dds' for n in result['allocation']['icons'].values()]))
+        # A converter that changes during the DDS batch invalidates the preparation.
+        fake=self.root/'crunch.exe';fake.write_bytes(b'v1')
+        def drifting(tga,target,compression='DXT5',*,crunch=None):twin(tga,target,compression);fake.write_bytes(b'v2')
+        with patch.object(native,'dds_converter',lambda inputs:fake),patch.object(native,'nwn_dds',drifting):
+            with self.assertRaisesRegex(ValueError,'Stale file pin'):native.prepare(self.profile_path,self.profile,arrays,texture,icons,self.root/'drift')
         for part,name in result['allocation']['icons'].items():
             with Image.open(out/'resources'/(name+'.tga')) as padded,Image.open(icons[part]['path']) as source:
                 self.assertEqual(padded.size,(64,256));self.assertTrue(np.array_equal(np.asarray(padded)[:160],np.asarray(source)))
@@ -84,6 +96,21 @@ class GreatswordTests(Fixture):
         with self.assertRaisesRegex(ValueError,'uniform fit'):one_hand_round(p,f,squashed,[0,0,0],standard,review)
         oval=p*[1,1,.6]
         with self.assertRaisesRegex(ValueError,'not round'):one_hand_round(oval,f,m,[0,0,0],standard,review)
+
+    def test_a_round_grip_can_take_the_grip_depth_as_its_diameter(self):
+        # The wave-6 Rattan Stick: at the face width a thin stick came out 4.8-5.3 cm thick (user, 2026-11-15: "3.0 cm").
+        standard=read(Path(__file__).resolve().parents[2]/'docs/items/weapon-grip-standard-v1.json');a=np.arange(32)*2*np.pi/32
+        ring=np.c_[np.cos(a)*.035,np.zeros(32),np.sin(a)*.035];p=np.concatenate([ring+[0,-.2,0],ring+[0,.2,0]])
+        f=np.array([(i,(i+1)%32,(i+1)%32+32) for i in range(32)]+[(i,(i+1)%32+32,i+32) for i in range(32)]);m=np.eye(4)
+        depth=standard['targetMidpointSection']['depth']
+        with self.assertRaises(GripDeparture) as caught:one_hand_round(p,f,m,[0,0,0],standard,basis='depth')
+        r=caught.exception.report;mid=r['measuredFittedSections'][2]
+        self.assertAlmostEqual(mid['depth'],depth,delta=.0005);self.assertAlmostEqual(mid['visibleFaceWidth'],depth,delta=.0005)
+        self.assertEqual(r['roundBasis'],'depth');self.assertLess(r['midpointRelativeDifferences']['visibleFaceWidth'],-.3)
+        review={'decision':'approved','measurementDigest':r['measurementDigest'],'notes':'User chose 3.0 cm'}
+        actual,bound=one_hand_round(p,f,m,[0,0,0],standard,review,basis='depth');self.assertEqual(bound['departureReview'],review)
+        with self.assertRaises(GripDeparture):one_hand_round(p,f,m,[0,0,0],standard,review)        # the width basis is another measurement
+        with self.assertRaisesRegex(ValueError,'Round basis'):one_hand_round(p,f,m,[0,0,0],standard,review,basis='length')
 
     def test_a_shaft_is_thinned_to_the_grip_depth_without_flattening(self):
         # The stun staff: a thick 1.2:1 shaft. One transverse scale meets the approved depth and keeps the ratio.

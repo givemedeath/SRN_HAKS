@@ -1,5 +1,6 @@
 """Reference sets name real crops, prompts ask for an isolated unlit-spill view, and a busy server is left alone."""
 import copy
+import hashlib
 import importlib.util
 import itertools
 import json
@@ -62,6 +63,33 @@ class SetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'kind'):
             reference.prompt('vehicle', 'van')
 
+    def test_a_building_can_be_drawn_without_its_slab(self):
+        """The slab shares the building's one picture, and a planned walk did not cross tiles on it (2026-11-17)."""
+        kept = reference.prompt('building', 'a depot'); bare = reference.prompt('building', 'a depot', slab=False)
+        self.assertIn('Keep the pavement slab', kept); self.assertNotIn('Keep the pavement slab', bare)
+        self.assertIn('draw no pavement slab', bare); self.assertIn('Leave out every perimeter fence', bare); self.assertIn('do not clean or repaint', bare)
+        self.assertIn('draw no pavement slab', reference.prompt('building', 'a depot', unbranded=True, slab=False))
+        self.assertIn('draw no pavement slab', reference.prompt('building', 'a depot', turn='the rear', slab=False))
+        with self.assertRaisesRegex(ValueError, 'only a building'):
+            reference.prompt('prop', 'a crate', slab=False)
+
+    def test_a_building_is_drawn_without_its_perimeter_fence(self):
+        # user, 2026-11-17: no more perimeter fences through the generator; they are built afterwards
+        for text in (reference.prompt('building', 'depot'), reference.prompt('building', 'depot', unbranded=True),
+                     reference.prompt('building', 'depot', turn='the rear')):
+            self.assertIn('Leave out every perimeter fence', text); self.assertIn('razor wire', text)
+        self.assertNotIn('perimeter fence', reference.prompt('prop', 'fence section'))
+        good = json.loads(SET.read_text(encoding='utf-8')); hero = good['assets']['building-hero']
+        for subject, notes in (('depot with a fenced yard', ''), ('depot behind a razor-wire fence', ''), ('depot', 'Keep the chain-link and the gate posts.')):
+            data = json.loads(json.dumps(good)); data['assets']['building-hero'] = {**hero, 'subject': subject, 'notes': notes}
+            with self.assertRaisesRegex(ValueError, 'drawn without its perimeter fence.*building-hero'):
+                reference.load_set(self.write(data))
+        data = json.loads(json.dumps(good)); data['assets']['building-hero'] = {**hero, 'notes': 'Remove the people, the fence and all text. Roof units stay.'}
+        reference.load_set(self.write(data))  # what a note takes away is no request for it
+        fence = next(name for name, asset in good['assets'].items() if asset['kind'] == 'prop')
+        data = json.loads(json.dumps(good)); data['assets'][fence]['subject'] = 'chain-link fence section with razor wire'
+        reference.load_set(self.write(data))  # a fence is a prop of its own
+
     def test_a_set_rejects_machine_paths_bad_names_and_boxes_off_the_sheet(self):
         good = json.loads(SET.read_text(encoding='utf-8'))
         for change, message in ((lambda d: d['sheet'].update(file='C:/art/sheet.png'), 'bare file name'),
@@ -100,11 +128,18 @@ class SetTests(unittest.TestCase):
         self.assertIn('leave off every company logo', text); self.assertNotIn('markings', text)
         self.assertIn('Hazard stripes', text); self.assertIn('do not clean or repaint', text)
         self.assertIn('markings', reference.prompt('prop', 'access kiosk'))
-        with self.assertRaisesRegex(ValueError, 'Only a prop'):
-            reference.prompt('building', 'depot', unbranded=True)
+        # A generic sheet's building keeps its slab and generic words, without company or place names.
+        building = reference.prompt('building', 'depot with a RAIL FREIGHT sign', unbranded=True)
+        self.assertIn('leave off every company name, place name and logo', building); self.assertNotIn('signage', building)
+        self.assertIn('FREIGHT', building); self.assertIn('pavement slab', building); self.assertIn('do not clean or repaint', building)
+        self.assertIn('signage', reference.prompt('building', 'depot'))
         good = json.loads(SET.read_text(encoding='utf-8'))
-        good['assets']['trash-can']['unbranded'] = True
-        self.assertTrue(reference.load_set(self.write(good))['assets']['trash-can']['unbranded'])
+        good['assets']['trash-can']['unbranded'] = True; good['assets']['building-front']['unbranded'] = True
+        drawn = reference.load_set(self.write(good))['assets']
+        self.assertTrue(drawn['trash-can']['unbranded'] and drawn['building-front']['unbranded'])
+        data = copy.deepcopy(good); data['assets']['building-front']['type'] = 'shop'
+        with self.assertRaisesRegex(ValueError, 'Only props have a type'):
+            reference.load_set(self.write(data))
         for change in ({'same': 'shop/bin'}, {'variant': 'Branding: red bin with the shop emblem.'}):  # nothing made; the mark is wanted
             data = copy.deepcopy(good); data['assets']['trash-can'].update(change)
             with self.assertRaisesRegex(ValueError, 'unbranded is for a prop that is made'):
@@ -165,6 +200,69 @@ class SetTests(unittest.TestCase):
         data = copy.deepcopy(good); data['assets']['building-left']['cut']['box'] = [0, 0, 120, 40]
         with self.assertRaisesRegex(ValueError, 'runs off'):
             reference.source(reference.load_set(self.write(data)), 'building-left', None, selected, self.root / 'left.png')
+        # A mirrored cut flips the chosen reference left to right first, and its box is in the flipped picture.
+        picture = Image.new('RGB', (100, 40), 'red'); picture.paste((0, 0, 255), (0, 0, 10, 40)); picture.save(selected / f'{whole}-s101-b0.png')
+        data = copy.deepcopy(good); data['assets']['building-left']['cut'].update(box=[90, 0, 100, 40], mirror=True)
+        with Image.open(reference.source(reference.load_set(self.write(data)), 'building-left', None, selected, self.root / 'mirrored.png')) as cut:
+            margin = round(40 * reference.CUT_MARGIN); self.assertEqual(cut.getpixel((margin + 5, margin + 20)), (0, 0, 255))
+        for wrong in (False, 'yes'):
+            data['assets']['building-left']['cut']['mirror'] = wrong
+            with self.assertRaisesRegex(ValueError, 'another, whole, view'):
+                reference.load_set(self.write(data))
+
+    def test_a_view_the_sheet_does_not_draw_is_turned_from_the_chosen_reference_of_one_it_does(self):
+        """User, 2026-11-13: the rail yard's corner view drew another building than its front ("fix the warehouse back
+        view"), so its back is drawn from the front's chosen reference, seen from behind."""
+        from PIL import Image
+        good = json.loads(SET.read_text(encoding='utf-8')); whole = next(name for name, asset in good['assets'].items() if asset['kind'] == 'building')
+        good['assets']['building-back'] = {'kind': 'building', 'unbranded': True, 'subject': 'shop', 'box': [0, 0, 10, 10], 'turn': {'from': whole, 'to': 'the back'}}
+        data = reference.load_set(self.write(good)); selected = self.root / 'selected'; selected.mkdir()
+        Image.new('RGB', (100, 40), 'red').save(selected / f'{whole}-s101-b0.png')
+        with Image.open(reference.source(data, 'building-back', None, selected, self.root / 'back.png')) as back:
+            margin = round(100 * reference.CUT_MARGIN)  # the whole reference, set on white
+            self.assertEqual(back.size, (100 + 2 * margin, 40 + 2 * margin)); self.assertEqual(back.getpixel((margin, margin)), (255, 0, 0))
+        text = reference.prompt('building', 'shop', unbranded=True, turn='the back')
+        self.assertIn('Show this same shop seen from the back', text); self.assertNotIn('viewing angle', text)
+        self.assertIn('leave off every company name', text.lower()); self.assertIn('pavement slab', text); self.assertIn('do not clean or repaint', text)
+        self.assertNotIn('company name', reference.prompt('building', 'shop', turn='the back'))
+        for change, message in ((lambda a: a.update(turn={'from': 'trash-can', 'to': 'the back'}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': 'building-back', 'to': 'the back'}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': whole}), 'another, whole, view'),
+                                (lambda a: a.update(cut={'from': whole, 'box': [0, 0, 6, 4]}), 'another, whole, view'),
+                                (lambda a: a.update(turn={'from': whole, 'to': 'the back\nand the side'}), 'one line')):
+            data = copy.deepcopy(good); change(data['assets']['building-back'])
+            with self.assertRaisesRegex(ValueError, message):
+                reference.load_set(self.write(data))
+        # A turned view is whole, so a piece may be cut from it (the rail yard's rear piece), but not turned again.
+        data = copy.deepcopy(good); data['assets']['building-left'] = {'kind': 'building', 'subject': 'left', 'box': [0, 0, 10, 10], 'cut': {'from': 'building-back', 'box': [0, 0, 6, 4]}}
+        self.assertIn('building-left', reference.load_set(self.write(data))['assets'])
+        data['assets']['building-left'] = {'kind': 'building', 'subject': 'left', 'box': [0, 0, 10, 10], 'turn': {'from': 'building-back', 'to': 'the left'}}
+        with self.assertRaisesRegex(ValueError, 'another, whole, view'):
+            reference.load_set(self.write(data))
+
+    def test_a_drawn_crop_is_taken_as_its_reference(self):
+        """User, 2026-11-13: the rail freight depot came as four clean images on white, so each crop is its reference."""
+        from PIL import Image
+        good = json.loads(SET.read_text(encoding='utf-8')); good['assets']['trash-can']['drawn'] = True
+        self.assertTrue(reference.load_set(self.write(good))['assets']['trash-can']['drawn'])
+        crop = self.root / 'crop.png'; Image.new('RGB', (8, 6), 'blue').save(crop)
+        receipt = reference.as_drawn('trash-can', crop, 0, self.root / 'run')
+        self.assertEqual((self.root / 'run' / 'trash-can-s0-b0.png').read_bytes(), crop.read_bytes())
+        self.assertEqual((receipt['drawn'], receipt['state'], receipt['source']['sha256']), (True, 'complete', hashlib.sha256(crop.read_bytes()).hexdigest()))
+        self.assertEqual(json.loads((self.root / 'run' / 'trash-can-s0.json').read_text(encoding='utf-8')), receipt)
+        with self.assertRaisesRegex(ValueError, 'Receipt already exists'):
+            reference.as_drawn('trash-can', crop, 0, self.root / 'run')
+        whole = next(name for name, asset in good['assets'].items() if asset['kind'] == 'building')
+        for change in ({'drawn': False}, {'drawn': 'yes'}):
+            data = copy.deepcopy(good); data['assets']['trash-can'].update(change)
+            with self.assertRaisesRegex(ValueError, 'drawn is true'):
+                reference.load_set(self.write(data))
+        data = copy.deepcopy(good); data['assets']['building-left'] = {'kind': 'building', 'drawn': True, 'subject': 'left', 'box': [0, 0, 10, 10], 'cut': {'from': whole, 'box': [0, 0, 6, 4]}}
+        with self.assertRaisesRegex(ValueError, 'neither cut nor turned'):
+            reference.load_set(self.write(data))
+        # A mirrored cut may be drawn: the rear taken as the front's mirror image, never redrawn (user, 2026-11-15).
+        data['assets']['building-left']['cut']['mirror'] = True
+        self.assertTrue(reference.load_set(self.write(data))['assets']['building-left']['drawn'])
 
     def test_a_sheet_is_accepted_only_at_its_recorded_hash(self):
         sheet = {'file': 'sheet.png', 'sha256': 'a' * 64, 'size': [4, 4]}
@@ -235,6 +333,77 @@ class MakeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'stayed busy'):  # without --keep-going the first failure stops the run
                 command.command_reference(Namespace(keep_going=False, **asked))
             self.assertEqual([call.args[3] for call in make.call_args_list], ['crate', 'bin'])
+        # Drawn assets are taken as they are: no bindings and no ComfyUI client are needed (review, 2026-11-14).
+        drawn = {'sheet': 'sheet.png', 'assets': {'crate': {'kind': 'prop', 'subject': 'crate', 'drawn': True}}}
+        with mock.patch.object(reference, 'load_set', return_value=drawn), mock.patch.object(reference, 'resolve_sheet'), mock.patch.object(reference, 'source'),                 mock.patch.object(reference, 'as_drawn', return_value={'state': 'complete', 'outputs': ['crate.png'], 'elapsedSeconds': 0.0}) as taken,                 mock.patch('tools.headkit.comfy.Client') as client, mock.patch('builtins.print'):
+            command.command_reference(Namespace(keep_going=False, **{**asked, 'bindings': None}))
+        taken.assert_called_once(); client.assert_not_called()
+
+
+    def test_chosen_references_are_brought_to_meshys_size(self):
+        """A reference of 2048 or more is copied and a smaller one doubled, once, from the picture chosen now."""
+        import hashlib
+        from PIL import Image
+        from tools.headkit import design
+        selected, sent = self.root / 'chosen', self.root / 'sent'; selected.mkdir()
+        Image.new('RGB', (2048, 8), 'red').save(selected / 'gate-s101-b0.png'); Image.new('RGB', (1024, 8), 'blue').save(selected / 'desk-s7-b0.png')
+        (selected / 'desk-s7.json').write_text('{}', encoding='utf-8'); Image.new('RGB', (8, 8)).save(selected / 'contact.png')  # neither is a chosen reference
+
+        def doubled(client, local, bindings, graph, receipt, sources, output, base, batch, runtime, queue=None):
+            self.assertEqual([graph[key]['class_type'] for key in ('100', '7', '8', '9')], ['LoadImage', 'UpscaleModelLoader', 'ImageUpscaleWithModel', 'SaveImage'])
+            self.assertEqual((graph['7']['inputs']['model_name'], list(sources.values()), queue), (reference.UPSCALER, [selected / 'desk-s7-b0.png'], {'deadline': 60}))
+            Image.new('RGB', (2048, 16), 'blue').save(Path(output) / f'{base}-b0.png'); (Path(output) / f'{base}.json').write_text(json.dumps(receipt), encoding='utf-8')
+        said = []
+        with mock.patch.object(design, '_execute', side_effect=doubled) as execute:
+            told = reference.enlarge(None, {}, 'bindings.json', selected, sent, deadline=60, say=lambda text, **_: said.append(json.loads(text)))
+            self.assertEqual(told, {'desk-s7-b0.png': 'enlarged', 'gate-s101-b0.png': 'copied'}); self.assertEqual(len(said), 2)
+            self.assertEqual((sent / 'gate-s101-b0.png').read_bytes(), (selected / 'gate-s101-b0.png').read_bytes())
+            self.assertEqual(json.loads((sent / 'desk-s7.json').read_text(encoding='utf-8'))['source'], hashlib.sha256((selected / 'desk-s7-b0.png').read_bytes()).hexdigest())
+            self.assertEqual(reference.enlarge(None, {}, 'bindings.json', selected, sent, say=lambda *_, **__: None), {'desk-s7-b0.png': 'kept', 'gate-s101-b0.png': 'kept'})
+            self.assertEqual(execute.call_count, 1)
+            Image.new('RGB', (1024, 8), 'green').save(selected / 'desk-s7-b0.png')  # another picture chosen under the same name
+            with self.assertRaisesRegex(ValueError, 'was not made from the desk-s7-b0.png chosen now'):
+                reference.enlarge(None, {}, 'bindings.json', selected, sent, say=lambda *_, **__: None)
+            Image.new('RGB', (600, 900)).save(selected / 'lamp-s1-b0.png')
+            with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png is 600x900: doubled it is still under 2048'):
+                reference.enlarge(None, {}, 'bindings.json', selected, self.root / 'sent2', deadline=60, say=lambda *_, **__: None)
+        with self.assertRaisesRegex(ValueError, 'No chosen references'):
+            reference.enlarge(None, {}, 'bindings.json', self.root / 'nothing-chosen', self.root / 'sent3')
+
+    def test_what_is_sent_is_what_is_chosen_now(self):
+        """`sheet submit` sends the pictures of `sent`: they are those `enlarge` made of the references chosen now."""
+        import hashlib
+        from PIL import Image
+        selected, sent = self.root / 'chosen', self.root / 'sent'; selected.mkdir()
+        Image.new('RGB', (2048, 8), 'red').save(selected / 'gate-s101-b0.png'); Image.new('RGB', (2048, 8), 'blue').save(selected / 'desk-s7-b0.png')
+        with self.assertRaisesRegex(ValueError, 'run `envkit enlarge`'):
+            reference.sent_current(selected, sent)  # nothing enlarged yet
+        quiet = lambda *_, **__: None
+        self.assertEqual(reference.enlarge(None, None, None, selected, sent, say=quiet), {'desk-s7-b0.png': 'copied', 'gate-s101-b0.png': 'copied'})  # copies need no ComfyUI
+        reference.sent_current(selected, sent)
+        Image.new('RGB', (2048, 8), 'green').save(selected / 'desk-s7-b0.png')  # chosen again under the same name
+        with self.assertRaisesRegex(ValueError, 'as they are chosen now.*: desk-s7-b0.png$'):
+            reference.sent_current(selected, sent)
+        (sent / 'desk-s7-b0.png').unlink(); (sent / 'desk-s7.json').unlink(); reference.enlarge(None, None, None, selected, sent, say=quiet); reference.sent_current(selected, sent)
+        # Chosen again with another seed: the one enlarged before stays in `sent` as history and stands in nobody's way.
+        (selected / 'gate-s101-b0.png').unlink(); Image.new('RGB', (2048, 8), 'white').save(selected / 'gate-s102-b0.png')
+        with self.assertRaisesRegex(ValueError, ': gate-s102-b0.png$'):
+            reference.sent_current(selected, sent)
+        self.assertEqual(reference.enlarge(None, None, None, selected, sent, say=quiet), {'desk-s7-b0.png': 'kept', 'gate-s102-b0.png': 'copied'})
+        reference.sent_current(selected, sent); self.assertTrue((sent / 'gate-s101-b0.png').is_file())
+        # A job that failed leaves its receipt: it is said as a failure, and its picture, where one landed, is no reference kept.
+        Image.new('RGB', (1024, 8)).save(selected / 'lamp-s1-b0.png'); source = hashlib.sha256((selected / 'lamp-s1-b0.png').read_bytes()).hexdigest()
+        with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png is 1024x8: enlarging it needs --bindings'):
+            reference.enlarge(None, None, None, selected, sent, say=quiet)
+        (sent / 'lamp-s1.json').write_text(json.dumps({'source': source, 'state': 'failed', 'error': 'queue busy'}), encoding='utf-8')
+        Image.new('RGB', (2048, 16)).save(sent / 'lamp-s1-b0.png')
+        with self.assertRaisesRegex(ValueError, r'enlarging that failed \(queue busy\)'):
+            reference.enlarge(None, None, None, selected, sent, say=quiet)
+        (sent / 'lamp-s1.json').write_text('{"source": "' + source[:20], encoding='utf-8')  # a record cut short is told by name, not as a JSON error
+        with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png was not made from the lamp-s1-b0.png chosen now'):
+            reference.enlarge(None, None, None, selected, sent, say=quiet)
+        with self.assertRaisesRegex(ValueError, 'lamp-s1-b0.png'):
+            reference.sent_current(selected, sent)
 
 
 if __name__ == '__main__':

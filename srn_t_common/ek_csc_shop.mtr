@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_csc_shop
+texture1 ek_csc_shop_n
+texture2 ek_csc_shop_s
+texture3 ek_csc_shop_r
+texture4 null
+texture5 ek_csc_shop_i

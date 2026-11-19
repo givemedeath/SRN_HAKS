@@ -1,5 +1,6 @@
 """A generated model reaches the game upright, to scale, facing front, with unit normals and node-sized meshes."""
 import json
+import re
 import struct
 import tempfile
 import unittest
@@ -109,6 +110,20 @@ class ConvertTests(unittest.TestCase):
         np.testing.assert_allclose(made['vertices'].mean(0)[:2], [0, 0], atol=1e-9)  # still centred on its spot
         self.assertIsNone(made['colour']); self.assertIsNone(made['flat'])  # nothing retouched: the picture ships as generated
 
+    def test_a_copied_wall_reaches_no_further_than_its_own_patch_of_the_picture(self):
+        # The map of places is coarser than the picture. A texel at the edge of the wall's patch has its place blended
+        # with the patch beside it in the picture, here one 50 metres away, and shows what lies off the wall (black).
+        # Read as wall, such texels made it metres longer than it is, and a target longer than the wall took the
+        # blotches that filled the added length (the Iron Sight Arms shop's back wall, 2026-11-14).
+        where = np.zeros((32, 32, 3), np.float32); covered = np.zeros((32, 32), np.float32)
+        across, up = np.meshgrid((np.arange(16) + 0.5) / 16, 1 - (np.arange(16) + 0.5) / 16); level = np.zeros_like(across)
+        where[:16, :16] = np.dstack([across, level, up]); where[:16, 16:] = np.dstack([50 + across, level, up])  # the wall, a metre long, and its far neighbour
+        where[16:, :16] = np.dstack([10 + 12 * across, level, up]); covered[:16] = 1; covered[16:, :16] = 1  # what it is copied over, twelve metres long
+        colour = np.zeros((128, 128, 3), np.float32); colour[:64, :62] = (0.8, 0.0, 0.0); colour[64:, :64] = 0.4
+        source = np.zeros((32, 32), bool); source[:16, :16] = True; target = np.zeros((32, 32), bool); target[16:, :16] = True
+        made = convert._copied(colour.copy(), where, covered, target, source, {})
+        np.testing.assert_allclose(made[64:, :64], np.broadcast_to(np.float32([0.8, 0.0, 0.0]), (64, 64, 3)), atol=1e-5)  # the wall again and again, none of the black
+
     def test_a_colour_picture_is_toned_painted_and_given_a_wire_mesh_by_place_on_the_model(self):
         from PIL import Image
         vertices, normals, uvs, faces = convert.read_glb(glb(self.root / 'wall.glb', **WALL))
@@ -116,8 +131,37 @@ class ConvertTests(unittest.TestCase):
         picture = Image.new('RGB', (64, 64), (200, 100, 50))
         toned, flat, _ = convert.retouch(picture, points, texture, faces, tone=0.5)
         self.assertEqual(toned.mode, 'RGB'); self.assertIsNone(flat); self.assertEqual(toned.getpixel((5, 5)), (100, 50, 25))
+        self.assertEqual(convert.retouch(picture, points, texture, faces, tone=[0.5, 1.0, 2.0])[0].getpixel((5, 5)), (100, 100, 100))  # a tone for each of red, green and blue
         painted, flat, _ = convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3]}])
         self.assertIsNone(flat); self.assertEqual(painted.getpixel((32, 8)), (1, 2, 3)); self.assertEqual(painted.getpixel((32, 56)), (200, 100, 50))  # the top half only
+        # With `facing`, only the faces that look that way are painted: a lamp's lens and not the housing round it.
+        results = []
+        for way in ([0, 1, 0], [0, -1, 0]):
+            try:
+                results.append(convert.retouch(picture, points, texture, faces, paint=[{'box': [[-0.6, -0.1, 1.0], [0.6, 0.1, 2.1]], 'colour': [1, 2, 3], 'facing': way}])[0].getpixel((32, 8)))
+            except ValueError as refused:
+                self.assertIn('faces the way', str(refused)); results.append(None)
+        self.assertEqual(sorted(results, key=str), [(1, 2, 3), None])  # the wall looks one way along Y and is painted from that side alone
+        # A wall is copied over what the generator left blank beside it, height for height: the left half of a wall that
+        # is red below and blue above, laid over its plain right half.
+        banded = np.zeros((64, 64, 3), np.uint8); banded[:, :32] = (0, 0, 255); banded[32:, :32] = (255, 0, 0); banded[:, 32:] = (90, 90, 90)
+        whole = np.asarray(convert.retouch(Image.fromarray(banded), points, texture, faces, copy=[{'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[0.0, -0.1, -0.1], [0.6, 0.1, 2.1]]}])[0])
+        self.assertFalse((whole == 90).all(-1).any())  # nothing of the plain half is left
+        self.assertTrue((whole[4:28] == (0, 0, 255)).all()); self.assertTrue((whole[36:60] == (255, 0, 0)).all())  # and each height has its own band, right across
+        with self.assertRaisesRegex(ValueError, 'holds none of the model'):
+            convert.retouch(picture, points, texture, faces, copy=[{'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[5.0, 5.0, 0.0], [6.0, 6.0, 1.0]]}])
+        # Mirrored, the half copied over takes the clean half from the middle outwards: a green edge strip and a red
+        # inner strip on the left come out red beside the middle and green at the far edge on the right.
+        halves = np.full((64, 64, 3), 90, np.uint8); halves[:, :16] = (0, 255, 0); halves[:, 16:32] = (255, 0, 0)
+        both = {'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[0.0, -0.1, -0.1], [0.6, 0.1, 2.1]]}  # the picture's left is the wall's +x
+        mirrored = np.asarray(convert.retouch(Image.fromarray(halves), points, texture, faces, copy=[{**both, 'mirror': True}])[0])
+        self.assertTrue((mirrored[:, 36:44] == (255, 0, 0)).all()); self.assertTrue((mirrored[:, 52:60] == (0, 255, 0)).all())
+        moved = np.asarray(convert.retouch(Image.fromarray(halves), points, texture, faces, copy=[both])[0])  # copied plainly it is the same way round
+        self.assertTrue((moved[:, 36:44] == (0, 255, 0)).all()); self.assertTrue((moved[:, 52:60] == (255, 0, 0)).all())
+        # With a rise each height takes the wall that much higher: the blue upper half comes half a metre down the copy.
+        risen = np.asarray(convert.retouch(Image.fromarray(banded), points, texture, faces, copy=[{'box': [[-0.6, -0.1, -0.1], [0.0, 0.1, 2.1]], 'from': [[0.0, -0.1, -0.1], [0.6, 0.1, 2.1]], 'rise': 0.5}])[0])
+        self.assertTrue((risen[4:44, 36:60] == (0, 0, 255)).all()); self.assertTrue((risen[52:60, 36:60] == (255, 0, 0)).all())
+        self.assertTrue((risen[4:28, 4:28] == (0, 0, 255)).all()); self.assertTrue((risen[36:60, 4:28] == (255, 0, 0)).all())  # the wall copied from is as it was
         meshed, flat, plain = convert.retouch(picture, points, texture, faces, mesh=[{'box': [[-0.6, -0.1, -0.1], [0.6, 0.1, 1.0]], 'pitch': 0.25, 'wire': 0.05}])
         self.assertEqual(meshed.mode, 'RGBA'); pixels = np.asarray(meshed); lower, upper = pixels[36:], pixels[:28]
         self.assertTrue((upper[..., 3] == 255).all()); np.testing.assert_array_equal(upper[0, 0, :3], [200, 100, 50])  # outside the panel nothing changes
@@ -271,6 +315,34 @@ class ConvertTests(unittest.TestCase):
             convert.shape(model, {'base_color': self.root / 'grey.png'}, height=2.0, close=[{'corners': shaped['vertices'][shaped['faces'][0]].tolist()}])
         closing.assert_called_once()
 
+    def test_a_large_face_over_fine_detail_is_told_and_a_plain_wall_is_not(self):
+        """The Pulse Tech shop's front window came back with two stray faces across its pane, drawn as a smear, and
+        the window modelled behind them (user, 2026-11-15)."""
+        def sheet(depth, facing=1, cells=10):  # a window's detail: a metre square of small faces at this depth, looking along -y (or +y)
+            corners = np.array([[x, depth, z] for z in np.linspace(0, 1, cells + 1) for x in np.linspace(0, 1, cells + 1)], float)
+            quads = [(row * (cells + 1) + column, row * (cells + 1) + column + 1, (row + 1) * (cells + 1) + column + 1, (row + 1) * (cells + 1) + column)
+                     for row in range(cells) for column in range(cells)]
+            wound = [face[::facing] for a, b, c, d in quads for face in ((a, b, c), (a, c, d))]
+            return corners, np.array(wound)
+        detail, small = sheet(0.0); stray = np.array([[0.0, -0.05, 0.0], [1.0, -0.05, 0.0], [1.0, -0.05, 1.0]])  # half a square metre, 5 cm in front
+        vertices = np.concatenate([detail, stray]); faces = np.concatenate([small, [[len(detail), len(detail) + 1, len(detail) + 2]]])
+        found = convert.veils(vertices, faces)
+        self.assertEqual([(one['m2'], one['at']) for one in found], [(0.5, [0.67, -0.05, 0.33])])
+        self.assertGreater(found[0]['covers'], 0.8)
+        self.assertEqual(convert.veils(detail, small), [])  # the detail alone
+        # Relief standing proud of a wall is no veil, and stays none when every face is given a back (`inside`).
+        wall = np.array([[0.0, 0.05, 0.0], [1.0, 0.05, 0.0], [1.0, 0.05, 1.0]]); proud = np.concatenate([detail, wall]); relief = np.concatenate([small, [[len(detail), len(detail) + 1, len(detail) + 2]]])
+        self.assertEqual(convert.veils(proud, relief), [])
+        both = convert.backed(proud, np.zeros_like(proud), np.zeros((len(proud), 2)), relief)
+        self.assertEqual(convert.veils(both[0], both[3]), [])
+        twice = convert.backed(vertices, np.zeros_like(vertices), np.zeros((len(vertices), 2)), faces)  # and a veil is told once, not once more for its back
+        self.assertEqual(convert.veils(twice[0], twice[3]), found)
+        self.assertEqual(convert.veils(stray, np.array([[0, 1, 2]])), [])  # a plain wall, nothing behind it
+        back, inward = sheet(0.0, facing=-1)  # the far side of a thin wall looks the other way: no window behind the face
+        self.assertEqual(convert.veils(np.concatenate([back, stray]), np.concatenate([inward, [[len(back), len(back) + 1, len(back) + 2]]])), [])
+        far, deep = sheet(1.0)  # detail a metre behind is another wall of the building
+        self.assertEqual(convert.veils(np.concatenate([far, stray]), np.concatenate([deep, [[len(far), len(far) + 1, len(far) + 2]]])), [])
+
     def test_what_stands_in_a_cleared_box_is_taken_away_and_the_floor_stays(self):
         """The Saeder-Krupp yard's bay had a railed-off square under a metre from the vehicle beside it, too narrow a
         way into the back of the bay (user, 2026-11-12)."""
@@ -309,8 +381,19 @@ class ConvertTests(unittest.TestCase):
         self.assertEqual(placed.call_count, 1)  # the glow's map of places serves the retouching: both are 512 texels across
         sheet = {'from': [-0.5, 0.0], 'to': [0.5, 0.0], 'z': [0.5, 1.5], 'pitch': 0.09, 'wire': 0.016}
         self.assertGreater(len(convert.shape(model, maps, height=2.0, fence=[sheet])['wire']['faces']), 0)
+        # A frame's steel is toned from the picture as it ships: a model toned down has its fence toned down with it.
+        post = [{'tube': [[-0.5, 0.0, 0.0], [-0.5, 0.0, 1.6]], 'radius': 0.03, 'picture': [0.0, 0.0, 1.0]}]
+        steel = lambda made: float(np.asarray(made['wire']['image'])[200:, 180:300, :3].mean())
+        as_made, toned = (convert.shape(model, maps, height=2.0, fence=[sheet], frame=post, sight=False, **more) for more in ({}, {'tone': 0.5}))
+        self.assertAlmostEqual(steel(toned) / steel(as_made), 0.5, delta=0.05)
         with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):  # measured before a turn: it would hang beside the wall
             convert.shape(model, maps, height=2.0, fence=[{**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
+        # A frame's own upright posts hold a fence up where the model has nothing: a rail along it holds up neither end.
+        aside = {**sheet, 'part': 'east side', 'from': [1.5, -0.5], 'to': [1.5, 0.5]}; points, _, _, _, _ = convert.fit(*convert.read_glb(model)[:3], 2.0); corners = convert.read_glb(model)[3]
+        post = lambda y: {'tube': [[1.5, y, 0.4], [1.5, y, 1.6]], 'radius': 0.04, 'picture': [0.0, 0.0, 1.0]}
+        convert._hung(points, corners, [aside], [post(-0.5), post(0.5)])
+        with self.assertRaisesRegex(ValueError, 'hangs between posts.*east side'):
+            convert._hung(points, corners, [aside], [post(-0.5), {'tube': [[1.5, -0.5, 1.5], [1.5, 0.5, 1.5]], 'radius': 0.02, 'picture': [0.0, 0.0, 1.0]}])
         with mock.patch.object(glow, 'position_map', wraps=glow.position_map) as placed:  # and it is said before the long work on the pictures
             with self.assertRaisesRegex(ValueError, 'hangs between posts'):
                 convert.shape(model, maps, height=2.0, lit=whole, paint=cover, fence=[{**sheet, 'from': [1.5, -0.5], 'to': [1.5, 0.5]}])
@@ -344,6 +427,495 @@ class ConvertTests(unittest.TestCase):
         fixed, count = convert.repair_normals(vertices, normals, np.array(WALL['faces']))
         self.assertEqual(count, 2); np.testing.assert_allclose(np.linalg.norm(fixed, axis=1), 1.0)
         np.testing.assert_allclose(fixed[1], [0, 1, 0], atol=1e-9)
+
+    def test_a_normal_that_points_against_its_faces_is_turned_round(self):
+        """The rail yard's boxcar (2026-11-13): a sixth of it carried normals against its winding and shaded dark."""
+        vertices = np.array(WALL['vertices'], float) @ convert.TO_GAME.T; faces = np.array(WALL['faces'])
+        right = convert.repair_normals(vertices, np.zeros((len(vertices), 3)), faces)[0]
+        wrong = right.copy(); wrong[[0, 2]] *= -1
+        fixed, turned = convert.turn_normals(vertices, wrong, faces)
+        self.assertEqual(turned, 2); np.testing.assert_allclose(fixed, right, atol=1e-9)
+        self.assertEqual(convert.turn_normals(vertices, right, faces)[1], 0)  # a model drawn right is left alone
+
+    def test_a_model_named_like_a_file_of_another_is_refused(self):
+        """The rail yard (2026-11-13): a copy of the office named ek_rf_admin_s would have written over its shine map."""
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        for clash in ('ek_x_s', 'ek_x_n', 'ek_x_h', 'ek_x_t00', 'ek_xp1'):
+            models = {'ek_x': {'source': 'meshy/x', 'height': 3.0, 'measuredAt': 3.0, 'tiles': {**group, 'parts': [{'model': 'ek_y', 'at': [5, 0, 0]}]}},
+                      'ek_y': {'source': 'meshy/y', 'height': 1.0}, clash: {'source': 'meshy/x', 'height': 3.0}}
+            path = self.root / 'set.json'; path.write_text(json.dumps({'models': models}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'named like a file of ek_x'):
+                convert.load_models(path)
+        models['ek_xs'] = models.pop(clash); path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIn('ek_xs', convert.load_models(path))
+        models['ek_x_tower'] = models.pop('ek_xs'); path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIn('ek_x_tower', convert.load_models(path))  # only ek_x_t<row><column> is a tile's name (review, 2026-11-14)
+
+    def test_a_model_laid_underfoot_is_a_part_and_never_a_group(self):
+        """The rail freight depot (2026-11-13): its tracks are parts laid underfoot, walked across and run off its edges."""
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        models = {'ek_x': {'source': 'meshy/x', 'height': 3.0, 'measuredAt': 3.0, 'tiles': {**group, 'parts': [{'model': 'ek_y', 'at': [5, 0, 0]}]}},
+                  'ek_y': {'source': 'track/y', 'height': 0.3, 'underfoot': True}}
+        path = self.root / 'set.json'; path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        self.assertIs(convert.load_models(path)['ek_y']['underfoot'], True)
+        for change in ({'ek_y': {**models['ek_y'], 'underfoot': False}}, {'ek_y': {**models['ek_y'], 'underfoot': 'yes'}}, {'ek_x': {**models['ek_x'], 'underfoot': True}}):
+            path.write_text(json.dumps({'models': {**models, **change}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'underfoot is true'):
+                convert.load_models(path)
+
+    def test_a_lit_prop_says_whether_it_casts_light(self):
+        """The Chop Shop clinic's surgical lamp (2026-11-14) was converted with glowing lenses and no light: a lit
+        prop's placeable names a light for what should be bright, or null for what only glows."""
+        lamp = {'source': 'meshy/x', 'height': 2.0, 'measuredAt': 2.0, 'lit': [{'box': [[0, 0, 1], [1, 1, 2]]}]}; placed = {'label': 'Lamp', 'sound': 28}
+        path = self.root / 'set.json'; given = lambda model: path.write_text(json.dumps({'models': {'ek_x': model}}), encoding='utf-8')
+        given({**lamp, 'placeable': placed})
+        with self.assertRaisesRegex(ValueError, 'says whether it lights what stands round it'):
+            convert.load_models(path)
+        for light in (None, {'colour': 3, 'at': [0.0, 0.5, 1.4]}):
+            given({**lamp, 'placeable': {**placed, 'light': light}}); self.assertEqual(convert.load_models(path)['ek_x']['placeable']['light'], light)
+        given({'source': 'meshy/x', 'height': 2.0, 'placeable': placed}); convert.load_models(path)  # a prop with nothing lit has nothing to say
+        given({**lamp, 'tiles': {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}}); convert.load_models(path)  # nor a building, lit by its tile
+
+    def test_a_face_seen_from_behind_is_turned_round(self):
+        """The rail yard (2026-11-13): faces wound inward were holes onto whatever stood behind them."""
+        corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)
+        cube = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+        quick = {'cells': 32, 'views': 24}; front, back, whole = convert.seen(corners, cube, **quick)
+        # drawn right all round: seen from the front, but for the few pixels where a near face's spots miss and the far side shows
+        self.assertTrue((front > 0).all()); self.assertLess(back.sum(), 0.05 * front.sum()); self.assertEqual(convert.turn_faces(corners, cube, **quick)[1], 0)
+        self.assertLess(abs(front.sum() / whole.sum() - 0.5), 0.1)  # of all it would show, half is in front of the rest
+        inside_out = cube.copy(); inside_out[[2, 3, 10, 11]] = inside_out[[2, 3, 10, 11]][:, [0, 2, 1]]
+        fixed, turned = convert.turn_faces(corners, inside_out, **quick)
+        self.assertEqual(turned, 4); np.testing.assert_array_equal(fixed, cube)
+        # A liner wound inward, a few centimetres inside the skin, is never seen and stays as it is: judged by the open
+        # air on either side, the first attempt turned such liners outward.
+        liner = np.vstack([corners, (corners - 0.5) * 0.97 + 0.5]); walls = np.vstack([cube, (cube + 8)[:, [0, 2, 1]]])
+        self.assertEqual(convert.turn_faces(liner, walls, **quick)[1], 0)
+        # A sheet seen from both sides is a sign or a fence: it is not the eye's to say which way it faces.
+        sheet = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float)
+        for faces in ([[0, 1, 2], [0, 2, 3]], [[0, 2, 1], [0, 3, 2]]):
+            self.assertEqual(convert.turn_faces(sheet, np.array(faces), **quick)[1], 0)
+        # A side made of two faces back to back, one drawn outward and one inward on the same plane, stays so: the
+        # inward one ties with the outward one from outside and was turned onto it (the rail yard's models, 2026-11-13).
+        backed = np.vstack([cube, cube[:2][:, [0, 2, 1]]])
+        self.assertEqual(convert.turn_faces(corners, backed, **quick)[1], 0)
+        np.testing.assert_array_equal(convert.back_to_back(corners, backed, np.ones(len(backed), bool)), [True, True] + [False] * 10 + [True, True])
+        # ... but not one a few centimetres inside, nor one wound inward with no face over it.
+        inner = np.vstack([corners, corners + [0.03, 0.0, 0.0]])
+        self.assertFalse(convert.back_to_back(inner, np.vstack([cube, (cube[:2] + 8)[:, [0, 2, 1]]]), np.ones(14, bool))[12:].any())
+        self.assertFalse(convert.back_to_back(corners, inside_out, np.ones(12, bool)).any())
+        # A box with its lid off is seen into from above: the patch of its floor seen from behind is told, with the way
+        # it was looked at. A whole box shows none (the Chop Shop clinic's bin, dumpster and lamp, 2026-11-14).
+        whole, open_top = [], []; convert.seen(corners, cube, holes=whole, **quick)
+        lidless = cube[[index for index, face in enumerate(cube) if not (corners[face][:, 2] == 1).all()]]; convert.seen(corners, lidless, holes=open_top, **quick)
+        self.assertEqual(max(whole)[0], 0.0); area, way = max(open_top)
+        self.assertGreater(area, 0.5); self.assertLess(area, 1.1); self.assertGreater(way[2], 0.8)  # most of its square metre, from overhead
+
+    def test_a_box_drawn_from_outside_only_is_given_backs(self):
+        """The rail yard's dumpster (2026-11-13): through the gaps of its slatted lid the client showed what stood
+        behind it, its far walls not drawn from inside."""
+        corners = np.array([[x, y, z] for x in (0, 1) for y in (0, 1) for z in (0, 1)], float)
+        cube = np.array([[0, 1, 3], [0, 3, 2], [4, 6, 7], [4, 7, 5], [0, 4, 5], [0, 5, 1], [2, 3, 7], [2, 7, 6], [0, 2, 6], [0, 6, 4], [1, 5, 7], [1, 7, 3]])
+        normals = corners - 0.5; uvs = corners[:, :2]
+        points, turned, places, faces = convert.backed(corners, normals, uvs, cube)
+        self.assertEqual((len(points), len(faces)), (16, 24))
+        np.testing.assert_array_equal(points[8:], corners); np.testing.assert_array_equal(turned[8:], -normals); np.testing.assert_array_equal(places[8:], uvs)
+        # each back faces the other way from its face, on the same corners
+        of = lambda f: np.cross(points[f[:, 1]] - points[f[:, 0]], points[f[:, 2]] - points[f[:, 0]])
+        np.testing.assert_allclose(of(faces[12:]), -of(faces[:12]))
+        self.assertTrue((np.einsum('ij,ij->i', of(faces[12:]), turned[faces[12:, 0]]) > 0).all())  # normals agree with the backs' winding
+        # the game set says so with `inside: true`, and nothing else
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for value, ok in ((True, True), (False, False), ('yes', False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 1.0, 'inside': value}}}), encoding='utf-8')
+            if ok:
+                self.assertIs(convert.load_models(path)['ek_x']['inside'], True)
+            else:
+                with self.assertRaisesRegex(ValueError, 'inside is true'):
+                    convert.load_models(path)
+
+    def test_a_cars_trucks_are_drawn_in_to_the_track_and_the_body_is_left_as_it_was(self):
+        """The rail yard's cars (2026-11-13): their wheels stood 0.15 to 0.2 m outside the rails."""
+        points = np.array([[0.0, 0.85, 0.5], [0.0, -0.85, 0.5], [0.0, 1.5, 2.0], [0.0, 0.85, 1.075], [9.0, 0.85, 0.5], [3.075, 0.85, 0.5]])
+        normals = np.tile([0.0, 0.6, 0.8], (len(points), 1))
+        moved, turned = convert.gauged(points, normals, {'spans': [[-3.0, 3.0]], 'top': 1.0, 'back': 0.85})
+        np.testing.assert_allclose(moved[:2, 1], [convert.WHEEL_BACK, -convert.WHEEL_BACK])  # the wheels' backs at gauge, either side
+        np.testing.assert_allclose(moved[[2, 4], 1], [1.5, 0.85])  # the body above and what is beyond the trucks stay
+        self.assertTrue(convert.WHEEL_BACK < moved[3, 1] < 0.85 and convert.WHEEL_BACK < moved[5, 1] < 0.85)  # eased back over the blend
+        np.testing.assert_allclose(moved[:, [0, 2]], points[:, [0, 2]])
+        np.testing.assert_allclose(np.linalg.norm(turned, axis=1), 1.0)
+        self.assertGreater(turned[0, 1], 0.6)  # a surface drawn in across leans its normal further across
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for wheels, ok in (({'spans': [[-3, 3]], 'top': 1.3, 'back': 0.85}, True), ({'spans': [[3, -3]], 'top': 1.3, 'back': 0.85}, False),
+                           ({'spans': [[-3, 3]], 'top': 1.3, 'back': 2.0}, False), ({'spans': [[-3, 3]], 'top': 1.3}, False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'wheels': wheels, 'measuredAt': 4.0}}}), encoding='utf-8')
+            if ok:
+                self.assertEqual(convert.load_models(path)['ek_x']['wheels'], wheels)
+            else:
+                with self.assertRaisesRegex(ValueError, 'wheels are'):
+                    convert.load_models(path)
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'wheels': {'spans': [[-3, 3]], 'top': 1.3, 'back': 0.85}}}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'measuredAt'):
+            convert.load_models(path)  # spans and top are measured on the model as it stands
+
+    def test_a_hole_is_filled_from_its_rim_and_faces_the_way_the_wall_does(self):
+        """The rail yard's crane leg sills and warehouse wall (2026-11-13): holes of 12 to 16 corners."""
+        turns = np.linspace(0, 2 * np.pi, 8, endpoint=False)  # an octagonal hole in a wall of radius 3 facing -y
+        vertices = np.array([[r * np.cos(a), 0.0, r * np.sin(a) + 2] for r in (1, 3) for a in turns], float)
+        normals = np.tile([0.0, -1.0, 0.0], (16, 1)); uvs = np.zeros((16, 2))
+        faces = np.array([face for k in range(8) for face in ([k, (k + 1) % 8, 8 + k], [(k + 1) % 8, 8 + (k + 1) % 8, 8 + k])])
+        before = len(faces)
+        filled = convert.filled(vertices, normals, uvs, faces, [{'part': 'octagon', 'at': [1.0, 0.0, 2.0]}])
+        self.assertEqual(len(filled[0]), 16)  # no vertex is added
+        made = filled[3][before:]
+        self.assertEqual(len(made), 6)  # an eight-cornered ring takes six faces between its own corners
+        self.assertTrue(set(made.ravel()) <= set(range(8)))
+        across = np.cross(vertices[made[:, 1]] - vertices[made[:, 0]], vertices[made[:, 2]] - vertices[made[:, 0]])
+        self.assertTrue((across[:, 1] < 0).all())  # wound to face -y, as the wall's normals do
+        with self.assertRaisesRegex(ValueError, 'No hole'):  # a point near no rim is a mistake in the set
+            convert.filled(vertices, normals, uvs, faces, [{'at': [0.0, 0.0, 2.0]}])
+        # The Chop Shop clinic's back wall (2026-11-14): a fill between corners drawn far apart on the picture showed a
+        # streak of what lies between them. With `picture` it has corners of its own, all at that point's place.
+        uvs = np.array([[k / 16, 0.5] for k in range(16)])
+        points, facing, places, drawn = convert.filled(vertices, normals, uvs, faces, [{'at': [1.0, 0.0, 2.0], 'picture': [2.0, 0.0, 2.0]}])
+        made = drawn[before:]
+        self.assertEqual((len(points), len(made)), (24, 6)); self.assertTrue(set(made.ravel()) <= set(range(16, 24)))
+        np.testing.assert_allclose(places[16:], np.tile(convert.picture_at(vertices, uvs, faces, [2.0, 0.0, 2.0]), (8, 1)))
+        np.testing.assert_allclose(np.sort(points[16:], axis=0), np.sort(vertices[:8], axis=0)); np.testing.assert_allclose(facing[16:], normals[:8])
+        across = np.cross(points[made[:, 1]] - points[made[:, 0]], points[made[:, 2]] - points[made[:, 0]])
+        self.assertTrue((across[:, 1] < 0).all()); np.testing.assert_array_equal(drawn[:before], faces)
+
+    def test_only_the_faces_in_a_box_are_given_backs(self):
+        """The rail yard's crane sills (2026-11-13) had faces wound inward."""
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 0, 1], [5, 0, 0], [6, 0, 0], [5, 0, 1]], float)
+        normals = np.tile([0.0, -1.0, 0.0], (6, 1)); uvs = np.zeros((6, 2)); faces = np.array([[0, 1, 2], [3, 4, 5]])
+        v, n, u, f = convert.backed(vertices, normals, uvs, faces, [{'box': [[4, -1, -1], [7, 1, 2]]}])
+        self.assertEqual(len(f), 3); np.testing.assert_array_equal(v[f[2]], vertices[[3, 5, 4]])  # the far face again, wound the other way
+        np.testing.assert_array_equal(n[f[2]], -normals[[3, 5, 4]])
+        self.assertEqual(len(convert.backed(vertices, normals, uvs, faces)[3]), 4)  # without boxes every face is backed
+        with self.assertRaisesRegex(ValueError, 'holds no face'):
+            convert.backed(vertices, normals, uvs, faces, [{'box': [[10, -1, -1], [11, 1, 2]]}])
+
+    def test_a_rod_clears_a_slanted_rail_and_leaves_the_treads_under_it(self):
+        """The rail yard's stair tower (2026-11-13): wavy handrails along its flights."""
+        rail = [[x, 0.0, 1.0 + x] for x in (0.0, 0.1, 2.0, 2.1)]; tread = [[1.0, -0.5, 0.0], [1.2, -0.5, 0.0], [1.2, 0.5, 0.0]]
+        vertices = np.array(rail + tread, float); normals = np.tile([0.0, 0.0, 1.0], (7, 1)); uvs = np.zeros((7, 2))
+        faces = np.array([[0, 1, 2], [1, 3, 2], [4, 5, 6]])
+        _, _, _, kept = convert.cleared(vertices, normals, uvs, faces, [{'from': [0, 0, 1], 'to': [2, 0, 3], 'radius': 0.3}])
+        self.assertEqual(len(kept), 1)  # only the tread is left
+        with self.assertRaisesRegex(ValueError, 'takes no face'):
+            convert.cleared(vertices, normals, uvs, faces, [{'from': [0, 3, 1], 'to': [2, 3, 3], 'radius': 0.3}])
+
+    def test_a_moved_part_is_carried_whole_and_what_tied_it_on_is_taken_away(self):
+        """The rail yard's walkway (2026-11-13): a leg 1.7 m in from its corner."""
+        leg = [[0, 0, 0], [0.1, 0, 0], [0.1, 0, 1]]; deck = [[-1, -1, 2], [3, -1, 2], [3, 1, 2]]
+        vertices = np.array(leg + deck, float); normals = np.tile([0.0, 0.0, 1.0], (6, 1)); uvs = np.arange(12, dtype=float).reshape(6, 2)
+        faces = np.array([[0, 1, 2], [3, 4, 5], [2, 1, 3]])  # the leg, the deck and a brace from the leg's top to the deck
+        v, n, u, f = convert.moved(vertices, normals, uvs, faces, [{'box': [[-0.1, -0.1, -0.1], [0.2, 0.1, 1.1]], 'by': [2, 0, 0]}])
+        self.assertEqual(len(f), 2)  # the brace, torn between box and deck, goes
+        shifted = [face for face in f if v[face][:, 0].min() >= 1.9 and v[face][:, 2].max() <= 1.0]
+        self.assertEqual(len(shifted), 1); np.testing.assert_allclose(sorted(map(tuple, v[shifted[0]])), sorted(map(tuple, np.array(leg) + [2, 0, 0])))
+        self.assertEqual(len(v), 6)  # the leg's old corners are let go
+        with self.assertRaisesRegex(ValueError, 'holds no whole face'):
+            convert.moved(vertices, normals, uvs, faces, [{'box': [[5, 5, 5], [6, 6, 6]], 'by': [1, 0, 0]}])
+
+    def test_built_stairs_and_railings_are_straight_steel_coloured_from_the_model(self):
+        """The rail yard's walkway had no stairs up to its deck, and its stair tower's rails were wavy (2026-11-13)."""
+        members = convert.flight([0, -3, 0], [0, 0, 2.13], 0.9)
+        treads = [m for m in members if m[3] == 'tread']; posts = [m for m in members if m[3] == 'post']
+        rises = 2.13 / (len(treads) + 1)
+        self.assertLessEqual(rises, convert.STEP_RISE); self.assertEqual(len(treads), int(np.ceil(2.13 / convert.STEP_RISE)) - 1)
+        self.assertEqual(sum(m[3] == 'stringer' for m in members), 2)
+        self.assertTrue(all(np.linalg.norm(np.subtract(m[1], m[0])[:2]) <= 1e-9 for m in posts))  # posts stand upright
+        rails = convert.railing([[0, 0, 0], [2.5, 0, 0], [2.5, 1, 0]], height=1.0)
+        self.assertEqual(sum(m[3] == 'rail' for m in rails), 4)  # a top and a mid rail on each leg
+        spots = sorted({tuple(np.round(m[0][:2], 3)) for m in rails if m[3] == 'post'})
+        self.assertIn((0.0, 0.0), spots); self.assertIn((2.5, 0.0), spots); self.assertIn((2.5, 1.0), spots)  # a post at every corner
+        self.assertEqual(len(spots), len(set(spots)))
+        points, normals, faces = convert._bar([0, 0, 0], [1, 0, 0], (0.1, 0.2))
+        self.assertEqual((len(points), len(faces)), (24, 12)); np.testing.assert_allclose(np.ptp(points, axis=0), [1, 0.1, 0.2])
+        across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue(((across * normals[faces[:, 0]]).sum(1) > 0).all())  # every face wound outward
+        # The colour is the model's picture where `picture` touches it.
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [5, 0, 0], [6, 0, 0], [5, 1, 0]], float)
+        uvs = np.array([[0.1, 0.1]] * 3 + [[0.9, 0.9]] * 3); base = np.array([[0, 1, 2], [3, 4, 5]])
+        np.testing.assert_allclose(convert.picture_at(vertices, uvs, base, [5.2, 0.2, 0.3]), [0.9, 0.9])
+        v, n, u, f = convert.with_built(vertices, np.tile([0.0, 0.0, 1.0], (6, 1)), uvs, base,
+                                        [{'railing': [[0, 0, 0], [1, 0, 0]], 'height': 1.0, 'picture': [0.2, 0.2, 0]},
+                                         {'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2.13], 'width': 0.9}, 'picture': [0.2, 0.2, 0], 'rails': [5.2, 0.2, 0]}])
+        self.assertEqual(len(f), 2 + 12 * (len(convert.railing([[0, 0, 0], [1, 0, 0]], 1.0)) + len(members)))
+        stair_uvs = u[len(u) - 24 * len(members):]; kinds = [m[3] for m in members for _ in range(24)]
+        np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind in ('rail', 'post')]], 0.9)
+        np.testing.assert_allclose(stair_uvs[[k for k, kind in enumerate(kinds) if kind == 'tread']], 0.1)
+
+    def test_a_map_compressed_before_is_copied_not_compressed_again(self):
+        """A group built again for its fence or its nodes compressed every map again (2026-11-17)."""
+        from unittest import mock
+        from PIL import Image
+        folder = Path(tempfile.mkdtemp()); runs = []
+        def run(command, **said):
+            runs.append(command); Path(command[command.index('-out') + 1]).write_bytes(b'DDS ' + str(len(runs)).encode())
+            return mock.Mock(returncode=0, stdout='', stderr='')
+        picture = Image.new('RGB', (8, 8), (10, 20, 30))
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'kept'), mock.patch.object(convert.subprocess, 'run', side_effect=run), mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            first = convert._compress(picture, folder / 'a.dds', '-DXT1', 8, 'crunch', data=False).read_bytes()
+            again = convert._compress(picture, folder / 'b.dds', '-DXT1', 8, 'crunch', data=False).read_bytes()
+            self.assertEqual((first, again, len(runs)), (b'DDS 1', b'DDS 1', 1))
+            convert._compress(picture, folder / 'c.dds', '-DXT1', 8, 'crunch', data=True); self.assertEqual(len(runs), 2)  # another gamma is another map
+            convert._compress(Image.new('RGB', (8, 8), (10, 20, 31)), folder / 'd.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 3)
+            environment['ENVKIT_NO_CACHE'] = '1'
+            convert._compress(picture, folder / 'e.dds', '-DXT1', 8, 'crunch', data=False); self.assertEqual(len(runs), 4)
+        self.assertFalse(list(folder.glob('*.png')))
+        # All but the last used are taken away: every retouched colour map of a building is another 11 to 22 MB.
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'few'), mock.patch.object(convert, 'COMPRESSED_KEPT', 2), mock.patch.object(convert.subprocess, 'run', side_effect=run), \
+                mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            for shade in range(3):
+                convert._compress(Image.new('RGB', (8, 8), (shade, 0, 0)), folder / f'f{shade}.dds', '-DXT1', 8, 'crunch', data=False)
+        self.assertEqual(len(list((folder / 'few').iterdir())), 2)
+        # Two workers that compress the same picture the same way each stage their copy in a file of their own: here
+        # the second stages and keeps its copy while the first is about to rename its own.
+        folder = Path(tempfile.mkdtemp()); runs.clear(); rename = Path.replace; nested = []
+        def replace(part, kept):
+            if not nested:
+                nested.append('second.dds'); convert._compress(picture, folder / nested[0], '-DXT5A', 8, 'crunch', data=True)
+            return rename(part, kept)
+        with mock.patch.object(convert, 'COMPRESSED', folder / 'kept'), mock.patch.object(convert.subprocess, 'run', side_effect=run), \
+                mock.patch.object(Path, 'replace', autospec=True, side_effect=replace), mock.patch.dict('os.environ', clear=False) as environment:
+            environment.pop('ENVKIT_NO_CACHE', None)
+            convert._compress(picture, folder / 'first.dds', '-DXT5A', 8, 'crunch', data=True)
+        self.assertEqual((len(runs), len(nested), len(list((folder / 'kept').glob('*.dds')))), (2, 1, 1)); self.assertFalse(list((folder / 'kept').glob('*.part')))
+
+    def test_a_perimeter_is_the_posts_rails_sheets_and_coils_of_its_fence(self):
+        """The power station's fence was 46 built parts and 6 fences written by a script (2026-11-17)."""
+        spec = {'box': [[-9.45, -7.0], [9.45, 7.0]], 'z': [0.31, 2.81], 'steel': [9.22, 0.64, 1.53], 'concrete': [0.0, 4.8, 0.31],
+                'gateways': [{'side': 'north', 'from': -7.5, 'to': -2.5}, {'side': 'north', 'from': 3.5, 'to': 6.5}]}
+        built, fence = convert.perimeter(spec)
+        self.assertEqual([one['part'] for one in fence], ['north 1 fence', 'north 2 fence', 'north 3 fence', 'east fence', 'south fence', 'west fence'])
+        self.assertEqual((fence[0]['from'], fence[0]['to'], fence[0]['z']), ([-9.45, 7.0], [-7.5, 7.0], [0.41, 2.81]))
+        self.assertEqual((fence[3]['from'], fence[3]['to']), ([9.45, 7.0], [9.45, -7.0])); self.assertEqual((fence[0]['pitch'], fence[0]['wire']), (0.09, 0.016))
+        posts = [one for one in built if one['part'].endswith('fence post')]; gate = [one for one in built if one['part'] == 'gateway post']
+        self.assertEqual(len({tuple(one['tube'][0]) for one in posts}), len(posts))  # a corner has one post, not one for each side
+        self.assertTrue(all(one['cap'] and one['radius'] in (convert.PERIMETER_POST, convert.PERIMETER_END) for one in posts))
+        self.assertEqual({one['radius'] for one in posts if one['tube'][0][:2] in ([-9.45, 7.0], [9.45, -7.0])}, {convert.PERIMETER_END})  # stouter at a corner
+        self.assertEqual(sorted(one['block'][0][0] for one in gate), [-7.5, -2.5, 3.5, 6.5]); self.assertTrue(all(one['picture'] == spec['concrete'] and one['size'] == 0.35 for one in gate))
+        self.assertFalse(any(one['tube'][0][:2] == [-7.5, 7.0] for one in posts))  # a gateway's end is its concrete post
+        finer = convert.perimeter({**spec, 'gateways': [{'side': 'north', 'from': -7.455, 'to': -2.5}]})  # and where its edge is stated finer than the fence is built
+        self.assertFalse(any(one['tube'][0][:2] == [-7.46, 7.0] for one in finer[0] if 'tube' in one and one['part'].endswith('fence post')))
+        self.assertEqual((finer[1][0]['to'], [one['block'][0][0] for one in finer[0] if 'block' in one]), ([-7.46, 7.0], [-7.46, -2.5]))
+        self.assertEqual(sum('coil' in one for one in built), 6); self.assertEqual(sum(one['part'].endswith('rail') for one in built), 12)
+        self.assertTrue(all(one['coil'][0][2] == 2.81 + 0.25 for one in built if 'coil' in one))
+        spans = [np.hypot(*np.subtract(b['tube'][0][:2], a['tube'][0][:2])) for a, b in zip(posts, posts[1:]) if a['part'] == b['part']]
+        self.assertLessEqual(max(spans), convert.PERIMETER_POSTS + 1e-6)
+        self.assertEqual(sum('coil' in one for one in convert.perimeter({**spec, 'coil': False})[0]), 0)
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'perimeter': spec, 'measuredAt': 4.0}}}), encoding='utf-8')
+        loaded = convert.load_models(path)['ek_x']; self.assertEqual((loaded['frame'], loaded['fence']), (built, fence)); self.assertNotIn('built', loaded)
+        mixed = {'source': 'a', 'height': 4.0, 'measuredAt': 4.0, 'fence': fence[:1], 'frame': [built[0], {**built[1], 'picture': [0.0, 0.0, 1.0]}]}  # `shape` tones all its steel from one point
+        path.write_text(json.dumps({'models': {'ek_x': mixed}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'toned from one point'):
+            convert.load_models(path)
+        for wrong in ({**spec, 'gateways': [{'side': 'north', 'from': -12.0, 'to': -8.0}]}, {**spec, 'gateways': [{'side': 'up', 'from': 0, 'to': 2}]},
+                      {key: value for key, value in spec.items() if key != 'concrete'}, {**spec, 'z': [0.3, 0.5]}, {**spec, 'height': 2}):
+            with self.assertRaises(ValueError):
+                convert.perimeter(wrong)
+
+    def test_a_building_ships_its_relief_at_full_size(self):
+        """User, 2026-11-17: full 4K normals for buildings; props keep theirs at half."""
+        self.assertEqual([convert.relief_size(one) for one in (512, 1024, 2048, 4096)], [256, 512, 1024, 4096])
+        from unittest import mock
+        from PIL import Image
+        folder = Path(tempfile.mkdtemp()); sizes = {}; maps = {}
+        for key in ('base_color', 'normal', 'metallic', 'roughness'):
+            maps[key] = folder / f'{key}.png'; Image.new('RGB', (16, 16), (128, 128, 255)).save(maps[key])
+        def packed(image, path, mode, size, crunch, *, data):
+            sizes[Path(path).name] = size; return Path(path)
+        with mock.patch.object(convert, '_compress', side_effect=packed):
+            convert.textures('ek_x', maps, folder / 'out', 'crunch', colour=4096)
+        self.assertEqual(sizes, {'ek_x.dds': 4096, 'ek_x_n.dds': 4096, 'ek_x_s.dds': 2048, 'ek_x_r.dds': 2048})
+        notes = convert.oversize_notes({'ek_x.dds': 11184952, 'ek_x_n.dds': 22369776})  # and such a relief map is more than the repository takes unstated
+        self.assertEqual(len(notes), 1); self.assertIn('ek_x_n.dds: 21.3 MiB', notes[0]); self.assertIn('srn-size-exception', notes[0])
+        # Nor are the fences built on to a group part of its building's count: they are told where the tiles draw more than the budget with them.
+        self.assertEqual((convert.fence_notes('ek_x', 181833, 16696, 200000), convert.fence_notes('ek_x', 201000, 0, 200000)), ([], []))
+        self.assertIn('211696 triangles, 16696 of them fence', convert.fence_notes('ek_x', 195000, 16696, 200000)[0])
+
+    def test_a_fences_frame_is_round_posts_and_capped_blocks_on_a_picture_of_steel_and_concrete(self):
+        """The first perimeter's posts were square bars in one flat colour (user, 2026-11-17: "the posts for the fences
+        needs to be better than a square pole and they don't even look like they have any texture applied")."""
+        points, normals, uvs, faces = convert.tube([1.0, 2.0, 0.0], [1.0, 2.0, 2.5], 0.05, cap=True)
+        middle = points.mean(0); out = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue((((points[faces].mean(1) - [1.0, 2.0, middle[2]]) * out).sum(1) > 0).all())  # every face looks outward
+        self.assertTrue((np.linalg.norm(out, axis=1) > 0).all()); np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0)
+        side = points[:, 2] <= 2.5 + 1e-9; np.testing.assert_allclose(np.hypot(points[side, 0] - 1.0, points[side, 1] - 2.0), 0.05)  # round
+        self.assertGreater(points[:, 2].max(), 2.5); self.assertEqual(len(faces), convert.FRAME_SIDES * 5)  # its side, and a dome over it
+        self.assertEqual((float(uvs.min()), float(uvs.max())), (0.0, 1.0)); self.assertEqual(len(convert.tube([0, 0, 1], [3, 0, 1], 0.02)[3]), convert.FRAME_SIDES * 2)
+        points, normals, uvs, faces = convert.block([0.0, 0.0, 0.3], [0.0, 0.0, 2.9], 0.35)
+        out = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue(((out * normals[faces[:, 0]]).sum(1) > 0).all()); self.assertAlmostEqual(float(np.abs(points[:, 0]).max()), 0.175 + convert.FRAME_CAP[0])
+        self.assertAlmostEqual(float(points[:, 2].max()), 2.9 + convert.FRAME_CAP[1] + convert.FRAME_CAP[2])
+        fences = [{'from': [0.0, 0.0], 'to': [2.0, 0.0], 'z': [0.0, 2.0], 'pitch': 0.09, 'wire': 0.016}]
+        frame = [{'tube': [[0.0, 0.0, 0.0], [0.0, 0.0, 2.1]], 'radius': 0.05, 'cap': True, 'picture': [0, 0, 0]}, {'tube': [[0.0, 0.0, 2.0], [2.0, 0.0, 2.0]], 'radius': 0.02, 'picture': [0, 0, 0]},
+                 {'coil': [[0.0, 0.0, 2.3], [2.0, 0.0, 2.3]], 'radius': 0.25, 'pitch': 0.5, 'picture': [0, 0, 0]}, {'block': [[2.0, 0.0, 0.0], [2.0, 0.0, 2.2]], 'size': 0.35, 'picture': [0, 0, 0]}]
+        bare = convert.sheets(fences); wire = convert.sheets(fences, frame=frame, colours={'steel': (120, 124, 128)})
+        image = np.asarray(wire['image']); size = convert.WIRE_PICTURE * convert.FRAME_SHEET; self.assertEqual(image.shape, (size, size, 4))
+        np.testing.assert_array_equal(image[:convert.WIRE_PICTURE, :convert.WIRE_PICTURE], np.asarray(bare['image']))  # the wires in its first corner, as they were
+        count = len(bare['vertices']); np.testing.assert_allclose(wire['uvs'][:count], bare['uvs'] / convert.FRAME_SHEET); np.testing.assert_allclose(wire['vertices'][:count], bare['vertices'])
+        for kind, (u0, u1) in convert.FRAME_COLUMNS.items():
+            column = image[:, int(u0 * size):int(u1 * size)]; self.assertTrue((column[..., 3] == 255).all())
+            self.assertGreater(float(column[..., :3].astype(float).std(axis=(0, 1)).mean()), 4.0)  # a texture, not one flat colour
+        steel = image[:, int(0.3125 * size):int(0.625 * size), :3].astype(float); foot, shaft = steel[:size // 16].mean((0, 1)), steel[size // 4:].mean((0, 1))
+        self.assertGreater(foot[0] - foot[2], shaft[0] - shaft[2] + 15)  # rust at the foot of a post
+        np.testing.assert_allclose(shaft, (120, 124, 128), atol=12)
+        made = wire['uvs'][count:]; self.assertTrue(((made[:, 0] >= 0.3125) & (made[:, 0] <= 0.9375) & (made[:, 1] >= 0) & (made[:, 1] <= 1)).all())  # none of the frame shows the wires
+        self.assertEqual(len(wire['vertices']), len(wire['normals'])); self.assertEqual(len(wire['vertices']), len(wire['uvs'])); self.assertLess(wire['faces'].max(), len(wire['vertices']))
+
+    def test_a_face_whose_picture_is_drawn_out_is_drawn_with_the_sound_surface_beside_it(self):
+        """The power station's slab showed a square metre of streaks at its gateway (user, 2026-11-17: "what is this smear?")."""
+        side = np.arange(7.0); x, y = np.meshgrid(side, side); grid = np.stack([x.ravel(), y.ravel(), np.zeros(49)], 1); uvs = grid[:, :2] / 12  # a floor six metres square on half the picture
+        cell = lambda i, j: [[j * 7 + i, j * 7 + i + 1, (j + 1) * 7 + i + 1], [j * 7 + i, (j + 1) * 7 + i + 1, (j + 1) * 7 + i]]
+        faces = np.array([face for j in range(6) for i in range(6) for face in cell(i, j)]); normals = np.tile([0.0, 0.0, 1.0], (49, 1))
+        same = convert.relaid(grid, normals, uvs, faces); self.assertEqual((same[4], same[5]), ([], [])); np.testing.assert_array_equal(same[3], faces)
+        unread = lambda: self.fail('the picture of a model with no drawn-out face is not read')
+        self.assertEqual(convert.relaid(grid, normals, uvs, faces, unread)[4:], ([], []))
+        extra = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0]]); sliver = np.array([[0.9, 0.9], [0.9, 0.9004], [0.9, 0.9008]])  # the first face, on a line of the picture
+        vertices = np.vstack([grid, extra]); spots = np.vstack([uvs, sliver]); drawn = faces.copy(); drawn[0] = [49, 50, 51]
+        made = convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn); self.assertEqual((made[4], made[5]), ([{'m2': 0.5, 'at': [0.67, 0.33, 0.0], 'share': 1.0}], []))
+        least, most, area, _ = convert.picture_grain(made[0], made[2], made[3]); np.testing.assert_allclose(least, 1 / 12); np.testing.assert_allclose(most, 1 / 12)  # drawn as the floor is
+        self.assertAlmostEqual(float(area.sum()), 36.0); pieces = made[3][len(faces) - 1:]; self.assertEqual(len(pieces), 100)  # cut into pieces, where it was
+        self.assertLessEqual(float(area[len(faces) - 1:].max()), convert.RELAY_PIECE ** 2 / 2 + 1e-9); self.assertAlmostEqual(float(area[len(faces) - 1:].sum()), 0.5)
+        inside = made[0][pieces].reshape(-1, 3); self.assertTrue(((inside[:, 0] <= 1 + 1e-9) & (inside[:, 1] <= inside[:, 0] + 1e-9) & (inside[:, 1] >= -1e-9)).all())
+        shift = made[2][pieces].reshape(-1, 2) - inside[:, :2] / 12; np.testing.assert_allclose(shift, np.tile(shift[0], (len(shift), 1)), atol=1e-9)  # one stretch of the floor, all together
+        self.assertGreater(float(np.abs(shift[0]).max()), 0.02)  # another part of it
+        self.assertTrue(((made[2] >= 0) & (made[2] <= 0.5 + 1e-9)).all()); self.assertEqual(len(made[0]), len(made[1]))
+        picture = np.full((120, 120, 3), 200, np.uint8); picture[108:, 108:] = 30  # the face is dark where the floor is pale: it takes none of it
+        dark = convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn, picture); self.assertEqual((dark[4], [one['share'] for one in dark[5]]), ([], [0.0]))
+        picture[108:, 108:] = 190; self.assertEqual(len(convert.relaid(vertices, np.vstack([normals, normals[:3]]), spots, drawn, picture)[4]), 1)
+        alone = convert.relaid(extra, normals[:3], sliver, np.array([[0, 1, 2]])); self.assertEqual((alone[4], alone[5]), ([], []))  # nothing to tell it by
+        wall = np.array([[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 1.0]])  # a face of another plane, where no sound surface is
+        left = convert.relaid(np.vstack([grid, wall]), np.vstack([normals, np.tile([1.0, 0, 0], (3, 1))]), spots, np.vstack([faces, [[49, 50, 51]]]))
+        self.assertEqual((left[4], [(one['m2'], one['share']) for one in left[5]]), ([], [(0.5, 0.0)]))
+
+    def test_a_built_coil_of_barbed_wire_winds_round_its_axis(self):
+        """A fence built after generation is topped with spiral barbed wire (user, 2026-11-17)."""
+        points, normals, faces = convert.coil([0, 0, 3], [6, 0, 3], 0.25, 0.5)
+        steps = 12 * convert.COIL_SIDES; self.assertEqual((len(points), len(faces)), (2 * 3 * (steps + 1), 2 * 6 * steps))  # two strands, three-sided
+        away = np.hypot(points[:, 1], points[:, 2] - 3); self.assertLessEqual(np.abs(away - 0.25).max(), convert.COIL / 2 + 1e-9)  # on the coil's radius
+        self.assertAlmostEqual(points[:, 0].min(), -convert.COIL / 2, places=2); self.assertAlmostEqual(points[:, 0].max(), 6 + convert.COIL / 2, places=2)
+        across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue(((across * normals[faces].sum(1)).sum(1) > 0).all())  # every face wound outward, both strands
+        one, other = points[:len(points) // 2].reshape(-1, 3, 3).mean(1), points[len(points) // 2:].reshape(-1, 3, 3).mean(1)
+        np.testing.assert_allclose(one[:, 1], other[:, 1], atol=1e-9); np.testing.assert_allclose(one[:, 2] - 3, 3 - other[:, 2], atol=1e-9)  # wound opposite ways
+        back = convert.coil([6, 0, 3], [0, 0, 3], 0.25, 0.5); flipped = np.cross(back[0][back[2][:, 1]] - back[0][back[2][:, 0]], back[0][back[2][:, 2]] - back[0][back[2][:, 0]])
+        self.assertTrue(((flipped * back[1][back[2]].sum(1)).sum(1) > 0).all())
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0]], float); base = np.array([[0, 1, 2]])
+        v, n, u, f = convert.with_built(vertices, np.tile([0.0, 0.0, 1.0], (3, 1)), np.full((3, 2), 0.3), base,
+                                        [{'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.5, 'picture': [0.2, 0.2, 0]}])
+        self.assertEqual(len(f), 1 + len(faces)); np.testing.assert_allclose(u, 0.3)
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        for part, held in (({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0, 0, 1]}, True),
+                           ({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 0.25, 'picture': [0, 0, 1]}, False),  # no pitch
+                           ({'coil': [[0, 0, 3], [0, 0, 3]], 'radius': 0.25, 'pitch': 0.4, 'picture': [0, 0, 1]}, False),  # no length
+                           ({'coil': [[0, 0, 3], [6, 0, 3]], 'radius': 2.0, 'pitch': 0.4, 'picture': [0, 0, 1]}, False)):
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'built': [part], 'measuredAt': 4.0}}}), encoding='utf-8')
+            if held:
+                self.assertEqual(convert.load_models(path)['ek_x']['built'], [part])
+            else:
+                with self.assertRaises(ValueError):
+                    convert.load_models(path)
+
+    def test_a_cast_light_is_measured_from_the_model(self):
+        """The Ares and Saeder-Krupp gates and the Iron Sight Arms booths (2026-11-14): a light set between their lamps
+        hung its flare in the air."""
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); faces = np.array([[0, 1, 2], [0, 2, 3]])
+        self.assertLess(convert.light_gap(vertices, faces, [0.5, 0.0, 0.5]), 0.06)  # on the wall, to within its sampling
+        self.assertAlmostEqual(convert.light_gap(vertices, faces, [0.5, -0.2, 0.5]), 0.2, delta=0.02)  # a little before it
+        self.assertGreater(convert.light_gap(vertices, faces, [0.5, 0.0, 1.5]), convert.LIGHT_NEAR)  # over it, in the air
+        # A prop is refused with its light in the air, and reports the light it was measured with: `envkit placeables`
+        # writes a row no other (`additions.command_placeables`).
+        from unittest import mock
+        made = {'glass': None, 'vertices': vertices, 'normals': np.tile([0.0, -1.0, 0.0], (4, 1)), 'uvs': np.zeros((4, 2)), 'faces': faces, 'scale': 1.0,
+                'angles': (0.0, 0.0, 0.0), 'repaired': 0, 'turned': 0, 'facesTurned': 0, 'illumination': None, 'card': None, 'colour': None, 'flat': None,
+                'plain': None, 'turn': 0.0, 'wire': None, 'behind': None}
+        with tempfile.TemporaryDirectory() as scratch, mock.patch.object(convert, 'shape', return_value=made), mock.patch.object(convert, 'skin', return_value=[]):
+            convert_it = lambda light: convert.placeable('ek_x', 'model.glb', {}, Path(scratch), None, height=1.0, light=light)
+            with self.assertRaisesRegex(ValueError, r'The light of ek_x stands 0\.5\d metres from the model'):
+                convert_it({'colour': 3, 'at': [0.5, 0, 1.5]})
+            told = convert_it({'colour': 3, 'at': [0.5, 0, 1]})  # at the wall's top edge
+            self.assertEqual(told['lightAt'], [0.5, 0.0, 1.0]); self.assertLess(told['lightFromModel'], 0.06)
+            self.assertFalse({'lightAt', 'lightFromModel'} & set(convert_it(None)))  # a prop that casts none says nothing of one
+
+    def test_a_pane_of_glass_is_a_node_of_its_own_seen_from_both_sides(self):
+        """The Chop Shop clinic's cyberware case (2026-11-14) came back with the bars of its glass front and no glass."""
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); uvs = np.array([[0.2, 0.2], [0.8, 0.2], [0.8, 0.8], [0.2, 0.8]])
+        faces = np.array([[0, 1, 2], [0, 2, 3]]); square = [[0, 1, 0], [1, 1, 0], [1, 1, 1], [0, 1, 1]]
+        pane, other = convert.glazed([{'corners': square}, {'corners': square[:3], 'colour': [200, 100, 40], 'strength': 0.5}])
+        self.assertEqual((len(pane['vertices']), len(pane['faces'])), (8, 4)); self.assertEqual((len(other['vertices']), len(other['faces'])), (6, 2))
+        self.assertEqual(pane['colour'], [round(value * convert.GLASS_STRENGTH) for value in convert.GLASS_COLOUR]); self.assertEqual(other['colour'], [100, 50, 20])
+        np.testing.assert_allclose(pane['uvs'], np.tile([0.25, 0.5], (8, 1))); np.testing.assert_allclose(other['uvs'], np.tile([0.75, 0.5], (6, 1)))  # each its own patch
+        picture = convert.glass_picture([pane, other]); wide = convert.GLASS_PICTURE
+        self.assertEqual((picture.size, picture.getpixel((wide // 4, 5)), picture.getpixel((3 * wide // 4, 5))), ((wide, wide), tuple(pane['colour']), (100, 50, 20)))
+        points, drawn = pane['vertices'], pane['faces']
+        across = np.cross(points[drawn[:, 1]] - points[drawn[:, 0]], points[drawn[:, 2]] - points[drawn[:, 0]])
+        np.testing.assert_allclose(np.sign(across[:, 1]), [-1, -1, 1, 1])  # two faces towards -y and the same two towards +y
+        np.testing.assert_allclose(pane['normals'][drawn[:, 0]][:, 1], np.sign(across[:, 1]))  # each with normals its own way
+        text = convert.model_text('ek_x', vertices, np.tile([0.0, -1.0, 0.0], (4, 1)), uvs, faces, glass=[pane, other])
+        self.assertIn('node trimesh ek_x_g0', text); self.assertIn('node trimesh ek_x_g1', text); self.assertEqual(text.count('  bitmap ek_x_g\n'), 2)
+        self.assertEqual(text.count('transparencyhint 1'), 2); self.assertNotIn('alpha', text)  # no controller the compiled model's reader does not know
+        self.assertNotIn('ek_x_g', convert.model_text('ek_x', vertices, np.tile([0.0, -1.0, 0.0], (4, 1)), uvs, faces))
+        with self.assertRaisesRegex(ValueError, 'flat'):
+            convert.glazed([{'corners': [[0, 1, 0], [1, 1, 0], [1, 1.2, 1], [0, 1, 1]]}])
+        with self.assertRaisesRegex(ValueError, 'convex'):
+            convert.glazed([{'corners': [[0, 1, 0], [1, 1, 0], [0.2, 1, 0.2], [0, 1, 1]]}])
+        path = Path(tempfile.mkdtemp()) / 'set.json'; glass = [{'part': 'front', 'corners': square, 'colour': [150, 170, 185], 'strength': 0.2}]
+        placed = {'label': 'Yard, Case', 'sound': 28}
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, 'glass': glass, 'measuredAt': 4.0, 'placeable': placed}}}), encoding='utf-8')
+        self.assertEqual(convert.load_models(path)['ek_x']['glass'], glass)
+        for model, wrong in (({'glass': glass, 'placeable': placed}, 'measuredAt'), ({'glass': glass, 'measuredAt': 4.0}, 'placeable only'),
+                             ({'glass': [{'corners': square[:2]}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass'),
+                             ({'glass': [{'corners': square, 'colour': [300, 0, 0]}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass'),
+                             ({'glass': [{'corners': square, 'strength': 0}], 'measuredAt': 4.0, 'placeable': placed}, 'pane of glass'),
+                             ({'glass': [{'corners': square}] * 17, 'measuredAt': 4.0, 'placeable': placed}, 'at most 16 panes')):  # each a patch of four pixels at least
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, **model}}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, wrong):
+                convert.load_models(path)
+        path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0}, 'ek_x_g': {'source': 'b', 'height': 1.0}}}), encoding='utf-8')
+        with self.assertRaises(ValueError):
+            convert.load_models(path)  # a model named as another's glass picture would write over it in the pack
+
+    def test_a_game_set_states_fills_moves_backs_rods_and_built_parts_on_the_finished_model(self):
+        path = Path(tempfile.mkdtemp()) / 'set.json'
+        good = {'fill': [{'part': 'p', 'at': [0, 0, 1]}], 'move': [{'box': [[0, 0, 0], [1, 1, 1]], 'by': [1, 0, 0]}],
+                'inside': [{'box': [[0, 0, 0], [1, 1, 1]]}], 'clear': [{'from': [0, 0, 1], 'to': [1, 0, 2], 'radius': 0.3}],
+                'built': [{'railing': [[0, 0, 1], [1, 0, 1]], 'height': 1.0, 'picture': [0, 0, 1]},
+                          {'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2], 'width': 0.9}, 'picture': [0, 0, 1]}]}
+        for key, value in good.items():
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, key: value, 'measuredAt': 4.0}}}), encoding='utf-8')
+            self.assertEqual(convert.load_models(path)['ek_x'][key], value)
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, key: value}}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'measuredAt'):
+                convert.load_models(path)  # each is measured on the model as it stands
+        for key, value in (('move', [{'box': [[0, 0, 0], [1, 1, 1]]}]), ('fill', [{'at': [0, 0]}]), ('fill', [{'at': [0, 0, 1], 'picture': [0, 0]}]),
+                           ('inside', [{'box': [[0, 0, 5], [1, 1, 6]]}]), ('move', [{'box': [[0, 0, 5], [1, 1, 6]], 'by': [1, 0, 0]}]),  # above the model
+                           ('built', [{'railing': [[0, 0, 1], [1, 0, 1]], 'height': 3.0, 'picture': [0, 0, 1]}]),
+                           ('built', [{'stairs': {'foot': [0, -3, 0], 'top': [0, 0, 2]}, 'picture': [0, 0, 1]}]),  # a flight needs its width
+                           ('built', [{'stairs': {'foot': [0, 0, 0], 'top': [0, 0, 2], 'width': 0.9}, 'picture': [0, 0, 1]}]),  # and a run, or it is a ladder
+                           ('built', [{'stairs': {'foot': [0, 0, 0], 'top': [0, 0.25, 2.13], 'width': 0.9}, 'picture': [0, 0, 1]}])):  # nor too steep
+            path.write_text(json.dumps({'models': {'ek_x': {'source': 'a', 'height': 4.0, key: value, 'measuredAt': 4.0}}}), encoding='utf-8')
+            with self.assertRaises(ValueError):
+                convert.load_models(path)
+
+    def test_a_model_is_drawn_out_along_its_longer_side_to_a_length(self):
+        """The rail yard's shipping containers (2026-11-13) came out a third to a half short at their true height."""
+        box = np.array([[x, y, z] for x in (-1.75, 1.75) for y in (-1.2, 1.2) for z in (0, 2.6)], float)
+        slant = np.tile(np.array([1.0, 0.0, 1.0]) / np.sqrt(2), (8, 1))
+        points, normals = convert.stretched(box, slant, 6.06)
+        np.testing.assert_allclose(np.ptp(points, axis=0), [6.06, 2.4, 2.6]); np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0)
+        self.assertLess(normals[0, 0], normals[0, 2])  # a surface drawn out leans less along the stretch: its normal turns away from it
+        points, _ = convert.stretched(box[:, [1, 0, 2]], slant, 6.06)  # the longer side along the other axis is the one drawn out
+        np.testing.assert_allclose(np.ptp(points, axis=0), [2.4, 6.06, 2.6])
+        with self.assertRaisesRegex(ValueError, 'A length is a number of metres'):
+            convert.stretched(box, slant, 0)
 
     def test_a_mesh_too_big_for_one_node_is_cut_into_nodes_that_keep_every_face(self):
         faces = np.arange(300).reshape(-1, 3)  # 100 triangles sharing no vertex
@@ -409,6 +981,273 @@ class FixtureTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'shot label'):
                 fixture.enter_script([{'label': label, 'stand': [30, 38]}])
 
+
+class GhostRidersTests(unittest.TestCase):
+    """What the Ghost Riders sheet added (2026-11-15): a fire the game draws, a wedge laid flat, a blank door found."""
+
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory(); self.addCleanup(self.folder.cleanup); self.root = Path(self.folder.name)
+
+    def test_a_fire_is_an_emitter_at_its_foot_sized_by_its_width(self):
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); faces = np.array([[0, 1, 2], [0, 2, 3]])
+        normals, uvs = np.tile([0.0, -1.0, 0.0], (4, 1)), np.zeros((4, 2))
+        text = convert.model_text('ek_x', vertices, normals, uvs, faces, fire=[{'at': [0.5, 0, 1.0], 'width': 0.5}, {'part': 'second', 'at': [0, 0, 1], 'width': 1.0}])
+        self.assertIn('node emitter ek_x_f0\n  parent ek_x\n  position 0.50000 0.00000 1.00000\n', text); self.assertIn('node emitter ek_x_f1', text)
+        self.assertIn('  texture fxpa_flame00\n', text); self.assertIn('  blend Lighten\n', text); self.assertIn('  xgrid 4\n', text)
+        self.assertIn('  sizeStart 1.0\n', text); self.assertIn('  sizeStart 2.0\n', text)  # each by its own width
+        # After the geometry, the animations a script puts the fires out and lights them by, as the stock flame has them.
+        anims = text.split('endmodelgeom ek_x\n')[1]; self.assertTrue(anims.endswith('doneanim off ek_x\ndonemodel ek_x\n'))
+        self.assertEqual(re.findall(r'(?m)^newanim (\w+) ek_x$', anims), ['on', 'off2on', 'on2off', 'off'])
+        self.assertIn('newanim on2off ek_x\n  length 0.0333333\n  transtime 0\n  animroot ek_x\n  node dummy ek_x\n    parent NULL\n  endnode\n'
+                      '  node emitter ek_x_f0\n    parent ek_x\n    birthratekey 2\n      0 10\n      0.0333333 0\n    endlist\n  endnode\n  node emitter ek_x_f1\n', anims)
+        self.assertEqual(len(re.findall(r'(?m)^node emitter ', text)), 2)  # the animations' nodes are indented: a fire is counted once
+        self.assertTrue(convert.lights_script('ek_x', 'oFire', on=False, fire=True).endswith('AssignCommand(oFire,PlayAnimation(ANIMATION_PLACEABLE_DEACTIVATE));'))
+        self.assertTrue(convert.lights_script('ek_x', 'oFire', on=True, fire=True).endswith('AssignCommand(oFire,PlayAnimation(ANIMATION_PLACEABLE_ACTIVATE));'))
+        self.assertNotIn('PlayAnimation', convert.lights_script('ek_x', 'oFire', on=False))
+        self.assertNotIn('emitter', convert.model_text('ek_x', vertices, normals, uvs, faces)); self.assertNotIn('newanim', convert.model_text('ek_x', vertices, normals, uvs, faces))
+        for wrong in ({'at': [0, 0, 1]}, {'at': [0, 0], 'width': 0.5}, {'at': [0, 0, 1], 'width': 0.01}, {'at': [0, 0, 1], 'width': 9}, {'at': [0, 0, 1], 'width': 0.5, 'tall': 1}):
+            with self.assertRaisesRegex(ValueError, 'A fire is'):
+                convert.fire_values(wrong)
+
+    def test_a_fire_is_stated_on_a_placeable_as_it_stands_and_burns_at_the_model(self):
+        placed = {'label': 'X', 'sound': 28, 'light': None}
+        good = {'source': 'meshy/x', 'height': 1.5, 'measuredAt': 1.5, 'fire': [{'at': [0, 0, 0.9], 'width': 0.45}], 'placeable': placed}
+        path = self.root / 'set.json'; write = lambda model: path.write_text(json.dumps({'models': {'ek_x': model}}), encoding='utf-8')
+        write(good); self.assertEqual(convert.load_models(path)['ek_x']['fire'][0]['width'], 0.45)
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        for change, said in (({'placeable': None}, 'fire is a list'), ({'tiles': group}, 'fire is a list'), ({'fire': []}, 'fire is a list'),
+                             ({'lit': [{'box': [[0, 0, 0.5], [1, 1, 1]]}], 'placeable': {**placed, 'light': None}}, 'A model with a fire has no lit parts'),
+                             ({'fire': [{'at': [0, 0, 0.9]}]}, 'A fire is'), ({'measuredAt': None}, 'says how it stood'),
+                             ({'placeable': {'label': 'X', 'sound': 28}}, 'says whether it lights what stands round it')):  # a fire is asked as a lamp is
+            model = {key: value for key, value in {**good, **change}.items() if value is not None}
+            write(model)
+            with self.assertRaisesRegex(ValueError, said):
+                convert.load_models(path)
+        from unittest import mock
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); faces = np.array([[0, 1, 2], [0, 2, 3]])
+        made = {'glass': None, 'vertices': vertices, 'normals': np.tile([0.0, -1.0, 0.0], (4, 1)), 'uvs': np.zeros((4, 2)), 'faces': faces, 'scale': 1.0,
+                'angles': (0.0, 0.0, 0.0), 'repaired': 0, 'turned': 0, 'facesTurned': 0, 'illumination': None, 'card': None, 'colour': None, 'flat': None,
+                'plain': None, 'turn': 0.0, 'wire': None, 'behind': None}
+        with tempfile.TemporaryDirectory() as scratch, mock.patch.object(convert, 'shape', return_value=made), mock.patch.object(convert, 'skin', return_value=[]):
+            convert_it = lambda **said: convert.placeable('ek_x', 'model.glb', {}, Path(scratch), None, height=1.0, **said)
+            with self.assertRaisesRegex(ValueError, r'A fire of ek_x burns 0\.5\d metres from the model, in the air'):
+                convert_it(fire=[{'at': [0.5, 0, 1.5], 'width': 0.4}])
+            with self.assertRaisesRegex(ValueError, r'A bed of embers of ek_x lies 1\.\d+ metres from the model, in the air'):  # as a fire is held to the model
+                convert_it(embers=[{'at': [0.5, 0, 2.5], 'radius': 0.2}])
+            told = convert_it(fire=[{'at': [0.5, 0, 1.0], 'width': 0.4}])
+            self.assertEqual(told['fires'], 1); self.assertIn('node emitter ek_x_f0', (Path(scratch) / 'ek_x.mdl').read_text())
+            self.assertIn('ek_x_wg', (Path(scratch) / 'ek_x.pwk').read_text())  # a thing stood on the ground is walked round
+            with self.assertRaisesRegex(ValueError, 'laid underfoot and stands 1.00 metres high'):  # a thing walked across is under the knee
+                convert_it(underfoot=True)
+            made['vertices'] = vertices * [1.0, 1.0, 0.3]
+            convert_it(underfoot=True)
+            walk = (Path(scratch) / 'ek_x.pwk').read_text()  # one laid underfoot is walked across, and still used from beside it
+            self.assertNotIn('ek_x_wg', walk); self.assertIn('ek_x_pwk_use01', walk)
+        # A group draws no fire: a model with one is no part of a group, where it would stand cold.
+        yard = {'source': 'meshy/y', 'height': 5.0, 'measuredAt': 5.0, 'tiles': {**group, 'parts': [{'model': 'ek_x', 'at': [0, 0, 0]}]}}
+        path.write_text(json.dumps({'models': {'ek_x': good, 'ek_y': yard}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'A part of ek_y has a fire'):
+            convert.load_models(path)
+
+    def test_a_bed_of_embers_is_a_mound_with_a_picture_of_its_own_that_glows(self):
+        beds = convert.ember_beds([{'at': [0, 0, 0.8], 'radius': 0.3}, {'part': 'second', 'at': [2, 0, 0.5], 'radius': 0.1}])
+        points, faces = beds['vertices'], beds['faces']; each = 1 + convert.EMBER_SIDES * convert.EMBER_RINGS
+        self.assertEqual(len(points), 2 * each); self.assertEqual(len(faces), 2 * convert.EMBER_SIDES * (2 * convert.EMBER_RINGS - 1))
+        across = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        self.assertTrue((across[:, 2] > 0).all())  # every face is seen from above
+        first = points[:each]; rim = first[-convert.EMBER_SIDES:]
+        np.testing.assert_allclose(np.linalg.norm(rim[:, :2], axis=1), 0.3); np.testing.assert_allclose(rim[:, 2], 0.8)  # the rim lies level where it was stated
+        self.assertAlmostEqual(float(first[0, 2]), 0.8 + 0.3 * convert.EMBER_RISE); self.assertGreater(float(np.ptp(first[1:1 + convert.EMBER_SIDES, 2])), 0.005)  # a mound of lumps, no plate
+        self.assertTrue((beds['uvs'] >= 0).all() and (beds['uvs'] <= 1).all())
+        np.testing.assert_array_equal(convert.ember_beds([{'at': [0, 0, 0.8], 'radius': 0.3}])['vertices'], first)  # built again, the same bed
+        # Its picture: mostly dark lumps, the fire between them, and no one colour over it all.
+        picture = np.asarray(convert.ember_picture(64), float) / 255; bright = picture.max(-1)
+        self.assertEqual(picture.shape, (64, 64, 3)); self.assertGreater(float((bright < 0.3).mean()), 0.25); self.assertGreater(float((bright > 0.8).mean()), 0.05)
+        hot = picture[bright > 0.8]; self.assertTrue((hot[:, 0] > hot[:, 2] + 0.3).all())  # what is bright is fire, not ash
+        np.testing.assert_array_equal(np.asarray(convert.ember_picture(64)), (picture * 255).round().astype(np.uint8))
+        # In the model it is a node that takes no light and shows its own picture.
+        vertices = np.array([[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], float); normals, uvs, quad = np.tile([0.0, -1.0, 0.0], (4, 1)), np.zeros((4, 2)), np.array([[0, 1, 2], [0, 2, 3]])
+        text = convert.model_text('ek_x', vertices, normals, uvs, quad, embers=beds)
+        self.assertIn(f'node trimesh ek_x_e0\n  parent ek_x\n  ambient 0 0 0\n  diffuse 0 0 0\n  specular 0 0 0\n  shininess 1\n  bitmap ek_x_e\n  render 1\n  shadow 0\n  verts {2 * each}\n', text)
+        self.assertNotIn('ek_x_e', convert.model_text('ek_x', vertices, normals, uvs, quad)); self.assertIn('_e', convert.MAP_SUFFIXES)
+        # The files: the picture and a material that puts it in the glow slot.
+        made = {'illumination': None, 'card': None, 'embers': beds}
+        with tempfile.TemporaryDirectory() as scratch:
+            from unittest import mock
+            with mock.patch.object(convert, 'textures', return_value=[]), mock.patch.object(convert, '_compress', side_effect=lambda image, path, *more, **said: path) as packed:
+                files = convert.skin('ek_x', {}, Path(scratch), None, made)
+            self.assertEqual([path.name for path in files], ['ek_x_e.dds']); self.assertEqual(packed.call_args.args[0].size, (convert.EMBER_PICTURE,) * 2)
+            self.assertEqual((Path(scratch) / 'ek_x_e.mtr').read_text().splitlines()[2:], ['texture0 ek_x_e', 'texture1 null', 'texture2 null', 'texture3 null', 'texture4 null', 'texture5 ek_x_e'])
+        # Stated on a placeable, on the finished model; a group draws none.
+        placed = {'label': 'X', 'sound': 28, 'light': None}; good = {'source': 'meshy/x', 'height': 1.0, 'measuredAt': 1.0, 'embers': [{'at': [0, 0, 0.8], 'radius': 0.3}], 'placeable': placed}
+        path = self.root / 'set.json'; write = lambda models: path.write_text(json.dumps({'models': models}), encoding='utf-8')
+        write({'ek_x': good}); self.assertEqual(convert.load_models(path)['ek_x']['embers'][0]['radius'], 0.3)
+        self.assertIn('embers', convert.RETOUCHING); self.assertIn('embers', convert.MEASURED)
+        # A prop a script reaches is placed not static, and its blueprint made so: one with lit parts, and one with a fire.
+        self.assertEqual([convert.scripted(one) for one in (good, {**good, 'fire': [{'at': [0, 0, 0.9], 'width': 0.4}]}, {**good, 'lit': [{'box': [[0, 0, 0], [1, 1, 1]]}]})], [False, True, True])
+        self.assertIsNone(convert.place({'vertices': np.zeros((3, 3)), 'normals': np.zeros((3, 3)), 'placed': object()}, [1, 2, 0])['placed'])  # a map of where it stood is not carried along
+        group = {'ground': 'pavement', 'group': 'G', 'label': 'G', 'sets': {'dgt04': 'Concrete'}}
+        for change, said in (({'embers': [{'at': [0, 0, 0.8]}]}, 'A bed of embers is'), ({'embers': [{'at': [0, 0, 0.8], 'radius': 0.7}]}, 'its lumps grow with it'),
+                             ({'placeable': {'label': 'X', 'sound': 28}}, 'says whether it lights what stands round it'),
+                             ({'placeable': None}, 'for a placeable only'), ({'measuredAt': None}, 'says how it stood')):
+            write({'ek_x': {key: value for key, value in {**good, **change}.items() if value is not None}})
+            with self.assertRaisesRegex(ValueError, said):
+                convert.load_models(path)
+        write({'ek_x': good, 'ek_y': {'source': 'meshy/y', 'height': 5.0, 'measuredAt': 5.0, 'tiles': {**group, 'parts': [{'model': 'ek_x', 'at': [0, 0, 0]}]}}})
+        with self.assertRaisesRegex(ValueError, 'A part of ek_y has a bed of embers'):
+            convert.load_models(path)
+        # A fire barrel with no lit parts: the script swaps no picture of it.
+        self.assertEqual(convert.lights_script('ek_x', 'oFire', on=False, light=True, fire=True, glow=False),
+                         'SetPlaceableIllumination(oFire,FALSE);RecomputeStaticLighting(GetArea(oFire));AssignCommand(oFire,PlayAnimation(ANIMATION_PLACEABLE_DEACTIVATE));')
+
+    def test_a_model_with_a_fire_is_compiled_whole_and_its_meshes_checked_without_it(self):
+        from unittest import mock
+        from tools.armorkit import export, toolchain
+        plain = 'newmodel ek_x\nbeginmodelgeom ek_x\nnode trimesh ek_x_m\n  faces 2\n    0 1 2 1 0 1 2 1\n    0 2 3 1 0 2 3 1\nendnode\n'
+        end = 'endmodelgeom ek_x\n' + '\n'.join(convert.fire_anim_lines('ek_x', 1)) + '\ndonemodel ek_x\n'; bare = 'endmodelgeom ek_x\ndonemodel ek_x\n'; fire = '\n'.join(convert.fire_lines('ek_x', 0, {'at': [0, 0, 1], 'width': 0.5})) + '\n'
+        source = self.root / 'source' / 'ek_x.mdl'; source.parent.mkdir(); output = self.root / 'compiled'; twins, back = [], {}
+
+        def run(said, **_):
+            if said[1] == 'compile':
+                Path(said[-1]).write_bytes(b'\0\0\0\0binary')
+            else:
+                Path(said[-1]).write_text(back['text'], encoding='cp1252')
+            return mock.Mock(returncode=0, stdout='', stderr='')
+        with mock.patch.object(export, 'compile_models', side_effect=lambda paths, folder: twins.append(Path(paths[0]).read_text(encoding='cp1252')) or ['checked']), \
+                mock.patch.object(toolchain, 'cleanmodels', return_value={'path': 'cleanmodels'}), mock.patch.object(convert.subprocess, 'run', side_effect=run) as ran:
+            source.write_text(plain + bare, encoding='cp1252', newline='\n')
+            self.assertEqual(convert.compile_placeable(source, output), ['checked']); self.assertFalse(ran.called)  # no fire: the usual compile
+            source.write_text(plain + fire + end, encoding='cp1252', newline='\n'); back['text'] = plain + fire + end
+            self.assertEqual(convert.compile_placeable(source, output), [output / 'ek_x.mdl'])
+            self.assertEqual(twins[-1], plain + bare)  # the twin that is read back has its meshes, no emitter and no animation of one
+            back['text'] = plain + fire + bare  # a compile that lost the animations
+            with self.assertRaisesRegex(ValueError, 'without all of the animations'):
+                convert.compile_placeable(source, output)
+            back['text'] = plain + end.replace('newanim', '  newanim')  # a compile that lost the fire (a decompiled model's lines are indented)
+            with self.assertRaisesRegex(ValueError, 'a model of 0 fires and 2 faces, not its 1 fires and 2 faces'):
+                convert.compile_placeable(source, output)
+            back['text'] = plain.replace('faces 2', 'faces 1') + fire + end  # or a face
+            with self.assertRaisesRegex(ValueError, 'a model of 1 fires and 1 faces, not its 1 fires and 2 faces'):
+                convert.compile_placeable(source, output)
+
+    def test_a_floor_marking_that_came_back_a_wedge_is_laid_flat(self):
+        """The Ghost Riders parking pad: thick at its back, thin at its front, with wheel stops standing on it."""
+        slope = lambda x, y: 0.35 + 0.25 * y  # the wedge's top, 0.1 at the front and 0.6 at the back
+        top = [[x, y, slope(x, y)] for x, y in ((-1, -1), (1, -1), (1, 1), (-1, 1))]; under = [[x, y, 0.0] for x, y, _ in top]
+        stop = [[x, y, slope(x, y) + 0.05] for x, y in ((-0.5, 0.7), (0.5, 0.7), (0.5, 0.9), (-0.5, 0.9))]
+        points = np.array(top + under + stop, float)
+        faces = np.array([[0, 1, 2], [0, 2, 3], [4, 6, 5], [4, 7, 6], [0, 4, 5], [0, 5, 1], [8, 9, 10], [8, 10, 11]])
+        flat, normals = convert.levelled(points, faces, 0.03)
+        np.testing.assert_allclose(flat[:4, 2], 0.03, atol=1e-6); np.testing.assert_allclose(flat[4:8, 2], 0.0, atol=1e-9)
+        np.testing.assert_allclose(flat[8:, 2], 0.08, atol=1e-6)  # what stood proud of the top still does, by as much
+        np.testing.assert_allclose(flat[:, :2], points[:, :2]); np.testing.assert_allclose(normals[8:], [[0, 0, 1]] * 4, atol=1e-6)
+        np.testing.assert_allclose(np.linalg.norm(normals, axis=1), 1.0, atol=1e-6)
+        for thickness in (0, -0.1, convert.LEVEL_MOST + 0.1):
+            with self.assertRaisesRegex(ValueError, 'levelled floor marking'):
+                convert.levelled(points, faces, thickness)
+        with self.assertRaisesRegex(ValueError, 'no face looking up'):
+            convert.levelled(points, faces[2:4], 0.03)
+        path = self.root / 'set.json'; pad = {'source': 'meshy/x', 'height': 0.6, 'level': 0.03, 'underfoot': True, 'placeable': {'label': 'X', 'sound': 28}}
+        path.write_text(json.dumps({'models': {'ek_x': pad}}), encoding='utf-8'); self.assertEqual(convert.load_models(path)['ek_x']['level'], 0.03)
+        for change in ({'level': 0}, {'level': 1.0}, {'level': 0.03, 'lift': 1.0}):
+            path.write_text(json.dumps({'models': {'ek_x': {**pad, **change}}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'level is the thickness'):
+                convert.load_models(path)
+        # Boxes are measured on the model as levelled: a set that states any says so.
+        path.write_text(json.dumps({'models': {'ek_x': {**pad, 'measuredAt': 0.6, 'paint': [{'box': [[0, 0, 0], [1, 1, 0.1]], 'colour': [1, 2, 3]}]}}}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'measure them again'):
+            convert.load_models(path)
+
+    def test_a_door_sized_panel_drawn_in_one_flat_colour_is_found_with_its_repair(self):
+        """The Ghost Riders garage's roller door came back a flat dark blue with its slats lost (user, 2026-11-15)."""
+        from PIL import Image
+        vertices = np.array([[-2, 0, 0], [2, 0, 0], [2, 0, 3], [-2, 0, 3]], float); faces = np.array([[0, 2, 1], [0, 3, 2]])  # a wall 4 by 3 metres facing front
+        uvs = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], float); size = 256
+        wall = np.random.default_rng(0).uniform(0.3, 0.7, (size, size)); door = wall.copy()
+        door[:int(size * 0.8), int(size * 0.2):int(size * 0.8)] = 0.2  # rows run up the wall: 2.4 metres wide and tall, from the ground
+        picture = lambda values: Image.fromarray((np.repeat(values[..., None], 3, -1) * 255).round().astype(np.uint8))
+        self.assertEqual(convert.blank_panels(vertices, uvs, faces, picture(wall), size=size), [])  # a weathered wall is no blank panel
+        found = convert.blank_panels(vertices, uvs, faces, picture(door), size=size)
+        self.assertEqual(len(found), 1); one = found[0]; self.assertEqual(one['side'], 0); self.assertEqual(one['colour'], [51, 51, 51])
+        np.testing.assert_allclose(one['box'], [[-1.2, -0.05, 0.0], [1.2, 0.05, 2.4]], atol=0.21); self.assertAlmostEqual(one['m2'], 5.8, delta=1.0)
+        self.assertEqual(one['repair'], {'part': 'roller door', 'box': one['box'], 'radius': convert.BLANK_RADIUS, 'slats': convert.BLANK_SLATS})
+        note, = convert.blank_notes('ek_x', found); self.assertIn('"slats": 0.12', note); self.assertIn('ek_x: a panel of', note)
+        hatch = wall.copy(); hatch[:int(size * 0.3), int(size * 0.4):int(size * 0.6)] = 0.2  # too small to be a door
+        high = wall.copy(); high[int(size * 0.5):, int(size * 0.2):int(size * 0.8)] = 0.2  # a blank sign board up the wall, not a door
+        self.assertEqual(convert.blank_panels(vertices, uvs, faces, picture(hatch), size=size), [])
+        self.assertEqual(convert.blank_panels(vertices, uvs, faces, picture(high), size=size), [])
+        # The repair is a `smooth` entry `retouch` takes as it is, and a door so mended is told no more.
+        mended, _, _ = convert.retouch(picture(door), vertices, uvs, faces, smooth=[one['repair']], size=size)
+        self.assertLess(np.asarray(mended, float)[:int(size * 0.8), int(size * 0.2):int(size * 0.8)].std(), 30)
+        self.assertGreater(np.asarray(mended, float)[10:int(size * 0.7), int(size * 0.3):int(size * 0.7)].std(), 1.0)  # joints are drawn
+        made = {'vertices': vertices, 'uvs': uvs, 'faces': faces, 'colour': picture(door)}
+        self.assertEqual(len(convert.shipped_blank_panels(made, {})), 1)
+        self.assertEqual(convert.shipped_blank_panels(made, {}, [one['repair']]), [])
+        self.assertEqual(len(convert.shipped_blank_panels(made, {}, [{**one['repair'], 'box': [[5, 5, 0], [6, 6, 1]]}])), 1)  # a repair elsewhere mends nothing here
+        self.assertEqual(convert.shipped_blank_panels({**made, 'colour': None}, {}), [])  # no picture to read
+        # The map of places the lit parts were found by serves where it is the size read at, and is not made again.
+        from unittest import mock
+        from . import glow
+        with mock.patch.object(convert, 'BLANK_SIZE', size):
+            ready = glow.position_map(vertices, uvs, faces, size, facing=True); small = glow.position_map(vertices, uvs, faces, size // 2, facing=True)
+            with mock.patch.object(glow, 'position_map', wraps=glow.position_map) as mapped:
+                self.assertEqual(convert.shipped_blank_panels({**made, 'placed': ready}, {}), found); self.assertEqual(mapped.call_count, 0)
+                self.assertEqual(convert.shipped_blank_panels({**made, 'placed': small}, {}), found); self.assertEqual(mapped.call_count, 1)  # a map of another size is not read by
+                self.assertEqual(convert.shipped_blank_panels({**made, 'placed': None}, {}), found); self.assertEqual(mapped.call_count, 2)
+                # A tile group's models are read one by one, those with a panel told, and each map let go when it is read by.
+                door_model, wall_model = {**made, 'placed': ready}, {**made, 'colour': picture(wall), 'placed': ready}
+                self.assertEqual(convert.blank_panels_of({'ek_a': (door_model, {}), 'ek_b': (wall_model, {}), 'ek_c': ({**made, 'placed': ready}, {})},
+                                                         {'ek_a': {}, 'ek_b': {}, 'ek_c': {'smooth': [one['repair']]}}), {'ek_a': found})
+                self.assertIsNone(door_model['placed']); self.assertIsNone(wall_model['placed']); self.assertEqual(mapped.call_count, 2)
+        # A thin door drawn blank on both faces is one door, told once.
+        slab = np.vstack([vertices, vertices[::-1] + [0.0, -0.1, 0.0]]); both = np.array([[0, 2, 1], [0, 3, 2], [4, 6, 5], [4, 7, 6]])
+        halves = np.array([[0, 0], [0.5, 0], [0.5, 1], [0, 1], [0.5, 1], [1, 1], [1, 0], [0.5, 0]], float)
+        found = convert.blank_panels(slab, halves, both, picture(np.concatenate([door[:, ::2], door[:, ::2]], axis=1)), size=size)
+        self.assertEqual(len(found), 1)
+
+
+class WalkUnderTests(unittest.TestCase):
+    """A placeable on legs is walked under between them (user, 2026-11-15: the gantry crane shut the track it spans)."""
+
+    @staticmethod
+    def boxes(*spans):
+        points, faces = [], []
+        for (x0, y0, z0), (x1, y1, z1) in spans:
+            first = len(points); points += [[x, y, z] for z in (z0, z1) for x, y in ((x0, y0), (x1, y0), (x1, y1), (x0, y1))]
+            faces += [[first + a, first + b, first + c] for a, b, c in ((0, 2, 1), (0, 3, 2), (4, 5, 6), (4, 6, 7), (0, 1, 5), (0, 5, 4), (1, 2, 6), (1, 6, 5),
+                                                                     (2, 3, 7), (2, 7, 6), (3, 0, 4), (3, 4, 7))]
+        return np.array(points, float), np.array(faces)
+
+    def test_each_part_that_stands_under_head_height_is_a_block_of_its_own(self):
+        vertices, faces = self.boxes(((-5, -1, 0), (-4, 1, 6)), ((4, -1, 0), (5, 1, 6)), ((-5, -1, 5.5), (5, 1, 6)))  # two legs and the beam they carry
+        parts = convert.standing(vertices, faces); self.assertEqual(len(parts), 2)
+        self.assertEqual(sorted(round(float(part[:, 0].mean())) for part in parts), [-4, 4])  # a leg each: -4.5 and 4.5
+        self.assertTrue(all(part[:, 2].max() < convert.OVERHEAD for part in parts))
+        one = convert.walk_text('ek_x', vertices); two = convert.walk_text('ek_x', vertices, blocks=parts)
+        self.assertIn('  verts 8\n', one); self.assertIn('  faces 10\n', one)  # one block on the whole footprint
+        self.assertIn('  verts 16\n', two); self.assertIn('  faces 20\n', two); self.assertEqual(two.count('node trimesh'), 1)
+        xs = [float(line.split()[0]) for line in two.split('  faces')[0].splitlines() if line.startswith('    ')]
+        self.assertTrue(all(abs(x) >= 3.9 for x in xs))  # nothing stands between the legs
+        self.assertEqual(one, convert.walk_text('ek_x', vertices, blocks=[vertices]))
+        # Legs nearer than a character is wide are one block; a thing hung clear of the ground has no parts.
+        self.assertEqual(len(convert.standing(*self.boxes(((-0.5, -1, 0), (-0.1, 1, 3)), ((0.1, -1, 0), (0.5, 1, 3))))), 1)
+        # Ground the gap wide and more stays open wherever the model lies on the cells it is read by (found in review).
+        for shift in (0.0, 0.07, 0.15, 0.31, 0.44, 0.59):
+            posts = self.boxes(((-0.5 + shift, -1, 0), (-0.4 + shift, 1, 3)), ((0.4 + shift, -1 + shift, 0), (0.5 + shift, 1 + shift, 3)))  # 0.8 m apart
+            self.assertEqual(len(convert.standing(*posts)), 2, shift)
+            corner = self.boxes(((shift, shift, 0), (shift + 1, shift + 1, 3)), ((shift + 1.5, shift + 1.5, 0), (shift + 2.5, shift + 2.5, 3)))  # 0.71 m, corner to corner
+            self.assertEqual(len(convert.standing(*corner)), 2, shift)
+        with self.assertRaisesRegex(ValueError, 'Nothing of the model stands under head height'):
+            convert.standing(*self.boxes(((-1, -1, 3), (1, 1, 4))))
+
+    def test_walk_under_is_stated_on_a_placeable_that_is_no_group_and_not_underfoot(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            path = Path(scratch) / 'set.json'; crane = {'source': 'meshy/x', 'height': 12.0, 'walkUnder': True, 'placeable': {'label': 'X', 'sound': 28}}
+            path.write_text(json.dumps({'models': {'ek_x': crane}}), encoding='utf-8'); self.assertIs(convert.load_models(path)['ek_x']['walkUnder'], True)
+            for change in ({'walkUnder': False}, {'placeable': None}, {'underfoot': True}):
+                path.write_text(json.dumps({'models': {'ek_x': {key: value for key, value in {**crane, **change}.items() if value is not None}}}), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, 'walkUnder is true'):
+                    convert.load_models(path)
 
 if __name__ == '__main__':
     unittest.main()

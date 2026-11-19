@@ -19,12 +19,12 @@ from pathlib import Path
 
 from . import reference, require
 
-ORDER = ('kind', 'type', 'same', 'variant', 'unbranded', 'subject', 'box', 'cut', 'notes')
+ORDER = ('kind', 'type', 'same', 'variant', 'unbranded', 'drawn', 'subject', 'box', 'cut', 'turn', 'notes')
 # The names a sheet's own lettering uses: outside a sign, a prop that needs one is a branding variant (`reference.register`).
 BRANDS = ('Ares|Mitsuhama|Renraku|Saeder|Shiawase|Evo|Wuxing|Horizon|NeoNET|DocWagon|Aztechnology|Lone Star|Knight Errant|PCC|ZDF|'
           'Council|UCAS|CAS|Sioux|Spiritech|Apex|Hargreaves|NABS|Ghostwalker|GridGuide|Denver Water|RTG|Chavez|Eagle|Mesametric|'
           'Warpdrive|Eclipse|Focused|Aurora Village|Ghost Riders|Koshari|Draco|The Hub|Penrose|UD|Centennial|2072|Chop Shop|'
-          'Coffin Hotel|Stuffer|Casquilho|Denver FRFZ|T-Bird|DW|GG')
+          'Coffin Hotel|Stuffer|Casquilho|Denver FRFZ|T-Bird|DW|GG|Pulse Tech|Iron Sight')
 SIGNS = {'storefront-sign', 'pylon-sign', 'banner-set', 'neon-sign', 'billboard', 'schedule-board', 'graffiti-wall'}
 MADE, REUSED, BUILDING = (255, 0, 255), (0, 170, 0), (0, 200, 255)
 
@@ -35,6 +35,18 @@ def layout(sheet, assets):
              for name, asset in assets.items()]
     return ('{\n  "sheet": {\n    "file": ' + json.dumps(sheet['file']) + ',\n    "sha256": ' + json.dumps(sheet['sha256'])
             + ',\n    "size": ' + json.dumps(sheet['size']) + '\n  },\n  "assets": {\n' + ',\n'.join(lines) + '\n  }\n}\n')
+
+
+def relayout(path):
+    """Write a set file again in the kit's layout (`layout`) and say whether it changed. A set edited by hand is
+    refused by the kit's own check for a space after a comma (the Ghost Riders set, 2026-11-15), which says nothing
+    about what the edit states."""
+    path = Path(path); data = json.loads(path.read_text(encoding='utf-8'))
+    require(isinstance(data, dict) and {'sheet', 'assets'} <= set(data), f'{path.name} is no concept set: it has no sheet and assets')
+    text = layout(data['sheet'], data['assets']).encode('utf-8'); changed = text != path.read_bytes()
+    if changed:
+        path.write_bytes(text)
+    return changed
 
 
 def concept_sets(sets):

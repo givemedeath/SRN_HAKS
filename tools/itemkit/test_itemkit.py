@@ -84,6 +84,22 @@ class ContractTests(Fixture):
             self.assertEqual(rows,[pin(self.local),expected] if str(self.local)<str(dependency) else [expected,pin(self.local)])
             self.assertEqual([args.args[0] for args in repin.call_args_list],[self.local])
             self.assertEqual([row['path'] for row in rows],consumed_inputs(self.path,self.local,stage='donor'))
+    def test_item_bindings_leave_library_files_to_the_stage_that_loads_them(self):
+        from tools.headkit import common
+        library=self.root/'lib.bin';library.write_bytes(b'bound');row=pin(library);library.write_bytes(b'changed since binding')
+        write(self.local,{'schemaVersion':1,'toolsRoot':str(self.root),'libraries':{'igl':{'directory':str(self.root),'files':[row]}}})
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):common.bindings(self.local)      # headkit reads every library
+        self.assertEqual(contracts.bindings(self.local)['libraries']['igl']['files'],[row])       # an item process does not
+        with self.assertRaisesRegex(ValueError,'Stale file pin'):common.library(contracts.bindings(self.local),'igl')
+    def test_a_stage_lists_only_the_libraries_it_may_load(self):
+        files={name:self.root/(name+'.bin') for name in ('igl','pymeshlab','xatlas','mediapipe')}
+        for name,path in files.items():path.write_bytes(name.encode())
+        local={'libraries':{name:{'files':[pin(path)]} for name,path in files.items()}}
+        with patch('tools.itemkit.__main__.bindings',return_value=local),              patch('tools.itemkit.__main__.python_package_pins',return_value=[]),              patch('tools.itemkit.__main__.all_pins',return_value=[]),              patch('tools.itemkit.__main__.code_pins',return_value=[]):
+            listed=lambda **scope:{name for name,path in files.items() if str(path.resolve()) in consumed_inputs(self.path,self.local,**scope)}
+            self.assertEqual(listed(stage='reduce'),{'igl','pymeshlab'});self.assertEqual(listed(stage='unwrap'),{'xatlas'})
+            self.assertEqual(listed(stage='donor'),{'xatlas'});self.assertEqual(listed(stage='bake'),set())
+            self.assertEqual(listed(),set(files))                    # an unscoped listing stays conservative
     def test_resume_inputs_skip_superseded_attempts_and_keep_current_ancestors(self):
         run=self.root/'run';run.mkdir();receipts={}
         for stage in ('fit','reduce'):
@@ -389,6 +405,15 @@ class GeometryTests(unittest.TestCase):
         self.assertEqual(patch_distance_bound({**policy,'unorientedSourcePatch':wide}),.003)       # unapproved: transfer distance
         self.assertEqual(patch_distance_bound({'maximumDistance':.002}),.002)                      # a tightened policy still binds
         self.assertEqual(patch_distance_bound({**policy,'maximumDistance':.002,'unorientedSourcePatch':approved}),.002)   # approved too
+    def test_a_wider_transfer_distance_needs_the_users_approval(self):
+        from .transfer import transfer_distance,patch_distance_bound
+        self.assertEqual(transfer_distance({}),.003)
+        for policy in ({'maximumDistance':.0042},{'maximumDistance':.0042,'maximumDistanceApproval':' '},
+                       {'maximumDistance':.0051,'maximumDistanceApproval':'User: "Allow 5.1 mm"'},{'maximumDistance':0}):
+            with self.assertRaises(ValueError):transfer_distance(policy)
+        approved={'maximumDistance':.0042,'maximumDistanceApproval':'User in chat: "Allow 4.2 mm (Recommended)"'}
+        self.assertEqual(transfer_distance(approved),.0042)
+        self.assertEqual(patch_distance_bound(approved),.0021)                    # an unpatched face keeps the 2.1 mm unoriented bound
     def test_colour_range_normalization_is_bounded_and_recorded(self):
         from .textures import normalize_source_colour
         values=np.array([[-1e-6,1.0000068,.5]],np.float32);normalized,report=normalize_source_colour(values)
@@ -454,6 +479,38 @@ class ReceiptTests(Fixture):
         with self.assertRaisesRegex(ValueError, 'Review pending'): self.runner.result('prepare')
         self.runner.review('prepare', 'approved', 'Inspected the original reference')
         self.runner.result('prepare')
+    def test_a_stage_pins_the_libraries_it_loaded_and_no_others(self):
+        from tools.headkit import common
+        used = self.root/'igl.bin'; used.write_bytes(b'igl'); idle = self.root/'faces.bin'; idle.write_bytes(b'faces')
+        self.runner.local = {**self.runner.local, 'libraries': {'igl': {'files': [pin(used)]}, 'xatlas': {'files': [pin(used)]}, 'mediapipe': {'files': [pin(idle)]}}}
+        loads = {'reduce'}
+        def compute(stage, folder, **kwargs):
+            if stage in loads: common.LIBRARIES_USED.add('igl')
+            return {}
+        with patch.object(self.runner, '_execute', side_effect=compute):
+            self.runner.execute('fit'); self.runner.review('fit', 'approved', 'Reviewed fit'); self.runner.execute('reduce')
+        paths = {row['path'] for row in read(self.runner.state['stages']['reduce']['path'])['inputs']}
+        self.assertIn(str(used.resolve()), paths); self.assertNotIn(str(idle.resolve()), paths)
+        self.assertIsNone(common.LIBRARIES_USED)
+        # A failure after the libraries were added still counts against the snapshot the attempt started from.
+        self.runner.review('reduce', 'approved', 'Reviewed'); self.runner.package_pins = [pin(idle)]   # no package check at the start
+        def late(stage, folder, **kwargs):
+            common.LIBRARIES_USED.add('xatlas'); return {}
+        with patch.object(self.runner, '_execute', side_effect=late), patch('tools.itemkit.runner.python_package_pins', side_effect=ValueError('late failure')):
+            for _ in range(2):
+                with self.assertRaisesRegex(ValueError, 'late failure'): self.runner.execute('unwrap')
+            with self.assertRaisesRegex(ValueError, 'Two failures'): self.runner.execute('unwrap')
+        with patch.object(self.runner, '_execute', side_effect=compute):       # fit declares no library
+            self.runner.state['stages'].pop('fit'); loads.add('fit')
+            with self.assertRaisesRegex(ValueError, 'undeclared libraries: igl'): self.runner.execute('fit')
+    def test_an_approval_inside_the_completion_pass_still_reads_the_outputs_fresh(self):
+        def compute(stage, folder, **kwargs):
+            file = folder/'output.txt'; file.write_text(stage); return {'artifact': pin(file)}
+        with patch.object(self.runner, '_execute', side_effect=compute):
+            result = self.runner.execute('fit')['result']; stage, audit = self.runner.completion
+            self.assertEqual(stage, 'fit')
+            Path(result['artifact']['path']).write_bytes(b'altered')
+            with self.assertRaisesRegex(ValueError, 'Stale'): self.runner.review('fit', 'approved', 'notes', _audit=audit)
     def test_changed_output_invalidates_resume(self):
         result = self.runner.execute('prepare')['result']
         self.runner.review('prepare', 'approved', 'Viewed reference')

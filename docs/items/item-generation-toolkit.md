@@ -88,7 +88,7 @@ the generic native gate blocked and grants no fit or generation approval.
 The maintained separate firearm adapter is exposed by `firearm-inputs`,
 `firearm-prepare`, `firearm-native` and `firearm-fixture`. A preparation specification binds a source
 profile with the verified effective stack, comparison HAKs, explicit resource
-identity and each Color's final corner arrays, 1K diffuse and 32x64 RGBA icon.
+identity and each Color's final corner arrays, 1K or 2K diffuse and 32x64 RGBA icon.
 The source profile supplies namespace/table evidence only, not a pistol grip fit.
 Use `firearm-inputs --spec SPEC --bindings BINDINGS --output INPUTS` before the
 verified launcher invokes `firearm-prepare --spec SPEC --output FRESH`.
@@ -268,8 +268,14 @@ CFG1, texture12 steps; other sampler values unchanged). Retain raw mesh and shap
 An optional `geometrySeedOffset` (integer 0..2147483647) adds the recorded offset
 to the three frozen geometry noise seeds only. Omission/zero preserves historical
 requests. Use a fresh manifest and distinct offset for a new noise trial; identical
-conditioning and identical seeds are not a useful retry. Appearance keeps its
-saved-shape binding and its original texture seed. Every submitted geometry job
+conditioning and identical seeds are not a useful retry. `drive gen` refuses a
+geometry attempt whose workflow and seeds match an earlier submitted attempt of
+the same design, after the request and before the submit. Appearance keeps its
+saved-shape binding and its original texture seed unless the manifest carries
+`appearanceSeedOffset` (same range), which moves the one texture noise seed;
+`drive textured --appearance-seed N` colours an approved clay again that way
+(job `appearance-sN`, manifests `geometry-approved-seedN-v1` and `donor-seedN-v1`).
+A repeated appearance request with the same seed is refused like a repeated geometry one. Every submitted geometry job
 still counts against the shared model allowance.
 `run --stage inspect` renders the raw mesh in seven directions without texturing.
 Record the generated-geometry decision with both exact raw-mesh and saved-shape
@@ -371,11 +377,35 @@ Long thin weapons (`shortsword`, `longsword`, `greatsword`, `staff`) need
 `python -m tools.itemkit.straightness check MESH.glb --family F`; bend, twist and
 guard-skew flags are advisory and go to the reviewer with the views. A bowed but
 otherwise correct clay can be unbent with `straighten MESH.glb OUT_DIR [--family F]`
-(the family picks the limits its result is assessed against, as in `check`); review
+(the family picks the limits its result is assessed against, as in `check`). It
+bridges wide sections such as a cross-guard; add `--whole` to straighten through
+them when a hafted head is cocked on its haft (the saved map keeps that choice). Review
 the straightened views like a generated attempt. Appearance and the source bake
 stay in the generated frame, so re-apply the saved map with `--map` to the
 textured donor and working shell before fitting. See the wave-1 section of
 `four-weapon-lessons.md` for calibration and limits.
+
+A handle too short for the hand at the chosen size can be lengthened alone with
+`stretch MESH.glb OUT_DIR --span LO HI --factor K`: the span (fractions of the
+length from the principal frame's low end; the report names `longAxis` and the `lowEndVertex` it counts from) grows by K,
+the end below it stays and everything above moves along the axis unchanged.
+Re-apply its `stretch-map.npz` with `--map` to the textured donor, review the
+views, then fit at the natural size (wave-4 Sai). A factor in [0.4, 1) shortens the
+span instead: a long body comes down to the chosen length while its grip keeps the
+hand fit an even scale would shrink (the wave-5 Tonfa's shaft). `narrow MESH.glb OUT_DIR --span
+LO HI --band INNER OUTER --factor K` pulls side parts such as sai prongs towards
+the centreline: across the width band (distances from the centreline as fractions
+of the length) the extent shrinks to K, and everything beyond moves in unchanged.
+It refuses a span that would cut through the side parts. `level MESH.glb OUT_DIR --span LO HI --band INNER
+OUTER` shears side parts that curl out of the blade's plane (guard arms bowed to
+one face) back into it: past the band's inner distance, each width bin of the arms
+keeps its thickness and shape but its depth midline moves onto the plane of the mesh
+outside the span, fading in up to the outer distance (wave-6 Monofilament Sword).
+It refuses a band that the blade or grip outside the span reaches, and its
+`level-map.npz` carries to the donor and shell like the others.
+When one `drive textured --straight DIR` folder holds several maps, each map's
+measuring report (`straighten.json`, `thin.json`, `level.json`) must sit beside it
+and show it was measured on the previous map's output; otherwise the step refuses.
 
 The same check flags a slab guard (`guardSectionRatio`) and an over-thick blade
 (`bladeDepthToWidth`). `thin MESH.glb OUT_DIR` halves the blade depth by default
@@ -397,6 +427,9 @@ scaling depth and width separately. The depth departs from the standard by
 construction, so the fit always stops until `fit.gripDeparture` carries an approved
 review with the digest from the worker's retained `grip-measurement.json`. See the
 Club continuation in `four-weapon-lessons.md`.
+The fit override `roundBasis: "depth"` (recorded as `fit.roundBasis`) sizes the
+diameter to the approved grip depth instead of the face width, for a thin stick that
+the face width makes too thick (the wave-6 Rattan Stick, 3.0 cm instead of 4.8 cm).
 
 ## Chained stages
 
@@ -415,6 +448,25 @@ Measured on the wave-1 Club (2026-11-11, fit through native, same inputs): about
 minutes chained. Triangle counts were identical and the baked texture differed from a stage-by-stage run by at most
 one colour level, the same as two stage-by-stage runs differ from each other. Roughly half of the chained time is
 still verification inside the stages. End a chain at `render` when the look has not been reviewed yet.
+
+Since 2026-11-15 a chain starts fewer Blender processes and reads fewer files (each Blender launch costs most of a
+minute before any work, and one pass over a stage's inputs opened about 6,600 files):
+
+- A stage pins the byte-bound libraries it loaded (`runner.STAGE_LIBRARIES`; loading another fails the stage), not
+  every library in the bindings. The driver sets the launcher's hash cache (`SRN_LAUNCH_HASH_CACHE`, as headbatch does).
+- An item process reads its bindings without hashing the byte-bound libraries (`contracts.bindings`,
+  `verify_libraries=False`): the stage that loads a library hashes and pins it, so a process that loads none no
+  longer reads every library folder at start. Headkit's own loader still verifies them all.
+- The automatic approval of a stage the chain just ran continues that stage's completion pass; the new receipt and
+  the stage's outputs are still read fresh. A reused stage, and every review a person files, takes a pass of its own.
+- `finish` starts no Blender without a `donorFinish` projection and hands the unwrapped scene on (`workerSkipped`).
+  `fit` and `reduce` write the part arrays the next stage reads (`uvSource`), and `render` writes the export arrays
+  (`exportArrays`), inside the launch they already have. A receipt from before this has none, and the next stage
+  then extracts them in a launch of its own, as before.
+
+Measured on the wave-4 Mace (fit through native, same manifest, a machine other sessions were also using): 10 Blender
+launches became 6, and the time outside Blender's own work fell from 1,042 s to 838 s of a 1,375 s chain. What is left
+is mostly the fresh verification passes of each stage and the launcher's own start-up, which this change keeps.
 
 ## Unattended client capture
 
@@ -438,6 +490,66 @@ The greatsword carrier rests on the shoulder, so its fixture uses `fixture.SHOUL
 higher and a metre further off, with the close-ups aimed at the chest where the hand is. The framing follows the
 route's `carry` (`fixture.carry_for`): the greataxe, halberd and scythe carriers are also shouldered. Other carries
 (staff, bow) still use the hip framing until their own is measured.
+
+`--wait SECONDS` waits for another session's client to close before starting. A refused start writes nothing, so the
+same captures folder can be named again.
+
+### Several items in one client start
+
+    python -m tools.itemkit.review_session build SESSION FIXTURE_DIR [FIXTURE_DIR ...] --nwn-root GAME_INSTALL
+        [--resources FOLDER] [--fire BLUEPRINT=CLIP ...]
+    python -m tools.itemkit.review_session capture SESSION CAPTURES --nwn-root GAME_INSTALL [--wait SECONDS] [--items A,B]
+
+A fixture is one item with its own module, user directory and copy of the shared packs. `build` joins any number of
+built fixtures of one hand in a session:
+
+- **One user directory.** Its HAKs are hard links to the fixtures' pinned files, so a session adds no pack copies.
+  New fixtures link their shared packs to the bound files the same way (`fixture.link_or_copy`); the pins are verified
+  before every use as before.
+- **One module.** It is the first fixture's module with every item's blueprint. Its entry script reads the reviewed
+  item and its carry from `itk_items.2da` in the session's override folder, and when an item's shots are done it
+  takes that item from the actors, hands them the next one and restarts the motion sequence. The motion heartbeat
+  re-equips the current item. Without the capture toggle the session shows the table's first item for a look by hand.
+- **One table of base items.** Firearm packages carry a private `baseitems.2da`. When they differ, a small HAK listed
+  first holds one merged table: each carrier row as the packages that use it have it, with the widest appearance range.
+  Packages that disagree on a row beyond that range are refused.
+- **Five shots a body, not sixteen.** A session takes the front, the right side, the hand close up, the attack stance
+  and the firing (`review_session.SESSION_SHOTS`); rear, left side, shadow, equip, walk, run, shield, off hand and
+  armour stay with the single-fixture capture. The female runs four steps behind the male, so an item takes 17 steps
+  (about 100 seconds) where the full list took 40. Each still shot holds 2.6 s for its three pictures.
+- **Firing.** The actors are given bullets and bolts, and each item's firing clip replaces the stock shot: `fire_pst`
+  on the sling row and `fire_rfl` on the crossbow row unless `--fire BLUEPRINT=CLIP` names another (`fire_smg`,
+  `fire_sg`; empty for none). The firing shot holds five seconds of an attack round. The driver takes pictures the
+  whole time, scores each by how much of it is bright, and writes the three best; frame 1, the one on the contact
+  sheet, is the brightest. `capture.json` records `flash` per shot (the brightest picture's bright area over the
+  burst's dimmest) and the run prints it per body: a firearm whose flash is 0 showed no muzzle flash. A burst that
+  took no picture for half a second (`longestGap`) may have missed the flash and is rejected as `burst stalled`.
+  The attack and firing shots are framed from the direction of the actor's target (an attacking actor has turned,
+  and `GetFacing` did not say where to), so they stay side views. An actor stops attacking after its own firing
+  shot: left shooting, its flash was the brightest thing in the other actor's burst.
+- **Lost shots.** About one shot in ten used to be rejected (`next shot began`, `burst overran the shot hold`). The
+  cause was the driver's own file work: opening the client log on every poll stopped it for up to eleven seconds now
+  and then, and making a picture file for five (2026-11-18), and the shot after was lost. The log is now read through
+  one open file (`client.LogTail`) and the pictures are written on a thread of their own (`client_capture.Writer`),
+  so neither holds up a shot. Each shot records what would show it again: `waited` (the longest turn of the poll
+  loop since the shot before), `readSeconds` (the longest log read), `grabSeconds`, and `seen` (when the driver found
+  the shot, in seconds from the item's start, to set against the log's own times); `capture.json` records
+  `slowestWrite`. A grab the system refuses (`screen grab failed`) loses that still shot, or one picture of a firing
+  burst (`refused`), and no longer the run. `--again` retakes an item.
+- **Effect models.** `--resources FOLDER` puts a folder's files in the first-listed session HAK, where they win over
+  every pack: the compiled models with firing effects, when a fixture's bound `srn_weapon.hak` predates them.
+
+`capture` starts the client once and files each item under `CAPTURES/<blueprint>/` in the single-fixture layout
+(`capture.json`, `evidence-draft.json`, contact sheets). It writes the item table itself: items with a finished
+capture are left out, so a second run takes up where a stopped one ended, and `--items` picks a subset without a
+rebuild; with `--again` it retakes finished items whose shots were rejected. When it ends it puts every item back
+in the table. It exits 1 while any item is unfinished. A session built before the shot list was shortened is
+refused: build it again. A build that fails removes the session folder it began; every blueprint's tag must be its
+resref, which is how the scripts find the item on an actor.
+
+Session captures are review material. The client stage's evidence names the item's own fixture module and HAKs
+(`fixture.validate_evidence`), which a session does not run, so the single-fixture capture stays the route to that
+evidence. Shields (the left hand) go in a session of their own.
 
 `capture.json` records the shots and equip lines. `evidence-draft.json` groups the pictures by body and required
 check with `result: "unreviewed"` and lists any check without a picture. It is material for the client evidence, not
@@ -536,13 +648,75 @@ thicker shaft, `"sectionBasis": "visibleFaceWidth"` in the overrides makes the f
 still with one scale (the user chose a 41 x 49 mm stun staff grip over 30 x 35 mm). Fitting
 refuses the per-axis calibration on any route that isn't grip-bound if it would flatten the section by more than 10%.
 
+A katar is held by the crossbar inside its frame, and a tonfa by the side handle: in both, the grip runs across the
+weapon instead of along it (user, 2026-11-14: "Fist on crossbar", "By the side handle"). `"sideGrip": true` in a
+one-hand bladed fit's overrides makes the frame's width axis (the larger cross spread) the grip axis, so the long body
+lies across the hand along native Z. Nothing along that axis is found automatically: the overrides must give
+`bladeAtLowEnd`, all four landmarks along the grip axis (counted from the grip's own end, with the body above
+`bladeStart`) and a `targetLength` for the long body. Two options help a real shell:
+
+- `"alignGripAxis": true` turns the frame onto the centreline of the grip band itself. The whole-weapon frame leans
+  towards a long body: the Tonfa's handle sat about 3.5 degrees off it. Use it only when the band holds nothing but
+  the grip.
+- `"gripAcross": F` places the grip at fraction F of the long body (from the low end of the frame's width axis) when
+  the band also cuts the rest of the weapon (the Katar's crossbar lies beside its blade). A grip point in the wrong
+  place fails with "No section outline encloses the grip axis". F counts in the frame after `turnAboutAxis`, which
+  reverses the width axis: turning a fit means giving 1 - F (the Katar's 0.26 became 0.74).
+
+The fit is `side-grip-uniform` (`grip.side_grip_uniform`): one uniform scale from the chosen length, since any
+transverse correction of the grip would also stretch the body lying across it. The grip is measured only on the
+section outline that encloses the grip axis (`grip.section_dimensions(..., around)`), and the difference from the
+standard always needs a review bound to the measurement digest. Inventory icons stand a side-grip weapon's body upright
+in the cell. The parts are slices across the grip axis, so the body lies in all three, mostly in the grip part (the
+Katar: 60% of its surface in `m`, which the dagger family gives 19% of the budget). `processing.partBudgets`
+(`{part: {visible, shadow}}`) re-splits the family's unchanged visible and shadow totals for a side grip only
+(`parts.side_grip_budgets`, applied where the runner loads the family). Which way the body points (forward past the knuckles or back along the forearm) depends on the frame;
+check it in the client and refit with `"turnAboutAxis": true` if needed. A body that belongs at the little-finger end
+of the fist, with the reviewed pommel past the thumb (a tonfa's shaft along the back of the forearm, the knob forward),
+takes `"reverseGrip": true`: a half-turn about the body's own axis through the grip origin, keeping the landmarks,
+probes and the way the body points. The body is then the low part (`b`), so re-split `processing.partBudgets` to suit.
+
 `drive contract FAMILY ID --wave NAME` (`family_contract.py`) builds a native contract for a design on any of these
 carriers from the measured wave-1 contract: it extracts the stock `_011` parts and icons into a new stack layer
 (in a per-carrier `stack-<class>.json`, so the wave's `stack.json` and earlier contracts keep their pinned bytes),
 measures the stock grip origin and span (`carrier.py`, from the binary models' triangle sections), sets the icon size
 from `baseitems.2da`, allocates the visible budget from `budget-policy.json` by stock length (7,500 at 0.5 m to 22,500
-at 1.6 m and over) and reserves resources, skipping slots the wave's other contracts on the same carrier pinned. The grip origin is measured, not reviewed in a hand: the first design on a
+at 1.6 m and over) and reserves resources, skipping slots that other live contracts on the same carrier pinned (in
+any wave) and names `srn_weapon` holds in this checkout or on main (`refs/remotes/origin/main` and `refs/heads/main`
+as last fetched, since the checkout running the contract can lag main). The grip origin is measured, not reviewed in a hand: the first design on a
 new carrier carries the both-body hand-fit review that confirms it.
+
+### Taking a base-game appearance slot (`--replace-stock`)
+
+The user approved replacing base-game weapon parts on every carrier (2026-11-15) once a carrier's slots are used up.
+`drive contract FAMILY ID --wave NAME --replace-stock` allows it; without the flag a full carrier is refused as before.
+
+- **A free slot always comes first.** The flag only matters when no slot in 1..25 is free.
+- **Only stock-only slots are taken.** A slot qualifies when every name it holds (the three part models, their TGA
+  icons and the icons' DDS twins) is in the stack's installed KEY namespace (`nwn-key-namespace-v1`) and nothing else
+  holds it: no other stack layer lists or inventories it (the `srn_weapon` layer, the shipped bodies, the comparison
+  weapons, the fixture templates; the `installed-stock-*` extraction layers count as stock), no live sibling contract
+  in any wave pinned it, and `srn_weapon` does not hold it in this checkout or on main. A slot that a project
+  resource or a sibling already holds is never taken. The slot's texture name is the design's own and must be free.
+- **Highest stock slot first** (shape 9 down to 1). The low shapes are the base game's default looks: shape 1 is the
+  stock donor every contract measures and the first appearance in the toolset, so it is kept the longest.
+- **The contract records it.** `resources.replacesStock` lists the stock names the slot overrides, sorted, and the
+  contract's notes say so. `native` (prepare) repeats the check on the pinned stack: the pinned slot must hold exactly
+  the recorded names, and they must still be stock-only. A contract without the record cannot pin an occupied slot.
+- **Colour 1 only, not the whole shape.** Stock carriers hold shapes 1–9 in colours 1–4 (`wswls_b_011` to
+  `wswls_t_094`). A replacement overrides only the `N1` variant of its shape. The allocator, the package, the fixture
+  blueprint and publication all carry one colour per design. Taking `N2`–`N4` as well would need three renamed copies
+  of every part model and icon (18 more files) that would all look the same, and would change more base-game items.
+  The capacity is the same either way, one design per shape, because no design is ever given colours 2–9. The cost:
+  in the toolset and in the in-game appearance changer, shape N's colours 2–4 still show the stock part next to the
+  new colour 1. Stock blueprints that use part number `N1` show the new part, part by part (the user accepted this).
+- **DDS twins override the stock DDS icons.** The base game ships most part icons as both TGA and BioWare DDS (DXT5
+  with a mip chain; some shapes have no icons at all, such as wswls shape 9). Every package carries DDS twins of its
+  icons (below), so a replacement overrides both names. Still look at the inventory icon in the first stock-slot
+  fixture: the client, not the converter, proves the override.
+
+Publication then copies the replacing models and icons into `srn_weapon` and records them as stock replacements
+(`approved-weapons-release.md`).
 
 ## Native and geometry contracts
 
@@ -574,7 +748,19 @@ all `b/m/t` donor resource names, native rotation `frame`, `gripOrigin`, measure
 `gripLength`, and donor `iconDimensions` for `b/m/t`. Set `reviewed` only after inspecting
 the donors. The first pilot requires composite ModelType2. Names are allocated without
 collisions in the supported model1..25 range, with `model*10+colour <=255`; UTI fields
-use that encoded byte. No gameplay table changes or mixed assemblies are generated.
+use that encoded byte. A contract made with `--replace-stock` may hold a stock-only slot it records in
+`resources.replacesStock` (see above).
+
+Every composite package carries BioWare DDS twins beside its TGAs (user, 2026-11-15). `native` (prepare) converts
+each part icon to DXT5 and the shared diffuse texture to DXT1, both with a generated mip chain, using the vendored
+NWN Crunch (`native.nwn_dds`: `-fileformat nwn -DXT5|-DXT1 -mipMode Generate`). DXT5 with mips is the base game's
+own icon format: converting a stock icon TGA this way gives the stock DDS's size, levels and header. The checks
+read back each header (dimensions, three or four channels, not a standard `DDS ` file). The converter's pin is in
+`prepared.json` as `ddsConverter`. The package then holds exactly one DDS per TGA. A preparation made before this
+change, without `ddsConverter`, holds none and still compiles. The TGAs stay as the uncompressed copies. The tool
+lock provides NWN Crunch for `windows-x64` only, so composite packaging runs on Windows; elsewhere `native` stops with
+`Tool unsupported on this platform: crunch`. The client
+loads the DXT texture, so client review sees the compressed result that ships. No gameplay table changes or mixed assemblies are generated.
 
 Fit inputs are a reviewed positive uniform matrix bound to the textured donor hash,
 plus measured grip endpoints in NWN/Blender basis (glTF conversion is `(x,-z,y)`).
@@ -616,9 +802,11 @@ The selected closed shadow result is 96/96/296. Its explicit `shadowPommel`
 projected-loop method retains the measured opening with a variable-thickness,
 96-triangle closed silhouette; it does not change visible geometry.
 
-The firearm and shield routes cap the whole item at 15,000 visible / 500 shadow
-(`contracts.FIXED_ROUTE_BUDGET`; 10,000 before 2026-11-11), including active hidden
-placeholders. Shipped profiles under the cap stay valid. SMG/rifle slot reservations exist; no subtype size
+The firearm route caps the whole item at 37,500 visible / 500 shadow
+(`contracts.FIREARM_ROUTE_BUDGET`; user, 2026-11-17: "raise the firearm cap to 37,500"; 15,000 before, and
+10,000 before 2026-11-11), including active hidden placeholders. The shield route stays at 15,000 / 500
+(`contracts.FIXED_ROUTE_BUDGET`). No firearm above 15,000 has been checked in the client yet; choose a
+pistol's budget near the bottom of the firearm range and a rifle's by its size. Shipped profiles under the cap stay valid. SMG/rifle slot reservations exist; no subtype size
 thresholds or shadow budget increases have been established. Preserve historical profiles and receipts;
 derive a fresh profile/manifest for future processing. New targets confer no geometry,
 native, client or production approval.
@@ -635,7 +823,23 @@ its renders look acceptable. The Cougar UDF trial failed that physical gate.
 Unwrap after fitting/splitting/reduction. Bake the **fitted textured donor** onto the
 final atlas at4K, with profile-controlled cage/ray distances. Inspect unpadded masks:
 visible misses fail, geometrically identified internal cut caps use an explicit colour,
-and only empty atlas padding is extended. Derive2K/1K/512; initial runtime diffuse is1K.
+and only empty atlas padding is extended. Derive 2K/1K/512. The runtime diffuse of a new
+contract is 2K (user, 2026-11-15: "also up all items to 2k"; `contracts.NEW_ITEM_TEXTURE_SIZE`,
+written by `drive contract`); a contract written before that keeps its 1K, and the firearm
+package route takes either. The atlas gutter and coverage gates run at the contract's size.
+The atlas is packed at twice the runtime size, so a 2K item's island padding is measured in 2K texels (a 1K
+item's layout is unchanged); the Mace went from 0.484 to 0.532 useful coverage at 2K. `processing.textureSharpen`
+(`{radius, amount}`: 0.3-2 texels, amount up to 1) is an optional unsharp mask on each derived map after the box
+filter; the 4K bake is never sharpened. It is off unless a manifest sets it, and a look approval decides a default.
+`processing.metal` (`{darken, reflection}`) uses the donor stage's metallic map, pinned as the `donorMetallic`
+input (`maps/metallic-4096.png` beside the textured donor) and baked onto the final parts in a second pass over
+the colour bake's rays. `darken` (0.3-1) is the linear colour factor on full metal: the generator gives metal a
+bright albedo, which the game shows as pale steel because it has no metal shading (Defiance T-250, 2026-11-17:
+0.40-0.55 brought its receiver back to the reference's gunmetal). `reflection` (0-0.6) lowers the texture's alpha
+on metal, which the game reads as its environment-map mask, as the base game's metal textures do; with it the
+derived maps are RGBA, the native TGA keeps the alpha and its DDS twin is DXT5. A `.txi` beside it names the
+environment map (`envmaptexture chrome1`): without one the game shows the alpha as transparency. Zero writes no alpha. Both are
+off unless a manifest sets them, and the in-game look of a reflection strength still needs a client check.
 No original appearance-field sampling at transformed coordinates is permitted.
 
 Rendering uses four CPU threads, matched clay/textured views and measured native icon

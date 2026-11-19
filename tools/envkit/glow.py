@@ -11,19 +11,75 @@ same), so the light around a sign is drawn: `halo` blurs the model's glow, seen 
 onto a card that stands just in front of it and is added to the picture behind."""
 from typing import NamedTuple
 
+from pathlib import Path
+
 import numpy as np
 
 from . import require
 
 
 SIDES = ((0.0, 1.0), (1.0, 0.0), (0.0, -1.0), (-1.0, 0.0))  # the ways a card can face: front (+Y), then +X, back, -X
+MAIN = 0.25  # a patch holding this share of what a named lit part shows on its best-lit upright side gets a halo card however small it is
 
 
 def position_map(points, uvs, faces, size, *, facing=False):
     """((size, size, 3) positions, (size, size) covered): the place on the model each texel shows. Rows run down the
     image as v runs up from 0, the way glTF and the game both read a texture. Each triangle also covers the texels
     just outside its edges, so the gutter the smaller mips blend in is lit like its island. With `facing`, a third
-    value: the way each texel's surface faces, as a unit vector."""
+    value: the way each texel's surface faces, as a unit vector. A large model's is kept for its next build (`cache`)."""
+    from . import cache
+    points, uvs, faces = np.asarray(points, float), np.asarray(uvs, float), np.asarray(faces)
+    return cache.arrays('places', (points, uvs, faces, size, facing, Path(__file__)), lambda: _position_map(points, uvs, faces, size, facing), faces=len(faces))
+
+
+PLACES_BLOCKS, PLACES_BATCH = (4, 8, 16, 32, 64, 128, 256), 1_500_000  # texels across the square a face is drawn in, and texels drawn at once
+
+
+def _position_map(points, uvs, faces, size, facing):
+    """The map as `_position_map_face_by_face` makes it, the faces drawn many at a time: a model of 190,000 faces took
+    42 seconds a map, face by face, and two maps a build (2026-11-17). Which face a texel shows is settled first:
+    the last face it lies inside, else the first whose gutter reaches it; then its place is worked out once."""
+    pixel = uvs * size - 0.5; corner = pixel[faces]; a, b, c = corner[:, 0], corner[:, 1], corner[:, 2]
+    low = np.maximum(np.floor(corner.min(1)).astype(np.int64) - 1, 0); high = np.minimum(np.ceil(corner.max(1)).astype(np.int64) + 1, size - 1)
+    span = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (c[:, 0] - a[:, 0]) * (b[:, 1] - a[:, 1])
+    drawn = (high >= low).all(1) & (np.abs(span) >= 1e-12); extent = (high - low + 1).max(1)
+    margin = 1.0 / np.maximum(np.sqrt(np.abs(span)), 1.0)
+    inside = np.full(size * size, -1, np.int64); beside = np.full(size * size, len(faces), np.int64)
+
+    def weights(chosen, xs, ys):
+        """Each chosen face's three weights at its texels (xs, ys), one row of texels a face."""
+        pick = lambda values: values[chosen].reshape((-1,) + (1,) * (xs.ndim - 1))
+        ax, ay, bx, by, cx, cy, over = (pick(values) for values in (a[:, 0], a[:, 1], b[:, 0], b[:, 1], c[:, 0], c[:, 1], span))
+        second = ((xs - ax) * (cy - ay) - (cx - ax) * (ys - ay)) / over; third = ((bx - ax) * (ys - ay) - (xs - ax) * (by - ay)) / over
+        return np.stack([1 - second - third, second, third], -1)
+
+    def settle(chosen, xs, ys, held):
+        found = weights(chosen, xs, ys); least = found.min(-1); texel = ys * size + xs; face = np.broadcast_to(chosen.reshape((-1,) + (1,) * (xs.ndim - 1)), xs.shape)
+        within = held & (least >= 0); gutter = held & (least < 0) & (least >= -margin[chosen].reshape((-1,) + (1,) * (xs.ndim - 1)))
+        np.maximum.at(inside, texel[within], face[within]); np.minimum.at(beside, texel[gutter], face[gutter])
+    below = 0
+    for block in PLACES_BLOCKS:
+        chosen = np.nonzero(drawn & (extent > below) & (extent <= block))[0]; below = block; reach = np.arange(block)
+        for start in range(0, len(chosen), max(1, PLACES_BATCH // (block * block))):
+            some = chosen[start:start + max(1, PLACES_BATCH // (block * block))]
+            xs = np.broadcast_to(low[some, 0, None, None] + reach[None, None, :], (len(some), block, block)); ys = np.broadcast_to(low[some, 1, None, None] + reach[None, :, None], (len(some), block, block))
+            settle(some, xs, ys, (xs <= high[some, 0, None, None]) & (ys <= high[some, 1, None, None]))
+    for one in np.nonzero(drawn & (extent > below))[0]:  # the few faces larger than any block, each over its own texels
+        xs, ys = np.meshgrid(np.arange(low[one, 0], high[one, 0] + 1), np.arange(low[one, 1], high[one, 1] + 1))
+        settle(np.array([one]), xs[None], ys[None], np.ones((1,) + xs.shape, bool))
+    shown = np.where(inside >= 0, inside, np.where(beside < len(faces), beside, -1)); texel = np.nonzero(shown >= 0)[0]; face = shown[texel]
+    where = np.zeros((size * size, 3)); toward = np.zeros((size * size, 3))
+    nearest = np.clip(weights(face, texel % size, texel // size), 0, 1); nearest /= nearest.sum(-1, keepdims=True)  # a gutter texel shows the edge beside it
+    where[texel] = (nearest[:, :, None] * points[faces[face]]).sum(1)
+    if facing:
+        out = np.cross(points[faces[:, 1]] - points[faces[:, 0]], points[faces[:, 2]] - points[faces[:, 0]])
+        toward[texel] = (out / np.maximum(np.linalg.norm(out, axis=1), 1e-12)[:, None])[face]
+    where, covered, toward = where.reshape(size, size, 3), (shown >= 0).reshape(size, size), toward.reshape(size, size, 3)
+    return (where, covered, toward) if facing else (where, covered)
+
+
+def _position_map_face_by_face(points, uvs, faces, size, facing):
+    """The map drawn a face at a time, as it was until 2026-11-17: what `_position_map` is held to in its test."""
     where = np.zeros((size, size, 3)); covered = np.zeros((size, size), bool); toward = np.zeros((size, size, 3))
     pixel = np.asarray(uvs, float) * size - 0.5
     for face in np.asarray(faces):
@@ -127,7 +183,7 @@ class Halo(NamedTuple):
     light: list
 
 
-def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25, least=0.05, clear=0.3):
+def halo(lit, where, covered, *, toward=None, parts=None, reach=0.35, strength=0.6, core=0.6, scale=24, apart=0.25, least=0.05, clear=0.3):
     """The cards that carry the spread of the model's glow, a `Halo` (image, cards, light), or None where nothing glows.
 
     The glow seen square on is blurred over `reach` metres and dimmed to `strength`. Over the lit parts themselves it
@@ -143,31 +199,50 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
     `toward` (`position_map` with `facing`) says which way each texel's surface faces. With it a texel's light goes to
     a card on the upright side it faces most nearly (`SIDES`), so a sign on a side wall spreads from that wall. Three
     kinds of light then get no card: light that faces up or down; a patch of less than `least` square metres (the end
-    of a sign box, the side of a window recess); and light the model itself hides, with more of the model standing
+    of a sign box, the side of a window recess), unless it is a quarter or more (`MAIN`) of what a named part shows
+    on the upright side it lights most, since a small part (a scanner, a lock panel, a lamp on a post) is all of its
+    light and not a stray end of it, whether it shows on one side or all round: eight such parts of the older sets would have lost their glow (2026-11-15); and light the model itself hides, with more of the model standing
     over `clear` metres in front of most of it (the back of a sign box, inside the wall it hangs on). Patches whose
     cards would not touch get a card each. Without `toward` everything is taken to face front and nothing is left
-    out. The cards are flat either way."""
+    out. The cards are flat either way.
+
+    `parts` (which texels each lit part holds, as `inside` gives them) keeps each part's light on cards of its own; a
+    texel in two parts goes with the first. Without it the light of one side is shared out by depth alone, and where
+    the lit surfaces between two parts leave no gap in depth they share a card at the foremost: the Iron Sight Arms
+    shop's windows spread from a card at its sign, three quarters of a metre out from the glass, and from any slant
+    their light stood beside them (operator, 2026-11-14)."""
     from PIL import Image, ImageFilter
     require(reach > 0 and 0 < strength <= 1 and 0 <= core <= 1, 'A halo needs a reach in metres, a strength up to 1 and a core of 0 to 1')
     shining = covered & (lit.max(-1) > 0)
     if not shining.any():
         return None
     pad = 2 * reach; pictures, frames, light = [], [], []
+    shares, left = [], shining
+    for part in parts if parts is not None else ():
+        shares.append(left & part); left = left & ~part
+    shares.append(left)  # what no part holds, and everything where no parts are told
     if toward is not None:  # the upright side each texel faces most nearly, or none where it faces up or down
         along = np.stack([toward[..., 0] * x + toward[..., 1] * y for x, y in SIDES], -1)
         faced = np.where(along.max(-1) > 0.5, along.argmax(-1), -1)
+        # A named part's stray ends are told by its best-lit side: a lamp lit all round has no side with a quarter of its whole light.
+        mains = [MAIN * max(int((share & (faced == side)).sum()) for side in range(len(SIDES))) for share in shares[:-1]] + [np.inf]
     for side, (ahead_x, ahead_y) in enumerate(SIDES):
         # In the card's own frame: across (the viewer's left is positive), depth towards the viewer, height.
         frame = lambda places: np.stack([places[:, 0] * ahead_y - places[:, 1] * ahead_x, places[:, 0] * ahead_x + places[:, 1] * ahead_y, places[:, 2]], 1)
-        mine = shining & (faced == side) if toward is not None else shining if side == 0 else np.zeros_like(shining)
-        if not mine.any():
+        faces = shining & (faced == side) if toward is not None else shining if side == 0 else np.zeros_like(shining)
+        if not faces.any():
             continue
-        spots = frame(where[mine]); colours = lit[mine]; order = np.argsort(spots[:, 1]); spots, colours = spots[order], colours[order]
         if toward is not None:  # how far out the model reaches at each spot of this view, to tell what it hides
             whole = frame(where[covered]); base = whole.min(0); span = np.ceil((whole.max(0) - base) * scale).astype(int) + 1
             pixel = lambda places: (np.clip(((places[:, 2] - base[2]) * scale).astype(int), 0, span[2] - 1), np.clip(((places[:, 0] - base[0]) * scale).astype(int), 0, span[0] - 1))
             outermost = np.full((span[2], span[0]), -np.inf); np.maximum.at(outermost, pixel(whole), whole[:, 1])
-        for layer in np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1):
+        layers = []  # (spots, colours, their indices) of each part's light at each depth
+        for number, share in enumerate(shares):
+            mine = faces & share
+            if mine.any():
+                spots = frame(where[mine]); colours = lit[mine]; order = np.argsort(spots[:, 1]); spots, colours = spots[order], colours[order]
+                layers += [(spots, colours, layer, mains[number] if toward is not None else np.inf) for layer in np.split(np.arange(len(spots)), np.flatnonzero(np.diff(spots[:, 1]) > apart) + 1)]
+        for spots, colours, layer, main in layers:
             layer = layer[np.argsort(spots[layer, 0])]
             for patch in np.split(layer, np.flatnonzero(np.diff(spots[layer, 0]) > 2 * pad) + 1) if toward is not None else [layer]:
                 low, high = spots[patch].min(0) - pad, spots[patch].max(0) + pad
@@ -178,7 +253,7 @@ def halo(lit, where, covered, *, toward=None, reach=0.35, strength=0.6, core=0.6
                 np.maximum.at(picture, (rows, columns), colours[patch])
                 if toward is not None:
                     hidden = outermost[pixel(spots[patch])] > spots[patch, 1].max() + clear
-                    if (picture.max(-1) > 0).sum() < least * scale ** 2 or hidden.mean() > 0.5:
+                    if (picture.max(-1) > 0).sum() < least * scale ** 2 and len(patch) < main or hidden.mean() > 0.5:
                         continue
                 sharp = Image.fromarray((picture * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3))  # close the gaps between texels
                 source = np.asarray(sharp.filter(ImageFilter.GaussianBlur(1)), float).max(-1, keepdims=True) / 255

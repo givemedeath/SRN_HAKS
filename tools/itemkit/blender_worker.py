@@ -18,7 +18,7 @@ from tools.headkit.common import pin, read, require, verify, write,digest
 from tools.headkit.gltf import load as load_glb
 from tools.headkit.uv import raster_audit, gutter_audit
 from tools.itemkit.geometry import corner_hash, similarity_matrix, transform, topology, protected_checks, hidden_cap_faces,loop_shadow_proxy,camera_basis,cap_fan_center
-from tools.itemkit.transfer import finished_colour,patch_distance_bound,validate_texture_patch
+from tools.itemkit.transfer import finished_colour,patch_distance_bound,transfer_distance,validate_texture_patch
 from tools.itemkit.parts import active_parts, active_icon_dimensions, fitting_parts, grip_render_part, assembly_budget, firearm_views, WHOLE_NATIVE_FAMILIES
 from tools.itemkit.reduction import rims
 from tools.itemkit.routes import ROUTES
@@ -196,7 +196,7 @@ def measure(objects, config, kind='visible'):
         reports[part]['shadowRecommendation'] = early['shadowRecommendation']
         require(reports[part]['closedWound'], 'Repair/classify nonclosed or inconsistently wound part: '+part+' '+json.dumps(reports[part]))
     v, f = combined(objects)
-    report = protected_checks(v, f, config['processing'])
+    report = protected_checks(v, f, config['processing'], kind)
     report['geometryCornerHash']=corner_hash(v[f])
     expected=config['processing'].get('missCorrection',{}).get('unorientedSourcePatch',{}).get('targetCornerHash')
     if kind=='visible' and expected:require(report['geometryCornerHash']==expected,'Visible assembly differs from the exact reviewed texture-patch geometry')
@@ -320,7 +320,9 @@ def fit(cfg, out):
     fitted = transform(points, matrix)
     length = float(np.linalg.norm(fitted[1]-fitted[0]))
     native = cfg['family']['native']
-    require(abs(length/native['gripLength']-1) <= .02, 'Fitted grip differs from the measured native hand')
+    # A chosen-length round fit holds a handle of its own reviewed length (grip.fitted_grip_length), not the hand's.
+    from tools.itemkit.grip import fitted_grip_length
+    require(abs(length/fitted_grip_length(cfg['fit'], native, grip_report)-1) <= .02, 'Fitted grip differs from the measured native hand')
     require(np.linalg.norm(fitted.mean(0)-np.asarray(native['gripOrigin'])) <= .002, 'Grip origin differs from native hand')
     joins = cfg['processing'].get('joinY', [])
     fitted_parts = fitting_parts(cfg['family'], joins)
@@ -373,7 +375,7 @@ def reduce(cfg, out, shadow=False):
             swap_mesh(obj,'constrained-visible-'+part,cp,cf,smooth=True)
         proxy = cfg['processing'].get('shadowProxies', {}).get(part)
         if shadow and proxy:
-            require(proxy.get('method') in ('projected-silhouette', 'quadric'), 'Unknown shadow proxy method')
+            require(proxy.get('method') in ('projected-silhouette', 'quadric', 'voxel-shell'), 'Unknown shadow proxy method')
             source_p,source_f=arrays(obj)
             candidate=cfg.get('shadowCandidates',{}).get(part)
             require(candidate is not None and candidate['arrays'] in cfg['inputs'], 'Declare the checked CPU shadow candidate')
@@ -574,8 +576,8 @@ def transfer_preflight(cfg, out, donor, low):
         raise ValueError('Runtime UV preflight failed; inspect preflight.json before baking')
     dp,df=arrays(donor);tree=BVHTree.FromPolygons([Vector(row) for row in dp],df.tolist(),all_triangles=True)
     policy=cfg['processing'].get('missCorrection',{})
-    maximum=policy.get('maximumDistance',.003);alignment=policy.get('minimumNormalAlignment',.5)
-    require(0<maximum<=.003 and .5<=alignment<=1, 'Bounded preflight donor policy required')
+    maximum=transfer_distance(policy);alignment=policy.get('minimumNormalAlignment',.5)
+    require(.5<=alignment<=1, 'Bounded preflight donor policy required')
     patch=policy.get('unorientedSourcePatch');allowed=set()
     if patch:
         allowed=validate_texture_patch(p[f],patch,maximum_distance=patch_distance_bound(policy))
@@ -677,13 +679,28 @@ def bake(cfg, out):
         correction=correct_projection_misses(cfg,out,donor,low,pixels,owners,misses)
         misses[:]=False
         np.savez_compressed(out/'bake-masks.npz',owners=owners,hiddenCaps=caps,visibleMisses=misses)
+    metallic = None
+    if cfg.get('metallic'):
+        # A second pass over the same rays: the donor's metallic map (donor UVs) in place of its colour. The colour
+        # pass above is untouched; a texel this pass misses is left for the CPU padding (NaN), as it only feeds a mask.
+        source = bpy.data.images.load(cfg['metallic']); source.colorspace_settings.name = 'Non-Color'
+        for slot in donor.material_slots:
+            nodes = slot.material.node_tree.nodes; emission = next((n for n in nodes if n.type == 'EMISSION'), None)
+            link = emission.inputs['Color'].links if emission else (); require(link and link[0].from_node.type == 'TEX_IMAGE', 'The metallic pass needs an image-textured donor')
+            link[0].from_node.image = source
+        second = bpy.data.images.new('item-metallic-4k', width=size, height=size, alpha=False, float_buffer=True)
+        second.generated_color = (1, 0, 1, 1); second.colorspace_settings.name = 'Non-Color'; texture.image = second
+        set_active([low, donor]); bpy.ops.object.bake(type='EMIT', use_selected_to_active=True)
+        values = image_rgba(second); missed = np.all(np.abs(values[..., :3]-[1, 0, 1]) < 1e-5, axis=2)
+        layer = values[..., 0].astype(np.float32); layer[missed | caps | (owners < 0)] = np.nan
+        np.save(out/'bake-metallic.npy', layer); metallic = pin(out/'bake-metallic.npy')
     # Use Blender's own bake margin only after the independently audited unpadded pass.
     # Padding is implemented in the bound CPU postprocessor; it never overwrites mapped texels.
     np.save(out/'bake-linear.npy', pixels[..., :3])
     donor.hide_render = True; donor.hide_set(True); bpy.data.objects.remove(low, do_unlink=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(out/'scene.blend'))
     return {'visibleMisses': 0,'projectedMisses':projected_misses,'missCorrection':correction, 'preflight':preflight_report,'hiddenCapTexels': int(caps.sum()), 'mappedTexels': int((owners >= 0).sum()),
-            'linear': pin(out/'bake-linear.npy'), 'masks': pin(out/'bake-masks.npz')}
+            'linear': pin(out/'bake-linear.npy'), 'masks': pin(out/'bake-masks.npz'), **({'metallic': metallic} if metallic else {})}
 
 
 def save_bake_recovery(cfg,out,donor,low,owners,caps,misses):
@@ -746,8 +763,8 @@ def recover_bake(cfg,out):
 def correct_projection_misses(cfg,out,donor,low,pixels,owners,misses):
     policy=cfg['processing'].get('missCorrection',{})
     require(policy.get('method')=='nearest-finished-donor','Visible bake misses require an explicit bounded donor correction; padding cannot repair them')
-    maximum=policy.get('maximumDistance',.003);alignment=policy.get('minimumNormalAlignment',.5)
-    require(0<maximum<=.003 and .5<=alignment<=1,'Bounded outward donor transfer required')
+    maximum=transfer_distance(policy);alignment=policy.get('minimumNormalAlignment',.5)
+    require(.5<=alignment<=1,'Bounded outward donor transfer required')
     y,x=np.nonzero(misses);ids=owners[y,x];size=len(owners);uv=uv_corners(low)[ids]
     p,f=arrays(low);tri=p[f[ids]];ab=uv[:,1]-uv[:,0];ac=uv[:,2]-uv[:,0];q=np.c_[(x+.5)/size,(y+.5)/size]-uv[:,0]
     det=ab[:,0]*ac[:,1]-ab[:,1]*ac[:,0];u=(q[:,0]*ac[:,1]-q[:,1]*ac[:,0])/det;v=(ab[:,0]*q[:,1]-ab[:,1]*q[:,0])/det
@@ -909,9 +926,11 @@ def render(cfg, out, source=False, *, _clay_review=None):
             require(type(width) is type(height) is int and width > 0 and height > 0 and width % 32 == height % 32 == 0,
                     'Invalid native icon cell dimensions')
             scene.render.resolution_x = width; scene.render.resolution_y = height
-            camera.data.ortho_scale = max(spans[1], spans[2]*height/width)*1.1
+            # A side grip's long body lies across the grip (native Z): stand it upright in the tall icon cell.
+            upright = 2 if cfg['fit'].get('sideGrip') else 1
+            camera.data.ortho_scale = max(spans[upright], spans[3-upright]*height/width)*1.1
             camera.location = Vector(center)+Vector((1, 0, 0))*extent*2
-            aim(center,up=(0,1,0))
+            aim(center,up=(0,0,1) if upright == 2 else (0,1,0))
             scene.render.filepath = str(out/f'icon-{part}.png'); render_still()
             icons[part] = pin(scene.render.filepath)
         for obj in objects:
@@ -957,7 +976,14 @@ def main():
                'shadow': lambda c, o: reduce(c, o, shadow=True), 'render': render,
                'inspect': lambda c, o: render(c, o, source=True), 'export-arrays': export_arrays,
                'render-variants': render_finish_variants}
-    result = actions[cfg['stage']](cfg, output); verify(cfg['inputs'], fresh=True)
+    result = actions[cfg['stage']](cfg, output)
+    # A Blender launch costs most of a minute before any work, so a stage also writes the few-second extraction the
+    # next stage would otherwise start Blender for. Each is the next stage's own function on this stage's saved scene.
+    if cfg['stage'] in ('fit', 'reduce') and cfg.get('emitUvSource'):
+        (output/'uv-source').mkdir(); result['uvSource'] = uv_arrays({**cfg, 'scene': str(output/'scene.blend')}, output/'uv-source')['arrays']
+    if cfg['stage'] == 'render' and cfg.get('emitExportArrays'):
+        (output/'export-arrays').mkdir(); result['exportArrays'] = export_arrays(cfg, output/'export-arrays')['parts']
+    verify(cfg['inputs'], fresh=True)
     if (output/'scene.blend').exists(): result['scene'] = pin(output/'scene.blend')
     result['elapsedSeconds'] = time.monotonic()-started
     write(output/'result.json', result, fresh=True)

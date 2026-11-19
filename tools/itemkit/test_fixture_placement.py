@@ -113,6 +113,13 @@ class PlacementTests(unittest.TestCase):
 if __name__ == '__main__': unittest.main()
 
 
+class Tail:
+    """A `client.LogTail` that reads what a test's `log_lines` returns."""
+    def __init__(self, read): self.read = read
+    def lines(self): return self.read(None, None)
+    def close(self): pass
+
+
 class ScriptedShotTests(unittest.TestCase):
     def test_entry_script_carries_a_dormant_shot_sequence_for_every_check(self):
         from tools.itemkit.fixture import CHECKS, SHOTS, SHOT_TOGGLE, shot_script
@@ -139,6 +146,20 @@ class ScriptedShotTests(unittest.TestCase):
                                             {'body': 'human-female', 'check': 'walk'}])
         self.assertTrue(draft['reviewRequired'])
 
+    def test_shots_of_one_step_are_spaced_by_the_earlier_shots_own_hold(self):
+        from tools.itemkit.fixture import shot_script
+        row = lambda delay, *hold: (3, delay, 'idle', 0, 2, 80, 1, *hold)
+        shot_script((row(0.7), row(3.5)), checks=('idle',))                                   # 1.8 s hold: free at 2.5, wanted at 2.8
+        with self.assertRaisesRegex(ValueError, 'time to aim and hold'): shot_script((row(0.7, 2.6), row(3.5)), checks=('idle',))
+
+    def test_link_or_copy_never_writes_onto_an_existing_file(self):
+        from tools.itemkit.fixture import link_or_copy
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); (root/'old.hak').write_bytes(b'old'); (root/'new.hak').write_bytes(b'new')
+            link_or_copy(root/'old.hak', root/'linked.hak'); self.assertEqual((root/'linked.hak').read_bytes(), b'old')
+            with self.assertRaisesRegex(ValueError, 'already exists'): link_or_copy(root/'new.hak', root/'linked.hak')
+            self.assertEqual((root/'old.hak').read_bytes(), b'old')                            # the pinned file the link shares
+
     def test_a_burst_that_overruns_the_shot_hold_is_never_filed(self):
         import json, time
         from tools.headkit.common import pin
@@ -152,10 +173,11 @@ class ScriptedShotTests(unittest.TestCase):
             shot = ['ITEMKIT_SHOT shot=1 target=sr_it_male check=idle step=3 valid=1']; reads = []
             def log_lines(_, prefix):
                 reads.append(1); return [] if len(reads) < 3 else shot if len(reads) < 6 else shot + [client_capture.DONE]
-            slow = lambda pid, path: (time.sleep(SHOT_HOLD + .1), Path(path).write_bytes(b'png'))   # a stalled window capture
+            slow = lambda pid: time.sleep(SHOT_HOLD + .1)   # a stalled window grab
+            save = lambda image, path: Path(path).write_bytes(b'png')
             process = type('P', (), {'pid': 1, 'poll': lambda self: None})()
-            with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), \
-                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.capture', side_effect=slow):
+            with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), patch('tools.armorkit.client.running', return_value=[]), \
+                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.LogTail', side_effect=lambda *_: Tail(log_lines)), patch('tools.armorkit.client.grab', side_effect=slow), patch('tools.armorkit.client.save', side_effect=save):
                 result = client_capture.run(root, root, root/'captures', timeout=30, frames=1, gap=0, settle=0)
             self.assertEqual(result['shots'][0]['rejected'], 'burst overran the shot hold')
             draft = json.loads((root/'captures/evidence-draft.json').read_text(encoding='utf-8'))
@@ -174,10 +196,10 @@ class ScriptedShotTests(unittest.TestCase):
                     'ITEMKIT_SHOT shot=2 target=sr_it_male check=walk step=4 valid=1']; reads = []
             def log_lines(_, prefix):
                 reads.append(1); return [] if len(reads) < 2 else both if len(reads) < 4 else both + [client_capture.DONE]
-            taken = []; grab = lambda pid, path: (taken.append(Path(path).name), Path(path).write_bytes(b'png'))
+            taken = []; save = lambda image, path: (taken.append(Path(path).name), Path(path).write_bytes(b'png'))
             process = type('P', (), {'pid': 1, 'poll': lambda self: None})()
-            with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), \
-                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.capture', side_effect=grab):
+            with patch('tools.armorkit.client.start', return_value=process), patch('tools.armorkit.client.stop'), patch('tools.armorkit.client.running', return_value=[]), \
+                 patch('tools.armorkit.client.log_lines', side_effect=log_lines), patch('tools.armorkit.client.LogTail', side_effect=lambda *_: Tail(log_lines)), patch('tools.armorkit.client.grab'), patch('tools.armorkit.client.save', side_effect=save):
                 result = client_capture.run(root, root, root/'captures', timeout=30, frames=1, gap=0, settle=0)
             self.assertEqual([(s['shot'], s['captures'], s.get('rejected')) for s in result['shots']],
                              [(1, [], 'next shot began'), (2, ['human-male-walk-02-0.png'], None)])

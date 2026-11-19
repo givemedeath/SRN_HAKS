@@ -1,5 +1,6 @@
 """The lit parts of a model are found by where they are on it, glow with their own colour, and spread onto a card."""
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import numpy as np
@@ -13,6 +14,21 @@ FACES = np.array([[0, 1, 2], [0, 2, 3]])
 
 
 class GlowTests(unittest.TestCase):
+    def test_the_map_of_places_drawn_many_faces_at_a_time_is_the_one_drawn_face_by_face(self):
+        """A model of 190,000 faces took 42 seconds a map face by face, and two maps a build (2026-11-17)."""
+        rng = np.random.default_rng(3); count = 400
+        centre = rng.uniform(0.05, 0.95, (count, 1, 2)); reach = rng.choice([0.004, 0.02, 0.09, 0.3], (count, 1, 1), p=[0.5, 0.3, 0.15, 0.05])
+        uvs = np.clip(centre + rng.uniform(-1, 1, (count, 3, 2)) * reach, 0, 1).reshape(-1, 2)  # islands that overlap, from a texel to a third of the picture
+        uvs[:3] = [[0.2, 0.2], [0.2, 0.2], [0.4, 0.4]]  # one of no area at all
+        points = rng.uniform(-5, 5, (count * 3, 3)); faces = np.arange(count * 3).reshape(-1, 3)
+        for size in (64, 300):
+            with mock.patch.object(glow, 'PLACES_BLOCKS', (4, 8, 16)), mock.patch.object(glow, 'PLACES_BATCH', 500):  # every way a face is drawn, in several batches
+                fast = glow._position_map(points, uvs, faces, size, True)
+            slow = glow._position_map_face_by_face(points, uvs, faces, size, True)
+            np.testing.assert_array_equal(fast[1], slow[1]); self.assertGreater(fast[1].mean(), 0.5)
+            np.testing.assert_allclose(fast[0], slow[0], atol=1e-9); np.testing.assert_allclose(fast[2], slow[2], atol=1e-12)
+        self.assertEqual(len(glow._position_map(points, uvs, faces, 64, False)), 2)
+
     def test_every_texel_knows_its_place_on_the_model(self):
         where, covered = glow.position_map(POINTS, UVS, FACES, 32)
         self.assertTrue(covered.all())
@@ -107,6 +123,35 @@ class GlowTests(unittest.TestCase):
         near = np.concatenate([where, where + [0, 0.2, 0]], 1)  # a frame standing 20 cm proud of a window hides nothing
         self.assertEqual(len(glow.halo(lit, near, all_covered, toward=facing, reach=0.25, strength=0.5)[1]), 2)
 
+    def test_each_lit_part_spreads_from_cards_of_its_own(self):
+        # A front four metres wide: lit glass up to 0.8 metres, and over it a lit sign that stands 20 cm further out.
+        across, height = np.meshgrid(np.linspace(2, -2, 128), np.linspace(2, 0, 64))
+        where = np.stack([across, np.where(height > 1.0, 1.2, 1.0), height], -1); covered = np.ones(across.shape, bool)
+        toward = np.zeros_like(where); toward[..., 1] = 1.0
+        lit = np.where(((height > 1.0) | (height < 0.8))[..., None], 0.8, 0.0) * np.ones(3)
+        fronts = lambda parts: sorted(round(card[0][0][1], 2) for card in glow.halo(lit, where, covered, toward=toward, parts=parts, reach=0.25, strength=0.5).cards)
+        self.assertEqual(fronts(None), [1.24])  # by depth alone they share one card, out at the sign
+        sign, glass = glow.inside(where, covered, [[-2, 1.1, 1.0], [2, 1.3, 2]]), glow.inside(where, covered, [[-2, 0.9, 0], [2, 1.1, 0.8]])
+        self.assertEqual(fronts([sign, glass]), [1.04, 1.24])  # the glass spreads from just in front of the glass
+        self.assertEqual(fronts([sign]), [1.04, 1.24])  # light that no part holds keeps cards of its own
+        self.assertEqual(fronts([sign | glass, glass]), [1.24])  # a texel in two parts goes with the first
+
+    def test_a_small_lit_part_keeps_a_card_and_a_stray_end_of_a_large_one_does_not(self):
+        """Cards of each part's own left a scanner, a lock panel and a lamp on a post under the least patch: eight small
+        parts of the older sets would have lost their glow on their next conversion (2026-11-15)."""
+        across, height = np.meshgrid(np.linspace(10, -10, 640), np.linspace(2, 0, 64))
+        where = np.stack([across, np.ones_like(across), height], -1); covered = np.ones(across.shape, bool)
+        toward = np.zeros_like(where); toward[..., 1] = 1.0
+        lit = np.zeros((64, 640, 3)); lit[:, :60] = 0.8; lit[30:33, 400:403] = 0.8  # a sign two metres square, and a lamp of nine texels
+        count = lambda parts: len(glow.halo(lit, where, covered, toward=toward, parts=parts, reach=0.25, strength=0.5).cards)
+        sign, lamp = glow.inside(where, covered, [[8, 0.9, 0], [10.1, 1.1, 2.1]]), glow.inside(where, covered, [[-2.8, 0.9, 0.9], [-2.3, 1.1, 1.1]])
+        self.assertEqual((int((lamp & (lit.max(-1) > 0)).sum()), count(None), count([sign])), (9, 1, 1))  # told to no part, the lamp is a patch too small to matter
+        self.assertEqual(count([sign, lamp]), 2)  # a part of its own, it is all of its light
+        self.assertEqual(count([sign | lamp]), 1)  # a stray end of the sign's part, it is not
+        # A lamp that shines mostly downward: what it shows in front is under a quarter of its whole light, and all it shows on any side.
+        lit[:] = 0; lit[:, :60] = 0.8; lit[29:35, 400:403] = 0.8; toward[29:35, 400:403] = [0, 0, -1.0]; toward[29, 400:403] = [0, 1.0, 0]
+        self.assertEqual((int((lamp & (lit.max(-1) > 0)).sum()), count([sign, lamp])), (18, 2))  # three texels of eighteen face front, and keep their card
+
     def test_the_card_is_a_node_of_the_model_that_takes_no_light(self):
         normals = np.tile([0, 1.0, 0], (4, 1))
         cards = glow.halo(np.full((16, 16, 3), 0.8), *glow.position_map(POINTS, UVS, FACES, 16))[1]
@@ -123,6 +168,9 @@ class GlowTests(unittest.TestCase):
         self.assertEqual(convert.lights_script('ek_test', 'OBJECT_SELF', on=True),
                          'ReplaceObjectTexture(OBJECT_SELF,"ek_test");ReplaceObjectTexture(OBJECT_SELF,"ek_test_h");')
         self.assertNotIn('_h', convert.lights_script('ek_test', 'OBJECT_SELF', on=False, halo=False))
+        # A model whose row casts light also puts that light out and back, and the area's lighting is worked out again.
+        self.assertTrue(convert.lights_script('ek_test', 'oLamp', on=False, light=True).endswith('SetPlaceableIllumination(oLamp,FALSE);RecomputeStaticLighting(GetArea(oLamp));'))
+        self.assertIn('SetPlaceableIllumination(oLamp,TRUE);', convert.lights_script('ek_test', 'oLamp', on=True, light=True))
         # For a tile or static scenery, per player: the glow map and the halo are overridden by name with dark textures.
         self.assertEqual(convert.blackout_script('ek_test', 'oPC', on=False), 'SetTextureOverride("ek_test_i","ek_test_o",oPC);SetTextureOverride("ek_test_h","ek_off",oPC);')
         self.assertEqual(convert.blackout_script('ek_test', 'OBJECT_INVALID', on=True, halo=False), 'SetTextureOverride("ek_test_i","",OBJECT_INVALID);')
@@ -188,8 +236,13 @@ class GlowTests(unittest.TestCase):
             refused({**hung, 'measuredAt': {'height': 1.6, 'lift': 2.4, 'turn': 90}}, 'turn 90 and it is now at height 1.6, lift 2.4'); refused({**hung, 'measuredAt': 'yes'}, 'model at "yes"')
             turned = {'source': 'meshy/x', 'height': 1.8, 'turn': 90, 'signTilt': 15.0, 'lit': [{'box': cube}]}
             refused({**turned, 'measuredAt': {'height': 1.8, 'turn': 90}}, 'it is now at height 1.8, turn 90, signTilt 15.0')
-            for stood in (hung, turned):
-                at = {key: stood[key] for key in ('height', 'lift', 'turn', 'signTilt') if key in stood}
+            # A model drawn out to a length has its boxes on it as drawn out (the rail yard's containers, 2026-11-13).
+            long = {'source': 'meshy/x', 'height': 2.6, 'length': 12.2, 'lit': [{'box': cube}]}
+            refused({**long, 'measuredAt': 2.6}, 'at height 2.6 and it is now at height 2.6, length 12.2')
+            for wrong in (0, -1, 'long', True, 101):
+                refused({'source': 'meshy/x', 'height': 2.6, 'length': wrong}, 'A length is 0 to 100 metres')
+            for stood in (hung, turned, long):
+                at = {key: stood[key] for key in ('height', 'lift', 'turn', 'signTilt', 'length') if key in stood}
                 path = Path(scratch) / 'stood.json'; path.write_text(json.dumps({'models': {'ek_x': {**stood, 'measuredAt': at}}}), encoding='utf-8')
                 self.assertEqual(convert.load_models(path)['ek_x']['measuredAt'], at)
             refused({'source': 'meshy/x', 'height': 9.5, 'tiles': {**tiles, 'door': {**door, 'measuredAt': 9.5}}}, 'measuredAt is stated on the model, beside its height.*take it off the door')  # and the refusal says where it goes

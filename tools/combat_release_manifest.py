@@ -46,7 +46,7 @@ BASEITEM_COLUMNS = ('label', 'ModelType', 'ItemClass', 'MinRange', 'MaxRange', '
                     'BaseCost', 'ReqFeat0', 'ReqFeat1', 'ReqFeat2', 'ReqFeat3', 'ReqFeat4',
                     *BASEITEM_STRREF_COLUMNS)
 SLING_ROW = 61
-RESOURCE_TYPES = {'.mdl': 2002, '.tga': 3, '.uti': 2025}
+RESOURCE_TYPES = {'.mdl': 2002, '.tga': 3, '.uti': 2025, '.dds': 2033}   # dds: the BioWare DDS twins of packaged TGAs
 
 
 def sha256(data: bytes) -> str:
@@ -316,6 +316,12 @@ def build(check_git: bool = True) -> dict:
                         closure.add(f'{tex}.tga')
                 else:
                     missing.append(name)
+        # Itemkit packages carry a BioWare DDS twin beside each icon and diffuse TGA: it belongs to the same closure.
+        closure |= {by_name[n[:-4].lower() + '.dds']['path'].split('/', 1)[1] for n in list(closure)
+                    if n.lower().endswith('.tga') and n[:-4].lower() + '.dds' in by_name}
+        # A reflection-masked diffuse ships the TXI that names its environment map: the same closure again.
+        closure |= {by_name[n[:-4].lower() + '.txi']['path'].split('/', 1)[1] for n in list(closure)
+                    if n.lower().endswith('.tga') and n[:-4].lower() + '.txi' in by_name}
         owned = {n for n, r in published_weapon.items() if r['item'] == item['id']}
         # A resource published under a shared id (the firearm casing sheet) belongs to every item that references it.
         owned |= {n for n, r in published_weapon.items() if r['item'] in shared_items} & closure

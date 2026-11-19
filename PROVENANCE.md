@@ -581,6 +581,22 @@ whose box or fence lies wholly above or below its model. Checked in the game cli
 pack's files, by night beside the pylon sign: the sign's face and light bar are lit with a soft halo, go dark
 with `ReplaceObjectTexture` and come back.
 
+
+Four props light what stands round them since 2026-11-14 (operator, of the lamps of the older sets: "Yes"),
+each by a light in its row of `placeables.2da`; no model or other file of theirs changed. The watch booth is
+lit from its floodlight (lightcolor row 3, bright white), and the vehicle gate from its left post's top light,
+the checkpoint terminal from its top lamp and the drone dock from under its arm (row 2, white). Since 2026-11-15 the terminal only glows again and the dock's light is row 1, dim white (operator, of the night
+captures: "several of those prop lights are too bright", "cast lights should only be on things that should
+actually cast light into an area in addition to glowing"). The armory rack, terminal, drone dock and wall sign
+had their halo sheets remade the same day, each lit part measured on its best-lit upright side, from the
+converted sources restored from the archive, and were seen by night in the game client. A row holds
+one light, and the game draws a star-shaped flare where it stands: the gate's was first set between its posts,
+where the star hung on the bare beam, and was moved to a post's lamp; its other post's light and the dock's
+pillar lamps only glow. Checked in the game client the same day, by night: from the converted files of
+2026-11-11, restored from the archive of the worktree they were made in
+(`phenomorpher-worktree-output-2026-11-14-v1`) and the same byte for byte as the pack's, the ground and the
+figures round each lit; and from the pack's files, where the lights of the ten lit props, these four's cast
+light among them, were put out by script and brought back.
 ## Saeder-Krupp Yard tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-12)
 
 The third envkit building: a grey and yellow logistics and fabrication yard with three roller-shutter loading
@@ -704,6 +720,852 @@ lit props out and brought them back. Checked in the Toolset the same day, from t
 palette lists the eight outdoor props under Modern Exterior and the six others under Modern Interior, and a
 vehicle gate, wall sign, security booth, fence section, office desk and crate set painted from it were saved with
 their rows, names and tags, the fence and crates static and the four lit ones not.
+
+
+Two props light what stands round them since 2026-11-14 (operator, of the lamps of the older sets: "Yes"),
+each by a light in its row of `placeables.2da`; no model or other file of theirs changed. The security booth
+is lit from its roof floodlight (lightcolor row 3, bright white) and the loading console from its top lamp
+(row 2, white). Since 2026-11-15 the console only glows again (operator: "the other terminal needs it's cast light removed
+too"); its halo sheet was remade the same day and seen by night in the game client. The vehicle gate's amber beacons and lamps are warning lights and only glow: a white light set
+between them hung a star-shaped flare in the air over the gate, and was taken out again. Checked in the game
+client the same day, by night: from the converted files of 2026-11-12, restored from the archive of the
+worktree they were made in (`phenomorpher-worktree-output-2026-11-14-v1`) and the same byte for byte as the
+pack's, the ground and the figures round each lit; and from the pack's files, where the lights of the seven
+lit props, these two's cast light among them, were put out by script and brought back.
+## Rail Freight Depot tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-13)
+
+A generic rail freight depot laid out round two tracks, as one 8 by 8 tile group, `RF_Depot`, offered in D20
+Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt): a weathered warehouse with a RAIL
+FREIGHT sign and its dock warehouse behind it, a control tower, an office and a service bay with a fenced yard, a
+covered loading platform beside the south track, a gantry crane over the north track on its own runways, and the
+two tracks themselves, which run straight through the group, cross over at both ends into a passing loop and leave
+by its west and east edges on tile-row centres. Its 64 tile records are appended to each set file (`dgt04` tiles
+456-519, group 60; `udp1` tiles 698-761, group 109) and the group is listed under Groups in each palette as `Rail
+Freight Depot 8x8`. No existing tile or group number changes. The 64 tile models (`ek_rf_depot_t00` to `_t77`,
+compiled), their walkmeshes, area-map pictures (`ek_rf_depot_m00` to `_m77`) and the materials and maps of the ten
+models the group shows live in `srn_t_common`: the warehouse's own (`ek_rf_depot`) and one for each model placed in
+it (`ek_rf_depotp1` to `p9`: the platform, crane, tower, dock warehouse, office, service bay, track merge, straight
+track and crane runway), each with its colour, `_n`, `_s` and `_r` maps. Nothing in the group glows; its tiles
+carry the usual two main lights.
+
+Origin: the yard's concept sheet `56_denver_rail_yard.png` was supplied by the SRN project operator (an
+OpenAI-generated sheet from the operator's own brief, made generic at the operator's word: no city or company names,
+"words like Freight and relevant symbols are ok"). The control tower, office and service bay were generated from
+views of it redrawn locally with Qwen-Image 2.1. The warehouse, its dock warehouse, the loading platform and the
+gantry crane were generated from four images the operator made with ChatGPT from one shared design
+(`56b_rail_freight_depot.png`), taken as references as they were. All seven were generated by the operator's Meshy
+account through the pinned `meshy-cli@0.4.0`; the buildings were remeshed by Meshy, the office generated a second
+time after the first came back washed out. The building, its own triangles and those of the models placed in it
+that are not props, is 175,896 triangles, under the 200,000-triangle budget for larger buildings. Attribution:
+[Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's entry above records. The track is
+not generated: `tools/envkit/track.py` builds it, a 10 metre straight piece and a 30 metre merge of standard-gauge
+track on ballast (rails 1.435 metres apart on concrete sleepers every 0.625 metres), and paints its maps. It builds
+the crane runway the same way: a 10 metre piece of two crane rails a metre apart, 0.23 metres high, each on a sole
+plate clipped to one concrete ground beam (operator: "i think we need to add the crane tracks, we'll need those as
+a prop anyway and the scene looks weird without it"). The runway is also a placeable of the game set, to go into
+`srn_placeable` with the yard's props.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes
+and scaled, its faces seen from behind turned round (but not the back halves of sheets made of two faces back to
+back, which the first builds turned onto their fronts) and its normals turned to its faces, and placed in the group
+(`tiles.parts` in the game set): the tracks on the rows' centres, the merges at both ends (the east one turned half
+round), the platform west of the warehouse with its edge 1.7 metres from the south track's centre (operator: its
+first place, across the warehouse's dock apron, was "not working out"), the crane over the north track between the
+switches with a leg either side of it, outside both tracks' corridors, and four runway pieces under each leg on the
+line of the short rails the crane came back standing on. Those were taken off the crane (its `clear`: about 500
+faces under each leg, none higher than 0.26 metres; its wheels, 0.22 metres up, kept and standing on the runway's
+rails). The crane and its runways stand a metre further north than first laid, where its north leg's edge lay on the
+middle of the line between two tiles (see the checks below). The other buildings stand clear of the tracks. The
+containers, light towers and rolling stock of the sheet are props a builder places, not parts. Each model's textures
+were recompressed (the warehouse's and the larger buildings' colour 4096 DXT1, the other maps 2048). Retouching is
+described below. The meshes were shared out over 64 tiles (0 to 15,085 faces each) with a ground square, a map picture and
+two main lights each; everything above 4.5 metres carries `tilefade`; and a walkmesh was generated from their shape
+(18 to 1,914 faces a tile, where the stock tiles of these two tilesets have at most 500). The tracks and runways are
+drawn but walked flat across. The loading platform's deck, 1.24 metres up, is walked at its height where its stairs
+lead up to it: the walkmesh climbs the stairs, and the deck's edge is closed elsewhere (operator: "the stairs up onto
+platform, and the platform itself should be walkable"). Each tile's path node was chosen from its ground for the
+group as a whole (`tile.path_nodes`); three are stated in the game set (`tiles.nodes`: the tile south-east of the
+warehouse, `t04`, W with no turn; the tile east of the service bay's yard, `t06`, J turned 90; the tile north of it,
+`t15`, I turned 270), as the walk checks in the client showed walks need. The tile at the warehouse's
+door, `t23`, has a door record of type 58, the invisible transition door. The Meshy sources, the references, the
+track sources and the client captures stay in ignored `output/envkit/`. Three flaws the first build left were
+retouched (operator: "Fix these", 2026-11-13): the tower's sign read "PREIGHT", and the right of its P's bowl and the
+end of its middle bar were painted over in the sign's ground colour to make an F (`paint`); a slit 1.4 to 2.3 metres
+up the warehouse's long east wall was filled between its own vertices (`fill`); and the crane's leg sills, which
+showed gaps from outside, were filled where they were open and given backs where their faces were wound inward
+(`fill`, `inside` boxes). The crane prop has the same changes. Seen again in the client by day on 2026-11-14
+(`envkit check group --mode day`): the tower's sign reads FREIGHT. The rebuilt walkmeshes differ from the last
+walk-checked build only in how they are cut (at most 0.4 square metres of walkable ground on any of seven tiles), so
+the walk check was not run again.
+
+Checked in the client on 2026-11-13 (`envkit check group --mode walk`, in a Modern Exterior and a Suburbs area 14
+tiles across). Walkers sent from the area's far corners arrived, in both areas, outside the warehouse's door, at its
+south side, on the ground north of the crane's north leg, at both ends of its south leg and in the service bay's
+fenced yard, at its corner furthest round from the yard's way in, and so did the walker sent there from the next
+tile south. That one had walked straight at it and stopped against the yard's fence in every run before, and earlier
+runs had counted it as arrived, half a metre from its target across the fence; the check now refuses a walker with
+something in the way between it and its target (`checks.walled`). Walkers sent from chosen starts showed every walk
+into the yard from the south or the east, from outside the group or inside it, walked into the fence, and walks from
+the north arrived. With the tile east of the yard stated J turned 90, so that walks from the south go round and come
+in from the north, and the tile north of it stated without its south side, which opened only onto the metre of yard
+behind its fence, all of them arrived in both areas: from the next tile south, from three tiles east, from inside
+the group south-east and east of the yard, from north-east of it, and one from the south to the ground just north of
+the yard. After the runways were laid and the crane's stub rails taken off, the walk to the ground beside
+the crane's north leg gave up in every run in both areas, though nothing walkable had changed. Swapping the tiles'
+walkmeshes back showed it was the two tiles the leg crosses: their shared side's middle, where the engine puts the
+exit between them, lay on the leg's edge. A metre further north it arrived. On the platform, in the build before the
+runways, a walker from the ground east of the stairs reached the deck at their head and one sent nine metres along
+the deck, over a tile line, arrived; one sent twenty metres along it gave up after about eight, and ones sent onto
+its far end from the ground stopped at its edge. Long walks to the deck are not planned (the check sends none).
+
+Rebuilt the same day without turning the back halves of two-faced sheets onto their fronts, which changed the
+walkmesh faces of many tiles though not the ground walked on; the walk check passed again in both areas, every walker
+arriving.
+
+Painted in the Toolset on 2026-11-14 from packs built from main after the merge (`envkit toolset prepare --size
+12`: an area 8 tiles across, the size used before, leaves the 8 by 8 group no room beside the start point). In one
+user folder the group went down unturned in a Modern Exterior and a Suburbs area, in another a quarter turn in
+Modern Exterior and a half turn in Suburbs. Each painting laid all 64 tiles (456-519 and 698-761) with the turn
+asked for, and made one door of type 58 at the warehouse's hook, its place and bearing turned with the group, as
+the saved areas record (`envkit toolset saved`). Nine of the yard's props were placed from the palette beside it,
+from both of its categories, the light tower among them; each kept its `placeables.2da` row, name and static
+setting (the light tower not static, the rest static). In the client (`envkit check doors`) clicking each
+warehouse door, in both folders, took the player to the other area's door.
+
+## Rail Freight Yard props (`srn_placeable`, `srn_2da`; 2026-11-13)
+
+Twenty-one envkit props of the same generic rail freight yard as the Rail Freight Depot tile group join
+`srn_placeable`, each with a row appended to `srn_2da/placeables.2da` (22779-22799, labelled `[envkit]Rail Freight
+Yard, ...`): loading platform `ek_rd_platform`, gantry crane `ek_rd_crane`, crane rail `ek_rf_runway`, switcher
+locomotive `ek_rf_switcher`, boxcar `ek_rf_boxcar`, tank car `ek_rf_tankcar`, flatcar `ek_rf_flatcar`, loading dock
+`ek_rf_dock`, transfer shed `ek_rf_shed`, walkway `ek_rf_walkway`, stair tower `ek_rf_stairs`, office module
+`ek_rf_office`, 20 ft and 40 ft containers `ek_rf_cont20` and `ek_rf_cont40`, crates on pallets `ek_rf_crates`,
+hazmat drums `ek_rf_drums`, cable reel `ek_rf_reel`, pipe stack `ek_rf_pipes`, pallet jack `ek_rf_jack`, light
+tower `ek_rf_light` and dumpster `ek_rf_dumpster`. No existing row changes. Each prop is a compiled model, a
+collision file, a material file and its maps (colour 1024 or 2048, the other maps at half that), and a blueprint
+named as its model, offered through the pack's `placeablepalstd.itp` under Modern Exterior (Structures, Streets)
+and Modern Interior (Containers). The loading platform, crane and crane rail are the models the depot group shows,
+offered for builders to place on their own; the rest are the yard's props, which the group leaves out.
+
+Origin: the yard's props were cropped from the operator's concept sheet `56_denver_rail_yard.png` and redrawn
+locally with Qwen-Image 2.1 as plain references, generic as the operator asked (no city or company names; the
+containers without the sheet's mark). The loading platform and the gantry crane were generated from two of the
+operator's ChatGPT images of the depot (`56b_rail_freight_depot.png`), taken as references as they were. All but
+the crane rail were generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0`, at 3,594 to
+12,710 triangles as shipped (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile
+group's entry above records); the boxcar a second time. No third-party mesh or texture was used. The crane rail is
+not generated: `tools/envkit/track.py` builds it, as the depot's entry above says.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes
+and scaled to a stated height, its faces seen from behind turned round (but not the back halves of sheets made of
+two faces back to back) and its normals turned to its faces, and its textures were recompressed. The containers
+were drawn out along their length to 6.06 and 12.19 metres at 2.6 metres tall (they came back a third to a half
+short), and the 20 ft container's open door end was closed with two faces between its own vertices. The crane's
+short stub rails under its legs were taken off, as in the group. The faces of the dumpster, the 20 ft container and
+the loading dock were given backs (`inside`), since the client showed what stood behind them through the gaps of the
+dumpster's slatted lid (operator: "the dumpster has some see through spots"), a slit at the container's door end and
+an opening under the back of the dock's roller door; each now shows its own inside there. Two came out the wrong
+size and were set again (operator: "resize the office module and light tower"): the office module from 3.0 to 3.9
+metres tall, where its walls had stood 2 metres and its doors about 1.7, and the light tower from 7.5 to 5.0 metres,
+where its lamp heads had been nearly 2 metres across. The trucks of the switcher, boxcar, tank car and flatcar were
+drawn in across the track (`wheels`), their wheels having stood 0.15 to 0.2 m outside the rails (operator: "fix the
+wheel spacing on the rolling stock"): below the trucks' tops, each truck by the same measure, so that the backs of its
+wheels stand 0.68 m either side of the car's middle as a standard-gauge wheelset's do, the bodies above as they were.
+The four were lifted 0.312 m, the track's height, to stand on its rails. Further flaws were
+retouched (operator: "Fix these", and "one of the posts on the walkway is misplaced from the corner too"): the stair
+tower's wavy handrails were taken off (`clear`, rods along the flights and boxes on the landings) and straight steel
+ones built in their place (`built` railings, coloured from the model's own steel); the walkway, which no stairs led
+up to, was given a straight flight of eleven treads, a stringer each side and handrails up to its deck's south edge,
+with its south railing built again round the head of the stairs, and its north-east leg, generated 1.7 metres in
+from its corner, was moved out to it (`move`) and the brace left standing out past the corner taken off; the office
+module's roof ridge was filled at two notches (`fill`) and its smeared window panes covered by thin built panes of
+plain dark glass inside their frames, with a frame-grey mullion over the one drawn light (`built` bars; the generated
+glass lies in up to four layers that share their picture with other faces, so painting it was not enough). The crane's leg sills were mended as in the group. The light tower's four lamp heads glow on
+their front faces: it has a glow map for them, a halo sheet and a lights-out material (`ek_rf_light_o`) as
+`docs/envkit/lights.md` describes, and its blueprint is not static, so that a script can reach it. It also lights the
+ground round it (operator: "Yes, try it", on whether its lamps cast light): its row names light colour 3 (bright
+white) 4.2 metres up and half a metre in front of its mast, at its lamp heads. Meshy drew
+lenses on the backs of the heads too; those stay unlit. Its halo sheet was remade on 2026-11-15, each lit part measured on its
+best-lit upright side, and seen by night in the game client; its light stays. The loading platform is scenery to
+walk round: its collision is a block over its footprint, and the game does not stand characters on a placeable
+(tried in the client on 2026-11-13 with a walkmesh of walkable deck and stairs: walkers sent onto it stopped on the
+ground at its edge; see `docs/envkit/sheet-runbook.md`). The depot group's platform is walked on.
+
+Checked in the game client on 2026-11-13, from the converted files, by day from front, back and side with a figure
+for scale (the dock, container, office and light tower again after the changes above); the light tower, office and
+dumpster again by night; and the light tower from the pack's files by night, its
+lamps lit, put out by `ReplaceObjectTexture` and on again, and once more with its cast light (the ground round it
+lit, dark when put out by `SetPlaceableIllumination` and `RecomputeStaticLighting`, and lit again). The four cars
+were seen again standing on laid track, low along the rails and from the side: their wheels on the rails. A lighter or darker triangle shows on a flat side of the
+boxcar seen side-on, on either side and with the car turned either way round: the area's sky reflected in its large
+smooth panels, not the model (its maps are even there, and splitting its faces small did not change it). The
+walkway, stair tower, office module and crane were seen again by day on 2026-11-14 after the retouching above: the
+walkway's stairs and moved leg, the tower's straight rails, the office's glass and the crane's sills. Not yet
+opened in the Toolset.
+
+On 2026-11-15 the gantry crane's collision file `ek_rd_crane.pwk` was written again (operator: "the crane placeable
+should NOT block walking underneath it"): a block under each of its two legs in place of one on its whole
+footprint, 13.9 metres of open ground between them (`walkUnder` in the game set, `convert.standing`). The model was
+converted again from its archived source and came out byte for byte as the pack holds it, as did its maps; only the
+collision file changed. In the game client a walker sent to the middle under the beam stood there, and one sent
+through from side to side went straight.
+
+On 2026-11-16 every envkit placeable in the pack was measured for the same fault (clear ground under it that one
+block on its footprint shuts; 101 models). The transfer shed `ek_rf_shed`, a roof on four posts, was the only other:
+its collision file was written again with a block under each post (`walkUnder`). The model was converted again from
+its archived source and came out byte for byte as the pack holds it, as did its maps. Signs and banners hung over
+head height had no block already. In the game client the same day a walker sent to the middle under the roof stood
+there, and one sent through from side to side went straight.
+
+## Iron Sight Arms tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-14)
+
+A street gun shop with an indoor range: a single-storey riveted steel shop front under an IRON SIGHT ARMS sign, with a
+projecting pistol sign, and a long range wing behind it, as one 2 by 3 tile group, `Iron_Sight_Arms`, offered in D20
+Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its six tile records are appended to each
+set file (`dgt04` tiles 520-525, group 61; `udp1` tiles 762-767, group 110) and the group is listed under Groups in
+each palette as `Iron Sight Arms 2x3`. No existing tile or group number changes. The six tile models
+(`ek_isa_shop_t00` to `_t21`, compiled), their walkmeshes, area-map pictures (`ek_isa_shop_m00` to `_m21`) and the
+materials and maps of the two models the group shows live in `srn_t_common`: the shop (`ek_isa_shop`) and the range
+wing placed in it (`ek_isa_shopp1`), each with its colour, `_n`, `_s` and `_r` maps, a glow map `_i`, a halo `_h` and
+a lights-out material `_o`.
+
+Origin: the concept sheet `59_iron_sight_arms_gun_shop.png` was supplied by the SRN project operator. The building is
+two models generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0` from references redrawn
+locally with Qwen-Image 2.1 and enlarged to 2048 pixels with RealESRGAN x2plus before they were sent (operator,
+2026-11-14: Meshy is given at least 2K). The operator had it made in pieces (2026-11-14): the shop was cut from the
+sheet's three-quarter view and the range wing from its side view, each redrawn as a standalone block. The shop was
+generated twice: the first redraw closed its cut side with a plain grey wall, which came back blank, and the second
+keeps that side as the sheet's weathered steel with its two red stripes. The two models were remeshed by Meshy to
+85,257 (shop) and 84,466 (wing) triangles, 169,723 together, under the 200,000-triangle budget for larger buildings.
+Attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's entry above records. The
+shop's name is the sheet's own invention.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
+scaled, and its textures were recompressed (colour 4096 DXT1, the other maps 2048). The building is sized by its door:
+the shop's double door has a leaf of about 2.1 metres, and the wing is scaled so that the two roofs meet at one
+height. The wing stands behind the shop, turned a quarter, its RANGE wall flush with the shop's west wall; it is
+narrower than the shop, so the building is an L and the two tiles east of the wing are plain ground. The wing came
+back paler and greyer than the shop and is toned lightly towards it (red 0.95, green 0.90, blue 0.86; operator,
+2026-11-14). Four surfaces the generator invented are covered with a stretch of the same model's own wall, height for
+height (operator, 2026-11-14: "can you copy the wall texture over it?"): the plain grey block on the wing's south end
+(its face and both sides), the lettering Meshy mirrored on to the wing's east wall, and the smeared mirrored lettering
+on the shop's back wall where the wing does not cover it. The block on the wing's end still stands 0.6 metres out of
+the wall, as generated. Glow maps were made from the models' own colour for the shop's sign, its pistol sign, its
+windows and door, the strip lights over its windows, the light on its security camera, the wing's windows on both long
+walls, the lamp over its door and the two amber lamps on its roof mast, each with a halo sheet of its own just in
+front of it. Nothing else was retouched. The meshes were shared out over six tiles (none to 44,482 faces each) with a
+ground square, a map picture and two main lights each; nothing carries `tilefade`, the building being one storey with
+its rooftop units at 6.1 metres; and a walkmesh was generated from their shape (204 to 698 faces a tile, where the
+stock tiles of these two tilesets have at most 500). The shop's tile has a door record of type 58, the invisible
+transition door, at the double door. The Meshy sources, the full-detail spares, the references and the client captures
+stay in ignored `output/envkit/`.
+
+Checked in the game client on 2026-11-14, in a Modern Exterior area laid from the pack's files: by day from all four
+sides, two corners, the front and from above, and at the door; by night, where the sign, the pistol sign, the windows
+and the lamp over the wing's door were lit, and `SetTextureOverride`, as `docs/envkit/lights.md` gives it, put them
+out and brought them back; and with the player free, where nothing was hidden. The first day check showed the wing's
+end block torn and streaked and the shop's back wall smeared; both were covered as above and seen again by day and by
+night. The operator then saw the lit strips sitting beside their signs and windows (2026-11-14): the wing's windows
+were lit 0.35 metres too high, wall and all, the sign 0.25 metres short of one end, and the windows' halo stood out at
+the sign's depth. The lit parts were measured again and bounded in depth to the sign's board, the glass and the lamps,
+each given halo sheets of its own, and seen again by night, lit, out and lit again. The operator next found the wing's
+far wall, which carries the same window strip, dark at night (2026-11-14): it was lit, with the roof mast's lamps and
+the camera's light, which a survey of the texture found unlit, and seen by night from that side. The walk check
+(`envkit check group --mode walk`), in both tilesets, sent five walkers from the far corner of the area to the door
+and to the four sides of the building: all arrived. Painted in the Toolset on 2026-11-14 from the built packs, in both
+tilesets: straight, a quarter turn (Modern Exterior) and a half turn (Suburbs). Each saved area holds the six group
+tiles and one door of appearance 58 that the Toolset made at the hook, and in the client (`envkit check doors`) each
+of the four doors took the player through its area transition.
+
+## Iron Sight Arms props (`srn_placeable`, `srn_2da`; 2026-11-14)
+
+Eleven envkit props from the same concept sheet as the Iron Sight Arms tile group join `srn_placeable`, each with a
+row appended to `srn_2da/placeables.2da` (22800-22810, labelled `[envkit]Iron Sight Arms, ...`): pistol counter
+`ek_isa_counter`, rifle wall `ek_isa_gunwall`, ammo shelf `ek_isa_shelf`, gunsmith bench `ek_isa_bench`, rifle cabinet
+`ek_isa_cabinet`, ammo vending machine `ek_isa_vending`, hearing and eye protection rack `ek_isa_ppe`, cleaning cart
+`ek_isa_cart`, paper target `ek_isa_target`, steel target `ek_isa_gong` and shooting booths `ek_isa_booths`. No
+existing row changes. Each prop is a compiled model, a collision file, a material file and its maps (colour 1024 or
+2048, the other maps at half that), and a blueprint named as its model, offered through the pack's
+`placeablepalstd.itp`.
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a plain
+reference, enlarged to 2048 pixels with RealESRGAN x2plus, then generated by the operator's Meshy account through the
+pinned `meshy-cli@0.4.0` at 1,187 to 12,032 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+Stuffer Shack tile group's entry above records). No third-party mesh or texture was used. The rifle wall was generated
+twice: from a square-on reference it came back an empty frame, and it was made again from a three-quarter reference on
+a thick slab.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
+scaled to a stated height, and its textures were recompressed. Six props have a glow map for their lit parts and a
+lights-out material (`<name>_o`) as `docs/envkit/lights.md` describes: the counter's two strip lights, the bench's
+lamp, the cabinet's two strip lights, the vending machine's sign, screen and products, the rack's sign and lamps, and
+the booths' lane screens and overhead lamps. Two of them also light what stands round them, by a light in their rows
+of `placeables.2da` (lightcolor row 2, white): the bench from its lamp and the booths from their middle overhead lamp
+(operator, 2026-11-14: "recheck the iron sights props and make sure they are good as far as lights too", lights being
+"only for things that should be bright"); the counter's and cabinet's strip lights, the vending machine and the rack's
+sign only glow. The booths' light stood under the middle lamp and lit the middle booth far more than the outer two; it
+now stands in that lamp's housing, a little forward, and the three are lit alike (2026-11-14). The game draws a flare
+where a light stands: set over the booths, for evenness, it hung a star in the air, and was moved back to the lamp.
+The rifle cabinet's left door, which the generator drew dark and without its strip light, takes the picture of its
+right door (operator, 2026-11-14: "only half this gun cabinet is lit"). Nothing else was retouched. Left as generated:
+the rifle cabinet is a plain box of 1,187 triangles with its rifles drawn behind the mesh doors, the rifle wall is
+0.37 metres deep with a plain grey back, and the vending machine and the booths carry an emblem the generator invented
+on their backs.
+
+Checked in the game client on 2026-11-14: by day from front, back and side with a figure for scale, from the converted
+files; by night the same way for the six lit props; and by night from the pack's files, where the lights of the six
+were put out by script and brought back. The booths' lane-screen box ran front to back and lit rust specks on their
+backs and dividers; it was bounded to the screens (2026-11-14), and the booths and the cabinet were seen again by
+night. The bench and the booths were seen once more by night with their cast light, the ground and the figures round
+them lit (2026-11-14). Four of them (vending machine, shooting booths, ammo shelf and pistol counter, from both
+palette categories) were placed from the Toolset's palette on 2026-11-14 and saved with their own rows and names, the
+shelf static and the three lit props not. The booths were seen again by night on 2026-11-14 with their light where it
+now stands, and the six props' lights put out and brought back once more from the pack's files.
+## Chop Shop Clinic tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-14)
+
+A street cyberware clinic: a single-storey concrete and steel block under a neon CHOP SHOP sign, with a display
+window, a recessed double door, a roller shutter, a service door on its west side and air units on its roof, as one 2
+by 2 tile group, `Chop_Shop_Clinic`, offered in D20 Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on
+Asphalt). Its four tile records are appended to each set file (`dgt04` tiles 526-529, group 62; `udp1` tiles 768-771,
+group 111) and the group is listed under Groups in each palette as `Chop Shop Clinic 2x2`. No existing tile or group
+number changes. The four tile models (`ek_csc_shop_t00` to `_t11`, compiled), their walkmeshes, area-map pictures
+(`ek_csc_shop_m00` to `_m11`) and the building's material and maps live in `srn_t_common`: its colour, `_n`, `_s` and
+`_r` maps, a glow map `_i`, a halo `_h` and a lights-out material `_o`.
+
+Origin: the concept sheet `58_chop_shop_cyberware_clinic.png` was supplied by the SRN project operator. The building
+is one model generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0` from the sheet's
+three-quarter view, redrawn locally with Qwen-Image 2.1 as a standalone block and enlarged to 2048 pixels with
+RealESRGAN x2plus before it was sent, and remeshed by Meshy to 84,867 triangles. Attribution:
+[Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's entry above records. The shop's name is
+the sheet's own invention.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes and
+scaled to 6.0 metres to the top of its roof units, which gives its double door a leaf of about 2.1 metres, and its
+textures were recompressed (colour 4096 DXT1, the other maps 2048). A panel of smeared lettering the generator
+invented on the east wall is covered with a stretch of the same wall, height for height, and a wedge left open at the
+foot of the back wall is closed with two faces between its own corners, drawn in the colour of the wall beside it:
+drawn with the picture between those corners they showed a streak of other walls, and were built again on 2026-11-14.
+Glow maps were made from the model's own colour for the sign, the strip light over the door, the lit panels over the
+shop window, the window, the doorway, the light on the security camera and the lamp over the side door, each with a
+halo sheet of its own just in front of it. Nothing else was retouched: the side and back walls are plain concrete as
+generated. The mesh was shared out over four tiles (2,018 to 43,114 faces each) with a ground square, a map picture
+and two main lights each; nothing carries `tilefade`, the building being one storey; and a walkmesh was generated from
+its shape (380 to 584 faces a tile, where the stock tiles of these two tilesets have at most 500). The front tile has
+a door record of type 58, the invisible transition door, at the double door. The Meshy source, the references and the
+client captures stay in ignored `output/envkit/`.
+
+Checked in the game client on 2026-11-14, in areas laid from the pack's files: in Modern Exterior by day from all four
+sides, the corners, the front, from above and at the door; by night, where the sign, the strip lights, the window, the
+camera light and the side door's lamp were lit, put out by script and brought back; with the player free, near and
+far; and with walkers sent to the door and to each side, none of whom stopped short; and in Suburbs by day from the
+same views. The group was painted from the Toolset's palette on 2026-11-14, straight in a Modern Exterior area and
+turned a quarter in a Suburbs area, and four of the sheet's props (the cross sign, the surgical light and the
+cyberware case, lit, and the instrument cart, static) were placed from both palette categories; the saved module holds
+the four tiles of each, a door of appearance 58 made at each hook, and the props with their own rows and names. In the
+client the door of each took the player to the other. After the back wall's patch was built again the group was seen
+once more from the pack's files, by day from the same views and by night, its lights put out and brought back. A
+second Toolset folder, the same day, has the other two turns: the group painted turned a half in a Modern Exterior
+area and straight in a Suburbs area, with the cyberware case and the cross sign (lit) and the instrument cart (static)
+placed from both palette categories; the saved module holds the four tiles of each at that turn and a door of
+appearance 58 made at each hook, and in the client the door of each took the player to the other.
+
+## Chop Shop Clinic props (`srn_placeable`, `srn_2da`; 2026-11-14)
+
+Nine envkit props from the same concept sheet as the Chop Shop Clinic tile group join `srn_placeable`, each with a row
+appended to `srn_2da/placeables.2da` (22811-22819, labelled `[envkit]Chop Shop Clinic, ...`): neon cross sign
+`ek_csc_cross`, hanging banner `ek_csc_banner`, cyberware case `ek_csc_case`, gurney `ek_csc_gurney`, surgical light
+`ek_csc_lamp`, instrument cart `ek_csc_cart`, biohazard bin `ek_csc_bin`, medicine vending machine `ek_csc_vending`
+and dumpster `ek_csc_dumpstr`. No existing row changes. Each prop is a compiled model, a collision file, a material
+file and its maps (colour 1024 or 2048, the other maps at half that), and a blueprint named as its model, offered
+through the pack's `placeablepalstd.itp`. The sheet's stack of cases and its bench are the Pulse Tech set's props and
+were not made again.
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a plain
+reference, enlarged to 2048 pixels with RealESRGAN x2plus, then generated by the operator's Meshy account through the
+pinned `meshy-cli@0.4.0` at 2,756 to 10,320 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+Stuffer Shack tile group's entry above records). No third-party mesh or texture was used.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
+scaled to a stated height, and its textures were recompressed. The cross sign hangs 2.4 metres up and the banner 1.9;
+the bin is turned a quarter so that its symbol faces front and back. Four props have a glow map for their lit parts
+and a lights-out material (`<name>_o`) as `docs/envkit/lights.md` describes: the cross sign's neon, the case's strip
+lights, cybereye and knee light, the lamp's lenses, and the vending machine's cross, screen and products. The surgical
+light also lights what stands round it, by a light in its row of `placeables.2da` (lightcolor row 3, bright white;
+operator, 2026-11-14: "the lamp needs a light"); the other three only glow. A review of each prop from its corners,
+above and below (operator, 2026-11-14: "review them thoroughly for issues") found four faults, which were mended: the
+right half of the banner's caduceus and the stripes under it came back smeared on both faces of the cloth, and take
+the mirror image of the clean left half and a stretch of the clean stripes; the bin showed through gaps under its rear
+rim and the dumpster through the slot between its lids, and every face of each now has a back, so that they show their
+own insides; and a length of the lamp's pole was wound inward and seen through from one side, and has backs too. A
+second pass the same day (operator: "Can the remaining issues be fixed easily?", "Yes", "Fix the case glass too")
+mended four more. The label the generator invented on both sides and the back of the vending machine is covered, each
+half of it with the mirror image of the panel beside it at the same heights; a faint patch is left where the panel's
+streaks stop at the label's top and bottom. The banner's copied stripes, which met the cloth's own a step out, are
+taken 1.5 centimetres higher. The case's cybereye and knee light glow 1.8 times as strongly and have halo sheets
+(`ek_csc_case_h`). And the case, which came back with the two bars of its slanted glass front and nothing between
+them, has glass: four panes, two between the bars and one at each end, nodes of the model's own, each a pale blue-grey
+sheet (`ek_csc_case_g`) added faintly to what is seen through it, as a halo is; laid over it instead, the glass hid
+the halos of the lights inside the case by night. Left as generated: the lower arm of the banner's bracket is notched.
+
+Checked in the game client on 2026-11-14: by day from front, back and side with a figure for scale, from the converted
+files, the banner, bin, dumpster and lamp again after they were mended; by night the same way for the four lit props,
+the ground and the figures round the lamp lit by it; and by night from the pack's files, where the lights of the four,
+the lamp's cast light among them, were put out by script and brought back. After the second pass the vending machine,
+the banner and the case were seen again by day from the converted files, and the case by night, its strip lights,
+cybereye and knee light seen through the glass; and the four lit props' lights were put out and brought back once more
+from the pack's files.
+
+## Pulse Tech tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-15)
+
+A street Matrix gear shop: a two-storey concrete and steel block under a neon PULSE TECH sign, with a shop window and
+a recessed door on its front, strip-lit windows on its upper floor and both sides, and air units and aerials on its
+roof, as one 2 by 2 tile group, `Pulse_Tech`, offered in D20 Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs
+(`udp1`, on Asphalt). Its four tile records are appended to each set file (`dgt04` tiles 530-533, group 63; `udp1`
+tiles 772-775, group 112) and the group is listed under Groups in each palette as `Pulse Tech 2x2`. No existing tile
+or group number changes. The four tile models (`ek_pt_shop_t00` to `_t11`, compiled), their walkmeshes, area-map
+pictures (`ek_pt_shop_m00` to `_m11`) and the building's material and maps live in `srn_t_common`: its colour, `_n`,
+`_s` and `_r` maps, a glow map `_i`, a halo `_h` and a lights-out material `_o`.
+
+Origin: the concept sheet `57_pulse_tech_matrix_gear_shop.png` was supplied by the SRN project operator. The building
+is one model generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0` from the sheet's
+three-quarter view, redrawn locally with Qwen-Image 2.1 as a standalone block and enlarged to 2048 pixels with
+RealESRGAN x2plus before it was sent, and remeshed by Meshy twice; the second reduction, asked for at 120,000
+triangles, is the one used. Attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's
+entry above records. The shop's name is the sheet's own invention.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes and
+scaled to 8.25 metres to the top of its roof units, which gives its door a leaf of about 2.1 metres, and its textures
+were recompressed (colour 4096 DXT1, the other maps 2048). The operator found the shop window drawn as a pale, blocky
+smear (2026-11-15): the generator had laid two large faces across the pane, in front of the window's own detail, and
+they were taken out; a second reduction had not removed them. A close look at every opening afterwards found the same
+across the west upper window, taken out likewise, and a hole in the red band on the east wall, closed with faces
+between its own rim and drawn with the band's picture beside it. Glow maps were made from the model's own colour for
+the sign, the strip lights over the shop window and the door, the shop window, the doorway, the strip lights and
+windows of the upper floor, and the strip lights and windows of the east and west walls, each with a halo sheet of its
+own just in front of it. Nothing else was retouched: the building stands on the slab with bollards it was generated
+with, and the bins and rubbish against its walls are part of the model (operator, 2026-11-15: both can stay). The mesh
+(104,238 triangles) was shared out over four tiles (6,100 to 59,106 faces each) with a ground square, a map picture
+and two main lights each; nothing carries `tilefade`; and a walkmesh was generated from its shape (498 to 650 faces a
+tile, where the stock tiles of these two tilesets have at most 500). The front tile has a door record of type 58, the
+invisible transition door, at the door. The Meshy source, the first reduction, the references and the client captures
+stay in ignored `output/envkit/`.
+
+Checked in the game client on 2026-11-15, in areas laid from the converted files: in Modern Exterior by day from all
+four sides, the corners, the front, from above and at the door; by night, where the sign, the strip lights and the
+windows were lit, put out by script and brought back; and with walkers sent to the door and to each side of the
+building in both tilesets, none of whom stopped short. Its halo sheets were made again the same day with the
+lamp-lens rule the props' entry below gives, and the group seen again by night, lit, out and lit again. Painted in the Toolset on 2026-11-15 from the built packs, in
+two folders: straight in a Modern Exterior area and turned a quarter in a Suburbs area, then turned a half in Modern
+Exterior and straight in Suburbs. Each saved area holds the four group tiles at that turn and one door of appearance
+58 that the Toolset made at the hook, and in the client (`envkit check doors`) each of the four doors took the player
+through its area transition.
+
+## Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)
+
+Thirteen envkit props from the same concept sheet as the Pulse Tech tile group join `srn_placeable`, each with a row
+appended to `srn_2da/placeables.2da` (22820-22832, labelled `[envkit]Pulse Tech, ...`): neon chip sign `ek_pt_sign`,
+hanging banner `ek_pt_banner`, display counter `ek_pt_counter`, repair bench `ek_pt_workbnch`, parts cart
+`ek_pt_cart`, server rack `ek_pt_rack`, case stack `ek_pt_cases`, bench `ek_pt_seats`, commlink vending machine
+`ek_pt_vending`, cable reel `ek_pt_reel`, power pack `ek_pt_power`, trash can `ek_pt_bin` and drone service pad
+`ek_pt_drone`. No existing row changes. Each prop is a compiled model, a collision file, a material file and its maps
+(colour 1024 or 2048, the other maps at half that), and a blueprint named as its model, offered through the pack's
+`placeablepalstd.itp`.
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a plain
+reference, enlarged to 2048 pixels with RealESRGAN x2plus, then generated by the operator's Meshy account through the
+pinned `meshy-cli@0.4.0` at 3,064 to 10,256 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+Stuffer Shack tile group's entry above records). No third-party mesh or texture was used.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
+scaled to a stated height, and its textures were recompressed. The chip sign hangs 2.4 metres up and the banner 1.9;
+every face of the banner has a back, so that the cloth is seen from both sides. Seven props have a glow map for their
+lit parts and a lights-out material (`<name>_o`) as `docs/envkit/lights.md` describes: the sign's neon, the counter's
+strip lights and commlink screens, the repair bench's lamp, oscilloscope and meter, the server rack's indicator
+lights, the vending machine's emblem, screen and product window, the power pack's two displays and the drone pad's
+camera eye. The repair bench also lights what stands round it, by a light in its row of `placeables.2da` at its lamp
+(lightcolor row 1, dim white; operator, 2026-11-15: "Dimmer for bench lamp", after it was first given bright white);
+the other six only glow. Small lit parts keep a halo sheet of their own however small they are drawn (`glow.MAIN`,
+2026-11-15), measured against what the part shows on the side it lights most: the repair bench's lamp lens, which
+shines mostly downward, and one of the counter's lit parts had no halo sheet until then, and were converted again
+and seen by night. Nothing else was retouched.
+
+Checked in the game client on 2026-11-15: by day from front, back and side with a figure for scale, from the converted
+files; by night the same way for the seven lit props; and the repair bench once more by night with its dimmer light,
+which lights the bench and the ground beside it. Ten of them were placed from the Toolset's palette on 2026-11-15,
+from both palette categories, and saved with their own rows and names: the chip sign, display counter, repair bench,
+vending machine, server rack and drone pad, lit and not static, and the trash can, case stack, parts cart and hanging
+banner, static.
+
+## Ghost Riders tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-15)
+
+A gang's vehicle garage, drawn generic: a patched sheet-metal block with an open repair bay, a roller door and a
+steel door on its front, a blank sign board under a red neon motorcycle, and pipes, tanks, a dish and aerials on its
+roof, as one 3 by 2 tile group, `Motorpool`, offered in D20 Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs
+(`udp1`, on Asphalt). Its six tile records are appended to each set file (`dgt04` tiles 534-539, group 64; `udp1`
+tiles 776-781, group 113) and the group is listed under Groups in each palette as `Motorpool Garage 3x2`. No existing
+tile or group number changes. The six tile models (`ek_gr_garage_t00` to `_t12`, compiled), their walkmeshes, area-map
+pictures (`ek_gr_garage_m00` to `_m12`) and the building's material and maps live in `srn_t_common`: its colour,
+`_n`, `_s` and `_r` maps, a glow map `_i`, a halo `_h` and a lights-out material `_o`.
+
+Origin: the concept sheet `44_ghost_riders_motorpool.png` was supplied by the SRN project operator, who had the
+building made without the gang's name, murals and logos (2026-11-15); the neon motorcycle stays. The building is one
+model generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0` from three views of the sheet
+(three-quarter, front and rear), each redrawn locally with Qwen-Image 2.1 as a standalone block without lettering and
+enlarged to 2048 pixels with RealESRGAN x2plus before it was sent, and remeshed by Meshy to 120,000 triangles asked
+for. Attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's entry above records.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes and
+scaled to 11.5 metres to the top of its aerials, which gives its steel door a leaf of about 2.1 metres, and its
+textures were recompressed (colour 4096 DXT1, the other maps 2048). Its roller door came back a flat dark blue with
+its slats lost; the new blank-panel check found it (`convert.blank_panels`) and it was smoothed, brought to a steel
+grey and drawn again with a joint every 0.12 metres. Glow maps were made from the model's own colour for the neon
+motorcycle and the strip lights over the repair bay and the roller door, each with a halo sheet of its own. Nothing
+else was retouched: the building stands on the slab it was generated with, and the fence section, barrier, tyres,
+drum, bollards and wheel stops round it, the sheet of metal leaning inside the bay and what stands in the bay are
+part of the model. Its upper window is dark and left unlit. The mesh (104,543 triangles) was shared out over six
+tiles (6,823 to 35,006 faces each) with a ground square, a map picture and two main lights each; nothing carries
+`tilefade`; and a walkmesh was generated from its shape (556 to 1,110 faces a tile, where the stock tiles of these
+two tilesets have at most 500). The tile under the steel door has a door record of type 58, the invisible transition
+door, at the door. The repair bay's floor is not walked on: the tyres, cans and wheel stops in its mouth leave no
+way in a metre wide. The Meshy sources, the references and the client captures stay in ignored `output/envkit/`.
+
+Checked in the game client on 2026-11-15, in areas laid from the pack's tiles: in Modern Exterior by day from all
+four sides, the corners, the front, from above and at the door; by night, where the neon motorcycle and the strip
+lights were lit, put out by script and brought back; and with walkers sent to the door and to each side of the
+building in both tilesets, none of whom stopped short.
+
+Checked in the Toolset the same day, in two user folders of their own: both palettes list `Motorpool Garage 3x2`
+under Groups, and painting it laid the six tiles and made one door of type 58 at the hook, straight in both
+tilesets in the first folder and turned a quarter in Modern Exterior and a half in Suburbs in the second. In
+Modern Exterior the Toolset changed no other tile; in Suburbs it repainted the fourteen tiles round the group as
+asphalt edges and corners. In the game client each of the four doors, clicked, took the player to the next
+(`envkit check doors`, both folders).
+
+## Ghost Riders props (`srn_placeable`, `srn_2da`; 2026-11-15)
+
+Fifteen envkit props from the same concept sheet as the Ghost Riders tile group join `srn_placeable`, each with a row
+appended to `srn_2da/placeables.2da` (22833-22847, labelled `[envkit]Ghost Riders, ...`): repair bench `ek_gr_bench`,
+parking pad `ek_gr_pad`, parts rack `ek_gr_rack`, planning table `ek_gr_table`, burn barrel `ek_gr_fire`, ember
+barrel `ek_gr_embers`, motorpool sign `ek_gr_sign`, gear banner `ek_gr_banner`, tagged barrier `ek_gr_barrier`, skull
+garage door `ek_gr_door`, mural wall `ek_gr_mural`, stash cases `ek_gr_cases`, fuel drums `ek_gr_drums`, fence
+section `ek_gr_fence` and service locker `ek_gr_locker`. No existing row changes. Each prop is a compiled model, a
+collision file, a material file and its maps (colour 1024 or 2048, the other maps at half that), and a blueprint
+named as its model, offered through the pack's `placeablepalstd.itp`. The gang's name and skull are on the sign,
+banner, barrier, garage door, mural wall, cases, fence and locker, which the operator had made as props of their own
+so that the building stays generic (2026-11-15); the two barrels are unmarked.
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a plain
+reference, enlarged to 2048 pixels with RealESRGAN x2plus, then generated by the operator's Meshy account through the
+pinned `meshy-cli@0.4.0` at 1,873 to 10,508 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+Stuffer Shack tile group's entry above records). The flames of the burn barrel are the game's own flame picture
+(`fxpa_flame00`, which the base game supplies; nothing of it is in the pack). No third-party mesh or texture was
+used. A burn barrel generated with flames of its own was not used (operator, 2026-11-15: "just drop the flame barrel
+and copy the ember barrel and add the flames to that copy"); the sheet's floodlight mast and generator are other
+sheets' props and were not made.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
+scaled to a stated height, and its textures were recompressed. The motorpool sign hangs 2.6 metres up and the banner
+1.6; every face of the banner has a back, so that the cloth is seen from both sides. The parking pad came back a
+wedge, half a metre thick at its back; its top was laid flat at 3 centimetres with its wheel stops standing on it
+(`convert.levelled`), and it has no block to walk into. The two barrels are one model, a drum of charred wood: a
+block was built under the wood in the colour of the model's one glowing ember and lit, a bed of embers seen between
+the pieces, and the burn barrel also has a fire the game draws (an emitter node with the stock medium flame's
+settings, narrowed to the drum, `convert.fire_lines`) and a light in its row of `placeables.2da` (lightcolor row 31,
+orange). The fence section's right panel was redrawn as chain-link that is seen through; its left panel, a banner
+the generator smeared on the front face and drew whole on the back, is left as generated. The back of the mural
+wall, where the generator smeared a second mural, was smoothed to plain grey. Five props have a glow map and a
+lights-out material (`<name>_o`) as `docs/envkit/lights.md` describes: the repair bench's two strip lights, the
+embers of both barrels and the mural wall's two lamp lenses. The repair bench (lightcolor row 1, dim white), the
+burn barrel and the mural wall (row 2, white, at its right lamp) light what stands round them; the ember barrel only
+glows. Nothing else was retouched: the faint mirrored skull on the back of the garage door is the generator's.
+
+Checked in the game client on 2026-11-15, from the converted files: by day from front, back and side with a figure
+for scale, all fifteen; by night the same way for the repair bench, both barrels and the mural wall, where the
+strip lights and lamps glow, the fire burns and lights the ground orange, and the lit props were put out by script
+and brought back from the pack (`envkit check lights`). The machine was busy with other work and several captures
+came late; each view was taken from a run that captured it in time. In the Toolset the same day the placeable
+palette listed all fifteen, ten under Modern Exterior and five under Modern Interior, and ten were placed from
+it and read back from the saved areas with their rows and blueprints: the burn barrel, ember barrel, mural wall and
+repair bench not static, so that a script can put their lights out, and the fence section, stash cases, parking
+pad, motorpool sign, parts rack and tagged barrier static.
+
+On 2026-11-16 both barrels were built again (operator: "the embers in the barrel don't look like embers"). The block of
+one glowing colour under the wood, its glow map and its lights-out material are gone. In their place each barrel has a
+bed of embers of its own: a low mound under the charred wood (`convert.ember_beds`) with a picture `<name>_e` drawn
+by `tools/envkit` itself (`convert.ember_picture`: dark lumps of charcoal under grey ash, the fire in the gaps between
+them), shown as bright by night as by day. No third-party picture was used. The burn barrel's model also has the four
+animations of the stock flame, by which a script puts its fire out and lights it again (`docs/envkit/lights.md`); its
+embers glow on when the fire is out. So neither barrel has a glow map or a lights-out material any more, and neither
+has `lights` in the catalog. The ember barrel's blueprint is static now, as scenery no script needs to reach; the
+burn barrel's is not, for its fire. Rows, the burn barrel's blueprint and both collision files are unchanged. Checked
+in the game client the same day by night, from the converted files: both beds seen from the side and from above, the fire and its light put
+out by script with the embers left glowing, and lit again. The same was then seen by day, and by night from the pack's
+own files beside the repair bench and the mural wall (`envkit check lights`): all three put out and on again.
+
+## Aurora Warrens tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-16)
+
+A run-down apartment block: three storeys of patched concrete with a caged stair tower at its west end, balconies,
+air units, a water tank and shacks on its roof, as one 3 by 2 tile group, `Aurora_Warrens`, offered in D20 Modern
+Exterior (`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its six tile records are appended to each set
+file (`dgt04` tiles 540-545, group 65; `udp1` tiles 782-787, group 114) and the group is listed under Groups in each
+palette as `Aurora Warrens 3x2`. No existing tile or group number changes. The six tile models (`ek_aw_block_t00` to
+`_t12`, compiled), their walkmeshes, area-map pictures (`ek_aw_block_m00` to `_m12`) and the building's material and
+maps live in `srn_t_common`: its colour, `_n`, `_s` and `_r` maps, a glow map `_i`, a halo `_h` and a lights-out
+material `_o`.
+
+Origin: the concept sheet `24_aurora_warrens_apartment_complex.png` was supplied by the SRN project operator. The
+building is one model generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0` from three
+pictures of it, a three-quarter view, the front and the rear, each redrawn locally with Qwen-Image 2.1 from the sheet
+as a standalone block and enlarged to 2048 pixels with RealESRGAN x2plus before it was sent, and remeshed by Meshy
+once, asked for at 120,000 triangles. Attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack
+tile group's entry above records. The building carries no name or sign (operator, 2026-11-16: buildings stay generic;
+the sheet's name is on a prop, the name wall).
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes and
+scaled to 15.3 metres to the top of its roof, which gives its front door a leaf of about 2.1 metres, and its textures
+were recompressed (colour 4096 DXT1, the other maps 2048). Glow maps were made from the model's own colour for
+nineteen parts, each measured on the wall it lies in: the strip lights over the front and rear doors, the lamp by the
+west door, and the lit windows of the first and second floors and of the roof shacks, front and rear, each with a
+halo sheet of its own just in front of it. Nothing else was retouched. The mesh (105,520 triangles) was shared out
+over six tiles (9,886 to 28,664 faces each) with a ground square, a map picture and two main lights each; nothing
+carries `tilefade`; and a walkmesh was generated from its shape (1,112 to 1,672 faces a tile, where the stock tiles
+of these two tilesets have at most 500). The path nodes of the three tiles the stair tower and the front door stand
+in are stated in the set (`H` and `V`, turned) rather than left to be chosen. The front middle tile has a door record
+of type 58, the invisible transition door, at the front door. The Meshy source, the references and the client
+captures stay in ignored `output/envkit/`.
+
+Checked in the game client on 2026-11-16, in areas laid from the converted files: in Modern Exterior by day from all
+four sides, the corners, from above and at the door; by night, where the door lights and the windows were lit, put
+out by script and brought back; and with walkers sent to the door and to each side of the building in both tilesets.
+Those to the door, the north, the south and the east arrived. The one sent to the west side from the far north-east
+corner stopped 7.5 metres short in both tilesets, under three different settings of the path nodes: its target is a
+strip of the slab under the stair tower, on the line between two tiles. Walkers sent to that same spot from the west
+and from the south-west corner arrived, and so did one sent from the north-east corner to the ground 1.4 metres west
+of it, so the ground there is reached; only that one long walk gives up.
+
+Painted in the Toolset on 2026-11-17 from the built packs, with the Night Bazaar gatehouse below, in two user
+folders of 12-tile areas (`envkit toolset prepare --size 12`): straight in Modern Exterior and in Suburbs in the
+first, turned a quarter in Modern Exterior and a half in Suburbs in the second. Both palettes list `Aurora Warrens
+3x2` under Groups; each painting laid the six tiles with their turn and the Toolset made one door of appearance 58
+at the hook (`envkit toolset saved`). In Suburbs it also repainted the tiles round the group as road. Six of the
+props below were placed from the palette in the first folder and four in the second (entry shack, water tank, caged
+stairwell and bodega kiosk of this sheet; from Structures in Modern Exterior and Furniture in Modern Interior) and
+were saved with their own rows and names, the unlit ones static. In the client (`envkit check doors`, first folder)
+the four doors of the two groups were found with their transitions and the player stood free at the Warrens' door.
+The operator then clicked through: the Warrens' door in Modern Exterior took the player to the gatehouse's door, and
+that door to the Warrens' door in Suburbs, as the log shows. The client was closed there, so the two Suburbs doors
+are not logged, and the second folder's doors were not walked.
+
+## Aurora Warrens props (`srn_placeable`, `srn_2da`; 2026-11-16)
+
+Thirteen envkit props from the same concept sheet as the Aurora Warrens tile group join `srn_placeable`, each with a
+row appended to `srn_2da/placeables.2da` (22848-22860, labelled `[envkit]Aurora Warrens, ...`): entry shack
+`ek_aw_kiosk`, caged stairwell `ek_aw_stairs`, balcony segment `ek_aw_balcony`, utility generator `ek_aw_gen`, water
+tank `ek_aw_tank`, rooftop shack `ek_aw_shack`, scrap barrier `ek_aw_barrier`, bodega kiosk `ek_aw_bodega`, laundry
+line `ek_aw_laundry`, trash pile `ek_aw_trash`, graffiti wall `ek_aw_graffiti`, name wall `ek_aw_namewall` and crates
+on pallets `ek_aw_crates`. No existing row changes. Each prop is a compiled model, a collision file, a material file
+and its maps (colour 1024 or 2048, the other maps at half that), and a blueprint named as its model, offered through
+the pack's `placeablepalstd.itp`.
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a plain
+reference, enlarged to 2048 pixels with RealESRGAN x2plus, then generated by the operator's Meshy account through the
+pinned `meshy-cli@0.4.0` at 4,426 to 21,190 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+Stuffer Shack tile group's entry above records). No third-party mesh or texture was used. The complex's name is the
+sheet's own invention and stands on the name wall alone.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
+scaled to a stated height, and its textures were recompressed. The entry shack, the stairwell, the water tank, the
+bodega kiosk and the laundry line have a back to every face, so that they are seen from inside and through their
+frames. Two props have a glow map for their lit parts and a lights-out material (`<name>_o`) as
+`docs/envkit/lights.md` describes: the strip light over the entry shack's door, and the bodega kiosk's neon sign and
+drinks fridge. The entry shack also lights what stands round it, by a light in its row of `placeables.2da` at its
+strip light (lightcolor row 1, dim white); the bodega kiosk only glows. Nothing else was retouched. Three things are
+left as generated: the back of the name wall shows the front's lettering mirrored and garbled (the wall is about two
+centimetres thick, and smoothing its back by depth spoiled its front); the back of the balcony segment has a slanted
+smear; and some of the stairwell's cage panels are drawn solid.
+
+Checked in the game client on 2026-11-16: by day from front, back and side with a figure for scale, from the converted
+files; and by night from the pack's files, where the lights of the entry shack and the bodega kiosk were put out by
+script and brought back, the ground by the shack lit by its light.
+
+## Night Bazaar tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-16)
+
+A market gatehouse: two scrap-built towers of steel panel, stairs, catwalks and tarps either side of an open gateway,
+on one slab, as one 3 by 2 tile group, `Night_Bazaar`, offered in D20 Modern Exterior (`dgt04`, on Concrete) and D20
+Suburbs (`udp1`, on Asphalt). Its six tile records are appended to each set file (`dgt04` tiles 546-551, group 66;
+`udp1` tiles 788-793, group 115) and the group is listed under Groups in each palette as `Night Bazaar Gatehouse
+3x2`. No existing tile or group number changes. The six tile models (`ek_nb_gate_t00` to `_t12`, compiled), their
+walkmeshes, area-map pictures (`ek_nb_gate_m00` to `_m12`) and the building's material and maps live in
+`srn_t_common`: its colour, `_n`, `_s` and `_r` maps. Nothing on it is lit.
+
+Origin: the concept sheet `35_front_range_night_bazaar.png` was supplied by the SRN project operator. The building is
+one model generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0` from three pictures of it, a
+three-quarter view, the front and the rear, each redrawn locally with Qwen-Image 2.1 from the sheet as a standalone
+block and enlarged to 2048 pixels with RealESRGAN x2plus before it was sent, and remeshed by Meshy once, asked for at
+120,000 triangles. Attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's entry
+above records. The building carries no name, sign or neon (operator, 2026-11-16: buildings stay generic); the
+market's signs are props, below.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes and
+scaled to 13 metres to its highest point, which gives the door in its rear panel a leaf of about 2.1 metres, and its
+textures were recompressed (colour 4096 DXT1, the other maps 2048). Nothing was retouched. The mesh (107,775
+triangles) was shared out over six tiles (14,630 to 22,383 faces each) with a ground square, a map picture and two
+main lights each; nothing carries `tilefade`; and a walkmesh was generated from its shape (986 to 1,912 faces a tile,
+where the stock tiles of these two tilesets have at most 500); the slab, 0.4 metres high, is walked at its own
+height. The rear middle tile has a door record of type 58, the invisible transition door, at the door. The Meshy
+source, the references and the client captures stay in ignored `output/envkit/`.
+
+Checked in the game client on 2026-11-16, in areas laid from the converted files: in Modern Exterior by day from all
+four sides, the corners, from above and at the door; and with walkers in both tilesets. The one sent to the door
+arrived. Those sent to the west and east sides from the far north corners stopped 7.7 and 10.8 metres short in both
+tilesets: their targets are strips of the slab at the group's edge, on the line between two tiles. Walkers sent to
+the same two spots from the next tile out and from the south corners arrived, and one sent from north of the group
+to south of it arrived, so the ground is reached; only those two long walks give up
+(`docs/envkit/sheet-runbook.md` has the row).
+
+Painted in the Toolset on 2026-11-17 from the built packs, in the two user folders the Aurora Warrens entry above
+describes: straight in Modern Exterior and in Suburbs, turned a quarter in Modern Exterior and a half in Suburbs.
+Both palettes list `Night Bazaar Gatehouse 3x2` under Groups; each painting laid the six tiles with their turn and
+the Toolset made one door of appearance 58 at the hook. The light string, bench, vendor stall, shutter booth and
+tarped kiosk were placed from the palette and saved with their own rows and names. The gatehouse's door in
+Modern Exterior was walked through in the client, as that entry says; its door in Suburbs was not.
+
+## Night Bazaar props (`srn_placeable`, `srn_2da`; 2026-11-16)
+
+Fourteen envkit props from the same concept sheet as the Night Bazaar tile group join `srn_placeable`, each with a
+row appended to `srn_2da/placeables.2da` (22861-22874, labelled `[envkit]Night Bazaar, ...`): vendor stall
+`ek_nb_stall`, tarped kiosk `ek_nb_kiosk`, cyberware neon sign `ek_nb_neon`, gateway sign `ek_nb_gatesign`, neon
+panel `ek_nb_panel`, food cart `ek_nb_cart`, folding table `ek_nb_table`, case stack `ek_nb_cases`, portable
+generator `ek_nb_gen`, shutter booth `ek_nb_booth`, bench `ek_nb_bench`, light string `ek_nb_lights`, pylon sign
+`ek_nb_pylon` and fence segment `ek_nb_fence`. No existing row changes. Each prop is a compiled model, a collision
+file, a material file and its maps (colour 1024 or 2048, the other maps at half that or less), and a blueprint named
+as its model, offered through the pack's `placeablepalstd.itp`.
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a plain
+reference, enlarged to 2048 pixels with RealESRGAN x2plus, then generated by the operator's Meshy account through the
+pinned `meshy-cli@0.4.0` at 3,721 to 19,472 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+Stuffer Shack tile group's entry above records). No third-party mesh or texture was used. The market's name and the
+wording of its signs are the sheet's own invention.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
+scaled to a stated height, and its textures were recompressed. The cyberware sign hangs 2.2 metres up, the neon panel
+2.0 and the gateway sign 6.0, over a gateway. The vendor stall, the tarped kiosk, the gateway sign, the food cart and
+the shutter booth have a back to every face, so that they are seen from inside and through their frames. The fence
+segment's two wire panels, generated as solid sheets, were drawn again as mesh (9 cm pitch) that is seen through. The
+back of the pylon sign's board, where the generator had left the front's lettering mirrored and garbled, was smoothed
+to its own red. Eight props have a glow map for their lit parts and a lights-out material (`<name>_o`) as
+`docs/envkit/lights.md` describes: the vendor stall's hanging bulbs and two screens, the tarped kiosk's screen, the
+neon of the cyberware sign, the gateway sign, the neon panel and the pylon sign's side panel, the strip light over
+the shutter booth's shutter and the light string's bulbs. Three of them also light what stands round them, by a light
+in their rows of `placeables.2da` (lightcolor row 1, dim white): the vendor stall at its bulbs, the shutter booth at
+its strip light and the light string at its middle; the signs and the kiosk's screen only glow. Nothing else was
+retouched.
+
+Checked in the game client on 2026-11-16: by day from front, back and side with a figure for scale, from the converted
+files; and by night from the pack's files, where the lights of the eight lit props were put out by script and brought
+back, the ground under the stall, the booth and the light string lit by their lights.
+
+## Shiawase Barrens Power Station tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-17)
+
+A worn two-storey power station of cracked concrete on one fenced slab: an overhanging control room, a transformer
+bank, a roller door lettered S-1 and one steel door stencilled UTILITY TUNNEL ACCESS - T7, as one 2 by 2 tile group,
+`SB_Station`, offered in D20 Modern Exterior (`dgt04`, on Concrete) and D20 Suburbs (`udp1`, on Asphalt). Its four
+tile records are appended to each set file (`dgt04` tiles 552-555, group 67; `udp1` tiles 794-797, group 116) and the
+group is listed under Groups in each palette as `Shiawase Barrens Power Station 2x2`. No existing tile or group number
+changes. The four tile models (`ek_sb_power_t00` to `_t11`, compiled), their walkmeshes, area-map pictures
+(`ek_sb_power_m00` to `_m11`) and the building's material and maps live in `srn_t_common`: its colour, `_n`, `_s` and
+`_r` maps, a glow map `_i`, a halo `_h`, a lights-out material `_o` and the fence's wire picture `_w`.
+
+Origin: the concept sheet `60_shiawase_barrens_power_station.png` was drawn for the SRN project operator with the
+Codex CLI's image generation from the project's earlier Shiawase substation sheet. The building is one model
+generated by the operator's Meshy account through the pinned `meshy-cli@0.4.0` from two pictures of it, the front and
+the rear, each redrawn locally with Qwen-Image 2.1 from the sheet as a standalone building without its perimeter
+fence and enlarged to 2048 pixels with RealESRGAN x2plus before it was sent, and remeshed by Meshy once, asked for at
+200,000 triangles (`sb-2view-a2`). Two earlier generations of it, one from the front alone and one with the fence
+drawn in both views, are not used: the fence came back as open frames with its chain-link printed on the walls
+behind. Attribution: [Meshy](https://www.meshy.ai/); paid plan, as the Stuffer Shack tile group's entry above
+records. The Shiawase name and mark on its wall are the sheet's.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): the model was turned to the game's axes and
+scaled to 9.55 metres, which gives its door a leaf of about 2.0 metres and its slab a width that two tiles hold, and
+its textures were recompressed (colour 4096 DXT1, the relief map 4096 too, the other maps 2048). Glow maps were made from the model's own
+colour for seven parts (the control room windows, the lamp over the tunnel door, the strip lamp and the red lamp at
+the roller door, and three floodlights), each with a halo sheet. The perimeter fence is built, not generated: round
+steel posts with domed caps, stouter at the corners and the ends of a run, round top and bottom rails, concrete gateway
+posts under pointed caps, chain-link sheets hung between them, and a coil of barbed wire along the top of every run,
+two strands wound opposite ways. The fence shows one picture of its own, drawn by `tools/envkit`: the wire mesh, a
+column of galvanised steel, streaked and rusted at the foot, and a column of pitted concrete, each in the tone of the
+model's own picture at a stated point (the first build's posts were square bars in one flat colour; operator,
+2026-11-17: "the posts for the fences needs to be better than a square pole"). It has two gateways in its front, 5 metres before the roller door and 3 metres before the tunnel
+door, without gate leaves. Seven faces of 0.1 square metres or more came back showing a sliver of the picture drawn out
+across them, the largest a square metre of the slab at the wider gateway (operator, 2026-11-17: "what is this
+smear?"): each was cut into pieces and drawn with the sound surface of its own plane beside it (`convert.relaid`); one
+of 0.26 square metres low on the slab's front edge found none and is as generated. The five floodlight heads (three
+on poles, two on the roof) came back with their lenses drawn dark and stayed dark at night (user, 2026-11-18: "the
+tower lights on the tile group aren't lit", "those lamp heads need actual lights"): the faces of each head that look
+downward were painted a warm white and lit, and each head has a light of its own in its tile (warm white, 10 metres),
+lit without a builder colouring a main light, by day as well as by night. A script that puts the group's lights out
+darkens the lenses and leaves these five lights on: nothing was found that puts a tile's own light out. The face of
+0.26 square metres named above looks into the slab and is not seen. Nothing else was retouched. The
+mesh (198,529 triangles with the fence) was shared out over
+four tiles (17,689 to 84,311 faces each) with a ground square, a map picture and two main lights each; what stands
+above 4.2 metres carries `tilefade`; and a walkmesh was generated from its shape (402 to 1,720 faces a tile, where
+the stock tiles of these two tilesets have at most 500). The path nodes of three tiles are stated in the set: each
+front tile is entered by its own gateway only (`N`), since a planned walk did not cross from tile to tile inside the
+fence. The strip behind the building is fenced off and is not reached. The front east tile has a door record of type
+58, the invisible transition door, at the tunnel door. The Meshy source, the references and the client captures stay
+in ignored `output/envkit/`.
+
+Checked in the game client on 2026-11-17, in areas laid from the converted files: in Modern Exterior by day from all
+four sides, the corners and at the door (over two runs: the client stalled in each and some captures came late; the
+view from above was late in both and is not kept); by night, where the lit parts were lit, put out by script and
+brought back; and with walkers in both tilesets sent from the far corners to the door, the roller door, both halves
+of the yard, a corner of it and each side of the building, and from the next tile onto the yard: all arrived. On
+2026-11-18 the build as it ships, with the round fence posts, the redrawn faces and the lamp lights, was checked
+again: by day and with the same walkers in both tilesets (all arrived, every view on time), and by night in Modern
+Exterior, where the five lamp heads glow and light the yard and the roof round them. The round gap seen in the fence
+nearest the camera in close views is the client's own: it stands at the same place on the screen in views of
+different parts of the fence.
+
+Painted in the Toolset on 2026-11-18 from the built packs, in two user folders: straight in Modern Exterior and a
+quarter turn in Suburbs in the first, a half turn in Modern Exterior and straight in Suburbs in the second. Each
+palette lists it under Groups; each painting laid the four tiles with their turn and the Toolset made one door of
+appearance 58 at the hook. The bulkhead door, tunnel vent stack and switchgear cabinet were placed from the palette
+in the first folder and saved with their rows. In the client, each folder's two doors were given transitions to each
+other and clicked through: the player came out in front of the other area's door both ways, in both folders.
+
+<!-- srn-size-exception {"path":"srn_t_common/ek_sb_power_n.dds","reason":"The power station's relief map at 4096, as its colour is (user, 2026-11-17: \"Yes, full 4K normals\"); 22,369,776 bytes, below GitHub's hard limit."} -->
+
+## Shiawase Barrens props (`srn_placeable`, `srn_2da`; 2026-11-18)
+
+Fourteen envkit props from the same concept sheet as the Shiawase Barrens Power Station tile group join
+`srn_placeable`, each with a row appended to `srn_2da/placeables.2da` (22875-22888, labelled `[envkit]Shiawase
+Barrens, ...`): power transformer `ek_sb_trafo`, switchgear cabinet `ek_sb_switch`, tunnel hatch `ek_sb_hatch`, cable
+drum `ek_sb_drum`, power tap pole `ek_sb_tap`, tunnel vent stack `ek_sb_vent`, cable trench cover `ek_sb_trench`,
+station wall sign `ek_sb_sign`, battery bank `ek_sb_battery`, tool cart `ek_sb_cart`, bulkhead door `ek_sb_bulkhead`,
+pipe run `ek_sb_pipes`, insulator stack `ek_sb_insul` and sandbag barrier `ek_sb_sandbag`. No existing row changes.
+Each prop is a compiled model, a collision file, a material file and its maps (colour 1024 or 2048, the other maps at
+half that or less), and a blueprint named as its model, offered through the pack's `placeablepalstd.itp`.
+
+Origin: each prop was cropped from the operator's concept sheet and redrawn locally with Qwen-Image 2.1 as a plain
+reference, enlarged to 2048 pixels with RealESRGAN x2plus, then generated by the operator's Meshy account through the
+pinned `meshy-cli@0.4.0` at 2,900 to 10,162 triangles (attribution: [Meshy](https://www.meshy.ai/); paid plan, as the
+Stuffer Shack tile group's entry above records; operator, 2026-11-18: "Raise the cap by 210 and do the props"). No
+third-party mesh or texture was used. The station's name and the wording of its signs are the sheet's own invention.
+
+Modifications, all by `tools/envkit` (SRN project operator with Claude): each model was turned to the game's axes and
+scaled to a stated height, and its textures were recompressed. The wall sign hangs 1.6 metres up; it is one sheet,
+and its back came with the front's lettering mirrored: the back half of the sheet was painted a plain steel grey and
+its relief levelled, and the lettering stays as a faint stamped outline in the mesh. The switchgear cabinet came back with two wedges of its front
+wound inside out, dark holes in the client, and has a back to every face. Three props have a glow map for their lit
+parts and a lights-out material (`<name>_o`) as `docs/envkit/lights.md` describes: the switchgear cabinet's three
+indicator panels, the battery bank's two green charge lights and its amber one, and the amber lamp over the bulkhead
+door. The bulkhead door also lights what stands round it, by a light in its row of `placeables.2da` (lightcolor row
+5) at its lamp; the indicators and charge lights only glow. Nothing else was retouched.
+
+Checked in the game client on 2026-11-18: by day from front, back and side with a figure for scale, from the converted
+files; and by night from the pack's files, where the lights of the three lit props were put out by script and brought
+back, the ground before the bulkhead door lit by its lamp.
 
 ## MDRNEE placeable import (2026-09-11)
 
@@ -1238,3 +2100,124 @@ only extends the F1 and F2 appearance-picker `MaxRange` values (to 111 and 181).
 Generation intermediates, local bindings, HAK archives, ledger entries and client
 captures stay outside the repository. Shadowrun names and designs are third-party
 marks; this record asserts no ownership of them and adds no new rights claim.
+
+## Facility Security outfit (`srn_parts`, `srn_2da`; 2026-11-15)
+
+`srn_parts` is a new pack of modular outfit parts made with `tools/armorkit`. Its first
+outfit is Facility Security, part number 6020 (set `facility-security`, group `corpsec`):
+chest, pelvis, upper arms, hands, thighs, shins and feet for all 20 SRN bodies. That is
+240 part models, each with a tint texture of its own name and a material file; normal
+maps, and a roughness map for the upper-arm parts; four inventory icons (chest and
+pelvis, one per gender). A map that is the same image on several bodies is published
+once and named by each body's material file. 746 files, 423 MB.
+
+The design follows the project operator's "Corporate Security: Facility & Patrol
+Uniforms" concept sheet. The briefs are `tools/armorkit/briefs/corpsec-facility-male.json`
+and `corpsec-facility-female.json` (models `corpsec-facility-male`,
+`corpsec-facility-female`). Each reference image was generated locally from its brief's
+prompt with the Qwen image model in the shared ComfyUI (profile `qwen21-int8-v1`), and
+prepared for generation in the same ComfyUI (prepared images `7be59cf5...a64117`, male,
+and `bb63e43b...a04ddb`, female). Geometry and appearance were generated locally from
+those images with Pixal3D (`pixal3d_int8_convrot`, Trellis 2 shape VAE, DINOv3 image
+encoder) in the same ComfyUI; one geometry submission per model. No third-party
+generation service was used.
+
+Local processing cut each outfit into the parts a body wears, fitted them to the seam
+contract, reduced them, baked tint, normal and roughness textures and compiled the
+models for NWN:EE. Light wear (mottling, scuffed edges, darker creases) is drawn into
+the tint textures by the bake, not by the generator, and each part carries the colours
+its brief suggests as a starting point for an item's colours. The Human male wears his
+own outfit. The Human female wears her own generated chest and the male's other parts
+carried to her body. The 18 other bodies wear the Human outfit of their gender carried
+to them by `armorkit refit`; nothing was generated for them. The upper-arm parts share
+their slot with the body's own skin, which is copied from `srn_body` and `srn_body_tex`
+(see "PhenoMorpher reviewed body phenotypes").
+
+`srn_2da` gains live row 6020 in seven `parts_*.2da` tables (chest, bicep, pelvis, legs,
+shin, foot, hand). The tables are installed-game derivatives: the game's rows are kept
+unchanged and a licensed NWN:EE installation is required. Per-file hashes, the pinned
+generation records and the refit reports are in `docs/armorkit/parts-handoff.json`;
+the registry is `docs/armorkit/parts-registry.json`.
+
+Raw references, generation outputs, kept parts, bakes and trial packs stay in ignored
+`output/armorkit/` and are not redistributed.
+
+## Duty belt and logo brassard (`srn_parts`, `srn_2da`; 2026-11-17)
+
+Two accessories join `srn_parts`, each on all 20 SRN bodies: the Facility Security
+duty belt (belt 6020; brief `tools/armorkit/briefs/corpsec-duty-belt.json`, model
+`corpsec-duty-belt`) and a shoulder brassard that shows a corporation's logo (shoulder
+1000, both sides; model `brassard`). 92 files: 60 part models, the belt's material
+files and one normal map shared by every body, one tint texture kept per piece (the
+other names are listed in `docs/armorkit/parts-copies.json`), six inventory icons, and
+the three logo files `srn_logo.mtr`, `srn_vslogo.shd` and `srn_logos.tga`.
+
+The belt follows the project operator's "Corporate Security" concept sheets. Its
+reference image was generated locally from the brief's prompt with the Qwen image
+model in the shared ComfyUI (profile `qwen21-int8-v1`); geometry and appearance were
+generated locally from it with Pixal3D in the same ComfyUI, two geometry submissions.
+No third-party generation service was used for it. Local processing prepared the
+piece once and fitted it over the Facility Security outfit on each body
+(`armorkit accessory fit`); nothing was generated per body.
+
+The brassard is drawn by `tools/armorkit/brassard.py`: a band round the upper arm over
+the outfit's sleeve with a curved badge. Nothing was generated for it. The badge reads
+one cell of the logo strip through the material `srn_logo`, whose vertex shader
+`srn_vslogo` is the game's stock `vslit` with one line added; SR_NWN picks the cell
+per wearer. The strip's pictures are `tools/armorkit/logos/*.png`: Ares, Renraku,
+Saeder-Krupp, Wuxing, Mitsuhama, Aztechnology and Lone Star are cut from the project
+operator's concept sheets; Evo, Horizon, NeoNET and Shiawase are cut from one image
+drawn in the sheets' header style with the Codex app's image tool (OpenAI image
+generation) and approved by the project operator. The corporation names and marks are
+Shadowrun's, third-party marks; this record asserts no ownership of them and adds no
+new rights claim.
+
+`srn_2da` gains live row 6020 in `parts_belt.2da` and live row 1000 in
+`parts_shoulder.2da`, installed-game derivatives as before. Per-file hashes, the
+pinned generation records and the logo's material, parameter and cells are in
+`docs/armorkit/parts-handoff.json`. The brassard's pinned records are
+`tools/armorkit/brassard.py` and `logo.py` as they stood at commit `7743369f`, the
+publication; both files have changed since. Raw references, generation outputs, fits and
+trial packs stay in ignored `output/armorkit/` and are not redistributed.
+
+## Firearm wave 1: Fichetti Security 600, Yamaha Pulsar, HK MP-5 TX, AK-97, Defiance T-250 (srn_weapon, srn_2da; 2026-11-17)
+
+Same origin and pipeline as the Ares Predator IV above: SR4 catalog references, then
+geometry generated from the colour detail image and saved-shape appearance, both
+through the shared ComfyUI and the shared itemkit trial ledger. The itemkit firearm
+route then fitted each gun to the Colt firearm grip standard (the Defiance by length),
+squared it to its own middle plane, reduced, UV-mapped and baked it, built its shadow
+and compiled NWN:EE native models. The shown model of each gun carries the muzzle
+flash and casing emitters and fire clips described in `docs/items/firearm-fx-pilot.md`:
+emitter settings from the operator's own earlier mod, sprites from the base game's
+stock textures by name, and the casing sheet already published as `srnfx_casing.tga`.
+The content is contributed by the SRN project operator with Claude-assisted
+generation, fitting, texturing and validation. The exact payload bytes are published
+in `srn_weapon`; hashes and the user's approval statements are in
+`docs/items/approved-weapons-v1.json`. `srn_2da/baseitems.2da` only extends the F7
+appearance-picker `MaxRange` (65 to 77). The Defiance's 2048 px diffuse carries its
+reflection mask in an alpha channel, which puts the uncompressed TGA just over the
+size limit:
+
+<!-- srn-size-exception {"path":"srn_weapon/sr65882fcd_018.tga","reason":"Defiance T-250 diffuse with its reflection mask in alpha: the approved itemkit package's 2048 px RGBA TGA, 16,777,260 bytes, below GitHub's hard limit."} -->
+
+The same change turns the published Ares
+Predator IV, Colt L36 and Ingram Smartgun X models rigidly upright; nothing else of
+theirs changes. Generation intermediates, local bindings, HAK archives, ledger
+entries and client captures stay outside the repository. Shadowrun names and designs
+are third-party marks; this record asserts no ownership of them and adds no new
+rights claim.
+
+## Head library: 40 client-reviewed heads (srn_head; 2026-11-18)
+
+The SRN project operator selected 40 generated head designs, five per race and gender for Human, Elf, Dwarf and Orc.
+ImageGen supplied appearance and paired clay references; Pixal supplied geometry and saved-shape appearance.
+Headbatch/headkit performed fitting, repair, UVs, texture baking, PLT ownership/palette mapping, native compilation and
+review. The user delegated operator reviews through the private NWN:EE client, made the geometry, budget and threshold
+decisions quoted in the manifest, and authorized this publication.
+
+Only the 40 MDL/PLT pairs listed in docs/heads/head-library-40-v1.md are added: the exact bytes each head's final client
+session loaded. Resource and design hashes, submission counters, client sessions, gallery frame hashes, user-accepted
+exceptions and limitations are in that document and its JSON manifest. The heads reference the game's built-in head
+materials; stock material and palette payloads are not redistributed. Machine bindings, intermediate models, private
+logs and generated HAKs remain outside the repository.

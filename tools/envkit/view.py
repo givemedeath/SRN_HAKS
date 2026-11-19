@@ -44,7 +44,63 @@ def contact(run, output, columns=3):
     return len(cells)
 
 
-def _drawn(points, uvs, faces, picture, output, name, sides, scale, grid, fine, lit):
+def _stood(where, toward, shining):
+    """Where a lit part's light stands: {side, planes}. `side` is the side most of it faces (`glow.SIDES`) and `planes`
+    the depths out along that side, to 5 cm, at which a tenth or more of that light stands, each with its share. A
+    window's glass stands at one depth; a box that also lights the wall round the window shows the wall's depth as a
+    second plane (the Iron Sight Arms range windows, 2026-11-14: glass at 1.6, wall at 1.75 and 1.85)."""
+    if not shining.any():
+        return {'side': None, 'planes': []}
+    along = toward[shining] @ np.array([[x, y, 0.0] for x, y in glow.SIDES]).T; side = int(np.bincount(along.argmax(-1), minlength=len(glow.SIDES)).argmax())
+    depth = where[shining][along.argmax(-1) == side] @ np.array([*glow.SIDES[side], 0.0])
+    steps, counts = np.unique(np.round(depth / 0.05).astype(int), return_counts=True)
+    return {'side': side, 'planes': [[round(float(step) * 0.05, 2), round(float(count) / len(depth), 2)] for step, count in zip(steps, counts) if count >= len(depth) / 10]}
+
+
+def _stand_off(cards, where, toward, shining):
+    """How far in front of a lit part the halo card that spreads it stands, in metres, or None where no card does. The
+    part's light is taken at its middle on the side most of it faces (`_stood`), and the card is the nearest one
+    facing that side that stands over that spot. Light shared out by depth alone put a window's glow on the card of
+    the sign above it, three quarters of a metre out, and from a slant it stood beside the window (the Iron Sight
+    Arms shop, 2026-11-14); thirteen lit parts of the older sets still stand 0.3 metres or more behind their card
+    (2026-11-15). A part no card carries only glows on its own surface."""
+    side = _stood(where, toward, shining)['side']
+    if side is None:
+        return None
+    ahead_x, ahead_y = glow.SIDES[side]; spots = where[shining & ((toward @ np.array([ahead_x, ahead_y, 0.0])) > 0.5)]
+    if not len(spots):
+        return None
+    frame = lambda place: (place[0] * ahead_y - place[1] * ahead_x, place[0] * ahead_x + place[1] * ahead_y)
+    across, depth = (float(np.median(value)) for value in frame(spots.T)); height = float(np.median(spots[:, 2])); fronts = []
+    for card in cards:
+        (left, front), (right, level) = frame(card[0][0]), frame(card[1][0])  # a card facing this side has its first corner on the viewer's left
+        if abs(front - level) < 1e-6 and right <= across <= left and card[0][0][2] <= height <= card[2][0][2] and front >= depth:
+            fronts.append(front)
+    return round(min(fronts) - 0.04 - depth, 2) if fronts else None
+
+
+def _mirrors(where, covered, lit, shining):
+    """Where a lit part's box lands when it is turned over the model's middle, left to right and front to back, and
+    finds as much surface there with far less of it lit: [{part, across, box, held, lit}]. A generated model repeats
+    a wall's windows on the wall behind it and one door's lamp on the other, and the lit boxes were drawn for one of
+    the two (the Iron Sight Arms range wing's far windows and the dark half of its rifle cabinet; user, 2026-11-14).
+    Each is a place to look at by day, not a fault: a sign's mirror is a bare back wall. `shining` is every texel
+    the set lights; a box that reaches over the middle is mostly its own mirror and is passed over."""
+    low, high = where[covered].min(0), where[covered].max(0); found = []
+    for region in lit:
+        box = np.sort(np.array(region['box'], float), axis=0); own = glow.inside(where, covered, region['box'])
+        share = float((own & shining).sum()) / max(int(own.sum()), 1)
+        for axis, across in ((0, 'x'), (1, 'y')):
+            turned = box.copy(); turned[:, axis] = (low[axis] + high[axis] - box[:, axis])[::-1]
+            if min(box[1, axis], turned[1, axis]) - max(box[0, axis], turned[0, axis]) > 0.5 * (box[1, axis] - box[0, axis]):
+                continue
+            held = glow.inside(where, covered, turned.tolist()); lights = int((held & shining).sum())
+            if share > 0 and held.sum() >= own.sum() / 2 and lights / held.sum() < share / 2:
+                found.append({'part': region.get('part'), 'across': across, 'box': turned.round(2).tolist(), 'held': int(held.sum()), 'lit': lights})
+    return found
+
+
+def _drawn(points, uvs, faces, picture, output, name, sides, scale, grid, fine, lit, halo=None):
     from PIL import Image
     where, covered, toward = glow.position_map(points, uvs, faces, fine, facing=True)
     rgba = np.asarray(picture.convert('RGBA').resize((fine, fine)), float) / 255
@@ -53,8 +109,15 @@ def _drawn(points, uvs, faces, picture, output, name, sides, scale, grid, fine, 
     if lit is not None:
         shine = glow.glow(base, where, covered, lit)
         report['litShare'] = round(float((shine.max(-1) > 0.02).sum() / max(covered.sum(), 1)), 3)
-        report['litParts'] = [{'part': region.get('part'), 'held': int(glow.inside(where, covered, region['box']).sum()),
-                               'lit': int((glow.glow(base, where, covered, [region]).max(-1) > 0.02).sum())} for region in lit]
+        report['litParts'] = []
+        for region in lit:
+            shining = glow.glow(base, where, covered, [region]).max(-1) > 0.02
+            report['litParts'].append({'part': region.get('part'), 'held': int(glow.inside(where, covered, region['box']).sum()), 'lit': int(shining.sum()), **_stood(where, toward, shining)})
+        report['mirrors'] = _mirrors(where, covered, lit, shine.max(-1) > 0.02)
+        if halo:  # where each part's glow will hang: on a card of its own just in front of it, far out on another's, or nowhere
+            card = glow.halo(shine, where, covered, toward=toward, parts=[glow.inside(where, covered, region['box']) for region in lit], **halo)
+            for told, region in zip(report['litParts'], lit):
+                told['standOff'] = _stand_off(card.cards if card else [], where, toward, glow.glow(base, where, covered, [region]).max(-1) > 0.02)
         base = np.where(shine.max(-1, keepdims=True) > 0.02, np.maximum(shine, 0.1), base * 0.35 * [0.6, 0.7, 1.0])
     extent = float(max(points.max(0) - points.min(0))); pixels = scale or max(int(1400 / extent), 1); output = Path(output); output.mkdir(parents=True, exist_ok=True)
     for side in sides:
@@ -69,17 +132,18 @@ def _drawn(points, uvs, faces, picture, output, name, sides, scale, grid, fine, 
 def elevations(models, root, name, output, *, sides=(0,), scale=None, grid=None, fine=2048, lit=False):
     """Pictures `<name>-side<n>.png` of a game set's model as it will ship, with a grid. `models` is the loaded game
     set and `root` its output root. `lit` shows what its lit boxes light. Returns {bounds, pictures, litShare,
-    litParts}, the last two with `lit`: the share of the model's texels that are lit, and for each lit part the texels
-    its box holds and the texels it lights."""
+    litParts, mirrors}, the last three with `lit`: the share of the model's texels that are lit, for each lit part the
+    texels its box holds, the texels it lights, the side most of its light faces and the depths it stands at
+    (`_stood`) and, where the model has a halo, how far in front of it the card that spreads it stands (`_stand_off`), and the places across the model from a lit part that are left dark (`_mirrors`)."""
     from PIL import Image
     require(name in models, 'No such model in the game set: ' + name); model = models[name]; source = Path(root) / model['source']
     require(not lit or model.get('lit'), name + ' states no lit parts')
     maps = {'base_color': source / 'texture_0_base_color.png'}
     made = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
-                         **{key: model[key] for key in convert.RETOUCHING if key in model and key != 'fence'})  # a fence's sheets have a picture of their own
+                         sight=False, **{key: model[key] for key in convert.RETOUCHING if key in model and key not in ('fence', 'frame')})  # a fence's sheets and frame have a picture of their own
     with Image.open(maps['base_color']) as generated:
         picture = made['colour'] or generated.copy()
-    return _drawn(made['vertices'], made['uvs'], made['faces'], picture, output, name, sides, scale, grid, fine, model['lit'] if lit else None)
+    return _drawn(made['vertices'], made['uvs'], made['faces'], picture, output, name, sides, scale, grid, fine, model['lit'] if lit else None, model.get('halo') if lit else None)
 
 
 def page(drawn, output, *, columns=2, high=300, widest=2400):
@@ -185,7 +249,7 @@ def perspective(models, root, name, output, eyes, *, size=(1280, 800), grid=None
         if one not in shaped:
             model = models[one]; source = Path(root) / model['source']; maps = {'base_color': source / 'texture_0_base_color.png'}
             finished = convert.shape(source / 'model.glb', maps, height=model['height'], colour=model.get('colour', 1024), lift=model.get('lift', 0.0), sign_tilt=model.get('signTilt'),
-                                     **{key: model[key] for key in convert.RETOUCHING if key in model})
+                                     sight=False, **{key: model[key] for key in convert.RETOUCHING if key in model})
             with Image.open(maps['base_color']) as generated:
                 shaped[one] = (finished, np.asarray((finished['colour'] or generated).convert('RGBA')))
         finished, picture = shaped[one]; made = convert.place(finished, at, turn)

@@ -1,17 +1,21 @@
 """A native contract for one design on any composite melee carrier, including the hafted families.
 
-    python -m tools.itemkit.drive contract FAMILY DESIGN_ID --wave NAME [--visible N]
+    python -m tools.itemkit.drive contract FAMILY DESIGN_ID --wave NAME [--visible N] [--replace-stock]
 
 Builds on the measured wave contract (stack, stock baseitems, the shipped Humans and approved weapons): extracts the
 installed carrier's three stock parts and icons into a new stack layer, measures the stock grip origin and overall span
 (carrier.py), allocates the visible budget from budget-policy.json by the stock length, reserves resources and writes
 `contracts/<wave>/family-<name>.json` and `<DESIGN>.<wave>-contract.asset.json`.
 
+--replace-stock lets a design take a base-game appearance slot once 1..25 hold no free one (reserve(); the contract records
+the stock names in resources.replacesStock). A slot held by srn_weapon or by a live sibling contract is never taken.
+
 The grip origin is measured, not reviewed in the hand: the first design fitted on a new carrier carries the both-body
 hand-fit review that confirms it, exactly as the Claymore's provisional greatsword contract did.
 """
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -71,30 +75,88 @@ def retired(folder):
     return record
 
 
-def retire(folder, reason, today):
+def retire(folder, reason, today, contracts=None):
     """Mark an abandoned or test contract folder retired, so its appearance slots are free again (sibling_models).
 
-    Its files stay as they are: a manifest that pins one of its contracts still verifies, but nothing new is built on it."""
+    With `contracts` (family file names), only those contracts are retired, in RETIRED_CONTRACTS: a folder that also
+    holds published contracts (wave 2's v2 holds the Bat and Stun Staff) keeps them while its abandoned ones (the
+    Baton and Tomahawk, re-contracted in v3) give their slots back. Its files stay as they are: a manifest that pins one
+    of its contracts still verifies, but nothing new is built on it."""
     folder = Path(folder); require(folder.is_dir() and any(folder.glob('family-*.json')), f'{folder} holds no family contracts')
     require(reason.strip(), 'Retiring a contract folder needs the reason'); require(retired(folder) is None, f'{folder} is already retired')
-    record = {'reason': reason, 'date': today, 'contracts': sorted(p.name for p in folder.glob('family-*.json'))}
-    (folder/RETIRED).write_text(json.dumps(record, indent=2), encoding='utf-8')
-    return record
+    if contracts is None:
+        record = {'reason': reason, 'date': today, 'contracts': sorted(p.name for p in folder.glob('family-*.json'))}
+        (folder/RETIRED).write_text(json.dumps(record, indent=2), encoding='utf-8')
+        return record
+    names = sorted(set(contracts)); done = retired_contracts(folder)
+    for name in names:
+        require(Path(name).name == name and name.startswith('family-') and (folder/name).is_file(), f'{folder} holds no contract {name}')
+        require(name not in done, f'{name} is already retired')
+    rows = [{'contract': name, 'sha256': sha(folder/name), 'reason': reason, 'date': today} for name in names]
+    path = folder/RETIRED_CONTRACTS; book = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {'contracts': []}
+    book['contracts'] += rows; path.write_text(json.dumps(book, indent=2), encoding='utf-8')
+    return {'reason': reason, 'date': today, 'contracts': names}
+
+
+RETIRED_CONTRACTS = 'retired-contracts.json'
+
+
+def retired_contracts(folder):
+    """The family file names retired one by one in a contract folder (retire with `contracts`) whose files still hold the
+    retired bytes. A record binds the contract's hash: a later contract under the same file name (a design re-contracted
+    in a wave copied from this folder) is live and keeps its slot."""
+    path = Path(folder)/RETIRED_CONTRACTS
+    if not path.exists(): return set()
+    rows = json.loads(path.read_text(encoding='utf-8')).get('contracts', [])
+    require(all(isinstance(r.get('reason'), str) and r['reason'].strip() and r.get('date') and r.get('contract') and r.get('sha256')
+                for r in rows), f'{path}: every retired contract needs a reason, a date and its hash')
+    retired = set()
+    for r in rows:
+        file = Path(folder)/r['contract']
+        if not file.is_file(): continue
+        if sha(file) == r['sha256']: retired.add(r['contract'])
+        else: print(f'{file}: changed since it was retired ({r["date"]}); its slot counts as taken again', file=sys.stderr)
+    return retired
 
 
 def sibling_models(contracts, own, item_class):
     """Model and icon names every other contract on this carrier already pinned, in any wave: not yet in any stack, still taken.
 
     Only one wave's folder was searched at first: wave 2's first contracts (2026-11-12) took the very slots the
-    unpublished wave-1 weapons hold on the same carriers. A retired folder (an abandoned wave, a test) holds none."""
+    unpublished wave-1 weapons hold on the same carriers. A retired folder (an abandoned wave, a test) holds none, nor
+    does a contract retired on its own."""
     from .contracts import model_names
-    taken = set(); live = {folder: retired(folder) is None for folder in Path(contracts).iterdir() if folder.is_dir()}
+    taken = set(); folders = [folder for folder in Path(contracts).iterdir() if folder.is_dir()]
+    live = {folder: retired(folder) is None for folder in folders}; dropped = {folder: retired_contracts(folder) for folder in folders}
     for path in Path(contracts).glob('*/family-*.json'):
-        if path == own or not live[path.parent]: continue
+        if path == own or not live[path.parent] or path.name in dropped[path.parent]: continue
         other = json.loads(path.read_text(encoding='utf-8')); index = other.get('resources', {}).get('appearanceIndex')
         if index is None or other.get('native', {}).get('itemClass') != item_class: continue
         for name in model_names(other, index).values(): taken |= {name.lower()+'.mdl', 'i'+name.lower()+'.tga'}
     return taken
+
+
+MAIN_REFS = ('refs/remotes/origin/main', 'refs/heads/main')
+
+
+def published_names(repo=ROOT):
+    """The resource names srn_weapon holds in this checkout and on main.
+
+    A wave's stack carries the srn_weapon layer as of its base contract; weapons published since are held by their live
+    contracts (sibling_models), and this listing also guards a slot whose contract folder was retired. The checkout a
+    contract runs in can lag main, so the main refs it knows are read too (as last fetched: nothing is fetched here)."""
+    folder = Path(repo)/'srn_weapon'
+    names = {p.name.lower() for p in folder.iterdir() if p.is_file()} if folder.is_dir() else set()
+    # The repository is the one at `repo`: an inherited GIT_DIR or GIT_WORK_TREE would point git elsewhere.
+    env = {k: v for k, v in os.environ.items() if k not in ('GIT_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE', 'GIT_COMMON_DIR')}
+    for ref in MAIN_REFS:
+        try:
+            done = subprocess.run(['git', '-C', str(repo), 'ls-tree', '-z', '--name-only', ref, '--', 'srn_weapon/'],
+                                  capture_output=True, env=env)
+        except OSError: break                     # no git here: the checkout's own listing stands
+        if done.returncode == 0:
+            names |= {Path(n).name.lower() for n in done.stdout.decode('utf-8').split('\0') if n}
+    return names
 
 
 def base_grip_origin(source, item_class):
@@ -110,7 +172,7 @@ def base_grip_origin(source, item_class):
     return known[0] if known else None
 
 
-def build(ws, family_name, design, wave, *, visible=None, base=BASE):
+def build(ws, family_name, design, wave, *, visible=None, base=BASE, replace_stock=False):
     from .carrier import assemble, decode_stock, measure
     from .contracts import family, native_contract, reserve
     from tools.headkit.common import verification_pass
@@ -121,6 +183,7 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     if not target.exists():
         shutil.copytree(source, target)
         for old in target.glob('family*.json'): old.unlink()
+        for ledger in (RETIRED_CONTRACTS,): (target/ledger).unlink(missing_ok=True)   # the base's retirements are not the wave's
     cls = route.carrier.item_class; folder = target/'stack-resources'/cls
     # Each carrier gets its own stack file: the wave's stack.json is never rewritten, so a family contracted earlier
     # in the wave keeps the stack bytes it pins.
@@ -157,7 +220,9 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     from .contracts import resource_stem
     stem = resource_stem(design)          # the intake's identity, from the whole ID: a shared suffix never shares names
     budget = allocation(visible or visible_budget(carrier['length']))
-    profile = {k: base_family[k] for k in ('schemaVersion', 'kind', 'materialRoute', 'bakeSize', 'runtimeTextureSize')}
+    from .contracts import NEW_ITEM_TEXTURE_SIZE
+    profile = {k: base_family[k] for k in ('schemaVersion', 'kind', 'materialRoute', 'bakeSize')}
+    profile['runtimeTextureSize'] = NEW_ITEM_TEXTURE_SIZE      # not the base contract's: older bases are 1K
     draft = json.loads((handoff/f'{design}.family.json').read_text(encoding='utf-8'))
     profile.update(sourceExport=draft['sourceExport'], family=family_name, nativePackaging='enabled', budgets=budget,
                    allowedAssemblies=[dict.fromkeys('bmt', design)],
@@ -182,9 +247,16 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     try:
         with verification_pass('family-contract-'+design):
             path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
-            _, resources = native_contract(path, profile)
-            slot = reserve(profile, {n.lower() for n in resources} | sibling_models(target.parent, path, cls))
-            profile['resources']['appearanceIndex'] = slot['modelIndex']; path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
+            stock = set(); _, resources = native_contract(path, profile, stock=stock)
+            held = sibling_models(target.parent, path, cls) | published_names()
+            slot = reserve(profile, {n.lower() for n in resources} | held, stock=stock - held, replace_stock=replace_stock)
+            profile['resources']['appearanceIndex'] = slot['modelIndex']
+            if slot.get('replacesStock'):
+                profile['resources']['replacesStock'] = slot['replacesStock']
+                profile['notes'] += (f' Appearance slot {slot["modelIndex"]} replaces the base-game {cls} shape {slot["modelIndex"]} colour 1 '
+                                     f'({len(slot["replacesStock"])} stock names in resources.replacesStock): slots 1..25 were all taken '
+                                     '(user approval 2026-11-15 to replace base-game weapon parts on every carrier).')
+            path.write_text(json.dumps(profile, indent=2), encoding='utf-8')
             family(path, validate_native=True)
     except BaseException:
         path.unlink(missing_ok=True)     # nothing pins a contract that never validated: a fixed rerun starts clean
@@ -192,4 +264,5 @@ def build(ws, family_name, design, wave, *, visible=None, base=BASE):
     manifest = json.loads((handoff/f'{design}.asset.json').read_text(encoding='utf-8'))
     manifest['familyProfile'] = {'path': path.relative_to(handoff).as_posix(), 'sha256': sha(path)}
     out.write_text(json.dumps(manifest, indent=2), encoding='utf-8')
-    return {'family': str(path), 'manifest': str(out), 'carrier': carrier, 'budget': budget, 'slot': slot['modelIndex']}
+    return {'family': str(path), 'manifest': str(out), 'carrier': carrier, 'budget': budget, 'slot': slot['modelIndex'],
+            **({'replacesStock': slot['replacesStock']} if slot.get('replacesStock') else {})}

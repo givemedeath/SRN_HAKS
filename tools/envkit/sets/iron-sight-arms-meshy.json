@@ -1,0 +1,19 @@
+{
+  "set": "iron-sight-arms",
+  "prefix": "isa",
+  "props": {
+    "pistol-counter": {"triangles": 8000},
+    "rifle-wall": {"triangles": 10000, "key": "isa-rifle-wall-a2"},
+    "ammo-shelf": {"triangles": 10000},
+    "gunsmith-bench": {"triangles": 12000},
+    "rifle-cabinet": {"triangles": 10000},
+    "ammo-vending": {"triangles": 5000},
+    "protection-rack": {"triangles": 10000},
+    "cleaning-cart": {"triangles": 8000},
+    "paper-target": {"triangles": 3000},
+    "steel-target": {"triangles": 3000},
+    "shooting-booths": {"triangles": 10000}
+  },
+  "pieces": {"shop": {"views": ["building-shop"], "triangles": 100000, "key": "isa-building-shop-a2"},
+    "range": {"views": ["building-range"], "triangles": 100000}}
+}

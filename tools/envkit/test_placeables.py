@@ -52,6 +52,28 @@ class PlaceableTests(unittest.TestCase):
         self.assertNotIn('\n', text.replace('\r\n', '')); self.assertTrue(text.endswith('\r\n'))
 
 
+    def test_a_light_fills_the_rows_light_columns_and_a_row_already_there_takes_a_new_light(self):
+        light = {'colour': 3, 'at': [0, 0.5, 4.2]}
+        text, made = placeables.register(TABLE, [{'model': 'ek_a', 'label': 'Yard, Lamp', 'sound': 28, 'light': light}])
+        self.assertEqual(placeables.TOKEN.findall(text.rstrip('\n').split('\n')[-1])[4:8], ['3', '0.0000', '0.5000', '4.2000'])
+        again = placeables.lights(text, {'ek_a': None, 'old_thing': {'colour': 6, 'at': [1, 2, 3]}})
+        before, last = again.rstrip('\n').split('\n')[-2:]
+        self.assertEqual(placeables.TOKEN.findall(last)[4:8], ['****'] * 4)
+        self.assertEqual(placeables.TOKEN.findall(before)[4:8], ['6', '1.0000', '2.0000', '3.0000'])
+        self.assertEqual(again.split('\n')[:4], text.split('\n')[:4])  # rows not named are left as they were
+        self.assertEqual(placeables.lights(text, {'ek_a': light}), text)
+        self.assertTrue(placeables.lights(text.replace('\n', '\r\n'), {'ek_a': None}).endswith('\r\n'))
+        with self.assertRaisesRegex(ValueError, 'no row to light: ek_z'):
+            placeables.lights(text, {'ek_z': light})
+        for bad in ({'colour': 3}, {'colour': '3', 'at': [0, 0, 1]}, {'colour': 300, 'at': [0, 0, 1]}, {'colour': 32, 'at': [0, 0, 1]}, {'colour': 0, 'at': [0, 0, 1]}, {'colour': 3, 'at': [0, 1]}):
+            with self.assertRaisesRegex(ValueError, 'A light is'):
+                placeables.light_values(bad)
+        # The rows are the stock table's only while no pack here ships its own lightcolor.2da (review, 2026-11-14).
+        repo = Path(__file__).resolve().parents[2]
+        found = [str(path) for path in repo.glob('srn_*/**/*') if path.name.lower() == 'lightcolor.2da']  # the game reads names alike whatever the case
+        self.assertEqual(found, [], 'A pack overrides lightcolor.2da: bound placeables.LIGHT_COLOURS by its rows')
+
+
 class CommandTests(unittest.TestCase):
     def test_the_command_ships_a_models_files_and_enters_it_and_its_lights_in_the_catalog(self):
         with tempfile.TemporaryDirectory() as scratch:
@@ -99,6 +121,16 @@ class CommandTests(unittest.TestCase):
             self.assertNotIn('lights', catalog.load(listed)['placeables'][0])
             # Its light files leave the pack with its lights, and its wire picture with its fence: a glow map left behind would read as a lit model.
             self.assertFalse(any((pack / name).exists() for name in lit)); self.assertTrue((pack / 'ek_a_s.dds').is_file())
+            # A light goes into the table only as the conversion measured it from the model (`convert.placeable`).
+            lamp = {'label': 'Shop, Bin', 'sound': 28, 'light': {'colour': 3, 'at': [0, 0.5, 2]}}
+            (repo / 'sets' / 'shop.json').write_text(json.dumps({'models': {'ek_a': {'source': 'models/a', 'height': 1.0, 'placeable': lamp}}}), encoding='utf-8')
+            for told in ({}, {'lightAt': [0.0, 0.5, 1.0]}):  # converted before it had a light, and with its light elsewhere
+                (built / 'report.json').write_text(json.dumps(told), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, r'Convert these again \(envkit game\).*ek_a'):
+                    run()
+            self.assertNotIn(b'0.5000', (repo / 'tables' / 'placeables.2da').read_bytes())
+            (built / 'report.json').write_text(json.dumps({'lightAt': [0.0, 0.5, 2.0]}), encoding='utf-8'); run()
+            self.assertIn(b'0.5000', (repo / 'tables' / 'placeables.2da').read_bytes())
 
 
 if __name__ == '__main__':

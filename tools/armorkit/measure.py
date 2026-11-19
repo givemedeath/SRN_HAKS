@@ -30,6 +30,7 @@ SEAT_STEP = 0.004  # the pelvis's skin is sampled this densely
 ARMHOLE_STEP = 0.006  # the upper arm's skin is sampled this densely where it leaves the chest
 ARMHOLE_HEIGHT = 0.2  # and this far to either side of the shoulder plane
 WINDING_CHUNK = 64  # points whose winding number is read at once
+SEEN_DEPTH = 0.02  # metres: under a face turned in, cloth this near and turned out is what the client shows; farther, a hole (`seen_through`)
 
 
 def token(slot, side):
@@ -185,6 +186,97 @@ def winding(points, vertices, faces, chunk=WINDING_CHUNK):
     return out
 
 
+def beyond(points, start, axis, vertices, faces, chunk=WINDING_CHUNK, facing=False):
+    """(outside, face): for each point, how far it stands outside the surface `faces` along the ray from the
+    line through `start` along unit `axis` square out through it, a bone's axis to a limb: the point's
+    distance from the line less where the ray last crosses the surface, positive where the point lies
+    beyond it, and the face crossed last. NaN and -1 where the ray crosses none of it. The last crossing is
+    what is seen from outside: a fold or a wall of cloth turned in under it lies inside the arm unseen, and
+    read first it pushed a sleeve out 14 cm. With `facing`, only faces wound to face out along the ray count:
+    the client draws no face from behind, and the Human female's arm showed through a sleeve whose cloth over
+    it was all turned in (2026-11-13). The result then holds a third array, the face crossed last of all,
+    whichever way it faces (-1 where none is), read on the same rays."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+    points, start, axis = np.asarray(points, float), np.asarray(start, float), np.asarray(axis, float)
+    foot = start + ((points - start) @ axis)[:, None] * axis
+    radial = points - foot
+    reach = np.linalg.norm(radial, axis=1)
+    ways = radial / np.maximum(reach, 1e-12)[:, None]
+    first, second = corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]
+    outside, face, any_face = np.full(len(points), np.nan), np.full(len(points), -1), np.full(len(points), -1)
+    for at in range(0, len(points), chunk):
+        way, origin = ways[at:at + chunk], foot[at:at + chunk]
+        across = np.cross(way[:, None], second[None])
+        det = np.einsum('fi,pfi->pf', first, across)
+        met = np.abs(det) > 1e-15
+        inverse = np.where(met, 1.0 / np.where(met, det, 1.0), 0.0)
+        offset = origin[:, None] - corners[None, :, 0]
+        u = np.einsum('pfi,pfi->pf', offset, across) * inverse
+        turned = np.cross(offset, first[None])
+        w = np.einsum('pi,pfi->pf', way, turned) * inverse
+        far = np.einsum('fi,pfi->pf', second, turned) * inverse
+        crossed = met & (u >= 0) & (w >= 0) & (u + w <= 1) & (far > 0)
+        if facing:
+            every = np.where(crossed, far, -np.inf)
+            last = every.argmax(axis=1)
+            any_face[at:at + len(far)] = np.where(np.isfinite(every[np.arange(len(far)), last]), last, -1)
+            crossed &= det < 0  # the face's own normal, first x second, along the ray
+        far = np.where(crossed, far, -np.inf)
+        last = far.argmax(axis=1)
+        hit = np.isfinite(far[np.arange(len(far)), last])
+        rows = np.arange(at, at + len(far))[hit]
+        outside[rows] = reach[rows] - far[hit, last[hit]]
+        face[rows] = last[hit]
+    return (outside, face, any_face) if facing else (outside, face)
+
+
+def seen_through(vertices, faces, within, depth=SEEN_DEPTH, chunk=WINDING_CHUNK):
+    """Per face of a part, whether the game client shows a hole there: the face is turned in, with nothing
+    of the part behind it to hide that and nothing close under it to be seen in its place.
+
+    The client draws no face from behind. A face is read along the line through its middle, square to it:
+
+    * it is turned in where its own normal points toward `within`, the points the part lies round (one per
+      face, or one for all: its bone, or its middle);
+    * its back is bare where the line, followed against its normal, out of the part, crosses no other face:
+      a lining under the cloth has the cloth behind it, and is never seen from there;
+    * and nothing stands in for it where the line, followed along its normal, into the part, first meets a
+      face turned toward the viewer more than `depth` on, or none: the far wall of a sleeve, seen through the
+      near one. Cloth a centimetre under a lining that came out through it is what is seen there, and is no hole.
+
+    The Human male's right sleeve of Facility Security had a slit along its inner seam where its end was left
+    open, and a gate that read only the skin kept beside the cloth passed it (2026-11-14). A face with no
+    area is never one."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int).reshape(-1, 3)]
+    first, second = corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]
+    normal = np.cross(first, second)
+    size = np.linalg.norm(normal, axis=1)
+    real = size > 1e-14
+    normal = normal / np.maximum(size, 1e-14)[:, None]
+    middle = corners.mean(axis=1)
+    inward = real & (((np.asarray(within, float) - middle) * normal).sum(axis=1) > 0)
+    found = np.zeros(len(corners), bool)
+    asked = np.flatnonzero(inward)
+    for at in range(0, len(asked), chunk):
+        rows = asked[at:at + chunk]
+        way, origin = normal[rows], middle[rows]
+        across = np.cross(way[:, None], second[None])
+        det = np.einsum('fi,pfi->pf', first, across)  # negative where the face crossed has its normal along the line
+        met = (np.abs(det) > 1e-15) & real[None]
+        inverse = np.where(met, 1.0 / np.where(met, det, 1.0), 0.0)
+        offset = origin[:, None] - corners[None, :, 0]
+        u = np.einsum('pfi,pfi->pf', offset, across) * inverse
+        turned = np.cross(offset, first[None])
+        w = np.einsum('pi,pfi->pf', way, turned) * inverse
+        far = np.einsum('fi,pfi->pf', second, turned) * inverse
+        crossed = met & (u >= 0) & (w >= 0) & (u + w <= 1)
+        crossed[np.arange(len(rows)), rows] = False
+        bare = ~(crossed & (far < -1e-9)).any(axis=1)
+        ahead = np.where(crossed & (far > 1e-9) & (det > 0), far, np.inf).min(axis=1)
+        found[rows] = bare & (ahead > depth)
+    return found
+
+
 def joints(bones, parts):
     """Per joint and side: plane, body ring and how far each skin part runs past the plane.
 
@@ -311,12 +403,14 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def seam_contract(body_folder, supermodel_folders, bodies=seams.AUTHORING_BODIES, design_bend='p95'):
-    """The seam contract document, measured from the body pack and the animation models the bodies inherit."""
+def seam_contract(body_folder, supermodel_folders, bodies=registry.BODIES, design_bend='p95'):
+    """The seam contract document, measured from the body pack and the animation models the bodies inherit: every
+    one of the 20 bodies, each on its own models and the clips it plays (version 4; the two Human Fit bodies
+    alone through version 3)."""
     body_folder = Path(body_folder)
-    document = {'schemaVersion': 1, 'kind': seams.KIND, 'version': 2, 'units': 'metres', 'directions': seams.DIRECTIONS,
+    document = {'schemaVersion': 1, 'kind': seams.KIND, 'version': 4, 'units': 'metres', 'directions': seams.DIRECTIONS,
                 'tierOffsets': {str(tier): offset for tier, offset in seams.TIER_OFFSETS.items()},
-                'designBend': design_bend, 'joints': {}, 'source': {'bodies': {}, 'animation': {}}}
+                'designBend': design_bend, 'ends': dict(seams.ENDS), 'joints': {}, 'source': {'bodies': {}, 'animation': {}}}
     for name in bodies:
         bones, parts = body(body_folder, name)
         measured = joints(bones, parts)

@@ -50,7 +50,7 @@ CHANNELS = ('cloth1', 'cloth2', 'leather1', 'leather2', 'metal1', 'metal2', 'ski
 NECK_CATEGORIES = ('headgear', 'back', 'neckwear', 'torso')
 # Where a part may show a logo. A logo is one cell of a shared strip, read through a shared material and
 # picked per wearer (plan.md, revision "logos use the shader value"). The material and the logo cells are
-# Phase 1 work, so nothing about them is derived here yet.
+# `logo.py`'s; a publication writes them into the handoff as `logo` (`publish.publish`).
 BADGE_POSITIONS = {'shoulder': ('left', 'right'), 'neck': ('lanyard',)}
 ROBE_HIDES = ('FOOTR', 'FOOTL', 'SHINR', 'SHINL', 'LEGR', 'LEGL', 'PELVIS', 'CHEST', 'BELT', 'NECK', 'FORER',
               'FOREL', 'BICEPR', 'BICEPL', 'SHOR', 'SHOL', 'HANDR', 'HANDL', 'HEAD')
@@ -72,8 +72,8 @@ FAMILIES = ('accessory',) + FAMILY_BLOCKS
 NECK_BANDS = {'headgear': (1000, 1499), 'back': (1500, 1999), 'neckwear': (2000, 2499), 'torso': (2500, 2999)}
 
 PART_KEYS = {'slot', 'number', 'set', 'group', 'families', 'genderedCut', 'tiers', 'neckCategory', 'coverage',
-             'channels', 'badge', 'bodies', 'mesh', 'sides', 'hide'}
-REQUIRED = PART_KEYS - {'set', 'group', 'neckCategory', 'sides', 'hide'}
+             'channels', 'badge', 'bodies', 'mesh', 'sides', 'hide', 'colours'}
+REQUIRED = PART_KEYS - {'set', 'group', 'neckCategory', 'sides', 'hide', 'colours'}
 TAG = re.compile(r'[a-z0-9][a-z0-9-]{0,31}')
 
 
@@ -125,7 +125,7 @@ def _unique(values, allowed, label, *, empty=False):
 
 def validate_part(part, *, publish=False):
     require(isinstance(part, dict) and REQUIRED <= set(part) <= PART_KEYS,
-            'Part keys must be ' + ', '.join(sorted(REQUIRED)) + ' plus optional set, group, neckCategory, sides, hide')
+            'Part keys must be ' + ', '.join(sorted(REQUIRED)) + ' plus optional set, group, neckCategory, sides, hide, colours')
     slot, number = part['slot'], part['number']
     require(isinstance(slot, str) and slot in SLOTS, f'Unknown slot {slot!r}')
     label = f'{slot} {number}'
@@ -167,6 +167,11 @@ def validate_part(part, *, publish=False):
     require(not coverage['headgear'] or part.get('neckCategory') == 'headgear', label + ': headgear is a neck part of category headgear')
     _unique(part['channels'], CHANNELS, label + ': channels')
     require(coverage['skin'] == ('skin' in part['channels']), label + ': exposed skin uses the skin channel, and only exposed skin does')
+    if 'colours' in part:  # the colour the design wears each channel in: a suggestion SR_NWN may start from (user decision 2026-11-15)
+        colours = part['colours']
+        require(isinstance(colours, dict) and colours and set(colours) <= set(part['channels']) - {'skin'}
+                and all(isinstance(value, list) and len(value) == 3 and all(type(v) is int and 0 <= v <= 255 for v in value) for value in colours.values()),
+                label + ': colours map the part\'s own channels, the skin apart, to a colour of three whole numbers, 0-255')
     badge = part['badge']
     if badge is not None:
         require(slot in BADGE_POSITIONS, label + ': logos live only on shoulder parts and neck-slot lanyards')
@@ -221,9 +226,10 @@ def handoff(parts):
     """The registry as SR_NWN consumes it: each part with the table, item fields and model names it implies.
 
     A part in a family block also carries `setNumber` (its number with the units digit at 0) and `variant`
-    (the units digit). A part's `badge` says where it shows a logo. The handoff does not yet name the shared
-    logo material, its parameter or the logo cells (plan.md, revision "logos use the shader value"); that
-    entry is Phase 1 work."""
+    (the units digit). A part's `badge` says where it shows a logo, and its `colours`, where it has them, the
+    colour its design wears each of its channels in, as sRGB 0-255: a suggestion to start an item's colours
+    from (the nearest of the game's palette), not a rule. The shared logo material, its parameter and the
+    logo cells are added by the publication, as `logo`, with the first part that has a badge."""
     rows = []
     for part in parts:
         slot = SLOTS[part['slot']]

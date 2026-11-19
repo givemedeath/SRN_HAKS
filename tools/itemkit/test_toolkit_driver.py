@@ -1,4 +1,5 @@
 """The promoted wave tooling: carrier measurement, hafted fits, texture outliers, contracts budgets and the driver."""
+import io
 import json
 import os
 from pathlib import Path
@@ -120,6 +121,40 @@ class HaftedFitTests(unittest.TestCase):
         self.assertGreater(np.asarray(data['fittedBounds'])[1][1], .3)
 
 
+class ChosenRoundLengthTests(unittest.TestCase):
+    """A round one-hand handle shorter than the hand may take a chosen length (the wave-4 Sai, 2026-11-13)."""
+    def test_a_round_dagger_takes_the_chosen_length_and_binds_a_departure(self):
+        from tools.itemkit.fit_manifest import STANDARD, measure
+        standard = json.loads(STANDARD.read_text(encoding='utf-8'))
+        family = {'family': 'dagger', 'native': {'gripOrigin': [0, 0, 0], 'gripLength': standard['usableLength'], 'stockSpan': [-.1, .5]}}
+        rows = [(y, .03) for y in np.linspace(0, .25, 60)] + [(y, .012) for y in np.linspace(.26, 1, 180)]   # round handle, thin blade
+        v, f = lathe(rows, sides=64); v, f = gltf(v), f
+        marks = {'bladeAtLowEnd': False, 'pommelEnd': .02, 'gripStart': .02, 'gripEnd': .24, 'bladeStart': .26, 'uniform': True}
+        natural = measure({}, family, {'positions': v, 'faces': f}, marks, standard)
+        self.assertAlmostEqual(natural['nativeLength'], standard['usableLength'] / .22, delta=.02)       # the hand fills the handle
+        chosen = measure({}, family, {'positions': v, 'faces': f}, {**marks, 'targetLength': .55, 'sizeToLength': False}, standard)
+        self.assertAlmostEqual(chosen['nativeLength'], .55, delta=.005)
+        self.assertEqual(chosen['sizingAuthority'], 'usable-length-round'); self.assertTrue(chosen['departurePending'])
+        self.assertTrue(chosen['chosenLength']); self.assertLess(chosen['gripReport']['midpointRelativeDifferences']['usableLength'], -.3)
+        from tools.itemkit.fit_manifest import gltf_to_blender
+        from tools.itemkit.grip import GripDeparture, melee_fit
+        fit = {'sizingAuthority': 'usable-length-round', 'gripEndpoints': chosen['gripEndpoints'], 'chosenLength': True}
+        with self.assertRaises(GripDeparture) as worker:                        # the fit worker measures the same handle
+            melee_fit(family, fit, standard, gltf_to_blender(v), f, np.asarray(chosen['matrix']))
+        self.assertEqual(worker.exception.report['measurementDigest'], chosen['gripReport']['measurementDigest'])
+        # The fit stage's endpoint check holds the chosen handle to its own reviewed length, not the hand's.
+        from tools.itemkit.geometry import transform
+        from tools.itemkit.grip import fitted_grip_length
+        report = worker.exception.report; ends = transform(np.asarray(chosen['gripEndpoints'], float), np.asarray(report['fitMatrix']))
+        fitted = float(np.linalg.norm(ends[1] - ends[0]))
+        self.assertAlmostEqual(fitted / fitted_grip_length(fit, family['native'], report), 1, delta=.02)
+        self.assertGreater(abs(fitted / family['native']['gripLength'] - 1), .3)               # the old check refused it
+        self.assertEqual(fitted_grip_length({}, family['native'], None), standard['usableLength'])
+        with self.assertRaisesRegex(ValueError, 'round grip report'): fitted_grip_length(fit, family['native'], {'usableLength': .1})
+        loose = measure({}, family, {'positions': v, 'faces': f}, {**marks, 'targetLength': .55}, standard)
+        self.assertAlmostEqual(loose['nativeLength'], natural['nativeLength'], delta=.005)   # without sizeToLength false: unchanged
+
+
 class StaffSectionTests(unittest.TestCase):
     """The stun staff was flattened by the per-axis hilt calibration (user, 2026-11-12): a staff keeps its own section."""
     def setUp(self):
@@ -195,6 +230,20 @@ class BladeFaceFrameTests(unittest.TestCase):
         self.assertEqual(method, 'hafted-head')
         top = q[q[:, 0] > np.percentile(q[:, 0], 90)]
         self.assertGreater(np.ptp(top[:, 1]), 4 * np.ptp(top[:, 2])); self.assertAlmostEqual(np.linalg.det(U), 1, places=9)
+
+    def test_reviewed_landmarks_win_over_a_head_read_as_a_cross_guard(self):
+        from tools.itemkit import fit_manifest as fm
+        haft, _ = lathe([(y, .02) for y in np.linspace(-.6, .6, 480)], sides=48)
+        head, _ = lathe([(y, .12) for y in np.linspace(.3, .5, 80)], sides=48, depth=.1)         # wide, short of the top
+        _, U0, q0 = fm._frame(np.concatenate([haft, head]))
+        top_low = bool(U0[1, 0] < 0)                                    # where Blender +Y (the head) lies in the frame
+        self.assertEqual(fm.bladed_landmarks(q0, U0, {})[0], 'cross-guard')
+        marks = {'pommelEnd': .02, 'gripStart': .1, 'gripEnd': .3, 'bladeStart': .75}
+        method, q, U, _ = fm.bladed_landmarks(q0, U0, {'bladeAtLowEnd': top_low, **marks})
+        self.assertEqual(method, 'override-ends')
+        self.assertGreater(q[np.argmax(np.hypot(q[:, 1], q[:, 2])), 0], 0)            # the head is now at the high end
+        same = fm.bladed_landmarks(q0, U0, {'bladeAtLowEnd': not top_low, **marks})[0]
+        self.assertEqual(same, 'cross-guard')                           # an agreeing override keeps the detected guard
 
     def test_a_round_blade_keeps_the_principal_frame(self):
         from tools.itemkit import fit_manifest as fm
@@ -304,6 +353,30 @@ class ComfyStopTests(unittest.TestCase):
         # Waiting for the GPU lease and an idle queue is the submitter's job (headkit.shared_comfy.slot), not the driver's.
         self.assertFalse(hasattr(d, 'wait_idle'))
 
+    def test_a_geometry_retry_with_the_same_workflow_and_seeds_is_refused_before_submit(self):
+        import json, tempfile, types
+        from tools.itemkit.drive import Driver, workflow_key
+        request = lambda token, seed: {'token': token, 'outputNamespace': 'itemkit', 'prompt': {'3': {'inputs': {'seed': seed, 'prefix': 'itemkit/' + token}}}}
+        self.assertEqual(workflow_key(request('aa', 57)), workflow_key(request('bb', 57)))
+        self.assertNotEqual(workflow_key(request('aa', 57)), workflow_key(request('bb', 58)))
+        # The workflow names an uploaded image by the token alone: another clay under the same seeds is another job.
+        clay = lambda sha: {**request('aa', 57), 'inputs': [{'path': 'inputs/' + sha + '.png', 'sha256': sha}, {'path': 'tools/x.py', 'sha256': sha}]}
+        self.assertNotEqual(workflow_key(clay('1' * 64)), workflow_key(clay('2' * 64)))
+        self.assertEqual(workflow_key(clay('1' * 64)), workflow_key({**clay('1' * 64), 'inputs': clay('1' * 64)['inputs'][:1]}))    # code pins do not count
+        with tempfile.TemporaryDirectory() as tmp:
+            items = Path(tmp); first = items/'gun/geometry-a1'; (first/'job').mkdir(parents=True)
+            (first/'request').write_bytes(json.dumps(request('aa', 57)).encode()); (first/'job/submission.json').write_bytes(b'{}')
+            d = Driver(types.SimpleNamespace(items=items, handoff=items, runtime=items, path=Path, data={}))
+            def launch(design, run, step, common, argv, kind=None):
+                self.assertEqual(step, 'request', 'nothing may be submitted')
+                (run/'request').parent.mkdir(parents=True, exist_ok=True); (run/'request').write_bytes(json.dumps(request('bb', launch.seed)).encode())
+                return '', '', ''
+            d.launch = launch; d.manifest = lambda design, suffix: items/'manifest.json'
+            launch.seed = 57
+            with self.assertRaisesRegex(SystemExit, 'repeats the workflow and seeds of geometry-a1'): d.gen('gun', 'geometry', 'v1', 'a2')
+            launch.seed = 58
+            with self.assertRaisesRegex(AssertionError, 'nothing may be submitted'): d.gen('gun', 'geometry', 'v1', 'a3')
+
     def test_a_failed_query_or_a_still_answering_comfy_keeps_the_pid_file(self):
         for kwargs in ({'query_fails': True}, {'answering': True}):
             result, killed, kept = self.stop('"C:\\Program Files\\Editor\\editor.exe"', **kwargs)
@@ -382,6 +455,33 @@ class SiblingSlotTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'already retired'): retire(root/'abandoned', 'again', '2026-11-13')
             with self.assertRaisesRegex(ValueError, 'no family contracts'): retire(root/'missing', 'why', '2026-11-13')
 
+    def test_one_contract_of_a_folder_is_retired_and_gives_its_slot_back(self):
+        from tools.itemkit.family_contract import retire, retired, retired_contracts, sibling_models
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for wave, name, index in (('mixed', 'published', 1), ('mixed', 'abandoned', 2), ('live', 'mine', None)):
+                (root/wave).mkdir(exist_ok=True)
+                (root/wave/f'family-{name}.json').write_text(json.dumps({'family': 'club', 'nativePackaging': 'enabled',
+                                                                         'native': {'itemClass': 'wblcl'}, 'resources': {
+                    'texturePrefix': 'sr' + name, **({'appearanceIndex': index} if index else {})}}), encoding='utf-8')
+            mine = root/'live/family-mine.json'
+            with self.assertRaisesRegex(ValueError, 'no contract family-missing.json'):
+                retire(root/'mixed', 'why', '2026-11-15', ['family-missing.json'])
+            record = retire(root/'mixed', 're-contracted in live', '2026-11-15', ['family-abandoned.json'])
+            self.assertEqual(record['contracts'], ['family-abandoned.json']); self.assertIsNone(retired(root/'mixed'))
+            self.assertEqual(retired_contracts(root/'mixed'), {'family-abandoned.json'})
+            taken = sibling_models(root, mine, 'wblcl')
+            self.assertIn('wblcl_b_011.mdl', taken); self.assertNotIn('wblcl_b_021.mdl', taken)
+            with self.assertRaisesRegex(ValueError, 'already retired'):
+                retire(root/'mixed', 'again', '2026-11-15', ['family-abandoned.json'])
+            # a new contract under the retired file name is live (Codex review on #163): the record binds the old bytes
+            (root/'mixed'/'family-abandoned.json').write_text(json.dumps({'family': 'club', 'nativePackaging': 'enabled',
+                'native': {'itemClass': 'wblcl'}, 'resources': {'texturePrefix': 'srnew', 'appearanceIndex': 3}}), encoding='utf-8')
+            with mock.patch('sys.stderr', new_callable=io.StringIO) as err:
+                self.assertEqual(retired_contracts(root/'mixed'), set())
+            self.assertIn('changed since it was retired', err.getvalue())   # the lapse is reported, not silent
+            self.assertIn('wblcl_b_031.mdl', sibling_models(root, mine, 'wblcl'))
+
     def test_a_base_contracts_reviewed_grip_origin_is_kept_and_disagreement_refused(self):
         from tools.itemkit.family_contract import base_grip_origin
         with tempfile.TemporaryDirectory() as tmp:
@@ -420,6 +520,16 @@ class OpeningProbeTests(unittest.TestCase):
         narrow = [{**hole, 'clearance': .001}]                                    # a 2 mm gap closes in reduction
         with self.assertRaisesRegex(ValueError, 'too narrow'): op.match([('lanyard', .7)], narrow)
         with self.assertRaisesRegex(ValueError, 'need a fit manifest'): op.fitted_shell({'inputs': {}}, {'native': {}}, '.')
+        # A long window matches a reference inside its own span even when its deepest point is further off (the wave-5
+        # Katar: deepest point 0.342, span 0.289-0.393, reference 0.384).
+        self.assertAlmostEqual(hole['extent'][1][0], .06, delta=.006); self.assertAlmostEqual(hole['extent'][1][1], .08, delta=.006)
+        window = [{**hole, 'fraction': .342, 'span': [.289, .393]}]
+        self.assertEqual(op.match([('window', .384)], window)[0]['name'], 'window')
+        with self.assertRaisesRegex(ValueError, 'No clear through-hole matches'): op.match([('window', .45)], window)
+        # The end is chosen by the same distance: a window holding its reference beats a small hole that is merely near
+        # the reference counted from the other end.
+        window = {**hole, 'start': [0, 0, 0], 'fraction': .30, 'span': [.25, .45]}; small = {**hole, 'start': [0, 1, 0], 'fraction': .62}
+        self.assertEqual(op.match([('window', .40)], [window, small])[0]['start'], [0, 0, 0])
         from tools.itemkit.grip import melee_fit
         from tools.itemkit.routes import WHOLE_NATIVE_FAMILIES
         with self.assertRaisesRegex(ValueError, 'firearm'): op.fitted_shell({}, {'family': WHOLE_NATIVE_FAMILIES[0]}, '.')
@@ -493,6 +603,14 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             self.assertEqual(ws.handoff, (root/'h').resolve()); self.assertEqual(ws.bindings('generation'), (root/'rt').resolve()/'b.json')
             ws = self.workspace(root, generationBindings='g.json'); self.assertEqual(ws.bindings('generation').name, 'g.json')
             self.assertIn(str((root/'bank').resolve()), ws.environment()['PYTHONPATH'])
+            # The launcher's hash cache is on for every driver launch (as in headbatch), unless the caller chose one.
+            with mock.patch.dict(os.environ): 
+                os.environ.pop('SRN_LAUNCH_HASH_CACHE', None)
+                self.assertEqual(ws.environment()['SRN_LAUNCH_HASH_CACHE'], str((root/'launch-hash-cache'/'cache.sqlite').resolve()))
+                os.environ['SRN_LAUNCH_HASH_CACHE'] = 'mine.sqlite'; self.assertEqual(ws.environment()['SRN_LAUNCH_HASH_CACHE'], 'mine.sqlite')
+                del os.environ['SRN_LAUNCH_HASH_CACHE']
+                for off in (False, None, ''):       # a workspace may ask for full hashing
+                    self.assertNotIn('SRN_LAUNCH_HASH_CACHE', self.workspace(root, hashCache=off).environment())
             (root/'workspace.json').write_text('{"kind": "other"}', encoding='utf-8')
             with self.assertRaises(WorkspaceError): Workspace.load(root/'workspace.json')
 
@@ -541,6 +659,24 @@ class WorkspaceAndDriverTests(unittest.TestCase):
                 os.utime(h/f'axe.{name}.asset.json', (1e9 + k, 1e9 + k))
             self.assertEqual(d.retire_contracts('contracts/old', 'abandoned', '2026-11-13')['contracts'], ['family-axe.json'])
 
+    def test_only_the_named_contracts_of_a_folder_need_to_have_moved_on(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Driver(self.workspace(Path(tmp))); h = d.ws.handoff; (h/'contracts/old').mkdir(parents=True); (h/'contracts/new').mkdir()
+            for folder, name in (('old', 'bat'), ('old', 'axe'), ('new', 'axe')):
+                (h/f'contracts/{folder}/family-{name}.json').write_text(json.dumps({'family': 'club'}), encoding='utf-8')
+            pin = lambda folder, name: json.dumps({'familyProfile': {'path': f'contracts/{folder}/family-{name}.json'}})
+            rows = (('bat.old-contract', 'old', 'bat'), ('bat.fit-v1', 'old', 'bat'),      # published from the old folder
+                    ('axe.old-contract', 'old', 'axe'), ('axe.new-contract', 'new', 'axe'))  # moved on to the new one
+            for k, (stem, folder, name) in enumerate(rows):
+                (h/f'{stem}.asset.json').write_text(pin(folder, name), encoding='utf-8'); os.utime(h/f'{stem}.asset.json', (1e9 + k, 1e9 + k))
+            with self.assertRaisesRegex(SystemExit, r'bat\.fit-v1'): d.retire_contracts('contracts/old', 'abandoned', '2026-11-15')
+            with self.assertRaisesRegex(SystemExit, 'not retired'):
+                d.retire_contracts('contracts/old', 'abandoned', '2026-11-15', ['family-bat.json'])
+            record = d.retire_contracts('contracts/old', 'axe re-contracted', '2026-11-15', ['family-axe.json'])
+            self.assertEqual(record['contracts'], ['family-axe.json'])
+            self.assertTrue((h/'contracts/old/retired-contracts.json').exists()); self.assertFalse((h/'contracts/old/retired.json').exists())
+
     def test_textured_refuses_a_field_range_an_existing_donor_manifest_does_not_hold(self):
         from tools.itemkit.drive import Driver
         with tempfile.TemporaryDirectory() as tmp:
@@ -553,6 +689,54 @@ class WorkspaceAndDriverTests(unittest.TestCase):
             with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'binds only a new donor manifest'):
                 d.textured('knife', 'a1', 'src', 'approved', field_range=[-.22, 1.13])
             stage.assert_not_called()
+
+    def test_textured_reruns_a_failed_donor_and_reuses_a_complete_one(self):
+        from tools.itemkit.drive import Driver
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp); d = Driver(self.workspace(root)); h = d.ws.handoff; h.mkdir(parents=True, exist_ok=True)
+            for stage in ('geometry', 'appearance'):
+                (root/f'blade/{stage}-a1/job').mkdir(parents=True)
+                (root/f'blade/{stage}-a1/job/collection.json').write_text(json.dumps({'outputs': [{'path': 'raw.glb', 'sha256': 'g'}]}), encoding='utf-8')
+            (h/'blade.geometry-approved-v1.asset.json').write_text(json.dumps({'approval': {'generatedGeometry': {'geometryRawSha256': 'g'}}}), encoding='utf-8')
+            (h/'family.json').write_text(json.dumps({'family': 'longsword'}), encoding='utf-8')
+            (h/'blade.donor-v1.asset.json').write_text(json.dumps({'familyProfile': {'path': 'family.json'},
+                'processing': {'sourceFieldPolicy': {'minimum': -.05, 'maximum': 1.065}}}), encoding='utf-8')
+            run = root/'blade/run-donor-v1'
+            def attempt(name, state):
+                folder = run/'donor'/name; folder.mkdir(parents=True)
+                (folder/'receipt.json').write_text(json.dumps({'state': state}), encoding='utf-8')
+                if state == 'complete': (folder/'donor').mkdir(); (folder/'donor/textured-donor.glb').write_bytes(b'glb')
+                (run/'state.json').write_text(json.dumps({'stages': {'donor': {'path': str(folder/'receipt.json')}}}), encoding='utf-8')
+            attempt('attempt-failed', 'failed')
+            with mock.patch.object(Driver, 'stage', side_effect=lambda *a: attempt('attempt-ok', 'complete')) as stage, \
+                 mock.patch.object(Driver, 'views', return_value={}):
+                self.assertTrue(d.textured('blade', 'a1', 'src', 'approved')['texturedDonor'].endswith('textured-donor.glb'))
+                d.textured('blade', 'a1', 'src', 'approved')
+            self.assertEqual(stage.call_count, 1)                        # the failed attempt ran again; the complete one is reused
+            # several maps in --straight must chain: each measured on the previous one's output (review of #163)
+            maps = root/'maps'; maps.mkdir()
+            for kind in ('straighten', 'level'): (maps/f'{kind}-map.npz').write_bytes(b'npz')
+            with mock.patch.object(Driver, 'python') as python, mock.patch.object(Driver, 'views', return_value={}):
+                with self.assertRaisesRegex(SystemExit, 'measuring reports must sit beside them'):
+                    d.textured('blade', 'a1', 'src', 'approved', straight=str(maps))
+                (maps/'straighten.json').write_text(json.dumps({'source': {'sha256': 'clay'}, 'output': {'sha256': 'straight'}}), encoding='utf-8')
+                (maps/'level.json').write_text(json.dumps({'source': {'sha256': 'clay'}, 'output': {'sha256': 'level'}}), encoding='utf-8')
+                with self.assertRaisesRegex(SystemExit, 'level map was not measured on the straighten output'):
+                    d.textured('blade', 'a1', 'src', 'approved', straight=str(maps))
+                python.assert_not_called()
+            (run/'donor/attempt-ok/receipt.json').write_text(json.dumps({'state': 'failed'}), encoding='utf-8')
+            with mock.patch.object(Driver, 'stage'), self.assertRaisesRegex(SystemExit, 'did not complete'):
+                d.textured('blade', 'a1', 'src', 'approved')
+            (run/'donor/attempt-ok/receipt.json').unlink()                 # a recorded receipt that was removed by hand
+            with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'receipt that is missing'):
+                d.textured('blade', 'a1', 'src', 'approved')
+            stage.assert_not_called()
+            # a re-seeded colouring works in its own donor manifest and run, not the first colouring's
+            (root/'blade/appearance-s1/job').mkdir(parents=True); (root/'blade/appearance-s1/job/collection.json').write_text('{}', encoding='utf-8')
+            (h/'blade.donor-seed1-v1.asset.json').write_bytes((h/'blade.donor-v1.asset.json').read_bytes())
+            with mock.patch.object(Driver, 'stage') as stage, self.assertRaisesRegex(SystemExit, 'did not complete'):
+                d.textured('blade', 'a1', 'src', 'approved', appearance_seed=1)
+            self.assertEqual(stage.call_args[0][:2], ('blade', 'donor-seed1-v1'))
 
     def test_an_overshooting_colour_field_needs_a_reviewed_range_bound_to_its_hash(self):
         import hashlib
@@ -630,6 +814,142 @@ class WorkspaceAndDriverTests(unittest.TestCase):
         self.assertEqual(stage_list('fit,reduce,unwrap'), ['fit', 'reduce', 'unwrap'])
         for bad in ('', 'fit,polish', 'sr4-club:fit-v1'):
             with self.assertRaises(argparse.ArgumentTypeError): stage_list(bad)
+
+
+class SideGripTests(unittest.TestCase):
+    """A grip across the weapon (the wave-5 Katar's crossbar and Tonfa's side handle, user 2026-11-14)."""
+    def setUp(self):
+        from tools.itemkit.fit_manifest import STANDARD
+        self.standard = json.loads(STANDARD.read_text(encoding='utf-8'))
+        self.family = {'family': 'longsword', 'native': {'gripOrigin': [0, -.03, 0], 'gripLength': self.standard['usableLength'],
+                                                         'stockSpan': [-.2, .9]}}
+
+    def tonfa(self):
+        # A 1.0-unit round shaft along +Y and a round side handle hanging from it along -Z (dense rings: the
+        # straightness frame needs a real shell's vertex count).
+        def dense(rows):
+            out = []
+            for (y0, r0), (y1, r1) in zip(rows, rows[1:]):
+                n = max(1, int(round((y1 - y0) / .004))); out += [(y0 + (y1 - y0) * k / n, r0 + (r1 - r0) * k / n) for k in range(n)]
+            return out + [rows[-1]]
+        shaft, sf = lathe(dense([(0, .03), (1.0, .03)]), sides=48)
+        handle, hf = lathe(dense([(.02, .022), (.2, .022)]), sides=48)
+        handle = np.c_[handle[:, 0], .3 + handle[:, 2], -handle[:, 1]]          # the lathe's +Y turned to -Z, at 0.3 along the shaft
+        return np.concatenate([shaft, handle]), np.concatenate([sf, hf + len(shaft)])
+
+    def overrides(self, v, **extra):
+        from tools.itemkit.fit_manifest import _frame, gltf_to_blender
+        _, _, q = _frame(gltf_to_blender(gltf(v))); grip_axis = q[:, 1]
+        low_is_handle = np.ptp(q[grip_axis < grip_axis.min() + .05, 0]) < .2      # near the low end only the handle
+        # bladeAtLowEnd says where the body lies in the raw frame; the landmarks then count from the handle's end
+        # (grip axis about 0.24: handle to about 0.74, shaft above).
+        marks = (.05, .1, .7, .75)
+        return {'sideGrip': True, 'bladeAtLowEnd': not low_is_handle, 'targetLength': .75,
+                **dict(zip(('pommelEnd', 'gripStart', 'gripEnd', 'bladeStart'), marks)), **extra}
+
+    def test_the_section_around_the_grip_leaves_the_rest_of_the_weapon_out(self):
+        from tools.itemkit.grip import section_dimensions
+        bar, f = lathe([(-.1, .015), (.1, .015)], sides=32); blade = bar * [1, 1, 3] + [0, 0, .08]
+        v = np.concatenate([bar, blade]); faces = np.concatenate([f, f + len(bar)])
+        whole = section_dimensions(v, faces, 0.); own = section_dimensions(v, faces, 0., [0., 0.])
+        self.assertGreater(whole[1], .1); np.testing.assert_allclose(own, [.03, .03], atol=.001)
+        split = np.concatenate([v, v]); seams = np.concatenate([faces[::2], faces[1::2] + len(v)])   # a glTF seam
+        np.testing.assert_allclose(section_dimensions(split, seams, 0., [0., 0.]), [.03, .03], atol=.001)
+        with self.assertRaisesRegex(ValueError, 'encloses'): section_dimensions(v, faces, 0., [0., -.05])
+        # A frame curving round the grip without holding it (a C open on +x) has a bounding box over the grip axis.
+        c = np.array([(.05, -.05), (-.05, -.05), (-.05, .05), (.05, .05), (.05, .04), (-.04, .04), (-.04, -.04), (.05, -.04)])
+        ring = np.array([[x, y, z] for y in (-.1, .1) for x, z in c]); n = len(c)
+        sides = np.array([face for i in range(n) for face in ([i, (i + 1) % n, n + (i + 1) % n], [i, n + (i + 1) % n, n + i])])
+        framed = np.concatenate([bar, ring]); framed_faces = np.concatenate([f, sides + len(bar)])
+        np.testing.assert_allclose(section_dimensions(framed, framed_faces, 0., [0., 0.]), [.03, .03], atol=.001)
+
+    def test_a_side_grip_keeps_one_scale_from_the_chosen_body_length(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); data = measure({}, self.family, {'positions': gltf(v), 'faces': f}, self.overrides(v), self.standard)
+        self.assertEqual(data['sizingAuthority'], 'side-grip-uniform'); self.assertTrue(data['departurePending'])
+        self.assertAlmostEqual(data['bodyLength'], .75, delta=.01); self.assertAlmostEqual(data['scale'], .75, delta=.01)
+        report = data['gripReport']; mid = next(r for r in report['measuredFittedSections'] if r['fractionFromPommel'] == .5)
+        self.assertAlmostEqual(mid['depth'], .044 * .75, delta=.002); self.assertAlmostEqual(mid['visibleFaceWidth'], .044 * .75, delta=.002)
+        self.assertEqual(report['transverseScale'], [1., 1., 1.]); self.assertTrue(report['sideGrip'])
+        again = measure({}, self.family, {'positions': gltf(v), 'faces': f}, self.overrides(v), self.standard)
+        self.assertEqual(again['gripReport']['measurementDigest'], report['measurementDigest'])     # what a review binds to
+
+    def test_a_reversed_side_grip_puts_the_body_at_the_little_finger_end(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
+        plain = measure({}, self.family, shell, self.overrides(v), self.standard)
+        turned = measure({}, self.family, shell, self.overrides(v, reverseGrip=True), self.standard)
+        o = np.array(self.family['native']['gripOrigin'], float); H = np.diag([-1., -1., 1.])
+        for a, b in zip(plain['thicknessProbes'], turned['thicknessProbes']):          # the same probes, turned about native Z
+            np.testing.assert_allclose(b['points'], (np.array(a['points']) - o) @ H + o, atol=1e-9)
+        (lo, hi), (rlo, rhi) = plain['fittedBounds'], turned['fittedBounds']
+        self.assertAlmostEqual(lo[2], rlo[2], places=6); self.assertAlmostEqual(hi[2], rhi[2], places=6)   # the body still points one way
+        self.assertGreater(hi[1] - o[1], o[1] - lo[1]); self.assertGreater(o[1] - rlo[1], rhi[1] - o[1])   # and sits below the grip
+        self.assertLess(turned['joinY'][0], turned['joinY'][1])
+        mid = lambda d: next(r for r in d['gripReport']['measuredFittedSections'] if r['fractionFromPommel'] == .5)
+        self.assertAlmostEqual(mid(turned)['depth'], mid(plain)['depth'], places=4)
+        for low in (False, True):  # whichever end the frame's arbitrary sign puts the blade at
+            with self.assertRaisesRegex(ValueError, 'reverseGrip applies to a side grip'):
+                measure({}, self.family, shell, {'reverseGrip': True, 'bladeAtLowEnd': low}, self.standard)
+
+    def test_grip_across_places_the_grip_along_the_body_and_turns_with_the_frame(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
+        plain = measure({}, self.family, shell, self.overrides(v), self.standard)
+        found = {}
+        for fraction in (.3, .7):                                 # the handle hangs at 0.3 of the shaft, from one end
+            try: found[fraction] = measure({}, self.family, shell, self.overrides(v, gripAcross=fraction), self.standard)
+            except ValueError as exc: found[fraction] = exc
+        (at, hit), = [(k, r) for k, r in found.items() if isinstance(r, dict)]
+        mid = lambda d: next(r for r in d['gripReport']['measuredFittedSections'] if r['fractionFromPommel'] == .5)
+        for key in ('depth', 'visibleFaceWidth'):                    # the handle's own section, as the plain fit reads it
+            self.assertAlmostEqual(mid(hit)[key], mid(plain)[key], delta=.001)
+        self.assertRegex(str(found[round(1 - at, 1)]), 'No grip surface at gripAcross|encloses')     # no grip at the other end
+        # turnAboutAxis reverses the width axis, so the same grip is then at 1 - F (the wave-5 Katar's 0.26 and 0.74).
+        with self.assertRaisesRegex(ValueError, 'No grip surface at gripAcross|encloses'):
+            measure({}, self.family, shell, self.overrides(v, gripAcross=at, turnAboutAxis=True), self.standard)
+        turned = measure({}, self.family, shell, self.overrides(v, gripAcross=round(1 - at, 1), turnAboutAxis=True), self.standard)
+        self.assertAlmostEqual(mid(turned)['depth'], mid(hit)['depth'], delta=.001)
+
+    def test_a_side_grip_needs_its_reviewed_landmarks_and_length(self):
+        from tools.itemkit.fit_manifest import measure
+        v, f = self.tonfa(); shell = {'positions': gltf(v), 'faces': f}
+        for missing in ('targetLength', 'gripEnd', 'bladeAtLowEnd'):
+            overrides = self.overrides(v); overrides.pop(missing)
+            with self.assertRaisesRegex(ValueError, 'side grip needs'): measure({}, self.family, shell, overrides, self.standard)
+        with self.assertRaisesRegex(ValueError, 'one-hand bladed'):
+            measure({}, dict(self.family, family='club'), shell, self.overrides(v), self.standard)
+        for stray in ({'alignGripAxis': True}, {'gripAcross': .5}):           # side-grip overrides that would do nothing
+            overrides = {**self.overrides(v), 'sideGrip': False, **stray}
+            with self.assertRaisesRegex(ValueError, 'apply to a side grip'): measure({}, self.family, shell, overrides, self.standard)
+
+    def test_the_fit_stage_sizes_a_side_grip_only_by_its_own_route(self):
+        from tools.itemkit.grip import fitted_grip_length, melee_fit
+        family = dict(self.family, family='longsword')
+        with self.assertRaisesRegex(ValueError, 'side-grip-uniform'):
+            melee_fit(family, {'sideGrip': True, 'sizingAuthority': 'usable-length-round'}, self.standard, np.zeros((3, 3)), [[0, 1, 2]], np.eye(4))
+        with self.assertRaisesRegex(ValueError, 'side-grip-uniform'):
+            melee_fit(family, {'sizingAuthority': 'side-grip-uniform'}, self.standard, np.zeros((3, 3)), [[0, 1, 2]], np.eye(4))
+        report = {'sizingAuthority': 'side-grip-uniform', 'usableLength': .076}
+        self.assertEqual(fitted_grip_length({'sideGrip': True}, family['native'], report), .076)
+        with self.assertRaisesRegex(ValueError, 'side-grip report'): fitted_grip_length({'sideGrip': True}, family['native'], {})
+
+    def test_a_side_grip_may_resplit_its_part_budgets_within_the_totals(self):
+        from tools.itemkit.parts import side_grip_budgets
+        profile = {'family': 'dagger', 'native': {}, 'budgets': {'visible': 9000, 'shadow': 500, 'parts': {
+            'b': {'visible': 900, 'shadow': 100}, 'm': {'visible': 1700, 'shadow': 100}, 't': {'visible': 6400, 'shadow': 300}}}}
+        split = {'b': {'visible': 1800, 'shadow': 125}, 'm': {'visible': 5400, 'shadow': 250}, 't': {'visible': 1800, 'shadow': 125}}
+        self.assertIs(side_grip_budgets(profile, {'fit': {'sideGrip': True}}), profile)
+        actual = side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': split}})
+        self.assertEqual(actual['budgets']['parts'], split); self.assertEqual(actual['budgets']['visible'], 9000)
+        self.assertEqual(profile['budgets']['parts']['m']['visible'], 1700)               # the family itself is untouched
+        with self.assertRaisesRegex(ValueError, 'only for a side grip'):
+            side_grip_budgets(profile, {'fit': {}, 'processing': {'partBudgets': split}})
+        over = {**split, 'm': {'visible': 5500, 'shadow': 250}}
+        with self.assertRaisesRegex(ValueError, 'exceed the family total'):
+            side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': over}})
+        with self.assertRaisesRegex(ValueError, 'every active part'):
+            side_grip_budgets(profile, {'fit': {'sideGrip': True}, 'processing': {'partBudgets': {'m': split['m']}}})
 
 
 if __name__ == '__main__':

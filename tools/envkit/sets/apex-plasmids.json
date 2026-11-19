@@ -5,7 +5,7 @@
     "size": [1448, 1086]
   },
   "assets": {
-    "building-hero": {"kind": "building", "subject": "grey corporate biotech laboratory with a glazed front, a gatehouse and a fenced forecourt", "box": [0, 120, 1100, 447], "notes": "Remove the guards, the vehicle, the sky, the mountains, the skyline and all text."},
+    "building-hero": {"kind": "building", "subject": "grey corporate biotech laboratory with a glazed front, a gatehouse and a forecourt", "box": [0, 120, 1100, 447], "notes": "Remove the guards, the vehicle, the sky, the mountains, the skyline and all text."},
     "building-front": {"kind": "building", "subject": "front elevation of a grey corporate biotech laboratory", "box": [50, 475, 550, 595]},
     "building-service": {"kind": "building", "subject": "service elevation of a grey corporate biotech laboratory with loading doors", "box": [590, 470, 1090, 595]},
     "lab-bench": {"kind": "prop", "type": "workbench", "variant": "Lab bench with a shelf of glassware and a terminal.", "subject": "laboratory bench with glassware shelves", "box": [12, 903, 159, 1023]},

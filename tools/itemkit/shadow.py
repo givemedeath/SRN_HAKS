@@ -9,7 +9,7 @@ from pathlib import Path
 from tools.headkit.common import pin,verify,write,digest
 
 
-METHODS=('projected-silhouette','quadric')
+METHODS=('projected-silhouette','quadric','voxel-shell')
 # Barycentric samples of every shadow triangle (corners, edges and interior, 28 per triangle) for the surface bound.
 SURFACE_SAMPLES=np.array([(i/6,j/6,1-i/6-j/6) for i in range(7) for j in range(7-i)])
 
@@ -33,6 +33,8 @@ def build_candidates(source, profile, processing, output, *, meshlab=None, igl=N
             if thickness:protected['thicknessProbes']=thickness
             if policy['method']=='quadric':
                 v,t,checks=quadric_proxy(p,f,protected,budget,policy,meshlab,igl,diagnostics=root/(part+'-attempts'))
+            elif policy['method']=='voxel-shell':
+                v,t,checks=voxel_shell_proxy(p,f,protected,budget,policy,meshlab,igl)
             else:
                 v,t,checks=silhouette_proxy(p,f,protected,budget,policy,diagnostics=root/(part+'-attempts'))
             target=root/(part+'.npz');np.savez_compressed(target,positions=v,faces=t)
@@ -41,6 +43,31 @@ def build_candidates(source, profile, processing, output, *, meshlab=None, igl=N
                               'checks':checks,'visualReviewRequired':True}
     verify([bound], fresh=True);write(root/'result.json',{'source':bound,'candidates':candidates},fresh=True)
     return candidates
+
+
+def voxel_shell_proxy(vertices, faces, processing, budget, settings, meshlab, igl):
+    """The part's closed voxel shell, collapsed to the shadow budget, for a detailed one-piece part whose surface
+    topology no collapse can bring under budget (the MP-5 TX's visible part, genus over 100 from pin-sized tunnels,
+    stops Blender's collapse at 1,292 triangles and the topology-preserving quadric above 500). Closing the voxel solid
+    by `closing` voxels fills those tunnels and keeps openings wider than about twice that; fine protrusions are lost,
+    as in any shadow. Accepted only closed, within budget, within `maximumDistance` of the source at its vertices and
+    with every protected probe held."""
+    require(meshlab is not None and igl is not None, 'A voxel-shell shadow needs the bound pymeshlab and igl')
+    from .shell_repair import shell_from_donor
+    p=np.asarray(vertices,float);f=np.asarray(faces)
+    require(type(budget) is int and 12<=budget<=500, 'Bounded per-part shadow budget required')
+    voxel=settings.get('voxel',.002);closing=settings.get('closing',2);limit=settings.get('maximumDistance',.012)
+    require(type(voxel) in (int,float) and .001<=voxel<=.006 and type(closing) is int and 1<=closing<=3
+            and type(limit) in (int,float) and 0<limit<=.02, 'Bounded voxel-shell shadow settings required')
+    v,t,built=shell_from_donor(p,f,voxel=voxel,faces_target=budget-4,dilate=closing,erode=closing,sigma=.5,taubin=5,minimum_component=50)
+    t=np.asarray(t,np.int64);report=topology(v,t)
+    require(len(t)<=budget and report['closedWound'],'Invalid shadow topology/budget')
+    distance=float(np.sqrt(igl.point_mesh_squared_distance(v,p,f.astype(np.int64))[0]).max())
+    require(distance<=limit,'Voxel-shell shadow left the source surface: '+str(round(distance,4)))
+    gap=float(np.sqrt(igl.point_mesh_squared_distance(p,v,t)[0]).max())           # recorded for the visual review, as for the quadric
+    opening=protected_checks(v,t,processing,'shadow')
+    return v,t,{'topology':report,'openings':opening,'maximumSourceDistance':distance,'maximumSourceGap':gap,'voxel':voxel,'closing':closing,
+                'method':'voxel-shell','visualReviewRequired':True,'visibleGeometryUnchanged':True}
 
 
 def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *, diagnostics=None):
@@ -101,7 +128,7 @@ def quadric_proxy(vertices, faces, processing, budget, settings, meshlab, igl, *
             # The other direction is recorded for the visual review, not gated: a shadow simplifies by design, but a
             # large gap points at a fin or spike the collapse removed.
             gap=float(np.sqrt(igl.point_mesh_squared_distance(p,v,t)[0]).max());row['sourceToShadowDistance']=gap
-            opening=protected_checks(v,t,processing)
+            opening=protected_checks(v,t,processing,'shadow')
             accepted=(v,t,report,opening,distance,surface,gap);break
         except ValueError as exc:row['error']=str(exc)
     if diagnostics is not None:write(diagnostics/'attempts.json',attempts,fresh=True)
@@ -258,7 +285,7 @@ def silhouette_proxy(vertices, faces, processing, budget, settings, *, diagnosti
         try:
             require(len(faces)<=budget and report['closedWound'],'Invalid shadow topology/budget')
             world=vertices@basis.T+origin
-            opening=protected_checks(world,faces,processing)
+            opening=protected_checks(world,faces,processing,'shadow')
             check=Image.new('1',(resolution,resolution));d=ImageDraw.Draw(check)
             for tri in points[triangles]:d.polygon([tuple(v) for v in tri],fill=1)
             silhouette=np.asarray(check);iou=float(np.count_nonzero(silhouette&mask)/np.count_nonzero(silhouette|mask));row['sideSilhouetteIoU']=iou

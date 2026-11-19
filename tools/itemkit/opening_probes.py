@@ -6,8 +6,8 @@ A reference opening (`openings`, measured on the reviewed image) is kept only wh
 segment through it that crosses no surface. This places the working shell exactly as the fit stage will (similarity
 and the measured grip correction), projects it along each transverse axis onto a 0.5 mm grid, and takes the
 background regions the silhouette encloses as through-holes. Each hole's deepest point gives a probe along the view
-axis. Holes are matched to the reference openings by their position along the weapon's long axis, within 3% of the
-length, the whole set measured from one end or the other (the reference image's axis has no set direction); a hole
+axis. Holes are matched to the reference openings by their position along the weapon's long axis (native Y, or Z for a
+side grip): within 3% of the length of the hole's deepest point, or inside its own span widened by 3%, the whole set measured from one end or the other (the reference image's axis has no set direction); a hole
 needs 1.5 mm of clearance, since a narrower gap closes in reduction (the wave-3
 Vibro Knife's 2 mm lanyard hole closed in every reduced shell, 2026-11-13).
 """
@@ -82,7 +82,10 @@ def holes(vertices, faces, axis):
         i += box[0].start - 1; j += box[1].start - 1
         start = np.zeros(3); start[1] = lo[0] + (i + .5) * RESOLUTION; start[other] = lo[1] + (j + .5) * RESOLUTION
         end = start.copy(); start[axis] = vertices[:, axis].min() - .01; end[axis] = vertices[:, axis].max() + .01
-        found.append({'axis': 'xyz'[axis], 'area': area, 'clearance': float(depth.max() * RESOLUTION), 'y': float(start[1]),
+        # The hole's extent on the projection's two in-plane axes (native Y, and Z or X), in metres.
+        extent = {1: [lo[0] + box[0].start * RESOLUTION, lo[0] + box[0].stop * RESOLUTION],
+                  other: [lo[1] + box[1].start * RESOLUTION, lo[1] + box[1].stop * RESOLUTION]}
+        found.append({'axis': 'xyz'[axis], 'area': area, 'clearance': float(depth.max() * RESOLUTION), 'y': float(start[1]), 'extent': extent,
                       'start': start.tolist(), 'end': end.tolist(), 'hits': int(segment_hits(vertices, faces, start.tolist(), end.tolist()))})
     return found
 
@@ -111,7 +114,14 @@ def match(references, found):
     order, most clearance first, backing up when a later one would be left without a hole. A reference with no clear
     hole from either end is refused, as is a set no single end can place."""
     clear = [k for k, hole in enumerate(found) if not hole['hits'] and hole['clearance'] >= MIN_CLEARANCE]
-    near = lambda target: sorted((k for k in clear if abs(target - found[k]['fraction']) <= MATCH_TOLERANCE),
+    # A reference matches a hole whose deepest point is near it or whose own span along the weapon holds it: a long
+    # window's deepest point need not sit where the reference image's opening centre does (the wave-5 Katar's frame
+    # window, 0.342 against 0.384, with the reference inside the window).
+    def gap(target, hole):
+        """How far the reference lies from the hole: from its deepest point, or from its span when that is nearer."""
+        low, high = hole.get('span', [hole['fraction']] * 2)
+        return min(abs(target - hole['fraction']), max(0., low - target, target - high))
+    near = lambda target: sorted((k for k in clear if gap(target, found[k]) <= MATCH_TOLERANCE),
                                  key=lambda k: -found[k]['clearance'])
     for name, fraction in references:
         require(near(fraction) or near(1 - fraction), f'No clear through-hole matches {name} (fraction {fraction:.3f}): it closed '
@@ -128,7 +138,9 @@ def match(references, found):
     for flip in (False, True):
         targets = [1 - fraction if flip else fraction for _, fraction in references]
         chosen = assign([near(t) for t in targets])
-        if chosen is not None: options.append((sum(abs(t - found[k]['fraction']) for t, k in zip(targets, chosen)), chosen))
+        # Distances count as the matching does, so a long window holding its reference does not push the set to the
+        # other end just because the window's deepest point lies away from it.
+        if chosen is not None: options.append((sum(gap(t, found[k]) for t, k in zip(targets, chosen)), chosen))
     require(options, f'No single end of the weapon places all {len(references)} reference openings on distinct clear '
             'through-holes: drop the missing ones with the user, or rebuild the shell')
     chosen = min(options, key=lambda option: option[0])[1]
@@ -137,7 +149,12 @@ def match(references, found):
 
 def measure(manifest, family, handoff):
     """Every through-hole of the fitted shell and the reference openings' positions, without writing anything."""
-    w, f = fitted_shell(manifest, family, handoff); y0, y1 = w[:, 1].min(), w[:, 1].max()
-    found = [hole for axis in (0, 2) for hole in holes(w, f, axis)]
-    for hole in found: hole['fraction'] = (hole['y'] - y0) / (y1 - y0)
+    w, f = fitted_shell(manifest, family, handoff)
+    # A side grip's long body lies across the hand, along native Z (fit_manifest sideGrip): its holes are seen along X
+    # and placed along Z, where the reference image's long axis is.
+    side = bool((manifest.get('fit') or {}).get('sideGrip')); long = 2 if side else 1; y0, y1 = w[:, long].min(), w[:, long].max()
+    found = [hole for axis in ((0,) if side else (0, 2)) for hole in holes(w, f, axis)]
+    for hole in found:
+        hole['fraction'] = (hole['start'][long] - y0) / (y1 - y0)
+        hole['span'] = [(x - y0) / (y1 - y0) for x in hole.pop('extent')[long]]
     return {'nativeLength': float(y1 - y0), 'references': reference_fractions(manifest, handoff), 'holes': found}

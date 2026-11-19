@@ -5,12 +5,29 @@ from pathlib import Path
 
 import numpy as np
 
-from . import measure, seams
+from . import measure, registry, seams
 
 REPO = Path(__file__).resolve().parents[2]
 BODY_PACK = REPO / 'srn_body'
 HEAD_PACK = REPO / 'srn_head'
 ENVELOPES = Path(__file__).with_name('head-envelopes.json')
+
+
+class BeyondTests(unittest.TestCase):
+    def test_a_point_is_read_against_the_last_surface_its_ray_crosses_and_with_facing_the_last_drawn(self):
+        # a sleeve 5 cm round along +X with a fold of its cloth turned in 2 cm round, and a point of the arm 4 cm out
+        from .test_split import tube
+        sleeve, fold = tube((0, 0, 0), (0.3, 0, 0), 0.05, around=32, along=8)[:2], tube((0, 0, 0), (0.3, 0, 0), 0.02, around=32, along=8)[:2]
+        v = np.concatenate([sleeve[0], fold[0]])
+        f = np.concatenate([sleeve[1], fold[1][:, ::-1] + len(sleeve[0])])  # the fold wound to face in
+        point, start, axis = np.array([[0.15, 0.0, 0.04]]), np.zeros(3), np.array([1.0, 0.0, 0.0])
+        outside, face = measure.beyond(point, start, axis, v, f)
+        self.assertAlmostEqual(float(outside[0]), -0.01, places=3)  # the sleeve, not the fold: read first, a fold pushed a sleeve out 14 cm
+        self.assertLess(face[0], len(sleeve[1]))
+        self.assertAlmostEqual(float(measure.beyond(point, start, axis, v, f, facing=True)[0][0]), -0.01, places=3)
+        turned = np.concatenate([sleeve[1][:, ::-1], fold[1] + len(sleeve[0])])  # the sleeve turned in, the fold out
+        self.assertAlmostEqual(float(measure.beyond(point, start, axis, v, turned, facing=True)[0][0]), 0.02, places=3)  # the client draws the fold alone
+        self.assertTrue(np.isnan(measure.beyond(point, start, axis, v, turned[:len(sleeve[1])], facing=True)[0][0]))  # nothing drawn over it
 
 
 class SeatTests(unittest.TestCase):
@@ -75,10 +92,34 @@ class ArmholeTests(unittest.TestCase):
         self.assertFalse(measure.closed(corners, box[:0]))
 
 
+class SeenThroughTests(unittest.TestCase):
+    def test_a_face_turned_in_with_nothing_behind_it_and_nothing_close_under_it_is_a_hole(self):
+        from .test_bake import box, joined
+        v, f = box(side=0.1)
+        middle = np.zeros(3)
+        self.assertFalse(measure.seen_through(v, f, middle).any())  # wound outward: every face is drawn from outside
+        turned = f.copy(); turned[3] = turned[3][::-1]
+        self.assertEqual(np.flatnonzero(measure.seen_through(v, turned, middle)).tolist(), [3])  # the far wall is all that is behind it
+        self.assertEqual(np.flatnonzero(measure.seen_through(v, turned, np.tile(middle, (len(f), 1)))).tolist(), [3])  # a point per face
+        # a lining 1 cm inside the cloth, wound to face in: the cloth is behind it, and it is never seen from there
+        lining = box(side=0.08)
+        both = joined((v, f), (lining[0], lining[1][:, ::-1]))
+        self.assertFalse(measure.seen_through(*both, middle).any())
+        # the lining come out through the cloth, 5 mm outside it: the cloth under it is what the client shows
+        out = joined((v, f), (box(side=0.11)[0], f[:, ::-1]))
+        self.assertFalse(measure.seen_through(*out, middle).any())
+        far = joined((v, f), (box(side=0.2)[0], f[:, ::-1]))  # 5 cm outside it: a hole, the cloth seen deep in it
+        self.assertEqual(np.flatnonzero(measure.seen_through(*far, middle)).tolist(), list(range(len(f), 2 * len(f))))
+        self.assertFalse(measure.seen_through(*far, middle, depth=0.06).any())
+        flat = np.concatenate([turned, [[0, 1, 1]]])  # a face with no area is never one
+        self.assertEqual(np.flatnonzero(measure.seen_through(v, flat, middle)).tolist(), [3])
+
+
 class MeasuredContractTests(unittest.TestCase):
-    def test_contract_planes_and_rings_match_the_locked_human_bodies(self):
+    def test_contract_planes_and_rings_match_the_bodies_in_the_pack(self):
         contract = seams.load_contract()
-        for name in seams.AUTHORING_BODIES:
+        self.assertEqual(set(contract['source']['bodies']), set(registry.BODIES))
+        for name in registry.BODIES:
             for filename, digest in contract['source']['bodies'][name].items():
                 self.assertEqual(measure.sha(BODY_PACK / filename), digest, filename + ' changed since the contract was frozen')
             bones, parts = measure.body(BODY_PACK, name)
@@ -92,7 +133,7 @@ class MeasuredContractTests(unittest.TestCase):
 
     def test_animation_models_in_the_pack_are_the_ones_the_bends_were_sampled_from(self):
         contract = seams.load_contract()
-        for name in seams.AUTHORING_BODIES:
+        for name in registry.BODIES:
             recorded = contract['source']['animation'][name]['models']
             carried = {model: BODY_PACK / (model + '.mdl') for model in recorded if (BODY_PACK / (model + '.mdl')).is_file()}
             self.assertTrue(carried, name + ': no inherited animation model is carried by the body pack')
