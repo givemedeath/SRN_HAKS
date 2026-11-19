@@ -62,7 +62,7 @@
     "rusted_plates": {"route": "layout", "master": "MetalPlates013", "repeat": 1, "keep": 4, "grade": "industrial", "size": [512, 512]},
     "metal_rusted": {"route": "master", "master": "Rust009", "repeat": 1, "tone": 0.8, "grade": "industrial", "size": [512, 512]},
     "aluminumrust": {"route": "master", "master": "Rust009", "repeat": 1, "tone": 0.8, "grade": "industrial", "size": [512, 256]},
-    "yellmetl": {"route": "upscale", "size": [512, 512], "relief": 1.0, "roughness": 0.6, "grade": "industrial", "redrawn": true},
+    "yellmetl": {"route": "layout", "master": "MetalPlates013", "repeat": 1, "keep": 3, "grade": "industrial", "size": [256, 256]},
     "fence_metalst": {"route": "layout", "master": "MetalPlates013", "repeat": 1, "grade": "industrial", "size": [512, 512], "keep": 8, "grain": 2.5},
     "dgt04_guard_rail": {"route": "layout", "master": "CorrugatedSteel007A", "repeat": 1, "grade": "street", "size": [512, 512], "keep": 4, "stem": "dgt04_grdrail"},
     "fence_chainlink": {"route": "upscale", "size": [256, 256], "relief": 0.5, "roughness": 0.5, "grade": "industrial", "doubled": 2, "stem": "fence_chainlk"},

@@ -48,7 +48,7 @@ RULES = ('Hard requirements:\n- Exactly straight-on orthographic view: no perspe
 
 def prompt(name, how, size, tiles=False, tool=True):
     """What the generator is asked for one texture. how: {kind, district, note (optional), of (a lit variant's day
-    texture), light (a lit variant's light, optional)}. size: the (width, height) the picture is saved at. tool: the
+    texture), light (a lit variant's light, optional), words (new lettering for a sign, optional)}. size: the (width, height) the picture is saved at. tool: the
     generator is an agent told to use its image tool and save the file; without it the text is the edit itself, and
     the pictures are spoken of in the order they are given."""
     require(how.get('district') in DISTRICTS, f'{name}: a redraw\'s district is one of ' + ', '.join(DISTRICTS))
@@ -60,7 +60,10 @@ def prompt(name, how, size, tiles=False, tool=True):
         lines += [f'Two images are attached. {day} is a game texture, by day. {old} is the old low-quality night version of the same texture, which shows which '
                   f'parts are lit. {LIT}', f'The light is {how.get("light", "warm and dim")}. The setting is {DISTRICTS[how["district"]]}.']
     else:
-        lines += [f'The attached {"ref.png" if tool else "image"} is an old low-quality game texture of {KINDS[how["kind"]]}. Redraw it as a new, detailed, '
+        what = KINDS[how['kind']]
+        if how.get('words'):  # new wording: the kind's "wording stays the same" would win over a note asking for it
+            what = what.split('. ')[0] + f'. Every word of the old lettering is replaced: the new lettering reads exactly {how["words"]}, in the same places, sizes and style'
+        lines += [f'The attached {"ref.png" if tool else "image"} is an old low-quality game texture of {what}. Redraw it as a new, detailed, '
                   f'photographic-quality texture of the same thing for {DISTRICTS[how["district"]]}.']
     if how.get('note'):
         lines.append(how['note'])

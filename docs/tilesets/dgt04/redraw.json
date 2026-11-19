@@ -63,7 +63,7 @@
     "clothes_shirts": {"kind": "cloth", "district": "barrens", "note": "Four T-shirts: grey, blue, black and red."},
     "clothes_pants": {"kind": "cloth", "district": "barrens", "note": "Two pairs of dark jeans."},
     "motel2": {"kind": "sign", "district": "barrens", "note": "A tall narrow red sign with the white letters M, O, T, E, L one under another."},
-    "checks": {"kind": "sign", "district": "barrens", "note": "Neon lettering on black, two lines, in the same places as the old words: NUYEN on the first line and XCHANGE on the second, spelled exactly, and nothing else. The upper pair of lines is unlit dark tubes, the lower pair is the same two words lit in red neon."},
+    "checks": {"kind": "sign", "district": "barrens", "note": "Neon tubes on black. The upper two lines are unlit dark tubes; the lower two lines are the same words lit in red neon. No other lettering.", "words": "NUYEN on the first line and XCHANGE on the second, on both the unlit upper pair and the lit lower pair"},
     "parking": {"kind": "sign", "district": "barrens", "note": "The word Parking and a down arrow painted in black on cracked grey render."},
     "j_watches1": {"kind": "shopfront", "district": "barrens", "note": "Three wristwatches on a pale display stand."},
     "drainhole": {"kind": "fixture", "district": "barrens", "note": "A stained concrete channel wall with an octagonal drain grille at the upper right and algae along the bottom."},
@@ -80,7 +80,6 @@
     "dock": {"kind": "wall", "district": "barrens", "note": "Weathered grey dock planks running top to bottom, with knots, salt stains and green algae in the grain.", "tiles": true},
     "dock_piling": {"kind": "wall", "district": "barrens", "note": "Weathered dock planks running top to bottom, wet and green with algae.", "tiles": true},
     "rebar": {"kind": "wall", "district": "industrial", "note": "Rusty steel diamond tread plate.", "tiles": true},
-    "yellmetl": {"kind": "wall", "district": "industrial", "note": "Yellow painted steel, the paint scratched and chipped to bare grey metal.", "tiles": true},
     "tme_yellow": {"kind": "wall", "district": "barrens", "note": "Thick yellow road paint on rough asphalt.", "tiles": true}
   }
 }

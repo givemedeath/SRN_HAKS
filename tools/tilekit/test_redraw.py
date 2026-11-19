@@ -78,6 +78,13 @@ class RedrawTests(unittest.TestCase):
 
 
 
+class WordsTests(unittest.TestCase):
+    def test_new_words_replace_the_kind_s_keep_the_wording(self):
+        text = redraw.prompt('sign', {'kind': 'sign', 'district': 'barrens', 'words': 'NUYEN XCHANGE'}, (512, 512), tool=False)
+        self.assertIn('reads exactly NUYEN XCHANGE', text); self.assertNotIn('wording stays the same', text)
+        self.assertIn('wording stays the same', redraw.prompt('sign', {'kind': 'sign', 'district': 'barrens'}, (512, 512), tool=False))
+
+
 class BlackKeptTests(unittest.TestCase):
     def test_an_opening_black_in_the_old_picture_is_black_again(self):
         old = np.full((32, 64, 3), 200, np.uint8); old[8:24, 8:40] = 0; old[2, 60] = 0  # an opening, and a speck
