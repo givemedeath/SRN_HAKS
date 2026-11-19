@@ -173,6 +173,9 @@ a tile's source lights on goes dark at those 152 tiles until its main lights are
   Derelict Tower (`Highrise_09`, from `Highrise_02`, models `srt04_x01_01`-`x06_01`). Set tiles 556-567 and group 68
   come after every earlier entry; ten edge-table rows and the palette entries are added. Walkmeshes are the
   sources' own; the twelve are added to `walkmesh.json` (601 entries), and the 589 earlier ones are unchanged.
+- Edge tiles of their own (`edges` in `terrains.json`): `srt04_r07_01` from `dgt05_z08_01` and `srt04_x07_01` from
+  `dgt05_z06_01`, named by edge rows 132 and 137 in place of the sources' models (`walkmesh.json` 603 entries).
+  Border views (`edges-review.json`, `tkedg0`-`tkedg3`) showed no difference; applied on the user's go.
 - Facades by the local Qwen image edit model (`redraw-terrains.json`), because the Codex image quota was out:
   curtains and balconies for the residential block, broken and plywood-boarded windows for the derelict tower
   (seed 2; seed 1 ignored the boarding). Night windows of the residential block take the warm lit grade.

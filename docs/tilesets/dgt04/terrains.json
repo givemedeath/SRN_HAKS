@@ -35,6 +35,9 @@
     "dgt05_h41_01": "srt04_r05_01",
     "dgt05_h46_01": "srt04_r06_01"
    },
+   "edges": {
+    "dgt05_z08_01": "srt04_r07_01"
+   },
    "groups": {
     "Highrise5_RoofAccess": "Highrise8_RoofAccess"
    },
@@ -58,6 +61,9 @@
     "dgt04_e07_01": "srt04_x04_01",
     "dgt05_h11_01": "srt04_x05_01",
     "dgt05_h10_01": "srt04_x06_01"
+   },
+   "edges": {
+    "dgt05_z06_01": "srt04_x07_01"
    },
    "textures": {
     "build_01": "hr09_build",

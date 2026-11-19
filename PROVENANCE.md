@@ -2273,10 +2273,17 @@ by the SRN project operator in the game client on 2026-11-19 (review captures in
 
 The copies are derivatives of the upstream D20 Modern models (the D20 Modern Haks 2.2 terms above apply): node
 names and texture names are renamed, geometry, door hooks and minimap images are the source tiles' own, and each
-walkmesh is the source's unchanged (`docs/tilesets/dgt04/walkmesh.json` now holds 601 entries; the 589 earlier ones
+walkmesh is the source's unchanged (`docs/tilesets/dgt04/walkmesh.json` now holds 603 entries; the 589 earlier ones
 are unchanged). The models and walkmeshes are in `srn_t_dgt04`; `dgt04.set` gains tiles 556-567 and group 68 after
 every earlier entry, so tile and group numbers of existing areas do not move; `srn_2da/dgt04_edge.2da` gains ten
 rows; `dgt04palstd.itp` gains their entries.
+
+Each copy also gets its own edge tile, laid outside an area's border next to Concrete, so the border shows the
+copy's textures and not its source's: `dgt05_z08_01` copied as `srt04_r07_01` for `Highrise_08` and `dgt05_z06_01`
+as `srt04_x07_01` for `Highrise_09` (the `edges` of each copy in `terrains.json`; textures renamed as for the tiles,
+neither has a walkmesh). Edge rows 132 and 137 name them in place of the source models. Border views in the client
+(ignored `output/tilekit/tkedg0` to `tkedg3`, spec `docs/tilesets/dgt04/edges-review.json`) showed no visible
+difference; the SRN project operator approved applying them on 2026-11-19.
 
 Their twelve textures (`hr08_*` and `hr09_*`, spec `docs/tilesets/dgt04/materials-terrains.json`) are made as in
 release 1, from the pictures of the textures they copy. `hr08_wall`, `hr08_wall_g`, `hr09_build` and `hr09_win08`
