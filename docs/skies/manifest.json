@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "shaders": {
+    "srn_sky_fs.shd": "d60b13ddf48ea6506ba07301181e53c5d1e290189269aca98fe3a0214d255c91",
+    "srn_sky_math.shd": "d74e590dec778c8fd7ed34a7baae8295bbc2b3bb2b01a453bcd1091037d6e7b3"
+  },
+  "vertexShader": "vsvt",
+  "panoramas": {
+    "den": {
+      "views": [
+        {
+          "file": "denver/view_w.png",
+          "key": "green",
+          "mirrored": false,
+          "sha256": "386f23f9cd91aa83fda52f2f1bcab1477647058c491549476851a3c5c15ffff7"
+        },
+        {
+          "file": "denver/view_w.png",
+          "key": "green",
+          "mirrored": true,
+          "sha256": "386f23f9cd91aa83fda52f2f1bcab1477647058c491549476851a3c5c15ffff7"
+        }
+      ],
+      "band": [
+        -2.0,
+        16.75
+      ],
+      "interim": "one Codex view mirrored; three views and their joins are to replace it"
+    }
+  },
+  "rows": {
+    "16": {
+      "label": "SRN_Denver_Dynamic",
+      "cyclical": 1,
+      "models": [
+        "srn_skyden_da",
+        "srn_skyden_d",
+        "srn_skyden_du",
+        "srn_skyden_n"
+      ]
+    },
+    "17": {
+      "label": "SRN_Denver_AcidStorm",
+      "cyclical": 0,
+      "models": [
+        "srn_skyden_st",
+        "srn_skyden_st",
+        "srn_skyden_st",
+        "srn_skyden_st"
+      ]
+    },
+    "18": {
+      "label": "SRN_Denver_Dusk_Fixed",
+      "cyclical": 0,
+      "models": [
+        "srn_skyden_du",
+        "srn_skyden_du",
+        "srn_skyden_du",
+        "srn_skyden_du"
+      ]
+    },
+    "19": {
+      "label": "SRN_Denver_Night_Fixed",
+      "cyclical": 0,
+      "models": [
+        "srn_skyden_n",
+        "srn_skyden_n",
+        "srn_skyden_n",
+        "srn_skyden_n"
+      ]
+    }
+  },
+  "resources": {
+    "srn_skyden_d.dds": "000140f21acab4a56c2a85a6ed3f3dab205b76580057667f8778a8fefc375396",
+    "srn_skyden_d.mdl": "9beac5ce4c117e9b119fb5bd45fbf1e9a77e537bf88f329ae0197bcbdf1f8ffd",
+    "srn_skyden_d.mtr": "ba65659509148aaba6118fd6b5ad954a7109181fc69188923fa9b14239c3c829",
+    "srn_skyden_da.dds": "dbfb5fc6f3753308742c4f725689198e8eaac8e73e6039fea6823a28f394b10b",
+    "srn_skyden_da.mdl": "91bf485b3085987ff0466dad5d0b2f36cf2000848fcfd013f1f4929ebe951716",
+    "srn_skyden_da.mtr": "194715aef27725b8604155893dd227f399c64facc35523ccc6cf11d5f61907de",
+    "srn_skyden_du.dds": "a5f8ee26e8bf13fe08a9bb008651ce67f1ee092f1e556580b74fdfc3b89eb7aa",
+    "srn_skyden_du.mdl": "02146eb1b21c8f606579e5fac6ba58b3b184cc80fe7addcc5f66e84d52ad1091",
+    "srn_skyden_du.mtr": "ad5e0a15474a59828afa907fa769a057820f06c5f1419548bf23065c3d5339b4",
+    "srn_skyden_ma.dds": "a27d14b074b1bbb48cd31402dbc372adac51e0b35c67020c0bb2233c0af5e07b",
+    "srn_skyden_mb.dds": "cf2ba7fdff35e8063476028caf93cbaedc96229cb998faadc1b175ac7584487c",
+    "srn_skyden_n.dds": "035774a759f3b915e6647bd6e0f9e7e3afd36fc4cafe3965883f5ae7edf5e4c7",
+    "srn_skyden_n.mdl": "1a0f3bcae7fa14119f207ce378851028c0d6323e624cfec564650dde0637fe26",
+    "srn_skyden_n.mtr": "279a0d09520bc8c937354a79e8646576a7f47a27e39bf0829dc14e6f67149db5",
+    "srn_skyden_pa.dds": "999c660876f209a12ead8592650bf4e2c3050377eb463de8eaebe6486ecccbd1",
+    "srn_skyden_pb.dds": "503de1691f1189d25fca11b204984f84369a0815ffdd14a9ff65b0cbab66bb5c",
+    "srn_skyden_st.dds": "d1f149ba29c7da46a6788513c3758826fe1701c8359ec9ba4b52a95e2063e11d",
+    "srn_skyden_st.mdl": "245457f06d52c65dfc7417476750f435b92ba3d1e6e1691508e119972fbcbb75",
+    "srn_skyden_st.mtr": "51c5efe6b8f97b3f37ef04d0be71570afcd01bde8186c2b517ffaca04ef6584f"
+  },
+  "runtimeTestedInNwn": false
+}

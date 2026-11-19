@@ -1,0 +1,11 @@
+Use your built-in image generation tool to create ONE landscape image, 1536x1024, then copy the resulting PNG into the current working directory as view.png. Do not write any code or other files.
+
+Art style: painterly, saturated, highly detailed cyberpunk digital matte painting at night during a heavy acid-rain storm. Palette: sodium-amber and sickly yellow-green city glow, cyan and electric-blue neon, deep teal shadows, rain-wet reflective surfaces, thin mist between buildings. Absolutely no magenta, pink or purple anywhere in the image.
+
+Subject: a vast Shadowrun-style megasprawl seen from afar. Layers from back to front: colossal dark arcology megastructures and corporate megatowers of very different shapes (stepped, tapered, cylindrical, cantilevered) with lit window grids, red aircraft-warning beacons and big abstract neon panels without readable text; mid-rise dense blocks; an elevated monorail; low crowded rooftops with steam vents, water tanks and antennas across the bottom.
+
+This is one 120-degree slice of a 360-degree game skybox horizon. Composition rules, all mandatory:
+- A very wide, LOW horizon view seen from far away, straight-on, eye level, no perspective tilt, no roads or rivers leading toward the viewer.
+- The whole landscape occupies ONLY the bottom 45% of the image: the highest point of the silhouette is at most 45% up from the bottom edge.
+- EVERYTHING above the landscape silhouette is a perfectly flat, uniform, pure chroma-key magenta (#FF00FF): no clouds, no gradient, no stars, no moon, no glow, no haze, no smoke plumes, no light beams, no aircraft, nothing floating in the sky. The silhouette edge against the magenta must be crisp.
+- The left and right edges of the image show continuous landscape (no frame, no border, no vignette, no text, no lettering, no logos, no watermark).

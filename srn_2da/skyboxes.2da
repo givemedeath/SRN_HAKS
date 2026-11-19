@@ -18,3 +18,7 @@
 13         City_Skyline    ****       1        cityscapeDa_001 cityscapeD_001 cityscapeDu_001 cityscapeN_001 
 14         DeepSpace       ****       0        deepspace       deepspace      deepspace       deepspace      
 15         Asteroid_Belt   ****       0        asteroids       asteroids      asteroids       asteroids      
+16  SRN_Denver_Dynamic      ****        1           srn_skyden_da   srn_skyden_d    srn_skyden_du   srn_skyden_n
+17  SRN_Denver_AcidStorm    ****        0           srn_skyden_st   srn_skyden_st   srn_skyden_st   srn_skyden_st
+18  SRN_Denver_Dusk_Fixed   ****        0           srn_skyden_du   srn_skyden_du   srn_skyden_du   srn_skyden_du
+19  SRN_Denver_Night_Fixed  ****        0           srn_skyden_n    srn_skyden_n    srn_skyden_n    srn_skyden_n

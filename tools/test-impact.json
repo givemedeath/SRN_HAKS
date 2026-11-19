@@ -5614,6 +5614,31 @@
       "tools/shared-tools.lock.json",
       "tools/toolchain.lock.json"
     ],
+    "tools/skykit/__init__.py": [],
+    "tools/skykit/__main__.py": [
+      "tools/phenotypes/tool_runtime.py",
+      "tools/skykit/panorama.py",
+      "tools/skykit/preview.py",
+      "tools/skykit/profiles.py",
+      "tools/skykit/sphere.py"
+    ],
+    "tools/skykit/client_fixture.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/skykit/panorama.py": [],
+    "tools/skykit/preview.py": [],
+    "tools/skykit/profiles.py": [],
+    "tools/skykit/sphere.py": [],
+    "tools/skykit/test_skykit.py": [
+      "tools/skykit/__init__.py",
+      "tools/skykit/__main__.py",
+      "tools/skykit/panorama.py",
+      "tools/skykit/preview.py",
+      "tools/skykit/profiles.py",
+      "tools/skykit/sphere.py"
+    ],
     "tools/test_ci_result.py": [
       "tools/ci_result.py"
     ],
@@ -5844,6 +5869,24 @@
     ],
     "tools/robes/package_trial.py": [
       "srn_2da"
+    ],
+    "tools/skykit/__main__.py": [
+      "srn_2da",
+      "srn_skybox"
+    ],
+    "tools/skykit/client_fixture.py": [
+      "srn_2da",
+      "srn_skybox"
+    ],
+    "tools/skykit/preview.py": [
+      "srn_skybox"
+    ],
+    "tools/skykit/profiles.py": [
+      "srn_skybox"
+    ],
+    "tools/skykit/test_skykit.py": [
+      "srn_2da",
+      "srn_skybox"
     ],
     "tools/test_combat_release_manifest.py": [
       "srn_2da",
@@ -6162,6 +6205,7 @@
     "tools/robes/test_robe_core.py",
     "tools/robes/test_robe_packaging.py",
     "tools/robes/test_robe_pipeline.py",
+    "tools/skykit/test_skykit.py",
     "tools/test_ci_result.py",
     "tools/test_ci_scope.py",
     "tools/test_clean_checkout.py",

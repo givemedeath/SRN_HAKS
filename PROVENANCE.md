@@ -2221,3 +2221,19 @@ session loaded. Resource and design hashes, submission counters, client sessions
 exceptions and limitations are in that document and its JSON manifest. The heads reference the game's built-in head
 materials; stock material and palette payloads are not redistributed. Machine bindings, intermediate models, private
 logs and generated HAKs remain outside the repository.
+
+## Dynamic skies: Denver Front Range (`srn_skybox`, `srn_2da`; 2026-11-19)
+
+Four new skybox rows (16 `SRN_Denver_Dynamic`, 17 `SRN_Denver_AcidStorm`, 18 `SRN_Denver_Dusk_Fixed`, 19
+`SRN_Denver_Night_Fixed`) are appended to `skyboxes.2da`; no existing row changes. `srn_skybox` gains five sky dome
+models (`srn_skyden_*.mdl`, ASCII, written by `tools/skykit`), their materials and fallback pictures, the land panorama
+in two halves with two light masks (`srn_skyden_pa/_pb/_ma/_mb.dds`) and the fragment shader with its include
+(`srn_sky_fs.shd`, `srn_sky_math.shd`). The vertex shader is the game's own `vsvt`, referenced and not copied; the
+fragment shader includes the game's `inc_standard` by name.
+
+Origin: the land panorama is one picture, `tools/skykit/art/denver/view_w.png`, drawn for the SRN project operator
+with the Codex CLI's image generation from the Denver skyline concept the operator supplied (prompt beside it). It is used
+twice round the horizon, once mirrored, until the planned three-view set replaces it. The sky, clouds, stars, moon,
+lightning, searchlights and rain are procedural, written for this project (SRN project operator with Claude); the
+approach of a material-driven animated sky in a skybox model follows the community Dynamic Skies example by Bhaal
+in its general method only: no code, models or pictures of it are included.

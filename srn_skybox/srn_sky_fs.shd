@@ -1,0 +1,38 @@
+//=============================================================================
+//
+// srn_sky_fs.shd -- fragment shader of the SRN dynamic skies (srn_sky_math).
+// Paired with the stock vertex shader vsvt (no lighting, no fog).
+//
+//=============================================================================
+
+#define SHADER_TYPE 2
+
+#define FOG 0
+#define KEYHOLING 0
+#define LIGHTING 0
+
+#define NORMAL_MAP 0
+#define SPECULAR_MAP 0
+#define ROUGHNESS_MAP 0
+#define HEIGHT_MAP 0
+#define SELF_ILLUMINATION_MAP 0
+#define ENVIRONMENT_MAP 0
+
+#include "inc_standard"
+
+uniform lowp vec4 globalColor;
+uniform sampler2D texUnit1;
+uniform sampler2D texUnit2;
+uniform sampler2D texUnit3;
+
+#include "srn_sky_math"
+
+void main ()
+{
+    float minutes = moduleMinutesPerHour > 0 ? float(moduleMinutesPerHour) : 2.0;
+    float dayLength = 24.0 * minutes * 60000.0;
+    float weather = clamp(areaWeatherDensity / 100.0, 0.0, 1.0);
+    vec3 colour = SrnSkyColour(vVertexTexCoords.xy, float(worldtimerTimeOfDay), dayLength, weather);
+    // the engine's model fade carries the dawn/day/dusk/night crossfade: keep its alpha exactly
+    gl_FragColor = vec4(colour, globalColor.a);
+}

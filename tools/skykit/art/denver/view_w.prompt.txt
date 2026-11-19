@@ -1,0 +1,10 @@
+Use your built-in image generation tool to create ONE landscape image, 1536x1024, then copy the resulting PNG into the current working directory as view.png. Do not write any code or other files.
+
+The attached image is the art-style and subject reference: a cyberpunk Denver skyline at dusk, the snow-capped Rocky Mountains (Front Range) behind downtown towers, refineries with lit stacks, elevated highways with red and white light trails, warehouses with glowing windows in amber, magenta, cyan and teal. Keep that painterly, saturated, detailed digital-painting style and that dusk lighting (warm glowing windows, magenta-pink rim light on the snowy peaks).
+
+This is one 120-degree slice of a 360-degree game skybox horizon. Composition rules, all mandatory:
+- A very wide, LOW horizon view seen from far away, straight-on, eye level, no perspective tilt, no vanishing-point roads leading toward the viewer.
+- The whole landscape (mountains + city) occupies ONLY the bottom 35% of the image. The highest mountain peak reaches at most 35% up from the bottom edge; the tallest skyscrapers are lower than the peaks.
+- Layers from back to front: snowy jagged Front Range peaks; darker foothills; the downtown cluster of 8-12 glowing skyscrapers slightly left of centre; a dense low sprawl of lit buildings, refinery towers and an elevated highway with light trails across the bottom.
+- EVERYTHING above the landscape silhouette is a perfectly flat, uniform, pure chroma-key green (#00FF00): no clouds, no gradient, no stars, no moon, no glow, no haze, no smoke plumes, no aircraft, no antenna lights floating in the sky. The silhouette edge against the green must be crisp.
+- The left and right edges of the image show continuous sprawl and mountains (no frame, no border, no vignette, no text, no watermark).
