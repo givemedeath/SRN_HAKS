@@ -93,12 +93,13 @@ Each assembled panorama is upscaled 2x with RealESRGAN (`RealESRGAN_x2plus.pth`)
 `output/skykit/<key>/x2-<hash>.png` by input and model, so a rebuild of unchanged art needs no GPU; `--no-upscale`
 builds at the source size. The manifest names the model and cache file.
 
-Denver has a detail pass instead: `python -m tools.skykit.detail den` redraws its assembled land in 14 overlapping
-close-ups with the local Qwen-Image 2.1 edit profile (`art/detail.qwen-prompt.txt`), each the land's full height and
+Both skylines have a detail pass instead: `python -m tools.skykit.detail den` (or `pk`) redraws the assembled land in
+overlapping
+close-ups (Denver 14, Peaks 10) with the local Qwen-Image 2.1 edit profile (`art/<set>/detail.qwen-prompt.txt`), each the land's full height and
 about 1248 x 832 at the model, so windows, roofs and ridges get real detail rather than sharpened edges. The tiles are
-tracked art (`art/denver/detail/`, with `detail.json` naming the input they were drawn from); the build holds each to
-its input's grade, cuts between neighbours where they agree and blends band by band, giving the strip at about 2.8
-times its source size.
+tracked art (`art/<set>/detail/`, with `detail.json` naming the input they were drawn from); the build holds each to
+its input's grade, cuts between neighbours where they agree and blends band by band, giving Denver's strip at about 2.8 times
+its source size and the Peaks' at 2.
 
 Previews and fallback pictures need ModernGL with an OpenGL 3.3 context; `--no-render` skips them. Intermediate
 pictures, previews and client captures go to `output/skykit/` (ignored). `docs/skies/manifest.json` records source

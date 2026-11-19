@@ -3,7 +3,7 @@ ComfyUI, then blended back into one wrapped strip at about 2.8 times the source 
 
 The upscaler can only sharpen what the source draws; the land of a generated view is a band a few hundred pixels tall.
 Each tile here is that band's full height (plus a strip of key above it) and a width of 1.5 times that, shown to the
-model at about 1248 x 832 to redraw with fine detail and the same composition. Tiles are tracked art
+model at about 1248 x 832 to redraw with fine detail and the same composition (the panorama's `detail_prompt`). Tiles are tracked art
 (`art/<set>/detail/tile_NN.png`, with `detail.json` naming the input they were drawn from); the build blends them:
 graded like the input, cut where neighbours agree and blended band by band.
 
@@ -26,7 +26,6 @@ from . import panorama
 from .upscale import comfy_url, run_graph
 
 ART = Path(__file__).resolve().parent / 'art'
-PROMPT = ART / 'detail.qwen-prompt.txt'
 PAD_TOP = 32       # rows of key laid over the land so the model sees the silhouette against sky
 ASPECT = 1.5       # tile width over height, the model's 1248 x 832
 OVERLAP = 0.25     # share of a tile its neighbour also covers
@@ -53,12 +52,12 @@ def digest(land):
     return hashlib.sha256(np.ascontiguousarray(land, np.float32).tobytes()).hexdigest()
 
 
-def generate(land, key, folder, seed, tiles=None, redo=False, url=None):
+def generate(land, key, folder, prompt_file, seed, tiles=None, redo=False, url=None):
     """Redraw the tiles of `land` into `folder` (tile_NN.png), skipping those already there unless `redo`."""
     from tools.headkit import design
     folder.mkdir(parents=True, exist_ok=True)
     width, starts, height = layout(land)
-    prompt = PROMPT.read_text(encoding='utf-8')
+    prompt = Path(prompt_file).read_text(encoding='utf-8')
     record = {'inputSha256': digest(land), 'tileWidth': width, 'starts': starts, 'height': height, 'padTop': PAD_TOP,
               'seed': seed, 'profile': 'qwen21-int8-v1', 'promptSha256': hashlib.sha256(prompt.encode()).hexdigest()}
     url = comfy_url(url)
@@ -120,7 +119,7 @@ def main(argv=None):
     spec = profiles.PANORAMAS[args.panorama]
     land = build.assembled_land(args.panorama)
     tiles = [int(t) for t in args.tiles.split(',')] if args.tiles else None
-    generate(land, spec['key'], ART / spec['detail'], args.seed, tiles, args.redo)
+    generate(land, spec['key'], ART / spec['detail'], ART / spec['detail_prompt'], args.seed, tiles, args.redo)
 
 
 if __name__ == '__main__':

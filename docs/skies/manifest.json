@@ -43,18 +43,17 @@
       },
       "band": [
         -2.0,
-        18.8596,
-        15.0836
+        18.9324,
+        14.4968
       ],
-      "upscale": {
-        "model": "RealESRGAN_x2plus.pth",
-        "scale": 2,
-        "cache": "x2-c2b3b8e68c28afec.png"
+      "upscale": null,
+      "detail": {
+        "profile": "qwen21-int8-v1",
+        "tiles": "peaks/detail"
       },
-      "detail": null,
       "normals": {
         "model": "moge_2_vitl_normal_fp16.safetensors",
-        "cache": "normals-c6c96b3d6a8352a6.png"
+        "cache": "normals-991eb594a195e791.png"
       }
     }
   },
@@ -140,22 +139,22 @@
     "srn_skyden_st.dds": "be0c1a8c406d13ea45c5c21efb26778d395d6cb6e175431aecd1fe773767a1e1",
     "srn_skyden_st.mdl": "245457f06d52c65dfc7417476750f435b92ba3d1e6e1691508e119972fbcbb75",
     "srn_skyden_st.mtr": "8846e72c9052bc32b01ec7227d34a2f6e24d62354d452c6d825c2f0fb7718945",
-    "srn_skypk_d.dds": "bddcf81bccec2788fc360c3066bf87cc9389ea9822e68486dc0786c084233512",
+    "srn_skypk_d.dds": "aef9cb21a780fb3c1d3c76d108d3b650066c7b169cfd7a57f4f27f880f922351",
     "srn_skypk_d.mdl": "de12ead18715bc1c3aa0c1e647a2ab032f3da0f558d03119e466b14b0a0ffc16",
-    "srn_skypk_d.mtr": "747c5945f9e8bbec73d625cf27047b7fce6fb01c79829fe6fc0aa12de092e43b",
-    "srn_skypk_da.dds": "396c90cd990ae7dec8678e46ea80726d7f4539ab669141dea90ca0f03505d814",
+    "srn_skypk_d.mtr": "82d157b3ca1caef46774349a97808449c0ea6b91bf6e40200eaec527cd5781f2",
+    "srn_skypk_da.dds": "fa9937d8b2e0829246172185b4d1d4f0e8f9fb3e055907e270621fcd7ee49d37",
     "srn_skypk_da.mdl": "4f26ec5b46cde858cbf603cf90efbb588425b03572d89fda32937930298fb08d",
-    "srn_skypk_da.mtr": "e8555c3b26d3f8f7f312501a5e2d80db08165a17a7ace9df4c5a74143330a5e5",
-    "srn_skypk_du.dds": "1ef4e7d24a9125bfd211b8d3c4afcbad40fc1b2f4a969c47aa1b72da07ecfe4e",
+    "srn_skypk_da.mtr": "d0e3b5973662e0ace5170cc074c43a504f178472a50b68c185c73232f5e8c79a",
+    "srn_skypk_du.dds": "2248f9e0ef42158b939f431b1f617c37f004b22dd9f0872c4f756bc0738cc0fe",
     "srn_skypk_du.mdl": "fc1025d7e12f67bf5eb97bef34bca61b17c63a608c8df2072184385bd00b5913",
-    "srn_skypk_du.mtr": "fe7488a24e40c70757ce63f8f8371ffbac076e3f08217bb6054cce0f85595d60",
-    "srn_skypk_ma.dds": "648405233349ff0221b894ff857abde93595cb62bbfc8700df7e97ec1e20960d",
-    "srn_skypk_mb.dds": "0c5cd55975fa6a9c8d030a67cbfaafbe944057f11489afd97de038a7aada0b59",
-    "srn_skypk_n.dds": "9e8a2bc2d3cb7d2dfd7104de2324badb25c6106587a0adc76faed362f41845d6",
+    "srn_skypk_du.mtr": "65d0b38104264fb824f42fb1df1977e6c0cd4cbedb60b6f47da86e668dd8fd84",
+    "srn_skypk_ma.dds": "ce35d66235c43da6f62d90b29dc1c2480350c55995d64ee9ffde699a9829b9a9",
+    "srn_skypk_mb.dds": "10bb08d63a259f7948fd1af40e8f991091da2b6d024f9320bf0425f3aef73408",
+    "srn_skypk_n.dds": "ce772e8392b79ddcaa92499f2510e8740d63739ff8824b2f0972c9b0757f9ff9",
     "srn_skypk_n.mdl": "8525b8f2b448eb438f2caeb3f1bbee3449f69cb9da13c90bf82d69763af41b69",
-    "srn_skypk_n.mtr": "51157edc1830657dadc428db43823c8cc04b8170e2b8d5703af36b661fe378d5",
-    "srn_skypk_pa.dds": "3647fca2de3cb7a519d8d883dfd31c0ad364e65eb14dd558d1d78f1115bfc19f",
-    "srn_skypk_pb.dds": "7114bc74fd6277770bff4da0c2ee0ad6b52e951f33adf8ece42480493264058e"
+    "srn_skypk_n.mtr": "84980fb5b056483006fa2bc96008d062346a5e62d9b935e40f7584681bcd6480",
+    "srn_skypk_pa.dds": "4f6cabfbfedfbacdc2b4b828a421af63a9bd6e19cfe161bd4c6eba4716413c6b",
+    "srn_skypk_pb.dds": "01b92352d0df1cde4f7f68be26389e539ac25f30c106980e188c9ce6821fe28e"
   },
   "runtimeTestedInNwn": false
 }
