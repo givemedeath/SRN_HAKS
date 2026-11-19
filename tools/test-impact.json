@@ -793,7 +793,8 @@
     ],
     "tools/headbatch/test_client_capture.py": [
       "tools/headbatch/client_capture.py",
-      "tools/headbatch/client_trial.py"
+      "tools/headbatch/client_trial.py",
+      "tools/heads/verify_head_trial.py"
     ],
     "tools/headbatch/test_fitassembly.py": [
       "tools/headbatch/review/fitassembly.py",
@@ -843,7 +844,10 @@
     "tools/headbatch/test_material_evidence.py": [
       "tools/headbatch/review/hairgaps.py",
       "tools/headbatch/review/irisrows.py",
-      "tools/headkit/brow_edges.py"
+      "tools/headkit/__init__.py",
+      "tools/headkit/brow_edges.py",
+      "tools/headkit/face_masks.py",
+      "tools/headkit/quality.py"
     ],
     "tools/headbatch/test_process_contracts.py": [
       "tools/headbatch/gpu_contract.py",
