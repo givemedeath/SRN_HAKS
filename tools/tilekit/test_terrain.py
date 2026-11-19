@@ -49,6 +49,8 @@ class TerrainTests(unittest.TestCase):
             terrain.copied_set(SET, [{**COPY, 'groups': {**COPY['groups'], 'Tower_Rof': 'Flats_Rof'}}])
         bare = SET[:SET.index('[GROUP0]')].replace('[GROUPS]\r\nCount=1', '[GROUPS]\r\nCount=0')  # a set with no groups
         made, _ = terrain.copied_set(bare, [{**COPY, 'groups': {}}]); self.assertEqual(inventory.read_set(made)['groups'], [])
+        lowered, _ = terrain.copied_set(SET.replace('TopLeft=Tower\r\nTopRight=Ground', 'TopLeft=tower\r\nTopRight=Ground'), [COPY])  # a corner names its terrain in any case
+        self.assertEqual(inventory.read_set(lowered)['tiles'][3]['corners'], ['Tower_2', 'Ground', 'Ground', 'Ground'])
         blank = SET.replace('Columns=1\r\nTile0=2', 'Columns=2\r\nTile0=2\r\nTile1=-1')  # a group with a blank cell is the terrain's still
         self.assertEqual(inventory.read_set(terrain.copied_set(blank, [COPY])[0])['groups'][1], {'name': 'Flats_Roof', 'tiles': [4, -1]})
 
@@ -85,7 +87,7 @@ class TerrainTests(unittest.TestCase):
             self.assertEqual(sorted(path.name for path in (repo / 'out').iterdir()), ['made-from.json', 'n_t01.mdl', 'n_t01.wok', 'n_t02.mdl', 'n_t02.wok', 'tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
             self.assertEqual((repo / 'out' / 'n_t01.wok').read_text(), 'node aabb n_t01walk\n')
             record = json.loads((repo / 'out' / 'made-from.json').read_text(encoding='utf-8'))
-            self.assertEqual(sorted(record['from']), ['tst.set', 'tst_edge.2da', 'tstpalstd.itp'])
+            self.assertEqual((sorted(record['from']), record['textures']), (['tst.set', 'tst_edge.2da', 'tstpalstd.itp'], ['flat_wall']))
             self.assertEqual([(entry['terrain'], entry['tiles'], entry['models'], entry['source']) for entry in record['catalog']['terrainTiles']], [('Tower_2', [3, 4], ['n_t01', 'n_t02'], 'specs/towers.json')])
             self.assertEqual([(entry['group'], entry['name'], entry['rows'], entry['columns'], entry['tiles'], entry['models']) for entry in record['catalog']['tileGroups']], [(1, 'Flats_Roof', 1, 1, [4], ['n_t02'])])
             (repo / 'out' / 'n_t09.mdl').write_text(MODEL); (repo / 'out' / 'oth.set').write_text('')  # left by an earlier run

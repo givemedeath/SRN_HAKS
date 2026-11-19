@@ -13,6 +13,7 @@ The client run and its captures are envkit's (`prop_fixture.run`), so the same r
 another runs, and a view captured after it had passed is not kept as that view."""
 import copy
 import json
+import math
 import shutil
 import subprocess
 from pathlib import Path
@@ -221,7 +222,7 @@ def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=
     require(models, 'No placeables to stand'); missing = sorted(set(models) - set(appearance))
     require(not missing, 'These models have no row of placeables.2da: ' + ', '.join(missing))
     count = -(-len(models) // across)
-    width, height = 2 + -(-int(across * spacing) // int(TILE)), 2 + -(-int(count * apart) // int(TILE))
+    width, height = 2 + math.ceil(across * spacing / TILE), 2 + math.ceil(count * apart / TILE)
     require(width <= 32 and height <= 32, 'These placeables do not fit one area: give fewer, or closer')
     props = [{'model': model, 'appearance': appearance[model], 'position': [TILE + spacing * (index % across + 0.5), TILE + apart * (index // across + 0.5)], 'bearing': bearing}
              for index, model in enumerate(models)]

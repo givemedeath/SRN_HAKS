@@ -54,6 +54,11 @@ def _counted(raw, count):
     return re.sub(r'(?m)^Count=\d+', f'Count={count}', raw, count=1)
 
 
+def cornered(laid, terrain):
+    """The tiles of a set (as inventory.read_set reads it) with a corner of `terrain`, its name read in any case as the game reads it."""
+    return [tile for tile in laid['tiles'] if terrain.lower() in {corner.lower() for corner in tile['corners']}]
+
+
 def copied_set(text, copies, laid=None):
     """The set file with each copy's terrain, tiles and groups appended. copies: [{terrain, from, models: {old: new},
     groups: {old: new}}]; laid: `text` as inventory.read_set reads it, where the caller has it. Returns (text, {terrain:
@@ -69,7 +74,7 @@ def copied_set(text, copies, laid=None):
         index = laid['terrains'].index(source)
         added['TERRAIN'].append(re.sub(r'^\[TERRAIN\d+\]', f'[TERRAIN{terrains}]', re.sub(r'(?m)^Name=.*?(\r?)$', f'Name={terrain}\\1', raw[f'TERRAIN{index}'], count=1)))
         terrains += 1
-        mine = [tile for tile in laid['tiles'] if source in tile['corners']]; require(mine, f'{terrain}: no tile of the set has a corner of {source}')
+        mine = cornered(laid, source); require(mine, f'{terrain}: no tile of the set has a corner of {source}')
         missing = sorted({tile['model'] for tile in mine} - {name.lower() for name in one['models']})
         require(not missing, f'{terrain}: the copy names no new model for ' + ', '.join(missing))
         models = {old.lower(): new for old, new in one['models'].items()}; numbers[terrain] = {}
@@ -77,7 +82,7 @@ def copied_set(text, copies, laid=None):
             new = tiles; tiles += 1; numbers[terrain][tile['number']] = new
             body = re.sub(r'(?m)^Model=.*?(\r?)$', f'Model={models[tile["model"]]}\\1', raw[f'TILE{tile["number"]}'], count=1)
             for corner in CORNERS:
-                body = re.sub(rf'(?m)^{corner}={re.escape(source)}(\r?)$', f'{corner}={terrain}\\1', body)
+                body = re.sub(rf'(?mi)^({corner})={re.escape(source)}(\r?)$', f'\\1={terrain}\\2', body)
             added['TILE'].append(body.replace(f'[TILE{tile["number"]}]', f'[TILE{new}]', 1))
             for name, door in parts:
                 if re.fullmatch(rf'TILE{tile["number"]}DOOR\d+', name):
@@ -171,7 +176,8 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     """Write each copy of `spec` ({tileset, provenance (its PROVENANCE.md section), names: {old: new}, copies:
     [{terrain, from, display, models, groups, textures: {old: new}}]}) into `folder`: the new models and walkmeshes,
     the set file, the edge table and the palette, and `MADE_FROM`: the hashes of the pack files those three were made
-    from and the additions catalog's entries for the new tiles and groups, which `apply` checks and writes. A copied
+    from, the new texture names the copied tiles draw and the additions catalog's entries for the new tiles and groups,
+    which `apply` checks and writes. A copied
     walkmesh must be the source's, names apart. Returns {terrain: {tiles, models}, palette names}."""
     repo, folder = Path(repo), Path(folder); tileset = spec['tileset']; own = repo / f'srn_t_{tileset}'; gff = gff or _gff()
     folder.mkdir(parents=True, exist_ok=True); copies = spec.get('copies', []); told = {}
@@ -187,9 +193,9 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     require(not stale, 'The folder holds files of an earlier run, which apply would install: ' + ', '.join(stale))
     made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
     data = set_path.read_bytes(); before = data.decode('cp1252')
-    laid = inventory.read_set(before); set_text, numbers = copied_set(before, copies, laid); made_from[set_path.name] = sha(data); outputs = []  # every model made and checked before any file is written
+    laid = inventory.read_set(before); set_text, numbers = copied_set(before, copies, laid); made_from[set_path.name] = sha(data); outputs = []; retextures = set()  # every model made and checked before any file is written
     for one in copies:
-        theirs = {tile['model'] for tile in laid['tiles'] if one['from'] in tile['corners']}
+        theirs = {tile['model'] for tile in cornered(laid, one['from'])}
         extra = sorted({old.lower() for old in one['models']} - theirs); require(not extra, f'{one["terrain"]}: no tile of {one["from"]} is ' + ', '.join(extra))
         textures = {old.lower(): new for old, new in one.get('textures', {}).items()}
         for old, new in one['models'].items():
@@ -198,6 +204,7 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
             require(f'{new}.mdl' not in taken and f'{new}.wok' not in taken, f'A pack holds {new} already')
             data = held[(home, f'{old.lower()}.mdl')].read_bytes(); require(not inventory.compiled(data), f'{old} is compiled: its names cannot be changed here')
             text = data.decode('cp1252'); made = retextured(renamed(text, {old: new}), textures)
+            retextures |= {name.lower() for _, name in TEXTURE.findall(made)} & {name.lower() for name in textures.values()}  # the new names it draws, which apply wants in a pack
             require(inventory.walk_hash(renamed(made, {new: old})) == inventory.walk_hash(text), f'{new}: its walkmesh would differ from {old}\'s')
             outputs.append((folder / f'{new}.mdl', made.encode('cp1252')))
             wok = held.get((home, f'{old.lower()}.wok')); require(wok, f'{home.name} has no {old}.wok: a copied tile needs its walkmesh')
@@ -217,7 +224,7 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
         document = json.loads(gff(['-i', read, '-k', 'json']))
         made = Path(work) / 'palette.json'; made.write_text(json.dumps(palette(document, copies, spec.get('names', {}))), encoding='utf-8')
         gff(['-i', made, '-o', folder / itp.name])
-    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'catalog': catalogued(spec, len(laid['groups']), set_text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
+    (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'textures': sorted(retextures), 'catalog': catalogued(spec, len(laid['groups']), set_text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
     told['palette names'] = len(spec.get('names', {}))
     return told
 

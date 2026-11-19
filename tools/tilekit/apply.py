@@ -6,7 +6,8 @@ A name that ends up in more than one pack is an expected override in hakbuilder.
 A tileset's set file, edge table and palette replace their pack copies only with the record of the copy that made
 them (`MADE_FROM`, a copied terrain's), only over the very pack file they were made from, and a set file or table only
 when it keeps every entry of the pack copy (`_extends`); that record's additions catalog entries are written, checked and dated the day of the apply. A new tile
-model and walkmesh come only with such a record (a copied terrain's, `terrain`) and go to the tileset's own pack; a walkmesh a pack holds is never replaced. Other files of the packs (a TXI of an old name, a placeable's own texture) are left as they are."""
+model and walkmesh come only with such a record (a copied terrain's, `terrain`) and go to the tileset's own pack, and the textures the record says
+they were renamed to must be in a pack or come with the same apply; a walkmesh a pack holds is never replaced. Other files of the packs (a TXI of an old name, a placeable's own texture) are left as they are."""
 import datetime
 import hashlib
 import json
@@ -75,7 +76,7 @@ def plan(repo, spec, overlay):
     file a pack already holds is written and deleted as that pack spells it."""
     repo, overlay = Path(repo), Path(overlay); packs = [pack['Name'] for pack in _configuration(repo)['HakList']]
     record = json.loads((overlay / MADE_FROM).read_text(encoding='utf-8')) if (overlay / MADE_FROM).is_file() else {'kind': 'tilekit-terrain-copy', 'from': {}}
-    require(record.get('kind') == 'tilekit-terrain-copy' and isinstance(record.get('from'), dict), f'{MADE_FROM} is not a terrain copy\'s record')
+    require(record.get('kind') == 'tilekit-terrain-copy' and isinstance(record.get('from'), dict) and isinstance(record.get('textures', []), list), f'{MADE_FROM} is not a terrain copy\'s record')
     named = {entry['tileset'] for kind in ('terrainTiles', 'tileGroups') for entry in record.get('catalog', {}).get(kind, [])}
     require(named <= {(spec or {}).get('tileset')}, f'{MADE_FROM} is a copy of ' + ', '.join(sorted(named)) + ', not of the spec\'s tileset')
     recorded = {model.lower() for entry in record.get('catalog', {}).get('terrainTiles', []) for model in entry['models']}  # the new tiles the record catalogues
@@ -95,13 +96,14 @@ def plan(repo, spec, overlay):
             require(not strangers, f'{name}: {path.name} is already a file of {", ".join(strangers)}')
             require(key not in placed or placed[key] == holders, f'{path.name} belongs to two textures')
             placed[key] = holders; put += [(path, held.get(key, {}).get(pack, repo / pack / path.name)) for pack in holders]
-    for path in sorted(path for path in overlay.iterdir() if path.suffix.lower() in MODELS + TABLES):
+    files = [path for path in overlay.iterdir() if path.is_file()]; present = {path.name.lower() for path in files}  # the overlay, listed once
+    for path in sorted(path for path in files if path.suffix.lower() in MODELS + TABLES):
         holders = held.get(path.name.lower(), {})
         if not holders and path.suffix.lower() in MODELS:  # a new tile (a copied terrain's): to the tileset's own pack
             require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it')
             require((overlay / MADE_FROM).is_file(), f'{path.name} is new, and the overlay has no {MADE_FROM}: only a whole terrain copy brings new tiles')
             require(path.stem.lower() in recorded, f'{path.name} is new, and {MADE_FROM} catalogues no tile of it')
-            twin = sorted({path.stem.lower() + suffix for suffix in MODELS} - {other.name.lower() for other in overlay.iterdir()})
+            twin = sorted({path.stem.lower() + suffix for suffix in MODELS} - present)
             require(not twin, f'{path.name} is new, and the overlay lacks ' + ', '.join(twin) + ': a new tile comes with its model and its walkmesh')
             put.append((path, repo / own / path.name)); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
@@ -117,6 +119,9 @@ def plan(repo, spec, overlay):
         if path.suffix.lower() in ('.set', '.2da'):
             require(_extends(was, path), f'{path.name}: it lacks or changes entries the pack copy has (added since the overlay was made?): make the overlay again')
         put.append((path, was))
+    brought = set(held) | {target.name.lower() for _, target in put}  # a copy's renamed textures are in a pack already or come with this apply
+    bare = sorted(name for name in record.get('textures', []) if not any(name.lower() + suffix in brought for suffix in HELD))
+    require(not bare, f'The copied tiles name textures no pack holds and this apply brings none of: {", ".join(bare)} (apply them with the copies\' material spec)')
     after = {name: set(holding) for name, holding in held.items()}
     for path in delete:
         after[path.name.lower()].discard(path.parent.name)
@@ -124,7 +129,7 @@ def plan(repo, spec, overlay):
         after.setdefault(target.name.lower(), set()).add(target.parent.name)
     touched = {path.name.lower() for path in delete} | {target.name.lower() for _, target in put}
     overrides = {name: sorted(after[name]) for name in sorted(touched) if len(after.get(name, ())) > 1}
-    used = {path.name for path, _ in put} | {MADE_FROM}; left = sorted(path.name for path in overlay.iterdir() if path.is_file() and path.name not in used)
+    used = {path.name for path, _ in put} | {MADE_FROM}; left = sorted(path.name for path in files if path.name not in used)
     return {'put': put, 'delete': sorted(set(delete) - {target for _, target in put}), 'overrides': overrides, 'touched': touched, 'left': left,
             'catalog': _catalogued(repo, record.get('catalog', {}))}  # merged before anything is written, so a refusal changes nothing
 

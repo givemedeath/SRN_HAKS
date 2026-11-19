@@ -87,6 +87,11 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'n_t01.mdl is new, and the overlay lacks n_t01.wok'):  # a new tile is its model and its walkmesh
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (overlay / 'n_t01.wok').write_bytes(b'walk')
+        (overlay / apply.MADE_FROM).write_text(json.dumps({**json.loads(made_from(laid(2))), 'textures': ['flat_wall']}), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'name textures no pack holds and this apply brings none of: flat_wall'):  # a copy's tiles come with their textures
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        (self.repo / 'srn_t_common' / 'flat_wall.dds').write_bytes(b'dds'); self.assertEqual(len(apply.plan(self.repo, {'tileset': 'tst'}, overlay)['put']), 3)
+        (self.repo / 'srn_t_common' / 'flat_wall.dds').unlink(); (overlay / apply.MADE_FROM).write_text(made_from(laid(2)), encoding='utf-8')
         told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
         self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), laid(3))
