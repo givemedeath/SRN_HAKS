@@ -5976,6 +5976,7 @@
       "srn_t_common"
     ],
     "tools/tilekit/test_lamps.py": [
+      "srn_2da",
       "srn_t_common"
     ],
     "tools/tilekit/test_material.py": [

@@ -47,12 +47,13 @@ def quiet(repo, tileset, folder, *, thin=THIN, small=SMALL, flat=FLAT):
     overlay; a model already there is changed in place) and tell {model: count of trims}."""
     repo, folder = Path(repo), Path(folder); tileset = tileset.lower(); folder.mkdir(parents=True, exist_ok=True)
     tiles = inventory.drawn_models(repo, tileset)  # the edge tiles round an area's border too
-    others = inventory._other_sets(repo, tileset); told = {}
+    others = inventory._other_sets(repo, tileset); told, seen = {}, set()
     for pack in lamps.PACKS:
         for path in sorted((repo / pack.format(tileset=tileset)).glob('*.mdl')):
             name = path.stem.lower()
-            if name not in tiles or name in told or others.get(name):
+            if name not in tiles or name in seen or others.get(name):  # the first pack's copy is the one the game shows
                 continue
+            seen.add(name)
             source = folder / path.name if (folder / path.name).is_file() else path; data = source.read_bytes()
             if inventory.compiled(data):
                 continue

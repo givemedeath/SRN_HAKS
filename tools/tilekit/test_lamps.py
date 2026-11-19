@@ -71,6 +71,16 @@ class Lamps(unittest.TestCase):
             (own / 't_e01.mdl').write_text(MODEL.format(first='sl1').replace('t_a01', 't_e01'), encoding='cp1252')
             self.assertEqual(lamps.move(repo, 't', repo / 'out'), {'t_e01': 'moved'})
 
+    def test_a_model_in_both_packs_is_taken_from_the_tileset_s_own(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary); own = repo / 'srn_t_t'; common = repo / 'srn_t_common'
+            for folder in (own, common):
+                folder.mkdir()
+            (own / 't.set').write_text(SET, encoding='cp1252')
+            (own / 't_a01.mdl').write_text(MODEL.format(first='sl1').replace('sl', 'xx'), encoding='cp1252')  # what the game shows: no source light
+            (common / 't_a01.mdl').write_text(MODEL.format(first='sl1'), encoding='cp1252')
+            self.assertEqual(lamps.move(repo, 't', repo / 'out'), {}); self.assertFalse((repo / 'out' / 't_a01.mdl').exists())
+
     def test_a_copy_already_in_the_folder_is_the_one_moved(self):
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary); own = repo / 'srn_t_t'; out = repo / 'out'

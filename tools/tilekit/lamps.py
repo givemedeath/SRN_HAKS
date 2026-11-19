@@ -37,12 +37,15 @@ def move(repo, tileset, folder, *, radius=RADIUS):
     place) and tell {model: state}. A model whose walkmesh would differ afterwards is a refusal: nothing here touches one."""
     repo, folder = Path(repo), Path(folder); tileset = tileset.lower()
     tiles = inventory.drawn_models(repo, tileset)  # the edge tiles round an area's border too
-    others = inventory._other_sets(repo, tileset); told = {}; folder.mkdir(parents=True, exist_ok=True)
+    others = inventory._other_sets(repo, tileset); told, seen = {}, set(); folder.mkdir(parents=True, exist_ok=True)
     for pack in PACKS:
         for path in sorted((repo / pack.format(tileset=tileset)).glob('*.mdl')):
             name = path.stem.lower()  # a copy already in the folder (the shadows') is the one moved, so neither undoes the other
             data = (folder / path.name if (folder / path.name).is_file() else path).read_bytes()
-            if name not in tiles or name in told or inventory.compiled(data):
+            if name not in tiles or name in seen:  # the first pack's copy is the one the game shows
+                continue
+            seen.add(name)
+            if inventory.compiled(data):
                 continue
             text = data.decode('cp1252'); new, said = moved(text, radius)
             if new is None:

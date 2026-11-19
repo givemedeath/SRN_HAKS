@@ -32,15 +32,17 @@ def files_of(overlay, name):
 
 
 def plan(repo, spec, overlay):
-    """{'put': [(overlay file, pack)], 'delete': [pack file], 'overrides': {resource: packs}} for a spec's textures and
-    the overlay's models; nothing is changed."""
+    """{'put': [(overlay file, pack)], 'delete': [pack file], 'overrides': {resource: packs}, 'left': [overlay files
+    that are of no texture of the spec and no model]} for a spec's textures (none where spec is None) and the overlay's
+    models; nothing is changed."""
     repo, overlay = Path(repo), Path(overlay); packs = [pack['Name'] for pack in _configuration(repo)['HakList']]
+    spec = spec or {'textures': {}}  # an overlay of changed models alone
     held = {}
     for pack in packs:
         if (repo / pack).is_dir():
             for path in (repo / pack).iterdir():
                 held.setdefault(path.name.lower(), []).append(pack)
-    own = f"srn_t_{spec['tileset'].lower()}"; put, delete, placed = [], [], {}
+    own = f"srn_t_{spec.get('tileset', '').lower()}"; put, delete, placed = [], [], {}
     for name in sorted(spec['textures']):
         holders = sorted({pack for suffix in HELD for pack in held.get(name + suffix, ())}) or [own]
         delete += [repo / pack / (name + suffix) for suffix in OLD for pack in held.get(name + suffix, ())]
@@ -62,7 +64,8 @@ def plan(repo, spec, overlay):
         after.setdefault(path.name, set()).add(pack)
     touched = {path.name for path in delete} | {path.name for path, _ in put}
     overrides = {name: sorted(after[name]) for name in sorted(touched) if len(after.get(name, ())) > 1}
-    return {'put': put, 'delete': sorted(set(delete) - {repo / pack / path.name for path, pack in put}), 'overrides': overrides, 'touched': touched}
+    used = {path.name for path, _ in put}; left = sorted(path.name for path in overlay.iterdir() if path.is_file() and path.name not in used)
+    return {'put': put, 'delete': sorted(set(delete) - {repo / pack / path.name for path, pack in put}), 'overrides': overrides, 'touched': touched, 'left': left}
 
 
 def apply(repo, spec, overlay):
@@ -72,9 +75,16 @@ def apply(repo, spec, overlay):
         path.unlink()
     for path, pack in moves['put']:
         (repo / pack / path.name).write_bytes(path.read_bytes())
-    configuration = _configuration(repo); before = configuration['ExpectedOverrides']
-    kept = [entry for entry in before if entry['Resource'].lower() not in moves['touched']]  # in their order; new ones after
-    added = [{'Resource': name, 'Packs': packs} for name, packs in moves['overrides'].items()]
-    configuration['ExpectedOverrides'] = kept + added
+    configuration = _configuration(repo); waiting = dict(moves['overrides']); entries, dropped = [], 0
+    for entry in configuration['ExpectedOverrides']:  # each kept where it stands; a name touched gets its packs as they are now
+        resource = entry['Resource'].lower()
+        if resource not in moves['touched']:
+            entries.append(entry)
+        elif resource in waiting:
+            entries.append({**entry, 'Packs': waiting.pop(resource)})
+        else:
+            dropped += 1
+    configuration['ExpectedOverrides'] = entries + [{'Resource': name, 'Packs': packs} for name, packs in waiting.items()]
     (repo / 'hakbuilder.json').write_text(json.dumps(configuration, indent=2) + '\n', encoding='utf-8', newline='\n')
-    return {'put': len(moves['put']), 'deleted': len(moves['delete']), 'overrides': len(added), 'overrides before': len(before) - len(kept)}
+    return {'put': len(moves['put']), 'deleted': len(moves['delete']), 'overrides': len(moves['overrides']), 'new overrides': len(waiting), 'dropped overrides': dropped,
+            'not applied': moves['left']}

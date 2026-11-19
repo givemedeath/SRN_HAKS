@@ -84,7 +84,7 @@ def shadows_command(chosen):
 
 def apply_command(chosen):
     from . import apply
-    spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
+    spec = json.loads(chosen.spec.read_text(encoding='utf-8')) if chosen.spec else None  # none: the overlay's changed models alone
     print(json.dumps(apply.apply(chosen.repo, spec, chosen.overlay)))
     return 0
 
@@ -145,7 +145,7 @@ def main(arguments=None):
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     eight.add_argument('--repo', type=Path, default=REPO)
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
-    nine.add_argument('--spec', required=True, type=Path, help='the tileset\'s material spec: the textures moved')
+    nine.add_argument('--spec', type=Path, help='the tileset\'s material spec: the textures moved (without it, only the overlay\'s changed models)')
     nine.add_argument('--overlay', required=True, type=Path, help='the review overlay the look was passed on'); nine.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:

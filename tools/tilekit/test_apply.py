@@ -33,6 +33,7 @@ class ApplyTests(unittest.TestCase):
         return sorted(path.name for path in (self.repo / pack).iterdir())
 
     def test_each_texture_goes_where_its_name_was_and_its_old_copies_go(self):
+        (self.overlay / 'stray.dds').write_bytes(b'left')
         told = apply.apply(self.repo, self.spec, self.overlay)
         self.assertEqual(self.names('srn_t_common'), ['bin.dds', 'bin.mtr', 'bin_n.dds', 't_a01.mdl', 'wall.dds', 'wall.mtr', 'wall.txi', 'wall_n.dds'])  # the old TXI is left
         self.assertEqual(self.names('srn_placeable'), ['bin.dds', 'bin.mtr', 'bin_n.dds', 'crate.dds'])
@@ -42,7 +43,13 @@ class ApplyTests(unittest.TestCase):
         self.assertEqual([(entry['Resource'], entry['Packs']) for entry in overrides],
                          [('other.dds', ['srn_t_common', 'srn_placeable']), ('bin.dds', ['srn_placeable', 'srn_t_common']),
                           ('bin.mtr', ['srn_placeable', 'srn_t_common']), ('bin_n.dds', ['srn_placeable', 'srn_t_common'])])
-        self.assertEqual(told, {'put': 12, 'deleted': 1, 'overrides': 3, 'overrides before': 1})
+        self.assertEqual(told, {'put': 12, 'deleted': 1, 'overrides': 3, 'new overrides': 2, 'dropped overrides': 0, 'not applied': ['stray.dds']})  # of no texture of the spec
+        apply.apply(self.repo, self.spec, self.overlay)  # again: every entry where it stood
+        self.assertEqual(json.loads((self.repo / 'hakbuilder.json').read_text(encoding='utf-8'))['ExpectedOverrides'], overrides)
+
+    def test_an_overlay_of_models_alone_needs_no_spec(self):
+        self.assertEqual(apply.apply(self.repo, None, self.overlay)['put'], 1)
+        self.assertEqual((self.repo / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'model'); self.assertEqual((self.repo / 'srn_t_common' / 'wall.tga').read_bytes(), b'old')
 
     def test_applying_again_finds_a_restyle_by_its_material_and_a_model_s_walkmesh_must_stand(self):
         (self.overlay / 'wall.mtr').write_text(MATERIAL.format('wl'), encoding='ascii')  # maps of a stem of their own

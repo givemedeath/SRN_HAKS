@@ -202,20 +202,26 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
     """The picture of a texture as the tileset had it before its restyle: its DDS copy before its TGA, in the first of
     `packs` to hold one, else in `stock`, a folder of the base game's own pictures read out of the install (a base-game
     texture). before: the commit whose packs hold the originals (a spec's `before`); once a restyle is in the packs
-    their files are its own maps, so without it a restyled name (one with a material file) is refused."""
+    their files are its own maps, so a restyled name is refused there: one with a material file, or a standard DDS (the
+    D20 originals are all BioWare DDS; a plain restyle such as the water has no material). A texture added to a pack
+    after `before` is read from the pack as it is."""
     repo = Path(repo)
-    if before is None:
-        restyled = [pack for pack in packs if (repo / pack / f'{name}.mtr').is_file()]
-        require(not restyled, f'{name} is restyled already ({", ".join(restyled)}): its old picture is read from the spec\'s `before` commit')
-    for pack in packs:
+    for pack in packs if before is not None else ():
         for kind in ('dds', 'tga'):
             file = f'{name}.{kind}'
-            if before is not None and file in _tree(str(repo), before, pack):
+            if file in _tree(str(repo), before, pack):
                 shown = subprocess.run(['git', '-C', str(repo), 'show', f'{before}:{pack}/{file}'], capture_output=True)
                 require(shown.returncode == 0, f'git cannot read {pack}/{file} at {before}')
                 return pictures.read(file, shown.stdout)
-            if before is None and (repo / pack / file).is_file():
-                return pictures.read(repo / pack / file)
+    refused = f'{name} is restyled already (%s): its old picture is read from the spec\'s `before` commit'
+    restyled = [pack for pack in packs if (repo / pack / f'{name}.mtr').is_file()]
+    require(not restyled, refused % ', '.join(restyled))
+    for pack in packs:
+        for kind in ('dds', 'tga'):
+            path = repo / pack / f'{name}.{kind}'
+            if path.is_file():
+                require(kind != 'dds' or path.read_bytes()[:4] != b'DDS ', refused % pack)
+                return pictures.read(path)
     for kind in ('dds', 'tga'):
         if stock and (Path(stock) / f'{name}.{kind}').is_file():
             return pictures.read(Path(stock) / f'{name}.{kind}')

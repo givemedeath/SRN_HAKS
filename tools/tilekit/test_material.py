@@ -179,6 +179,11 @@ class MaterialTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'restyled already'):
             material.current(repo, 'wall')
         self.assertEqual(material.current(repo, 'wall', before=before).getpixel((0, 0)), (200, 10, 10))
+        Image.new('RGB', (8, 8), (10, 200, 10)).save(pack / 'added.tga')  # a texture new since `before` is read as it is
+        self.assertEqual(material.current(repo, 'added', before=before).getpixel((0, 0)), (10, 200, 10))
+        (pack / 'water.dds').write_bytes(b'DDS ' + bytes(124))  # a plain restyle has no material: a standard DDS is one
+        with self.assertRaisesRegex(ValueError, 'water is restyled already'):
+            material.current(repo, 'water', before=before)
 
     def test_the_wrapped_blur_is_a_box_blur_that_wraps(self):
         values = np.random.default_rng(3).random((9, 13))
