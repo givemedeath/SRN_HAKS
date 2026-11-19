@@ -82,7 +82,7 @@ def transition_script():
 
 
 PLAY_SKIES = [(16, 'Denver'), (17, 'Sprawl Acid Storm'), (20, 'Awakened Peaks')]
-PLAY_HOUR = 12.0  # real seconds per game hour in the play module: a whole day in under five minutes
+PLAY_HOUR = 2.5  # real seconds per game hour in the play module: a whole day in one minute (user, 2026-11-19)
 
 
 def play_script():

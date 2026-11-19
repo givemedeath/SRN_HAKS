@@ -134,5 +134,5 @@ trial of the local route while the Codex quota was spent); the peaks views are e
   are kept as `view_*.codex-prompt.txt` for when the quota returns.
 - **Day uses dusk- and night-lit city art**, recoloured by the day material, which also dims the windows into their
   surroundings. The peaks art is neutral daylight, tinted per phase.
-- **Fast-cycle check:** `client_fixture --play` jumps the clock an hour every 12 seconds and shows the next sky each
+- **Fast-cycle check:** `client_fixture --play` jumps the clock an hour every 2.5 seconds (a day a minute) and shows the next sky each
   day (Denver, the acid storm, Peaks).
