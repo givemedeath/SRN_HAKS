@@ -140,9 +140,17 @@ def table_rows():
 
 
 def write_table(rows, path=TABLE):
-    """Replace or append our rows of skyboxes.2da, keeping every other line as it is."""
+    """Replace or append our rows of skyboxes.2da, keeping every other line as it is. A row of ours (an SRN_ label
+    from our first row on) that the profiles no longer define is dropped: rows must stay in order."""
     lines = Path(path).read_text(encoding='ascii').splitlines()
-    kept = [line for line in lines if not (line.split() and line.split()[0].isdigit() and int(line.split()[0]) in rows)]
+
+    def ours(line):
+        parts = line.split()
+        if not (parts and parts[0].isdigit()):
+            return False
+        row = int(parts[0])
+        return row in rows or (row >= min(rows) and len(parts) > 1 and parts[1].startswith('SRN_'))
+    kept = [line for line in lines if not ours(line)]
     for row in sorted(rows):
         label, cyclical, models = rows[row]
         kept.append(f'{row:<4}{label:<24}****        {cyclical:<12}' + ''.join(f'{m:<16}' for m in models).rstrip())

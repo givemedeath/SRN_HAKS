@@ -81,7 +81,7 @@ def transition_script():
     return '\n'.join(lines), len(rows)
 
 
-PLAY_SKIES = [(16, 'Denver'), (22, 'Denver Acid Storm'), (20, 'Awakened Peaks'), (17, 'Sprawl Acid Storm')]
+PLAY_SKIES = [(16, 'Denver'), (17, 'Sprawl Acid Storm'), (20, 'Awakened Peaks')]
 PLAY_HOUR = 12.0  # real seconds per game hour in the play module: a whole day in under five minutes
 
 

@@ -18,11 +18,6 @@ PANORAMAS = {
         'close': 'denver/join_close.png',
         'key': 'green', 'below': 2.0, 'stretch': 0.6, 'city_from': 0.42,  # the Front Range fills the strip's upper part
     },
-    'stm': {
-        'views': ['storm/view_a.png', 'storm/view_b.png', 'storm/view_c.png'],
-        'joins': ['storm/join_ab.png', 'storm/join_bc.png', 'storm/join_ca.png'],
-        'key': 'magenta', 'below': 2.0, 'stretch': 0.42,
-    },
     'pk': {
         'views': ['peaks/view_a.png', 'peaks/view_b.png', 'peaks/view_c.png'],
         'joins': ['peaks/join_ab.png', 'peaks/join_bc.png', 'peaks/join_ca.png'],
@@ -85,12 +80,12 @@ PK_NIGHT = dict(DEN_NIGHT, SkyLand=(0.22, 0.28, 0.42, 0.2), SkyCloud=(0.08, 0.09
 # skyboxes.2da rows: id -> (label, cyclical, panorama, {model suffix: phase parameters}, (dawn, day, dusk, night) suffixes)
 SKIES = {
     16: ('SRN_Denver_Dynamic', 1, 'den', {'da': DEN_DAWN, 'd': DEN_DAY, 'du': DEN_DUSK, 'n': DEN_NIGHT, 'st': STORM}, ('da', 'd', 'du', 'n')),
-    17: ('SRN_Sprawl_AcidStorm', 0, 'stm', {'st': STORM}, ('st', 'st', 'st', 'st')),
+    # the acid storm shares Denver's skyline, city and mountains (user, 2026-11-19)
+    17: ('SRN_Sprawl_AcidStorm', 0, 'den', {}, ('st', 'st', 'st', 'st')),
     18: ('SRN_Denver_Dusk_Fixed', 0, 'den', {}, ('du', 'du', 'du', 'du')),
     19: ('SRN_Denver_Night_Fixed', 0, 'den', {}, ('n', 'n', 'n', 'n')),
     20: ('SRN_Awakened_Peaks', 1, 'pk', {'da': PK_DAWN, 'd': PK_DAY, 'du': PK_DUSK, 'n': PK_NIGHT}, ('da', 'd', 'du', 'n')),
     21: ('SRN_Awakened_Aurora', 0, 'pk', {}, ('n', 'n', 'n', 'n')),
-    22: ('SRN_Denver_AcidStorm', 0, 'den', {}, ('st', 'st', 'st', 'st')),  # Denver's skyline under the acid storm
 }
 
 

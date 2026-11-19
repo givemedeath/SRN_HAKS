@@ -13,12 +13,11 @@ Built by `tools/skykit` (2026-11-19). Client-checked on one local client (Window
 | ID | Label | Cyclical | Dawn / day / dusk / night |
 |---|---|---|---|
 | 16 | `SRN_Denver_Dynamic` | 1 | `srn_skyden_da` / `_d` / `_du` / `_n`: Front Range, downtown, refineries, arcology; searchlights at night |
-| 17 | `SRN_Sprawl_AcidStorm` | 0 | `srn_skystm_st` all day: megasprawl storm night, lightning, searchlights, rain |
+| 17 | `SRN_Sprawl_AcidStorm` | 0 | `srn_skyden_st` all day: Denver's skyline under the acid storm, lightning, searchlights, rain |
 | 18 | `SRN_Denver_Dusk_Fixed` | 0 | `srn_skyden_du` all day |
 | 19 | `SRN_Denver_Night_Fixed` | 0 | `srn_skyden_n` all day |
 | 20 | `SRN_Awakened_Peaks` | 1 | `srn_skypk_da` / `_d` / `_du` / `_n`: Rocky Mountain wilderness, mana aurora at night |
 | 21 | `SRN_Awakened_Aurora` | 0 | `srn_skypk_n` all day |
-| 22 | `SRN_Denver_AcidStorm` | 0 | `srn_skyden_st` all day: Denver's skyline under the acid storm |
 
 Pick one in Area Properties or with `SetSkyBox(16, oArea)`. A fixed row keeps its look at every hour; its animation
 still runs. The table is `srn_2da/skyboxes.2da`; the resources are in `srn_skybox`.
@@ -120,15 +119,14 @@ and resource hashes; the tests check the pack against it and the materials again
   and a closing join (`join_close.png`) go round, so every piece keeps the start's scale and horizon. The views drawn
   apart, used before, did not line up (user, 2026-11-19). Hazy hills under a green-keyed silhouette are cleared of
   key tint (`panorama.EDGE_ROWS`).
-- `stm`, the megasprawl, and `pk`, the Awakened peaks: three views of 120 degrees (`art/<set>/view_*.png`) and three
+- `pk`, the Awakened peaks: three views of 120 degrees (`art/<set>/view_*.png`) and three
   redrawn joins between them (`join_*.png`) from `panorama.join_input`. `panorama.assemble` switches from view to join
   and back along a minimum-cost cut through each overlap (`seam_path`, image quilting) and blends across it band by
   band (`multiband`). The peaks view a to b join was redrawn a second time (2026-11-19): the first repaint had kept
   part of the crossfade.
 
 Every picture but Denver's start view is the local Qwen-Image 2.1 profile on the shared ComfyUI (2026-11-19, the user's
-trial of the local route while the Codex quota was spent); the storm and peaks views are edits of Denver's start
-view. The build flips each strip: u grows counter-clockwise, which from inside the dome is the viewer's left.
+trial of the local route while the Codex quota was spent); the peaks views are edits of Denver's start view. The build flips each strip: u grows counter-clockwise, which from inside the dome is the viewer's left.
 
 ## Known limits and next steps
 
@@ -137,4 +135,4 @@ view. The build flips each strip: u grows counter-clockwise, which from inside t
 - **Day uses dusk- and night-lit city art**, recoloured by the day material, which also dims the windows into their
   surroundings. The peaks art is neutral daylight, tinted per phase.
 - **Fast-cycle check:** `client_fixture --play` jumps the clock an hour every 12 seconds and shows the next sky each
-  day (Denver, Denver acid storm, Peaks, Sprawl storm).
+  day (Denver, the acid storm, Peaks).

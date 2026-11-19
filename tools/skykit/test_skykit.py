@@ -36,8 +36,8 @@ class Dome(unittest.TestCase):
                 self.assertAlmostEqual(np.cos(azimuth), np.cos(u * 2 * np.pi), places=4)
 
     def test_model_text_names_its_bitmap(self):
-        text = sphere.ascii_model('srn_skystm_d', 'srn_skystm_d')
-        self.assertIn('bitmap srn_skystm_d', text)
+        text = sphere.ascii_model('srn_skyden_d', 'srn_skyden_d')
+        self.assertIn('bitmap srn_skyden_d', text)
         self.assertIn('shadow 0', text)
         vertices, uvs, faces = sphere.mesh()
         self.assertIn(f'verts {len(vertices)}', text)
