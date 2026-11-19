@@ -108,6 +108,10 @@ of tiles that have source lights and no main light are renamed from `sl1`/`sl2` 
   those tiles until it is changed; this belongs in the release notes.
 - Not checked: other radii, and light colours other than white.
 - Like the textures, the models stay in the review overlay until the look gate.
+- Small trims cast no shadow (user, 2026-11-18): the game draws a sill's or ledge's shadow on the wall behind it as
+  hard wedges, which show as triangles once a wall's picture is even. `tilekit shadows --tileset dgt04 --out <overlay>`  sets
+  `shadow 0` on meshes under 0.75 m across their second side or 1 m long (3,639 trims in 342 models); walls, roofs and
+  buildings keep their shadows. Larger slanted panels still show some wedges.
 - Night is left dark (user, 2026-11-18): brightness at night is a matter of an area's own lighting and its tile lamps,
   not of the textures.
 

@@ -5644,7 +5644,8 @@
       "tools/tilekit/lamps.py",
       "tools/tilekit/material.py",
       "tools/tilekit/redraw.py",
-      "tools/tilekit/review.py"
+      "tools/tilekit/review.py",
+      "tools/tilekit/shadows.py"
     ],
     "tools/tilekit/enlarge.py": [
       "tools/envkit/__init__.py",
@@ -5681,6 +5682,10 @@
       "tools/phenotypes/tool_runtime.py",
       "tools/tilekit/inventory.py"
     ],
+    "tools/tilekit/shadows.py": [
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
     "tools/tilekit/test_enlarge.py": [
       "tools/tilekit/enlarge.py",
       "tools/tilekit/material.py",
@@ -5706,6 +5711,10 @@
     "tools/tilekit/test_review.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/review.py"
+    ],
+    "tools/tilekit/test_shadows.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/shadows.py"
     ]
   },
   "unresolved": [],
@@ -5942,6 +5951,9 @@
       "srn_t_common"
     ],
     "tools/tilekit/test_redraw.py": [
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_shadows.py": [
       "srn_t_common"
     ]
   },
@@ -6266,6 +6278,7 @@
     "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",
     "tools/tilekit/test_redraw.py",
-    "tools/tilekit/test_review.py"
+    "tools/tilekit/test_review.py",
+    "tools/tilekit/test_shadows.py"
   ]
 }

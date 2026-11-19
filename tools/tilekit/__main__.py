@@ -75,6 +75,13 @@ def lamps_command(chosen):
     return 0
 
 
+def shadows_command(chosen):
+    from . import shadows
+    told = shadows.quiet(chosen.repo, chosen.tileset, chosen.out)
+    print(json.dumps({'models': len(told), 'trims': sum(told.values())}))
+    return 0
+
+
 def enlarge_command(chosen):
     from tools.headkit.comfy import Client
     from . import enlarge
@@ -124,8 +131,13 @@ def main(arguments=None):
     seven = commands.add_parser('lamps', help='move the lamps of a tileset\'s tiles from source lights (drawn as fire) to main lights, in model copies')
     seven.add_argument('--tileset', required=True); seven.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     seven.add_argument('--radius', type=float, default=7.0, help='the radius the moved lights are given'); seven.add_argument('--repo', type=Path, default=REPO)
+    eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
+    eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
+    eight.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
+        if chosen.command == 'shadows':
+            return shadows_command(chosen)
         if chosen.command == 'lamps':
             return lamps_command(chosen)
         if chosen.command == 'enlarge':
