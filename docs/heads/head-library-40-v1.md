@@ -48,7 +48,7 @@ This adds 40 heads to `srn_head`, five per race and gender for Human, Elf, Dwarf
 Each head is a rigid 20,000-triangle MDL with a 1024×1024 PLT. These are the exact native bytes the private NWN:EE client
 loaded in each head's final review session, taken from that session's trial HAK; publication reruns nothing. 28 heads use the
 built-in organic head material; the 12 whose PLT mixes accessory channels keep the legacy head material (`nativeMaterial` in
-the manifest). Irises are on tattoo1; orc tusks are on tattoo2. Cyberware is on metal1.
+the manifest gives the channels and reason). Irises are on tattoo1; orc tusks are on tattoo2. Cyberware is on metal1.
 Stock material and palette payloads are not redistributed.
 
 The user selected the designs and delegated operator reviews through the client in batches of five. For each head the
@@ -82,45 +82,15 @@ Each head was checked in an isolated trial HAK with its batch; the combined prod
 These galleries crop and reduce the original client frames; textures and geometry are not edited. Each shows four angles,
 a motion frame and the second look.
 
-![Marigold (pfd0_head017) in the client](evidence/head-library-40-v1/pfd0_head017-client.jpg)
+![Sentinel (pmh0_head088) in the client](evidence/head-library-40-v1/pmh0_head088-client.jpg)
 
-![Ironrose (pfd0_head018) in the client](evidence/head-library-40-v1/pfd0_head018-client.jpg)
+![Glasshouse (pmh0_head089) in the client](evidence/head-library-40-v1/pmh0_head089-client.jpg)
 
-![Garnet (pfd0_head019) in the client](evidence/head-library-40-v1/pfd0_head019-client.jpg)
+![Monsoon (pmh0_head090) in the client](evidence/head-library-40-v1/pmh0_head090-client.jpg)
 
-![Tinlark (pfd0_head020) in the client](evidence/head-library-40-v1/pfd0_head020-client.jpg)
+![Cinder (pmh0_head091) in the client](evidence/head-library-40-v1/pmh0_head091-client.jpg)
 
-![Bracken (pfd0_head021) in the client](evidence/head-library-40-v1/pfd0_head021-client.jpg)
-
-![Kestrel (pmd0_head023) in the client](evidence/head-library-40-v1/pmd0_head023-client.jpg)
-
-![Kiln (pmd0_head024) in the client](evidence/head-library-40-v1/pmd0_head024-client.jpg)
-
-![Nettle (pmd0_head025) in the client](evidence/head-library-40-v1/pmd0_head025-client.jpg)
-
-![Dockstone (pmd0_head026) in the client](evidence/head-library-40-v1/pmd0_head026-client.jpg)
-
-![Frostiron (pmd0_head027) in the client](evidence/head-library-40-v1/pmd0_head027-client.jpg)
-
-![Foxglove (pfe0_head022) in the client](evidence/head-library-40-v1/pfe0_head022-client.jpg)
-
-![Pearlwire (pfe0_head023) in the client](evidence/head-library-40-v1/pfe0_head023-client.jpg)
-
-![Larkspur (pfe0_head024) in the client](evidence/head-library-40-v1/pfe0_head024-client.jpg)
-
-![Rainmint (pfe0_head025) in the client](evidence/head-library-40-v1/pfe0_head025-client.jpg)
-
-![Amberbark (pfe0_head026) in the client](evidence/head-library-40-v1/pfe0_head026-client.jpg)
-
-![Sablegrove (pme0_head024) in the client](evidence/head-library-40-v1/pme0_head024-client.jpg)
-
-![Farsky (pme0_head025) in the client](evidence/head-library-40-v1/pme0_head025-client.jpg)
-
-![Ochre (pme0_head026) in the client](evidence/head-library-40-v1/pme0_head026-client.jpg)
-
-![Silverfern (pme0_head027) in the client](evidence/head-library-40-v1/pme0_head027-client.jpg)
-
-![Umberleaf (pme0_head028) in the client](evidence/head-library-40-v1/pme0_head028-client.jpg)
+![Portside (pmh0_head092) in the client](evidence/head-library-40-v1/pmh0_head092-client.jpg)
 
 ![Juniper (pfh0_head032) in the client](evidence/head-library-40-v1/pfh0_head032-client.jpg)
 
@@ -132,25 +102,45 @@ a motion frame and the second look.
 
 ![Mica (pfh0_head036) in the client](evidence/head-library-40-v1/pfh0_head036-client.jpg)
 
-![Sentinel (pmh0_head088) in the client](evidence/head-library-40-v1/pmh0_head088-client.jpg)
+![Sablegrove (pme0_head024) in the client](evidence/head-library-40-v1/pme0_head024-client.jpg)
 
-![Glasshouse (pmh0_head089) in the client](evidence/head-library-40-v1/pmh0_head089-client.jpg)
+![Farsky (pme0_head025) in the client](evidence/head-library-40-v1/pme0_head025-client.jpg)
 
-![Monsoon (pmh0_head090) in the client](evidence/head-library-40-v1/pmh0_head090-client.jpg)
+![Ochre (pme0_head026) in the client](evidence/head-library-40-v1/pme0_head026-client.jpg)
 
-![Cinder (pmh0_head091) in the client](evidence/head-library-40-v1/pmh0_head091-client.jpg)
+![Silverfern (pme0_head027) in the client](evidence/head-library-40-v1/pme0_head027-client.jpg)
 
-![Portside (pmh0_head092) in the client](evidence/head-library-40-v1/pmh0_head092-client.jpg)
+![Umberleaf (pme0_head028) in the client](evidence/head-library-40-v1/pme0_head028-client.jpg)
 
-![Sundial (pfo0_head017) in the client](evidence/head-library-40-v1/pfo0_head017-client.jpg)
+![Foxglove (pfe0_head022) in the client](evidence/head-library-40-v1/pfe0_head022-client.jpg)
 
-![Quartz (pfo0_head018) in the client](evidence/head-library-40-v1/pfo0_head018-client.jpg)
+![Pearlwire (pfe0_head023) in the client](evidence/head-library-40-v1/pfe0_head023-client.jpg)
 
-![Grove (pfo0_head019) in the client](evidence/head-library-40-v1/pfo0_head019-client.jpg)
+![Larkspur (pfe0_head024) in the client](evidence/head-library-40-v1/pfe0_head024-client.jpg)
 
-![Nightbloom (pfo0_head020) in the client](evidence/head-library-40-v1/pfo0_head020-client.jpg)
+![Rainmint (pfe0_head025) in the client](evidence/head-library-40-v1/pfe0_head025-client.jpg)
 
-![Copperleaf (pfo0_head021) in the client](evidence/head-library-40-v1/pfo0_head021-client.jpg)
+![Amberbark (pfe0_head026) in the client](evidence/head-library-40-v1/pfe0_head026-client.jpg)
+
+![Kestrel (pmd0_head023) in the client](evidence/head-library-40-v1/pmd0_head023-client.jpg)
+
+![Kiln (pmd0_head024) in the client](evidence/head-library-40-v1/pmd0_head024-client.jpg)
+
+![Nettle (pmd0_head025) in the client](evidence/head-library-40-v1/pmd0_head025-client.jpg)
+
+![Dockstone (pmd0_head026) in the client](evidence/head-library-40-v1/pmd0_head026-client.jpg)
+
+![Frostiron (pmd0_head027) in the client](evidence/head-library-40-v1/pmd0_head027-client.jpg)
+
+![Marigold (pfd0_head017) in the client](evidence/head-library-40-v1/pfd0_head017-client.jpg)
+
+![Ironrose (pfd0_head018) in the client](evidence/head-library-40-v1/pfd0_head018-client.jpg)
+
+![Garnet (pfd0_head019) in the client](evidence/head-library-40-v1/pfd0_head019-client.jpg)
+
+![Tinlark (pfd0_head020) in the client](evidence/head-library-40-v1/pfd0_head020-client.jpg)
+
+![Bracken (pfd0_head021) in the client](evidence/head-library-40-v1/pfd0_head021-client.jpg)
 
 ![Switchyard (pmo0_head019) in the client](evidence/head-library-40-v1/pmo0_head019-client.jpg)
 
@@ -161,6 +151,16 @@ a motion frame and the second look.
 ![Nightshift (pmo0_head022) in the client](evidence/head-library-40-v1/pmo0_head022-client.jpg)
 
 ![Breakline (pmo0_head023) in the client](evidence/head-library-40-v1/pmo0_head023-client.jpg)
+
+![Sundial (pfo0_head017) in the client](evidence/head-library-40-v1/pfo0_head017-client.jpg)
+
+![Quartz (pfo0_head018) in the client](evidence/head-library-40-v1/pfo0_head018-client.jpg)
+
+![Grove (pfo0_head019) in the client](evidence/head-library-40-v1/pfo0_head019-client.jpg)
+
+![Nightbloom (pfo0_head020) in the client](evidence/head-library-40-v1/pfo0_head020-client.jpg)
+
+![Copperleaf (pfo0_head021) in the client](evidence/head-library-40-v1/pfo0_head021-client.jpg)
 
 ## Loading
 
