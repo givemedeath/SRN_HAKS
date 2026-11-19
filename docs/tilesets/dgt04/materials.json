@@ -15,9 +15,9 @@
     "ruin": {"saturation": 0.35, "contrast": 1.25, "gain": 0.5, "tint": [1.0, 0.97, 0.94]}
   },
   "textures": {
-    "brick_tex19": {"route": "master", "master": "Bricks097", "repeat": 1, "tone": 0.9, "grade": "barrens", "size": [1024, 1024]},
+    "brick_tex19": {"route": "master", "master": "Bricks073C", "repeat": 1, "tone": 0.5, "grade": "barrens", "size": [1024, 1024]},
     "brick7": {"route": "master", "master": "Bricks101", "repeat": 1, "tone": 0.9, "grade": "barrens", "size": [1024, 1024]},
-    "brick10": {"route": "master", "master": "Bricks097", "repeat": 1, "tone": 0.5, "grade": "barrens", "size": [1024, 1024]},
+    "brick10": {"route": "master", "master": "Bricks073C", "repeat": 1, "tone": 0.3, "grade": "barrens", "size": [1024, 1024]},
     "concrete_08": {"route": "master", "master": "Concrete034", "repeat": 1, "tone": 1.0, "grade": "corporate", "size": [1024, 1024]},
     "concrete_10": {"route": "master", "master": "Concrete047A", "repeat": 1, "tone": 1.0, "grade": "barrens", "size": [1024, 1024]},
     "concrete_02": {"route": "master", "master": "Concrete046", "repeat": 1, "tone": 1.0, "grade": "street", "size": [1024, 1024]},
@@ -129,7 +129,7 @@
     "concrete_29": {"route": "master", "master": "Concrete034", "repeat": 1, "tone": 1.0, "grade": "industrial", "size": [512, 512]},
     "concrete_04f": {"route": "master", "master": "Concrete047A", "repeat": 1, "tone": 0.6, "grade": "industrial", "size": [512, 512]},
     "con014": {"route": "master", "master": "Concrete047A", "repeat": 1, "tone": 1.0, "grade": "industrial", "size": [512, 512]},
-    "bricks_23": {"route": "master", "master": "Bricks097", "repeat": 1, "tone": 0.9, "grade": "barrens", "size": [1024, 1024]},
+    "bricks_23": {"route": "master", "master": "Bricks073C", "repeat": 1, "tone": 0.5, "grade": "barrens", "size": [1024, 1024]},
     "pd_wall2": {"route": "master", "master": "Bricks032", "repeat": 1, "tone": 1.0, "grade": "industrial", "size": [512, 512]},
     "pd_wall1": {"route": "master", "master": "Bricks032", "repeat": 1, "tone": 1.0, "grade": "industrial", "size": [512, 512]},
     "brick_tex06": {"route": "master", "master": "Bricks097", "repeat": 1, "grade": "ruin", "size": [1024, 512], "tone": 0.9},
