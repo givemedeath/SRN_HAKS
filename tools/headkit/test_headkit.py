@@ -1082,6 +1082,19 @@ class MeshTests(Temporary):
         groove[groove>.004]=.02;self.assertFalse(fine_relief(p,f,groove,.003,.004,wide)['passed'])
         for bad in ({'maximumExtent':.08},{'other':.01},{'maximumError':0},True):
             with self.subTest(bad=bad),self.assertRaisesRegex(ValueError,'fineRelief'):fine_relief(p,f,error,.003,.004,bad)
+    def test_fine_relief_lists_every_failed_measure(self):
+        # Copperleaf repair-02: the outward stand-off (0.544%) hid behind the extent failure until the extent bound passed
+        from headkit.neck import fine_relief, fine_relief_bounds, relief_failures
+        p,f=self.icosphere(levels=4);diagonal=float(np.linalg.norm(np.ptp(p,axis=0)));error=np.full(len(p),.001)
+        groove=error.copy();groove[np.linalg.norm(p-p[0],axis=1)<.028*diagonal]=.009
+        both=fine_relief(p,f,groove,.005,.004,{})
+        self.assertFalse(both['passed']);self.assertEqual([x['measure'] for x in both['failed']][:2],['outward','extent'])
+        line=relief_failures(both);self.assertIn('outward 0.00500 > 0.00400',line);self.assertIn('extent',line)
+        self.assertEqual(fine_relief(p,f,error,.003,.004,{})['failed'],[])
+        strict=fine_relief(p,f,groove,.003,.004,False);self.assertEqual(strict['failed'][0]['measure'],'fineRelief')
+        self.assertIn('fineRelief: false',relief_failures(strict))
+        self.assertIsNone(fine_relief_bounds(False));self.assertEqual(fine_relief_bounds({'maximumExtent':.07})['maximumExtent'],.07)
+        with self.assertRaisesRegex(ValueError,r'maximumExtent 0.08 \(supported up to 0.07\)'):fine_relief_bounds({'maximumExtent':.08})
     def test_neck_shortening_lifts_the_rim_without_folding_creasing_or_moving_the_outline(self):
         from headkit import neck as mesh_module
         from headkit.neck import neck_policy,neck_shorten,shorten_depth,transform
@@ -2069,6 +2082,22 @@ class ToneMatchTests(Temporary):
         for kw in ({'full_range':True},{'positions':flat}):
             with self.subTest(kw=kw),self.assertRaisesRegex(ValueError,'surface points'):
                 quantize(self.root/'g.png',self.root/'o.png',palettes,rows,self.root/'bad',shading_only=True,**kw)
+    def test_skin_detail_contrast_scales_fine_skin_detail_not_the_shading(self):
+        # RUNBOOK 486: Quartz's bake mottling is fine detail; skinDetailContrast damps it and leaves the stretched shading alone.
+        _,labels,palettes,rows=self.fixture();rng=np.random.default_rng(7);x=np.arange(1024)
+        luma=80+20*x[None,:]/1024+rng.normal(0,3,(1024,1024));luma[:,900:]=60
+        Image.fromarray(np.repeat(np.clip(luma,0,255).astype(np.uint8)[...,None],3,2)).save(self.root/'d.png')
+        ys,xs=np.mgrid[0:1024,0:1024];flat=np.stack([xs,ys,np.zeros_like(xs)],-1)/1024.
+        run=lambda name,**kw:quantize(self.root/'d.png',self.root/'o.png',palettes,rows,self.root/name,full_range=True,shading_only=True,positions=flat,**kw)
+        whole,half=run('dwhole'),run('dhalf',skin_detail=.5)
+        shades={name:np.asarray(Image.open(r['shades']['path'])).astype(float)[:,:900] for name,r in (('whole',whole),('half',half))}
+        fine=lambda s:np.std(s[1:-1,1:-1]-(s[:-2,1:-1]+s[2:,1:-1]+s[1:-1,:-2]+s[1:-1,2:])/4)
+        self.assertLess(fine(shades['half']),.7*fine(shades['whole']))
+        trend=lambda s:s[:,400:500].mean()-s[:,10:110].mean();self.assertAlmostEqual(trend(shades['half']),trend(shades['whole']),delta=3)
+        self.assertEqual(half['layers']['0']['skinDetailContrast'],{'factor':.5,'applied':True});self.assertNotIn('skinDetailContrast',whole['layers']['0'])
+        for factor,kw in ((.2,{'full_range':True,'shading_only':True,'positions':flat}),(.5,{'full_range':True})):
+            with self.subTest(factor=factor),self.assertRaisesRegex(ValueError,'skinDetailContrast'):
+                quantize(self.root/'d.png',self.root/'o.png',palettes,rows,self.root/f'bad{factor}',skin_detail=factor,**kw)
     def test_shading_range_keeps_seam_offsets_at_their_own_amplitude(self):
         # RUNBOOK 153: a near-flat skin whose two UV charts (x<512, x>=512) differ by 2 luma where they meet on the surface. The
         # full stretch multiplies that offset into a tone step; surface-smoothed shading keeps it near its source size.

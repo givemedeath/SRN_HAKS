@@ -127,10 +127,14 @@ def tone_every_channel(data, race, sex, name):
         raise guards.Refused(f'{name}: channels {clash} have both toneMatch and a shade offset; drop the offset (RUNBOOK 83)')
 
 
+# The toolkit's loader plus the repair's fineRelief bounds, which the repair stage would otherwise refuse only at launch (RUNBOOK 484).
+VALIDATE_CODE = ('import sys; from headkit.common import manifest; from headkit.neck import fine_relief_bounds; '
+                 "m = manifest(sys.argv[1]); fine_relief_bounds((m.get('mesh') or {}).get('fineRelief', {}))")
+
+
 def validate(workspace, path):
     """The toolkit's own loader, in a child process with the bound packages. A misplaced override key otherwise surfaces as a failed launch (RUNBOOK 54)."""
-    code = 'import sys; from headkit.common import manifest; manifest(sys.argv[1])'
-    done = subprocess.run([PYTHON, '-B', '-c', code, str(path)], env=workspace.python_environment(packages=True, tools=True), capture_output=True, text=True)
+    done = subprocess.run([PYTHON, '-B', '-c', VALIDATE_CODE, str(path)], env=workspace.python_environment(packages=True, tools=True), capture_output=True, text=True)
     if done.returncode:
         raise guards.Refused(f'{path.parent.name}: manifest refused by the toolkit loader: {done.stderr.strip()[-600:]}')
 

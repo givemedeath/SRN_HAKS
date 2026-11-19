@@ -565,7 +565,8 @@ def repair(source, output, bindings, policy, inspection, fit=None, body=None):
                               'measured':pin(shell),'method':'bidirectional vertices to exact triangles; not continuous Hausdorff'}
     result['neck'] = record
     write(work_dir/'reduction-audit.json',result,fresh=True)
-    require(passed,'Reduction exceeds measured surface error limit beyond bounded fine relief; retain and review before changing policy')
+    require(passed,'Reduction exceeds measured surface error limit beyond bounded fine relief ('+relief_failures(relief)+
+            '); retain and review before changing policy')
     result.update(master=pin(master), ancestry=births, alphaWrapApplied=do_wrap, componentDeletion=bool(shell_record['deleted']), shells=shell_record, smoothing=smoothing,
                   triangleBudget=budget, visualReviewRequired=True)
     return result
@@ -581,15 +582,25 @@ FINE_RELIEF={'maximumExtent':.015,'maximumError':.015,'maximumAreaShare':.0025}
 FINE_RELIEF_SUPPORTED={'maximumExtent':.07,'maximumError':.025,'maximumAreaShare':.01}
 
 
-def fine_relief(vertices, faces, error, outward, limit, policy):
-    """Over-limit master vertices (relative `error` to the reduced shell) as edge-connected regions, and whether all of them are
-    bounded fine relief. The reduced shell may never stand off the master (`outward`, reduced->master) beyond the limit."""
-    from scipy.sparse import coo_matrix
-    from scipy.sparse.csgraph import connected_components
+def fine_relief_bounds(policy):
+    """The effective fineRelief bounds (None for false). headbatch calls this when it writes a manifest, so a bound outside the
+    supported profile is refused there instead of at the repair launch."""
     require(policy is False or type(policy) is dict and set(policy)<=set(FINE_RELIEF),'fineRelief is false or a dict of bounds')
     bounds=None if policy is False else {**FINE_RELIEF,**policy}
     if bounds is not None:
-        require(all(type(v) in (int,float) and 0<v<=FINE_RELIEF_SUPPORTED[k] for k,v in bounds.items()),'fineRelief bound outside supported profile')
+        outside=sorted(k for k,v in bounds.items() if not (type(v) in (int,float) and 0<v<=FINE_RELIEF_SUPPORTED[k]))
+        require(not outside,'fineRelief bound outside supported profile: '+', '.join(
+            f'{k} {bounds[k]} (supported up to {FINE_RELIEF_SUPPORTED[k]})' for k in outside))
+    return bounds
+
+
+def fine_relief(vertices, faces, error, outward, limit, policy):
+    """Over-limit master vertices (relative `error` to the reduced shell) as edge-connected regions, and whether all of them are
+    bounded fine relief. The reduced shell may never stand off the master (`outward`, reduced->master) beyond the limit.
+    `failed` lists every measure over its bound, so one review sees them all (Copperleaf's outward 0.544% hid behind its extent)."""
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    bounds=fine_relief_bounds(policy)
     vertices=np.asarray(vertices,float);faces=np.asarray(faces);error=np.asarray(error,float)
     diagonal=float(np.linalg.norm(np.ptp(vertices,axis=0)));hot=error>limit
     edges=np.r_[faces[:,[0,1]],faces[:,[1,2]],faces[:,[2,0]]];edges=edges[hot[edges[:,0]]&hot[edges[:,1]]]
@@ -603,10 +614,19 @@ def fine_relief(vertices, faces, error, outward, limit, policy):
                         'centre':vertices[index].mean(0).round(5).tolist()})
     regions.sort(key=lambda r:-r['maximumError']);areaShare=float(share[hot].sum()/share.sum())
     measured={'extent':max((r['extent'] for r in regions),default=0.),'maximumError':float(error.max()),'areaShare':areaShare,'outward':outward}
-    passed=bounds is not None and outward<=limit and measured['extent']<=bounds['maximumExtent'] \
-        and measured['maximumError']<=bounds['maximumError'] and areaShare<=bounds['maximumAreaShare']
-    return {'passed':bool(passed),'bounds':bounds,'measured':measured,'regions':len(regions),'worst':regions[:12],
+    checks=[('outward',outward,limit)]+([] if bounds is None else
+        [('extent',measured['extent'],bounds['maximumExtent']),('maximumError',measured['maximumError'],bounds['maximumError']),
+         ('areaShare',areaShare,bounds['maximumAreaShare'])])
+    failed=([{'measure':'fineRelief','value':None,'bound':None}] if bounds is None else [])+\
+        [{'measure':k,'value':float(v),'bound':float(b)} for k,v,b in checks if v>b]
+    return {'passed':not failed,'bounds':bounds,'measured':measured,'failed':failed,'regions':len(regions),'worst':regions[:12],
             'note':'master regions over the bound are flattened into the texture layer; visual review still required'}
+
+
+def relief_failures(relief):
+    """Every failed fine-relief measure on one line, for the refusal message."""
+    return '; '.join('fineRelief: false' if f['measure']=='fineRelief' else f"{f['measure']} {f['value']:.5f} > {f['bound']:.5f}"
+                     for f in relief['failed'])
 
 
 def _reduce(bindings, vertices, faces, target, work):

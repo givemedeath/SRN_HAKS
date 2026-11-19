@@ -1543,6 +1543,19 @@ class Presets(Base):
         write(self.root/'workspace.json', data)
         self.assertEqual(presets.plan(Workspace.load(self.root), head.name)[0]['mesh']['fineRelief'], {'maximumError': .02})
 
+    def test_manifest_check_refuses_fine_relief_outside_the_supported_profile(self):
+        # Copperleaf: a 6% extent override passed the manifest and was refused only by the repair launch (RUNBOOK 484)
+        tools = str(Path(__file__).resolve().parent.parent)
+        env = dict(os.environ, PYTHONPATH=os.pathsep.join([tools] + [p for p in os.environ.get('PYTHONPATH', '').split(os.pathsep) if p]))
+        for relief, refused in (({'maximumExtent': .07}, False), ({'maximumExtent': .08}, True), (False, False)):
+            with self.subTest(relief=relief):
+                path = self.root/'manifest-check.json'
+                write(path, {'schemaVersion': 1, 'id': 'orc-female-x', 'inputs': {}, 'mesh': {'fineRelief': relief}})
+                done = subprocess.run([sys.executable, '-B', '-c', head_setup.VALIDATE_CODE, str(path)], env=env, capture_output=True, text=True)
+                self.assertEqual(bool(done.returncode), refused, done.stderr[-400:])
+                if refused:
+                    self.assertIn('maximumExtent 0.08 (supported up to 0.07)', done.stderr)
+
     def test_jaw_picks_the_largest_reach_that_finds_the_chin(self):
         head = self.head()
         workspace = self.marks(head)
@@ -2227,6 +2240,22 @@ class SpoolTests(Base):
         self.spool.scan_sheets()
         self.assertIn('exit 2', self.spool.state['attention']['clay-1/sheet']['text'])
         self.assertEqual(list(self.spool.drawing), [Path('clay-2.log')])
+
+    def test_a_finished_sheet_is_logged_ready(self):
+        # REVIEW names a queued sheet about a minute before it exists; SHEET marks it on disk (RUNBOOK 485)
+        sheet = self.workspace.spool/'sheets'/'elf-male-a-tone-attempt-01.png'
+        sheet.parent.mkdir(parents=True, exist_ok=True)
+        with unittest.mock.patch.object(spool.subprocess, 'Popen') as popen:
+            popen.return_value = unittest.mock.Mock(poll=lambda: None)
+            self.spool.run_later('texturesheet', 'elf-male-a', 'tone', 'attempt-01', sheet)
+        log = next(iter(self.spool.drawing))
+        self.spool.scan_sheets()
+        self.assertNotIn('SHEET', (self.workspace.spool/'log.txt').read_text(encoding='utf-8') if (self.workspace.spool/'log.txt').exists() else '')
+        sheet.write_bytes(b'png')
+        self.spool.drawing[log] = unittest.mock.Mock(poll=lambda: 0)
+        self.spool.scan_sheets()
+        self.assertIn(f'SHEET {log.stem} ready: {sheet}', (self.workspace.spool/'log.txt').read_text(encoding='utf-8'))
+        self.assertEqual(self.spool.sheet_outputs, {})
 
     def test_repair_evidence_says_what_the_jaw_check_did(self):
         head = self.head()
