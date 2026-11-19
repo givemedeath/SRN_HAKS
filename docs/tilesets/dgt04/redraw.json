@@ -82,6 +82,11 @@
     "window_tex07": {"kind": "window", "district": "corporate", "note": "A pale frame around wide openings. The openings are pure black and stay pure black: only the frame is drawn again."},
     "window_tex24": {"kind": "window", "district": "corporate", "note": "A pale frame around one wide opening. The opening is pure black and stays pure black: only the frame is drawn again."},
     "r_brick_02a": {"kind": "wall", "district": "barrens", "note": "Old red brick above a band of mossy, stained concrete along the bottom half.", "tiles": true},
-    "r_brick_02b": {"kind": "wall", "district": "barrens", "note": "Old red brick above a band of mossy, stained concrete along the bottom half.", "tiles": true}
+    "r_brick_02b": {"kind": "wall", "district": "barrens", "note": "Old red brick above a band of mossy, stained concrete along the bottom half.", "tiles": true},
+    "dock": {"kind": "wall", "district": "barrens", "note": "Weathered grey dock planks running top to bottom, with knots, salt stains and green algae in the grain.", "tiles": true},
+    "dock_piling": {"kind": "wall", "district": "barrens", "note": "Weathered dock planks running top to bottom, wet and green with algae.", "tiles": true},
+    "rebar": {"kind": "wall", "district": "industrial", "note": "Rusty steel diamond tread plate.", "tiles": true},
+    "yellmetl": {"kind": "wall", "district": "industrial", "note": "Yellow painted steel, the paint scratched and chipped to bare grey metal.", "tiles": true},
+    "tme_yellow": {"kind": "wall", "district": "barrens", "note": "Thick yellow road paint on rough asphalt.", "tiles": true}
   }
 }
