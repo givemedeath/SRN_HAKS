@@ -36,7 +36,7 @@ def move(repo, tileset, folder, *, radius=RADIUS):
     """Write the moved models of a tileset into `folder` (a review's overlay; a model already there is changed in
     place) and tell {model: state}. A model whose walkmesh would differ afterwards is a refusal: nothing here touches one."""
     repo, folder = Path(repo), Path(folder); tileset = tileset.lower()
-    tiles = {tile['model'].lower() for tile in inventory.read_set((repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'))['tiles']}
+    tiles = inventory.drawn_models(repo, tileset)  # the edge tiles round an area's border too
     others = inventory._other_sets(repo, tileset); told = {}; folder.mkdir(parents=True, exist_ok=True)
     for pack in PACKS:
         for path in sorted((repo / pack.format(tileset=tileset)).glob('*.mdl')):

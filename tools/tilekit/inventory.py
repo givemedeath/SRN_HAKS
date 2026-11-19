@@ -70,6 +70,14 @@ def edge_models(text):
     return sorted({line[column].lower() for line in rows if line[column] != '****'}), len(rows)
 
 
+def drawn_models(repo, tileset):
+    """The models a tileset draws: its set's tiles and the edge tiles its edge table (srn_2da/<tileset>_edge.2da) lays
+    round an area's border, lowercase."""
+    repo = Path(repo); models = {tile['model'] for tile in read_set((repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'))['tiles']}
+    edge = repo / 'srn_2da' / f'{tileset}_edge.2da'
+    return models | (set(edge_models(edge.read_bytes().decode('cp1252'))[0]) if edge.is_file() else set())
+
+
 def compiled(data):
     """Whether a model's bytes are a compiled model: those begin with four zero bytes, an uncompiled one with text."""
     return data[:4] == b'\0\0\0\0'

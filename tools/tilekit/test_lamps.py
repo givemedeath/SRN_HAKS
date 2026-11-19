@@ -61,6 +61,16 @@ class Lamps(unittest.TestCase):
             self.assertEqual(told, {'t_a01': 'moved', 't_b01': 'has a main light', 't_c01': 'shared with u'})
             self.assertEqual([path.name for path in (repo / 'out').iterdir()], ['t_a01.mdl'])
 
+    def test_an_edge_tile_s_lamps_are_moved_too(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary); own = repo / 'srn_t_t'
+            for folder in (own, repo / 'srn_t_common', repo / 'srn_2da'):
+                folder.mkdir()
+            (own / 't.set').write_text(SET, encoding='cp1252')
+            (repo / 'srn_2da' / 't_edge.2da').write_text('2DA V2.0\n\n   Corner1 Edge Corner2 Height Model\n0  Concrete **** Concrete 0 T_E01\n', encoding='cp1252')
+            (own / 't_e01.mdl').write_text(MODEL.format(first='sl1').replace('t_a01', 't_e01'), encoding='cp1252')
+            self.assertEqual(lamps.move(repo, 't', repo / 'out'), {'t_e01': 'moved'})
+
     def test_a_copy_already_in_the_folder_is_the_one_moved(self):
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary); own = repo / 'srn_t_t'; out = repo / 'out'

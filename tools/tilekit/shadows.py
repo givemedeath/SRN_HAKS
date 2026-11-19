@@ -46,7 +46,7 @@ def quiet(repo, tileset, folder, *, thin=THIN, small=SMALL, flat=FLAT):
     """Write the models of a tileset whose trims cast shadows, with those trims quiet, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {model: count of trims}."""
     repo, folder = Path(repo), Path(folder); tileset = tileset.lower(); folder.mkdir(parents=True, exist_ok=True)
-    tiles = {tile['model'].lower() for tile in inventory.read_set((repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'))['tiles']}
+    tiles = inventory.drawn_models(repo, tileset)  # the edge tiles round an area's border too
     others = inventory._other_sets(repo, tileset); told = {}
     for pack in lamps.PACKS:
         for path in sorted((repo / pack.format(tileset=tileset)).glob('*.mdl')):
