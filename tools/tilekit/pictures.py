@@ -165,16 +165,16 @@ def stain_field(shape, scale, seed, stretch=1.0):
 
 
 def stained(made, name, amount):
-    """`made` with grime laid over it: large soot and damp patches and a few streaks running down, darker and duller
+    """`made` with grime laid over it: soft soot and damp patches, fine grime and streaks running down, darker and duller
     where they lie, the same on every tiling of the texture. amount 0-1."""
     colour = made['colour'].astype(np.float64); shape = colour.shape[:2]
     seed = int(hashlib.sha256(name.encode()).hexdigest()[:8], 16)
     rough = stain_field(shape, 0.3, seed) * 0.55 + stain_field(shape, 0.1, seed + 4) * 0.3 + stain_field(shape, 0.03, seed + 5) * 0.15
-    soot = np.clip((rough - 0.48) / 0.25, 0, 1)
+    soot = np.clip((rough - 0.4) / 0.5, 0, 1)  # soft-edged: a texture repeats across a wall, and hard blotches repeat with it
     damp = np.clip(((stain_field(shape, 0.25, seed + 1) * 0.7 + stain_field(shape, 0.05, seed + 6) * 0.3) - 0.5) / 0.35, 0, 1)
     streak = np.clip((stain_field(shape, 0.012, seed + 2, stretch=25.0) - 0.55) / 0.3, 0, 1)
     fine = stain_field(shape, 0.008, seed + 3)
-    mask = np.clip(soot * 0.9 + streak * 0.6 + (fine - 0.5) * 0.25, 0, 1) * amount
+    mask = np.clip(soot * 0.35 + streak * 0.8 + (fine - 0.5) * 0.5, 0, 1) * amount
     colour *= (1 - 0.5 * mask)[..., None]
     colour = colour * (1 - 0.35 * damp[..., None] * amount) + np.array([38, 40, 30]) * 0.35 * damp[..., None] * amount
     out = dict(made); out['colour'] = np.uint8(np.clip(colour + 0.5, 0, 255))
