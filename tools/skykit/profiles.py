@@ -40,8 +40,9 @@ DEN_DAWN = {
 }
 DEN_DAY = {
     'SkyPhase': 1,
-    'SkyZenith': (0.20, 0.40, 0.78, 0.5), 'SkyHorizon': (0.72, 0.80, 0.92, 4.0),
-    'SkyCloud': (0.96, 0.96, 0.98, 1), 'SkyLand': (1.35, 1.25, 1.15, 0.45),
+    # about a fifth darker than first built: the day read too bright in the client (user, 2026-11-19)
+    'SkyZenith': (0.16, 0.32, 0.64, 0.4), 'SkyHorizon': (0.58, 0.65, 0.76, 4.0),
+    'SkyCloud': (0.80, 0.80, 0.83, 1), 'SkyLand': (1.10, 1.02, 0.95, 0.45),
     'SkySun': (200.0, 62.0, 1.4, 0.45), 'SkySunColor': (1.0, 0.95, 0.85, 0.3),
     'SkyMotion': (2.4, 0.46, 0.0, 0.0), 'SkyNight': (0.0, 0.0, 0.0, 0.0),
     'SkyExtra': (0.0, 0.0, 0.0, 0.0), 'SkyGlow': (0.0, 0.0, 0.0, 1), 'SkyBand': (0.0, 0.0, 0.14, 0.9),
@@ -74,7 +75,7 @@ STORM = {
 # The Awakened wilderness: neutral daylight art, tinted per phase; no city, so no window light, beacons or city glow.
 PK_DAWN = dict(DEN_DAWN, SkyLand=(1.0, 0.82, 0.78, 0.0), SkyNight=(0.0, 0.0, 0.0, 0.0), SkyExtra=(0.0, 0.0, 0.0, 0.0),
                SkyGlow=(0.0, 0.0, 0.0, 1), SkyBand=(0.0, 0.0, 0.14, 0.0))
-PK_DAY = dict(DEN_DAY, SkyLand=(1.0, 1.0, 1.0, 0.0), SkyBand=(0.0, 0.0, 0.10, 0.0))
+PK_DAY = dict(DEN_DAY, SkyLand=(0.86, 0.86, 0.86, 0.0), SkyBand=(0.0, 0.0, 0.10, 0.0))
 PK_DUSK = dict(DEN_DUSK, SkyLand=(0.86, 0.62, 0.72, 0.0), SkyNight=(0.25, 0.0, 0.0, 0.0), SkyExtra=(0.0, 0.0, 0.0, 0.0),
                SkyGlow=(0.0, 0.0, 0.0, 1), SkyBand=(0.0, 0.0, 0.10, 0.0))
 PK_NIGHT = dict(DEN_NIGHT, SkyLand=(0.22, 0.28, 0.42, 0.2), SkyCloud=(0.08, 0.09, 0.14, 1), SkyMotion=(2.4, 0.30, 0.0, 0.0),
