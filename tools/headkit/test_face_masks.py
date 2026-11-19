@@ -494,6 +494,21 @@ class Quality(unittest.TestCase):
                 quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'browsOnHairApproved': bads[0]}, embree='embree.dll')
             self.assertFalse((Path(root)/'q').exists())
 
+    def test_face_hair_approval_raises_one_heads_hair_on_face_skin_maximum(self):
+        # RUNBOOK 474: a head's own accepted share, with its note; anything else keeps the shared limit or stops.
+        from headkit.quality import quality, face_hair_limit
+        self.assertEqual(face_hair_limit(.03, None), .03)
+        self.assertEqual(face_hair_limit(.03, {'maximum': .04, 'approval': 'user 2026-11-18'}), .04)
+        bads = ({'maximum': .04}, {'maximum': .02, 'approval': 'x'}, {'maximum': .03, 'approval': 'x'}, {'maximum': 1, 'approval': 'x'},
+                {'maximum': True, 'approval': 'x'}, {'maximum': .04, 'approval': ' '}, {'maximum': .04, 'approval': 'x', 'more': 1}, .04)
+        for bad in bads:
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, 'hairOnFaceSkinApproved'):
+                face_hair_limit(.03, bad)
+        with tempfile.TemporaryDirectory() as root:   # through quality(): the allow-list takes the key, and a bad value stops before any work
+            with self.assertRaisesRegex(ValueError, 'hairOnFaceSkinApproved'):
+                quality('uv.glb', {}, {}, {}, Path(root)/'q', settings={'hairOnFaceSkinApproved': bads[0]}, embree='embree.dll')
+            self.assertFalse((Path(root)/'q').exists())
+
 
 class Wiring(unittest.TestCase):
     def test_stage_order_and_declarations(self):
