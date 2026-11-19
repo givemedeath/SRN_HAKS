@@ -185,6 +185,9 @@ def close_geometry(value,bindings,recipe):
     source_vertices,source_faces=physical(value['positions'],value['faces'])
     initial=genus(source_vertices,source_faces)
     plan=cavity(value,bindings['embree']['path'],recipe)
+    # A preset MeshLab cannot union or reduce is recorded like a gate failure, and the next margin is tried.
+    meshlab=getattr(ml,'PyMeshLabException',None)
+    failures=(ValueError,)+((meshlab,) if isinstance(meshlab,type) and issubclass(meshlab,Exception) else ())
     records=[]
     for margin in (2.,3.,4.):
         record={'marginPixels':margin,'genusBefore':initial}
@@ -201,7 +204,7 @@ def close_geometry(value,bindings,recipe):
             after=genus(v,f)
             record.update(triangles=len(f),genusAfter=after)
             require(after==initial-1,'Closure must remove exactly one handle')
-        except ValueError as error:
+        except failures as error:
             record['rejected']=str(error)
             continue
         reduction_failures=[]
@@ -215,7 +218,7 @@ def close_geometry(value,bindings,recipe):
                 crossings=scan(*physical(serialized,triangles),max_pairs=4000000)
                 require(crossings['complete'] and not crossings['pairs'],
                         f"Intersection audit reported {len(crossings['pairs'])} pairs (complete={crossings['complete']})")
-            except ValueError as error:
+            except failures as error:
                 reduction_failures.append({'optimizedPlacement':optimize,'reason':str(error)})
                 continue
             record.update(optimizedPlacement=optimize,reductionFailures=reduction_failures)

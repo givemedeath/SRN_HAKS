@@ -195,6 +195,7 @@ class Watcher(threading.Thread):
         self.pid, self.log, self.folder, self.final = pid, Path(log), Path(folder), set(final)
         self.sleep, self.capture, self.store = sleep, capture, store
         self.stopping = threading.Event()
+        self.encoding = threading.Lock()  # stop() may flush while a capture thread that outlived its join still does
         self.bursts, self.errors, self.pending = [], [], []
         self.started = time.time()
         self.cached = (None, [])
@@ -252,13 +253,14 @@ class Watcher(threading.Thread):
 
     def flush(self):
         """Encode captured frames. Runs between bursts: settling time leaves room for it."""
-        while self.pending:
-            burst, stem, raw = self.pending.pop(0)
-            for number, captured in enumerate(raw):
-                try:
-                    burst['frames'].append(self.store(self.folder/f'{stem}-{number}.png', captured))
-                except OSError as error:
-                    burst.setdefault('rejected', f'frame not saved: {error}'); self.errors.append(str(error))
+        with self.encoding:
+            while self.pending:
+                burst, stem, raw = self.pending.pop(0)
+                for number, captured in enumerate(raw):
+                    try:
+                        burst['frames'].append(self.store(self.folder/f'{stem}-{number}.png', captured))
+                    except OSError as error:
+                        burst.setdefault('rejected', f'frame not saved: {error}'); self.errors.append(str(error))
 
     def complete(self):
         """The tour's last view is on file: the last head's motion burst, then a finished still of that head."""

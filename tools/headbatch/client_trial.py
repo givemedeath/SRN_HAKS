@@ -208,9 +208,10 @@ def session(config):
         if settings.exists():
             (output/'settings-after.tml').write_bytes(settings.read_bytes())
         if process is not None and process.poll() is not None:
+            if watcher is not None:  # before archival, which can refuse: the frames stay bound to their bursts
+                client_capture.record(output/'captures', watcher.bursts, watcher.errors)
             log = archive_client_log(userdir,output)
             if watcher is not None:
-                client_capture.record(output/'captures', watcher.bursts, watcher.errors)
                 client_capture.filed(trial/'runtime-manifest.json', log, output/'captures', watcher.bursts)
     if result['tourComplete']:
         return  # the owned client was closed after its last capture; its exit code is the forced stop's

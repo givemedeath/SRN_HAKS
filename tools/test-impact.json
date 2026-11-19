@@ -647,6 +647,7 @@
       "tools/headkit/common.py",
       "tools/headkit/diagnostics.py",
       "tools/headkit/gltf.py",
+      "tools/headkit/palette.py",
       "tools/headkit/runner.py"
     ],
     "tools/headbatch/review/gpuclay.py": [

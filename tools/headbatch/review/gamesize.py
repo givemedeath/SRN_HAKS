@@ -7,6 +7,7 @@ from headkit.runner import Runner
 from headkit.common import write, pin, verify, require
 from headkit.diagnostics import palette_sheet, pixels, sheet, views
 from headkit.gltf import mesh
+from headkit.palette import OPAQUE_CHANNELS, partial_alpha
 
 
 def candidate_sheet(source,shades_path,layers_path,palettes,rows,dll,output,choices):
@@ -34,6 +35,8 @@ def candidate_sheet(source,shades_path,layers_path,palettes,rows,dll,output,choi
         for channel,mask in masks.items():
             row=look['rows'][channel];table=tables[channel]
             require(type(row) is int and 0<=row<min(176,len(table)),'Invalid stock palette row')
+            require(channel not in OPAQUE_CHANNELS or not partial_alpha(table[row]),
+                    f'Skin row {row} is not fully opaque: the palette refuses it and the client draws it environment-mapped (RUNBOOK 407)')
             colors=table[row,shades[mask]]
             require(np.all(colors[:,3]>0),'Candidate look would make saved shades transparent')
             decoded[mask]=colors[:,:3]
