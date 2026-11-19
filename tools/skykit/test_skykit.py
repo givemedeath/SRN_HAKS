@@ -53,6 +53,12 @@ class Shader(unittest.TestCase):
         uniforms = set(re.findall(r'uniform\s+(?:float|vec4)\s+(Sky\w+)', MATH))
         self.assertEqual(uniforms, set(build.PARAMETER_ORDER))
 
+    def test_no_noise_breaks_where_the_azimuth_wraps(self):
+        # noise fed the azimuth (or an atan of the direction) shows a seam where it jumps from 360 to 0 degrees
+        for line in MATH.splitlines():
+            if re.search(r'Srn(Noise|Fbm)\(', line):
+                self.assertNotRegex(line, r'azimuth|atan\(', line)
+
     def test_glsl_110_habits(self):
         # integer arithmetic and implicit int->float conversions are errors on strict drivers
         body = MATH.split('#define SRN_TAU')[1]

@@ -207,7 +207,8 @@ vec3 SrnAurora(vec3 dir, float dayAngle)
         vec3 colour = mix(vec3(0.15, 1.0, 0.55), vec3(0.7, 0.25, 1.0), smoothstep(0.25, 0.85, k));
         sum += colour * line * (1.0 - k) * 0.22;
     }
-    float rays = 0.75 + 0.25 * SrnNoise(vec3(atan(dir.y, dir.x) * 60.0, dayAngle * 40.0, 0.0));
+    // from the horizontal direction, not its angle, so the pattern has no break where the angle wraps
+    float rays = 0.75 + 0.25 * SrnNoise(vec3(normalize(dir.xy + vec2(1e-5, 0.0)) * 60.0, dayAngle * 40.0));
     return sum * rays * smoothstep(0.02, 0.2, dir.z);
 }
 
@@ -330,7 +331,8 @@ vec3 SrnSkyColour(vec2 uv, float timeOfDayMs, float dayLengthMs, float weather)
 
     // rain haze greys the far sky
     sky = mix(sky, SkyHorizon.rgb * 0.8 + SkyCloud.rgb * 0.2, SkyExtra.w * storm * (1.0 - up * 0.6));
-    float rain = SrnNoise(vec3(azimuth * 260.0, elevation * 9.0 + seconds * 7.0, 0.5));
+    // streaks from the horizontal direction, not the azimuth, so they have no seam where the azimuth wraps
+    float rain = SrnNoise(vec3(normalize(dir.xy + vec2(1e-5, 0.0)) * 260.0, elevation * 9.0 + seconds * 7.0));
     sky += (SkyHorizon.rgb + SkyGlow.rgb * 0.3) * smoothstep(0.72, 1.0, rain) * SkyExtra.w * storm * 0.35;
 
     // the land
