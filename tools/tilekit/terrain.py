@@ -188,18 +188,20 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
                 require(renamed(moved, {new: old}).lower() == was.lower(), f'{new}.wok: its walkmesh would differ from {old}\'s')
                 (folder / f'{new}.wok').write_bytes(moved.encode('cp1252'))
         told[one['terrain']] = {'models': len(one['models'])}
-    set_path = own / f'{tileset}.set'; before = set_path.read_bytes().decode('cp1252'); text, numbers = copied_set(before, copies)
-    (folder / set_path.name).write_bytes(text.encode('cp1252'))
+    made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
+    set_path = own / f'{tileset}.set'; data = set_path.read_bytes(); before = data.decode('cp1252'); text, numbers = copied_set(before, copies)
+    (folder / set_path.name).write_bytes(text.encode('cp1252')); made_from[set_path.name] = sha(data)
     for terrain, tiles in numbers.items():
         told[terrain]['tiles'] = sorted(tiles.values())
     edge = repo / 'srn_2da' / f'{tileset}_edge.2da'
     if edge.is_file() and copies:
-        (folder / edge.name).write_bytes(copied_edge(edge.read_bytes().decode('cp1252'), copies).encode('cp1252'))
-    itp = own / f'{tileset}palstd.itp'; document = json.loads(gff(['-i', itp, '-k', 'json']))
+        data = edge.read_bytes(); (folder / edge.name).write_bytes(copied_edge(data.decode('cp1252'), copies).encode('cp1252')); made_from[edge.name] = sha(data)
+    itp = own / f'{tileset}palstd.itp'
     with tempfile.TemporaryDirectory() as work:  # the overlay holds pack files alone
+        data = itp.read_bytes(); read = Path(work) / itp.name; read.write_bytes(data); made_from[itp.name] = sha(data)
+        document = json.loads(gff(['-i', read, '-k', 'json']))
         made = Path(work) / 'palette.json'; made.write_text(json.dumps(palette(document, copies, spec.get('names', {}))), encoding='utf-8')
         gff(['-i', made, '-o', folder / itp.name])
-    made_from = {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in (set_path, edge, itp) if path.is_file() and (folder / path.name).is_file()}
     (folder / MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': made_from, 'catalog': catalogued(spec, before, text, numbers, source)}, indent=1) + '\n', encoding='utf-8')
     told['palette names'] = len(spec.get('names', {}))
     return told
@@ -214,5 +216,5 @@ def catalogued(spec, before, text, numbers, source):
     terrains = [{**common, 'terrain': terrain, 'tiles': sorted(tiles.values()), 'models': [models[number] for number in sorted(tiles.values())]} for terrain, tiles in numbers.items()]
     first = len(inventory.read_set(before)['groups']); sizes = {name: keys for name, keys in inventory.sections(text) if re.fullmatch(r'GROUP\d+', name)}
     groups = [{**common, 'group': number, 'name': group['name'], 'rows': int(sizes[f'GROUP{number}'].get('Rows', 1)), 'columns': int(sizes[f'GROUP{number}'].get('Columns', 1)),
-               'tiles': group['tiles'], 'models': [models.get(tile, '') for tile in group['tiles']]} for number, group in enumerate(laid['groups']) if number >= first]
+               'tiles': group['tiles'], 'models': [models.get(tile, '') for tile in group['tiles']]} for number, group in enumerate(laid['groups']) if number >= first]  # a blank cell (-1) has no model
     return {'terrainTiles': terrains, 'tileGroups': groups}

@@ -99,12 +99,20 @@ class ApplyTests(unittest.TestCase):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
         told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
-        self.assertEqual((told['put'], told['not applied'], told['catalogued']), (1, [], 2))  # the record itself is no pack file
+        self.assertEqual((told['put'], told['not applied'], told['catalogued']), (1, [], True))  # the record itself is no pack file
         written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))
         self.assertEqual(([one['terrain'] for one in written['terrainTiles']], [one['group'] for one in written['tileGroups']]), (['Tower_2'], [1]))
-        (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')  # applied again: one entry each still
-        apply.apply(self.repo, {'tileset': 'tst'}, overlay); written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))
+        apply.apply(self.repo, {'tileset': 'tst'}, overlay); written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))  # applied again
         self.assertEqual((len(written['terrainTiles']), len(written['tileGroups'])), (1, 1))
+        moved = {**record, 'catalog': {'terrainTiles': [{**record['catalog']['terrainTiles'][0], 'tiles': [4]}]}}  # numbers once given are kept
+        (overlay / apply.MADE_FROM).write_text(json.dumps(moved), encoding='utf-8'); (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
+        with self.assertRaisesRegex(ValueError, r'Terrain Tower_2 of tst has tiles \[3\] in the additions catalog'):
+            apply.apply(self.repo, {'tileset': 'tst'}, overlay)
+        self.assertEqual((self.repo / 'srn_t_tst' / 'tstpalstd.itp').read_bytes(), b'palette 1')  # refused before anything was written
+        for wrong, message in (({**record, 'kind': 'other'}, 'is not a terrain copy'), (record, 'is a copy of tst, not of the spec')):
+            (overlay / apply.MADE_FROM).write_text(json.dumps(wrong), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, message):
+                apply.plan(self.repo, {'tileset': 'oth'} if wrong is record else {'tileset': 'tst'}, overlay)
 
     def test_names_are_matched_in_any_case_and_a_pack_s_spelling_kept(self):
         (self.repo / 'srn_t_common' / 'wall.tga').rename(self.repo / 'srn_t_common' / 'Wall.TGA')

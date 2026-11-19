@@ -36,6 +36,23 @@ def _extends(was, made):
     return new.splitlines()[:3] == old.splitlines()[:3] and rows(new)[:len(rows(old))] == rows(old)
 
 
+def _catalogued(repo, entries):
+    """The additions catalog with a copy's entries merged in (`MADE_FROM`), or None when it has none; nothing is
+    written. A number once given keeps what it was given: a terrain its tiles, a group its tiles and name (put_group)."""
+    if not (entries.get('terrainTiles') or entries.get('tileGroups')):
+        return None
+    from tools.envkit import catalog
+    data = catalog.load(repo / catalog.PATH); same = lambda one, other: (one['tileset'], one['terrain']) == (other['tileset'], other['terrain'])
+    for group in entries.get('tileGroups', []):  # an entry already there keeps the day it was first added
+        listed = any((old['tileset'], old['group']) == (group['tileset'], group['group']) for old in data['tileGroups'])
+        catalog.put_group(data, {key: value for key, value in group.items() if not (listed and key == 'added')})
+    for terrain in entries.get('terrainTiles', []):
+        there = [old for old in data.get('terrainTiles', []) if same(old, terrain)]
+        require(all(old['tiles'] == terrain['tiles'] for old in there), f'Terrain {terrain["terrain"]} of {terrain["tileset"]} has tiles {there[0]["tiles"] if there else ""} in the additions catalog')
+        data['terrainTiles'] = [old for old in data.get('terrainTiles', []) if not same(old, terrain)] + [{**terrain, **({'added': there[0]['added']} if there else {})}]
+    return data
+
+
 def files_of(overlay, name):
     """The overlay's files that make up texture `name`: its material and the maps it names, or a plain DDS and TXI."""
     material = overlay / f'{name}.mtr'
@@ -55,7 +72,10 @@ def plan(repo, spec, overlay):
     None) and the overlay's models; nothing is changed. Names are compared in lower case, as the game reads them; a
     file a pack already holds is written and deleted as that pack spells it."""
     repo, overlay = Path(repo), Path(overlay); packs = [pack['Name'] for pack in _configuration(repo)['HakList']]
-    record = json.loads((overlay / MADE_FROM).read_text(encoding='utf-8')) if (overlay / MADE_FROM).is_file() else {'from': {}}
+    record = json.loads((overlay / MADE_FROM).read_text(encoding='utf-8')) if (overlay / MADE_FROM).is_file() else {'kind': 'tilekit-terrain-copy', 'from': {}}
+    require(record.get('kind') == 'tilekit-terrain-copy' and isinstance(record.get('from'), dict), f'{MADE_FROM} is not a terrain copy\'s record')
+    named = {entry['tileset'] for kind in ('terrainTiles', 'tileGroups') for entry in record.get('catalog', {}).get(kind, [])}
+    require(named <= {(spec or {}).get('tileset')}, f'{MADE_FROM} is a copy of ' + ', '.join(sorted(named)) + ', not of the spec\'s tileset')
     spec = {'textures': {}, **(spec or {})}  # an overlay of changed models alone, or a copied terrain's (its spec has no textures)
     held = {}  # lower-case name: {pack: its file there}
     for pack in packs:
@@ -82,7 +102,7 @@ def plan(repo, spec, overlay):
             require(inventory.walk_hash(path.read_bytes().decode('cp1252')) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
         if path.suffix.lower() == '.wok':
             require(path.read_bytes() == was.read_bytes(), f'{path.name}: a walkmesh in a pack is not replaced')
-        if path.name in record['from']:  # the palette too, which cannot be compared entry by entry here
+        if path.name in record['from'] and path.read_bytes() != was.read_bytes():  # the palette too, which cannot be compared entry by entry; one in place already is applied again
             require(hashlib.sha256(was.read_bytes()).hexdigest() == record['from'][path.name], f'{path.name}: the pack copy changed since the overlay was made from it: make the overlay again')
         if path.suffix.lower() in ('.set', '.2da'):
             require(_extends(was, path), f'{path.name}: it lacks or changes entries the pack copy has (added since the overlay was made?): make the overlay again')
@@ -96,7 +116,7 @@ def plan(repo, spec, overlay):
     overrides = {name: sorted(after[name]) for name in sorted(touched) if len(after.get(name, ())) > 1}
     used = {path.name for path, _ in put} | {MADE_FROM}; left = sorted(path.name for path in overlay.iterdir() if path.is_file() and path.name not in used)
     return {'put': put, 'delete': sorted(set(delete) - {target for _, target in put}), 'overrides': overrides, 'touched': touched, 'left': left,
-            'catalog': record.get('catalog', {})}
+            'catalog': _catalogued(repo, record.get('catalog', {}))}  # merged before anything is written, so a refusal changes nothing
 
 
 def apply(repo, spec, overlay):
@@ -119,15 +139,7 @@ def apply(repo, spec, overlay):
     (repo / 'hakbuilder.json').write_text(json.dumps(configuration, indent=2) + '\n', encoding='utf-8', newline='\n')
     told = {'put': len(moves['put']), 'deleted': len(moves['delete']), 'overrides': len(moves['overrides']), 'new overrides': len(waiting), 'dropped overrides': dropped,
             'not applied': moves['left']}
-    entries = moves['catalog']
-    if entries.get('terrainTiles') or entries.get('tileGroups'):  # a copied terrain's numbers, recorded as envkit's install records its own
+    if moves['catalog'] is not None:  # a copied terrain's numbers, recorded as envkit's install records its own
         from tools.envkit import catalog
-        data = catalog.load(repo / catalog.PATH); same = lambda one, other: (one['tileset'], one['terrain']) == (other['tileset'], other['terrain'])
-        for group in entries.get('tileGroups', []):  # an entry already there keeps the day it was first added
-            listed = any((old['tileset'], old['group']) == (group['tileset'], group['group']) for old in data['tileGroups'])
-            catalog.put_group(data, {key: value for key, value in group.items() if not (listed and key == 'added')})
-        for terrain in entries.get('terrainTiles', []):
-            there = [old for old in data.get('terrainTiles', []) if same(old, terrain)]
-            data['terrainTiles'] = [old for old in data.get('terrainTiles', []) if not same(old, terrain)] + [{**terrain, **({'added': there[0]['added']} if there else {})}]
-        catalog.save(repo / catalog.PATH, data); told['catalogued'] = len(entries.get('terrainTiles', [])) + len(entries.get('tileGroups', []))
+        catalog.save(repo / catalog.PATH, moves['catalog']); told['catalogued'] = True
     return told

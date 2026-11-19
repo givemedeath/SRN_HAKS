@@ -337,7 +337,9 @@ try {
                 Add-ValidationError "Group $number of $tilesetName is '$($group.name)' $($group.rows)x$($group.columns) [$($group.tiles -join ',')] in the set file and '$($entry.name)' $($entry.rows)x$($entry.columns) [$(@($entry.tiles) -join ',')] in the additions catalog."
             }
             for ($index = 0; $index -lt @($entry.tiles).Count; $index++) {
-                $tile = [int]@($entry.tiles)[$index]; $model = [string]@($entry.models)[$index]; [void]$collected.Add($tile)
+                $tile = [int]@($entry.tiles)[$index]; $model = [string]@($entry.models)[$index]
+                if ($tile -lt 0) { continue }  # a blank cell of the group (-1), which has no tile or model
+                [void]$collected.Add($tile)
                 if (-not $tileModels.ContainsKey($tile) -or $tileModels[$tile].ToLowerInvariant() -cne $model.ToLowerInvariant()) {
                     Add-ValidationError "Tile $tile of $tilesetName is '$($tileModels[$tile])' in the set file and '$model' in the additions catalog."
                 }
