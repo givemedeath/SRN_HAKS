@@ -237,6 +237,8 @@ def main(argv=None):
     if args.play:
         from tools.armorkit import client
         user, _ = build(args.nwn_root, args.out, play=True)
+        if args.wait:
+            client.wait_free(args.wait)
         (user / 'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
         process = client.start(args.nwn_root, user, MODULE)
         print(json.dumps({'pid': process.pid, 'userDirectory': str(user)}))

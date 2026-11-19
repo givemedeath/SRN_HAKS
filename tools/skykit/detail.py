@@ -30,6 +30,7 @@ PAD_TOP = 32       # rows of key laid over the land so the model sees the silhou
 ASPECT = 1.5       # tile width over height, the model's 1248 x 832
 OVERLAP = 0.25     # share of a tile its neighbour also covers
 SUBFOLDER = 'headkit-design/skykit'
+MAX_SHIFT = 32     # texels (at the tiles' scale) a redraw may have drifted; the largest seen is 10
 
 
 def layout(land):
@@ -61,10 +62,12 @@ def generate(land, key, folder, prompt_file, seed, tiles=None, redo=False, url=N
     record = {'inputSha256': digest(land), 'tileWidth': width, 'starts': starts, 'height': height, 'padTop': PAD_TOP,
               'seed': seed, 'profile': 'qwen21-int8-v1', 'promptSha256': hashlib.sha256(prompt.encode()).hexdigest()}
     url = comfy_url(url)
+    drawn = set()
     for index in (tiles if tiles is not None else range(len(starts))):
         target = folder / f'tile_{index:02d}.png'
         if target.is_file() and not redo:
             continue
+        drawn.add(index)
         name = f'{folder.parent.name}-detail-{index:02d}'
         graph = lambda image, prefix: design.compile_design(prompt, [image], seed + index, 1, prefix, profile='qwen21-int8-v1')
         out = run_graph(url, tile_input(land, key, index), name, graph, timeout=1800, subfolder=SUBFOLDER, output='9')
@@ -74,6 +77,11 @@ def generate(land, key, folder, prompt_file, seed, tiles=None, redo=False, url=N
     if missing:  # the build takes the tiles once detail.json is there: only a complete set gets one
         print(f'{folder}: tiles {missing} still to draw; detail.json not written', flush=True)
         return
+    previous = folder / 'detail.json'
+    if previous.is_file() and drawn != set(range(len(starts))):
+        # tiles kept from an earlier run were drawn from the input that record names: keep it, so a changed strip
+        # still shows as stale
+        record['inputSha256'] = json.loads(previous.read_text(encoding='utf-8')).get('inputSha256', record['inputSha256'])
     (folder / 'detail.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
@@ -120,7 +128,11 @@ def assemble(land, key, folder):
                             .resize(size, Image.BICUBIC), np.float32) / 255
         # the model moves its redraw a few texels (up to ten in Denver): put it back over its input, so lines that
         # cross into the next tile meet there
-        drawn = shifted(drawn, *offset(source, drawn))
+        columns, rows = offset(source, drawn)
+        if max(abs(columns), abs(rows)) > MAX_SHIFT:  # an alias of a repeating pattern, not the model's drift
+            print(f'note: tile {index:02d} offset ({columns}, {rows}) ignored', flush=True)
+            columns = rows = 0
+        drawn = shifted(drawn, columns, rows)
         # and drifts the grade a little: hold each tile to its input, row by row
         return panorama.apply_gain(drawn, panorama.row_gain(source, drawn, key), key)[top:]
 

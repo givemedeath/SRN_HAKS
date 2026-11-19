@@ -104,6 +104,8 @@ class Profiles(unittest.TestCase):
             self.assertNotIn('Old', text)
             self.assertNotIn('SRN_Gone', text)  # a row of ours the profiles dropped
             self.assertRegex(text, r'16\s+New\s+\*\*\*\*\s+1\s+w\s+x\s+y\s+z')
+            build.write_table({}, path)  # no rows of ours: the rest stays
+            self.assertIn('0 (None)', path.read_text(encoding='ascii'))
 
 
 class Panorama(unittest.TestCase):
@@ -177,6 +179,9 @@ class Panorama(unittest.TestCase):
             (folder / 'detail.json').write_text(json.dumps({'inputSha256': detail.digest(land), 'tileWidth': width,
                                                             'starts': starts, 'height': height}), encoding='utf-8')
             strip, scale = detail.assemble(land, 'magenta', folder)
+            (folder / 'tile_01.png').unlink()
+            with self.assertRaisesRegex(FileNotFoundError, r'\[1\]'):
+                detail.assemble(land, 'magenta', folder)
         self.assertAlmostEqual(scale, 1248 / width, places=2)
         self.assertEqual(strip.shape[1], int(round(900 * 1248 / width)))
         expected = np.asarray(Image.fromarray((land * 255 + 0.5).astype(np.uint8)).resize(strip.shape[1::-1], Image.BICUBIC), np.float32) / 255

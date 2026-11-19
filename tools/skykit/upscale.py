@@ -55,7 +55,10 @@ def run_graph(url, picture, name, nodes, timeout=900, subfolder='skykit', output
     while time.time() < deadline:
         history = json.loads(_request(f'{url}/history/{prompt}')).get(prompt)
         if history and history.get('status', {}).get('completed'):
-            saved = history['outputs'][output]['images'][0]
+            images = history.get('outputs', {}).get(output, {}).get('images')
+            if not images:
+                raise RuntimeError(f'ComfyUI job {name} finished but its node {output!r} saved no image')
+            saved = images[0]
             query = urllib.parse.urlencode({'filename': saved['filename'], 'subfolder': saved['subfolder'], 'type': saved['type']})
             return np.asarray(Image.open(io.BytesIO(_request(f'{url}/view?{query}'))).convert('RGB'), np.float32) / 255
         if history and history.get('status', {}).get('status_str') == 'error':
