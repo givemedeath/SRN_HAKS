@@ -385,8 +385,11 @@ def sheets(folder, *, most=48):
     def order(path):  # by the view's number, not its name: shot-100 comes after shot-99
         number = path.stem.split('-')[1]
         return (int(number) if number.isdigit() else 0, path.name)
+    def group(path):  # the label up to its lighting: block-day, grid-night, lamp-main-night
+        parts = path.stem.split('-')[2:]; lit = next((index for index, part in enumerate(parts) if part in LIGHTS), 1)
+        return '-'.join(parts[:lit + 1])
     for path in sorted((folder / 'captures').glob('shot-*.png'), key=order):
-        groups.setdefault('-'.join(path.stem.split('-')[2:4]), []).append(path)
+        groups.setdefault(group(path), []).append(path)
     made = {}
     for name, pictures in groups.items():
         for start in range(0, len(pictures), most):

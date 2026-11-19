@@ -122,6 +122,10 @@ def _sha(picture):
     picture = np.ascontiguousarray(picture); return hashlib.sha256(repr(picture.shape).encode() + picture.tobytes()).hexdigest()
 
 
+def _file_sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
 def alike(old, new, side=256):
     """How well a redrawn picture's edges sit on the old one's: the correlation of their edge strengths, about 0.5 or
     more for a layout that was kept, near 0 for one that moved. A lit picture against a dim one scores lower."""
@@ -170,7 +174,9 @@ def composed(day, old_day, old_lit, enlarged=None):
 
 def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=print, stock=None):
     """Every texture of a redraw list drawn again into `folder` as <name>.png with a record beside it, the day
-    pictures first and then the lit ones from them, `workers` at a time. One that is there already is passed over. A
+    pictures first and then the lit ones from them, `workers` at a time. One that is there already is passed over where
+    its record says it was made from the picture the game draws now (a lit one also from its day picture as it is), and
+    refused where its record says otherwise; one with no record was placed by hand and is kept. A
     lit one whose entry says `compose` is not drawn: it is `composed` from its day picture and the old textures.
     enlarged: the folder of `enlarge`, whose cleaner picture is the reference where it has one. Returns
     {name: 'redrawn' | 'composed' | 'kept' | 'failed: ...'}; a failure stops nothing else."""
@@ -182,21 +188,26 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
 
     def one(name):
-        how = textures[name]; target = folder / f'{name}.png'
-        if target.is_file():
+        how = textures[name]; target = folder / f'{name}.png'; record = folder / f'{name}.json'
+        whole = np.asarray(material.current(repo, name, stock=stock, before=spec.get('before'))); old = whole[..., :3]; height, width = old.shape[:2]
+        day = folder / f'{how["of"]}.png' if how.get('of') else None  # a lit variant's day picture, as redrawn
+        if target.is_file():  # kept where it was made from the picture the game draws now, a lit one from its day picture as it is; one with no record was placed by hand
+            was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
+            require('source' not in was or was['source'] == _sha(old), f'{target} was not made from the {name} the game draws now: take it and its record away and draw it again')
+            require(day is None or 'day' not in was or (day.is_file() and was['day'] == _file_sha(day)),
+                    f'{target} was made from another {how.get("of")} day picture: take it and its record away and draw it again')
             return 'kept'
-        old = np.asarray(material.current(repo, name, stock=stock, before=spec.get('before')))[..., :3]; height, width = old.shape[:2]
         size = (SIDE, max(64, round(SIDE * height / width / 64) * 64)) if width >= height else (max(64, round(SIDE * width / height / 64) * 64), SIDE)
         better = Path(enlarged) / f'{name}.png' if enlarged else None
         if how.get('compose'):
             require(how.get('of'), 'only a lit variant is composed: it names the day texture it is `of`')
-            day = folder / f'{how["of"]}.png'; require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
+            require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
             cleaner = _opened(better) if better is not None and better.is_file() else None
             with Image.open(day) as shown:
-                picture = composed(shown, np.asarray(material.current(repo, how['of'], stock=stock, before=spec.get('before'))), np.asarray(material.current(repo, name, stock=stock, before=spec.get('before'))),
+                picture = composed(shown, np.asarray(material.current(repo, how['of'], stock=stock, before=spec.get('before'))), whole,
                                    None if cleaner is None else np.asarray(cleaner)).resize(size, Image.LANCZOS)
             picture.save(target)
-            (folder / f'{name}.json').write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'size': list(size)}, indent=1) + '\n', encoding='utf-8')
+            record.write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'day': _file_sha(day), 'size': list(size)}, indent=1) + '\n', encoding='utf-8')
             return 'composed'
         work = folder / 'jobs' / name
         if work.exists():
@@ -204,8 +215,8 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         work.mkdir(parents=True); images = [work / 'ref.png']
         reference = _opened(better) if better is not None and better.is_file() else Image.fromarray(old)
         reference.resize(size, Image.LANCZOS).save(work / 'ref.png')
-        if how.get('of'):
-            day = folder / f'{how["of"]}.png'; require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
+        if day is not None:
+            require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
             _opened(day).resize(size, Image.LANCZOS).save(work / 'day.png'); images.insert(0, work / 'day.png')
         text = prompt(name, how, size, tiles=bool(how.get('tiles')), tool=getattr(run, 'tool', True)); (work / 'prompt.txt').write_text(text, encoding='utf-8')
         run(work, text, images)
@@ -215,8 +226,8 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         if not how.get('of'):  # a generator paints over black openings (doors are hooked up there): they are put back
             picture = black_kept(old, picture)
         picture.save(target)
-        (folder / f'{name}.json').write_text(json.dumps({'kind': 'tilekit-redrawn', 'texture': name, 'source': _sha(old), 'prompt': text, 'size': list(size),
-                                                         'alike': round(alike(old, picture), 2)}, indent=1) + '\n', encoding='utf-8')
+        record.write_text(json.dumps({'kind': 'tilekit-redrawn', 'texture': name, 'source': _sha(old), 'prompt': text, 'size': list(size),
+                                      **({'day': _file_sha(day)} if day is not None else {}), 'alike': round(alike(old, picture), 2)}, indent=1) + '\n', encoding='utf-8')
         return 'redrawn'
 
     def safe(name):

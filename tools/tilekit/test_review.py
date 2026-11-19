@@ -174,9 +174,11 @@ class ReviewTests(unittest.TestCase):
         from PIL import Image
         with tempfile.TemporaryDirectory() as folder:
             captures = Path(folder) / 'captures'; captures.mkdir()
-            for index, label in enumerate(['block-day-x03y03-ne', 'block-night-x03y03-ne', 'grid-day-r00-c00-s', 'grid-day-r00-c00-n', 'grid-day-r01-c00-s']):
+            for index, label in enumerate(['block-day-x03y03-ne', 'block-night-x03y03-ne', 'grid-day-r00-c00-s', 'grid-day-r00-c00-n', 'grid-day-r01-c00-s',
+                                           'lamp-main-day-x03y03-ne', 'lamp-main-night-x03y03-ne']):
                 Image.new('RGB', (160, 90)).save(captures / f'shot-{index:02d}-{label}.png')
-            self.assertEqual(review.sheets(folder, most=2), {'block-day.jpg': 1, 'block-night.jpg': 1, 'grid-day-1.jpg': 2, 'grid-day-2.jpg': 1})
+            self.assertEqual(review.sheets(folder, most=2), {'block-day.jpg': 1, 'block-night.jpg': 1, 'grid-day-1.jpg': 2, 'grid-day-2.jpg': 1,
+                                                             'lamp-main-day.jpg': 1, 'lamp-main-night.jpg': 1})  # a lamp view's lighting is its third part
             self.assertTrue((Path(folder) / 'sheets' / 'grid-day-2.jpg').is_file())
 
     def test_sheets_keep_the_order_of_the_views_past_the_hundredth(self):

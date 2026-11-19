@@ -67,7 +67,10 @@ def read(path, data=None):
         pixels = np.ascontiguousarray(decode_dxt(data[20:], width, height, channels == 4)[::-1])
         return Image.fromarray(pixels, 'RGBA') if channels == 4 else Image.fromarray(pixels[..., :3], 'RGB')
     with Image.open(io.BytesIO(data), formats=['TGA'] if path.suffix.lower() == '.tga' else None) as picture:
-        return picture.convert('RGBA' if picture.mode in ('RGBA', 'LA', 'P') and 'A' in picture.convert('RGBA').getbands() and picture.convert('RGBA').getextrema()[3][0] < 255 else 'RGB')
+        if picture.mode not in ('RGBA', 'LA', 'P'):
+            return picture.convert('RGB')
+        whole = picture.convert('RGBA')  # kept with its alpha only where some of it is see-through
+        return whole if whole.getextrema()[3][0] < 255 else whole.convert('RGB')
 
 
 def levels(path):
@@ -181,7 +184,8 @@ def stained(made, name, amount):
     colour = colour * (1 - 0.35 * damp[..., None] * amount) + np.array([38, 40, 30]) * 0.35 * damp[..., None] * amount
     out = dict(made); out['colour'] = np.uint8(np.clip(colour + 0.5, 0, 255))
     if 'roughness' in made:
-        out['roughness'] = np.clip(np.asarray(made['roughness'], np.float64) + 0.25 * mask[: made['roughness'].shape[0], : made['roughness'].shape[1]], 0, 1)
+        rough = np.asarray(made['roughness'], np.float64); require(rough.shape == shape, 'A roughness map is the colour\'s size')
+        out['roughness'] = np.clip(rough + 0.25 * mask, 0, 1)
     return out
 
 
