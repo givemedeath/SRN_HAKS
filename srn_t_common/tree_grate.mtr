@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 tree_grate
+texture1 tree_grate_n
+texture2 tree_grate_s
+texture3 tree_grate_r
+texture4 null
+texture5 null

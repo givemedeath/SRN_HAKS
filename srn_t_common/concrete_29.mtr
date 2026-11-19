@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 concrete_29
+texture1 concrete_29_n
+texture2 concrete_29_s
+texture3 concrete_29_r
+texture4 null
+texture5 null

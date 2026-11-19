@@ -172,7 +172,7 @@ node trimesh Object25.023
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -283,7 +283,7 @@ node trimesh Plane196.031
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -352,7 +352,7 @@ node trimesh Plane196.032
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0

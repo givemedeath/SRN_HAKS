@@ -21,7 +21,7 @@ node trimesh Plane81
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -106,7 +106,7 @@ node trimesh Plane81.001
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -145,7 +145,7 @@ node trimesh Plane81.002
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -291,7 +291,7 @@ node trimesh Plane83.016
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -321,7 +321,7 @@ node trimesh Plane83.017
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -354,7 +354,7 @@ node trimesh Plane83.018
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -384,7 +384,7 @@ node trimesh Plane83.019
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -414,7 +414,7 @@ node trimesh Plane83.026
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -521,7 +521,7 @@ node trimesh Plane83.028
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -554,7 +554,7 @@ node trimesh Plane83.029
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -587,7 +587,7 @@ node trimesh Plane83.030
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -620,7 +620,7 @@ node trimesh Plane83.031
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -653,7 +653,7 @@ node trimesh Plane83.032
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -761,7 +761,7 @@ node trimesh Plane83.034
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -794,7 +794,7 @@ node trimesh Plane83.035
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -824,7 +824,7 @@ node trimesh Plane83.036
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -857,7 +857,7 @@ node trimesh Plane83.037
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0

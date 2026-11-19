@@ -21,7 +21,7 @@ node trimesh Box1272.005
   shininess 14
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -165,7 +165,7 @@ node trimesh Box1272.065
   shininess 14
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -249,7 +249,7 @@ node trimesh Box1272.066
   shininess 14
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -924,7 +924,7 @@ node trimesh Box1272.073
   shininess 14
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1081,7 +1081,7 @@ node trimesh Box1272.074
   shininess 14
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1241,7 +1241,7 @@ node trimesh Box1272.075
   shininess 14
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1505,7 +1505,7 @@ node trimesh Object13.001
   shininess 14
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1640,7 +1640,7 @@ node trimesh Object13.010
   shininess 14
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1760,7 +1760,7 @@ node trimesh Object282.003
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1829,7 +1829,7 @@ node trimesh Object58.003
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0

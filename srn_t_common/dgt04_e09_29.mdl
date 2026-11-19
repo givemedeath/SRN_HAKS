@@ -21,7 +21,7 @@ node trimesh Box3205.019
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -79,7 +79,7 @@ node trimesh Box3205.066
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -139,7 +139,7 @@ node trimesh Box3205.067
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -197,7 +197,7 @@ node trimesh Box3205.068
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -250,7 +250,7 @@ node trimesh Box3205.069
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -308,7 +308,7 @@ node trimesh Box3205.070
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -366,7 +366,7 @@ node trimesh Box3206.010
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -534,7 +534,7 @@ node trimesh e09_17_trim.008
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -621,7 +621,7 @@ node trimesh e11_01_lamp01.010
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -766,7 +766,7 @@ node trimesh Object551.010
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -853,7 +853,7 @@ node trimesh Object657
   shininess 13
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -962,7 +962,7 @@ node trimesh Plane232.001
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1054,7 +1054,7 @@ node trimesh Plane232.003
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1172,7 +1172,7 @@ node trimesh Plane55.001
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1205,7 +1205,7 @@ node trimesh Plane88.011
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1254,7 +1254,7 @@ node trimesh Plane88.012
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1303,7 +1303,7 @@ node trimesh Plane88.013
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1352,7 +1352,7 @@ node trimesh Plane88.014
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1401,7 +1401,7 @@ node trimesh Plane88.015
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1450,7 +1450,7 @@ node trimesh Plane88.016
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1499,7 +1499,7 @@ node trimesh Plane88.017
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1548,7 +1548,7 @@ node trimesh Plane88.018
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1581,7 +1581,7 @@ node trimesh Plane88.019
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1630,7 +1630,7 @@ node trimesh Plane88.020
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1663,7 +1663,7 @@ node trimesh Plane88.021
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1750,11 +1750,11 @@ node trimesh window_fixed.016
      1.000  0.999  0
      0.999  0.000  0
 endnode
-node light dgt04_e09_29sl1
+node light dgt04_e09_29ml1
   parent dgt04_e09_29
   position -5.79132 -0.00002  3.83620
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -1910,7 +1910,7 @@ newanim tiledefault dgt04_e09_29
   node trimesh window_fixed.016
     parent dgt04_e09_29
   endnode
-  node light dgt04_e09_29sl1
+  node light dgt04_e09_29ml1
     parent dgt04_e09_29
   endnode
   node aabb wokmesh.015
@@ -2021,7 +2021,7 @@ newanim animloop01 dgt04_e09_29
   node trimesh window_fixed.016
     parent dgt04_e09_29
   endnode
-  node light dgt04_e09_29sl1
+  node light dgt04_e09_29ml1
     parent dgt04_e09_29
   endnode
   node aabb wokmesh.015

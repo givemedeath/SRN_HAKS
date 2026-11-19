@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 police2
+texture1 police2_n
+texture2 police2_s
+texture3 police2_r
+texture4 null
+texture5 null

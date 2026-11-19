@@ -21,7 +21,7 @@ node trimesh Box13.012
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -75,7 +75,7 @@ node trimesh Box13.013
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -129,7 +129,7 @@ node trimesh Object23
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -162,7 +162,7 @@ node trimesh Object30.003
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -305,7 +305,7 @@ node trimesh Plane83.004
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -460,7 +460,7 @@ node trimesh Plane83.006
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -531,7 +531,7 @@ node trimesh Plane83.008
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -598,7 +598,7 @@ node trimesh Plane83.009
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -717,7 +717,7 @@ node trimesh Plane83.015
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -818,11 +818,11 @@ node trimesh sidewalk22.001
      0.000  0.000  0
      0.400  0.032  0
 endnode
-node light dgt04_d18_02sl1
+node light dgt04_d18_02ml1
   parent dgt04_d18_02
   position  3.23500  4.48500  3.46000
   orientation  0.00000  0.00000  1.00000  1.57080
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0

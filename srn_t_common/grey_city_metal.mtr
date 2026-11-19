@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 grey_city_mtl
+texture1 grey_city_mtl_n
+texture2 grey_city_mtl_s
+texture3 grey_city_mtl_r
+texture4 null
+texture5 null

@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 asph_street04
+texture1 asph_street04_n
+texture2 asph_street04_s
+texture3 asph_street04_r
+texture4 null
+texture5 null
