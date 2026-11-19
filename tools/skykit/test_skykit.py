@@ -96,11 +96,12 @@ class Profiles(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / 'skyboxes.2da'
             path.write_text('2DA V2.0\n\n LABEL STRING_REF CYCLICAL DAWN DAY DUSK NIGHT\n0 (None) **** **** **** **** ****\n'
-                            '16 Old **** 0 a b c d\n', encoding='ascii')
+                            '16 Old **** 0 a b c d\n17 SRN_Gone **** 0 a b c d\n', encoding='ascii')
             build.write_table({16: ('New', 1, ['w', 'x', 'y', 'z'])}, path)
             text = path.read_text(encoding='ascii')
             self.assertIn('0 (None)', text)
             self.assertNotIn('Old', text)
+            self.assertNotIn('SRN_Gone', text)  # a row of ours the profiles dropped
             self.assertRegex(text, r'16\s+New\s+\*\*\*\*\s+1\s+w\s+x\s+y\s+z')
 
 
