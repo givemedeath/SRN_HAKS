@@ -111,6 +111,13 @@ def qwen(client, local, bindings, *, seed=1, deadline=2400):
     return run
 
 
+def _opened(path):
+    """A picture file as an RGB image read into memory, the file closed again (an open one cannot be moved on Windows)."""
+    from PIL import Image
+    with Image.open(path) as picture:
+        return picture.convert('RGB')
+
+
 def _sha(picture):
     picture = np.ascontiguousarray(picture); return hashlib.sha256(repr(picture.shape).encode() + picture.tobytes()).hexdigest()
 
@@ -184,9 +191,10 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         if how.get('compose'):
             require(how.get('of'), 'only a lit variant is composed: it names the day texture it is `of`')
             day = folder / f'{how["of"]}.png'; require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
+            cleaner = _opened(better) if better is not None and better.is_file() else None
             with Image.open(day) as shown:
                 picture = composed(shown, np.asarray(material.current(repo, how['of'], stock=stock, before=spec.get('before'))), np.asarray(material.current(repo, name, stock=stock, before=spec.get('before'))),
-                                   np.asarray(Image.open(better).convert('RGB')) if better is not None and better.is_file() else None).resize(size, Image.LANCZOS)
+                                   None if cleaner is None else np.asarray(cleaner)).resize(size, Image.LANCZOS)
             picture.save(target)
             (folder / f'{name}.json').write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'size': list(size)}, indent=1) + '\n', encoding='utf-8')
             return 'composed'
@@ -194,11 +202,11 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         if work.exists():
             shutil.rmtree(work)
         work.mkdir(parents=True); images = [work / 'ref.png']
-        reference = Image.open(better).convert('RGB') if better is not None and better.is_file() else Image.fromarray(old)
+        reference = _opened(better) if better is not None and better.is_file() else Image.fromarray(old)
         reference.resize(size, Image.LANCZOS).save(work / 'ref.png')
         if how.get('of'):
             day = folder / f'{how["of"]}.png'; require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
-            Image.open(day).convert('RGB').resize(size, Image.LANCZOS).save(work / 'day.png'); images.insert(0, work / 'day.png')
+            _opened(day).resize(size, Image.LANCZOS).save(work / 'day.png'); images.insert(0, work / 'day.png')
         text = prompt(name, how, size, tiles=bool(how.get('tiles')), tool=getattr(run, 'tool', True)); (work / 'prompt.txt').write_text(text, encoding='utf-8')
         run(work, text, images)
         require((work / 'out.png').is_file(), 'the generator left no out.png')

@@ -34,10 +34,13 @@ def quieted(text, thin=THIN, small=SMALL, flat=FLAT):
 
     def one(match):
         head, name, body, end = match.groups(); sides = extent(body)
-        if sides is None or not re.search(r'(?im)^\s*shadow\s+1\s*$', body) or not (sides[1] < thin or sides[0] < small or sides[2] < flat):
+        stated = re.search(r'(?im)^\s*shadow\s+(\d+)\s*$', body)  # a mesh that does not say casts one
+        if sides is None or (stated and stated.group(1) == '0') or not (sides[1] < thin or sides[0] < small or sides[2] < flat):
             return match.group(0)
         names.append(name)
-        return head + re.sub(r'(?im)^(\s*shadow\s+)1(\s*)$', r'\g<1>0\g<2>', body) + end
+        if not stated:
+            return head + '  shadow 0\n' + body + end
+        return head + body[:stated.start(1)] + '0' + body[stated.end(1):] + end
     geometry = NODE.sub(one, geometry)
     return geometry + cut + rest, names
 

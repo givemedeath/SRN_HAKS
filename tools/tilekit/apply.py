@@ -42,7 +42,8 @@ def plan(repo, spec, overlay):
         if (repo / pack).is_dir():
             for path in (repo / pack).iterdir():
                 held.setdefault(path.name.lower(), []).append(pack)
-    own = f"srn_t_{spec.get('tileset', '').lower()}"; put, delete, placed = [], [], {}
+    require(not spec['textures'] or spec.get('tileset'), 'A spec with textures names its tileset')
+    own = f"srn_t_{spec.get('tileset', '').lower()}"; require(not spec['textures'] or own in packs, f'{own} is no pack of hakbuilder.json'); put, delete, placed = [], [], {}
     for name in sorted(spec['textures']):
         holders = sorted({pack for suffix in HELD for pack in held.get(name + suffix, ())}) or [own]
         delete += [repo / pack / (name + suffix) for suffix in OLD for pack in held.get(name + suffix, ())]
@@ -71,10 +72,10 @@ def plan(repo, spec, overlay):
 def apply(repo, spec, overlay):
     """Carry out `plan`, rewrite hakbuilder.json's expected overrides for the names touched, and tell the counts."""
     repo = Path(repo); moves = plan(repo, spec, overlay)
+    for path, pack in moves['put']:  # written first: a write that fails leaves the old copies in place
+        (repo / pack / path.name).write_bytes(path.read_bytes())
     for path in moves['delete']:
         path.unlink()
-    for path, pack in moves['put']:
-        (repo / pack / path.name).write_bytes(path.read_bytes())
     configuration = _configuration(repo); waiting = dict(moves['overrides']); entries, dropped = [], 0
     for entry in configuration['ExpectedOverrides']:  # each kept where it stands; a name touched gets its packs as they are now
         resource = entry['Resource'].lower()

@@ -15,7 +15,7 @@ SOURCE, MAIN = re.compile(r'(?i)sl([12])$'), re.compile(r'(?i)ml[12]$')
 
 def moved(text, radius=RADIUS):
     """(the model's text with its source lights as main lights, their new names), or (None, why) where it is left."""
-    names = sorted(set(re.findall(r'(?im)^\s*node light (\S+)', text)))
+    names = sorted(set(re.findall(r'(?im)^\s*node[ \t]+light[ \t]+(\S+)', text)))
     source = [name for name in names if SOURCE.search(name)]
     if not source:
         return None, 'no source light'
@@ -25,7 +25,7 @@ def moved(text, radius=RADIUS):
     for name in source:
         new = SOURCE.sub(r'ml\1', name)
         text = re.sub(r'(?<!\S)' + re.escape(name) + r'(?!\S)', new, text)  # the node, and its keys in every animation
-        node = re.search(r'(?is)^[ \t]*node light ' + re.escape(new) + r'[ \t\r]*$.*?^[ \t]*endnode', text, re.M)
+        node = re.search(r'(?is)^[ \t]*node[ \t]+light[ \t]+' + re.escape(new) + r'[ \t\r]*$.*?^[ \t]*endnode', text, re.M)
         require(node and re.search(r'(?im)^\s*radius\s+\S+', node.group(0)), f'The light {name} has no radius to set')
         text = text[:node.start()] + re.sub(r'(?im)^(\s*radius\s+)\S+', rf'\g<1>{radius}', node.group(0), count=1) + text[node.end():]
         made.append(new)

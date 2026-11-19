@@ -30,6 +30,12 @@ node trimesh panel
     8 0 0
     0 0.02 9
 endnode
+node trimesh ledge
+  parent t_a01
+  verts 2
+    0 0 0
+    1.5 0.2 0.2
+endnode
 node trimesh lamp
   parent t_a01
   shadow 0
@@ -55,8 +61,8 @@ donemodel t_a01
 class ShadowTests(unittest.TestCase):
     def test_a_thin_trim_stops_casting_a_shadow_and_a_wall_keeps_its_own(self):
         text, names = shadows.quieted(MODEL)
-        self.assertEqual(names, ['sill', 'panel'])
-        self.assertIn('node trimesh wall\n  parent t_a01\n  shadow 1', text); self.assertIn('node trimesh sill\n  parent t_a01\n  shadow 0', text)
+        self.assertEqual(names, ['sill', 'panel', 'ledge'])  # a mesh that says nothing casts one, and is told not to
+        self.assertIn('node trimesh wall\n  parent t_a01\n  shadow 1', text); self.assertIn('node trimesh sill\n  parent t_a01\n  shadow 0', text); self.assertIn('node trimesh ledge\n  shadow 0\n  parent t_a01', text)
         self.assertEqual(shadows.extent('  verts 2\n    0 0 0\n    1 2 3\n'), [3.0, 2.0, 1.0])
 
     def test_quiet_changes_the_folder_s_copy_and_only_the_set_s_tiles(self):
@@ -67,7 +73,7 @@ class ShadowTests(unittest.TestCase):
             (own / 't.set').write_text('[TILES]\nCount=1\n[TILE0]\nModel=t_a01\n', encoding='cp1252')
             (own / 't_a01.mdl').write_text(MODEL, encoding='cp1252'); (common / 't_z01.mdl').write_text(MODEL, encoding='cp1252')
             (out / 't_a01.mdl').write_text(MODEL.replace('parent t_a01\n  shadow 1\n  verts 3\n    0 0 0\n    10', 'parent t_a01\n  shadow 1\n  radius 7.0\n  verts 3\n    0 0 0\n    10'), encoding='cp1252')
-            self.assertEqual(shadows.quiet(repo, 't', out), {'t_a01': 2})
+            self.assertEqual(shadows.quiet(repo, 't', out), {'t_a01': 3})
             self.assertIn('radius 7.0', (out / 't_a01.mdl').read_text(encoding='cp1252')); self.assertFalse((out / 't_z01.mdl').exists())
 
 

@@ -42,6 +42,10 @@ class Lamps(unittest.TestCase):
         self.assertEqual(text.count('radius 6.0'), 2); self.assertEqual(text.count('node light t_a01ml2'), 2)  # the animation's node too
         self.assertIn('verts 1', text)
 
+    def test_a_light_node_written_with_a_tab_is_found(self):
+        text, made = lamps.moved(MODEL.format(first='sl1').replace('node light t_a01sl1', 'node\tlight  t_a01sl1'))
+        self.assertEqual(made, ['t_a01ml1', 't_a01ml2'])
+
     def test_a_model_with_a_main_light_or_no_source_light_is_left(self):
         self.assertEqual(lamps.moved(MODEL.format(first='ml1')), (None, 'has a main light'))
         self.assertEqual(lamps.moved(MODEL.format(first='sl1').replace('sl', 'xx')), (None, 'no source light'))
