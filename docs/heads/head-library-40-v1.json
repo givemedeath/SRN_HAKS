@@ -1,0 +1,3838 @@
+{
+ "kind": "srn-head-library-publish-v1",
+ "created": "2026-11-18",
+ "heads": [
+  {
+   "head": "dwarf-female-a",
+   "design": "Marigold",
+   "batch": 6,
+   "slot": "pfd0_head017",
+   "resources": {
+    "mdl": {
+     "name": "pfd0_head017.mdl",
+     "sha256": "99e6669802804d46f57127f9ccf855e6c7700ed451d8bdb08002e07ac2c8e71b",
+     "bytes": 1219900
+    },
+    "plt": {
+     "name": "pfd0_head017.plt",
+     "sha256": "052929ae77c927b6757319050c235e2fb87802b89a49d85177d7d551a4e607dc",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 1,
+    "1": 2,
+    "2": 0,
+    "3": 0,
+    "8": 114,
+    "9": 0
+   },
+   "features": {
+    "face": "adult wide compact round face, tawny skin, short tightly curled golden-brown hair, full soft cheeks, round ears, dark hazel irises. gentle closed-lip smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, visible between the side curls.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short tightly curled golden-brown hair with full crown and closed rear curls ending at the jaw line; golden-brown brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "9ee2a90af639d2e203a89e2c3b5362cc295fc16570da156ad501f5abb1694762",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "dwarf-20261117-181900162623",
+    "trialHak": "srn_rh_dwa6.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pfd0_head017-client.jpg",
+    "gallerySha256": "daf604283fad5535ad179e7dcc565f02b86ac9fd5b6396795b4d057bc26edde7",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "7191c2f8c07b2995d3a998ab5488334b713484b882b74e201d7c6605d147569f"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "bc791160f59888cfde8247b244db70fb5aeecfdedfb03b04f70f5bf098add369"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "2d4a84bf6bc97c5ab64c3bb0c7f809b8a80bf8c4cffaaa895bcce78583516cd0"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "7f55dce61ce30ae42fcf51c5a71aa836836f6d5704a6c9c8712b95a3200a3628"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "ad835cb77b72fa7214ee62aecba30bbffb0471abcaa5b78c808917feb0b7eb24"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "3f55641fe330d8a0dcdce795f09ba2086c7efa02a0d8a35675d8ca572d12301b"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins auto rows 1/2/114 (RUNBOOK 112 export guard refused unpinned rows; palette attempt-02)",
+    "client v6: face, curls and ears good"
+   ]
+  },
+  {
+   "head": "dwarf-female-b",
+   "design": "Ironrose",
+   "batch": 6,
+   "slot": "pfd0_head018",
+   "resources": {
+    "mdl": {
+     "name": "pfd0_head018.mdl",
+     "sha256": "f1a45eceed4a4f54cdfea00d0f022919e7a26a0a79c1a289f2a6ac04a0cb1176",
+     "bytes": 1220284
+    },
+    "plt": {
+     "name": "pfd0_head018.plt",
+     "sha256": "63cf2fae666e16308dd91d4081d4b06e8d2c6b67889face02aea8a885d2e38c3",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 2,
+    "1": 7,
+    "2": 171,
+    "3": 0,
+    "8": 114,
+    "9": 0
+   },
+   "features": {
+    "face": "mature square compact face and stout nose, medium bronze skin, dark auburn jaw-length layers with both ears visible, olive green irises. mild focus with a slight inward brow motion. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, visible in front of the side layers. One small slate-titanium oval temple port on the anatomical right.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Dark auburn jaw-length layers with a side part, full crown and continuous rear ending at the jaw; dark auburn brows.",
+    "beard": "Absent.",
+    "cyberware": "One small slate-titanium oval temple port on the anatomical right, distinct from skin and hair."
+   },
+   "designSha256": "7ad2fbbf03115e0de3e430fcc350afd6a83a263f810b7f52d6628a6db870120b",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "dwarf-20261117-181900162623",
+    "trialHak": "srn_rh_dwa6.hak",
+    "actors": [
+     "sr_h_actor12",
+     "sr_h_actor13"
+    ],
+    "gallery": "pfd0_head018-client.jpg",
+    "gallerySha256": "d2613cee1f750c5ff403bf8fc92870ebb33e1578faaf7fb145d5665845b4d6ba",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor12-three-1.png",
+      "sha256": "c07bb58eb75f5eb9fb847322ca76ccc673c9cb412aa72f5031ee02dc04aeb487"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor12-threeleft-1.png",
+      "sha256": "2d2247c99c3378fd8dfb075172fd75d07e9372314bc6ee446b17c20bd0f25a85"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor12-backright-1.png",
+      "sha256": "4f4753dc80814907852990ffbd3d7821c224b598398877671dd9993563c7e1a6"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor12-backleft-1.png",
+      "sha256": "1a3a8ec54f41b31b83257554f33d19aa5754efe967e5110591f9e29735af5bf5"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor12-motion-1.png",
+      "sha256": "4f7aa9a4ed1aa37ac9e45f52afae17d42a653af4794916c8cd1e864547569aff"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor13-front-1.png",
+      "sha256": "d456b792867f169af6046dacbad64e582987cd1eba42a8cf19a4dd79e3f74de8"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "eye contours: a stale masks attempt-01 proposal (old bake) was caught before the run; masks attempt-03 proposal applied; select_eye_proposal.py now refuses a proposal that is not the current masks attempt",
+    "temple port (anatomical right) on metal row 171 slate: row 0 renders white unarmoured and row 22 reads bronze/gold (palette attempt-03, render attempt-02)",
+    "client v6: port reads slate, face and layers good"
+   ]
+  },
+  {
+   "head": "dwarf-female-c",
+   "design": "Garnet",
+   "batch": 6,
+   "slot": "pfd0_head019",
+   "resources": {
+    "mdl": {
+     "name": "pfd0_head019.mdl",
+     "sha256": "4a9a70d1c59ad63f59aad8842afd0add80dc0cfac07c3390fe71f4d375b162b2",
+     "bytes": 1270460
+    },
+    "plt": {
+     "name": "pfd0_head019.plt",
+     "sha256": "98805ae181715993dde23e7d665626ab96b9495a6f503f6c945837f9df78db40",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 118,
+    "1": 173,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "adult broad compact face, deep mahogany skin, long full coils in a continuous rear curtain extending below the jaw, small side part and clear forehead, rounded nose, round ears, dark amber irises. quiet curiosity with an almost imperceptible brow lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, visible inside the coil curtain.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long full dark coils with a small side part and clear forehead, falling as a continuous rear curtain below the jaw; dark brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "13a411e1b6c124e48e4e3bb29601f86a42881f47b411bd31a3a80565434158cb",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-03",
+   "clientEvidence": {
+    "session": "dwarf-20261117-193435793259",
+    "trialHak": "srn_rh_dwa7.hak",
+    "actors": [
+     "sr_h_actor24",
+     "sr_h_actor25"
+    ],
+    "gallery": "pfd0_head019-client.jpg",
+    "gallerySha256": "796cc9ad21555625d100d71bc6ad66c90496b0a98ff5cef8e29953163e225ece",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor24-three-1.png",
+      "sha256": "5028fb9072956d742b6879d42201d0736baace377bffb3d6f7c0f0148ab60e4a"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor24-threeleft-1.png",
+      "sha256": "786ce1b46b4ea3a08fc2c7f57ae046d52f54f42aa2813f40613e0c580ababbde"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor24-backright-1.png",
+      "sha256": "2049c32c68c096ac72ef741796669969f4e9352fa1b30a334dd8833381e0f59b"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor24-backleft-1.png",
+      "sha256": "e091333b6484282e85abc71282b926e7a0bd3801ce7f84562b2ea4f61dbc2500"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor24-motion-1.png",
+      "sha256": "151be251750e2c5c40cf7502bd0f0a5ada1d37817b7e71c403cb99aaef525ff3"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor25-front-1.png",
+      "sha256": "216310284209d7c083f1ddcb9f2f000bcf6b00a2922b1b5087a81795dc8c36fe"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry-0001 hair tunnels (repair genus 30) showed as see-through holes; the user chose \"Reseed geometry (Recommended)\" and approved geometry-0002 (\"Approve geometry-0002 (Recommended)\")",
+    "geometry-0002 repair attempt-05 genus 8; chained local closures (chain-01 0/5, chain-02 1/6) could not seal the coil pockets; the user chose \"Judge them in the client (Recommended)\"",
+    "ownership rules-03 (attempt-04): client v6 showed pale-pink cheek-side/sideburn skin patches on hair; rules-04/05 fixed the patches but left browsOnHair 0.8496; rules-06 caps the skin-hue exclusion below the brows; ownership cap raised to 7 by the user (\"Raise ownership cap to 7 (Recommended)\"); attempt-07 browsOnHair 0.851",
+    "palette pins 118/173/173 (attempt-04); render attempt-03",
+    "client v7: ear-side patches reduced to a small pale spot under each ear; rear holes unchanged (skin speck high back-right, dark pocket low back-left); accepted as is by the user 2026-11-17 (\"Accept as is (Recommended)\")"
+   ]
+  },
+  {
+   "head": "dwarf-female-d",
+   "design": "Tinlark",
+   "batch": 6,
+   "slot": "pfd0_head020",
+   "resources": {
+    "mdl": {
+     "name": "pfd0_head020.mdl",
+     "sha256": "82d7d0c0e3b8019352cdae14f90752f28c827b99fe5f51aeabb430e5a54b89e1",
+     "bytes": 1212252
+    },
+    "plt": {
+     "name": "pfd0_head020.plt",
+     "sha256": "e7437c6905c6c5f148364beac8b2a64afb5ab7f2a75d0688917bcf919b40d155",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 116,
+    "1": 50,
+    "2": 0,
+    "3": 0,
+    "8": 22,
+    "9": 0
+   },
+   "features": {
+    "face": "older broad rounded face, fair rosy freckled skin, short silvery blond bob tucked behind both rounded ears, slate blue irises. warmth with the smallest closed-lip smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, fully visible with the bob tucked behind them.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Silvery blond bob with a side part, tucked behind both ears, full crown and smooth closed rear ending at the jaw; pale ash brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "ab2897e39e58ddc6d398a68790262cabc650b8900b3e0a830548847194c560ed",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "dwarf-20261117-181900162623",
+    "trialHak": "srn_rh_dwa6.hak",
+    "actors": [
+     "sr_h_actor36",
+     "sr_h_actor37"
+    ],
+    "gallery": "pfd0_head020-client.jpg",
+    "gallerySha256": "e06610ad57b7288b98f849f5ccc8e2b3706e6d8be351b6df5d2e2220d41f3001",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor36-three-1.png",
+      "sha256": "e6a86efd5f161b71ce7a1b007abbe06ee856d1f850f368da31386acbfc89a939"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor36-threeleft-1.png",
+      "sha256": "9d4213f10659a840839db60f8f7b7cac2843a45aaab64f7c0772ff195d586061"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor36-backright-1.png",
+      "sha256": "0d3b522744277707ddbebfe15dc361ecd798668834cab9836e068f5bac1f21c1"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor36-backleft-1.png",
+      "sha256": "f6eaf6daaa643af590a78785b95c725f206db22ca33bbd59d02a198c64571e7f"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor36-motion-1.png",
+      "sha256": "38b9c69e96aa7b539477cba7244bc415b9403551ff52e982001bef9d3f498d2b"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor37-front-1.png",
+      "sha256": "33e2e7fd3116ddc91cf72836f4b282f6758869d963237a4d29bae2c9c60fdb36"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "repair genus 1 (one tunnel) closed with a local seal (RUNBOOK 346); seal route: repair (localSeal), unwrap reusing reviewed UVs, maps bound by script, masks with eye rgbSha256 rebound after a byte-identical geometry check, ownership skipped (ownership1k imported), palette, quality, export, native, render",
+    "browsOnHair 0.678 under the user floor 0.67 (\"Accept 0.67, check in client (Recommended)\")",
+    "client v6: no slit at the sealed tunnel, bob and brows good"
+   ]
+  },
+  {
+   "head": "dwarf-female-e",
+   "design": "Bracken",
+   "batch": 6,
+   "slot": "pfd0_head021",
+   "resources": {
+    "mdl": {
+     "name": "pfd0_head021.mdl",
+     "sha256": "dfafddef30fa7e3d7220bab8594b461c1546b3bf154eb10afb6c775fd4e42f3f",
+     "bytes": 1205660
+    },
+    "plt": {
+     "name": "pfd0_head021.plt",
+     "sha256": "c3bb13ff454488731df86c164de1ce38c19c3cce932c55105cb4a4753a35204c",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 1,
+    "1": 14,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "adult compact broad cheeks, medium olive skin, two broad chestnut braids descending well below the jaw, full scalp coverage and coherent rear hair mass, round ears, medium brown irises. calm confidence with a trace of a one-sided mouth lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, visible in front of the braids.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Chestnut hair with a centre part, full scalp and coherent rear mass, ending in two broad braids that hang well below the jaw on both sides; chestnut brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "59026f9b808e159ee8023e7f9c3838ea26aa60a36853beb58b51cacc51f9c0c0",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "dwarf-20261117-181900162623",
+    "trialHak": "srn_rh_dwa6.hak",
+    "actors": [
+     "sr_h_actor48",
+     "sr_h_actor49"
+    ],
+    "gallery": "pfd0_head021-client.jpg",
+    "gallerySha256": "39ed06b92efafc0816e8cbfce384f1d501e7ce1b8d03cdfba4636e470132184e",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor48-three-1.png",
+      "sha256": "ee8a3532cf3e06f631180a63bfbec72bd81ab42f2814105fde0974c92662495e"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor48-threeleft-1.png",
+      "sha256": "61f2f74434681a4ee6c4a67644bfa22341c7c4c4c17afe3b54b9f2925b1e0f9e"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor48-backright-1.png",
+      "sha256": "1f3a3cc0dbcf02203414bcecf855f5474d2cb48624b93153c46ed37f099d5cea"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor48-backleft-1.png",
+      "sha256": "f70e2af367d63905ada3b6c1ff5f215d4344dede5b7a5aa96027e3dcc14384fb"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor48-motion-1.png",
+      "sha256": "48ae6c11009d1c265a2bbe30ae876ca7747623e73544261447f579b35d0ca7f8"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor49-front-1.png",
+      "sha256": "e6c76c081ccdd34ec112e40dc35ebe9e149ce3df2c3a7fffc8f747581e5f7c8b"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "client v6: braids, face and ears good (v7 tour stopped on a RAM floor during her last two views; unchanged since v6)"
+   ]
+  },
+  {
+   "head": "dwarf-male-a",
+   "design": "Kestrel",
+   "batch": 5,
+   "slot": "pmd0_head023",
+   "resources": {
+    "mdl": {
+     "name": "pmd0_head023.mdl",
+     "sha256": "81d4fc6c9b02643f77eec9385f5bcfd0d8033f055fcbba9f6ab71e4da1076aac",
+     "bytes": 1180476
+    },
+    "plt": {
+     "name": "pmd0_head023.plt",
+     "sha256": "a98d6f685ad93cec8931bd269af5826ab9f06961a1640ae1f586193f4885fe1f",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 3,
+    "1": 14,
+    "2": 0,
+    "3": 0,
+    "8": 114,
+    "9": 0
+   },
+   "features": {
+    "face": "mature broad compact face and stout nose, warm olive skin, full short chestnut side-part hair and a tidy dark horseshoe moustache with small chin beard, gray irises; round ears. friendly, very small closed-lip smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, visible below the side hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Full short chestnut hair with a side part, closed rear ending above the jaw; chestnut brows.",
+    "beard": "Tidy dark-brown horseshoe moustache running down to the jaw and a small separate chin beard; flat texture over the clay chin.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "0ffa201407503163044bbffb4e0d59eb09926de815439c9855abe663941d5b3c",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-05",
+   "clientEvidence": {
+    "session": "dwarf-20261117-124913899640",
+    "trialHak": "srn_rh_dwa5.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pmd0_head023-client.jpg",
+    "gallerySha256": "b8e4f13fa4527ba643c3494d18d682ba12e51cc3e05f4a809caf552352c8a60a",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "b90bc1640b52705678f4c8a5de566a417493d6f8204aa876f9e00c0cdab559c1"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "f8a785c9cbc4e83061ddf7fabdcbcef2c3ce09745e7f5499a3b9769735615553"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "37c4abeee88ad22b7b12c41040f8e6c110c84b476c91084f1ab8648af7e5d47d"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "5f4862108f9b0f9a2e034dbcac750d94b3657a4247113a97ef5c3e9121bb2d2e"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "6a23bce8384cc9d7c72e5b132c24e012d93f4ae4c493a4817cf00c0b2d8d3952"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "4192519dc1505faf55267ebc0276a36d30f988b63af31ac8d9d15919d642ee0f"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 3, hair 14 chestnut, iris 114 (auto iris decoded olive)",
+    "browsOnHair 0.72 accepted by the user 2026-11-15 (quality.browsOnHairApproved 0.71; final 0.719)",
+    "seamStep 1.916 under the user allowance 1.93 (provisional 2026-11-15, accepted as final 2026-11-17 after client v5) (quality.seamStepApproved); the excess is in the bake (bake luma 1.768)",
+    "client v1: pale rims on lower-face hair edges and two skin windows in the lower rear; ownership rules-03 (lower-face hair rule to lum 58 below y 0.45; closed rear z<0.36 on hair), hairBroadContrast 0.5, and a paint fill of the two rear recesses with the surrounding hair median (a heal could not reach the large recess)",
+    "client v2: lower-face rims gone; the filled rear recess reads as a smooth, strandless dark-chestnut patch with a thin pale rim from directly behind (minor; a texture-cloning heal exceeds the 0.10 donor-distance and 5% donor guards: max 0.115, donors 9-11%). The user asked to rework it",
+    "paint-03/04 (2026-11-16/17): one 3D clone heal per recess (donors lum 28-50, then 20-47); client v3 lighter streaky patch, client v4 darker but still smeared and streaky (a fixed-offset clone stretches a few donor texels across a deep recess; RUNBOOK 429). The user raised the ownership and palette budgets to 7 (\"Yes, raise to 7\"), then asked to \"Rework further\"",
+    "paint-06 (2026-11-17): fill, then a patch heal (headkit c311f6b2, RUNBOOK 430): 24 px whole donor patches from strand-rich rear hair (z<0.25, y 0.2-0.5, lum 18-60; donors 4.4%, reach 0.079, gain 1.04); recess shades p50 52 against the surrounding hair 52; ownership attempt 8 under budget-override-ownership (user: \"Rework further\"); paint-05 ran before the manifest rewrite and was not approved",
+    "client v5: both rear recesses read as hair in the back and three-quarter back views; only the faint outline of the recess geometry edge remains; face, brows, goatee and ear cyberware unchanged"
+   ]
+  },
+  {
+   "head": "dwarf-male-b",
+   "design": "Kiln",
+   "batch": 5,
+   "slot": "pmd0_head024",
+   "resources": {
+    "mdl": {
+     "name": "pmd0_head024.mdl",
+     "sha256": "b9fa80e04abd8f1b11792c3b78fc320b9a5d9d74bacda6fc29b660079486adfb",
+     "bytes": 1211964
+    },
+    "plt": {
+     "name": "pmd0_head024.plt",
+     "sha256": "aaf41ec0f797a7cc0df0e11d666cc7f098698c16802be1d00f044d467588ee4f",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 14,
+    "1": 60,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "adult wide square compact face and large rounded nose, deep reddish brown skin, medium salt-and-pepper curls reaching the jaw, with full coverage and visible ears, short tapered charcoal beard, dark brown irises; round ears. mild concentration with a tiny inner-brow contraction. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, visible through the side curls.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Medium salt-and-pepper curls reaching the jaw on both sides with full crown and closed rear; charcoal-grey brows.",
+    "beard": "Short tapered charcoal-grey full beard and moustache along the jaw and chin.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "96dd244698a7ed3713ec0e5e3f7f2bd221857d0c3a1813f16f39d84a1b395ae4",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "dwarf-20261116-222919256408",
+    "trialHak": "srn_rh_dwa2.hak",
+    "actors": [
+     "sr_h_actor12",
+     "sr_h_actor13"
+    ],
+    "gallery": "pmd0_head024-client.jpg",
+    "gallerySha256": "c9d2440317b9e430da8f2ab904e0a7ab86832278f12cbe01d50e3c583d6128e8",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor12-three-1.png",
+      "sha256": "6b34e2f8b1b6b98a53522c76ebc7c9a8b3351160fe03fb8f2a84ee1751d92e2b"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor12-threeleft-1.png",
+      "sha256": "4d80e28be755ad65d131dc5520db42579805e13fa0ee7a9a7549b251c0615359"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor12-backright-1.png",
+      "sha256": "3cd59a5c64327807b40f7c10446b6a24ee0de7be28474b4d40a0917af7fe0ea1"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor12-backleft-1.png",
+      "sha256": "5481816beed14794693a46dcd82f5bd6a7be556c9acf1faf007eb34c019a6129"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor12-motion-1.png",
+      "sha256": "3fec566152a091210b15aa489f054191275a5f43999985afca94c7401036459e"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor13-front-1.png",
+      "sha256": "671d00b883832b2ec8226ff8325ef250eded36aa16ae5afa6181e9cceb65e509"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 14, hair 60 salt-and-pepper (hairBroadContrast 0.4), iris 173",
+    "client v1: glossy orange under-jaw (pale grey-tan bake at the top of skin row 14); paint heal underjaw-highlight, eye contours rebound to the painted front render (RUNBOOK 403)",
+    "client v2: under-jaw reads as skin under the beard; strand contrast fine"
+   ]
+  },
+  {
+   "head": "dwarf-male-c",
+   "design": "Nettle",
+   "batch": 5,
+   "slot": "pmd0_head025",
+   "resources": {
+    "mdl": {
+     "name": "pmd0_head025.mdl",
+     "sha256": "7aec28e1365d916bffdbe554084ba579ea1bc35bcd4fdc39f150fbf05c58f7b8",
+     "bytes": 1200060
+    },
+    "plt": {
+     "name": "pmd0_head025.plt",
+     "sha256": "2b9e9701328ed8926251a309b46a0111812c41376f6788b8d38d457ac28ab097",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 12,
+    "1": 5,
+    "2": 0,
+    "3": 0,
+    "8": 23,
+    "9": 0
+   },
+   "features": {
+    "face": "older broad cheekbones and stout nose, fair freckled skin, full copper hair pulled back behind the ears and gathered into one long thick rear braid with visible attachment, thick copper moustache and rounded chin beard without braids, blue-green irises; round ears. one eyebrow barely raised. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, fully visible in front of the pulled-back hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Full copper hair pulled back behind the ears into one long thick rear braid attached at the nape and visible beside the jaw on the viewer's right; copper brows.",
+    "beard": "Thick copper moustache and rounded full chin beard without braids.",
+    "cyberware": "One compact matte nickel datajack flush in the anatomical left temple, distinct from copper hair and skin."
+   },
+   "designSha256": "8b01409c4cbfd76b9d74eaf7e99327db1ee9b5764a01d7e5fe3c85cfb6604ada",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "dwarf-20261116-222919256408",
+    "trialHak": "srn_rh_dwa2.hak",
+    "actors": [
+     "sr_h_actor24",
+     "sr_h_actor25"
+    ],
+    "gallery": "pmd0_head025-client.jpg",
+    "gallerySha256": "7aed047a5a1c7f5f0c0965ec5faf284acb773c223b4b984b042a64910d57c983",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor24-three-1.png",
+      "sha256": "0f8a5d84f5f2f33906be65c29bc0a00387db962cf5aaf2fd806c561c68a8552c"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor24-threeleft-1.png",
+      "sha256": "10fbd75d1da1fa004fd3ae30cb8bb23f589bc3a4f46bb7236dee9d373b14f120"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor24-backright-1.png",
+      "sha256": "445191d25c51aaae55f8c737ccc125d102a5ede06ef628d8bc051140913d8c03"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor24-backleft-1.png",
+      "sha256": "5f5a0da955f233f1c4d5646b17a7f159869cbc9ad92c20bac1b4cc8f9d22f20d"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor24-motion-1.png",
+      "sha256": "4c57dbe202643ae03b6323d1f766bdf48f34c701abecb333d5afe69fa2f0ed68"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor25-front-1.png",
+      "sha256": "bbdfd604b7e3b7e95cba3fa2bfc21e57936291f6629669fc7b413e766da2787c"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 12, hair 5 copper, iris 23 teal (auto iris decoded olive)",
+    "browsOnHair 0.755 accepted by the user 2026-11-15",
+    "client v1: dark olive collar under the jaw: uniform pale-copper bake at the golden top of hair row 2; hair 5 keeps the reference copper at its top (hairBroadContrast tried at 0.4 and 0.2 with no effect, reverted)",
+    "client v2: collar under the jaw reads as dark copper-brown shadow; braid and temple cyberware intact"
+   ]
+  },
+  {
+   "head": "dwarf-male-d",
+   "design": "Dockstone",
+   "batch": 5,
+   "slot": "pmd0_head026",
+   "resources": {
+    "mdl": {
+     "name": "pmd0_head026.mdl",
+     "sha256": "0460080e5894e34f8875243d2c8b2ddbb59cd629b6db1fdc454764534b66284d",
+     "bytes": 1164412
+    },
+    "plt": {
+     "name": "pmd0_head026.plt",
+     "sha256": "560e00850c289a87ba0cfe6728a33eedeea5e07bf103d8149c2401a62609227f",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 156,
+    "1": 7,
+    "2": 0,
+    "3": 0,
+    "8": 35,
+    "9": 0
+   },
+   "features": {
+    "face": "adult compact round face, golden tan skin, jaw-length dense textured dark auburn waves with both rounded ears visible, neat short sideburns and small pointed chin beard, amber irises; round ears. calm confidence with a tiny mouth-corner lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, visible within the side waves.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Jaw-length dense textured dark-auburn waves with full crown and closed rear, neat short sideburns; dark-auburn brows.",
+    "beard": "Small pointed dark-auburn chin beard with a thin mouth-corner line; no moustache.",
+    "cyberware": "One recessed slate titanium temple port with a small inset slot on the viewer's left, separate from the eyebrow and hair."
+   },
+   "designSha256": "59336eed3a97429fb4222f4ae99516492731f4c2341a57f5a79caea591c4214a",
+   "geometrySubmissions": 4,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "dwarf-20261116-222919256408",
+    "trialHak": "srn_rh_dwa2.hak",
+    "actors": [
+     "sr_h_actor36",
+     "sr_h_actor37"
+    ],
+    "gallery": "pmd0_head026-client.jpg",
+    "gallerySha256": "da5f787002f38f037ead2b0737da4a57aa6d0f176457de6e818b246401b9d4eb",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor36-three-1.png",
+      "sha256": "40149301258f6d604706217baa2549ecf9a194c1ea574366b435ab95c4d7f8ae"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor36-threeleft-1.png",
+      "sha256": "6c1d36353148947cec097aae462127a34024e0bfedf97ee5aa1cb7c75374738c"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor36-backright-1.png",
+      "sha256": "d6f17fb62bcce2a63daa22ffb115ccc782d7934a0be66670eaf665b600099e0c"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor36-backleft-1.png",
+      "sha256": "b94b2a7420a4c00f6001a8d4632cc2076d75f90f8972df7f79c6c06c26d9bd2b"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor36-motion-1.png",
+      "sha256": "1814542332b20a9605dd38ef0558b3b57b78936d6e86a2faf46e5f0ced7fa3be"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor37-front-1.png",
+      "sha256": "ef22a32fad62a0f037a3cbbbda431eb721fcfe68ca9d4dbfdaa067548ffa0f97"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry: seeds 0-2 all closed the head with a flat base plane; seed 0 approved via a fourth submission rerunning seed 0 (gpu-review approves only the current submission)",
+    "fit: nose/profile placements disagreed by 2.2 cm; profile alignment with depthOffset +0.02, heightOffset -0.015",
+    "browsOnHair 0.65 accepted by the user 2026-11-15",
+    "palette pins skin 156, hair 7 dark auburn, iris 35 amber",
+    "client v1 back views rejected (inspection events in the same second); recaptured in v2",
+    "client v2: all four three-quarter views captured; back waves, brows and goatee pass"
+   ]
+  },
+  {
+   "head": "dwarf-male-e",
+   "design": "Frostiron",
+   "batch": 5,
+   "slot": "pmd0_head027",
+   "resources": {
+    "mdl": {
+     "name": "pmd0_head027.mdl",
+     "sha256": "b9a3e118259034769d292a20387f3f324231a70e0c36ecb63bfa19f4d47fbb40",
+     "bytes": 1172124
+    },
+    "plt": {
+     "name": "pmd0_head027.plt",
+     "sha256": "d51ecbdb6932e42b427c47f37d8eca74e8859a057127a56e7673eaa739cdadcf",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 118,
+    "1": 62,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "older broad compact face, deep warm brown skin, short white close curls, white straight moustache and clean-shaven chin, muted brown irises; round ears. slight attentive brow lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Dwarf ears, anatomically attached, fully visible below the short curls.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short close white curls with full crown and closed rear; thick white brows.",
+    "beard": "White straight full moustache; clean-shaven chin.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "8257402d949330bd79c1efd206b88224d2d39c910074279ee6d6baf8051f799e",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "dwarf-20261116-222919256408",
+    "trialHak": "srn_rh_dwa2.hak",
+    "actors": [
+     "sr_h_actor48",
+     "sr_h_actor49"
+    ],
+    "gallery": "pmd0_head027-client.jpg",
+    "gallerySha256": "22a3b7c0a71ce911f45f21c13c42f187c467fb684ba4095ff8dc1217de3faf7f",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor48-three-1.png",
+      "sha256": "bd00a909c75ba7199ea55052ed4ca612205546ccfa021b6cd2e51d5acd88b6c2"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor48-threeleft-1.png",
+      "sha256": "cb1a4467809167e4d6af86f2b2d32a5469d1bfb88b3929e099d5a03a088aec0a"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor48-backright-1.png",
+      "sha256": "6ed0ef5f08de23a42652d34de22ad432e00311f4b53600dccbac7a0573f3e1fd"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor48-backleft-1.png",
+      "sha256": "793014c04dacd0831d57fe714e0c64c5f7e749f776bfc107ee0cefd4206cad38"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor48-motion-1.png",
+      "sha256": "f806eccb1f71675aa4e23c674bd5a0382139188bc0af2e2584fcf332b17d3b81"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor49-front-1.png",
+      "sha256": "b3106186c58c5a6aed394650bacb8503a876439bb34c344fcbc32ef46b2656c8"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry reseeded (seed 1): geometry-0001 had a tangled lump at the lower rear",
+    "client v1: hair row 19 rendered steel blue (blue-grey low shades); hair 62 neutral white. Rear hairline at mid-ear over curl relief; ownership rules-04 takes the curls to the ear lobes with an explicit ear box",
+    "palette pins skin 118, hair 62, iris 173",
+    "client v2: neutral white curls; short-cut hairline at the ear lobes over a plain nape"
+   ]
+  },
+  {
+   "head": "elf-female-a",
+   "design": "Foxglove",
+   "batch": 4,
+   "slot": "pfe0_head022",
+   "resources": {
+    "mdl": {
+     "name": "pfe0_head022.mdl",
+     "sha256": "b2fb291778863c3e2f2f7ac997d7de497d9070bd0328efe1890a8b5c88a3edde",
+     "bytes": 1271420
+    },
+    "plt": {
+     "name": "pfe0_head022.plt",
+     "sha256": "e66084bfe96a289ac64f484d306e3deeda4537b41ed1771612d91239b0cfc646",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 156,
+    "1": 5,
+    "2": 0,
+    "3": 0,
+    "8": 113,
+    "9": 0
+   },
+   "features": {
+    "face": "adult angular face, honey-brown skin, long copper curls gathered into one continuous rear hair mass and side locks, forest-green irises; two pointed ears visible. faint closed-lip smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Elf ears, anatomically attached, protruding outward through the curls with the tips fully visible.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long copper curls gathered into one continuous rear hair mass with side locks falling well below the jaw on both sides; copper brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "0dbda9de640e921ec5c31a6918fcd35f2b1f630e1ae4e159f1c7da953f11fcb2",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "elf-20261115-045521533512",
+    "trialHak": "srn_rh_elf6.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pfe0_head022-client.jpg",
+    "gallerySha256": "b6147d097763ab8afd69f86f4a7fe117ccac6216db006d936e9dc0650f0a41e9",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "01ab5a99648e9db71378cd9919caba11adba3f1f28186eb86bbe10fd8b016b85"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "2f8b3acc33e1d58a20331262a3398995bbb7ed80bfd6f96489d4fc6701d6badb"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "d97bfc1b17a0f0bc282320722cfe0937c89978206c2d69971ffb4f089c75a875"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "0c3d1551a8c03f16c67c3c6e373e29f69b97fc56ba070046ae573742f43fe82a"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "a70851c5a8221ed8da10bac193d5dae3e55ef020c11a49ab0e35bc07a4d50e4b"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "1fb9bf2c7c17139f6c784c4e9cbaee8c4a3f4bf6b16a2a807276edf972cbcea3"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 156, hair 5 copper, iris 113 (auto hair 2 golden yellow)",
+    "browsOnHair 0.76 accepted by the user 2026-11-14 (quality.browsOnHairApproved); brows read whole in client v5 and v6",
+    "seamStep 1.80 approved by the user 2026-11-15 after client views v5 and v6 (seamStep 1.798, bake 1.794; quality.seamStepApproved, RUNBOOK 178); no seam lines visible in client"
+   ]
+  },
+  {
+   "head": "elf-female-b",
+   "design": "Pearlwire",
+   "batch": 4,
+   "slot": "pfe0_head023",
+   "resources": {
+    "mdl": {
+     "name": "pfe0_head023.mdl",
+     "sha256": "173af607206d50d512e8359ab135bc6c8137483268be7f80104b3be6d9709ab1",
+     "bytes": 1227964
+    },
+    "plt": {
+     "name": "pfe0_head023.plt",
+     "sha256": "88bc5403d6c67868b0b0f7bc4773b1130edeaf5a82771bf30108c521fa8acc28",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 4,
+    "1": 50,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "adult heart-shaped face, dark umber skin, platinum coiled chin-length bob tucked behind the pointed ears, gray-brown irises; two slim pointed ears visible. quiet curiosity with one eyebrow barely lifted. Adult front-facing head, no exposed neck.",
+    "ears": "Two slim pointed Elf ears, anatomically attached, fully visible in front of the tucked coils.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Platinum coiled chin-length bob tucked behind both ears, full crown and continuous coiled rear; pale platinum brows.",
+    "beard": "Absent.",
+    "cyberware": "One narrow matte titanium implant plate along the anatomical right temple, with two subtle inset seams. Anatomical right (image-left); one plate total."
+   },
+   "designSha256": "baeddc2a70e1f89fcee892de45fb547c0c9a81eea13d26d7b53afe57905f6824",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "elf-20261115-045521533512",
+    "trialHak": "srn_rh_elf6.hak",
+    "actors": [
+     "sr_h_actor12",
+     "sr_h_actor13"
+    ],
+    "gallery": "pfe0_head023-client.jpg",
+    "gallerySha256": "179e7d44c76e111ca44a44ea3cf51a0c2147dfa10db6a74870563d36fa61ab4a",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor12-three-1.png",
+      "sha256": "3453622ede2237220a30e59000d2ff4233b1975945d527bb73901cb1a901803f"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor12-threeleft-1.png",
+      "sha256": "7a00a73079000ba9514a33a849013d6953952275d8ba591e8bf0f154a26c8e96"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor12-backright-1.png",
+      "sha256": "cdf3ace7d39dab6d8847dd38a7e4ed95d7b6ed6783529e99f03a777911e9f87c"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor12-backleft-1.png",
+      "sha256": "274b5f5b0cf32960471d58046e7e39c5e6e5d259e5899d386f193bc0ec142462"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor12-motion-1.png",
+      "sha256": "b77e35c11dcbf1d0ce203a4d5e98b071d9d85d274086c1f32fcc1847a36f570a"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor13-front-1.png",
+      "sha256": "eee8ad4de7dbf469aad9cc269ef01a33d82eb170ed632cbddf2cd3b4962ef7ab"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 4, hair 50 platinum, iris 173 (iris 115 decoded olive, RUNBOOK 405)",
+    "client v5 showed olive camouflage patches in the curls; palette.hairBroadContrast 0.3 (rowNotes say 0.35; the bound value is 0.3) turns them into strand-scale shading (RUNBOOK 408); v6 passes",
+    "watch: dark strand crevices read slightly olive under the stock hair shine in the grass test area; the uncovered pfe0 neck looks long under short curls (nose-chin matches the others)"
+   ]
+  },
+  {
+   "head": "elf-female-c",
+   "design": "Larkspur",
+   "batch": 4,
+   "slot": "pfe0_head024",
+   "resources": {
+    "mdl": {
+     "name": "pfe0_head024.mdl",
+     "sha256": "55b6d48c757aa1610da90a9375e896ed4bd80e043371f67ca1f2f77b3b030cca",
+     "bytes": 1229052
+    },
+    "plt": {
+     "name": "pfe0_head024.plt",
+     "sha256": "572f84ac232ab2869534501b551084c7296f49d5c03ab79327e763191b1fd474",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 116,
+    "1": 63,
+    "2": 0,
+    "3": 0,
+    "8": 132,
+    "9": 0
+   },
+   "features": {
+    "face": "mature narrow face, warm pale skin, short black asymmetric bob tucked behind both ears, blue irises; two pointed ears visible. focused near-neutral expression with a slight brow knit. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Elf ears, anatomically attached, angled outward and visible in front of the tucked bob.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short black asymmetric bob with a side-swept fringe from a deep part, tucked behind both ears, full crown and closed rear ending at the jaw; black brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "c3ba43b3a8f6f366854eee29b46d9ef89d97aeba0bff580faaead8754d4ae7d9",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-03",
+   "clientEvidence": {
+    "session": "elf-20261115-045521533512",
+    "trialHak": "srn_rh_elf6.hak",
+    "actors": [
+     "sr_h_actor24",
+     "sr_h_actor25"
+    ],
+    "gallery": "pfe0_head024-client.jpg",
+    "gallerySha256": "cc17547249542738da44329ea71d2973fe767f7ea14a43dc40521b9f1d58944a",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor24-three-1.png",
+      "sha256": "38dba489ef05f5072730352fa0a36342843f8a807943274b426e80d661f75808"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor24-threeleft-1.png",
+      "sha256": "dae3c0e59cf27502164b9b709b8a248278382cba7ab8f5316bd86e574e2360a0"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor24-backright-1.png",
+      "sha256": "165198b064f02d39322d96cb2f698d2fb4aa5cb1ee1858de64af5d6916ebd594"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor24-backleft-1.png",
+      "sha256": "1e16905f9575c63d3637a91b84c0fa62a96348588409263e71adb8237206e59f"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor24-motion-1.png",
+      "sha256": "c5e1a1e5ba8214d7c4df361f5ffcf379e79f255ffeef6dc49a11b359290c3c90"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor25-front-1.png",
+      "sha256": "d19922b4f7059e49a89560302073f50892132b28f6d31a9d968e567c01f57e4b"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "appearance reseeded (seed 2: seed 0 had a dark eye ring scored as a hair lock)",
+    "excludeBrow grown over the outer lash wing (RUNBOOK 401)",
+    "paint heal brow-pale-fill repairs the cream band on the silver-to-dark brows (RUNBOOK 402); eye contours rebound to the painted front render (RUNBOOK 403)",
+    "ownership cap raised to 8 by the user 2026-11-15 (budget-override-ownership)",
+    "palette pins skin 116, hair 63, iris 132"
+   ]
+  },
+  {
+   "head": "elf-female-d",
+   "design": "Rainmint",
+   "batch": 4,
+   "slot": "pfe0_head025",
+   "resources": {
+    "mdl": {
+     "name": "pfe0_head025.mdl",
+     "sha256": "0629e79134e076c5d9652d1a883343e6a77d47c4dc8f84b67ed1fd5274a9f569",
+     "bytes": 1213436
+    },
+    "plt": {
+     "name": "pfe0_head025.plt",
+     "sha256": "3014d1b7bceb0605e48847da3a0b633957fbf1cb5992eb45e8097a4849b1a349",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 1,
+    "1": 39,
+    "2": 0,
+    "3": 0,
+    "8": 35,
+    "9": 0
+   },
+   "features": {
+    "face": "adult rounded cheekbones and narrow jaw, golden olive skin, long wavy dark-teal hair extending well below the jaw in a continuous rear curtain, natural full hairline, amber irises; two outward pointed ears. serene with a minimal closed-mouth smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two outward pointed Elf ears, anatomically attached, protruding through the side hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long wavy dark-teal hair with a natural full hairline, falling well below the jaw on both sides in one continuous rear curtain; dark-teal brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "3ea216531a2e90061368b17c1ca711fea58d1e2c46b16259ccebe14ffbdcabe3",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "elf-20261115-045521533512",
+    "trialHak": "srn_rh_elf6.hak",
+    "actors": [
+     "sr_h_actor36",
+     "sr_h_actor37"
+    ],
+    "gallery": "pfe0_head025-client.jpg",
+    "gallerySha256": "a9cfbb0e23079d610092eae8a137e299cefb379d6db99cc443085ba82e496c9e",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor36-three-1.png",
+      "sha256": "1ddfb9cdde47b79dd8be3c2124a66406b293041ed5421ad9f0e49697b54ae173"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor36-threeleft-1.png",
+      "sha256": "73934a9e38b5c31576be2e7bb73f79169feb5e31fe394c2d5d03047eaecd953a"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor36-backright-1.png",
+      "sha256": "6247b693b63b6490b8bacf9d19bfe1e28b70edc6db9636fcc46f3cf2bb92214e"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor36-backleft-1.png",
+      "sha256": "df548f30f83495afad9f605fe4e1ee17eaecf691bb34e184273691b2ad8b7647"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor36-motion-1.png",
+      "sha256": "d073f8debcd7e71a9ae92962d930c3c7bc87ca9355ef12c29428ee44c13acb4e"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor37-front-1.png",
+      "sha256": "585ecb3c0bad2e196448d72dfd6bccab3d7845fc2312f532de906d0e00f7414c"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "mesh.smooth for the dense coils; skinShadeContrast 0.8 (0.7 fails full range)",
+    "palette pins skin 1, hair 39 teal, iris 35 amber",
+    "client v5 black discs at both brow tails; reviewed contours could not reach them, so faceMasks back to {} and the tone brow treatment now skips parser hair (RUNBOOK 409, 3881615c); v6 passes"
+   ]
+  },
+  {
+   "head": "elf-female-e",
+   "design": "Amberbark",
+   "batch": 4,
+   "slot": "pfe0_head026",
+   "resources": {
+    "mdl": {
+     "name": "pfe0_head026.mdl",
+     "sha256": "d49bbf0b484904c15098e09f8db7d685cb17748d0445a25769c5832a7096277f",
+     "bytes": 1275996
+    },
+    "plt": {
+     "name": "pfe0_head026.plt",
+     "sha256": "fb462004aca4bffe90a5cbae1551a7c3c3eb5e345b0ad2035a8ffed1f60b2fec",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 2,
+    "1": 6,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "adult long cheekbones, rich copper-brown skin, long auburn coils with one broad braid down each side below the jaw and a coherent rear mass, brown irises; two slender pointed ears visible. composed with a trace of a unilateral lip-corner lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two slender pointed Elf ears, anatomically attached, protruding outward above the braids.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long auburn coils with one broad braid down each side below the jaw and a coherent closed rear mass; auburn brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "d13e411be580053822f5a70dcb5be6793702b5d49a505e54ac3d5687ebee4b7b",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "elf-20261115-045521533512",
+    "trialHak": "srn_rh_elf6.hak",
+    "actors": [
+     "sr_h_actor48",
+     "sr_h_actor49"
+    ],
+    "gallery": "pfe0_head026-client.jpg",
+    "gallerySha256": "fd81ccb112346606ebb316f2d8fd2d3329c90367d8fa88918655ad310be5ec72",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor48-three-1.png",
+      "sha256": "e023bd80240927f9c71d182d1af3c87631e5bd98ca5264e8ff917120c7c3cbb8"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor48-threeleft-1.png",
+      "sha256": "67d7b8cdcbf226b2a09210f385b8537953e43e56799d704f8fd2e347f0b87f50"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor48-backright-1.png",
+      "sha256": "504b24aa3e3e2f8b26b93111f8dc44ea007810ea6871276671d2beefd001e5df"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor48-backleft-1.png",
+      "sha256": "1f9e744ba9313ac0023cbcbb51ac7111ca8084fdff3f1be732830c2639b1ba5e"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor48-motion-1.png",
+      "sha256": "500d21179e0717926c71369557dc4e486150174c8cd475e62f1e2d5b28dcb72f"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor49-front-1.png",
+      "sha256": "5a1f486be698e1d77cacc4785acb3941deb9f86a6da605b90b224d5ca41fee17"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "skinShadeContrast 0.75 for featureFocus and faceDark (RUNBOOK 406)",
+    "client v5 pale face over a dark olive reflective body: design skin row 59 is a partial-alpha environment-mapped row; skin 2, hair 6, iris 173 pinned and partial-alpha skin rows now refused (RUNBOOK 407, 29f43c76); v6 body matches the face"
+   ]
+  },
+  {
+   "head": "elf-male-a",
+   "design": "Sablegrove",
+   "batch": 3,
+   "slot": "pme0_head024",
+   "resources": {
+    "mdl": {
+     "name": "pme0_head024.mdl",
+     "sha256": "be39adbf66e8a5d4da4248a5db825a8c81c17b84dd030965fa71a44852b2ebdd",
+     "bytes": 1256892
+    },
+    "plt": {
+     "name": "pme0_head024.plt",
+     "sha256": "b696e127f7636ca745c877df54da2297777458e128329f45710625c4156e7384",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 3,
+    "1": 63,
+    "2": 1,
+    "3": 0,
+    "8": 51,
+    "9": 0
+   },
+   "features": {
+    "face": "slender angular face, warm brown skin, short black finger waves, almond-shaped amber eyes, clean shaven; two narrow pointed ears visible. slightly curious, one brow lifted a trace. Adult front-facing head, no exposed neck.",
+    "ears": "Two narrow pointed Elf ears, anatomically attached, angled outward and fully visible beside the short waves.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short black finger waves close to the skull, full crown and closed rear, sides clear above the ears; black brows.",
+    "beard": "Absent.",
+    "cyberware": "One small flush oval dark titanium datajack with a thin silver rim on the viewer's right temple."
+   },
+   "designSha256": "a52e8de26016310505b882e81137e09d0e910ec2b3131c071c83f3e6d46f3811",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "elf-20261114-201553761399",
+    "trialHak": "srn_rh_elf3.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pme0_head024-client.jpg",
+    "gallerySha256": "0b714362f3962af3a5eb87610255b91624142eee175a0c9644468cca167dc273",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "9ca50048bc104bc4c09ec8204a772863e1637234db3f27e2da5311637928979b"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "fb4b63447e4733d9af40268ea6954f6e21c3d908448b5a1400107c618d4ee48c"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "b792352788052f0393742bc93695923e8eae8105db2f13a27fec03c4717e981c"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "3377df7442b32c110902a7782b07634187bd98ac12f9731684bd0fa565e9cb66"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "c263ca9e53152ea43aa3448de58912dac6bc9159787037eae03163e1d8738219"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "cef1600b379b13971a5e93dcce0d5afd85507b4d057dbfab253c64fade762a0f"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 3, hair 63, metal1 1, iris 51 (auto rows olive)",
+    "ownership rules-02: metallic separates the warm part and hairline highlights",
+    "minor, accepted: small white baked highlights on the tragus and conch and a pale brow-tail fleck (RUNBOOK 398, toolkit follow-up)"
+   ]
+  },
+  {
+   "head": "elf-male-b",
+   "design": "Farsky",
+   "batch": 3,
+   "slot": "pme0_head025",
+   "resources": {
+    "mdl": {
+     "name": "pme0_head025.mdl",
+     "sha256": "d8ca33340b6ef3ff6ccf3aa69287ad70e4787595a24bd1c83b0770a152089c78",
+     "bytes": 1275548
+    },
+    "plt": {
+     "name": "pme0_head025.plt",
+     "sha256": "72464dc929c0be2aa13bf7ab381e4ed9a77edaff9f4ab08e4288ad0290147cf0",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 12,
+    "1": 13,
+    "2": 0,
+    "3": 0,
+    "8": 132,
+    "9": 0
+   },
+   "features": {
+    "face": "mature long face, cool pale skin, medium ash-blond hair brushing the jaw, with a soft side part and both ears visible, storm-blue irises, clean shaven; two short pointed ears visible. calm focus, very slight inner-brow movement. Adult front-facing head, no exposed neck.",
+    "ears": "Two short pointed Elf ears, anatomically attached, their upper halves and tips visible through the side hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Medium ash-blond hair with a soft side part, falling over the sides to brush the jaw, continuous rear; ash-blond brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "1a7c5dd6954e5e69efeb42346ffeb7225c9fb15c87e2244facb615d1e120a4ca",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "elf-20261114-201553761399",
+    "trialHak": "srn_rh_elf3.hak",
+    "actors": [
+     "sr_h_actor12",
+     "sr_h_actor13"
+    ],
+    "gallery": "pme0_head025-client.jpg",
+    "gallerySha256": "6a5a1739185db8893d9087e4f84987e5b48600e59a84ae5a7ee40bab230ba1dd",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor12-three-1.png",
+      "sha256": "914d434e705f8416ecf2922b7c9224b8c6c047e88c16d43d01f6b2dcd57136cd"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor12-threeleft-1.png",
+      "sha256": "42eae2f37f54fedd0cbc23fc408e3b4541519355f69ffb6821c1c71f7c004da0"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor12-backright-1.png",
+      "sha256": "d1f0edebaac8088e5384f212a63dbbe8e68d6b8f1ef95e0162199ac40e452f1d"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor12-backleft-1.png",
+      "sha256": "561c457ea62381407c0bb4d574e969b99172472ac8c89adfba4e5298f212db03"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor12-motion-1.png",
+      "sha256": "8d2537dbab33b3258ec9348ecc41dcad0d3bcf3da39f1af82d749497d9c9b9ff"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor13-front-1.png",
+      "sha256": "1fc7f5cde226c80fcad2dc1f2bb83cb4c7726620ceba916d2313f78fd9786e16"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry reseeded once (crown nub)",
+    "reference-eye contours bound",
+    "palette pins skin 12, hair 13, iris 132 (auto skin 121 greenish); skinShadeContrast 0.75 after render attempt-01 blew out the forehead",
+    "browsOnHair 0.82 accepted by the user 2026-11-14 (quality.browsOnHairApproved, RUNBOOK 393); brows read whole in client elf-v3"
+   ]
+  },
+  {
+   "head": "elf-male-c",
+   "design": "Ochre",
+   "batch": 3,
+   "slot": "pme0_head026",
+   "resources": {
+    "mdl": {
+     "name": "pme0_head026.mdl",
+     "sha256": "79c2fdcb72ec613816584f9171a021d1266d17edb50694e7cc65d704a377952b",
+     "bytes": 1334268
+    },
+    "plt": {
+     "name": "pme0_head026.plt",
+     "sha256": "bda69113a410c7ac945d8a6e8749323de8db185c3cee97f3b7b065689b9f9658",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 2,
+    "1": 98,
+    "2": 0,
+    "3": 0,
+    "8": 112,
+    "9": 0
+   },
+   "features": {
+    "face": "adult prominent cheekbones and narrow chin, copper-tan skin, deep-plum tightly curled jaw-length layers, tucked behind both ears, olive irises, clean shaven; two tapered pointed ears. quiet friendly hint of a smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two tapered pointed Elf ears, anatomically attached, fully visible in front of the tucked curls.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Deep-plum tightly curled jaw-length layers tucked behind both ears, full crown and continuous curled rear; dark brows.",
+    "beard": "Absent.",
+    "cyberware": "One recessed dark titanium datajack with a narrow cool-silver rim on the anatomical left temple, away from eyebrow and ear."
+   },
+   "designSha256": "3ea2420196ff5608b5a1279ccabeb15a791d9ee7d84f2f711eb9412ca0956115",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "elf-20261114-201553761399",
+    "trialHak": "srn_rh_elf3.hak",
+    "actors": [
+     "sr_h_actor24",
+     "sr_h_actor25"
+    ],
+    "gallery": "pme0_head026-client.jpg",
+    "gallerySha256": "aa855ac4c35fad0c29662c2e1edf1a37b1c355bcd409c9204ed83fa8d1cd86f6",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor24-three-1.png",
+      "sha256": "847e7cecbbc494286c66b9cbeca84724710d3affd25ede6a489d5b5638d3a5f2"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor24-threeleft-1.png",
+      "sha256": "2370c861fe8becd2999fbf700db6e64a047591e898c9397c46aaa2093e7fd43e"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor24-backright-1.png",
+      "sha256": "47689712aa9a1812af6928ab43cef49f2df0ffc4d1e94491538a5800ed3551c4"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor24-backleft-1.png",
+      "sha256": "f47af51e55891cb1e4a51ed4fde0d432f64c2d95cb91205eed71cae1df454544"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor24-motion-1.png",
+      "sha256": "3eb4501fa84e61d5a538ebf11ab2ba4f590da8f64f9a3ae527bd0625baabb129"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor25-front-1.png",
+      "sha256": "7cd1d51ef4513f68909d2a01c11ddb6b809375c07120ecc703e0799a03ecce12"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "repair components and UV floor 0.26",
+    "ownership rules-03: datajack on metal1; the temple plum tint stays skin after render attempt-01 decoded it as bright-pink panels (RUNBOOK 397)",
+    "palette pins skin 2, hair 98, iris 112 (auto hair 112 olive)"
+   ]
+  },
+  {
+   "head": "elf-male-d",
+   "design": "Silverfern",
+   "batch": 3,
+   "slot": "pme0_head027",
+   "resources": {
+    "mdl": {
+     "name": "pme0_head027.mdl",
+     "sha256": "7668fd7d8741282a3c7f7f1f45b7bb0eaf6a1164f7f977c54363b532730c0d61",
+     "bytes": 1167292
+    },
+    "plt": {
+     "name": "pme0_head027.plt",
+     "sha256": "c31026bd11f4bbac93c4c9dba90fe1713aad1d16dfb085de0d5b0a8ad5e16a5b",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 4,
+    "1": 19,
+    "2": 0,
+    "3": 0,
+    "8": 113,
+    "9": 0
+   },
+   "features": {
+    "face": "older fine-featured face, deep brown skin, short silver-gray dense natural coils, dark gray irises, clean shaven; two outward pointed ears. relaxed near-neutral face with a subtle lip corner lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two outward pointed Elf ears, anatomically attached, fully visible below the coils.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short silver-grey dense natural coils with a rounded high top, full scalp coverage and closed rear; grey brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "1657652a2ff4feb484d285113224bf2503e6481aa760e2b6593a38e763681521",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "elf-20261114-201553761399",
+    "trialHak": "srn_rh_elf3.hak",
+    "actors": [
+     "sr_h_actor36",
+     "sr_h_actor37"
+    ],
+    "gallery": "pme0_head027-client.jpg",
+    "gallerySha256": "bec6c1d36f57ef8e05d14780b299fe3db380d1c547f30fdbdc645fe627ef8b17",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor36-three-1.png",
+      "sha256": "37e7927c7d1cfdf629ecd28af8d5afa9a4a9a020d3a1f07dee888a1a4cda8f60"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor36-threeleft-1.png",
+      "sha256": "b954f4e85b31ee984b7484a17c0e3be7af0487267e0e2d13710fd73bdea778b7"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor36-backright-1.png",
+      "sha256": "09b81e5ad5ad6c3bf632857799821441ad1f1b3842dbdf44ed3378e4a275b847"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor36-backleft-1.png",
+      "sha256": "c1457a2a0c405c5c77496fe67b26c9608304c5c2d913152bc16ad234cddaac51"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor36-motion-1.png",
+      "sha256": "855dbfd3b0dd9b3eb9ec210605eed30e7c55c521c8fb79283a778dea2879bb57"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor37-front-1.png",
+      "sha256": "51a579608dfe12767de069021ae672c52f53882b703c1d4cf4bcc5469eb093a0"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "appearance reseeded (blank eyes); reference-eye contours bound",
+    "palette pins skin 4, hair 19, iris 113 with skinShadeContrast 0.75 after render attempt-01 decoded a near-black mottled face (auto hair 112 olive)",
+    "browsOnHair 0.78 accepted by the user 2026-11-14 (quality.browsOnHairApproved, RUNBOOK 393); silver brows read whole in client elf-v3 with a faint warm underside"
+   ]
+  },
+  {
+   "head": "elf-male-e",
+   "design": "Umberleaf",
+   "batch": 3,
+   "slot": "pme0_head028",
+   "resources": {
+    "mdl": {
+     "name": "pme0_head028.mdl",
+     "sha256": "2704e0a33eea566e82ab78ac43a7a98dafd4c1fd4c43cfc488257fcd23f0d109",
+     "bytes": 1270300
+    },
+    "plt": {
+     "name": "pme0_head028.plt",
+     "sha256": "e714c3f9c05dd300dc599af467371dc09c8cf9be0dbb5da796455da412f8f958",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 1,
+    "1": 2,
+    "2": 0,
+    "3": 0,
+    "8": 114,
+    "9": 0
+   },
+   "features": {
+    "face": "adult narrow cheekbones, light warm freckled skin, long wavy copper hair flowing below the jaw, secured back at the sides, coherent rear hair curtain, pale hazel irises, clean shaven; two short outward pointed ears. attentive, barely lifted brows. Adult front-facing head, no exposed neck.",
+    "ears": "Two short outward pointed Elf ears, anatomically attached, visible through the secured side hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long wavy copper hair secured back at the sides and flowing well below the jaw on both sides, with one continuous rear curtain; copper brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "2c38bb316b79360b69ccb20e81defd2d278267740623a9ee8e4336a4904853df",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "elf-20261114-201553761399",
+    "trialHak": "srn_rh_elf3.hak",
+    "actors": [
+     "sr_h_actor48",
+     "sr_h_actor49"
+    ],
+    "gallery": "pme0_head028-client.jpg",
+    "gallerySha256": "c8d7931ccfba6166c50f6035f010a8c6d702da3067f7bb23d28d933275774d19",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor48-three-1.png",
+      "sha256": "df4b2515af3f2e5dcc25086e51c5522e777202589b10faecca080fb2363ada07"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor48-threeleft-1.png",
+      "sha256": "e901cda4fa926bea3f30742a5f1d1eec8de18486d39b7ecbe97837efce92262f"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor48-backright-1.png",
+      "sha256": "0ec9ee456df48adb3713a98c19d9b11b437c483e110e2c8e58c7a8df1f9af98e"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor48-backleft-1.png",
+      "sha256": "7951c2989e1f460842807a950470a29889e854279a6a806e768efb2e4e647c4e"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor48-motion-1.png",
+      "sha256": "56f22f30071786fbe062d9afe1f7cc5cd93f18aacf32e61495d52d6df589acb7"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor49-front-1.png",
+      "sha256": "7a00aaefb829f8fe99e60bcbc1fb7cad98c4a1d8b6f0b0b75dab0e4c659895d8"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "reference-eye contours bound",
+    "palette rows pinned skin 1, hair 2, iris 114 (auto, pinned for the export guard)",
+    "minor, accepted: a small light sliver under a strand on the right upper hair (one reduced face with inward vertex normals renders black offline, RUNBOOK 399)"
+   ]
+  },
+  {
+   "head": "human-female-a",
+   "design": "Juniper",
+   "batch": 2,
+   "slot": "pfh0_head032",
+   "resources": {
+    "mdl": {
+     "name": "pfh0_head032.mdl",
+     "sha256": "a94bbfaa8f2d7c8bfdd665a10144bee06dbf5629997d0f2256ccb08b9e5fb009",
+     "bytes": 1180956
+    },
+    "plt": {
+     "name": "pfh0_head032.plt",
+     "sha256": "f869dd8eeeb62bcc74f839845cdf9c5196f5d396f0fbdfc9326df32800aa82e5",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 116,
+    "1": 119,
+    "2": 0,
+    "3": 0,
+    "8": 115,
+    "9": 0
+   },
+   "features": {
+    "face": "adult heart-shaped face, warm freckled fair skin, short dark auburn bob tucked behind ears, olive green irises. small warm closed-lip smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Human ears, both visible in front of the tucked bob.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short dark auburn bob tucked behind both ears, full crown and continuous rear; brows in the hair colour.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "aeada46673d73266563695d2cec1667b1e265a0086611d7f256c1bb042d5ce41",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "human-20261114-084317167000",
+    "trialHak": "srn_rh_hum15.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pfh0_head032-client.jpg",
+    "gallerySha256": "61d50212eb83f235eea3e35039e19fbc063bc919764aebf97341174a48d3118a",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "896710bc561e2888cf6c5b1ec3b6fc4a8afa1dbb6196b409f382e6b8d4106b14"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "8c3b1f377be0c0a89fe9669f6f78a8f84805681174e59aea25320fa7671eece6"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "08db1e047a06f8dbea142c6532a1bebaa34c46c8a1e646fc92676a4cdf7d6444"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "98045481109a4cf3d4e913874368ac6bc531c4009fedc52b6c5abb918cdca67c"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "7faa68a07ed0d4bc409921969d9534d8fe70535c5f61f2349f1aee364f23a39f"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "0983dd36b808327726ad9cdcf22b5fe14b527f227666b481919bd1fdcf3ed68b"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 116, hair 119, iris 115",
+    "client human-v14: pale hair-ramp patches in front of both ears; hairgaps atlas fix (ear-front zone, 66,866 texels to skin), re-verified in human-v15 and v16"
+   ]
+  },
+  {
+   "head": "human-female-b",
+   "design": "Bluehour",
+   "batch": 2,
+   "slot": "pfh0_head033",
+   "resources": {
+    "mdl": {
+     "name": "pfh0_head033.mdl",
+     "sha256": "7612159d2388548fa2ae6134aec15d2813ea87202f3110343eb63cd5e53872d0",
+     "bytes": 1163260
+    },
+    "plt": {
+     "name": "pfh0_head033.plt",
+     "sha256": "3f31e68c7eb46b3f9e61bfe716d08505bbc12d4440721debfec95bc4a61413a3",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 118,
+    "1": 63,
+    "2": 0,
+    "3": 0,
+    "8": 3,
+    "9": 0
+   },
+   "features": {
+    "face": "adult square cheek and jaw, dark brown skin, short dense natural coils, warm hazel irises. quietly attentive with subtly lifted brows. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Human ears, both visible below the coils.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short dense natural coils with full scalp coverage and rounded silhouette; dark brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "e619a5cd3beb19caaf43fb289c8ba5ce5836ca88f3e93a2354bdbd04f16a21d5",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-03",
+   "clientEvidence": {
+    "session": "human-20261114-142654429699",
+    "trialHak": "srn_rh_hum18.hak",
+    "actors": [
+     "sr_h_actor12",
+     "sr_h_actor13"
+    ],
+    "gallery": "pfh0_head033-client.jpg",
+    "gallerySha256": "76a216cb6cded2edab7aaaf12f092b51008c90d4a800e85910910d7ffe2a2cfb",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor12-three-1.png",
+      "sha256": "4ba647b9c169c4e6d2425b145853d002a72f4fac164ae14d1dbd30648763eaf7"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor12-threeleft-1.png",
+      "sha256": "4758bca0b96d7558671fff6dd448fdc8eac8846eef3e71b4756ed890f372f65d"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor12-backright-1.png",
+      "sha256": "65cbfc49340e10c4c163d7253336c0475fc1fca81bd3108e975c8d61d6566735"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor12-backleft-1.png",
+      "sha256": "e715b5281ed6bd038bbb5f7a8f28e2ace06c216516096f55b3856ec17412d8ce"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor12-motion-1.png",
+      "sha256": "0e24a8980229617cf2290d5afea8938f156d39b77b0810830e09fb410d3dc021"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor13-front-1.png",
+      "sha256": "15854aadcf93199a18b748546b8f1992c1771490eac43a394ce604813b3eb555"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 118, hair 63, iris 3 (auto 115 olive; hair 15 showed a two-tone back)",
+    "brow gate scored by the user-approved quality.sourceHairRoles trace with locks null (0.937/0.929; landmark polygon 0.797 counted skin)",
+    "tone faceTreatment smooth 0.9, delight 1.0, lidLine 0.85 and palette skinShadeContrast 0.75 after client v17 showed a mottled face",
+    "quality.seamStepApproved 2.15 approved by the user 2026-11-14 after client views v17 and v18 (seamStep 2.143, bake 1.716)",
+    "known, accepted: soft pale nose patch with darker rims; lips match the skin (nose heal previewed and rejected)"
+   ]
+  },
+  {
+   "head": "human-female-c",
+   "design": "Harbor",
+   "batch": 2,
+   "slot": "pfh0_head034",
+   "resources": {
+    "mdl": {
+     "name": "pfh0_head034.mdl",
+     "sha256": "5aeae7c14bca3556737e918054de26dca097b9c2f5fc936c21d2a5fe81b7e277",
+     "bytes": 1183644
+    },
+    "plt": {
+     "name": "pfh0_head034.plt",
+     "sha256": "330b84b6bf91a638b4f8b93d674858b2a120ee154f0cc952cc6fb01689d627a8",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 116,
+    "1": 75,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "mature oval East Asian face, light peach skin, salt-and-pepper short side part, dark brown irises. thoughtful near-neutral mouth and slight inner-brow focus. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Human ears, both visible below the short hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short salt-and-pepper side part with a swept fringe and grey streaks, full crown and nape; dark-grey brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "551e1977e0eb083b8e9057b40cfcf41549ae7155216953ca4bade4b5b0bfd1eb",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "human-20261114-084317167000",
+    "trialHak": "srn_rh_hum15.hak",
+    "actors": [
+     "sr_h_actor12",
+     "sr_h_actor13"
+    ],
+    "gallery": "pfh0_head034-client.jpg",
+    "gallerySha256": "3c323d383a356be8ff22fa042d9aad9306255dc74cc3ad3a4402e02416be705e",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor12-three-1.png",
+      "sha256": "ba8f19ce933517f8192aa96e536700cd850d839fd9127d8ca61f0e00249a06f4"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor12-threeleft-1.png",
+      "sha256": "fb118f8b7cf5e84177d7c6abd67e67970e74302850215f6e6afdea85c06bc3da"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor12-backright-1.png",
+      "sha256": "3758859732a4174f378c8287ef92dd86c5fb8445fd902b8e972de0dc3e8f8220"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor12-backleft-1.png",
+      "sha256": "dadf348a7b9e1d2bb3a3d0714fd555bb0cd44ba1ed55e3661cba9b27921ffb0d"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor12-motion-1.png",
+      "sha256": "a65f9eb0b8c13df82819ee330f253b2ad4c167e93b4b34e92cf0ac808e439a47"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor13-front-1.png",
+      "sha256": "ee753ccc8872220447db77ce373a40bb388571241b66fe4043ced7f78b1fa0bd"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 116, hair 75, iris 173",
+    "client human-v14: black line under the jaw; atlas fix (shadowed jaw underside 82,533 texels, skin-coloured ear texels 18,553) re-verified in human-v15 and v16",
+    "minor, accepted: ear speck, cheek shine, thin jaw shading edge"
+   ]
+  },
+  {
+   "head": "human-female-d",
+   "design": "Flint",
+   "batch": 2,
+   "slot": "pfh0_head035",
+   "resources": {
+    "mdl": {
+     "name": "pfh0_head035.mdl",
+     "sha256": "1f948b6f7b21b232c908d732a407d8fc3ff40f88c07a9cd31907b48486881f05",
+     "bytes": 1225724
+    },
+    "plt": {
+     "name": "pfh0_head035.plt",
+     "sha256": "8987d26b08c60bcc08800e48d00d7a63a45ab087d0e6ff628c6b57bbf9d7f309",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 116,
+    "1": 63,
+    "2": 168,
+    "3": 0,
+    "8": 114,
+    "9": 0
+   },
+   "features": {
+    "face": "adult angular face, medium olive skin, jaw-length sleek black asymmetric bob tucked away from the exposed temples, gray-green irises. composed with the smallest one-sided mouth lift. Adult front-facing head, no exposed neck.",
+    "ears": "Anatomical-right ear visible (image-left); anatomical-left ear covered by the bob.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Jaw-length sleek black asymmetric bob; tucked clear of the anatomical-right temple and ear, falling over the anatomical-left ear to below the jaw; black brows.",
+    "beard": "Absent.",
+    "cyberware": "One small brushed titanium curved temple plate on the anatomical right side, fully visible and flush with skin. Anatomical right (image-left); one plate total."
+   },
+   "designSha256": "496fe4dc7927af729e9d6c0ffa8ad64c9fa7efde49d3692855312b8934f4fc62",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "human-20261114-081754081355",
+    "trialHak": "srn_rh_hum14.hak",
+    "actors": [
+     "sr_h_actor24",
+     "sr_h_actor25"
+    ],
+    "gallery": "pfh0_head035-client.jpg",
+    "gallerySha256": "638b8dfa893a3836af368220cd839f973f199d9e7d27a782369567ef6d65707f",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor24-three-1.png",
+      "sha256": "69c2cc616da219e6d0be182b178ddd1210dfba3651183f436ced13b56a9a3a99"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor24-threeleft-1.png",
+      "sha256": "4ea597b58f906d392e52256372a315a985d7ad83d991b88b6e12699119d423ac"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor24-backright-1.png",
+      "sha256": "56205bf1ad968c2815741e1d29692d117db0fc76759dca1dd28bf1be3dee0daf"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor24-backleft-1.png",
+      "sha256": "428301580b0d9939f9b0b4000dc41519ba9e5b5b003221353c80f80de01968e9"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor24-motion-1.png",
+      "sha256": "92e5e973fa978646cdb76df9e990c78b22e5c4b14615d4b789e5377e842fd827"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor25-front-1.png",
+      "sha256": "c9c50a177dc86a09eef337d8f944084f1be71e9f253be6a46aea621507a911c9"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 116, hair 63, iris 114, plate 168",
+    "minor, accepted: maroon smoky-ring smudge"
+   ]
+  },
+  {
+   "head": "human-female-e",
+   "design": "Mica",
+   "batch": 2,
+   "slot": "pfh0_head036",
+   "resources": {
+    "mdl": {
+     "name": "pfh0_head036.mdl",
+     "sha256": "7d15b9c4eb805b71e601c9f2692902b93b5b81e7da8e609ac74cd1754ff0e3e4",
+     "bytes": 1244380
+    },
+    "plt": {
+     "name": "pfh0_head036.plt",
+     "sha256": "d6a5f9ba50129d1916de2181f1833a004423b0ed79a533f87d20dac7e19d90f1",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 2,
+    "1": 15,
+    "2": 0,
+    "3": 0,
+    "8": 3,
+    "9": 0
+   },
+   "features": {
+    "face": "adult broad round face, deep golden brown skin, long soft chocolate waves reaching well below the jaw with a single continuous rear curtain, dark amber irises. mild curiosity with a barely higher eyebrow. Adult front-facing head, no exposed neck.",
+    "ears": "Both ears covered by the waves.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long soft chocolate waves reaching well below the jaw on both sides, with one continuous rear curtain and full loose tips; dark brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "8eab2cc82610c6e2cddc0875e0cbbd4be36ae1e82a1ed8b15ec25167be32ea0b",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "human-20261114-114437148395",
+    "trialHak": "srn_rh_hum16.hak",
+    "actors": [
+     "sr_h_actor36",
+     "sr_h_actor37"
+    ],
+    "gallery": "pfh0_head036-client.jpg",
+    "gallerySha256": "4c4ad92f86834b3c857a02d003925f96069db8d567887c7112697c93207ed937",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor36-three-1.png",
+      "sha256": "d7582faccaf5a7e3057de701da8b7e3c3af19a0422b5193d72b922873cf25519"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor36-threeleft-1.png",
+      "sha256": "75eb74087f5ad246b8e454a2528de1a72193c3e91d666bbcd16689804915591d"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor36-backright-1.png",
+      "sha256": "615d1b051d1f779a229a6d39a396d210072e6fef58e5cdb8c1d15d80a5d2214f"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor36-backleft-1.png",
+      "sha256": "dae597d8c0bbff0f49b8e3fc540ad183afb44877977451e4472aeae3e5e62f2d"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor36-motion-1.png",
+      "sha256": "4ac7e9d747c4d8130868821afae35a27f8b882b0dc74a58afff09de21e17ea86"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor37-front-1.png",
+      "sha256": "a10004208e384ff7958b4dd29d0e44d893133f6f4ebb031f8d13f0591991d38d"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "palette pins skin 2, hair 15, iris 3",
+    "ownership cap raised to 7 by the user (2026-11-14); attempt-07 (rules-05) moved the char-right jaw pocket under the locks to skin",
+    "client human-v16: the near-black drop under the char-right ear remains (dark bake, decodes at luma 12 on skin); accepted as is by the user 2026-11-14 (RUNBOOK 389)"
+   ]
+  },
+  {
+   "head": "human-male-a",
+   "design": "Sentinel",
+   "batch": 1,
+   "slot": "pmh0_head088",
+   "resources": {
+    "mdl": {
+     "name": "pmh0_head088.mdl",
+     "sha256": "eb7277c2d206f4d53cdcfc0ff0a8568c6d44224345cfd6cb02c36cf6b2dbfc7a",
+     "bytes": 1155996
+    },
+    "plt": {
+     "name": "pmh0_head088.plt",
+     "sha256": "db8bf402e88a6d3b24a9842c65802d1088b19a9ccb94d0e5d08c97dc20021cab",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 4,
+    "1": 173,
+    "2": 0,
+    "3": 0,
+    "8": 114,
+    "9": 0
+   },
+   "features": {
+    "face": "middle-aged broad face, medium-brown skin, short dense dark curls, close dark beard, hazel irises. attentive, just perceptibly lifted brows. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Human ears, anatomically attached, visible as framed in selected art.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short dense dark curls with full scalp coverage; dark brows.",
+    "beard": "Close full dark beard and connected moustache, preserve cheek and jaw edges.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "ca670e41e0555d8d7723ebfa5e4ac8a4e9aec8180a9970f71e379ff2010a06bc",
+   "geometrySubmissions": 1,
+   "designSubmissions": 3,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "human-20261114-022758406936",
+    "trialHak": "srn_rh_hum13.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pmh0_head088-client.jpg",
+    "gallerySha256": "a1cedf567b88f7d8324d20530262fee57afe82e0bec23e62e545cfd0836d0223",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "89e3f70e49ac4d73fbea3ae65d9cf0af7f51a2115430303b658cf748581c5baa"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "6b9529b2d24ef387daf19df185b02cc063e009e2165aee2cf3197bb7bfc23239"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "1cfeb57b2ffb5c8fdb3db05a9e4f3d4730d7c15c8c46b3d776042c95e2320285"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "f8ad69d6e467ead9564a52a90a3d735a6689e378d6d02f2823bc6a97b5dc7520"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "52a28ca8d42efce6271ff9d5f0b0ed7004ac82b0a14f0b812efbc8150d9841e0"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "710425f180a75905b87dbe1fd2ec9984716fa179b487b4d2a46b04e6ee84d0eb"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "fit attempt-02: scale x1.10, depth -20 mm, height -11 mm to the accepted-head chin target",
+    "palette hair row 173 (auto 115 decoded olive); iris auto 114 kept (olive-hazel source)",
+    "client human-v12: moustache rendered as dark skin; ownership attempt-02 drops the nose box, re-verified in human-v13"
+   ]
+  },
+  {
+   "head": "human-male-b",
+   "design": "Glasshouse",
+   "batch": 1,
+   "slot": "pmh0_head089",
+   "resources": {
+    "mdl": {
+     "name": "pmh0_head089.mdl",
+     "sha256": "4fab0f5fc93b63a31a74574727aeecc32f8e72460f1c78bb77c3518d64c465c6",
+     "bytes": 1280604
+    },
+    "plt": {
+     "name": "pmh0_head089.plt",
+     "sha256": "17ac2d882222ebd13cb4edaea527ca9799d287242226940a87adb4d9f6145415",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 116,
+    "1": 63,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "adult long narrow East Asian face, light warm beige skin, straight black ear-length side-part swept behind both ears, clean shaven, dark brown irises. quiet concentration with a tiny inward brow motion. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Human ears, anatomically attached, visible as framed in selected art.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Straight black side part with two medium side locks, clear temples and brows.",
+    "beard": "Absent.",
+    "cyberware": "One small matte titanium oval datajack flush at the anatomical left temple, fully visible in front of the ear."
+   },
+   "designSha256": "e1d89cadd1774ec90aea17711bd514c737be816afdaf9320b6c9947cf806cb80",
+   "geometrySubmissions": 1,
+   "designSubmissions": 4,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "human-20261114-022758406936",
+    "trialHak": "srn_rh_hum13.hak",
+    "actors": [
+     "sr_h_actor12",
+     "sr_h_actor13"
+    ],
+    "gallery": "pmh0_head089-client.jpg",
+    "gallerySha256": "98e939f043a4b5bc3545b1c32327cc84dd9c58f9c7676496d3549242f77a6ba7",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor12-three-1.png",
+      "sha256": "3d1964493bad5c43b708c2747d132b4a9634e30a672d88318fce98b17dc432f9"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor12-threeleft-1.png",
+      "sha256": "fe9b9a8d901f9b9085b6148a207e23133486b865f855da6711b672717fab4a9e"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor12-backright-1.png",
+      "sha256": "2bff50814f76a30e1e83d83ed7fe24fc5308899df2796f800c6486b543b10093"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor12-backleft-1.png",
+      "sha256": "182d8922f65ff9dac0e473be8b20d1c2d59c0ab5a1f79a2e83fe732b006155f2"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor12-motion-1.png",
+      "sha256": "2266153f38381cb9847d9cac4bc4b66a1581b6f72c6ce44f76789d94e92c9f72"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor13-front-1.png",
+      "sha256": "598273d557d11c07034791559c275476cd5a968bd497df8002091bf970a72053"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "precluster: 4 interior fragments deleted",
+    "fit attempt-02: depth -7 mm",
+    "ownership attempt-03: hairgaps repair trimmed to dark sideburn strands (bake luma <= 62)",
+    "tone attempt-02: hair materialLight removes the teal-lit crown",
+    "palette hair row 63 black, iris 173 brown, channel 9 row 0",
+    "client human-v12/v13: passed; minor reddish skin patch at one hairline and a dark datajack on default metal row 0 noted"
+   ]
+  },
+  {
+   "head": "human-male-c",
+   "design": "Monsoon",
+   "batch": 1,
+   "slot": "pmh0_head090",
+   "resources": {
+    "mdl": {
+     "name": "pmh0_head090.mdl",
+     "sha256": "0ae86d20fb94bbfc6055522477bbba39b45281ffca0ddf5a781e538fe26dce3c",
+     "bytes": 1273980
+    },
+    "plt": {
+     "name": "pmh0_head090.plt",
+     "sha256": "148072bb60df8696126a7195cf67ca38abca5bd69523fbe96f3829543055d0f8",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 4,
+    "1": 173,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 0
+   },
+   "features": {
+    "face": "adult angular face, deep umber skin, short tidy small twists with a full natural hairline, clean shaven, warm brown irises. friendly closed-lip hint of a smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Human ears, anatomically attached, visible as framed in selected art.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short small tidy black twists and dark brows; retain full crown and natural hairline.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "68ace2df6b722d427b49e924e50b31ec02b97ac091ce4cbae2f30f2808e991c0",
+   "geometrySubmissions": 3,
+   "designSubmissions": 2,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "human-20261114-022758406936",
+    "trialHak": "srn_rh_hum13.hak",
+    "actors": [
+     "sr_h_actor24",
+     "sr_h_actor25"
+    ],
+    "gallery": "pmh0_head090-client.jpg",
+    "gallerySha256": "5ab3919377af3178092be71c734bc2bf7c715f05770263115dd1305239ba8684",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor24-three-1.png",
+      "sha256": "23ee6fe5bb63061c74c68c04995cea38688136200fb6f655337d2eae7906d174"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor24-threeleft-1.png",
+      "sha256": "1d29327cc8b9856db397fb576ff697a70797f2f8be14c56c14743c67e513f517"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor24-backright-1.png",
+      "sha256": "bf6c156865cb6a8b6a40c75ffa1e9fe31e7e9e07a8b2db3cca43ca640c7a2cbd"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor24-backleft-1.png",
+      "sha256": "0047b818278930996d9bea6a80b835153220563435ff13baee4199a49196ab10"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor24-motion-1.png",
+      "sha256": "943a0c3deb07233379daaa082130a4d7242d8cee8119f7b423547394cf78e71e"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor25-front-1.png",
+      "sha256": "a70bfbab47bd7bae43e5fa0fb611482bcac33c77f5bd26faffc02dbe377795fd"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "client fit: 25 mm back from the baseline fit; user \"1 and 3 look good, 2 needs to move back more\"",
+    "client v13: all views, motion and second look passed"
+   ]
+  },
+  {
+   "head": "human-male-d",
+   "design": "Cinder",
+   "batch": 1,
+   "slot": "pmh0_head091",
+   "resources": {
+    "mdl": {
+     "name": "pmh0_head091.mdl",
+     "sha256": "14dd8d2d88cf3be02b29ae5f9e2d5927ff8d2a476c3f5a8b98c3c963ef83db61",
+     "bytes": 1679452
+    },
+    "plt": {
+     "name": "pmh0_head091.plt",
+     "sha256": "3ba9fdc82babfcf7951fc8c6be0ca2885df16929fe4eb4326de136feaa425e65",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 1,
+    "1": 14,
+    "2": 0,
+    "3": 0,
+    "8": 114,
+    "9": 0
+   },
+   "features": {
+    "face": "mature square face, light olive skin with faint freckles, long chestnut waves flowing well below the jaw with both ears visible and a coherent rear curtain and short copper-brown moustache, green-gray irises. slightly skeptical with one brow raised by a trace. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Human ears, anatomically attached, visible as framed in selected art.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long continuous chestnut waves behind the head and below the jaw, with full loose tips and dark brows.",
+    "beard": "Copper-brown moustache only, separate from lips; chin clean-shaven.",
+    "cyberware": "One slim matte titanium temple plate on the viewer's right, at the skin just beyond the eyebrow and clear of the hair. Anatomical left; one plate total."
+   },
+   "designSha256": "7b3d1dc44be6592d6842bf6be612db813dc8467ecd61bdc6ea2c58d419681a91",
+   "geometrySubmissions": 1,
+   "designSubmissions": 3,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "human-20261114-022758406936",
+    "trialHak": "srn_rh_hum13.hak",
+    "actors": [
+     "sr_h_actor36",
+     "sr_h_actor37"
+    ],
+    "gallery": "pmh0_head091-client.jpg",
+    "gallerySha256": "90c1ecf1a60449dbab6de45deeecdc1286da1db030a66312de585a27dbb4d010",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor36-three-1.png",
+      "sha256": "b2144a4f3d66ac46eec7ab25b962101f2bf10a7d2b3b9be7b1585ac7ce6e4b5c"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor36-threeleft-1.png",
+      "sha256": "13ba9b5d8cec45d94ffb852d2f61e590aef82c917d898e8a434629ad774b89a3"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor36-backright-1.png",
+      "sha256": "97e85b57ee8026642947132e7b064e92efd0e40c5be08a79a568b330576aea0a"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor36-backleft-1.png",
+      "sha256": "09c65fecf0f893b2b9171a5b74a9f67f870c6c982c542a1e8c0ab0798aaad1cf"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor36-motion-1.png",
+      "sha256": "34373895841f697ad1c731b04e4921d3b71beba82e4b5b447532912d2c176b9b"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor37-front-1.png",
+      "sha256": "96e5388155236aa59dc5b587ba89e8fe6a0d0468e622211e3d2891e2c4ddfc04"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "client correction: inner hair through the Human neck below the chin; fit 20 mm back and below-jaw hair retreat 6 mm (no geometry submission)",
+    "client v13: all views, motion and second look passed"
+   ]
+  },
+  {
+   "head": "human-male-e",
+   "design": "Portside",
+   "batch": 1,
+   "slot": "pmh0_head092",
+   "resources": {
+    "mdl": {
+     "name": "pmh0_head092.mdl",
+     "sha256": "34da00cf8da6b7f5bdcc03c716497d282b0e67f02ec85c442963bed623871228",
+     "bytes": 1187900
+    },
+    "plt": {
+     "name": "pmh0_head092.plt",
+     "sha256": "0a4cae808200db2ac370f033f8540b5d0068db20e060dafa0394590cf54e4f8f",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 117,
+    "1": 19,
+    "2": 0,
+    "3": 0,
+    "8": 23,
+    "9": 0
+   },
+   "features": {
+    "face": "older round face, golden tan skin, brushed gray short hair, neat silver chin beard, blue-gray irises. calm confidence with a tiny lift to one lip corner. Adult front-facing head, no exposed neck.",
+    "ears": "Two round Human ears, anatomically attached, visible as framed in selected art.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Absent.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short swept-side silver hair and matching brows.",
+    "beard": "Neat silver chin beard and fine moustache, with shaved side cheeks.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "eaef9663d6a704d135fd24bd7c3796a0c042014848a4692c6fdf020d3ba91c78",
+   "geometrySubmissions": 1,
+   "designSubmissions": 1,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "human-20261114-022758406936",
+    "trialHak": "srn_rh_hum13.hak",
+    "actors": [
+     "sr_h_actor48",
+     "sr_h_actor49"
+    ],
+    "gallery": "pmh0_head092-client.jpg",
+    "gallerySha256": "749dc54bd21cbafcc8088a39114f9d35434e37e64cd61316c6715f50419c9253",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor48-three-1.png",
+      "sha256": "222892c279907f97bf179377a5c15d77d7f1088c7f5db05778c232e66150e0eb"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor48-threeleft-1.png",
+      "sha256": "8547351ee4a121164ecfeea064a1282e66920ce4c9544c4ecb43b61dcc12222d"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor48-backright-1.png",
+      "sha256": "bd0f0dbd766546def6a3f295b8e3ded02b53a482b588e2c1ee72c7bccd2da54c"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor48-backleft-1.png",
+      "sha256": "c0160cf0d82db7cd2f416f2d78ea7610580f751fcd607307265822492c4566b2"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor48-motion-1.png",
+      "sha256": "867e3a514c7679c5af62c90b9222e734b972a2075e990d53bb35ff4349d01310"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor49-front-1.png",
+      "sha256": "859e04ed0117869a819d6484ff84654d5b434def90ef0661cc7ac1227ebf4dfd"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "client fit: 25 mm back from the baseline fit; user \"1 and 3 look good, 2 needs to move back more\"",
+    "client v13: all views, motion and second look passed"
+   ]
+  },
+  {
+   "head": "orc-female-a",
+   "design": "Sundial",
+   "batch": 8,
+   "slot": "pfo0_head017",
+   "resources": {
+    "mdl": {
+     "name": "pfo0_head017.mdl",
+     "sha256": "0d2fb0f4c8502fb6ceb288678790e4b797ffe6374ed8a902d7f2773524d07705",
+     "bytes": 1183708
+    },
+    "plt": {
+     "name": "pfo0_head017.plt",
+     "sha256": "41a03c1ab7110a38e074981309dca77d3e35ecdc9ab40d58404c274d622a926f",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 2,
+    "1": 130,
+    "2": 0,
+    "3": 0,
+    "8": 131,
+    "9": 120
+   },
+   "features": {
+    "face": "adult broad-cheeked Orc face and strong lower jaw, two short ivory lower tusks and pointed ears; golden olive skin, short dark espresso curls, deep brown irises. gentle warm closed-lip smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, standing clear of the short curls.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two short ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Short dark espresso curls with a full crown and a closed rear ending above the nape; dark espresso brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "3e2359b618e261f4367915c84830aaad0d0fef5ac01b4b5fdb68406d0c609502",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-03",
+   "clientEvidence": {
+    "session": "orc-20261118-202408380469",
+    "trialHak": "srn_rh_orc3.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pfo0_head017-client.jpg",
+    "gallerySha256": "2a7ad3bb02dc23a9f946170d3440e297cfcf38410d9a81c975c9e7c5d07420dc",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "f81972c417e266584a214962dde8cf0ea41d0ace36afed1f6c1adbbd9c7394e8"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "2f9347826ce5c8243b311bea4d8debfa21acf8987b1bf94580af035b764e7fdc"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "f6bbbde2632c55d1af52ac3b7a298d70c0e412a41d3c4917b15b44f3ccb573fb"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "bab2af9b0cdd4af737b8a1b51868801eb6bd19225f15f57dd4c40c8f327b6677"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "e5363b14a90508d97187d35c1e3cdf7046b88854d9540ee8f0b03737670b98d4"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "c2ab5e67d714641881e2cd4efe17e50094b2448798081c71cb7b203386e3b031"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry-0002 approved (\"Approve geometry-0002 (Recommended)\"); the first submission stopped on the VRAM cap",
+    "seamStep 1.853 then 1.896 (bake 1.894); user \"Allow 1.86, check in client (Recommended)\" then \"Allow 1.90, check in client (Recommended)\"",
+    "render-01 pale jaw spot, dark lid rings and milky irises fixed with skinShadeContrast 0.75 and smoother tone",
+    "client v2 cream curl highlights from the row 130 ramp; hairBroadContrast 0.6; native attempt-03",
+    "client v3: curls, tusks, ears and brows good"
+   ]
+  },
+  {
+   "head": "orc-female-b",
+   "design": "Quartz",
+   "batch": 8,
+   "slot": "pfo0_head018",
+   "resources": {
+    "mdl": {
+     "name": "pfo0_head018.mdl",
+     "sha256": "158eb3ce9dee42fc7a82b0ed00db9b1b6cd284ce5ccdabc163ee703f032289ff",
+     "bytes": 1239996
+    },
+    "plt": {
+     "name": "pfo0_head018.plt",
+     "sha256": "1e459977ff34bd19d1f84582e3769e2b0ec9d9bdde0ce4269022631d5f267102",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 118,
+    "1": 62,
+    "2": 6,
+    "3": 0,
+    "8": 94,
+    "9": 120
+   },
+   "features": {
+    "face": "adult angular Orc face and defined broad jaw, two short lower tusks and pointed ears; deep copper-brown skin, pale silver jaw-length blunt bob with both ears and temples exposed, amber irises. quietly attentive with subtly lifted brows. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, fully visible in front of the bob.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two short ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Pale silver jaw-length blunt bob with a side part, both ears and temples exposed, full crown and a continuous rear ending at the jaw; pale silver brows.",
+    "beard": "Absent.",
+    "cyberware": "One flush dark blue-gray titanium temple plate on the anatomical right side, clearly separate from ear and hair. Anatomical right (image-left); one plate total."
+   },
+   "designSha256": "0951af49ed699ec53d327f962ded982e6b29988b26e9b3b59226e7afb7edc286",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-03",
+   "clientEvidence": {
+    "session": "orc-20261118-214349166649",
+    "trialHak": "srn_rh_orc4.hak",
+    "actors": [
+     "sr_h_actor13",
+     "sr_h_actor14"
+    ],
+    "gallery": "pfo0_head018-client.jpg",
+    "gallerySha256": "6ba9e31fb3a699ffcc649e48e9a784773ae6cadd75c61fb51582efe8db034209",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor13-three-1.png",
+      "sha256": "4c0436f376552cfaea83b57ab0be68f968d7ab906e2108f1e61ae6bcf31ad664"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor13-threeleft-1.png",
+      "sha256": "f3602b6ed251d2b661bcdca7e1203e99e46c077726d2ff270cbc5c648244b8eb"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor13-backright-1.png",
+      "sha256": "c71ab627387d3ecc67ab65ac9ffb87a5a4b9f27b8ab41347f76264c1d0ae2f92"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor13-backleft-1.png",
+      "sha256": "89151c53349def7cd3b9d882bec10765df31b2c88b205f0680e8868523f4b663"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor13-motion-1.png",
+      "sha256": "f11f288912ca10fb9867adadf6a8ec5ff98081b94b1b75dd881253358715ea49"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor14-front-1.png",
+      "sha256": "732aadd9040f61e82ed0f71e96f71805a1924304cf495e626a52b0c59598e197"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry-0001 approved (\"Approve geometry-0001 (Recommended)\"); repair genus 19 under the bob, user \"Judge them in the client (Recommended)\"",
+    "palette 0:118 1:62 2:6 3:0 8:94 9:120, skinShadeContrast 0.75; native attempt-02",
+    "client v2/v3 pale cracked face patches: in the bake (colour-only close-up); tone smooth 0.9/delight 1.0 (tone-02, palette-05) left them unchanged and skinShadeContrast 0.5 failed the full shade range (palette-06); user \"Accept for this batch (Recommended)\" (RUNBOOK 483)",
+    "user \"Yes, rework Quartz\": palette.skinDetailContrast (palette-07 at 0.5 on the detail term left the patches; reworked in ec037525 to damp skin luma about a 0.04 field; palette-08 at 0.3, span 0.518, tone-02 smooth 0.9/delight 1.0); quality passed; native attempt-03, render attempt-03 (RUNBOOK 486/488)",
+    "temple plate olive/black in the client: client metal1 is stock pal_armor01 row 0 on unarmoured actors, and every metal row carries partial alpha (environment-mapped), so the pinned metal row shows only in previews and armoured looks (RUNBOOK 482)",
+    "client v4: face cracks and pale patches gone; eyes, brows, tusks and the bob as approved"
+   ]
+  },
+  {
+   "head": "orc-female-c",
+   "design": "Grove",
+   "batch": 8,
+   "slot": "pfo0_head019",
+   "resources": {
+    "mdl": {
+     "name": "pfo0_head019.mdl",
+     "sha256": "40dc475ec73ed424201e02fec5c89da74166751a0af6e44ad9628452ac8e7072",
+     "bytes": 1224380
+    },
+    "plt": {
+     "name": "pfo0_head019.plt",
+     "sha256": "0f817e0a6bf919a12f54dbbb96f46492a681658ca431efc492f9c9a5db189f8a",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 109,
+    "1": 6,
+    "2": 0,
+    "3": 0,
+    "8": 131,
+    "9": 120
+   },
+   "features": {
+    "face": "mature rounded Orc face and strong jaw, pointed ears and two blunt lower tusks; moss-olive skin, long dark auburn waves hanging below the jaw as a coherent rear curtain, tucked behind both ears, brown irises. calm near-neutral gaze with slight inner-brow focus. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, visible in front of the tucked waves.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two blunt ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long dark auburn waves with a full crown, tucked behind both ears, hanging below the jaw as a coherent rear curtain; dark auburn brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "9e018460ce0fa14b66fd240f5211248799096ba75a5496b48f4ccca0e075ad9b",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "orc-20261118-202408380469",
+    "trialHak": "srn_rh_orc3.hak",
+    "actors": [
+     "sr_h_actor26",
+     "sr_h_actor27"
+    ],
+    "gallery": "pfo0_head019-client.jpg",
+    "gallerySha256": "2a9ecea628aee5b866fed8781e636173ac244c06edf7994c763d45e03695c232",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor26-three-1.png",
+      "sha256": "a26f6a37c165bc6eb1455eb0e14e397b68e68d59f5b60586b9739128b934cff6"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor26-threeleft-1.png",
+      "sha256": "8162a69816f340dbbc324585c9a665269bcaf588f971320868fd38603f319d03"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor26-backright-1.png",
+      "sha256": "708b4618a4f6e49f602a494aedf692155e65a20ebbf16781b8f9962cc2570e94"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor26-backleft-1.png",
+      "sha256": "09698faba9934f23f5877ae377242a508cc26295ecc849bca743afbaa708715b"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor26-motion-1.png",
+      "sha256": "5ab36f0aead3e6726808d27d4bd3e32e4b7d20b054efae413923abcba5aee418"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor27-front-1.png",
+      "sha256": "5918e6183400a852138ee786bdf8d0479f00539a930e45cc9557d3122184e0c4"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry-0001 approved (\"Approve geometry-0001 (Recommended)\")",
+    "client v2/v3: hair at the ear root judged per design (side waves frame the ear); waves, tusks and brows good"
+   ]
+  },
+  {
+   "head": "orc-female-d",
+   "design": "Nightbloom",
+   "batch": 8,
+   "slot": "pfo0_head020",
+   "resources": {
+    "mdl": {
+     "name": "pfo0_head020.mdl",
+     "sha256": "2756bb9b9d2a3eaead6eaf081e0ce421957dae2e4c019536b6498ec0d4300677",
+     "bytes": 1229788
+    },
+    "plt": {
+     "name": "pfo0_head020.plt",
+     "sha256": "9a343fc087314ee57f827b026d1e0278c2b0d5bc69f2921bbd91c1cb57140ec5",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 74,
+    "1": 161,
+    "2": 0,
+    "3": 0,
+    "8": 115,
+    "9": 120
+   },
+   "features": {
+    "face": "adult square-jawed Orc with two short tapered ivory tusks and pointed ears; cool brown-gray skin, midnight purple short coiled bob, hazel irises. subtle curiosity with one brow raised a trace. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, visible in front of the side coils.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two short tapered ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Midnight purple short coiled bob with a full crown and a continuous rear ending at the jaw; dark purple brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "58cbd01f0e2e97af3c5c72f3df0ecec5e07b920ec8d60e0d288abcec2ba1c35f",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "orc-20261118-202408380469",
+    "trialHak": "srn_rh_orc3.hak",
+    "actors": [
+     "sr_h_actor39",
+     "sr_h_actor40"
+    ],
+    "gallery": "pfo0_head020-client.jpg",
+    "gallerySha256": "58e9ea2e1278eb242b7a2789cb5e1e4c1f5bff2dcfb89100ae5f5215230cc73c",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor39-three-1.png",
+      "sha256": "794a9559563910550163f486f8190d3a952c40b53be4f2c58c234e914f9b8802"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor39-threeleft-1.png",
+      "sha256": "429fae938a6fdacedab3a3241d478f3d54e777804488a69e1f51546a55906ca5"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor39-backright-1.png",
+      "sha256": "ff096b1f82650eab1dc4c2ae1813dd10e0427d0edd9a3e742b3d7b49a569c9f4"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor39-backleft-1.png",
+      "sha256": "efdf319e735f4b5b8a3d0fd5190f852c31e40a38197e18203b2baa170f23c91e"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor39-motion-1.png",
+      "sha256": "7242c52b28eb37ce0c54353e064a2faa46d4a3a8745d6d48ecb0fb4899c296a4"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor40-front-1.png",
+      "sha256": "8e8fbc239d9388d6ba8f764deeb3aac9de5707185c25772b2e5a0e3509bdcf72"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry-0001 approved (\"Approve geometry-0001 (Recommended)\"); coil holes behind the anatomical-left ear (repair genus 6), user \"Judge them in the client (Recommended)\"",
+    "client v2 smoky sockets painted into the bake; tone-04 socket 0, lidLine 0.6, skinShadeContrast 0.75; user \"Accept softened sockets\"; native attempt-02",
+    "client v3: softened sockets, purple coils and brows good"
+   ]
+  },
+  {
+   "head": "orc-female-e",
+   "design": "Copperleaf",
+   "batch": 8,
+   "slot": "pfo0_head021",
+   "resources": {
+    "mdl": {
+     "name": "pfo0_head021.mdl",
+     "sha256": "f59f0d212143438f75c664c1c7f6f6bba01765eb5004ce9497fe91827d433e50",
+     "bytes": 1391740
+    },
+    "plt": {
+     "name": "pfo0_head021.plt",
+     "sha256": "8d80c925658e34670e394fec24b7d69b747170a630359f30ab1acceb7575fae8",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 2,
+    "1": 5,
+    "2": 1,
+    "3": 0,
+    "8": 112,
+    "9": 120
+   },
+   "features": {
+    "face": "adult wide cheekbones and firm Orc jaw, two small ivory tusks and pointed ears; warm ochre skin, long copper-brown broad braided locks extending below the jaw with one continuous rear hair mass, gray-green irises. understated confidence with one lip corner slightly raised. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, visible between the braids.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two small ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long copper-brown broad braided locks from a centre part, with a full crown and one continuous rear braid mass hanging well below the jaw; copper-brown brows.",
+    "beard": "Absent.",
+    "cyberware": "One narrow curved satin titanium cheekbone implant on the viewer's right, just beyond the outer eye and clear of the brow, lower lid and ear. Anatomical left (image-right); one implant total."
+   },
+   "designSha256": "4c6b3711921743bd30fef95e683b0ee9c6f55739dbe547139a51855aeccf14b4",
+   "geometrySubmissions": 2,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-03",
+   "clientEvidence": {
+    "session": "orc-20261118-202408380469",
+    "trialHak": "srn_rh_orc3.hak",
+    "actors": [
+     "sr_h_actor52",
+     "sr_h_actor53"
+    ],
+    "gallery": "pfo0_head021-client.jpg",
+    "gallerySha256": "8cfcce49452edc155d4c6ae5b01d3e58bd5f8645fbcf5ef57a76752772a31c19",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor52-three-1.png",
+      "sha256": "fe3e9e2f7f1abd1f9b4c92d23dcf72b8c7bd8bbd3c0d8cf7617e0ff5fafcf6a5"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor52-threeleft-1.png",
+      "sha256": "a58bf526fc59a5a6aa41460a90635609f85ae9bdc8a10c03eeddf01a042e430b"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor52-backright-1.png",
+      "sha256": "09883cbe551230abf3c0a59b53503ee18a172427dc8573c49fd6dc2154b6ce88"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor52-backleft-1.png",
+      "sha256": "a7a3500bb92d2ab0da24b5dcaf3a4b1785588bd5971311a40600c48fe2ce9936"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor52-motion-1.png",
+      "sha256": "21341837fd5ab1c0acd715c6e1a947322a58a267f4d257ac49493884781e35ea"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor53-front-1.png",
+      "sha256": "be44e6ff3e1f13c5701b25eedc66a4b99786a93c34064b6a975953a803a6beec"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "geometry-0001 approved, then braids genus 207 and UV coverage 12.6%; user \"Reseed geometry (Recommended)\"; geometry-0002 approved (\"Approve geometry-0002 (Recommended)\")",
+    "repair: user \"Allow 6% extent, check in client (Recommended)\", \"Toolkit change after batch (Recommended)\", \"Allow 0.55% for this head (Recommended)\", \"Continue, judge holes at render (Recommended)\", \"Allow the three exceptions (Recommended)\" (extent 6.5%, UV floor 0.17, braid holes at render)",
+    "browsOnHair 0.771; user \"Accept 0.77, check in client (Recommended)\"",
+    "render-01 crown braid gaps and chin crease; user \"Keep, judge in client (Recommended)\"; hairline band, ear rims, side-braid patches and jaw underside fixed by ownership rules-04 (face outline, ear shells, jaw underside, overFaceMasks split; RUNBOOK 475-478)",
+    "ownership budget 8: user \"Allow 2 more attempts (Recommended)\"; hairOnFaceSkin 0.039: user \"Add per-head exception (Recommended)\" (quality.hairOnFaceSkinApproved 0.04, code 416abbee)",
+    "palette 0:2 1:5 2:1 3:0 8:112 9:120, hairBroadContrast 0.3; native attempt-03",
+    "client v3: olive back blotches are the darkest braid-crevice hair shades (all hair channel), slightly smaller after hairBroadContrast 0.3; implant teal: client metal1 is stock pal_armor01 row 0 on unarmoured actors, and every metal row carries partial alpha (environment-mapped), so the pinned metal row shows only in previews and armoured looks (RUNBOOK 482)"
+   ]
+  },
+  {
+   "head": "orc-male-a",
+   "design": "Switchyard",
+   "batch": 7,
+   "slot": "pmo0_head019",
+   "resources": {
+    "mdl": {
+     "name": "pmo0_head019.mdl",
+     "sha256": "5539cd4fc4be7d41e7d85ee4bc5eb5a0132e3cb7f57eed3139083c05ff71f187",
+     "bytes": 1283260
+    },
+    "plt": {
+     "name": "pmo0_head019.plt",
+     "sha256": "462285e814831a3c294bf4a9ed65340a1226d1da7b8dd84f8b1382bc18e0b063",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 5,
+    "1": 115,
+    "2": 0,
+    "3": 0,
+    "8": 115,
+    "9": 120
+   },
+   "features": {
+    "face": "adult wide Orc face with strong lower jaw, broad nose, pointed ears and two symmetrical short lower tusks rising outside sealed lips; dark olive-brown skin, dense short black twists, amber irises. calm attention with a tiny brow lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, standing clear of the short twists.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two symmetrical short ivory lower tusks rising outside the sealed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Dense short black twists with a full crown and a closed rear ending above the nape; black brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "082aa6dcc6b316b91b441e7632e77ae0cb6fa019dd20887ee70a5a51ce05f098",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "orc-20261118-012946132339",
+    "trialHak": "srn_rh_orc1.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pmo0_head019-client.jpg",
+    "gallerySha256": "f6cdd740fc4cb1cfaaa3b5afea3a25fbb80daf24643c6b71d2a422b34c98e182",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "8ceeb76d24a9c4dfa2574fcc624f1d8b8220c1a8853ddf9c6c40556d72c90d6d"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "671de27447bffa158aea772b05407d8a5ad44d8f9fbaf9d953af2308f9d27d7e"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "b4ed1aca29fe6050e9967f7743ea7ccee963a7d6d1f00b74ab5537e9bf79d935"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "6f38c3213931dc9f7393a88a0e9416ecc84d238a079a1076924ce82929211ad1"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "e7bf85bf29b45769f39248d7401cc5a47a241fea17dfcc1c05f1933306438185"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "d3caf5e0c24b3c91f81908a6324a464d3f7199d798fb34435e6020412d4414fb"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "tusks moved to tattoo2 (channel 9) with a per-head rule after the batch-wide miss (RUNBOOK 442); tusk row 120 ivory (auto 168 khaki)",
+    "masks approval consumed by an ownership launch refused for no rules (RUNBOOK 98); re-issued after binding rules-02",
+    "export refused until the palette rows were added to reviewed-rows.json (RUNBOOK 112); approve_palette.py now does this",
+    "palette 0:5 1:115 8:115 9:120; render attempt-02",
+    "client v1: twists, ears and tusks good"
+   ]
+  },
+  {
+   "head": "orc-male-b",
+   "design": "Gravel",
+   "batch": 7,
+   "slot": "pmo0_head020",
+   "resources": {
+    "mdl": {
+     "name": "pmo0_head020.mdl",
+     "sha256": "19f8c8233425631a57df77eeaa26cba13fdf524e13d5b29ef59025d322985c6d",
+     "bytes": 1218268
+    },
+    "plt": {
+     "name": "pmo0_head020.plt",
+     "sha256": "de95a9b1111c240a42e0243356a91741be7e4f1891cefe39ed0bbaf1a8b2e299",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 5,
+    "1": 60,
+    "2": 0,
+    "3": 0,
+    "8": 112,
+    "9": 120
+   },
+   "features": {
+    "face": "mature narrow-cheeked Orc with substantial lower jaw, pointed ears and two blunt lower tusks; deep umber skin, gray brushed waves reaching the jaw and tucked behind both pointed ears and a short neat gray chin beard, pale hazel irises. quiet thought with a barely perceptible brow knit. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, visible in front of the tucked waves.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two blunt ivory lower tusks rising outside the sealed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Gray brushed waves swept back to the jaw, tucked behind both ears, with a full crown and a continuous rear mass ending at the jaw; gray brows.",
+    "beard": "Short neat gray chin beard below the lower lip, no moustache.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "be9082909124828c5d1b76f85303fb8b4dd17ad5e59a8cbf4a8e67a9b094ad07",
+   "geometrySubmissions": 1,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "orc-20261118-012946132339",
+    "trialHak": "srn_rh_orc1.hak",
+    "actors": [
+     "sr_h_actor13",
+     "sr_h_actor14"
+    ],
+    "gallery": "pmo0_head020-client.jpg",
+    "gallerySha256": "b329555269bb2596d70b7c7f8cc0a045ee7301541e8d64a64dcecd2f55c43d72",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor13-three-1.png",
+      "sha256": "b2aed44f9bf3fe850bfe9d83c0fc4974e09c133f46fc8eb51a2f077fb037dd81"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor13-threeleft-1.png",
+      "sha256": "059d597393876040a2f886d624301146237ea8dea5e299eb47b5ef12aa85eacd"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor13-backright-1.png",
+      "sha256": "9a6b0817173f39559af1c2902db33592dd4f28aa4489322d1779b16726ab69f0"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor13-backleft-1.png",
+      "sha256": "c23fd96945885a56cf3a718e55f3ad0abd26dfbc5c61c79b9c3e140a9d3ec475"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor13-motion-1.png",
+      "sha256": "ec5cd03c3d39cdf861de66214fa61548af20cffadf24882a39da10662ef33bde"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor14-front-1.png",
+      "sha256": "bfbdfb52fbd104b421580be897ed031e1452f6999c472d0a46e0637c11d290c8"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "tusks moved to tattoo2 (channel 9) with a per-head rule after the batch-wide miss (RUNBOOK 442); tusk row 120 ivory (auto 168 khaki)",
+    "quality blotch 29 px (white tusks on skin shades) exposed the tusk miss; blotch 0 after rules-02",
+    "hair rows: auto 112 olive, 18 white, 19 steel blue (bigdecode); final 60 black-to-white",
+    "manifest rebuild refused during render (RUNBOOK 190); pinned and requeued after the render",
+    "client v1: hair reads salt-and-pepper (row 60), grey beard, tusks good"
+   ]
+  },
+  {
+   "head": "orc-male-c",
+   "design": "Copperjaw",
+   "batch": 7,
+   "slot": "pmo0_head021",
+   "resources": {
+    "mdl": {
+     "name": "pmo0_head021.mdl",
+     "sha256": "e91d2c12ac99ca7d31ef95b49f47f622ffffaa0b76a0317927bf315124cb6608",
+     "bytes": 1182460
+    },
+    "plt": {
+     "name": "pmo0_head021.plt",
+     "sha256": "60669e2ea811cb2c4d6af35e630b724805e688b841d11137835e8ee398255f60",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 3,
+    "1": 100,
+    "2": 0,
+    "3": 0,
+    "8": 80,
+    "9": 120
+   },
+   "features": {
+    "face": "adult broad angular Orc with two small ivory lower tusks, broad cheekbones and pointed ears; warm copper skin, reddish-brown short side-part hair and matching tidy moustache, green-gray irises. faint closed-lip smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, standing clear of the short hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two small ivory lower tusks rising outside the sealed lips at the moustache ends.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Reddish-brown short side-part hair with a full crown and a closed, tidy rear above the nape; reddish-brown brows.",
+    "beard": "Tidy reddish-brown moustache over the upper lip only, no chin beard.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "8398076fbb285ee1d6aed6bb9dbb133b9e24f1f3e5ca2407f863b4f04422d9c1",
+   "geometrySubmissions": 3,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "orc-20261118-012946132339",
+    "trialHak": "srn_rh_orc1.hak",
+    "actors": [
+     "sr_h_actor26",
+     "sr_h_actor27"
+    ],
+    "gallery": "pmo0_head021-client.jpg",
+    "gallerySha256": "05992c008b9a90fbc02166e87642dcf2f570f5cedceacc9381ab0996a57766e8",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor26-three-1.png",
+      "sha256": "e163bd83ed0b0c745860cb8532b7fccbc736c2e46f22a9da15af97986cf2e900"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor26-threeleft-1.png",
+      "sha256": "4b2c48a5e80932d731df9ceb986f37892b631272bce11832cca1c1d03ec7dd5a"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor26-backright-1.png",
+      "sha256": "53c2edff74c8f17aeeab4d4020895d54603c2ff5fc6ce7c3f253876b044e58ab"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor26-backleft-1.png",
+      "sha256": "be1d6377b1920dd9fbc19c449e14c998372869b7e32f0f3f3b3b506c633f9838"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor26-motion-1.png",
+      "sha256": "e74c4c6853920988886c57339f3e6c11c05cea8d18fc4155ed40fcd8798e83c0"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor27-front-1.png",
+      "sha256": "62136ca70921a9e433d8115252d31115819d1b58627be0ad54549173bcd09330"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "tusks moved to tattoo2 (channel 9) with a per-head rule after the batch-wide miss (RUNBOOK 442); tusk row 120 ivory (auto 168 khaki)",
+    "geometry reseeded with the user (\"Reseed geometry (Recommended)\"), geometry-0003 approved (\"Approve geometry-0003 (Recommended)\")",
+    "browsOnHair 0.820 from the upper-lid guard on low heavy brows; user \"Accept 0.82, check in client (Recommended)\"; tone launch refused on stale role evidence (RUNBOOK 312) and re-issued after rerunning review roles",
+    "hair row 100 (auto 2 ochre); palette 0:3 1:100 8:80 9:120; render attempt-01",
+    "client v1: brows full, moustache good, one tiny pale fleck above the right ear"
+   ]
+  },
+  {
+   "head": "orc-male-d",
+   "design": "Nightshift",
+   "batch": 7,
+   "slot": "pmo0_head022",
+   "resources": {
+    "mdl": {
+     "name": "pmo0_head022.mdl",
+     "sha256": "a11c0ef2e495050170999ba6406db4692a09b710262ff79a7e1b10d79d52a812",
+     "bytes": 1301020
+    },
+    "plt": {
+     "name": "pmo0_head022.plt",
+     "sha256": "8eb925fa10114cf781e0ae9c3c54fb290f5bd4eea9b294b386c6939ca4dc0bee",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false
+   },
+   "paletteRows": {
+    "0": 4,
+    "1": 141,
+    "2": 171,
+    "3": 0,
+    "8": 112,
+    "9": 120
+   },
+   "features": {
+    "face": "adult pronounced square Orc jaw, two short lower tusks and pointed ears; cool slate-brown skin, dark teal ear-to-jaw-length curls with a full scalp and exposed temples, clean shaven, gray-green irises. subtle skepticism with a tiny asymmetrical brow lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, visible in front of the side curls.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two short ivory lower tusks rising outside the sealed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Dark teal ear-to-jaw-length curls with a full scalp, exposed temples and a continuous rear ending at the jaw; dark brows.",
+    "beard": "Absent.",
+    "cyberware": "One small pale titanium rounded rectangular datajack on the anatomical left temple, with a single inset slit. Anatomical left (image-right); one datajack total."
+   },
+   "designSha256": "0689f5d25651188dea9eaf15d11ee826cbbd5166f146d46fead8c17b4178b628",
+   "geometrySubmissions": 3,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "orc-20261118-012946132339",
+    "trialHak": "srn_rh_orc1.hak",
+    "actors": [
+     "sr_h_actor39",
+     "sr_h_actor40"
+    ],
+    "gallery": "pmo0_head022-client.jpg",
+    "gallerySha256": "b2fb4288b0aa4204a502b94a20cef0a44bfd4acb10cf7ee7fb0c0dc8360697fc",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor39-three-1.png",
+      "sha256": "90ab4c01b1958c39f139edc0944ad499200ba6ba265374d14a07231d92b833d2"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor39-threeleft-1.png",
+      "sha256": "f82e08a5c339d846eced838c36527f3852773cb98d7796889638eca924073332"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor39-backright-1.png",
+      "sha256": "ed9eb24eaf32b7af4c0f04d46bea273d6164f6eb1407251ed1180efab8aedaa9"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor39-backleft-1.png",
+      "sha256": "239251e60264c8f9842265efc21f25b5381fb772ab200c2e21b85e2d72aa396c"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor39-motion-1.png",
+      "sha256": "f48e566d0c4dfad053b8577ceffe303cf339d889f469cce94abc8503726fb5ad"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor40-front-1.png",
+      "sha256": "a559512334a27124ccbc9bb2d2abcd98434b7b72972b98c799f91350fae565ca"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "tusks moved to tattoo2 (channel 9) with a per-head rule after the batch-wide miss (RUNBOOK 442); tusk row 120 ivory (auto 168 khaki)",
+    "repair attempt-02 stand-off 0.445% against 0.4%; user \"Allow 0.45% for this head (Recommended)\" (mesh.maximumRelativeSurfaceError 0.0045)",
+    "geometry-0002 repair genus 53; user \"Reseed geometry (Recommended)\"; geometry-0003 approved (\"Approve geometry-0003 (Recommended)\"); precluster queued by hand after the reseed (RUNBOOK 449); shell review components (1 fleck, 112 triangles); UV floor 0.28",
+    "repair attempt-04 genus 23 (rear curl gaps); user \"Judge them in the client (Recommended)\"",
+    "rules-01: datajack on metal1 (row 171 slate), teal curls and brows on hair, tusks tattoo2",
+    "hair row 141 dark teal (auto 132 decoded navy); palette 0:4 1:141 2:171 3:0 8:112 9:120; render attempt-01",
+    "client v1: rear gaps read as shadow with no see-through holes; datajack slate on the anatomical left temple; brows and tusks good"
+   ]
+  },
+  {
+   "head": "orc-male-e",
+   "design": "Breakline",
+   "batch": 7,
+   "slot": "pmo0_head023",
+   "resources": {
+    "mdl": {
+     "name": "pmo0_head023.mdl",
+     "sha256": "49bb5829d39061a4928dcaf00111211bb2100378ba511040270c18d32a7b739e",
+     "bytes": 1198876
+    },
+    "plt": {
+     "name": "pmo0_head023.plt",
+     "sha256": "84d13858efc32de098eea01a1295fed44e33ba9f0b0e244bc1a110c09bfce071",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true
+   },
+   "paletteRows": {
+    "0": 122,
+    "1": 62,
+    "2": 0,
+    "3": 0,
+    "8": 173,
+    "9": 120
+   },
+   "features": {
+    "face": "older wide face with prominent lower jaw and pointed ears, two short stocky lower tusks; warm gray-olive skin, full white hair gathered into a low long tied style with visible attachment and a continuous rear mass below the jaw, clean shaven, dark amber irises. relaxed confident expression with a tiny lift to one lip corner. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Orc ears, anatomically attached, standing clear of the swept-back hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Absent.",
+    "tusks": "Two short stocky ivory lower tusks rising outside the sealed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Full white hair swept back into a low long tied style with a visible wrap at the nape and a continuous rear mass hanging below the jaw; white brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "1cd68990c6d6630e525009891c8d54b7beb2ec77eca153ce95de1e2893825852",
+   "geometrySubmissions": 4,
+   "designSubmissions": null,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "orc-20261118-012946132339",
+    "trialHak": "srn_rh_orc1.hak",
+    "actors": [
+     "sr_h_actor52",
+     "sr_h_actor53"
+    ],
+    "gallery": "pmo0_head023-client.jpg",
+    "gallerySha256": "bd1d5b7ef48a339ad560c7843e8822b6bca413a2df64a8ccf8a33b0c9cbbc543",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor52-three-1.png",
+      "sha256": "16c4cfa2a7ebd743f4608b445f55d1b06d8be41013bc32d5b1b5c9f2115dbfc8"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor52-threeleft-1.png",
+      "sha256": "4dd8e776f0a63db38b03b8f2dfa67fad30f2da94c25bd65a06a96b4186b5c2da"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor52-backright-1.png",
+      "sha256": "bf132dc07e95a82cd500bda39d9027183e0d308a01a63df2ea11334b0a8dd873"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor52-backleft-1.png",
+      "sha256": "0c1893a626360c08a5e973a855d03ce2d5332eac178ac84662eb0829caf39c29"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor52-motion-1.png",
+      "sha256": "6fcafb2e2712a4472b884f6e69574c577acf35f3967cc049473e694a6fdddc87"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor53-front-1.png",
+      "sha256": "d3304ff75532a286c0576f7fd01101247cfdd5e77bc524af17482e157d95f6eb"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "tusks moved to tattoo2 (channel 9) with a per-head rule after the batch-wide miss (RUNBOOK 442); tusk row 120 ivory (auto 168 khaki)",
+    "profile fit-01 about 12% larger and 3 cm lower than the batch; localScaleMultiplier 0.88, heightOffset +0.025",
+    "browsOnHair 0.844 from the upper-lid guard; user \"Accept 0.84, check in client (Recommended)\"",
+    "hair rows: auto 46 yellow-green, 17 icy blue; final 62 white; palette 0:122 1:62 8:173 9:120; render attempt-02",
+    "client v1: white tied hair, full brows, tusks good"
+   ]
+  }
+ ],
+ "review": "Claude operator client review delegated by the user; user decisions quoted in reviewNotes. Exact client-reviewed native bytes; publication reruns nothing."
+}
