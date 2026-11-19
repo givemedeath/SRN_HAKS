@@ -163,7 +163,8 @@
    "roughness": 0.6,
    "redrawn": true,
    "wrap": "rows",
-   "copy": "hrise_05_wall_g"
+   "copy": "hrise_05_wall_g",
+   "grade": "lit_warm"
   },
   "hr08_wall2": {
    "route": "layout",

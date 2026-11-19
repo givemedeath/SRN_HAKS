@@ -3,7 +3,8 @@ is its material file and the DDS maps that file names (or, for a plain one, its 
 every pack that held a copy of that name; the old TGA and DDS copies are deleted from every pack. A base-game texture,
 which no pack held, goes to the tileset's own pack. A changed tile model replaces the one pack copy it was made from.
 A name that ends up in more than one pack is an expected override in hakbuilder.json; one that no longer does is not.
-Other files of the packs (a TXI of an old name, a placeable's own texture) are left as they are."""
+A tileset's set file, edge table and palette replace their pack copies; a new tile model and walkmesh (a copied
+terrain's, `terrain`) go to the tileset's own pack; a walkmesh a pack holds is never replaced. Other files of the packs (a TXI of an old name, a placeable's own texture) are left as they are."""
 import json
 import re
 from pathlib import Path
@@ -12,6 +13,8 @@ from . import inventory, require
 
 OLD = ('.tga', '.dds')  # an original's copies, deleted once its restyle is in
 HELD = OLD + ('.mtr',)  # what says which packs hold a name: a restyled one may keep its material alone (maps of another stem)
+MODELS = ('.mdl', '.wok')  # a tile's model and walkmesh: a changed one replaces its pack copy, a new one goes to the tileset's pack
+TABLES = ('.set', '.2da', '.itp')  # a tileset's set file, edge table and palette: each replaces its one pack copy
 
 
 def _configuration(repo):
@@ -37,7 +40,7 @@ def plan(repo, spec, overlay):
     None) and the overlay's models; nothing is changed. Names are compared in lower case, as the game reads them; a
     file a pack already holds is written and deleted as that pack spells it."""
     repo, overlay = Path(repo), Path(overlay); packs = [pack['Name'] for pack in _configuration(repo)['HakList']]
-    spec = spec or {'textures': {}}  # an overlay of changed models alone
+    spec = {'textures': {}, **(spec or {})}  # an overlay of changed models alone, or a copied terrain's (its spec has no textures)
     held = {}  # lower-case name: {pack: its file there}
     for pack in packs:
         if (repo / pack).is_dir():
@@ -53,11 +56,16 @@ def plan(repo, spec, overlay):
             require(not strangers, f'{name}: {path.name} is already a file of {", ".join(strangers)}')
             require(key not in placed or placed[key] == holders, f'{path.name} belongs to two textures')
             placed[key] = holders; put += [(path, held.get(key, {}).get(pack, repo / pack / path.name)) for pack in holders]
-    for path in sorted(overlay.glob('*.mdl')):
+    for path in sorted(path for path in overlay.iterdir() if path.suffix.lower() in MODELS + TABLES):
         holders = held.get(path.name.lower(), {})
-        require(len(holders) == 1, f'{path.name}: a changed model replaces the one pack copy it was made from, not {len(holders)}')
-        (was,) = holders.values(); text = path.read_bytes().decode('cp1252')
-        require(inventory.walk_hash(text) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
+        if not holders and path.suffix.lower() in MODELS:  # a new tile (a copied terrain's): to the tileset's own pack
+            require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it'); put.append((path, repo / own / path.name)); continue
+        require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
+        (was,) = holders.values()
+        if path.suffix.lower() == '.mdl':
+            require(inventory.walk_hash(path.read_bytes().decode('cp1252')) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
+        if path.suffix.lower() == '.wok':
+            require(path.read_bytes() == was.read_bytes(), f'{path.name}: a walkmesh in a pack is not replaced')
         put.append((path, was))
     after = {name: set(holding) for name, holding in held.items()}
     for path in delete:

@@ -63,6 +63,19 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 't_a01.mdl: its walkmesh differs'):
             apply.plan(self.repo, self.spec, self.overlay)
 
+    def test_a_copied_terrain_s_new_models_go_to_the_tileset_s_pack_and_its_tables_replace_theirs(self):
+        overlay = self.overlay.parent / 'terrain'; overlay.mkdir()
+        for name, data in (('n_t01.mdl', b'model'), ('n_t01.wok', b'walk'), ('tst.set', b'new set')):
+            (overlay / name).write_bytes(data)
+        told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
+        self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
+        self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), b'new set')
+        (overlay / 'n_t01.wok').write_bytes(b'moved')
+        with self.assertRaisesRegex(ValueError, 'a walkmesh in a pack is not replaced'):
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        with self.assertRaisesRegex(ValueError, 'is new: the spec names the tileset'):
+            (overlay / 'n_t01.wok').unlink(); (overlay / 'n_t02.mdl').write_bytes(b'model'); apply.plan(self.repo, None, overlay)
+
     def test_names_are_matched_in_any_case_and_a_pack_s_spelling_kept(self):
         (self.repo / 'srn_t_common' / 'wall.tga').rename(self.repo / 'srn_t_common' / 'Wall.TGA')
         apply.apply(self.repo, self.spec, self.overlay)
