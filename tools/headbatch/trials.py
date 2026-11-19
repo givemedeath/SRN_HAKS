@@ -100,8 +100,10 @@ def bind_native_fit(workspace, entry, selection):
     chosen = selection['native']
     if not isinstance(chosen, dict) or set(chosen) != {'path', 'sha256'} or not isinstance(chosen['path'], str):
         raise guards.Refused(f'{name}: invalid selected native receipt pin')
-    path = workspace.path(chosen['path']).resolve()
-    if (path.name != 'native.json' or not path.is_relative_to(workspace.root.resolve()) or not path.is_file()
+    # Containment is checked on resolved paths; the spec keeps the workspace's own spelling (a Windows 8.3 temp root
+    # resolves to its long name).
+    path = workspace.path(chosen['path'])
+    if (path.name != 'native.json' or not path.resolve().is_relative_to(workspace.root.resolve()) or not path.is_file()
             or sha(path) != chosen['sha256']):
         raise guards.Refused(f'{name}: selected native fit receipt is missing or changed')
     result = guards.read(path)
