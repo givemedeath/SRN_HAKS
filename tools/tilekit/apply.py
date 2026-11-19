@@ -76,7 +76,8 @@ def plan(repo, spec, overlay):
     file a pack already holds is written and deleted as that pack spells it."""
     repo, overlay = Path(repo), Path(overlay); packs = [pack['Name'] for pack in _configuration(repo)['HakList']]
     record = json.loads((overlay / MADE_FROM).read_text(encoding='utf-8')) if (overlay / MADE_FROM).is_file() else {'kind': 'tilekit-terrain-copy', 'from': {}}
-    require(record.get('kind') == 'tilekit-terrain-copy' and isinstance(record.get('from'), dict) and isinstance(record.get('textures', []), list), f'{MADE_FROM} is not a terrain copy\'s record')
+    require(record.get('kind') == 'tilekit-terrain-copy' and isinstance(record.get('from'), dict) and isinstance(record.get('textures', []), list)
+            and all(isinstance(name, str) and name for name in record.get('textures', [])), f'{MADE_FROM} is not a terrain copy\'s record')
     named = {entry['tileset'] for kind in ('terrainTiles', 'tileGroups') for entry in record.get('catalog', {}).get(kind, [])}
     require(named <= {(spec or {}).get('tileset')}, f'{MADE_FROM} is a copy of ' + ', '.join(sorted(named)) + ', not of the spec\'s tileset')
     recorded = {model.lower() for entry in record.get('catalog', {}).get('terrainTiles', []) for model in entry['models']}  # the new tiles the record catalogues
@@ -97,14 +98,14 @@ def plan(repo, spec, overlay):
             require(key not in placed or placed[key] == holders, f'{path.name} belongs to two textures')
             placed[key] = holders; put += [(path, held.get(key, {}).get(pack, repo / pack / path.name)) for pack in holders]
     files = [path for path in overlay.iterdir() if path.is_file()]; present = {path.name.lower() for path in files}  # the overlay, listed once
+    lacking = sorted(({name.lower() for name in record['from']} | {model + suffix for model in recorded for suffix in MODELS}) - present)
+    require(not lacking, f'The overlay lacks what its {MADE_FROM} says the copy made: ' + ', '.join(lacking) + ': make the overlay again')  # a copy applies whole
     for path in sorted(path for path in files if path.suffix.lower() in MODELS + TABLES):
         holders = held.get(path.name.lower(), {})
         if not holders and path.suffix.lower() in MODELS:  # a new tile (a copied terrain's): to the tileset's own pack
             require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it')
             require((overlay / MADE_FROM).is_file(), f'{path.name} is new, and the overlay has no {MADE_FROM}: only a whole terrain copy brings new tiles')
-            require(path.stem.lower() in recorded, f'{path.name} is new, and {MADE_FROM} catalogues no tile of it')
-            twin = sorted({path.stem.lower() + suffix for suffix in MODELS} - present)
-            require(not twin, f'{path.name} is new, and the overlay lacks ' + ', '.join(twin) + ': a new tile comes with its model and its walkmesh')
+            require(path.stem.lower() in recorded, f'{path.name} is new, and {MADE_FROM} catalogues no tile of it')  # whose model and walkmesh are both here (`lacking`)
             put.append((path, repo / own / path.name)); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
         (was,) = holders.values()

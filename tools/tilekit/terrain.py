@@ -75,8 +75,9 @@ def copied_set(text, copies, laid=None):
         added['TERRAIN'].append(re.sub(r'^\[TERRAIN\d+\]', f'[TERRAIN{terrains}]', re.sub(r'(?m)^Name=.*?(\r?)$', f'Name={terrain}\\1', raw[f'TERRAIN{index}'], count=1)))
         terrains += 1
         mine = cornered(laid, source); require(mine, f'{terrain}: no tile of the set has a corner of {source}')
-        missing = sorted({tile['model'] for tile in mine} - {name.lower() for name in one['models']})
-        require(not missing, f'{terrain}: the copy names no new model for ' + ', '.join(missing))
+        theirs, named = {tile['model'] for tile in mine}, {name.lower() for name in one['models']}  # the copy's models are the source's, every one
+        require(theirs <= named, f'{terrain}: the copy names no new model for ' + ', '.join(sorted(theirs - named)))
+        require(named <= theirs, f'{terrain}: no tile of {source} is ' + ', '.join(sorted(named - theirs)))
         models = {old.lower(): new for old, new in one['models'].items()}; numbers[terrain] = {}
         for tile in mine:
             new = tiles; tiles += 1; numbers[terrain][tile['number']] = new
@@ -195,8 +196,6 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     data = set_path.read_bytes(); before = data.decode('cp1252')
     laid = inventory.read_set(before); set_text, numbers = copied_set(before, copies, laid); made_from[set_path.name] = sha(data); outputs = []; retextures = set()  # every model made and checked before any file is written
     for one in copies:
-        theirs = {tile['model'] for tile in cornered(laid, one['from'])}
-        extra = sorted({old.lower() for old in one['models']} - theirs); require(not extra, f'{one["terrain"]}: no tile of {one["from"]} is ' + ', '.join(extra))
         textures = {old.lower(): new for old, new in one.get('textures', {}).items()}
         for old, new in one['models'].items():
             require(re.fullmatch(r'[a-z0-9_]{1,16}', new), f'{new}: a model is named by a resref of at most 16 lowercase letters, digits and underscores')

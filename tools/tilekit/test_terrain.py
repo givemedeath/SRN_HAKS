@@ -40,6 +40,8 @@ class TerrainTests(unittest.TestCase):
         self.assertIn('[TERRAIN1]\r\nName=Tower\r\n\r\n[TERRAIN2]\r\nName=Tower_2\r\n\r\n[TILES]', text)
         with self.assertRaisesRegex(ValueError, 'names no new model for t_t02'):
             terrain.copied_set(SET, [{**COPY, 'models': {'t_t01': 'n_t01'}}])
+        with self.assertRaisesRegex(ValueError, 'no tile of Tower is t_a01'):  # nor a model of another terrain
+            terrain.copied_set(SET, [{**COPY, 'models': {**COPY['models'], 't_a01': 'n_a01'}}])
         for copies in ([COPY, COPY], [{**COPY, 'terrain': 'TOWER'}]):  # a terrain name is the set's once, in any case
             with self.assertRaisesRegex(ValueError, 'has a terrain (Tower_2|TOWER) already'):
                 terrain.copied_set(SET, copies)

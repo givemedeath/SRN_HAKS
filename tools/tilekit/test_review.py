@@ -109,6 +109,7 @@ class ReviewTests(unittest.TestCase):
         self.assertEqual([(prop['model'], prop['appearance']) for prop in areas[2]['props']], [('plc_crate', 1), ('plc_bin', 0)])
         self.assertEqual([(shot['label'], shot['distance']) for shot in shots if shot['area'].startswith('tkp')], [('props-small-day-r00', 24.0), ('props-large-day-r00', 50)])
         self.assertEqual(review.area_documents('tkpsd', 'P', 'tst01', 5, 4, areas[2]['laid'], 'day', props=areas[2]['props'])['tkpsd.git']['Placeable List']['value'][1]['Appearance']['value'], 0)
+        self.assertEqual(review.prop_rows(['plc_bin'] * 6, {'plc_bin': 0}, across=6, spacing=6.75)[:2], (7, 4))  # a 40.5 m row takes five tiles, a tile of ground round them
         with self.assertRaisesRegex(ValueError, 'No tile of oth01 is t_77'):
             review.plan(SET, {**spec, 'shared': {**spec['shared'], 'tilesets': {'oth01': {'models': ['t_77']}}}}, sets={'oth01': SET}, table=table)
         with self.assertRaisesRegex(ValueError, 'no row of placeables.2da: plc_lamp'):
