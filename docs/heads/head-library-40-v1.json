@@ -4274,5 +4274,5 @@
   }
  ],
  "review": "Claude operator client review delegated by the user; user decisions quoted in reviewNotes. Exact client-reviewed native bytes; publication reruns nothing.",
- "notes": "designSubmissions is recorded only for batch 1, whose designs were drafted in this run; later batches took their designs from the V4 reference library (designSource)."
+ "notes": "Every design comes from the V4 reference library; designSource names the library head and the draft used. designSubmissions (design attempts in this run) was recorded only by the batch 1 checkpoints."
 }
