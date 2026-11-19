@@ -14,6 +14,7 @@ node dummy srt04_a02_02
 endnode
 #Tile trimesh node
 node trimesh Object31
+  shadow 0
   parent srt04_a02_02
   position -1.75 0.0 1.5
   orientation  0.0 0.0 0.0  0.0
@@ -269,6 +270,7 @@ node trimesh Plane85
 endnode
 #Tile trimesh node
 node trimesh Plane87
+  shadow 0
   parent srt04_a02_02
   position 5.0 0.0 5.01
   orientation  0.0 0.0 0.0  0.0
@@ -454,6 +456,7 @@ node trimesh Plane88
 endnode
 #Tile trimesh node
 node trimesh Sphere13
+  shadow 0
   parent srt04_a02_02
   position -2.5 0.0 0.84
   orientation  0.0 0.0 0.0  0.0

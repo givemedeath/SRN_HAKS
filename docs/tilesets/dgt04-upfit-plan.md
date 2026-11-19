@@ -135,6 +135,11 @@ docs/tilesets/dgt04/materials.json --overlay output/tilekit/ground/overlay10` mo
 - Edge tiles (user, 2026-11-19): the 31 edge-table models drawn round an area's border take the same shadow rule (388
   trims and panels; none has a source-light lamp). Looked at on an area with twelve buildings against its borders
   (`tke1` before, `tke2` after, `tke3` on the built packs) and passed; in the packs the same day.
+- Meshes with no shadow line (user, 2026-11-19): 26 meshes the rule picks but which stated no shadow (the game's
+  default is on) now state `shadow 0`, in the five arcology tiles `srt04_a02_01`, `a02_02`, `a04_01`, `a05_01`,
+  `a05_02` and the edge tile `dgt04_z09_01` (overlay12). The arcology tiles were looked at before and after
+  (`tka1`, `tka2`, grid view r13-c12) and passed; the edge tile is in no review area and was not shown. That makes
+  434 changed models: 402 set tiles and 32 edge tiles.
 - Old TXIs of restyled names are kept (`window_tex07` reflection, `checks` one-frame cycle): they were in place for
   the look the user passed.
 - Checked on the built packs with no overlay (`tkrel1`): the views match the passed overlay views (mean difference

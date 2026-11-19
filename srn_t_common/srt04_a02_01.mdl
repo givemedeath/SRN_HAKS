@@ -127,6 +127,7 @@ node trimesh Plane42
 endnode
 #Tile trimesh node
 node trimesh Sphere10
+  shadow 0
   parent srt04_a02_01
   position -2.5 0.0 0.84
   orientation  0.0 0.0 0.0  0.0
@@ -859,6 +860,7 @@ node trimesh Object21
 endnode
 #Tile trimesh node
 node trimesh Object22
+  shadow 0
   parent srt04_a02_01
   position -1.75 0.0 1.5
   orientation  0.0 0.0 0.0  0.0
@@ -887,6 +889,7 @@ node trimesh Object22
 endnode
 #Tile trimesh node
 node trimesh Plane47
+  shadow 0
   parent srt04_a02_01
   position 5.0 0.0 5.01
   orientation  0.0 0.0 0.0  0.0

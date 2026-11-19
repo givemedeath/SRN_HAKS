@@ -2250,7 +2250,7 @@ Origins, by route:
   derivatives of Neverwinter Nights: Enhanced Edition stock textures, layout unchanged, in `srn_t_dgt04`; they
   replace the stock look in any module that loads that pack. A licensed NWN:EE installation is required.
 
-Model edits, to 428 D20 Modern tile models in `srn_t_common` and `srn_t_dgt04` (397 tiles of the set and 31 edge
+Model edits, to 434 D20 Modern tile models in `srn_t_common` and `srn_t_dgt04` (402 tiles of the set and 32 edge
 tiles of `srn_2da/dgt04_edge.2da`; the upstream D20 Modern Haks 2.2 terms above apply): tile lamps on 152 models are moved from source lights, which the game draws as flames, to main
 lights of radius 7 (`tilekit lamps`); small trims and flat panels cast no shadow, which the game drew as wedges on
 the walls behind them (`tilekit shadows`). No walkmesh, texture name or geometry changes: all 467 walkmeshes hash
