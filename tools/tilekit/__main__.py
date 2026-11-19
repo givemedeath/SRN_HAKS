@@ -67,6 +67,14 @@ def redraw_command(chosen):
     return 1 if failed else 0
 
 
+def lamps_command(chosen):
+    from . import lamps
+    told = lamps.move(chosen.repo, chosen.tileset, chosen.out, radius=chosen.radius)
+    states = sorted(set(told.values()))
+    print(json.dumps({'radius': chosen.radius, **{state: sorted(name for name, one in told.items() if one == state) if state != 'moved' else sum(one == state for one in told.values()) for state in states}}, indent=1))
+    return 0
+
+
 def enlarge_command(chosen):
     from tools.headkit.comfy import Client
     from . import enlarge
@@ -113,8 +121,13 @@ def main(arguments=None):
     six.add_argument('--enlarged', type=Path, help='the folder `enlarge` filled: a cleaner reference where it has one')
     six.add_argument('--workers', type=int, default=3, help='how many are drawn at a time'); six.add_argument('--only', help='only these textures, comma separated')
     six.add_argument('--repo', type=Path, default=REPO)
+    seven = commands.add_parser('lamps', help='move the lamps of a tileset\'s tiles from source lights (drawn as fire) to main lights, in model copies')
+    seven.add_argument('--tileset', required=True); seven.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
+    seven.add_argument('--radius', type=float, default=7.0, help='the radius the moved lights are given'); seven.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
+        if chosen.command == 'lamps':
+            return lamps_command(chosen)
         if chosen.command == 'enlarge':
             return enlarge_command(chosen)
         if chosen.command == 'redraw':

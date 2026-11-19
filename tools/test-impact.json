@@ -5641,6 +5641,7 @@
       "tools/shared_tools.py",
       "tools/tilekit/enlarge.py",
       "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py",
       "tools/tilekit/material.py",
       "tools/tilekit/redraw.py",
       "tools/tilekit/review.py"
@@ -5653,6 +5654,9 @@
       "tools/tilekit/material.py"
     ],
     "tools/tilekit/inventory.py": [],
+    "tools/tilekit/lamps.py": [
+      "tools/tilekit/inventory.py"
+    ],
     "tools/tilekit/material.py": [
       "tools/envkit/__init__.py",
       "tools/envkit/convert.py",
@@ -5661,6 +5665,10 @@
     ],
     "tools/tilekit/pictures.py": [],
     "tools/tilekit/redraw.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/reference.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py",
       "tools/tilekit/material.py"
     ],
     "tools/tilekit/review.py": [
@@ -5681,6 +5689,10 @@
     "tools/tilekit/test_inventory.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/test_lamps.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/test_material.py": [
       "tools/tilekit/material.py",
@@ -5898,6 +5910,9 @@
       "srn_2da",
       "srn_t_common"
     ],
+    "tools/tilekit/lamps.py": [
+      "srn_t_common"
+    ],
     "tools/tilekit/material.py": [
       "srn_door",
       "srn_placeable",
@@ -5918,6 +5933,9 @@
     "tools/tilekit/test_inventory.py": [
       "srn_2da",
       "srn_placeable",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_lamps.py": [
       "srn_t_common"
     ],
     "tools/tilekit/test_material.py": [
@@ -6245,6 +6263,7 @@
     "tools/test_test_impact.py",
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_inventory.py",
+    "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",
     "tools/tilekit/test_redraw.py",
     "tools/tilekit/test_review.py"

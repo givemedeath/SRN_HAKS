@@ -84,6 +84,7 @@ Revision 3 adds the authoring routes and time savers and redoes the desk-time ta
 - No walkmesh changes. Every original `.wok` and every `aabb` node hashes the same before and after.
 - No existing tile number, crosser name or group moves in `dgt04.set`. New tiles are appended after 555.
 - Release 1 edits no original model. A restyled texture keeps its name; the material file carries the change.
+  One exception (user, 2026-11-18): lamp light nodes, see "Tile lamps" below. No geometry, texture name or walkmesh changes.
 - A restyled texture is one material file and its DDS maps in one pack. No older copy of that name remains in
   any pack unless recorded as a decision. No file over 15 MiB without a size exception in PROVENANCE.md.
 - A base-game texture keeps its layout exactly, and any stock TXI behaviour (water above all) is shown to
@@ -91,6 +92,22 @@ Revision 3 adds the authoring routes and time savers and redoes the desk-time ta
 - No crack, stain or patch on a tiling texture large enough to read as a repeat across four adjacent tiles.
 - Ground and road materials carry no baked lighting direction: tiles are placed in four rotations.
 - Acceptance is the Toolset and the game client, day and night. Preview renders accept nothing.
+
+## Tile lamps (user decision, 2026-11-18)
+
+The game draws a flame and a warm flicker at every *source* light a tile switches on; removing the models' flare
+settings changes nothing (client captures `tkl1`, `tkl2`). A *main* light is a plain steady light. Adopted: the lamps
+of tiles that have source lights and no main light are renamed from `sl1`/`sl2` to `ml1`/`ml2` and given radius 7.0
+(`tilekit lamps --tileset dgt04 --out <overlay>`; capture `tkl3` shows steady cool-white pools and no flame).
+
+- 152 tile models are changed (60 in `srn_t_dgt04`, 92 in `srn_t_common`, none used by another tileset). The command
+  refuses a model whose walkmesh would change.
+- 58 tiles that already have a main light are left alone; their lamps still burn as torches when their source lights
+  are on. Open.
+- Builders switch these lamps on with the tile's main-light setting. An area built with source lights on goes dark at
+  those tiles until it is changed; this belongs in the release notes.
+- Not checked: other radii, and light colours other than white.
+- Like the textures, the models stay in the review overlay until the look gate.
 
 ## Authoring routes and time savers
 
