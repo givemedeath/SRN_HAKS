@@ -128,8 +128,10 @@ def tone_every_channel(data, race, sex, name):
 
 
 # The toolkit's loader plus the repair's fineRelief bounds, which the repair stage would otherwise refuse only at launch (RUNBOOK 484).
-VALIDATE_CODE = ('import sys; from headkit.common import manifest; from headkit.neck import fine_relief_bounds; '
-                 "m = manifest(sys.argv[1]); fine_relief_bounds((m.get('mesh') or {}).get('fineRelief', {}))")
+# A stage-pinned older neck.py has no fine_relief_bounds; its repair still checks the bounds at launch.
+VALIDATE_CODE = ('import sys; from headkit.common import manifest; import headkit.neck as neck; '
+                 "m = manifest(sys.argv[1]); check = getattr(neck, 'fine_relief_bounds', None); "
+                 "check and check((m.get('mesh') or {}).get('fineRelief', {}))")
 
 
 def validate(workspace, path):

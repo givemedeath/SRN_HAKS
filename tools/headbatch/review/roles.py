@@ -5,8 +5,8 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import label, binary_erosion
 from headkit.common import pin, read, verify, write, require
-from headkit.face_masks import nearest, hair_locks, NOSE_BASE, HAIR
-from headkit.brow_edges import upper_lids
+from headkit.face_masks import nearest, hair_locks, NOSE_BASE
+from headkit.brow_edges import lid_source_hair, upper_lids
 from headkit.quality import focus_view, THRESHOLDS, lip_hair_pixels, upper_lid_hair_pixels, brows_limit, face_hair_limit
 from headkit.runner import Runner
 from headbatch.review._role_code import files as role_code_files
@@ -107,7 +107,8 @@ def draw(head,attempt,output,rules=None):
     if metrics['hairOnFaceSkin'] is not None and metrics['hairOnFaceSkin']>floor['hairOnFaceSkinMax']:failed.append('hairOnFaceSkin')
     if (metrics['hairLockOnSkinPx'] or 0)>limits['hairLockOnSkinPxMax']:failed.append('hairLockOnSkin')
     rgb=region['render'].copy();rgb[brows & (channel==1)]=[80,100,255];rgb[brows & (channel!=1)]=[255,30,30];rgb[hair_spill]=[255,160,0]
-    lid_spill=upper_lids(channel.shape,region['pts'],region['view']['hit'],settings.get('cybereyeImageSide'),source_hair=region['labels']==HAIR) & (channel==1)
+    lid_spill=upper_lids(channel.shape,region['pts'],region['view']['hit'],settings.get('cybereyeImageSide'),
+                     source_hair=lid_source_hair(region['render'],region['labels'],region['pts'],region['view']['hit'])) & (channel==1)
     rgb[lid_spill]=[255,30,30]
     output.parent.mkdir(parents=True,exist_ok=True)
     require(not output.exists() and not output.with_suffix('.json').exists(),'Role evidence already exists')

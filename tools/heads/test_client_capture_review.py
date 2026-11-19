@@ -61,7 +61,7 @@ class CaptureCoverage(unittest.TestCase):
             row['inspectionEvent']+=1
             if 'motionEvent' in row:row['motionEvent']+=1
         self.write(self.record,self.data)
-        with self.assertRaisesRegex(ValueError,'repeated initial camera'):self.check()
+        with self.assertRaisesRegex(ValueError,'warm-up'):self.check()
         self.data['captures'][0]['inspectionEvent']=1
         self.write(self.record,self.data)
         self.assertTrue(self.check()['passed'])

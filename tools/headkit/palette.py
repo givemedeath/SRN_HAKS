@@ -219,6 +219,13 @@ def stretch(quantiles, lo, hi, *, tail=.005, median=None, rank=.5):
     return np.clip(np.where(q<m,t-(m-q)/max(m-a,1e-9)*(t-lo),t+(q-m)*up),lo,hi)
 
 
+def smoothed_luma(target, selected, positions, sigma_widths):
+    """A channel's texel luma and its surface-smoothed field at `sigma_widths` head widths (positions: 1K surface points)."""
+    points=np.asarray(positions,float);sigma=sigma_widths*float(np.ptp(points[...,0]))
+    luma=target@np.array([.299,.587,.114]);field=np.zeros(selected.shape);field[selected]=luma
+    return luma,surface_smooth(field,selected,points,sigma)[selected]
+
+
 def surface_smooth(values, mask, positions, sigma):
     """Gaussian mean (sigma in model units) of `values` over the `mask` texels by 3D distance between their surface points
     (`positions`, gutters padded): splatted trilinearly on a sigma/2 voxel grid, blurred and read back trilinearly. Continuous
@@ -299,17 +306,14 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         selected=layers==layer;target=rgb[selected].astype(float);opaque=key in OPAQUE_CHANNELS;broad=None
         if key=='1' and hair_broad!=1 and len(target):
             # Broad hair tone scaled about its median, strand detail (luma minus the smooth field) kept; colours keep their hue.
-            points=np.asarray(positions,float);sigma=HAIR_BROAD_SIGMA*float(np.ptp(points[...,0]))
-            luma=target@np.array([.299,.587,.114]);field=np.zeros(layers.shape);field[selected]=luma
-            smooth=surface_smooth(field,selected,points,sigma)[selected];centre=float(np.median(smooth))
+            luma,smooth=smoothed_luma(target,selected,positions,HAIR_BROAD_SIGMA);centre=float(np.median(smooth))
             scaled=np.clip(centre+(smooth-centre)*hair_broad+(luma-smooth),0,255)
             target=np.clip(target*(scaled/np.maximum(luma,1e-6))[:,None],0,255)
-            broad={'factor':hair_broad,'broadStdBefore':round(float(smooth.std()),2),'broadStdAfter':round(float(smooth.std())*hair_broad,2)}
+            broad={'hairBroadContrast':{'factor':hair_broad,'broadStdBefore':round(float(smooth.std()),2),
+                                        'broadStdAfter':round(float(smooth.std())*hair_broad,2)}}
         if key=='0' and skin_detail!=1 and len(target):
             # Skin mottling below SKIN_DETAIL_SIGMA scaled about the smooth field; broad shading and hue kept (RUNBOOK 486).
-            points=np.asarray(positions,float);sigma=SKIN_DETAIL_SIGMA*float(np.ptp(points[...,0]))
-            luma=target@np.array([.299,.587,.114]);field=np.zeros(layers.shape);field[selected]=luma
-            smooth=surface_smooth(field,selected,points,sigma)[selected];damped=np.clip(smooth+(luma-smooth)*skin_detail,0,255)
+            luma,smooth=smoothed_luma(target,selected,positions,SKIN_DETAIL_SIGMA);damped=np.clip(smooth+(luma-smooth)*skin_detail,0,255)
             target=np.clip(target*(damped/np.maximum(luma,1e-6))[:,None],0,255)
             broad={'skinDetailContrast':{'factor':skin_detail,'sigma':SKIN_DETAIL_SIGMA,'detailStdBefore':round(float((luma-smooth).std()),2),
                                          'detailStdAfter':round(float((luma-smooth).std())*skin_detail,2)}}
@@ -445,7 +449,7 @@ def quantize(color, ownership, palette_files, rows, output, *, shade_offsets=Non
         shades[selected]=picked;decoded[selected]=table[picked];tables[key]=table
         report[key]={'pixels':int(selected.sum()),'meanSquaredColorError':float(np.mean((target-table[picked])**2)),'shadeOffset':offset}
         if spec is not None:report[key]['toneMatch']=matched
-        if broad is not None:report[key].update(broad if 'skinDetailContrast' in broad else {'hairBroadContrast':broad})
+        if broad is not None:report[key].update(broad)
         if full_range:report[key]['shadeRange']=range_report
         if spec is not None and spec.get('rowFrom')=='design' and rows[key]=='auto':report[key]['designRow']=chosen
     output=Path(output);output.mkdir(parents=True,exist_ok=False)

@@ -197,14 +197,20 @@ class Watcher(threading.Thread):
         self.stopping = threading.Event()
         self.bursts, self.errors, self.pending = [], [], []
         self.started = time.time()
+        self.cached = (None, [])
 
     def lines(self):
         """The current session's entries; nothing until the client has written this run's log (a previous run's log
-        stays in place until the client rotates it at startup)."""
+        stays in place until the client rotates it at startup). Parsed again only when the log changes: it is polled
+        every POLL seconds and grows to megabytes with cliententirelog."""
         try:
-            if self.log.stat().st_mtime < self.started:
+            status = self.log.stat()
+            if status.st_mtime < self.started:
                 return []
-            return session_lines(self.log.read_text(encoding='utf-8', errors='replace'))
+            stamp = (status.st_size, status.st_mtime_ns)
+            if stamp != self.cached[0]:
+                self.cached = (stamp, session_lines(self.log.read_text(encoding='utf-8', errors='replace')))
+            return self.cached[1]
         except OSError:
             return []
 

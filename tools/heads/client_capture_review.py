@@ -33,7 +33,7 @@ def check_captures(manifest_path,log_path,record_path,log_report):
         require(frame['sha256'] not in hashes,'One frame cannot stand for several captures');hashes.add(frame['sha256'])
         index=capture.get('inspectionEvent')
         require(type(index) is int and 0<=index<len(lines),'Capture needs a valid zero-based inspectionEvent in the parsed last session')
-        require(index!=warmup,'Use the repeated initial camera placement for the first view')
+        require(index!=warmup,'The first of the two identical initial placements is a warm-up; file the repeated one')
         fields=dict(FIELDS.findall(lines[index]))
         require(lines[index].startswith('HEAD_INSPECT ') and fields.get('actor')==actor['tag'] and fields.get('view')==capture.get('view'),
                 'Capture camera/actor differs from the logged inspection event')
