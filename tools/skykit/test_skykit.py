@@ -138,6 +138,14 @@ class Panorama(unittest.TestCase):
         path = panorama.seam_path(a, b)
         self.assertTrue(((path >= 120) & (path < 125)).all())
 
+    def test_searchlights_rise_from_the_rooftops(self):
+        mask = np.zeros((100, 50, 3), np.float32)
+        mask[60:, :, 0] = 1.0  # windows only in the bottom 40 rows
+        self.assertAlmostEqual(panorama.roof_degrees(mask, (-2.0, 8.0)), 8.0 - 65.5 / 100 * 10.0, places=4)
+        self.assertEqual(panorama.roof_degrees(np.zeros_like(mask), (-2.0, 8.0)), -2.0)
+        _, values = build.material_text('den', profiles.DEN_NIGHT, (-2.0, 15.0, 3.0))
+        self.assertEqual(values['SkyGlow'][3], 3.0)
+
     def test_band_degrees(self):
         strip = np.zeros((100, 3600, 4), np.float32)
         self.assertEqual(panorama.band_degrees(strip, 2.0, 1.0), (-2.0, 8.0))

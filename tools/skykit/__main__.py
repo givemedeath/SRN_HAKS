@@ -64,8 +64,9 @@ def build_panorama(key):
         strip = panorama.strip(views)
     # u grows counter-clockwise, which from inside the dome is to the viewer's left: flip so pictures read the right way
     strip = np.ascontiguousarray(strip[:, ::-1])
-    mask = panorama.lights(strip)
+    mask = panorama.lights(strip, spec.get('city_from', 0.0))
     band = panorama.band_degrees(strip, spec['below'], spec['stretch'])
+    band = (*band, panorama.roof_degrees(mask, band))
     halves = panorama.halves(strip, mask)
     folder = OUTPUT / key
     folder.mkdir(parents=True, exist_ok=True)
@@ -98,6 +99,8 @@ def material_text(key, parameters, band):
     values = dict(parameters)
     extra = values.get('SkyBand', (0, 0, 0, 0))
     values['SkyBand'] = (band[0], band[1], extra[2], extra[3])
+    if len(band) > 2:  # the searchlights' foot: the city's rooftops, measured by the build
+        values['SkyGlow'] = (*values['SkyGlow'][:3], band[2])
     textures = profiles.texture_names(key)
     # written by tools/skykit from profiles.py; no comment line, as the engine's material parser is not known to take one
     lines = [f'customshaderVS {VERTEX_SHADER}', 'customshaderFS srn_sky_fs']

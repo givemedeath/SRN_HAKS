@@ -32,7 +32,7 @@ uniform vec4 SkySunColor;  // rgb sun and glow colour, a cloud rim light
 uniform vec4 SkyMotion;    // x cloud drift, y coverage, z storm, w lightning
 uniform vec4 SkyNight;     // x stars, y moon, z aurora, w city light strength
 uniform vec4 SkyExtra;     // x searchlights, y beacons, z city glow on clouds, w rain haze
-uniform vec4 SkyGlow;      // rgb colour of the sprawl's light on low clouds
+uniform vec4 SkyGlow;      // rgb colour of the sprawl's light on low clouds, a elevation (degrees) searchlights rise from
 
 //----------------------------------------------------------------------------- noise
 
@@ -235,25 +235,30 @@ vec2 SrnLightning(float azimuth, float elevation, float timeSeconds, float cloud
     return vec2(flash, bolt);
 }
 
-// Searchlight beams climbing from the sprawl and sweeping slowly.
+// Searchlight beams climbing from the sprawl's rooftops (SkyGlow.a) and sweeping slowly. A beam stands only where
+// the light masks show city at its foot, so none rises from bare mountains.
 float SrnSearchlights(float azimuth, float elevation, float timeSeconds)
 {
+    float rise = elevation - radians(SkyGlow.a);
+    if (rise < 0.0)
+        return 0.0;
     float sum = 0.0;
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 8; i++)
     {
         float k = float(i);
         vec3 h = SrnHash3(vec3(k, 41.0, 5.0));
         float base = h.x * SRN_TAU;
+        float city = clamp(SrnCityGlow(vec2(base / SRN_TAU, 0.0)) * 10.0, 0.0, 1.0);
         float lean = sin(timeSeconds * (0.08 + 0.07 * h.y) + h.z * 20.0) * 0.55;
         float tilt = radians(55.0 + 25.0 * h.y);
-        // azimuth of the beam's axis at this elevation: it leans sideways as it climbs
-        float axis = base + lean * elevation / tilt;
+        // azimuth of the beam's axis at this height: it leans sideways as it climbs
+        float axis = base + lean * rise / tilt;
         float da = SrnAngleDiff(azimuth, axis) * cos(elevation);
-        float width = 0.004 + elevation * 0.03;
-        float beam = exp(-da * da / (width * width)) * smoothstep(tilt, 0.0, elevation);
-        sum += beam * (0.5 + 0.5 * h.z);
+        float width = 0.003 + rise * 0.03;
+        float beam = exp(-da * da / (width * width)) * smoothstep(tilt, 0.0, rise) * smoothstep(0.0, 0.004, rise);
+        sum += beam * (0.5 + 0.5 * h.z) * city;
     }
-    return sum * step(0.0, elevation);
+    return sum;
 }
 
 //----------------------------------------------------------------------------- composition
@@ -322,10 +327,6 @@ vec3 SrnSkyColour(vec2 uv, float timeOfDayMs, float dayLengthMs, float weather)
     sky = mix(sky, cloudColour, cloud);
     sky += vec3(0.85, 0.9, 1.0) * lightning.y;
 
-    // searchlights show where there is haze or cloud to catch them
-    if (SkyExtra.x > 0.0)
-        sky += vec3(0.75, 0.85, 1.0) * SrnSearchlights(azimuth, elevation, seconds) * SkyExtra.x * (0.35 + 0.65 * max(cloud, storm * 0.6));
-
     // rain haze greys the far sky
     sky = mix(sky, SkyHorizon.rgb * 0.8 + SkyCloud.rgb * 0.2, SkyExtra.w * storm * (1.0 - up * 0.6));
     float rain = SrnNoise(vec3(azimuth * 260.0, elevation * 9.0 + seconds * 7.0, 0.5));
@@ -357,6 +358,10 @@ vec3 SrnSkyColour(vec2 uv, float timeOfDayMs, float dayLengthMs, float weather)
         base *= 1.0 - weather * 0.35;
         sky = mix(sky, base, land.a);
     }
+    // searchlights rise in front of the land behind the city; haze or cloud catches them
+    if (SkyExtra.x > 0.0)
+        sky += vec3(0.75, 0.85, 1.0) * SrnSearchlights(azimuth, elevation, seconds) * SkyExtra.x
+             * (0.35 + 0.65 * max(cloud * (1.0 - land.a), storm * 0.6));
     return max(sky, vec3(0.0));
 }
 

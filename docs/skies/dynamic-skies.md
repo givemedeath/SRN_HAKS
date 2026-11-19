@@ -49,7 +49,10 @@ skyboxes.2da row -> dawn/day/dusk/night model (srn_sky*_*.mdl, a 675 m inward sp
 - **City glow.** The masks' smallest mip gives the light of the sprawl toward each azimuth; it lights the
   undersides of low clouds in the phase's `SkyGlow` colour.
 - **Weather.** `areaWeatherDensity` raises cloud cover and darkens the land. The storm material adds lightning (a
-  flash round a random azimuth, sometimes a forked bolt), rain haze and streaks, and six sweeping searchlights.
+  flash round a random azimuth, sometimes a forked bolt), rain haze and streaks, and sweeping searchlights.
+- **Searchlights** rise from the city's rooftops in front of the land behind it, only where the light mask shows city
+  at their foot. The mask leaves out the strip's top above `city_from` (Denver's sunlit snow) and red light trails
+  (lines, not beacons).
 - **The engine's fade** is kept exactly: `gl_FragColor = vec4(colour, globalColor.a)`. Removing it breaks the
   dawn/day/dusk/night crossfade.
 
@@ -69,7 +72,7 @@ Set in `tools/skykit/profiles.py`; the build writes them into the materials. Uni
 | `SkyMotion` | cloud drift radius, cover, storm, lightning |
 | `SkyNight` | stars, moon, aurora, window light strength |
 | `SkyExtra` | searchlights, beacons, city glow on clouds, rain haze |
-| `SkyGlow` | colour of the city's light on clouds |
+| `SkyGlow` | colour of the city's light on clouds; alpha is the searchlights' foot (the city's rooftops, measured by the build from the light mask) |
 
 ## Building
 

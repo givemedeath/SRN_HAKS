@@ -15,4 +15,4 @@ parameter float SkySunColor 0.0000 0.0000 0.0000 0.0000
 parameter float SkyMotion 2.4000 0.3000 0.0000 0.0000
 parameter float SkyNight 1.3000 1.0000 1.0000 0.0000
 parameter float SkyExtra 0.0000 0.0000 0.0000 0.0000
-parameter float SkyGlow 0.0000 0.0000 0.0000 1.0000
+parameter float SkyGlow 0.0000 0.0000 0.0000 15.0976

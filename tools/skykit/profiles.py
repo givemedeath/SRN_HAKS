@@ -16,7 +16,7 @@ PANORAMAS = {
     'den': {
         'chain': ['denver/view_w.png', 'denver/ext_1.png', 'denver/ext_2.png', 'denver/ext_3.png', 'denver/ext_4.png'],
         'close': 'denver/join_close.png',
-        'key': 'green', 'below': 2.0, 'stretch': 0.6,
+        'key': 'green', 'below': 2.0, 'stretch': 0.6, 'city_from': 0.42,  # the Front Range fills the strip's upper part
     },
     'stm': {
         'views': ['storm/view_a.png', 'storm/view_b.png', 'storm/view_c.png'],

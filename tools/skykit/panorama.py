@@ -83,8 +83,18 @@ def _blur(channel, radius):
     return np.asarray(image.filter(ImageFilter.GaussianBlur(radius)), np.float32) / 255
 
 
-def lights(rgba):
-    """Light mask of a strip: R lit windows and neon, G red beacons; 0..1, nothing where there is no land."""
+def _blur_rows(channel, radius):
+    """Mean over `radius` columns either side, along each row only."""
+    padded = np.pad(channel, ((0, 0), (radius + 1, radius)), mode='edge')
+    sums = np.cumsum(padded, axis=1)
+    return (sums[:, 2 * radius + 1:] - sums[:, :-2 * radius - 1]) / (2 * radius + 1)
+
+
+def lights(rgba, city_from=0.0):
+    """Light mask of a strip: R lit windows and neon, G red beacons; 0..1, nothing where there is no land.
+
+    Only rows below `city_from` (a share of the strip's height) hold city: above it, sunlit snow and rim light on the
+    mountains would read as windows."""
     rgb, alpha = rgba[..., :3], rgba[..., 3]
     lum = rgb @ np.array([0.299, 0.587, 0.114], np.float32)
     local = _blur(lum, 5)
@@ -97,10 +107,13 @@ def lights(rgba):
     red = np.clip((r - 0.7) / 0.2, 0, 1) * np.clip((r - np.maximum(g, b) - 0.35) / 0.2, 0, 1)
     # a beacon is a small red point: keep red pixels brighter than their red neighbourhood
     beacons = red * np.clip((red - _blur(red, 4) * 1.5) / 0.3, 0, 1)
+    # a red light trail is a line, not a point: drop red that runs on along its row
+    beacons *= np.clip((red - _blur_rows(red, 8) * 1.3) / 0.3, 0, 1)
     beacons = np.maximum(beacons, _blur(beacons, 1.0) * 1.6).clip(0, 1)
+    city = (np.arange(rgb.shape[0]) >= city_from * rgb.shape[0]).astype(np.float32)[:, None]
     mask = np.zeros_like(rgb)
-    mask[..., 0] = windows * alpha
-    mask[..., 1] = beacons * alpha
+    mask[..., 0] = windows * alpha * city
+    mask[..., 1] = beacons * alpha * city
     return mask
 
 
@@ -141,6 +154,16 @@ def band_degrees(strip_rgba, below, stretch):
     height, width = strip_rgba.shape[:2]
     span = height * 360.0 / width * stretch
     return -below, span - below
+
+
+def roof_degrees(mask, band, share=0.15):
+    """Elevation in degrees of the city's rooftops in a strip laid over `band`: the row above which `share` of the
+    window light lies. Searchlights rise from there. The band's bottom when the strip holds no city."""
+    rows = mask[..., 0].sum(1)
+    if rows.sum() <= 1e-6:
+        return band[0]
+    row = int(np.searchsorted(np.cumsum(rows) / rows.sum(), share))
+    return band[1] - (row + 0.5) / len(rows) * (band[1] - band[0])
 
 
 def tga(array):
