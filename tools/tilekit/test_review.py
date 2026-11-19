@@ -159,13 +159,14 @@ class ReviewTests(unittest.TestCase):
             for name in [pack + '.hak' for pack in review.HAKS] + [review.TLK + '.tlk']:
                 (root / 'built' / name).write_bytes(b'')
 
-            def run(document, *more):
-                (root / 'spec.json').write_text(json.dumps(document), encoding='utf-8'); said = io.StringIO()
+            def run(document, *more, encoding='utf-8'):
+                (root / 'spec.json').write_text(json.dumps(document), encoding=encoding); said = io.StringIO()
                 with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(said):
                     code = command.main(['review', '--spec', str(root / 'spec.json'), '--game', str(root / 'game'), '--built', str(root / 'built'),
                                          '--out', str(root / 'out'), '--name', 'tkt', '--repo', str(root), '--no-run', *more])
                 return code, said.getvalue()
             self.assertEqual(run(spec, '--views', 'blok-day'), (2, 'tilekit: No view begins with blok-day\n'))
+            self.assertEqual(run(spec, '--views', 'blok-day', encoding='utf-8-sig'), (2, 'tilekit: No view begins with blok-day\n'))  # a spec with a byte-order mark is read
             self.assertEqual(run({'fill': 0}), (2, 'tilekit: A review spec names its tileset\n'))
             self.assertEqual(run({'tileset': 'tst01', 'grid': {}}), (2, "tilekit: The review spec lacks 'lights'\n"))
             self.assertEqual(run({'tileset': 'nope', 'grid': {}})[0], 2)  # no such set file: said, not thrown

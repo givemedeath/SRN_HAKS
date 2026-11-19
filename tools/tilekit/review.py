@@ -212,10 +212,11 @@ def plain(laid):
     return found[0]
 
 
-PROP_GROUP = {'across': 5, 'spacing': 6.0, 'apart': 12.0, 'distance': 24.0, 'pitch': 55.0, 'bearing': 3.14159}  # a group of placeables of about one size
+SOUTH = math.pi  # a placeable's bearing that faces south, toward the views of `prop_shots`
+PROP_GROUP = {'across': 5, 'spacing': 6.0, 'apart': 12.0, 'distance': 24.0, 'pitch': 55.0, 'bearing': SOUTH}  # a group of placeables of about one size
 
 
-def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=3.14159):
+def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=SOUTH):
     """(width, height, props, rows) of placeables stood `across` to a row, `spacing` metres apart, rows `apart` metres
     apart, a tile of ground round them. props: [{model, appearance, position, bearing}] (bearing pi faces south, toward
     the views of `prop_shots`); appearance: {model: placeables.2da row}."""
@@ -240,11 +241,11 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
     lights on, as a builder does in the Toolset: each a row of lightcolor.2da for both of that kind, 0 for off."""
     require(NAME.fullmatch(tag) and len(tag) <= client_fixture.RESREF, 'An area\'s tag is a lowercase resref')
     require(light in LIGHTS, 'An area is lit by ' + ', '.join(LIGHTS)); require(len(laid) == width * height, f'{tag}: every cell of the area is laid')
-    made = client_fixture.area_documents(tag, [], 1); are = made.pop(tag + '_a.are'); git = made.pop(tag + '_a.git'); plain = are['Tile_List']['value'][0]
+    made = client_fixture.area_documents(tag, [], 1); are = made.pop(tag + '_a.are'); git = made.pop(tag + '_a.git'); template = are['Tile_List']['value'][0]  # a tile's fields, copied for every cell
     cells = []
     for row in range(height):
         for column in range(width):
-            cell = copy.deepcopy(plain); number, turn = laid[(column, row)]
+            cell = copy.deepcopy(template); number, turn = laid[(column, row)]
             cell['Tile_ID'] = field('int', number); cell['Tile_Orientation'] = field('int', turn)
             for kind, key in (('main', 'Tile_MainLight'), ('source', 'Tile_SrcLight')):
                 for which in (1, 2):
@@ -255,7 +256,7 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
                 'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 90.0)})
     are.update({key: field(KINDS.get(key, 'dword'), value) for key, value in LIGHTS[light].items()})
     if props:
-        git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', 3.14159))
+        git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', SOUTH))
                                                for index, prop in enumerate(props)])
     return {tag + '.are': are, tag + '.git': git}
 

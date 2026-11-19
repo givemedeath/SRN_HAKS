@@ -1514,7 +1514,7 @@ def _compress(image, target, mode, size, crunch, *, data):
     import hashlib, io, shutil
     from . import cache
     # `size` is pixels across a square map, or (width, height) for one that is not (a tileset's facade, tilekit).
-    pixels = io.BytesIO(); image.resize(size if isinstance(size, tuple) else (size, size)).save(pixels, 'PNG'); tool = Path(crunch)
+    pixels = io.BytesIO(); image.resize((size, size) if isinstance(size, int) else tuple(size)).save(pixels, 'PNG'); tool = Path(crunch)
     renormal = ['-renormalize'] if mode == '-DXN' else []; settings = [mode, '-mipMode', 'Generate', '-noprogress', '-gamma', '1.0' if data else '2.2', *renormal]
     stamp = [tool.name, tool.stat().st_size, tool.stat().st_mtime_ns] if tool.is_file() else [str(crunch)]
     kept = COMPRESSED / (hashlib.sha256(pixels.getvalue() + repr([settings, stamp]).encode()).hexdigest() + '.dds')

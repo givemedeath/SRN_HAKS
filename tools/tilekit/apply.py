@@ -109,15 +109,15 @@ def plan(repo, spec, overlay):
             require(path.stem.lower() in recorded, f'{path.name} is new, and {MADE_FROM} catalogues no tile of it')  # whose model and walkmesh are both here (`lacking`)
             put.append((path, repo / own / path.name)); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
-        (was,) = holders.values()
-        require(path.suffix.lower() not in TABLES or path.name.lower() in made_from or path.read_bytes() == was.read_bytes(),
+        (was,) = holders.values(); made, there = path.read_bytes(), was.read_bytes()  # each read once
+        require(path.suffix.lower() not in TABLES or path.name.lower() in made_from or made == there,
                 f'{path.name}: a set file, edge table or palette replaces its pack copy only with the {MADE_FROM} of the copy that made it')  # only terrain.copy makes them
         if path.suffix.lower() == '.mdl':
-            require(inventory.walk_hash(path.read_bytes().decode('cp1252')) == inventory.walk_hash(was.read_bytes().decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
+            require(inventory.walk_hash(made.decode('cp1252')) == inventory.walk_hash(there.decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
         if path.suffix.lower() == '.wok':
-            require(path.read_bytes() == was.read_bytes(), f'{path.name}: a walkmesh in a pack is not replaced')
-        if path.name.lower() in made_from and path.read_bytes() != was.read_bytes():  # the palette too, which cannot be compared entry by entry; one in place already is applied again
-            require(hashlib.sha256(was.read_bytes()).hexdigest() == made_from[path.name.lower()],f'{path.name}: the pack copy changed since the overlay was made from it: make the overlay again')
+            require(made == there, f'{path.name}: a walkmesh in a pack is not replaced')
+        if path.name.lower() in made_from and made != there:  # the palette too, which cannot be compared entry by entry; one in place already is applied again
+            require(hashlib.sha256(there).hexdigest() == made_from[path.name.lower()], f'{path.name}: the pack copy changed since the overlay was made from it: make the overlay again')
         if path.suffix.lower() in ('.set', '.2da'):
             require(_extends(was, path), f'{path.name}: it lacks or changes entries the pack copy has (added since the overlay was made?): make the overlay again')
         put.append((path, was))

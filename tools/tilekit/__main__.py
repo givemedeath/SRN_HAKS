@@ -19,9 +19,14 @@ from . import PARTS, inventory, require
 REPO = Path(__file__).resolve().parents[2]
 
 
+def _json(path):
+    """A JSON file as the kit's specs are kept, with or without a byte-order mark (as Windows tools may write one)."""
+    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
+
+
 def review_command(chosen):
     from . import review  # here, so that asking for help imports nothing of the client
-    spec = json.loads(chosen.spec.read_text(encoding='utf-8')); require(isinstance(spec, dict) and spec.get('tileset'), 'A review spec names its tileset')
+    spec = _json(chosen.spec); require(isinstance(spec, dict) and spec.get('tileset'), 'A review spec names its tileset')
     tileset = spec['tileset']  # an overlay's set file (a copied terrain's) is the one shown, so it is the one laid
     set_of = lambda name: (chosen.overlay / f'{name}.set' if chosen.overlay and (chosen.overlay / f'{name}.set').is_file() else chosen.repo / f'srn_t_{name}' / f'{name}.set').read_bytes().decode('cp1252')
     shared = spec.get('shared', {})
@@ -48,7 +53,7 @@ def review_command(chosen):
 def material_command(chosen):
     from tools import shared_tools
     from . import material
-    spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
+    spec = _json(chosen.spec)
     masters = chosen.masters or shared_tools.tools_root(chosen.repo)[0] / 'tilekit' / 'masters'
     crunch = shared_tools.resolve_tool('crunch', chosen.repo)['path']
     told = material.build(spec, chosen.repo, masters, chosen.out, crunch, only=chosen.only.split(',') if chosen.only else None, enlarged=chosen.enlarged,
@@ -59,11 +64,11 @@ def material_command(chosen):
 
 def redraw_command(chosen):
     from . import redraw
-    spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
+    spec = _json(chosen.spec)
     require(bool(chosen.codex) != bool(chosen.bindings), 'A redraw is drawn by --codex (the Codex CLI) or by --bindings (the local Qwen model on the shared ComfyUI)')
     if chosen.bindings:
         from tools.headkit.comfy import Client
-        run = redraw.qwen(Client(chosen.url), json.loads(chosen.bindings.read_text(encoding='utf-8')), chosen.bindings, seed=chosen.seed)
+        run = redraw.qwen(Client(chosen.url), _json(chosen.bindings), chosen.bindings, seed=chosen.seed)
     else:
         run = redraw.codex(chosen.codex)
     told = redraw.redraw(spec, chosen.repo, chosen.out, run, only=chosen.only.split(',') if chosen.only else None,
@@ -91,7 +96,7 @@ def shadows_command(chosen):
 
 def apply_command(chosen):
     from . import apply
-    spec = json.loads(chosen.spec.read_text(encoding='utf-8')) if chosen.spec else None  # none: the overlay's changed models alone
+    spec = _json(chosen.spec) if chosen.spec else None  # none: the overlay's changed models alone
     print(json.dumps(apply.apply(chosen.repo, spec, chosen.overlay)))
     return 0
 
@@ -99,7 +104,7 @@ def apply_command(chosen):
 def enlarge_command(chosen):
     from tools.headkit.comfy import Client
     from . import enlarge
-    spec = json.loads(chosen.spec.read_text(encoding='utf-8')); local = json.loads(chosen.bindings.read_text(encoding='utf-8'))
+    spec = _json(chosen.spec); local = _json(chosen.bindings)
     told = enlarge.enlarge(Client(chosen.url), local, chosen.bindings, chosen.repo, spec, chosen.out, only=chosen.only.split(',') if chosen.only else None, stock=chosen.stock)
     print(json.dumps({state: sum(one == state for one in told.values()) for state in ('enlarged', 'kept')}))
     return 0
@@ -108,7 +113,7 @@ def enlarge_command(chosen):
 def terrain_command(chosen):
     from . import terrain
     source = chosen.spec.resolve().relative_to(chosen.repo.resolve()).as_posix() if chosen.spec.resolve().is_relative_to(chosen.repo.resolve()) else chosen.spec.name
-    print(json.dumps(terrain.copy(chosen.repo, json.loads(chosen.spec.read_text(encoding='utf-8')), chosen.out, source=source), indent=1))
+    print(json.dumps(terrain.copy(chosen.repo, _json(chosen.spec), chosen.out, source=source), indent=1))
     return 0
 
 
@@ -188,7 +193,7 @@ def main(arguments=None):
             print(json.dumps({'written': written, 'set': told['set'], 'edge': told['edge'], 'forms': told['forms'], 'textures': len(told['textures']),
                               'surface': told['surface'], 'coverage': told['coverage']}, indent=2))
             return 0
-        baseline = json.loads(chosen.baseline.read_text(encoding='utf-8'))
+        baseline = _json(chosen.baseline)
         require(isinstance(baseline, dict) and baseline.get('tileset') == walkmesh['tileset'] and isinstance(baseline.get('models'), dict),
                 f"{chosen.baseline.name} is not a walkmesh baseline of {walkmesh['tileset']}")
         lines = inventory.moved(baseline, walkmesh)
