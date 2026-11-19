@@ -140,8 +140,10 @@ docs/tilesets/dgt04/materials.json --overlay output/tilekit/ground/overlay10` mo
 - Checked on the built packs with no overlay (`tkrel1`): the views match the passed overlay views (mean difference
   0.0 by day). The canal water renders pixel for pixel as the stock water did (`tkbase1` against `tkrel2`), so its
   procedure still applies; motion itself is not shown by stills.
-- Not done: the Toolset check (computer use on the Toolset was declined on 2026-11-19; a folder for it is in ignored
-  `output/tilekit/tkts1`), and the other tilesets and placeables that name restyled textures (stratum 5).
+- Toolset (2026-11-19, by computer use on the built packs, user folder in ignored `output/tilekit/tkts1`): the review
+  module opens and its block draws with the restyled textures, from above and tilted, with no missing or black
+  texture. Screenshots are beside it. Painting was not tried: release 1 changes no tile, terrain or group.
+- Not done: the other tilesets and placeables that name restyled textures (stratum 5).
 
 For builders (release notes): tiles whose lamps were source lights now light them as main lights. An area built with
 a tile's source lights on goes dark at those 152 tiles until its main lights are switched on in Tile Properties. The
