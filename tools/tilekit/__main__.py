@@ -46,7 +46,7 @@ def material_command(chosen):
     masters = chosen.masters or shared_tools.tools_root(chosen.repo)[0] / 'tilekit' / 'masters'
     crunch = shared_tools.resolve_tool('crunch', chosen.repo)['path']
     told = material.build(spec, chosen.repo, masters, chosen.out, crunch, only=chosen.only.split(',') if chosen.only else None, enlarged=chosen.enlarged,
-                          redrawn=chosen.redrawn)
+                          redrawn=chosen.redrawn, stock=chosen.stock)
     print(json.dumps(told, indent=2))
     return 0
 
@@ -61,7 +61,7 @@ def redraw_command(chosen):
     else:
         run = redraw.codex(chosen.codex)
     told = redraw.redraw(spec, chosen.repo, chosen.out, run, only=chosen.only.split(',') if chosen.only else None,
-                         enlarged=chosen.enlarged, workers=1 if chosen.bindings else chosen.workers)
+                         enlarged=chosen.enlarged, workers=1 if chosen.bindings else chosen.workers, stock=chosen.stock)
     failed = {name: state for name, state in told.items() if state.startswith('failed')}
     print(json.dumps({'redrawn': sum(state == 'redrawn' for state in told.values()), 'composed': sum(state == 'composed' for state in told.values()), 'kept': sum(state == 'kept' for state in told.values()), 'failed': failed}, indent=1))
     return 1 if failed else 0
@@ -119,6 +119,7 @@ def main(arguments=None):
     five.add_argument('--bindings', required=True, type=Path, help='local JSON with absolute comfyInput and comfyOutput')
     five.add_argument('--url', default='http://127.0.0.1:8188'); five.add_argument('--only', help='only these textures, comma separated'); five.add_argument('--repo', type=Path, default=REPO)
     four.add_argument('--redrawn', type=Path, help='the folder `redraw` filled, for the textures the spec has `redrawn`')
+    four.add_argument('--stock', type=Path, help='a folder of base-game pictures read out of the install, for base-game textures')
     six = commands.add_parser('redraw', help='draw the textures of a redraw list again with an image generator, on the layout they have')
     six.add_argument('--spec', required=True, type=Path, help='the tileset\'s redraw list (docs/tilesets/<tileset>/redraw.json)')
     six.add_argument('--out', required=True, type=Path, help='the folder the redrawn pictures are kept in')
@@ -127,6 +128,7 @@ def main(arguments=None):
     six.add_argument('--url', default='http://127.0.0.1:8188'); six.add_argument('--seed', type=int, default=1)
     six.add_argument('--enlarged', type=Path, help='the folder `enlarge` filled: a cleaner reference where it has one')
     six.add_argument('--workers', type=int, default=3, help='how many are drawn at a time'); six.add_argument('--only', help='only these textures, comma separated')
+    six.add_argument('--stock', type=Path, help='a folder of base-game pictures read out of the install, for base-game textures')
     six.add_argument('--repo', type=Path, default=REPO)
     seven = commands.add_parser('lamps', help='move the lamps of a tileset\'s tiles from source lights (drawn as fire) to main lights, in model copies')
     seven.add_argument('--tileset', required=True); seven.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')

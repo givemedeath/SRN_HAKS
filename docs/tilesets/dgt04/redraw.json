@@ -29,7 +29,7 @@
     "win_pawn": {"kind": "shopfront", "district": "barrens", "note": "A pawn shop's two-pane window with painted lettering PAWN and AMMUNITION, HOLSTERS, HUNTING SUPPLIES over a cluttered display."},
     "win_pawn_g": {"kind": "shopfront", "district": "barrens", "of": "win_pawn", "light": "warm shop light behind the display and lettering", "compose": true},
     "window_store003": {"kind": "shopfront", "district": "barrens", "note": "A small shop window at night, framed in a lit red neon tube, with three glowing neon words across the glass in the same three places as the old ones. Replace every old word: from left to right the neon words are exactly CHIPS (cyan), TRIDS (green) and SIMSENSE (magenta), each spelled exactly, and no other large lettering. Behind the glass a dim, cluttered shop display."},
-    "slumbrd2": {"kind": "poster", "district": "barrens"},
+    "slumbrd2": {"kind": "poster", "district": "barrens", "note": "Every poster is replaced with a new invented one: different bands, events and products, different pictures and wording. Only the overall layout of the board and the number and sizes of the posters stay."},
     "slumbrd4": {"kind": "poster", "district": "barrens", "note": "Older, more faded and torn than most: mostly bare stained board showing through."},
     "j_sign": {"kind": "sign", "district": "barrens", "note": "A dark shop fascia with pale lettering B. BLING JEWELERS."},
     "sign_delivery": {"kind": "sign", "district": "barrens", "note": "A weathered white sign with red stencilled lettering: DELIVERIES 9:00 AM TO 5:00 PM ONLY."},
@@ -80,6 +80,17 @@
     "dock": {"kind": "wall", "district": "barrens", "note": "Weathered grey dock planks running top to bottom, with knots, salt stains and green algae in the grain.", "tiles": true},
     "dock_piling": {"kind": "wall", "district": "barrens", "note": "Weathered dock planks running top to bottom, wet and green with algae.", "tiles": true},
     "rebar": {"kind": "wall", "district": "industrial", "note": "Rusty steel diamond tread plate.", "tiles": true},
-    "tme_yellow": {"kind": "wall", "district": "barrens", "note": "Thick yellow road paint on rough asphalt.", "tiles": true}
+    "tme_yellow": {"kind": "wall", "district": "barrens", "note": "Thick yellow road paint on rough asphalt.", "tiles": true},
+    "arcology_torii02": {"kind": "trim", "district": "civic", "note": "A plain red lacquered timber beam: solid painted wood with a fine grain. No glass, no metal panels."},
+    "arcology_torii03": {"kind": "trim", "district": "civic", "note": "A plain red lacquered timber beam with a fine inlaid line along it: solid painted wood. No glass, no metal panels."},
+    "doortrim2": {"kind": "trim", "district": "civic", "note": "A plain recessed square concrete panel in a concrete surround: solid concrete throughout. No glass, no window, no frame."},
+    "white_tile": {"kind": "wall", "district": "civic", "note": "Square pale stone paving slabs, off-white and light grey, with dark joints. The colours stay off-white and grey.", "tiles": true},
+    "white_tile_f": {"kind": "wall", "district": "civic", "note": "Small square off-white ceramic tiles in a fine grid, grimy, darker towards the bottom. The colours stay off-white and grey.", "tiles": true},
+    "lab_floor01": {"kind": "wall", "district": "civic", "note": "Off-white floor tiles with black diamond insets at the corners. The colours stay off-white and black.", "tiles": true},
+    "ttr01_grass02": {"kind": "wall", "district": "barrens", "note": "Patchy, trampled urban grass with bare dirt and a little litter.", "tiles": true},
+    "tcn01_bark02": {"kind": "wall", "district": "barrens", "note": "Tree bark, dark and grimy.", "tiles": true},
+    "tcn01_stone18": {"kind": "wall", "district": "barrens", "note": "Rough grey stone, stained.", "tiles": true},
+    "tcn01_bridge02": {"kind": "wall", "district": "barrens", "note": "Weathered wooden planks laid across, in a dark timber frame."},
+    "tcn01_barnicle02": {"kind": "wall", "district": "barrens", "note": "A wooden pier piling: wet wood above, barnacles and weed at the waterline, dark below."}
   }
 }

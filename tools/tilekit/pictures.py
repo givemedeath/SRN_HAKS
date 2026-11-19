@@ -181,3 +181,14 @@ def stained(made, name, amount):
     if 'roughness' in made:
         out['roughness'] = np.clip(np.asarray(made['roughness'], np.float64) + 0.25 * mask[: made['roughness'].shape[0], : made['roughness'].shape[1]], 0, 1)
     return out
+
+
+def wrapped_rows(picture, band=0.06):
+    """`picture` (an array) made to run on from its bottom row into its top: within `band` of either edge it fades into
+    itself moved half its height, which is seamless there, so a facade stacked floor on floor shows no hard line."""
+    values = np.asarray(picture).astype(np.float64); height = values.shape[0]; edge = max(1.0, band * height)
+    away = np.minimum(np.arange(height), height - 1 - np.arange(height)).astype(np.float64)
+    weight = np.clip(1 - away / edge, 0, 1).reshape((height,) + (1,) * (values.ndim - 1))
+    moved = np.roll(values, height // 2, axis=0)
+    out = values * (1 - weight) + moved * weight
+    return np.uint8(np.clip(out + 0.5, 0, 255)) if np.asarray(picture).dtype == np.uint8 else out

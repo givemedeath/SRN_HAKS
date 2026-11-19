@@ -70,17 +70,23 @@ def make(old, how, scan=None, *, enlarged=None):
     to the old one's, default 1), grain (how strongly a scan's fine detail is laid on a kept layout, default 1), keep
     (pixels of the old picture, as enlarged, below which its detail is given up to the scan's, default 12), relief
     (pixels of rise guessed relief stands, default 2), roughness (0-1, an upscale's, default 0.8), glow (`glow`),
-    turn (the scan a quarter turn anticlockwise, `turned`)}. An
+    turn (the scan a quarter turn anticlockwise, `turned`), wrap ('rows': `pictures.wrapped_rows`), crisp (how many times
+    steeper a cut-out's edge is made), plain (`write`)}. An
     old picture with holes in it (an alpha channel in use) gives `alpha` too, and a glow asked for gives `glow`.
     enlarged: the old picture as an upscaling model enlarged it (`enlarge`), which an upscale then starts from."""
     route = how.get('route'); require(route in ROUTES, 'A texture\'s route is one of ' + ', '.join(ROUTES))
     size = tuple(how.get('size', ())); require(len(size) == 2 and all(side in SIZES for side in size), f'A texture\'s size is two of {SIZES}')
     require(route == 'upscale' or scan is not None, f'The {route} route needs a scan')
     require(enlarged is None or route == 'upscale', 'Only an upscale starts from an enlarged picture')
-    old = np.asarray(old); made = _routed(old[..., :3] if enlarged is None else np.asarray(enlarged)[..., :3], how, route, size, scan)
+    old = np.asarray(old); source = old[..., :3] if enlarged is None else np.asarray(enlarged)[..., :3]
+    if how.get('wrap') == 'rows':  # a facade whose top does not run on into its bottom: see pictures.wrapped_rows
+        source = pictures.wrapped_rows(source)
+    made = _routed(source, how, route, size, scan)
     if old.shape[2] == 4 and int(old[..., 3].min()) < 250:  # a picture with holes in it keeps them, where it had them
         from PIL import Image
         made['alpha'] = np.asarray(Image.fromarray(old[..., 3]).resize(size, Image.LANCZOS))
+        if how.get('crisp'):  # a cut-out's edge (wire, railing, leaf) made sharp again after it was enlarged
+            made['alpha'] = np.uint8(np.clip((made['alpha'].astype(np.float64) - 128) * float(how['crisp']) + 128, 0, 255) + 0.5)
     if how.get('glow') is not None:
         made['glow'] = glow(made, how['glow'])
     return made
@@ -145,11 +151,12 @@ def stem_of(name, how):
     return stem
 
 
-def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None):
+def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None, plain=False):
     """Write a texture's material file and maps into `folder`: <stem>.dds (colour), _n (relief, half size as envkit's),
     _s (shine), _r (roughness), _i (glow, where the texture was made with one or one is given), and <name>.mtr. Every map must come out with
     its whole mip chain: one written with its largest level alone drew black in the game (plan, stratum 0). Returns the
-    file names written."""
+    file names written. plain: the picture alone, under the texture's own name, with no maps and no material file, for a
+    texture whose look the game makes from its TXI (water) and that a material would take over."""
     from concurrent.futures import ThreadPoolExecutor
     from PIL import Image
     if compress is None:
@@ -164,6 +171,8 @@ def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None):
     wanted = [(shown, f'{stem}.dds', '-DXT5' if 'alpha' in made else '-DXT1', (width, height), False),
               (Image.fromarray(made['normal'], 'RGB'), f'{stem}_n.dds', '-DXN', half, True),
               (channel(shine(made['colour'], made['metal'])), f'{stem}_s.dds', '-DXT5A', half, True), (channel(made['roughness']), f'{stem}_r.dds', '-DXT5A', half, True)]
+    if plain:
+        require(stem == name and glow is None, f'{name}: a plain texture has no stem of its own and no glow'); wanted = wanted[:1]
     if glow is not None:
         wanted.append((Image.fromarray(np.asarray(glow)[..., :3], 'RGB'), f'{stem}_i.dds', '-DXT1', half, False))
     # The game takes the first row of a DDS for the bottom of the picture, as it does a BioWare DDS's: written top row
@@ -173,21 +182,24 @@ def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None):
         list(pool.map(lambda one: compress(one[0].transpose(Image.FLIP_TOP_BOTTOM), folder / one[1], one[2], one[3], crunch, data=one[4]), wanted))
     for _, file, _, size, _ in wanted:
         require(pictures.levels(folder / file) >= pictures.whole_chain(*size) - 2, f'{file} was written without its mip chain')
+    if plain:
+        return [one[1] for one in wanted]
     (folder / f'{name}.mtr').write_text(material_text(stem, glow is not None), encoding='ascii', newline='\n')
     return [one[1] for one in wanted] + [f'{name}.mtr']
 
 
-def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable')):
-    """The picture of a texture the game draws now: its DDS copy before its TGA, in the first of `packs` to hold one."""
-    for pack in packs:
+def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None):
+    """The picture of a texture the game draws now: its DDS copy before its TGA, in the first of `packs` to hold one,
+    else in `stock`, a folder of the base game's own pictures read out of the install (a base-game texture)."""
+    for folder in [Path(repo) / pack for pack in packs] + ([Path(stock)] if stock else []):
         for kind in ('dds', 'tga'):
-            path = Path(repo) / pack / f'{name}.{kind}'
+            path = folder / f'{name}.{kind}'
             if path.is_file():
                 return pictures.read(path)
-    raise ValueError(f'No pack holds a picture of {name}')
+    raise ValueError(f'No pack holds a picture of {name}' + ('' if stock else ' (a base-game texture needs --stock)'))
 
 
-def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enlarged=None, redrawn=None):
+def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enlarged=None, redrawn=None, stock=None):
     """Make and write every texture of a material spec ({grades: {name: grade}, textures: {name: how}}; how['master']
     names a scan's folder in `masters`, how['grade'] one of the spec's grades, `pictures.graded`) into `folder`. A
     texture that is `doubled` starts from its picture in `enlarged`, the folder `enlarge.enlarge` filled, and one that
@@ -205,7 +217,7 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             scan = scans[how['master']]
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
-        made = make(np.asarray(current(repo, name)), how, scan, enlarged=picture)
+        made = make(np.asarray(current(repo, name, stock=stock)), how, scan, enlarged=picture)
         if how.get('stain'):  # grime over the whole texture, before the district's grade; see pictures.stained
             require(0 < float(how['stain']) <= 1, f'{name}: a stain is between 0 and 1')
             made = pictures.stained(made, name, float(how['stain']))
@@ -214,5 +226,5 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             made['colour'] = pictures.graded(made['colour'], grades[how['grade']])
             if how.get('glow') is not None:  # a glow is of the picture as graded
                 made['glow'] = glow(made, how['glow'])
-        told[name] = {'route': how['route'], 'size': list(how['size']), **({'grade': how['grade']} if how.get('grade') else {}), 'files': write(name, made, folder, crunch, stem=stem_of(name, how), compress=compress)}
+        told[name] = {'route': how['route'], 'size': list(how['size']), **({'grade': how['grade']} if how.get('grade') else {}), 'files': write(name, made, folder, crunch, stem=stem_of(name, how), compress=compress, plain=bool(how.get('plain')))}
     return told

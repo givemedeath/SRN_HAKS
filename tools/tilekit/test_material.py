@@ -92,6 +92,12 @@ class PictureTests(unittest.TestCase):
         self.assertFalse(np.array_equal(pictures.stained(made, 'other', 1.0)['colour'], one['colour']))
 
 
+    def test_wrapped_rows_run_on_from_bottom_to_top_and_keep_the_middle(self):
+        picture = np.repeat(np.linspace(0, 255, 100)[:, None, None], 3, axis=2).astype(np.uint8) * np.ones((1, 8, 1), np.uint8)
+        made = pictures.wrapped_rows(picture, band=0.1)
+        self.assertLess(abs(int(made[0, 0, 0]) - int(made[-1, 0, 0])), 10); self.assertEqual(made[50, 0, 0], picture[50, 0, 0])
+
+
 class MaterialTests(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory(); self.addCleanup(folder.cleanup); self.root = Path(folder.name)
@@ -153,6 +159,19 @@ class MaterialTests(unittest.TestCase):
             material.build({'textures': {'a_long_texture_g': {'route': 'upscale', 'size': [64, 64]}}}, self.root, self.root / 'masters', self.root / 'out', 'crunch', compress=fake_compress)
         with self.assertRaisesRegex(ValueError, 'No pack holds a picture of gone'):
             material.build({'textures': {'gone': {'route': 'upscale', 'size': [64, 64]}}}, self.root, self.root / 'masters', self.root / 'out', 'crunch', compress=fake_compress)
+
+    def test_a_base_game_texture_is_read_from_stock_and_water_written_plain(self):
+        (self.root / 'stock').mkdir(); Image.new('RGBA', (16, 16), (20, 40, 90, 255)).save(self.root / 'stock' / 'water.tga')
+        with self.assertRaisesRegex(ValueError, 'needs --stock'):
+            material.current(self.root, 'water')
+        told = material.build({'textures': {'water': {'route': 'upscale', 'size': [64, 64], 'plain': True}}}, self.root, self.root / 'masters', self.root / 'out', 'crunch',
+                              compress=fake_compress, stock=self.root / 'stock')
+        self.assertEqual(told['water']['files'], ['water.dds']); self.assertFalse((self.root / 'out' / 'water.mtr').exists())
+
+    def test_a_crisp_cut_out_has_a_steeper_edge(self):
+        holed = np.zeros((16, 16, 4), np.uint8); holed[:, :8] = 255
+        soft = material.make(holed, {'route': 'upscale', 'size': [64, 64]})['alpha']; hard = material.make(holed, {'route': 'upscale', 'size': [64, 64], 'crisp': 4})['alpha']
+        self.assertLess(int(((hard > 10) & (hard < 245)).sum()), int(((soft > 10) & (soft < 245)).sum()))
 
     def test_every_map_is_stored_bottom_row_first(self):
         made = material.make(np.zeros((16, 16, 3), np.uint8), {'route': 'upscale', 'size': [64, 64]}); made['colour'] = made['colour'].copy(); made['colour'][:8] = (255, 0, 0)  # red along the top
