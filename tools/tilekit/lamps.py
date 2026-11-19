@@ -33,14 +33,15 @@ def moved(text, radius=RADIUS):
 
 
 def move(repo, tileset, folder, *, radius=RADIUS):
-    """Write the moved models of a tileset into `folder` (a review's overlay) and tell {model: state}. A model whose
-    walkmesh would differ afterwards is a refusal: nothing here touches one."""
+    """Write the moved models of a tileset into `folder` (a review's overlay; a model already there is changed in
+    place) and tell {model: state}. A model whose walkmesh would differ afterwards is a refusal: nothing here touches one."""
     repo, folder = Path(repo), Path(folder); tileset = tileset.lower()
     tiles = {tile['model'].lower() for tile in inventory.read_set((repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'))['tiles']}
     others = inventory._other_sets(repo, tileset); told = {}; folder.mkdir(parents=True, exist_ok=True)
     for pack in PACKS:
         for path in sorted((repo / pack.format(tileset=tileset)).glob('*.mdl')):
-            name = path.stem.lower(); data = path.read_bytes()
+            name = path.stem.lower()  # a copy already in the folder (the shadows') is the one moved, so neither undoes the other
+            data = (folder / path.name if (folder / path.name).is_file() else path).read_bytes()
             if name not in tiles or name in told or inventory.compiled(data):
                 continue
             text = data.decode('cp1252'); new, said = moved(text, radius)

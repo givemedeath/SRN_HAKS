@@ -1,5 +1,6 @@
 {
   "tileset": "dgt04",
+  "before": "3b11b301251db7162b10b9e5a418d7aff48ef6f9",
   "grades": {
     "corporate": {"saturation": 0.4, "contrast": 1.2, "gain": 0.6, "tint": [0.88, 0.97, 1.12]},
     "barrens": {"saturation": 0.7, "contrast": 1.3, "gain": 0.58, "tint": [1.06, 0.96, 0.86]},

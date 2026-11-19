@@ -10,6 +10,8 @@ guessed from it. A fourth, composing a facade from its window grid, is the highr
 models use, with the material file that names them, under the texture's own name: the game takes a material named like
 a model's bitmap with no model edit (plan, stratum 0). Maps are named after a `stem` of at most 14 characters, the
 texture's name where it is that short."""
+import functools
+import subprocess
 from pathlib import Path
 
 import numpy as np
@@ -188,19 +190,41 @@ def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None, pl
     return [one[1] for one in wanted] + [f'{name}.mtr']
 
 
-def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None):
-    """The picture of a texture the game draws now: its DDS copy before its TGA, in the first of `packs` to hold one,
-    else in `stock`, a folder of the base game's own pictures read out of the install (a base-game texture)."""
-    for folder in [Path(repo) / pack for pack in packs] + ([Path(stock)] if stock else []):
+@functools.lru_cache(maxsize=None)
+def _tree(repo, before, pack):
+    """The file names a pack held at commit `before`."""
+    listed = subprocess.run(['git', '-C', str(repo), 'ls-tree', '--name-only', before, '--', f'{pack}/'], capture_output=True, text=True)
+    require(listed.returncode == 0, f'git cannot list {pack} at {before}: ' + listed.stderr.strip()[-300:])
+    return frozenset(line.rsplit('/', 1)[-1] for line in listed.stdout.splitlines())
+
+
+def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None, before=None):
+    """The picture of a texture as the tileset had it before its restyle: its DDS copy before its TGA, in the first of
+    `packs` to hold one, else in `stock`, a folder of the base game's own pictures read out of the install (a base-game
+    texture). before: the commit whose packs hold the originals (a spec's `before`); once a restyle is in the packs
+    their files are its own maps, so without it a restyled name (one with a material file) is refused."""
+    repo = Path(repo)
+    if before is None:
+        restyled = [pack for pack in packs if (repo / pack / f'{name}.mtr').is_file()]
+        require(not restyled, f'{name} is restyled already ({", ".join(restyled)}): its old picture is read from the spec\'s `before` commit')
+    for pack in packs:
         for kind in ('dds', 'tga'):
-            path = folder / f'{name}.{kind}'
-            if path.is_file():
-                return pictures.read(path)
+            file = f'{name}.{kind}'
+            if before is not None and file in _tree(str(repo), before, pack):
+                shown = subprocess.run(['git', '-C', str(repo), 'show', f'{before}:{pack}/{file}'], capture_output=True)
+                require(shown.returncode == 0, f'git cannot read {pack}/{file} at {before}')
+                return pictures.read(file, shown.stdout)
+            if before is None and (repo / pack / file).is_file():
+                return pictures.read(repo / pack / file)
+    for kind in ('dds', 'tga'):
+        if stock and (Path(stock) / f'{name}.{kind}').is_file():
+            return pictures.read(Path(stock) / f'{name}.{kind}')
     raise ValueError(f'No pack holds a picture of {name}' + ('' if stock else ' (a base-game texture needs --stock)'))
 
 
 def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enlarged=None, redrawn=None, stock=None):
-    """Make and write every texture of a material spec ({grades: {name: grade}, textures: {name: how}}; how['master']
+    """Make and write every texture of a material spec ({before (the commit whose packs hold the original pictures,
+    `current`), grades: {name: grade}, textures: {name: how}}; how['master']
     names a scan's folder in `masters`, how['grade'] one of the spec's grades, `pictures.graded`) into `folder`. A
     texture that is `doubled` starts from its picture in `enlarged`, the folder `enlarge.enlarge` filled, and one that
     is `redrawn` from its picture in `redrawn`, the folder `redraw.redraw` filled.
@@ -217,14 +241,14 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             scan = scans[how['master']]
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
-        made = make(np.asarray(current(repo, name, stock=stock)), how, scan, enlarged=picture)
+        made = make(np.asarray(current(repo, name, stock=stock, before=spec.get('before'))), how, scan, enlarged=picture)
         if how.get('stain'):  # grime over the whole texture, before the district's grade; see pictures.stained
             require(0 < float(how['stain']) <= 1, f'{name}: a stain is between 0 and 1')
             made = pictures.stained(made, name, float(how['stain']))
         if how.get('grade'):  # the district's look, laid on whatever route made the picture
             require(how['grade'] in grades, f'{name}: the spec has no grade {how["grade"]}')
             made['colour'] = pictures.graded(made['colour'], grades[how['grade']])
-            if how.get('glow') is not None:  # a glow is of the picture as graded
-                made['glow'] = glow(made, how['glow'])
+        if how.get('glow') is not None and (how.get('stain') or how.get('grade')):  # a glow is of the picture as stained and graded
+            made['glow'] = glow(made, how['glow'])
         told[name] = {'route': how['route'], 'size': list(how['size']), **({'grade': how['grade']} if how.get('grade') else {}), 'files': write(name, made, folder, crunch, stem=stem_of(name, how), compress=compress, plain=bool(how.get('plain')))}
     return told

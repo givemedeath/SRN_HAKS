@@ -51,11 +51,13 @@ def decode_dxt(data, width, height, alpha):
     return whole[:height, :width].astype(np.uint8)
 
 
-def read(path):
+def read(path, data=None):
     """A pack's picture as a PIL image, RGB or RGBA: a TGA or a standard DDS through the image library, a BioWare DDS
-    (width, height, channels, size, alpha, then its largest level) decoded here. Top row first, whatever the file."""
+    (width, height, channels, size, alpha, then its largest level) decoded here. Top row first, whatever the file.
+    data: the file's bytes, where they come from elsewhere than `path` (an older commit); `path` then names the kind."""
+    import io
     from PIL import Image
-    path = Path(path); data = path.read_bytes()
+    path = Path(path); data = path.read_bytes() if data is None else data
     if path.suffix.lower() == '.dds' and data[:4] != b'DDS ':
         require(len(data) > 20, f'{path.name} is no picture')
         width, height, channels = struct.unpack_from('<III', data, 0)
@@ -64,7 +66,7 @@ def read(path):
         # 13 in 255 on average and turned over by 2.5, the compression's own loss (2026-11-18).
         pixels = np.ascontiguousarray(decode_dxt(data[20:], width, height, channels == 4)[::-1])
         return Image.fromarray(pixels, 'RGBA') if channels == 4 else Image.fromarray(pixels[..., :3], 'RGB')
-    with Image.open(path) as picture:
+    with Image.open(io.BytesIO(data), formats=['TGA'] if path.suffix.lower() == '.tga' else None) as picture:
         return picture.convert('RGBA' if picture.mode in ('RGBA', 'LA', 'P') and 'A' in picture.convert('RGBA').getbands() and picture.convert('RGBA').getextrema()[3][0] < 255 else 'RGB')
 
 
@@ -81,15 +83,15 @@ def whole_chain(width, height):
 
 
 def _wrapped_blur(values, radius):
-    """A box blur that wraps at the edges, so a tiling picture stays one."""
+    """A box blur that wraps at the edges, so a tiling picture stays one: a running sum over the picture wrapped by
+    `radius` each way, two passes whatever the radius."""
     if radius < 1:
         return values
-    out = values.astype(np.float64)
+    out = values.astype(np.float64); width = 2 * radius + 1
     for axis in (0, 1):
-        total = np.zeros_like(out)
-        for shift in range(-radius, radius + 1):
-            total += np.roll(out, shift, axis=axis)
-        out = total / (2 * radius + 1)
+        size = out.shape[axis]; index = np.arange(-radius - 1, size + radius) % size  # one extra before, for the difference
+        total = np.cumsum(np.take(out, index, axis=axis), axis=axis)
+        out = (np.take(total, np.arange(width, width + size), axis=axis) - np.take(total, np.arange(size), axis=axis)) / width
     return out
 
 

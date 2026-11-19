@@ -93,7 +93,7 @@ def enlarge_command(chosen):
     from tools.headkit.comfy import Client
     from . import enlarge
     spec = json.loads(chosen.spec.read_text(encoding='utf-8')); local = json.loads(chosen.bindings.read_text(encoding='utf-8'))
-    told = enlarge.enlarge(Client(chosen.url), local, chosen.bindings, chosen.repo, spec, chosen.out, only=chosen.only.split(',') if chosen.only else None)
+    told = enlarge.enlarge(Client(chosen.url), local, chosen.bindings, chosen.repo, spec, chosen.out, only=chosen.only.split(',') if chosen.only else None, stock=chosen.stock)
     print(json.dumps({state: sum(one == state for one in told.values()) for state in ('enlarged', 'kept')}))
     return 0
 
@@ -125,6 +125,7 @@ def main(arguments=None):
     five.add_argument('--spec', required=True, type=Path); five.add_argument('--out', required=True, type=Path, help='the folder the enlarged pictures are kept in')
     five.add_argument('--bindings', required=True, type=Path, help='local JSON with absolute comfyInput and comfyOutput')
     five.add_argument('--url', default='http://127.0.0.1:8188'); five.add_argument('--only', help='only these textures, comma separated'); five.add_argument('--repo', type=Path, default=REPO)
+    five.add_argument('--stock', type=Path, help='a folder of base-game pictures read out of the install, for base-game textures')
     four.add_argument('--redrawn', type=Path, help='the folder `redraw` filled, for the textures the spec has `redrawn`')
     four.add_argument('--stock', type=Path, help='a folder of base-game pictures read out of the install, for base-game textures')
     six = commands.add_parser('redraw', help='draw the textures of a redraw list again with an image generator, on the layout they have')

@@ -2,9 +2,10 @@
 on the wall behind it as a hard-edged wedge, which shows as triangles across a wall once its picture is even and dark
 (dgt04, 2026-11-18). So does a flat panel of any size (a facade sheet, a plinth face): an open surface's shadow falls
 in wedges on what is behind it. A mesh whose second-longest side is under `THIN` metres, whose longest is under
-`SMALL`, or whose shortest is under `FLAT`, has its `shadow` set to 0 in a copy of the model. Closed building meshes
-keep theirs, and cast them on the street; so do compiled models and models another tileset uses. A copy already in the
-folder (the lamps') is the one changed."""
+`SMALL`, or whose shortest is under `FLAT`, has its `shadow` set to 0 in a copy of the model. That takes in every mesh
+that is one plane, a plain wall or roof among them: only meshes with depth in all three directions keep their shadow
+on the street. Compiled models and models another tileset uses are left as they are. A copy already in the folder
+(the lamps') is the one changed."""
 import re
 from pathlib import Path
 

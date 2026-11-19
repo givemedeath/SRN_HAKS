@@ -168,6 +168,25 @@ class MaterialTests(unittest.TestCase):
                               compress=fake_compress, stock=self.root / 'stock')
         self.assertEqual(told['water']['files'], ['water.dds']); self.assertFalse((self.root / 'out' / 'water.mtr').exists())
 
+    def test_a_restyled_texture_is_read_as_it_was_at_the_spec_s_before_commit(self):
+        import subprocess
+        repo = self.root / 'repo'; pack = repo / 'srn_t_common'; pack.mkdir(parents=True)
+        Image.new('RGB', (8, 8), (200, 10, 10)).save(pack / 'wall.tga')
+        git = lambda *words: subprocess.run(['git', '-C', str(repo), '-c', 'user.name=t', '-c', 'user.email=t@t', *words], check=True, capture_output=True, text=True).stdout.strip()
+        git('init', '-q'); git('add', '-A'); git('commit', '-q', '-m', 'old'); before = git('rev-parse', 'HEAD')
+        (pack / 'wall.tga').unlink(); (pack / 'wall.mtr').write_text('texture0 wall\n', encoding='ascii')
+        Image.new('RGB', (8, 8), (10, 10, 200)).save(pack / 'wall.png')  # what a restyle leaves is not the old picture
+        with self.assertRaisesRegex(ValueError, 'restyled already'):
+            material.current(repo, 'wall')
+        self.assertEqual(material.current(repo, 'wall', before=before).getpixel((0, 0)), (200, 10, 10))
+
+    def test_the_wrapped_blur_is_a_box_blur_that_wraps(self):
+        values = np.random.default_rng(3).random((9, 13))
+        slow = values.copy()
+        for axis in (0, 1):
+            slow = sum(np.roll(slow, shift, axis=axis) for shift in range(-3, 4)) / 7
+        self.assertTrue(np.allclose(pictures._wrapped_blur(values, 3), slow))
+
     def test_a_crisp_cut_out_has_a_steeper_edge(self):
         holed = np.zeros((16, 16, 4), np.uint8); holed[:, :8] = 255
         soft = material.make(holed, {'route': 'upscale', 'size': [64, 64]})['alpha']; hard = material.make(holed, {'route': 'upscale', 'size': [64, 64], 'crisp': 4})['alpha']

@@ -178,14 +178,14 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         how = textures[name]; target = folder / f'{name}.png'
         if target.is_file():
             return 'kept'
-        old = np.asarray(material.current(repo, name, stock=stock))[..., :3]; height, width = old.shape[:2]
+        old = np.asarray(material.current(repo, name, stock=stock, before=spec.get('before')))[..., :3]; height, width = old.shape[:2]
         size = (SIDE, max(64, round(SIDE * height / width / 64) * 64)) if width >= height else (max(64, round(SIDE * width / height / 64) * 64), SIDE)
         better = Path(enlarged) / f'{name}.png' if enlarged else None
         if how.get('compose'):
             require(how.get('of'), 'only a lit variant is composed: it names the day texture it is `of`')
             day = folder / f'{how["of"]}.png'; require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
             with Image.open(day) as shown:
-                picture = composed(shown, np.asarray(material.current(repo, how['of'], stock=stock)), np.asarray(material.current(repo, name, stock=stock)),
+                picture = composed(shown, np.asarray(material.current(repo, how['of'], stock=stock, before=spec.get('before'))), np.asarray(material.current(repo, name, stock=stock, before=spec.get('before'))),
                                    np.asarray(Image.open(better).convert('RGB')) if better is not None and better.is_file() else None).resize(size, Image.LANCZOS)
             picture.save(target)
             (folder / f'{name}.json').write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'size': list(size)}, indent=1) + '\n', encoding='utf-8')

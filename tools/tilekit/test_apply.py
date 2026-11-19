@@ -44,6 +44,18 @@ class ApplyTests(unittest.TestCase):
                           ('bin.mtr', ['srn_placeable', 'srn_t_common']), ('bin_n.dds', ['srn_placeable', 'srn_t_common'])])
         self.assertEqual(told, {'put': 12, 'deleted': 1, 'overrides': 3, 'overrides before': 1})
 
+    def test_applying_again_finds_a_restyle_by_its_material_and_a_model_s_walkmesh_must_stand(self):
+        (self.overlay / 'wall.mtr').write_text(MATERIAL.format('wl'), encoding='ascii')  # maps of a stem of their own
+        for stem in ('wl', 'wl_n'):
+            (self.overlay / f'{stem}.dds').write_bytes(b'new')
+        apply.apply(self.repo, self.spec, self.overlay)
+        first = self.names('srn_t_common'); apply.apply(self.repo, self.spec, self.overlay)
+        self.assertEqual(self.names('srn_t_common'), first); self.assertNotIn('wall.dds', first)
+        (self.repo / 'srn_t_common' / 't_a01.mdl').write_text('node aabb wm\n  verts 1\n    0 0 0\nendnode\n', encoding='cp1252')
+        (self.overlay / 't_a01.mdl').write_text('node aabb wm\n  verts 1\n    0 0 1\nendnode\n', encoding='cp1252')
+        with self.assertRaisesRegex(ValueError, 't_a01.mdl: its walkmesh differs'):
+            apply.plan(self.repo, self.spec, self.overlay)
+
     def test_a_map_named_like_another_packs_file_or_a_missing_one_is_refused(self):
         (self.repo / 'srn_placeable' / 'wall_n.dds').write_bytes(b'theirs')
         with self.assertRaisesRegex(ValueError, 'wall_n.dds is already a file of srn_placeable'):

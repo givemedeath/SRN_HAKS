@@ -5666,7 +5666,8 @@
       "tools/tilekit/shadows.py"
     ],
     "tools/tilekit/apply.py": [
-      "hakbuilder.json"
+      "hakbuilder.json",
+      "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/enlarge.py": [
       "tools/envkit/__init__.py",

@@ -8,14 +8,14 @@ import json
 import re
 from pathlib import Path
 
-from . import require
+from . import inventory, require
 
-OLD = ('.tga', '.dds')
+OLD = ('.tga', '.dds')  # an original's copies, deleted once its restyle is in
+HELD = OLD + ('.mtr',)  # what says which packs hold a name: a restyled one may keep its material alone (maps of another stem)
 
 
-def _packs(repo):
-    configuration = json.loads((repo / 'hakbuilder.json').read_text(encoding='utf-8-sig'))
-    return configuration, [pack['Name'] for pack in configuration['HakList']]
+def _configuration(repo):
+    return json.loads((repo / 'hakbuilder.json').read_text(encoding='utf-8-sig'))
 
 
 def files_of(overlay, name):
@@ -34,7 +34,7 @@ def files_of(overlay, name):
 def plan(repo, spec, overlay):
     """{'put': [(overlay file, pack)], 'delete': [pack file], 'overrides': {resource: packs}} for a spec's textures and
     the overlay's models; nothing is changed."""
-    repo, overlay = Path(repo), Path(overlay); configuration, packs = _packs(repo)
+    repo, overlay = Path(repo), Path(overlay); packs = [pack['Name'] for pack in _configuration(repo)['HakList']]
     held = {}
     for pack in packs:
         if (repo / pack).is_dir():
@@ -42,7 +42,7 @@ def plan(repo, spec, overlay):
                 held.setdefault(path.name.lower(), []).append(pack)
     own = f"srn_t_{spec['tileset'].lower()}"; put, delete, placed = [], [], {}
     for name in sorted(spec['textures']):
-        holders = sorted({pack for suffix in OLD for pack in held.get(name + suffix, ())}) or [own]
+        holders = sorted({pack for suffix in HELD for pack in held.get(name + suffix, ())}) or [own]
         delete += [repo / pack / (name + suffix) for suffix in OLD for pack in held.get(name + suffix, ())]
         for path in files_of(overlay, name):
             strangers = sorted(set(held.get(path.name, ())) - set(holders))
@@ -52,8 +52,10 @@ def plan(repo, spec, overlay):
     for path in sorted(overlay.glob('*.mdl')):
         holders = held.get(path.name, [])
         require(len(holders) == 1, f'{path.name}: a changed model replaces the one pack copy it was made from, not {len(holders)}')
+        text, was = path.read_bytes().decode('cp1252'), (repo / holders[0] / path.name).read_bytes().decode('cp1252')
+        require(inventory.walk_hash(text) == inventory.walk_hash(was), f'{path.name}: its walkmesh differs from the pack copy it replaces')
         put.append((path, holders[0]))
-    after = {name: set(packs) for name, packs in held.items()}
+    after = {name: set(holding) for name, holding in held.items()}
     for path in delete:
         after[path.name].discard(path.parent.name)
     for path, pack in put:
@@ -70,7 +72,7 @@ def apply(repo, spec, overlay):
         path.unlink()
     for path, pack in moves['put']:
         (repo / pack / path.name).write_bytes(path.read_bytes())
-    configuration, _ = _packs(repo); before = configuration['ExpectedOverrides']
+    configuration = _configuration(repo); before = configuration['ExpectedOverrides']
     kept = [entry for entry in before if entry['Resource'].lower() not in moves['touched']]  # in their order; new ones after
     added = [{'Resource': name, 'Packs': packs} for name, packs in moves['overrides'].items()]
     configuration['ExpectedOverrides'] = kept + added

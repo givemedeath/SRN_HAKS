@@ -24,10 +24,10 @@ def wrapped(picture, margin=MARGIN):
     return np.pad(np.asarray(picture), ((margin, margin), (margin, margin), (0, 0)), mode='wrap')
 
 
-def enlarge(client, local, bindings_path, repo, spec, folder, *, only=None, deadline=1200, say=print):
+def enlarge(client, local, bindings_path, repo, spec, folder, *, only=None, deadline=1200, say=print, stock=None):
     """Every texture of `spec` that asks to be `doubled`, enlarged into `folder` as <name>.png with a record beside it.
     One that is there already, made from the picture the game draws now, is passed over; one made from another is
-    refused. Returns {name: 'enlarged' | 'kept'}."""
+    refused. stock: the folder of base-game pictures, for a base-game texture. Returns {name: 'enlarged' | 'kept'}."""
     from PIL import Image
     from tools.envkit import reference
     from tools.headkit import design
@@ -39,7 +39,7 @@ def enlarge(client, local, bindings_path, repo, spec, folder, *, only=None, dead
         if times is None:
             continue
         require(times in (1, 2), f'{name}: a texture is doubled once or twice')
-        old = np.ascontiguousarray(np.asarray(material.current(repo, name))[..., :3])
+        old = np.ascontiguousarray(np.asarray(material.current(repo, name, stock=stock, before=spec.get('before')))[..., :3])
         source = hashlib.sha256(repr(old.shape).encode() + old.tobytes()).hexdigest()
         target, record = folder / f'{name}.png', folder / f'{name}.json'
         if target.exists() or record.exists():

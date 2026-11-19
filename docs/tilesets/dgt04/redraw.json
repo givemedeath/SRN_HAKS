@@ -1,5 +1,6 @@
 {
   "tileset": "dgt04",
+  "before": "3b11b301251db7162b10b9e5a418d7aff48ef6f9",
   "textures": {
     "win001_unbrknd": {"kind": "window", "district": "barrens", "note": "An old steel-framed industrial sash window in a tenement."},
     "win001_unbrknn": {"kind": "window", "district": "barrens", "of": "win001_unbrknd", "light": "warm, dim tungsten or sodium light", "compose": true},
