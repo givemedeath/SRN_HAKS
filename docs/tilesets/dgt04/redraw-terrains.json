@@ -1,0 +1,34 @@
+{
+ "tileset": "dgt04",
+ "before": "3b11b301251db7162b10b9e5a418d7aff48ef6f9",
+ "textures": {
+  "hr08_wall": {
+   "kind": "facade",
+   "district": "residential",
+   "copy": "hrise_05_wall",
+   "tiles": true,
+   "note": "Lived-in flats: curtains, blinds and a few plants in some windows, a small air conditioner here and there. The stone bands and the grid of windows stay exactly as they are."
+  },
+  "hr08_wall_g": {
+   "kind": "facade",
+   "district": "residential",
+   "copy": "hrise_05_wall_g",
+   "of": "hr08_wall",
+   "light": "warm yellow home lighting, uneven, many windows dark",
+   "compose": true
+  },
+  "hr09_build": {
+   "kind": "facade",
+   "district": "derelict",
+   "copy": "build_01",
+   "tiles": true,
+   "note": "Abandoned: most windows broken out to darkness or boarded over with weathered plywood, a few with cracked glass left; water stains and soot streak down the concrete. The grid of windows stays exactly as it is."
+  },
+  "hr09_win08": {
+   "kind": "window",
+   "district": "derelict",
+   "copy": "window_tex08",
+   "note": "A plain rendered wall with one small window in it. Weathered grey plywood boards are nailed across the whole window opening, covering the glass. The wall around it stays smooth and plain, only lightly stained."
+  }
+ }
+}

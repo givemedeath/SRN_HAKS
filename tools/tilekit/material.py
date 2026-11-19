@@ -230,7 +230,8 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
 
 def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enlarged=None, redrawn=None, stock=None):
     """Make and write every texture of a material spec ({before (the commit whose packs hold the original pictures,
-    `current`), grades: {name: grade}, textures: {name: how}}; how['master']
+    `current`), grades: {name: grade}, textures: {name: how}}; how['copy'] names the texture a new one (a copied
+    terrain's) starts from; how['master']
     names a scan's folder in `masters`, how['grade'] one of the spec's grades, `pictures.graded`) into `folder`. A
     texture that is `doubled` starts from its picture in `enlarged`, the folder `enlarge.enlarge` filled, and one that
     is `redrawn` from its picture in `redrawn`, the folder `redraw.redraw` filled.
@@ -247,7 +248,7 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             scan = scans[how['master']]
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
-        made = make(np.asarray(current(repo, name, stock=stock, before=spec.get('before'))), how, scan, enlarged=picture)
+        made = make(np.asarray(current(repo, how.get('copy', name), stock=stock, before=spec.get('before'))), how, scan, enlarged=picture)  # a copy starts from its source's picture
         if how.get('stain'):  # grime over the whole texture, before the district's grade; see pictures.stained
             require(0 < float(how['stain']) <= 1, f'{name}: a stain is between 0 and 1')
             made = pictures.stained(made, name, float(how['stain']))

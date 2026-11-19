@@ -307,6 +307,10 @@ try {
     foreach ($entry in @($additions.tileGroups)) {
         if ($baselineNames -cnotcontains [string]$entry.tileset) { Add-ValidationError "The additions catalog lists a group of $($entry.tileset), which has no baseline." }
     }
+    $terrainEntries = @($additions.PSObject.Properties['terrainTiles'] | ForEach-Object { $_.Value } | ForEach-Object { $_ } | Where-Object { $_ })  # optional in the catalog
+    foreach ($entry in $terrainEntries) {
+        if ($baselineNames -cnotcontains [string]$entry.tileset) { Add-ValidationError "The additions catalog lists terrain tiles of $($entry.tileset), which has no baseline." }
+    }
     foreach ($tilesetName in $baselineNames) {
         $baseline = $additions.baseline.tilesets.$tilesetName
         $setText = [IO.File]::ReadAllText((Join-Path $repoRoot $baseline.set), $gameText)
@@ -334,7 +338,9 @@ try {
                 Add-ValidationError "Group $number of $tilesetName is '$($group.name)' $($group.rows)x$($group.columns) [$($group.tiles -join ',')] in the set file and '$($entry.name)' $($entry.rows)x$($entry.columns) [$(@($entry.tiles) -join ',')] in the additions catalog."
             }
             for ($index = 0; $index -lt @($entry.tiles).Count; $index++) {
-                $tile = [int]@($entry.tiles)[$index]; $model = [string]@($entry.models)[$index]; [void]$collected.Add($tile)
+                $tile = [int]@($entry.tiles)[$index]; $model = [string]@($entry.models)[$index]
+                if ($tile -lt 0) { continue }  # a blank cell of the group (-1), which has no tile or model
+                [void]$collected.Add($tile)
                 if (-not $tileModels.ContainsKey($tile) -or $tileModels[$tile].ToLowerInvariant() -cne $model.ToLowerInvariant()) {
                     Add-ValidationError "Tile $tile of $tilesetName is '$($tileModels[$tile])' in the set file and '$model' in the additions catalog."
                 }
@@ -346,8 +352,26 @@ try {
         foreach ($number in @($listedGroups.Keys | Sort-Object)) {
             if (-not $setGroups.ContainsKey($number) -or $number -lt [int]$baseline.importedGroups) { Add-ValidationError "The additions catalog lists group $number ($($listedGroups[$number].name)) of $tilesetName, which $($baseline.set) does not have above its imported groups." }
         }
+        # A tile of no group (a copied terrain's) is listed by its terrain under terrainTiles.
+        $terrainListed = [System.Collections.Generic.HashSet[int]]::new(); $terrainNames = [System.Collections.Generic.HashSet[string]]::new()
+        foreach ($entry in @($terrainEntries | Where-Object { $_.tileset -ceq $tilesetName })) {
+            if (-not $terrainNames.Add([string]$entry.terrain)) { Add-ValidationError "The additions catalog has more than one entry for terrain $($entry.terrain) of $tilesetName." }
+            for ($index = 0; $index -lt @($entry.tiles).Count; $index++) {
+                $tile = [int]@($entry.tiles)[$index]; $model = [string]@($entry.models)[$index]; [void]$collected.Add($tile)
+                if (-not $terrainListed.Add($tile)) { Add-ValidationError "The additions catalog lists tile $tile of $tilesetName under more than one terrain." }
+                if ($tile -lt [int]$baseline.importedTiles -or -not $tileModels.ContainsKey($tile) -or $tileModels[$tile].ToLowerInvariant() -cne $model.ToLowerInvariant()) {
+                    Add-ValidationError "Tile $tile of $tilesetName is '$($tileModels[$tile])' in the set file above its imported tiles and '$model' under terrain $($entry.terrain) in the additions catalog."
+                }
+                $section = [regex]::Match($setText, "(?ms)^\[TILE$tile\]\r?\n(.*?)(?=^\[|\z)")
+                $corners = @([regex]::Matches($section.Groups[1].Value, '(?m)^(?:TopLeft|TopRight|BottomLeft|BottomRight)=([^\r\n]*)') | ForEach-Object { $_.Groups[1].Value.Trim() })
+                if ($corners -notcontains [string]$entry.terrain) { Add-ValidationError "Tile $tile of $tilesetName has no corner of terrain $($entry.terrain), under which the additions catalog lists it." }
+                foreach ($suffix in '.mdl', '.wok') {
+                    if (-not (Test-Path -LiteralPath (Join-Path $repoRoot (Join-Path $entry.pack "$model$suffix")) -PathType Leaf)) { Add-ValidationError "$($entry.pack) has no $model$suffix for tile $tile of $tilesetName." }
+                }
+            }
+        }
         foreach ($tile in @($tileModels.Keys | Where-Object { $_ -ge [int]$baseline.importedTiles } | Sort-Object)) {
-            if (-not $collected.Contains($tile)) { Add-ValidationError "$($baseline.set) tile $tile ($($tileModels[$tile])) belongs to no group in docs/additions/catalog.json." }
+            if (-not $collected.Contains($tile)) { Add-ValidationError "$($baseline.set) tile $tile ($($tileModels[$tile])) belongs to no group or terrain in docs/additions/catalog.json." }
         }
     }
 }

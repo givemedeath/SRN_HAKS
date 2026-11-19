@@ -1,0 +1,290 @@
+{
+ "tileset": "dgt04",
+ "before": "3b11b301251db7162b10b9e5a418d7aff48ef6f9",
+ "grades": {
+  "corporate": {
+   "saturation": 0.4,
+   "contrast": 1.2,
+   "gain": 0.6,
+   "tint": [
+    0.88,
+    0.97,
+    1.12
+   ]
+  },
+  "barrens": {
+   "saturation": 0.7,
+   "contrast": 1.3,
+   "gain": 0.58,
+   "tint": [
+    1.06,
+    0.96,
+    0.86
+   ]
+  },
+  "industrial": {
+   "saturation": 0.6,
+   "contrast": 1.2,
+   "gain": 0.6,
+   "tint": [
+    1.0,
+    0.97,
+    0.92
+   ]
+  },
+  "street": {
+   "saturation": 0.4,
+   "contrast": 1.2,
+   "gain": 0.55,
+   "tint": [
+    0.92,
+    0.98,
+    1.1
+   ]
+  },
+  "road": {
+   "saturation": 0.4,
+   "contrast": 1.2,
+   "gain": 0.55,
+   "tint": [
+    0.92,
+    0.98,
+    1.1
+   ],
+   "paint": 0.8
+  },
+  "walkway": {
+   "saturation": 0.4,
+   "contrast": 1.15,
+   "gain": 0.68,
+   "tint": [
+    0.94,
+    0.98,
+    1.06
+   ]
+  },
+  "lit": {
+   "saturation": 1.15,
+   "contrast": 1.15,
+   "gain": 1.0,
+   "tint": [
+    0.85,
+    1.0,
+    1.1
+   ]
+  },
+  "lit_warm": {
+   "saturation": 1.15,
+   "contrast": 1.15,
+   "gain": 1.0,
+   "tint": [
+    1.08,
+    1.0,
+    0.85
+   ]
+  },
+  "roof": {
+   "saturation": 0.5,
+   "contrast": 1.1,
+   "gain": 0.5,
+   "tint": [
+    1.0,
+    0.98,
+    0.95
+   ]
+  },
+  "sign": {
+   "saturation": 0.9,
+   "contrast": 1.05,
+   "gain": 0.8
+  },
+  "plant": {
+   "saturation": 0.6,
+   "contrast": 1.1,
+   "gain": 0.65,
+   "tint": [
+    0.95,
+    1.0,
+    1.0
+   ]
+  },
+  "water": {
+   "saturation": 0.5,
+   "contrast": 1.1,
+   "gain": 0.6,
+   "tint": [
+    0.9,
+    1.0,
+    0.95
+   ]
+  },
+  "ruin": {
+   "saturation": 0.35,
+   "contrast": 1.25,
+   "gain": 0.5,
+   "tint": [
+    1.0,
+    0.97,
+    0.94
+   ]
+  },
+  "residential": {
+   "saturation": 0.6,
+   "contrast": 1.2,
+   "gain": 0.62,
+   "tint": [
+    1.04,
+    0.98,
+    0.92
+   ]
+  }
+ },
+ "textures": {
+  "hr08_wall": {
+   "route": "upscale",
+   "size": [
+    512,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.5,
+   "grade": "residential",
+   "redrawn": true,
+   "wrap": "rows",
+   "copy": "hrise_05_wall"
+  },
+  "hr08_wall_g": {
+   "route": "upscale",
+   "size": [
+    512,
+    1024
+   ],
+   "relief": 0.5,
+   "roughness": 0.6,
+   "redrawn": true,
+   "wrap": "rows",
+   "copy": "hrise_05_wall_g",
+   "grade": "lit_warm"
+  },
+  "hr08_wall2": {
+   "route": "layout",
+   "master": "Concrete034",
+   "repeat": 1,
+   "keep": 3,
+   "grade": "residential",
+   "size": [
+    1024,
+    1024
+   ],
+   "copy": "hrise_05_wall2"
+  },
+  "hr08_wall3": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "residential",
+   "size": [
+    512,
+    512
+   ],
+   "copy": "hrise_05_wall3"
+  },
+  "hr08_roof": {
+   "route": "master",
+   "master": "Gravel043",
+   "repeat": 1,
+   "tone": 0.8,
+   "grade": "roof",
+   "size": [
+    512,
+    512
+   ],
+   "copy": "hrise_05_roof"
+  },
+  "hr08_trim": {
+   "route": "upscale",
+   "size": [
+    512,
+    256
+   ],
+   "relief": 1.0,
+   "roughness": 0.5,
+   "grade": "residential",
+   "redrawn": true,
+   "copy": "hrise_05_trim"
+  },
+  "hr09_build": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.5,
+   "grade": "ruin",
+   "redrawn": true,
+   "copy": "build_01"
+  },
+  "hr09_build_g": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 0.5,
+   "roughness": 0.6,
+   "redrawn": true,
+   "copy": "build_01_g"
+  },
+  "hr09_conc07": {
+   "route": "master",
+   "master": "Concrete047A",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "ruin",
+   "size": [
+    512,
+    512
+   ],
+   "copy": "concrete_07",
+   "stain": 0.6
+  },
+  "hr09_conc08": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "ruin",
+   "size": [
+    1024,
+    1024
+   ],
+   "copy": "concrete_08",
+   "stain": 0.6
+  },
+  "hr09_win08": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "ruin",
+   "redrawn": true,
+   "copy": "window_tex08"
+  },
+  "hr09_win08_g": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 0.5,
+   "roughness": 0.6,
+   "redrawn": true,
+   "copy": "window_tex08_g"
+  }
+ }
+}

@@ -1,0 +1,72 @@
+{
+ "tileset": "dgt04",
+ "provenance": "Modern Exterior restyle, strata 4 and 5",
+ "names": {
+  "Highrise 1": "Office Block, Concrete",
+  "High-rise 1": "Office Block, Concrete",
+  "Highrise 2": "Corporate Tower, Stone",
+  "High-rise 2": "Corporate Tower, Stone",
+  "Highrise 3": "Glass Tower, Colonnade",
+  "High-rise 3": "Glass Tower, Colonnade",
+  "Highrise 4": "Ruined High-rise",
+  "High-rise 4": "Ruined High-rise",
+  "Highrise 5": "Corporate Block, Grey Stone",
+  "High-rise 5": "Corporate Block, Grey Stone",
+  "Highrise 6": "Glass Tower, Stone Base",
+  "High-rise 6": "Glass Tower, Stone Base",
+  "Highrise 7": "Walled Compound, Glass",
+  "High-rise 7": "Walled Compound, Glass",
+  "Slums 1": "Tenement, Brick",
+  "Slums 2": "Tenement, Shopfronts",
+  "Slums 3": "Tenement, Timber",
+  "Warehouse 1": "Warehouse, Metal Siding",
+  "Warehouse 2": "Warehouse, Brick"
+ },
+ "copies": [
+  {
+   "terrain": "Highrise_08",
+   "from": "Highrise_05",
+   "display": "Residential Block",
+   "models": {
+    "dgt04_e09_50": "srt04_r01_01",
+    "dgt04_e11_10": "srt04_r02_01",
+    "dgt04_e10_07": "srt04_r03_01",
+    "dgt04_e12_07": "srt04_r04_01",
+    "dgt05_h41_01": "srt04_r05_01",
+    "dgt05_h46_01": "srt04_r06_01"
+   },
+   "groups": {
+    "Highrise5_RoofAccess": "Highrise8_RoofAccess"
+   },
+   "textures": {
+    "hrise_05_wall": "hr08_wall",
+    "hrise_05_wall_g": "hr08_wall_g",
+    "hrise_05_wall2": "hr08_wall2",
+    "hrise_05_wall3": "hr08_wall3",
+    "hrise_05_roof": "hr08_roof",
+    "hrise_05_trim": "hr08_trim"
+   }
+  },
+  {
+   "terrain": "Highrise_09",
+   "from": "Highrise_02",
+   "display": "Derelict Tower",
+   "models": {
+    "dgt04_e05_01": "srt04_x01_01",
+    "dgt04_e08_01": "srt04_x02_01",
+    "dgt04_e06_01": "srt04_x03_01",
+    "dgt04_e07_01": "srt04_x04_01",
+    "dgt05_h11_01": "srt04_x05_01",
+    "dgt05_h10_01": "srt04_x06_01"
+   },
+   "textures": {
+    "build_01": "hr09_build",
+    "build_01_g": "hr09_build_g",
+    "concrete_07": "hr09_conc07",
+    "concrete_08": "hr09_conc08",
+    "window_tex08": "hr09_win08",
+    "window_tex08_g": "hr09_win08_g"
+   }
+  }
+ ]
+}

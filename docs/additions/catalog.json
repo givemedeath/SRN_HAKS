@@ -2783,6 +2783,24 @@
    "added": "2026-11-17"
   },
   {
+   "tileset": "dgt04",
+   "pack": "srn_t_dgt04",
+   "madeBy": "tilekit",
+   "source": "docs/tilesets/dgt04/terrains.json",
+   "provenance": "Modern Exterior restyle, strata 4 and 5",
+   "added": "2026-11-19",
+   "group": 68,
+   "name": "Highrise8_RoofAccess",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    561
+   ],
+   "models": [
+    "srt04_r06_01"
+   ]
+  },
+  {
    "tileset": "udp1",
    "group": 106,
    "name": "Stuffer_Shack",
@@ -3312,6 +3330,58 @@
    "source": "tools/envkit/sets/shiawase-barrens-game.json",
    "provenance": "Shiawase Barrens Power Station tile group (`srn_t_common`, `srn_t_dgt04`, `srn_t_udp1`; 2026-11-17)",
    "added": "2026-11-17"
+  }
+ ],
+ "terrainTiles": [
+  {
+   "tileset": "dgt04",
+   "pack": "srn_t_dgt04",
+   "madeBy": "tilekit",
+   "source": "docs/tilesets/dgt04/terrains.json",
+   "provenance": "Modern Exterior restyle, strata 4 and 5",
+   "added": "2026-11-19",
+   "terrain": "Highrise_08",
+   "tiles": [
+    556,
+    557,
+    558,
+    559,
+    560,
+    561
+   ],
+   "models": [
+    "srt04_r01_01",
+    "srt04_r02_01",
+    "srt04_r03_01",
+    "srt04_r04_01",
+    "srt04_r05_01",
+    "srt04_r06_01"
+   ]
+  },
+  {
+   "tileset": "dgt04",
+   "pack": "srn_t_dgt04",
+   "madeBy": "tilekit",
+   "source": "docs/tilesets/dgt04/terrains.json",
+   "provenance": "Modern Exterior restyle, strata 4 and 5",
+   "added": "2026-11-19",
+   "terrain": "Highrise_09",
+   "tiles": [
+    562,
+    563,
+    564,
+    565,
+    566,
+    567
+   ],
+   "models": [
+    "srt04_x01_01",
+    "srt04_x02_01",
+    "srt04_x03_01",
+    "srt04_x04_01",
+    "srt04_x05_01",
+    "srt04_x06_01"
+   ]
   }
  ]
 }

@@ -2257,3 +2257,37 @@ the walls behind them (`tilekit shadows`). No walkmesh, texture name or geometry
 as `docs/tilesets/dgt04/walkmesh.json` records. Areas built with a tile's source lights on go dark at those 152
 tiles until switched to main lights. Generation intermediates, scans, review captures and local bindings stay
 outside the repository.
+
+## Modern Exterior restyle, strata 4 and 5 (`srn_t_common`, `srn_t_dgt04`, `srn_2da`; 2026-11-19)
+
+Two building terrains are added to D20 Modern Exterior (`dgt04`) as copies of existing ones, by `tools/tilekit`
+(`terrain.py`, spec `docs/tilesets/dgt04/terrains.json`; SRN project operator with Claude), and the look was passed
+by the SRN project operator in the game client on 2026-11-19 (review captures in ignored `output/tilekit/tkter1`,
+`tkter2`):
+
+- `Highrise_08`, Residential Block: the six `Highrise_05` tile models `dgt04_e09_50`, `dgt04_e11_10`,
+  `dgt04_e10_07`, `dgt04_e12_07`, `dgt05_h41_01` and `dgt05_h46_01` copied as `srt04_r01_01` to `srt04_r06_01`,
+  with the roof-access group `Highrise8_RoofAccess`.
+- `Highrise_09`, Derelict Tower: the six `Highrise_02` tile models `dgt04_e05_01`, `dgt04_e08_01`, `dgt04_e06_01`,
+  `dgt04_e07_01`, `dgt05_h11_01` and `dgt05_h10_01` copied as `srt04_x01_01` to `srt04_x06_01`.
+
+The copies are derivatives of the upstream D20 Modern models (the D20 Modern Haks 2.2 terms above apply): node
+names and texture names are renamed, geometry, door hooks and minimap images are the source tiles' own, and each
+walkmesh is the source's unchanged (`docs/tilesets/dgt04/walkmesh.json` now holds 601 entries; the 589 earlier ones
+are unchanged). The models and walkmeshes are in `srn_t_dgt04`; `dgt04.set` gains tiles 556-567 and group 68 after
+every earlier entry, so tile and group numbers of existing areas do not move; `srn_2da/dgt04_edge.2da` gains ten
+rows; `dgt04palstd.itp` gains their entries.
+
+Their twelve textures (`hr08_*` and `hr09_*`, spec `docs/tilesets/dgt04/materials-terrains.json`) are made as in
+release 1, from the pictures of the textures they copy. `hr08_wall`, `hr08_wall_g`, `hr09_build` and `hr09_win08`
+were redrawn by the local Qwen image edit model on the shared ComfyUI, from prompts in
+`docs/tilesets/dgt04/redraw-terrains.json` (curtained, balconied flats; broken and boarded windows). The others
+reuse release 1's work for their source, or take the CC0 ambientCG scans listed above (Concrete034, Concrete047A,
+Gravel043).
+
+The palette's display names of the building terrains become descriptive ("Office Block, Concrete", "Tenement,
+Brick", "Warehouse, Metal Siding" and so on, in `terrains.json`); terrain names in the set and edge table are
+unchanged.
+
+Stratum 5 evens wear across families: `concrete_07` and `concrete_08` take stain 0.3, `lab_wall02` and `lab_wall05`
+stain 0.2, and `lab_floor01` the street grade (`docs/tilesets/dgt04/materials.json`).

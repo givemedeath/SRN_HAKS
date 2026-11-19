@@ -23,7 +23,9 @@ DISTRICTS = {
     'barrens': 'a neglected, poor district of a 2070s cyberpunk city (Shadowrun Barrens): old late-20th-century construction, grime, rust, peeling paint, improvised repairs',
     'corporate': 'a 2070s cyberpunk megacorporate district (Shadowrun): cool graphite metal, muted blue-grey glass, clean and expensive, only faint rain marks',
     'industrial': 'a working industrial district of a 2070s cyberpunk city (Shadowrun): dark steel, stained cement, warm rust, functional and worn',
-    'civic': 'a public building of a 2070s cyberpunk city (Shadowrun): sturdy, institutional, maintained on a small budget, some wear and grime'}
+    'civic': 'a public building of a 2070s cyberpunk city (Shadowrun): sturdy, institutional, maintained on a small budget, some wear and grime',
+    'residential': 'an ordinary residential district of a 2070s cyberpunk city (Shadowrun): a lived-in apartment block, modest upkeep, people\'s own things in the windows',
+    'derelict': 'an abandoned district of a 2070s cyberpunk city (Shadowrun Barrens): a gutted, empty building, long left to decay'}
 KINDS = {
     'window': 'a window. Daytime, the room behind unlit: dark, slightly reflective glass with some dirt; the frame worn as its district suggests',
     'facade': 'a section of a building facade with its grid of windows. Daytime, glass dark and slightly reflective, no lit windows, no visible interiors',
@@ -189,7 +191,8 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
 
     def one(name):
         how = textures[name]; target = folder / f'{name}.png'; record = folder / f'{name}.json'
-        original = lambda: np.asarray(material.current(repo, name, stock=stock, before=spec.get('before')))
+        source = lambda texture: textures.get(texture, {}).get('copy', texture)  # a copied terrain's texture is drawn from its source's picture
+        original = lambda: np.asarray(material.current(repo, source(name), stock=stock, before=spec.get('before')))
         day = folder / f'{how["of"]}.png' if how.get('of') else None  # a lit variant's day picture, as redrawn
         if target.is_file():  # kept where it was made from the picture the game draws now, a lit one from its day picture as it is; one with no record was placed by hand
             was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
@@ -205,7 +208,7 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
             require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
             cleaner = _opened(better) if better is not None and better.is_file() else None
             with Image.open(day) as shown:
-                picture = composed(shown, np.asarray(material.current(repo, how['of'], stock=stock, before=spec.get('before'))), whole,
+                picture = composed(shown, np.asarray(material.current(repo, source(how['of']), stock=stock, before=spec.get('before'))), whole,
                                    None if cleaner is None else np.asarray(cleaner)).resize(size, Image.LANCZOS)
             picture.save(target)
             record.write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'day': _file_sha(day), 'size': list(size)}, indent=1) + '\n', encoding='utf-8')

@@ -152,7 +152,13 @@
 126    Concrete+             ****               Freeway               0                    TCN01_Z15_01     
 127    Concrete+             ****               Warehouse_01          0                    TCN01_Z15_01     
 128    Concrete+             ****               Warehouse_02              0                    TCN01_Z15_01               
-
-
-
-
+129     Highrise_08           ****               Highrise_08           0                    srt04_r04_01    
+130     Highrise_08           ****               Water                 0                    TCN01_Z17_01     
+131     Highrise_08           ****               ****                  0                    srt04_r04_01     
+132     Highrise_08           ****               Concrete              0                    dgt05_z08_01     
+133    Concrete+             ****               Highrise_08           0                    TCN01_Z15_01     
+134     Highrise_09           ****               Highrise_09           0                    srt04_x04_01     
+135     Highrise_09           ****               Water                 0                    TCN01_Z17_01     
+136     Highrise_09           ****               ****                  0                    srt04_x04_01     
+137     Highrise_09           ****               Concrete              0                    dgt05_z06_01     
+138    Concrete+             ****               Highrise_09           0                    TCN01_Z15_01     

@@ -3,7 +3,8 @@ its walkmeshes (walkmesh.json); `walkmesh` holds the tileset's walkmeshes agains
 that changed; `review` builds a module of the tileset on the built packs and captures the same views of it in the
 game client each time, with an overlay folder shown instead of the packs' own files. `material` makes restyled
 textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps` and `shadows` write changed tile
-models into it; `apply` moves an overlay whose look the user passed into the packs."""
+models into it; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
+`apply` moves an overlay whose look the user passed into the packs."""
 import argparse
 import json
 import sys
@@ -21,18 +22,21 @@ REPO = Path(__file__).resolve().parents[2]
 def review_command(chosen):
     from . import review  # here, so that asking for help imports nothing of the client
     spec = json.loads(chosen.spec.read_text(encoding='utf-8')); require(isinstance(spec, dict) and spec.get('tileset'), 'A review spec names its tileset')
-    tileset = spec['tileset']
-    set_text = (chosen.repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252')
+    tileset = spec['tileset']  # an overlay's set file (a copied terrain's) is the one shown, so it is the one laid
+    set_of = lambda name: (chosen.overlay / f'{name}.set' if chosen.overlay and (chosen.overlay / f'{name}.set').is_file() else chosen.repo / f'srn_t_{name}' / f'{name}.set').read_bytes().decode('cp1252')
+    shared = spec.get('shared', {})
     try:
-        areas, shots = review.plan(set_text, spec, parts=tuple(part for part in chosen.parts.split(',') if part),
-                                   built_area=review.read_area(chosen.area) if chosen.area else None)
+        areas, shots = review.plan(set_of(tileset), spec, parts=tuple(part for part in chosen.parts.split(',') if part),
+                                   built_area=review.read_area(chosen.area) if chosen.area else None,
+                                   sets={name: set_of(name) for name in shared.get('tilesets', {})},
+                                   table=(chosen.repo / 'srn_2da' / 'placeables.2da').read_text(encoding='cp1252') if shared.get('placeables') else None)
     except KeyError as error:
         raise ValueError(f'The review spec lacks {error}') from error
     if chosen.views:
         shots = [shot for shot in shots if shot['label'].startswith(tuple(chosen.views.split(',')))]
         require(shots, 'No view begins with ' + ' or '.join(chosen.views.split(',')))
     shots = shots[::max(1, chosen.every)]; kept = {shot['area'] for shot in shots}; areas = [area for area in areas if area['tag'] in kept]
-    record = review.build(chosen.name, areas, shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay)
+    record = review.build(chosen.name, areas, shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay, haks=tuple(spec.get('haks', review.HAKS)))
     told = {'module': record['module'], 'areas': [area['tag'] for area in areas], 'views': len(shots), 'overlay': record['overlay']}
     if not chosen.no_run:
         told.update(review.capture(chosen.game, record, chosen.out))
@@ -100,6 +104,13 @@ def enlarge_command(chosen):
     return 0
 
 
+def terrain_command(chosen):
+    from . import terrain
+    source = chosen.spec.resolve().relative_to(chosen.repo.resolve()).as_posix() if chosen.spec.resolve().is_relative_to(chosen.repo.resolve()) else chosen.spec.name
+    print(json.dumps(terrain.copy(chosen.repo, json.loads(chosen.spec.read_text(encoding='utf-8')), chosen.out, source=source), indent=1))
+    return 0
+
+
 def main(arguments=None):
     parser = argparse.ArgumentParser(prog='tilekit', description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -113,7 +124,7 @@ def main(arguments=None):
     three.add_argument('--out', required=True, type=Path, help='a fresh folder for the module and its captures'); three.add_argument('--name', required=True, help='the module\'s name, a resref of at most 11 characters')
     three.add_argument('--area', type=Path, help='an area someone built with the tileset (.are, or its JSON)')
     three.add_argument('--overlay', type=Path, help='a folder of files shown instead of the packs\' own')
-    three.add_argument('--parts', default=','.join(PARTS), help='block, grid, area (default: all)')
+    three.add_argument('--parts', default=','.join(PARTS), help=', '.join(PARTS) + ' (default: all)')
     three.add_argument('--views', help='only the views whose label begins with one of these, comma separated')
     three.add_argument('--every', type=int, default=1, help='only every nth view, for a short look')
     three.add_argument('--no-run', action='store_true', help='build the module and stop'); three.add_argument('--repo', type=Path, default=REPO)
@@ -149,8 +160,13 @@ def main(arguments=None):
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
     nine.add_argument('--spec', type=Path, help='the tileset\'s material spec: the textures moved (without it, only the overlay\'s changed models)')
     nine.add_argument('--overlay', required=True, type=Path, help='the review overlay the look was passed on'); nine.add_argument('--repo', type=Path, default=REPO)
+    ten = commands.add_parser('terrain', help='copy building terrains under names of their own and make the palette names descriptive, into a folder')
+    ten.add_argument('--spec', required=True, type=Path, help='the tileset\'s terrain spec (docs/tilesets/<tileset>/terrains.json)')
+    ten.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay'); ten.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
+        if chosen.command == 'terrain':
+            return terrain_command(chosen)
         if chosen.command == 'apply':
             return apply_command(chosen)
         if chosen.command == 'shadows':
