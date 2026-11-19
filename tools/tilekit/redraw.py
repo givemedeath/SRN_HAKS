@@ -189,14 +189,15 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
 
     def one(name):
         how = textures[name]; target = folder / f'{name}.png'; record = folder / f'{name}.json'
-        whole = np.asarray(material.current(repo, name, stock=stock, before=spec.get('before'))); old = whole[..., :3]; height, width = old.shape[:2]
+        original = lambda: np.asarray(material.current(repo, name, stock=stock, before=spec.get('before')))
         day = folder / f'{how["of"]}.png' if how.get('of') else None  # a lit variant's day picture, as redrawn
         if target.is_file():  # kept where it was made from the picture the game draws now, a lit one from its day picture as it is; one with no record was placed by hand
             was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
-            require('source' not in was or was['source'] == _sha(old), f'{target} was not made from the {name} the game draws now: take it and its record away and draw it again')
+            require('source' not in was or was['source'] == _sha(original()[..., :3]), f'{target} was not made from the {name} the game draws now: take it and its record away and draw it again')
             require(day is None or 'day' not in was or (day.is_file() and was['day'] == _file_sha(day)),
                     f'{target} was made from another {how.get("of")} day picture: take it and its record away and draw it again')
             return 'kept'
+        whole = original(); old = whole[..., :3]; height, width = old.shape[:2]
         size = (SIDE, max(64, round(SIDE * height / width / 64) * 64)) if width >= height else (max(64, round(SIDE * width / height / 64) * 64), SIDE)
         better = Path(enlarged) / f'{name}.png' if enlarged else None
         if how.get('compose'):

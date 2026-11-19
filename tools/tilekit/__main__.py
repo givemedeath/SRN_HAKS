@@ -1,7 +1,9 @@
 """Command line for tilekit. `inventory` writes what a tileset draws (inventory.json, textures.csv) and the hashes of
 its walkmeshes (walkmesh.json); `walkmesh` holds the tileset's walkmeshes against such a baseline and fails on any
 that changed; `review` builds a module of the tileset on the built packs and captures the same views of it in the
-game client each time, with an overlay folder shown instead of the packs' own files."""
+game client each time, with an overlay folder shown instead of the packs' own files. `material` makes restyled
+textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps` and `shadows` write changed tile
+models into it; `apply` moves an overlay whose look the user passed into the packs."""
 import argparse
 import json
 import sys
