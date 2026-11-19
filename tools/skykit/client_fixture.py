@@ -8,6 +8,7 @@ blocks the run and is never closed), saves a window capture for every `SKYKIT sh
 then stops the client it started. Captures are evidence to look at, not an approval.
 """
 import argparse
+import hashlib
 import json
 import shutil
 import subprocess
@@ -126,7 +127,8 @@ def build(nwn_root, out, transition=False, play=False):
     for path in sorted((ROOT / 'srn_skybox').glob('srn_sky*')):
         shutil.copyfile(path, resources / path.name)
     shutil.copyfile(ROOT / 'srn_2da' / 'skyboxes.2da', resources / 'skyboxes.2da')
-    erf, gff, compiler = tool('erf'), tool('gff'), tool('script_comp')
+    packed = [{'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()} for path in sorted(resources.iterdir())]
+    erf, gff, compiler = tool('erf', inputs=packed), tool('gff'), tool('script_comp')
 
     def run(executable, *arguments):
         done = subprocess.run([str(executable), *map(str, arguments)], capture_output=True)

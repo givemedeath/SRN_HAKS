@@ -54,7 +54,7 @@ def normals(strip, folder, url=None):
             tile = np.concatenate([np.broadcast_to(np.array(SKY, np.float32), (pad, TILE[0], 3)), rgb[:, columns]], axis=0)
             out = run_graph(url, tile, f'{folder.name}-normals-{index}', _graph(fov))
             if out.shape[:2] != tile.shape[:2]:
-                out = np.asarray(Image.fromarray((out * 255).astype(np.uint8)).resize(tile.shape[1::-1], Image.BILINEAR),
+                out = np.asarray(Image.fromarray(np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8)).resize(tile.shape[1::-1], Image.BILINEAR),
                                  np.float32) / 255
             np.add.at(total, (slice(None), columns), (out[pad:] * 2 - 1) * ramp)
             np.add.at(weight, (slice(None), columns), ramp)

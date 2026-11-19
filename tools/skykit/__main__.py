@@ -80,6 +80,8 @@ def build_panorama(key, scale=2):
             whole, scale = detail.assemble(whole, spec['key'], tiles)
             DETAILED[key] = spec['detail']
         else:
+            if tiles:
+                print(f'note: {key} has no complete detail tile set ({tiles.name}/detail.json); using the 2x upscale', flush=True)
             from . import upscale
             whole, cache = upscale.upscale(whole, OUTPUT / key)
             UPSCALED[key] = cache
@@ -193,7 +195,7 @@ def build(args):
     materials = profiles.materials()
     keys = sorted({key for key, _ in materials.values()})
     built = {key: build_panorama(key, 1 if args.no_upscale else 2) for key in keys}
-    crunch = None if args.no_dds else crunch_tool([p for key in keys for p in (OUTPUT / key).glob('*.tga')])
+    crunch = None if args.no_dds else crunch_tool([OUTPUT / key / f'{name}.tga' for key in keys for name in profiles.texture_names(key)])
     written = []
     if crunch:
         for key in keys:
@@ -222,12 +224,13 @@ def build(args):
             mine = {n: v for n, v in resolved.items() if v[0] == key}
             for name, (_, values) in mine.items():
                 fallback = renderer.render(values, FALLBACK, time_ms=900000)
-                tga = OUTPUT / f'{name}.tga'
-                tga.write_bytes(panorama.tga(fallback[..., :3]))
-                if crunch:
-                    to_dds(crunch, tga, PACK / f'{name}.dds', 'DXT1')
-                    written.append(PACK / f'{name}.dds')
+                (OUTPUT / f'{name}.tga').write_bytes(panorama.tga(fallback[..., :3]))
             print('contact sheet:', preview_sheet(renderer, mine, sheet_folder))
+        if crunch:  # the fallback pictures are a crunch run of their own, declaring what it converts
+            fallbacks = [OUTPUT / f'{name}.tga' for name in resolved]
+            crunch = crunch_tool(fallbacks)
+            for tga in fallbacks:
+                to_dds(crunch, tga, PACK / f'{tga.stem}.dds', 'DXT1')
     # the build owns every srn_sky* resource but the shaders: drop what it no longer writes, once the new set is
     # written. Textures a --no-dds or --no-render build skipped are kept as they were.
     expected = {f'{name}.{ext}' for name in materials for ext in ('mtr', 'mdl', 'dds')}
