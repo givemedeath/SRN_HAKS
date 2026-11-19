@@ -51,6 +51,10 @@ class RedrawTests(unittest.TestCase):
         self.assertEqual((again, len(self.asked)), ({'pane': 'kept', 'pane_g': 'kept'}, 3))
         with self.assertRaisesRegex(ValueError, 'pane_g: it is of nothing'):
             redraw.redraw({'textures': {'pane_g': {'kind': 'window', 'district': 'barrens', 'of': 'nothing'}}}, self.root, self.root / 'other', self.draw, say=None)
+        white = lambda folder, text, images: Image.new('RGB', (64, 128), (255, 255, 255)).save(Path(folder) / 'out.png')  # paints over everything
+        redraw.redraw(self.spec, self.root, self.root / 'lit', white, only=['pane', 'pane_g'], workers=1, say=None)
+        with Image.open(self.root / 'lit' / 'pane_g.png') as made:  # a lit variant's black openings are black again too
+            self.assertEqual((made.getpixel((80, 500)), made.getpixel((256, 500))), ((0, 0, 0), (255, 255, 255)))
         self.assertLess(redraw.alike(np.asarray(Image.open(self.root / 'srn_t_common' / 'pane.tga')), np.random.default_rng(1).integers(0, 255, (16, 8, 3), np.uint8)), 0.3)
 
     def test_a_kept_picture_must_be_of_the_old_picture_and_a_lit_one_of_its_day_picture(self):

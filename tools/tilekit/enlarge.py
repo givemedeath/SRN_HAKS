@@ -44,8 +44,8 @@ def enlarge(client, local, bindings_path, repo, spec, folder, *, only=None, dead
         target, record = folder / f'{name}.png', folder / f'{name}.json'
         if target.exists() or record.exists():
             was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
-            require(target.is_file() and was.get('source') == source and was.get('doubled') == times,
-                    f'{target} was not made from the {name} the game draws now, doubled {times} times: take it and its record away and enlarge again')
+            require(target.is_file() and was.get('source') == source and was.get('doubled') == times and was.get('upscaler') == reference.UPSCALER,
+                    f'{target} was not made from the {name} the game draws now, doubled {times} times by {reference.UPSCALER}: take it and its record away and enlarge again')
             told[name] = 'kept'; continue
         picture = wrapped(old)
         for step in range(times):

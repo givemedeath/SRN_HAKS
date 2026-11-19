@@ -36,6 +36,8 @@ class EnlargeTests(unittest.TestCase):
             made = enlarge.picture_of(self.root / 'big', 'pane')
             self.assertEqual((made.shape, tuple(made[0, 31]), tuple(made[20, 4]), tuple(made[20, 20])), ((32, 32, 3), (255, 0, 0), (200, 220, 240), (0, 0, 0)))
             self.assertEqual(enlarge.enlarge(None, {}, None, self.root, self.spec, self.root / 'big', say=None), {'pane': 'kept'}); self.assertEqual(len(sent), 2)
+            with mock.patch('tools.envkit.reference.UPSCALER', 'another.pth'), self.assertRaisesRegex(ValueError, 'doubled 2 times by another.pth'):  # made by another model
+                enlarge.enlarge(None, {}, None, self.root, self.spec, self.root / 'big', say=None)
             Image.new('RGB', (8, 8), (9, 9, 9)).save(self.root / 'srn_t_common' / 'pane.tga')  # the game draws another picture now
             with self.assertRaisesRegex(ValueError, 'was not made from the pane the game draws now'):
                 enlarge.enlarge(None, {}, None, self.root, self.spec, self.root / 'big', say=None)
