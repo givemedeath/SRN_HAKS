@@ -99,6 +99,11 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue(np.allclose(made['colour'].reshape(-1, 3).mean(axis=0), (180, 60, 40), atol=4))
         self.assertTrue(np.array_equal(made['colour'][:32, :32], made['colour'][32:, 32:]))  # two repeats of the scan each way
         self.assertEqual(float(material.master(self.root / 'masters' / 'Steel1')['metal'].min()), 1.0)
+        wide = {'colour': np.zeros((4, 8, 3), np.uint8), 'normal': np.full((4, 8, 3), (200, 128, 255), np.uint8), 'roughness': np.zeros((4, 8)), 'metal': np.zeros((4, 8))}
+        wide['colour'][:, :4] = 255  # a 2:1 scan, light on its left half, its relief leaning right
+        lying = material.make(old, {'route': 'master', 'size': [64, 64], 'tone': 0.0}, wide)['colour']; self.assertEqual((int(lying[8, 8, 0]), int(lying[40, 8, 0]), int(lying[8, 40, 0])), (255, 255, 0))  # twice down, not stretched
+        up = material.make(old, {'route': 'master', 'size': [64, 64], 'tone': 0.0, 'turn': True}, wide)
+        self.assertEqual((int(up['colour'][56, 8, 0]), int(up['colour'][8, 8, 0]), abs(int(up['normal'][8, 8, 0]) - 128) <= 1 and int(up['normal'][8, 8, 1]) > 180), (255, 0, True))  # light now at the bottom, relief leaning up
         with self.assertRaisesRegex(ValueError, 'lacks a colour'):
             (self.root / 'masters' / 'Empty').mkdir(); material.master(self.root / 'masters' / 'Empty')
         for how, said in (({'route': 'paint', 'size': [64, 64]}, 'route is one of'), ({'route': 'master', 'size': [60, 64]}, 'size is two of'), ({'route': 'master', 'size': [64, 64]}, 'needs a scan')):

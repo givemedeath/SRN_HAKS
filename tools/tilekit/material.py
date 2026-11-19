@@ -41,9 +41,12 @@ def master(folder):
 
 
 def _sized(values, size, *, repeat=1):
-    """An array tiled `repeat` times each way and brought to `size` (width, height)."""
+    """An array tiled `repeat` times each way and brought to `size` (width, height). A scan that is not the shape of
+    the texture is tiled more the short way, so it is not stretched: a 2:1 scan lies twice down a square texture."""
     from PIL import Image
-    values = np.asarray(values); tiled = np.tile(values, (repeat, repeat) + (1,) * (values.ndim - 2))
+    values = np.asarray(values); height, width = values.shape[:2]; shape = (width / height) / (size[0] / size[1])
+    across, down = repeat * max(1, round(1 / shape)), repeat * max(1, round(shape))
+    tiled = np.tile(values, (down, across) + (1,) * (values.ndim - 2))
     if values.dtype == np.uint8:
         return np.asarray(Image.fromarray(tiled).resize(size, Image.LANCZOS))
     return np.asarray(Image.fromarray(np.float32(tiled), 'F').resize(size, Image.LANCZOS), np.float64).clip(0, 1)
@@ -66,7 +69,8 @@ def make(old, how, scan=None, *, enlarged=None):
     route: repeat (times the scan tiles across the texture, default 1), tone (0-1 of the way the scan's mean colour moves
     to the old one's, default 1), grain (how strongly a scan's fine detail is laid on a kept layout, default 1), keep
     (pixels of the old picture, as enlarged, below which its detail is given up to the scan's, default 12), relief
-    (pixels of rise guessed relief stands, default 2), roughness (0-1, an upscale's, default 0.8), glow (`glow`)}. An
+    (pixels of rise guessed relief stands, default 2), roughness (0-1, an upscale's, default 0.8), glow (`glow`),
+    turn (the scan a quarter turn anticlockwise, `turned`)}. An
     old picture with holes in it (an alpha channel in use) gives `alpha` too, and a glow asked for gives `glow`.
     enlarged: the old picture as an upscaling model enlarged it (`enlarge`), which an upscale then starts from."""
     route = how.get('route'); require(route in ROUTES, 'A texture\'s route is one of ' + ', '.join(ROUTES))
@@ -94,7 +98,15 @@ def glow(made, lit):
     return np.uint8(np.clip(colour * float(lit.get('gain', 1.0)) * tint, 0, 255) * shown[..., None] + 0.5)
 
 
+def turned(scan):
+    """A scan turned a quarter turn anticlockwise, its relief turned with it: ribs that ran across now run up."""
+    normal = np.rot90(scan['normal']); leaning = np.dstack([255 - normal[..., 1], normal[..., 0], normal[..., 2]])
+    return {**{key: np.rot90(value) for key, value in scan.items()}, 'normal': np.ascontiguousarray(leaning)}
+
+
 def _routed(old, how, route, size, scan):
+    if scan is not None and how.get('turn'):
+        scan = turned(scan)
     if route == 'master':
         repeat = int(how.get('repeat', 1)); require(1 <= repeat <= 8, 'A scan tiles one to eight times across a texture')
         colour = pictures.toned(_sized(scan['colour'], size, repeat=repeat), old, float(how.get('tone', 1.0)))
