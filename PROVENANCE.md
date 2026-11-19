@@ -2224,8 +2224,9 @@ logs and generated HAKs remain outside the repository.
 
 ## Dynamic skies: Denver, its acid storm, Awakened peaks (`srn_skybox`, `srn_2da`; 2026-11-19)
 
-Six new skybox rows (16 `SRN_Denver_Dynamic`, 17 `SRN_Sprawl_AcidStorm`, 18 `SRN_Denver_Dusk_Fixed`, 19
-`SRN_Denver_Night_Fixed`, 20 `SRN_Awakened_Peaks`, 21 `SRN_Awakened_Aurora`) are appended to `skyboxes.2da`; no
+Eight new skybox rows (16 `SRN_Denver_Dynamic`, 17 `SRN_Sprawl_AcidStorm`, 18 `SRN_Denver_Dusk_Fixed`, 19
+`SRN_Denver_Night_Fixed`, 20 `SRN_Awakened_Peaks`, 21 `SRN_Awakened_Aurora`, 22 `SRN_Denver_Day_Fixed`, 23
+`SRN_Awakened_Day_Fixed`) are appended to `skyboxes.2da`; no
 existing row changes. `srn_skybox` gains nine sky dome models (`srn_sky{den,pk}_*.mdl`,
 ASCII, written by `tools/skykit`), their materials and fallback pictures, two land panoramas in two halves with two
 light masks each (`srn_sky*_pa/_pb/_ma/_mb.dds`) and the fragment shader with its include (`srn_sky_fs.shd`,

@@ -18,6 +18,8 @@ Built by `tools/skykit` (2026-11-19). Client-checked on one local client (Window
 | 19 | `SRN_Denver_Night_Fixed` | 0 | `srn_skyden_n` all day |
 | 20 | `SRN_Awakened_Peaks` | 1 | `srn_skypk_da` / `_d` / `_du` / `_n`: Rocky Mountain wilderness, mana aurora at night |
 | 21 | `SRN_Awakened_Aurora` | 0 | `srn_skypk_n` all day |
+| 22 | `SRN_Denver_Day_Fixed` | 0 | `srn_skyden_d` all day |
+| 23 | `SRN_Awakened_Day_Fixed` | 0 | `srn_skypk_d` all day |
 
 Pick one in Area Properties or with `SetSkyBox(16, oArea)`. A fixed row keeps its look at every hour; its animation
 still runs. The table is `srn_2da/skyboxes.2da`; the resources are in `srn_skybox`.

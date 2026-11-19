@@ -117,6 +117,26 @@
         "srn_skypk_n",
         "srn_skypk_n"
       ]
+    },
+    "22": {
+      "label": "SRN_Denver_Day_Fixed",
+      "cyclical": 0,
+      "models": [
+        "srn_skyden_d",
+        "srn_skyden_d",
+        "srn_skyden_d",
+        "srn_skyden_d"
+      ]
+    },
+    "23": {
+      "label": "SRN_Awakened_Day_Fixed",
+      "cyclical": 0,
+      "models": [
+        "srn_skypk_d",
+        "srn_skypk_d",
+        "srn_skypk_d",
+        "srn_skypk_d"
+      ]
     }
   },
   "resources": {

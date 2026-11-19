@@ -91,6 +91,9 @@ SKIES = {
     19: ('SRN_Denver_Night_Fixed', 0, 'den', {}, ('n', 'n', 'n', 'n')),
     20: ('SRN_Awakened_Peaks', 1, 'pk', {'da': PK_DAWN, 'd': PK_DAY, 'du': PK_DUSK, 'n': PK_NIGHT}, ('da', 'd', 'du', 'n')),
     21: ('SRN_Awakened_Aurora', 0, 'pk', {}, ('n', 'n', 'n', 'n')),
+    # day only (user, 2026-11-19): the dynamic rows' day materials held all day
+    22: ('SRN_Denver_Day_Fixed', 0, 'den', {}, ('d', 'd', 'd', 'd')),
+    23: ('SRN_Awakened_Day_Fixed', 0, 'pk', {}, ('d', 'd', 'd', 'd')),
 }
 
 
