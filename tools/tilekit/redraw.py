@@ -30,7 +30,10 @@ KINDS = {
     'wall': 'a wall surface',
     'shopfront': 'a shop window with its display and lettering. Daytime, the shop unlit inside',
     'sign': 'a sign. Its wording stays the same and stays easy to read, in clean lettering',
-    'poster': 'a wall of layered, torn, weathered posters and flyers. Invented bands, events and products only'}
+    'poster': 'a wall of layered, torn, weathered posters and flyers. Invented bands, events and products only',
+    'fixture': 'a piece of building hardware seen straight on (a grille, vent, fan, meter, drain or the like). The same object, in the same place and size',
+    'trim': 'a strip or panel of architectural trim. The same mouldings and pattern, in the same places',
+    'cloth': 'washing hung out to dry. The same garments in the same places and colours; the plain background around them stays exactly as it is'}
 LIT = ('Make its night version: the very same picture, with the frame, mullions, panels, lettering and every mark in the same positions. Only what is behind the glass '
        'or is a lamp or neon tube changes: it is lit from inside, uneven from pane to pane, dirt still visible against the light. Everything that is not glass or a '
        'light stays dark, as at night, a little darker than by day. No glow or bloom spilling over frames.')

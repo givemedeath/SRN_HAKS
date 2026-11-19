@@ -108,6 +108,8 @@ of tiles that have source lights and no main light are renamed from `sl1`/`sl2` 
   those tiles until it is changed; this belongs in the release notes.
 - Not checked: other radii, and light colours other than white.
 - Like the textures, the models stay in the review overlay until the look gate.
+- Night is left dark (user, 2026-11-18): brightness at night is a matter of an area's own lighting and its tile lamps,
+  not of the textures.
 
 ## Authoring routes and time savers
 
