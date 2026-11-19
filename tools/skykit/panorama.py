@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageFilter
 
-HALF = (4096, 512)  # texels of each half of the strip: 8192 round the horizon
+HALF = (8192, 512)  # texels of each half of the strip: 16384 round the horizon (half_size picks the height)
 EDGE_ROWS = 14  # rows under a green-keyed silhouette cleared of key tint
 KEYS = {'green': (0.0, 1.0, 0.0), 'magenta': (1.0, 0.0, 1.0)}
 
@@ -90,14 +90,14 @@ def _blur_rows(channel, radius):
     return (sums[:, 2 * radius + 1:] - sums[:, :-2 * radius - 1]) / (2 * radius + 1)
 
 
-def lights(rgba, city_from=0.0):
+def lights(rgba, city_from=0.0, scale=1):
     """Light mask of a strip: R lit windows and neon, G red beacons; 0..1, nothing where there is no land.
 
     Only rows below `city_from` (a share of the strip's height) hold city: above it, sunlit snow and rim light on the
-    mountains would read as windows."""
+    mountains would read as windows. `scale` is the strip's texels per source pixel; the filters' radii follow it."""
     rgb, alpha = rgba[..., :3], rgba[..., 3]
     lum = rgb @ np.array([0.299, 0.587, 0.114], np.float32)
-    local = _blur(lum, 5)
+    local = _blur(lum, 5 * scale)
     peak = rgb.max(-1)
     sat = (peak - rgb.min(-1)) / np.maximum(peak, 1e-3)
     brighter = np.clip((lum - local - 0.03) / 0.18, 0, 1)
@@ -106,15 +106,20 @@ def lights(rgba, city_from=0.0):
     r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
     red = np.clip((r - 0.7) / 0.2, 0, 1) * np.clip((r - np.maximum(g, b) - 0.35) / 0.2, 0, 1)
     # a beacon is a small red point: keep red pixels brighter than their red neighbourhood
-    beacons = red * np.clip((red - _blur(red, 4) * 1.5) / 0.3, 0, 1)
+    beacons = red * np.clip((red - _blur(red, 4 * scale) * 1.5) / 0.3, 0, 1)
     # a red light trail is a line, not a point: drop red that runs on along its row
-    beacons *= np.clip((red - _blur_rows(red, 8) * 1.3) / 0.3, 0, 1)
-    beacons = np.maximum(beacons, _blur(beacons, 1.0) * 1.6).clip(0, 1)
+    beacons *= np.clip((red - _blur_rows(red, 8 * scale) * 1.3) / 0.3, 0, 1)
+    beacons = np.maximum(beacons, _blur(beacons, 1.0 * scale) * 1.6).clip(0, 1)
     city = (np.arange(rgb.shape[0]) >= city_from * rgb.shape[0]).astype(np.float32)[:, None]
     mask = np.zeros_like(rgb)
     mask[..., 0] = windows * alpha * city
     mask[..., 1] = beacons * alpha * city
     return mask
+
+
+def half_size(strip):
+    """Each half's texels: HALF, twice as tall for a strip taller than 640 rows."""
+    return (HALF[0], HALF[1] * (2 if strip.shape[0] > 640 else 1))
 
 
 def halves(rgba, mask, size=HALF):

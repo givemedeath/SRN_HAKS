@@ -39,15 +39,29 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def build_panorama(key):
-    """(halves, (bottom, top) degrees) of one panorama, its intermediate pictures written to output/skykit/<key>/."""
+def _land(whole, spec, key, scale):
+    """The keyed land of an assembled panorama (float RGB, wrapped), upscaled `scale` times first (upscale.py)."""
+    rows = panorama.land_rows(panorama.cut(whole, spec['key']))[0]
+    whole = whole[max(rows - 8, 0):]
+    if scale > 1:
+        from . import upscale
+        whole, cache = upscale.upscale(whole, OUTPUT / key)
+        UPSCALED[key] = cache
+    rgba = panorama.cut(whole, spec['key'])
+    return rgba[panorama.land_rows(rgba)[0]:]
+
+
+UPSCALED = {}
+
+
+def build_panorama(key, scale=2):
+    """(halves, (bottom, top, roofs) degrees) of one panorama, its intermediate pictures written to output/skykit/<key>/."""
     spec = profiles.PANORAMAS[key]
     if 'chain' in spec:
         # one start view grown to the right by redrawn extensions, wrapped by a closing join
         start, *extensions = [panorama.view_rgb(ART / name) for name in spec['chain']]
         whole = panorama.chain(start, extensions, panorama.view_rgb(ART / spec['close']))
-        rgba = panorama.cut(whole, spec['key'])
-        strip = rgba[panorama.land_rows(rgba)[0]:]
+        strip = _land(whole, spec, key, scale)
     elif 'joins' in spec:
         # views read left to right as a viewer turns clockwise; the joins between them are redrawn seams
         views = [panorama.view_rgb(ART / name) for name in spec['views']]
@@ -57,17 +71,15 @@ def build_panorama(key):
             views = [v if i == spec['match'] else panorama.match_colours(v, reference, spec['key']) for i, v in enumerate(views)]
             joins = [panorama.match_colours(j, reference, spec['key'], 0.5) for j in joins]
         whole = panorama.assemble(views, joins, panorama.WIDE if spec.get('wide') else panorama.LAYOUT)
-        rgba = panorama.cut(whole, spec['key'])
-        strip = rgba[panorama.land_rows(rgba)[0]:]
+        strip = _land(whole, spec, key, scale)
     else:
-        views = [(panorama.cut(panorama.load(ART / name), chroma), mirrored) for name, chroma, mirrored in spec['views']]
-        strip = panorama.strip(views)
+        raise ValueError(f'{key}: a panorama is a chain or views with joins')
     # u grows counter-clockwise, which from inside the dome is to the viewer's left: flip so pictures read the right way
     strip = np.ascontiguousarray(strip[:, ::-1])
-    mask = panorama.lights(strip, spec.get('city_from', 0.0))
+    mask = panorama.lights(strip, spec.get('city_from', 0.0), scale)
     band = panorama.band_degrees(strip, spec['below'], spec['stretch'])
     band = (*band, panorama.roof_degrees(mask, band))
-    halves = panorama.halves(strip, mask)
+    halves = panorama.halves(strip, mask, panorama.half_size(strip))
     folder = OUTPUT / key
     folder.mkdir(parents=True, exist_ok=True)
     panorama.save_png(strip, folder / 'strip.png')
@@ -154,7 +166,7 @@ def build(args):
             old.unlink()
     materials = profiles.materials()
     keys = sorted({key for key, _ in materials.values()})
-    built = {key: build_panorama(key) for key in keys}
+    built = {key: build_panorama(key, 1 if args.no_upscale else 2) for key in keys}
     crunch = None if args.no_dds else crunch_tool([p for key in keys for p in (OUTPUT / key).glob('*.tga')])
     written = []
     if crunch:
@@ -196,7 +208,9 @@ def build(args):
         'vertexShader': VERTEX_SHADER,
         'panoramas': {key: {'key': profiles.PANORAMAS[key]['key'],
                             'sources': {name: sha(ART / name) for name in profiles.sources(key)},
-                            'band': [round(b, 4) for b in built[key][1]]} for key in keys},
+                            'band': [round(b, 4) for b in built[key][1]],
+                            'upscale': ({'model': 'RealESRGAN_x2plus.pth', 'scale': 2, 'cache': UPSCALED[key].name}
+                                        if key in UPSCALED else None)} for key in keys},
         'rows': {str(row): {'label': label, 'cyclical': cyclical, 'models': models}
                  for row, (label, cyclical, models) in table_rows().items()},
         'resources': {p.name: sha(p) for p in sorted(set(written))},
@@ -213,6 +227,7 @@ def main(argv=None):
     b = sub.add_parser('build')
     b.add_argument('--no-dds', action='store_true', help='skip NWN Crunch (no DDS written)')
     b.add_argument('--no-render', action='store_true', help='skip the GL previews and fallback pictures')
+    b.add_argument('--no-upscale', action='store_true', help='skip the 2x RealESRGAN upscale (a ComfyUI job unless cached)')
     args = parser.parse_args(argv)
     if args.command == 'build':
         build(args)

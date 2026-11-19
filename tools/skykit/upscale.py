@@ -1,0 +1,86 @@
+"""2x upscale of an assembled panorama with RealESRGAN on the shared ComfyUI (its HTTP API only), cached by content.
+
+The picture is padded with its own other end before upscaling so the wrap round the horizon stays seamless, and the
+result is kept under output/skykit/<key>/ named by a hash of the input and the model: a rebuild of unchanged art needs
+no GPU. Set SRN_COMFY_URL to reach a ComfyUI other than http://127.0.0.1:8188.
+"""
+import hashlib
+import io
+import json
+import os
+import time
+import urllib.parse
+import urllib.request
+import uuid
+from pathlib import Path
+
+import numpy as np
+from PIL import Image
+
+MODEL = 'RealESRGAN_x2plus.pth'
+SCALE = 2
+PAD = 64  # columns of the other end laid either side, so the upscaler sees across the wrap
+
+
+def _png(array):
+    data = np.clip(array * 255 + 0.5, 0, 255).astype(np.uint8)
+    buffer = io.BytesIO()
+    Image.fromarray(data, 'RGB').save(buffer, 'PNG')
+    return buffer.getvalue()
+
+
+def _request(url, data=None, headers=None):
+    with urllib.request.urlopen(urllib.request.Request(url, data=data, headers=headers or {}), timeout=60) as reply:
+        return reply.read()
+
+
+def _upload(url, name, payload):
+    boundary = uuid.uuid4().hex
+    body = (f'--{boundary}\r\nContent-Disposition: form-data; name="image"; filename="{name}"\r\n'
+            f'Content-Type: image/png\r\n\r\n').encode() + payload + (
+            f'\r\n--{boundary}\r\nContent-Disposition: form-data; name="subfolder"\r\n\r\nskykit'
+            f'\r\n--{boundary}\r\nContent-Disposition: form-data; name="overwrite"\r\n\r\ntrue\r\n--{boundary}--\r\n').encode()
+    reply = json.loads(_request(url + '/upload/image', body, {'Content-Type': f'multipart/form-data; boundary={boundary}'}))
+    return f"{reply['subfolder']}/{reply['name']}" if reply.get('subfolder') else reply['name']
+
+
+def _run(url, picture, name, timeout=900):
+    image = _upload(url, f'{name}.png', _png(picture))
+    graph = {
+        '1': {'class_type': 'LoadImage', 'inputs': {'image': image}},
+        '2': {'class_type': 'UpscaleModelLoader', 'inputs': {'model_name': MODEL}},
+        '3': {'class_type': 'ImageUpscaleWithModel', 'inputs': {'upscale_model': ['2', 0], 'image': ['1', 0]}},
+        '4': {'class_type': 'SaveImage', 'inputs': {'images': ['3', 0], 'filename_prefix': f'skykit/{name}'}},
+    }
+    prompt = json.loads(_request(url + '/prompt', json.dumps({'prompt': graph, 'client_id': uuid.uuid4().hex}).encode(),
+                                 {'Content-Type': 'application/json'}))['prompt_id']
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        history = json.loads(_request(f'{url}/history/{prompt}')).get(prompt)
+        if history and history.get('status', {}).get('completed'):
+            saved = history['outputs']['4']['images'][0]
+            query = urllib.parse.urlencode({'filename': saved['filename'], 'subfolder': saved['subfolder'], 'type': saved['type']})
+            return np.asarray(Image.open(io.BytesIO(_request(f'{url}/view?{query}'))).convert('RGB'), np.float32) / 255
+        if history and history.get('status', {}).get('status_str') == 'error':
+            raise RuntimeError(f'ComfyUI upscale failed: {history["status"]}')
+        time.sleep(2)
+    raise TimeoutError(f'ComfyUI upscale {prompt} did not finish in {timeout} s')
+
+
+def key(array):
+    return hashlib.sha256(np.ascontiguousarray(array, np.float32).tobytes() + MODEL.encode()).hexdigest()[:16]
+
+
+def upscale(array, folder, url=None):
+    """`array` (float RGB rows of a wrapped strip) at SCALE times its size: from the cache, or from ComfyUI."""
+    folder = Path(folder)
+    target = folder / f'x{SCALE}-{key(array)}.png'
+    if not target.is_file():
+        url = (url or os.environ.get('SRN_COMFY_URL') or 'http://127.0.0.1:8188').rstrip('/')
+        padded = np.concatenate([array[:, -PAD:], array, array[:, :PAD]], axis=1)
+        out = _run(url, padded, f'{folder.name}-{target.stem}')
+        if out.shape[:2] != (padded.shape[0] * SCALE, padded.shape[1] * SCALE):
+            raise RuntimeError(f'upscaled to {out.shape[:2]}, expected {SCALE} times {padded.shape[:2]}')
+        folder.mkdir(parents=True, exist_ok=True)
+        Image.fromarray(np.clip(out[:, PAD * SCALE:-PAD * SCALE] * 255 + 0.5, 0, 255).astype(np.uint8)).save(target)
+    return np.asarray(Image.open(target).convert('RGB'), np.float32) / 255, target

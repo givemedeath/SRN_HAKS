@@ -118,13 +118,13 @@ vec4 SrnLand(vec2 uv, float elevation, out vec2 lights, out vec3 blurred)
     vec4 land = mix(texture2D(texUnit0, ta), texture2D(texUnit1, tb), second);
     vec4 mask = mix(texture2D(texUnit2, ta), texture2D(texUnit3, tb), second);
     lights = mask.rg;
-    blurred = mix(texture2D(texUnit0, ta, 2.5).rgb, texture2D(texUnit1, tb, 2.5).rgb, second);
+    blurred = mix(texture2D(texUnit0, ta, 3.5).rgb, texture2D(texUnit1, tb, 3.5).rgb, second);
     if (tv < 0.0)
     {
         // below the panorama: the blurred colour of its bottom row, darkening downward
         vec2 ga = vec2(ta.x, 0.004);
         vec2 gb = vec2(tb.x, 0.004);
-        vec3 ground = mix(texture2D(texUnit0, ga, 6.0).rgb, texture2D(texUnit1, gb, 6.0).rgb, second);
+        vec3 ground = mix(texture2D(texUnit0, ga, 7.0).rgb, texture2D(texUnit1, gb, 7.0).rgb, second);
         land = vec4(ground * mix(0.7, 0.25, clamp(-tv * 2.0, 0.0, 1.0)), 1.0);
         lights = vec2(0.0);
     }
@@ -137,7 +137,7 @@ float SrnCityGlow(vec2 uv)
     vec2 ta = vec2(uv.x * 2.0, 0.3);
     vec2 tb = vec2(uv.x * 2.0 - 1.0, 0.3);
     float second = step(0.5, uv.x);
-    return mix(texture2D(texUnit2, ta, 7.0).r, texture2D(texUnit3, tb, 7.0).r, second);
+    return mix(texture2D(texUnit2, ta, 8.0).r, texture2D(texUnit3, tb, 8.0).r, second);
 }
 
 //----------------------------------------------------------------------------- sky pieces

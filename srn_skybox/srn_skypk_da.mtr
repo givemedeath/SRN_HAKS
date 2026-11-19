@@ -5,7 +5,7 @@ texture1 srn_skypk_pb
 texture2 srn_skypk_ma
 texture3 srn_skypk_mb
 parameter float SkyPhase 0.0000
-parameter float SkyBand -2.0000 19.0561 0.1400 0.0000
+parameter float SkyBand -2.0000 18.8596 0.1400 0.0000
 parameter float SkyZenith 0.1600 0.1800 0.4000 1.0000
 parameter float SkyHorizon 0.9800 0.5800 0.4600 5.0000
 parameter float SkyCloud 0.6200 0.4200 0.5800 1.0000
@@ -15,4 +15,4 @@ parameter float SkySunColor 1.0000 0.6200 0.3600 0.9000
 parameter float SkyMotion 2.4000 0.5200 0.0000 0.0000
 parameter float SkyNight 0.0000 0.0000 0.0000 0.0000
 parameter float SkyExtra 0.0000 0.0000 0.0000 0.0000
-parameter float SkyGlow 0.0000 0.0000 0.0000 15.0976
+parameter float SkyGlow 0.0000 0.0000 0.0000 15.2239

@@ -40,7 +40,7 @@ skyboxes.2da row -> dawn/day/dusk/night model (srn_sky*_*.mdl, a 675 m inward sp
   counter-clockwise, v from nadir to zenith. The shader turns them into a direction; nothing depends on the
   camera.
 - **The land band.** The panorama holds only the band from 2 degrees under the horizon to its top (the manifest's
-  `band`), 8192 texels round in two halves. Below the band the shader paints dark blurred ground; above it, sky.
+  `band`), 16384 texels round in two halves (512 or 1024 tall). Below the band the shader paints dark blurred ground; above it, sky.
   Each half keeps continuous coordinates either side of the join so mip selection never jumps there.
 - **Clouds** are a flat sheet seen in perspective, five-octave value noise, with edges facing the sun lit and thick
   middles darker. They drift in a slow circle once per game day, so midnight's clock wrap is seamless.
@@ -82,6 +82,11 @@ python -m unittest tools.skykit.test_skykit
 python -m tools.skykit.client_fixture --nwn-root <game install>               # fixed views
 python -m tools.skykit.client_fixture --nwn-root <game install> --transition  # time runs through dusk and dawn
 ```
+
+Each assembled panorama is upscaled 2x with RealESRGAN (`RealESRGAN_x2plus.pth`) on the shared ComfyUI before keying
+(`tools/skykit/upscale.py`, its HTTP API only; `SRN_COMFY_URL` overrides the address). The result is cached in
+`output/skykit/<key>/x2-<hash>.png` by input and model, so a rebuild of unchanged art needs no GPU; `--no-upscale`
+builds at the source size. The manifest names the model and cache file.
 
 Previews and fallback pictures need ModernGL with an OpenGL 3.3 context; `--no-render` skips them. Intermediate
 pictures, previews and client captures go to `output/skykit/` (ignored). `docs/skies/manifest.json` records source

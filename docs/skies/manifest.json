@@ -2,7 +2,7 @@
   "schema": 1,
   "shaders": {
     "srn_sky_fs.shd": "d60b13ddf48ea6506ba07301181e53c5d1e290189269aca98fe3a0214d255c91",
-    "srn_sky_math.shd": "2cbfa66a2be7c0b1904491ac062afed665645fb53a12f4576d0fabe3c803f0ab"
+    "srn_sky_math.shd": "cd0484fdc7bbb64a88055124a638b542247190cde4e167a37a6742d639119cd0"
   },
   "vertexShader": "vsvt",
   "panoramas": {
@@ -18,9 +18,14 @@
       },
       "band": [
         -2.0,
-        10.5615,
-        2.3075
-      ]
+        10.4171,
+        2.1751
+      ],
+      "upscale": {
+        "model": "RealESRGAN_x2plus.pth",
+        "scale": 2,
+        "cache": "x2-ef253c0e9150f081.png"
+      }
     },
     "pk": {
       "key": "magenta",
@@ -34,9 +39,14 @@
       },
       "band": [
         -2.0,
-        19.0561,
-        15.0976
-      ]
+        18.8596,
+        15.2239
+      ],
+      "upscale": {
+        "model": "RealESRGAN_x2plus.pth",
+        "scale": 2,
+        "cache": "x2-57688f9fe5c7a81e.png"
+      }
     },
     "stm": {
       "key": "magenta",
@@ -50,9 +60,14 @@
       },
       "band": [
         -2.0,
-        20.0332,
-        6.473
-      ]
+        20.3027,
+        6.5488
+      ],
+      "upscale": {
+        "model": "RealESRGAN_x2plus.pth",
+        "scale": 2,
+        "cache": "x2-02fbf023d52c5035.png"
+      }
     }
   },
   "rows": {
@@ -128,48 +143,48 @@
     }
   },
   "resources": {
-    "srn_skyden_d.dds": "649c84cba1e9eacbe155ced69ad25a8f2d8f6281fdc306e84a8fa2c5d1fe11af",
+    "srn_skyden_d.dds": "7b8d340811ff08b792dede9f2a7f571d35082b550cb00d85885add3caf2d0ae9",
     "srn_skyden_d.mdl": "9beac5ce4c117e9b119fb5bd45fbf1e9a77e537bf88f329ae0197bcbdf1f8ffd",
-    "srn_skyden_d.mtr": "431fd5f1b33a32705a39ae2b349edb0f3fe3ec0bec7e5ae6cdf4a18b7e396632",
-    "srn_skyden_da.dds": "6a1a96f287ef2b5a966feed22526d9b61073b2095a85fbc775df1ee0dafbeab7",
+    "srn_skyden_d.mtr": "c6574dbb12fc011d23189ad2d6434422c0fea275a6cc013f30194839e976a64f",
+    "srn_skyden_da.dds": "20c0608fbbad2d3ae909968d4ae8eda7f6904ac5498ee8aefdc8569af19f1e02",
     "srn_skyden_da.mdl": "91bf485b3085987ff0466dad5d0b2f36cf2000848fcfd013f1f4929ebe951716",
-    "srn_skyden_da.mtr": "f84ac14337b073bfd76ebc3efbe792c02833bcc668dcad9987bf18b8faa9b4ec",
-    "srn_skyden_du.dds": "f0cf99a1191b61db046d9f5217f1fa3b602b6d97f17c6c8e2941fa75d8c2c04c",
+    "srn_skyden_da.mtr": "3f38bcd5c426ae5be6f1fca8e5a2ccf15938d3b5c6451dab28e03a6e7bdc920e",
+    "srn_skyden_du.dds": "308966dc37e3df7d0911b34755824cc5c7d861686f50352171802aeb7f090d85",
     "srn_skyden_du.mdl": "02146eb1b21c8f606579e5fac6ba58b3b184cc80fe7addcc5f66e84d52ad1091",
-    "srn_skyden_du.mtr": "b6ca615a297cb7319cd4eba88582e247f7bc2de235a67a8b1bbde8e5560ac150",
-    "srn_skyden_ma.dds": "ab33f9fd75c7b0f148628adec62207d3844042530b0efcb8ee0dc4c8dde45f62",
-    "srn_skyden_mb.dds": "f7440108c46457c2dbcf776cda655daf36182a170e778143712cd085fd9b36de",
-    "srn_skyden_n.dds": "257ff7237bf53d721ea5891b36e6e2cdb816380ccf6047bb9bfbbe7633746f55",
+    "srn_skyden_du.mtr": "c2b3bbd0da10659603ac8a28675497ce838eec3b6718e7684c070ed0c988d925",
+    "srn_skyden_ma.dds": "c8b0c06d2d8fd9f64ee594ff0a040edfb87425bc1e1502449dccb08a111271b5",
+    "srn_skyden_mb.dds": "cdebad1800f1c60fa3057fedcf97786d53e1f66276c1815fe567952578cdb1be",
+    "srn_skyden_n.dds": "7e9a372929f16c45817e634fe02c580d79855231b5894d6d91ba7ab27ffe0f1f",
     "srn_skyden_n.mdl": "1a0f3bcae7fa14119f207ce378851028c0d6323e624cfec564650dde0637fe26",
-    "srn_skyden_n.mtr": "a73b7d7db7103e14fb80d32ac380b7bd4f5c0a860e56551eb85e2c75258bf766",
-    "srn_skyden_pa.dds": "cf195436912365a26faf4bf04b40c33bd8436ccf0312e5fcc85215d060fafec5",
-    "srn_skyden_pb.dds": "a4cd34b192e10c0200eeb88bb02af390ecef0e0de814bcbf3a43ee798dc289b8",
-    "srn_skyden_st.dds": "79f8e4113f638c1d163fb551ee0583554cdbdc7d89980e22d2ca447bc8cf1eb1",
+    "srn_skyden_n.mtr": "2883cd5843552857682dca939db5ba85082e1c2b123f693c4cc19e47c09bfd7c",
+    "srn_skyden_pa.dds": "2eb9cc03a3fdf2eab4ccabf8287d239e79b0ca754b15e89f5434b4129580823d",
+    "srn_skyden_pb.dds": "845bf1964fcc90a4aff2d0085dda0d9a233b32f167e1fa288e5e3e904620223f",
+    "srn_skyden_st.dds": "21539cfebaa15b63445eb009d8875f7eeb089ba2d686617f1fb93ee7fd03127b",
     "srn_skyden_st.mdl": "245457f06d52c65dfc7417476750f435b92ba3d1e6e1691508e119972fbcbb75",
-    "srn_skyden_st.mtr": "26155a80b6a588197087ed6ac55cb59db00eb489211afe198372659b51e2d294",
-    "srn_skypk_d.dds": "d338fe1ed9d8fe40e95d00a9878dfdd433da13a68a316d282dd200f4dc84b99c",
+    "srn_skyden_st.mtr": "7020084cfbe0640e631a425fb3c247f7308dd5edbdebacb43e7f7bffc7d15903",
+    "srn_skypk_d.dds": "6cfa27335e757525587d100728ec248474aa33eba284045d464fe5ab24afdc18",
     "srn_skypk_d.mdl": "de12ead18715bc1c3aa0c1e647a2ab032f3da0f558d03119e466b14b0a0ffc16",
-    "srn_skypk_d.mtr": "46c17027d8cc7efd2a7d2524bd507f0b818201189d181cd87c9af541582ffd4e",
-    "srn_skypk_da.dds": "fb00b00a56006e755af1fe982594cf4185be42ad32f5245f377525e6818cd1f8",
+    "srn_skypk_d.mtr": "817ee6af4e71438546777d31ca8f3fe2c7b608e3c71e1c3ecb2a265bc4278b43",
+    "srn_skypk_da.dds": "a48aadfff0541d9262acbf160d10e83ac6ac1076faed9ed7f1600b8e46cec554",
     "srn_skypk_da.mdl": "4f26ec5b46cde858cbf603cf90efbb588425b03572d89fda32937930298fb08d",
-    "srn_skypk_da.mtr": "a5d2863b6effdc9396dde702a399075abcd3c4aed869a63681f65b54e1f2ea4e",
-    "srn_skypk_du.dds": "b4b0614311115ad88b5df6a3934bc98c1263d258eca23be65cc7ba85a6352dca",
+    "srn_skypk_da.mtr": "9821827824c429cbd59024649c2204dc437e24a8f9c9abb316c665f21cd0297e",
+    "srn_skypk_du.dds": "ccaca8a7e45db5992ab421cdf5a8a9ea8ce95f52606df4a563d762279bfaf1dd",
     "srn_skypk_du.mdl": "fc1025d7e12f67bf5eb97bef34bca61b17c63a608c8df2072184385bd00b5913",
-    "srn_skypk_du.mtr": "0a0554380fe952bb5fd3ef0e0f7a41836a675f841f5f72521a00ace7d12fada6",
-    "srn_skypk_ma.dds": "35fa450a02c8d6d37a2e18d1e1eb647dc254de79994bd3a99083a413c46ada44",
-    "srn_skypk_mb.dds": "99ad632c36a4d059eb0a38481d913c46104a282d129649b1583ade7f46d99519",
-    "srn_skypk_n.dds": "f45967adcb245df87bdd16b552ad14679c2e2140364ffc2226948d25572c1419",
+    "srn_skypk_du.mtr": "2f98b6085046ca553d8732506c7666cb864c487b42e1cdb664b5cea249f5cb59",
+    "srn_skypk_ma.dds": "c7a4725c815d3735299fdf0420a3f5b14b36d8b005d3019f759e98598eed9eb2",
+    "srn_skypk_mb.dds": "3be59e3c61040c94e2b8da07e56f94b46ae80c61a9c94dda4bb81e6188b852e0",
+    "srn_skypk_n.dds": "c0ab705582160c14b9876f00c1125adb54f012707f72c497bf0a0c427d6cefa1",
     "srn_skypk_n.mdl": "8525b8f2b448eb438f2caeb3f1bbee3449f69cb9da13c90bf82d69763af41b69",
-    "srn_skypk_n.mtr": "01176dd49b54308cc50b80363ef080b55a4ebc902d85a982883699d9c47feb23",
-    "srn_skypk_pa.dds": "0ba977f9cb1961b0d2b09d99305ccb82efa7acc958726425270bd995b47ef1b5",
-    "srn_skypk_pb.dds": "e68d4324e4ce89e1851b4da568136575b9d419bb595878aa05877714dd5e0cf0",
-    "srn_skystm_ma.dds": "74291a60e1fa3da85648021867916b418c3076e58a300554102c3e344f52c649",
-    "srn_skystm_mb.dds": "2ce75257570cb62512d7d0ee7dd5d7e212a74c91e74be1c897431fe41777822e",
-    "srn_skystm_pa.dds": "cb6ef454a34c710e34567323b38d13c53af1f42c6af92b8869d6e3579b198f5f",
-    "srn_skystm_pb.dds": "50f548b38a339cbebff8b4f0230c2cf43a9f33e65d16894e7b5c6960b56b72c3",
-    "srn_skystm_st.dds": "e2fafa7588fd96e5a84065ba85998b32d24027f3242a27716b0ec9fa2b2e68df",
+    "srn_skypk_n.mtr": "d69b109fdae700037cf9d39a607c0a0408b336b492c0d32cffd76f5fd80609af",
+    "srn_skypk_pa.dds": "51c745260c068777f1f7edf084b6581f17536d1e7b071d1d932ef3435ce8f43d",
+    "srn_skypk_pb.dds": "076ac67d112663cfe53beed7224ef08611388cbd72ead7e9fac3f401178ab71c",
+    "srn_skystm_ma.dds": "3d2a32e7ca891f57827c492bf6ffad7eb0c6c8cbfb5dbd5ed3389837424dea23",
+    "srn_skystm_mb.dds": "75ee566a4adb9f6d562bf0b6f27d062c631448331e3dc564d2fbd173f84878af",
+    "srn_skystm_pa.dds": "d44307bad6ed30c18a6cb2a43b64744bcafdddb7ec7c2eb7be6bc0066b221612",
+    "srn_skystm_pb.dds": "85b895a8dedb5ad873e7cbdf96c2a8c6a0e92b17126a83eb0cd5cfb3be44b9a5",
+    "srn_skystm_st.dds": "c041edd6cc8e2cacc9268a429a5df97e1af81f864dbf27cf274b5cb0a7525cb2",
     "srn_skystm_st.mdl": "4ad6fd0711299661c67a1881915bd63f4edeed8a499556dbed634364d1d74c90",
-    "srn_skystm_st.mtr": "15ef0247d4cc31eae49fcf7a8adbe4782d7f2eff13b6327ab778489e3a3332bc"
+    "srn_skystm_st.mtr": "5bd2026c0f7ca7262f83e5ddda5220081bf2c388d20b06bbc50fc19817c1cfce"
   },
   "runtimeTestedInNwn": false
 }
