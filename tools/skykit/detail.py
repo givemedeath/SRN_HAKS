@@ -73,6 +73,26 @@ def generate(land, key, folder, prompt_file, seed, tiles=None, redo=False, url=N
     (folder / 'detail.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8', newline='\n')
 
 
+def offset(reference, image):
+    """(columns, rows) to roll `image` by so it lines up with `reference` (phase correlation of their luminance)."""
+    a = reference @ np.array([0.299, 0.587, 0.114], np.float32)
+    b = image @ np.array([0.299, 0.587, 0.114], np.float32)
+    spectrum = np.fft.fft2(a - a.mean()) * np.conj(np.fft.fft2(b - b.mean()))
+    peak = np.fft.ifft2(spectrum / np.maximum(np.abs(spectrum), 1e-6)).real
+    y, x = np.unravel_index(int(peak.argmax()), peak.shape)
+    y = y - peak.shape[0] if y > peak.shape[0] // 2 else y
+    x = x - peak.shape[1] if x > peak.shape[1] // 2 else x
+    return int(x), int(y)
+
+
+def shifted(image, columns, rows):
+    """`image` moved by whole texels, the uncovered edge filled from its nearest row or column."""
+    height, width = image.shape[:2]
+    ys = np.clip(np.arange(height) - rows, 0, height - 1)
+    xs = np.clip(np.arange(width) - columns, 0, width - 1)
+    return image[ys][:, xs]
+
+
 def assemble(land, key, folder):
     """The strip at the tiles' scale, from the tracked tiles in `folder`: (rgb, scale)."""
     record = json.loads((folder / 'detail.json').read_text(encoding='utf-8'))
@@ -89,9 +109,12 @@ def assemble(land, key, folder):
     def tile(index):
         picture = Image.open(folder / f'tile_{index:02d}.png').convert('RGB').resize(size, Image.LANCZOS)
         drawn = np.asarray(picture, np.float32) / 255
-        # the model drifts the grade a little: hold each tile to its input, row by row
         source = np.asarray(Image.fromarray(np.clip(tile_input(land, key, index) * 255 + 0.5, 0, 255).astype(np.uint8))
                             .resize(size, Image.BICUBIC), np.float32) / 255
+        # the model moves its redraw a few texels (up to ten in Denver): put it back over its input, so lines that
+        # cross into the next tile meet there
+        drawn = shifted(drawn, *offset(source, drawn))
+        # and drifts the grade a little: hold each tile to its input, row by row
         return panorama.apply_gain(drawn, panorama.row_gain(source, drawn, key), key)[top:]
 
     place = [int(round(s * scale)) for s in starts]

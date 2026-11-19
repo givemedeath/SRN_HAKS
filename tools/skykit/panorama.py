@@ -132,9 +132,12 @@ def lights(rgba, city_from=0.0, scale=1):
     return mask
 
 
-def half_size(strip):
-    """Each half's texels: HALF, twice as tall for a strip taller than 640 rows."""
-    return (HALF[0], HALF[1] * (2 if strip.shape[0] > 640 else 1))
+def half_size(band):
+    """Each half's texels: HALF's width, and the power of two nearest the height that gives the band as many texels
+    per degree up as round. Without anisotropic filtering the GPU picks a mip from the denser direction, so a band
+    packed denser up than round blurs its detail sideways too."""
+    rows = HALF[0] * 2 * (band[1] - band[0]) / 360.0
+    return (HALF[0], int(np.clip(2 ** round(np.log2(max(rows, 1.0))), 256, 2048)))
 
 
 def halves(rgba, mask, size=HALF):

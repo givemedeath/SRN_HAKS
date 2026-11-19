@@ -98,7 +98,7 @@ def build_panorama(key, scale=2):
     mask = np.dstack([mask[..., :2], field[..., :2] * 0.5 + 0.5]).astype(np.float32)
     band = panorama.band_degrees(strip, spec['below'], spec['stretch'])
     band = (*band, panorama.roof_degrees(mask, band))
-    halves = panorama.halves(strip, mask, panorama.half_size(strip))
+    halves = panorama.halves(strip, mask, panorama.half_size(band))
     folder = OUTPUT / key
     folder.mkdir(parents=True, exist_ok=True)
     panorama.save_png(strip, folder / 'strip.png')
