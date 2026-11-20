@@ -24,13 +24,13 @@ MARGIN = 0.03  # of a cell's side kept clear round its edge, so a mip level does
 
 # cell: (scan folder or None, tone [r, g, b] or None, roughness, metal) — None scan: flat colour
 LOOKS = {
-    'casing': ('MetalPlates013', (178, 174, 160), None, None),
+    'casing': (None, (168, 170, 164), 0.55, 0.2),  # painted sheet metal: an appliance's case
     'grille': (None, (46, 48, 50), 0.6, 0.6),
     'rust': ('Rust009', None, None, None),
     'corrugated': ('CorrugatedSteel009', (140, 142, 138), None, None),
     'planks': ('Planks023A', (120, 98, 72), None, None),
-    'galvanised': ('MetalPlates013', (128, 132, 134), None, None),
-    'paint': ('MetalPlates013', (214, 214, 206), 0.45, 0.1),
+    'galvanised': (None, (132, 138, 142), 0.45, 0.7),
+    'paint': (None, (196, 196, 188), 0.5, 0.1),
     'rubber': (None, (24, 24, 26), 0.85, 0.0),
     'iron': ('MetalPlates013', (44, 42, 40), None, None),
     'concrete': ('Concrete034', (122, 120, 116), None, None),
@@ -41,11 +41,22 @@ LOOKS = {
     'ember': (None, (255, 120, 30), 0.9, 0.0),  # embers in a burn barrel: glows
 }
 ORDER = list(LOOKS)
+GRIMY = {'casing': 0.16, 'galvanised': 0.14, 'paint': 0.18}  # flat looks given light weathering: soft blotches and faint streaks, this strong
 GLOWS = {'red': (255, 48, 36), 'white': (210, 220, 230), 'ember': (255, 110, 24)}  # cells that glow whole
 
 
 def cell_of(look):
     index = ORDER.index(look); return index % CELLS, index // CELLS
+
+
+def _grime(side, seed):
+    """[0, 1] weathering of a cell, `side` square: soft blotches and faint streaks running down, the same each build."""
+    from PIL import Image, ImageFilter
+    rng = np.random.default_rng(seed)
+    blotch = np.asarray(Image.fromarray(np.uint8(rng.random((8, 8)) * 255)).resize((side, side), Image.BICUBIC), np.float64) / 255
+    streaks = np.asarray(Image.fromarray(np.uint8(rng.random((1, 48)) * 255)).resize((side, side), Image.BILINEAR), np.float64) / 255
+    fine = np.asarray(Image.fromarray(np.uint8(rng.random((side, side)) * 255)).filter(ImageFilter.GaussianBlur(1.2)), np.float64) / 255
+    return np.clip(0.5 * blotch + 0.35 * streaks ** 3 + 0.15 * fine, 0, 1)
 
 
 def atlas(masters):
@@ -63,6 +74,8 @@ def atlas(masters):
         else:
             made = {'colour': np.full((side, side, 3), tone, np.uint8), 'normal': np.full((side, side, 3), (128, 128, 255), np.uint8),
                     'roughness': np.full((side, side), rough), 'metal': np.full((side, side), metallic)}
+            if look in GRIMY:
+                made['colour'] = np.uint8(np.clip(made['colour'] * (1 - GRIMY[look] * _grime(side, ORDER.index(look)))[..., None], 0, 255))
             if look == 'grille':  # slats across: a dark gap every 24 pixels, lit tops
                 rows = np.arange(side) % 24; made['colour'][rows < 6] = (18, 18, 20)
                 made['normal'][rows == 6] = (128, 200, 220); made['normal'][rows == 23] = (128, 56, 220)
@@ -111,6 +124,22 @@ class Mesh:
         for name, corners in sides.items():
             if name not in skip:
                 self.quad(*corners, front if name == '+y' and front else look)
+
+    def extend(self, other, move):
+        """Another mesh's faces added, its vertices taken by `move` (a rigid turn: its pictures stay as they were)."""
+        base, tbase = len(self.verts), len(self.tverts)
+        self.verts += [move(vertex) for vertex in other.verts]; self.tverts += other.tverts
+        self.faces += [(a + base, b + base, c + base, group, ta + tbase, tb + tbase, tc + tbase, material)
+                       for a, b, c, group, ta, tb, tc, material in other.faces]
+
+    def beam(self, start, end, y0, y1, depth, look):
+        """A slanted beam in the x-z plane from `start` (x, z) to `end`, between y0 and y1, `depth` deep upward: a
+        stair's stringer or handrail."""
+        (xa, za), (xb, zb) = start, end
+        a0, b0, c0, d0 = (xa, y0, za), (xb, y0, zb), (xb, y0, zb + depth), (xa, y0, za + depth)
+        a1, b1, c1, d1 = (xa, y1, za), (xb, y1, zb), (xb, y1, zb + depth), (xa, y1, za + depth)
+        for face in ((b1, a1, d1, c1), (a0, b0, c0, d0), (d0, c0, c1, d1), (a1, b1, b0, a0), (b0, b1, c1, c0), (a1, a0, d0, d1)):
+            self.quad(*face, look)
 
     def cylinder(self, centre, radius, height, look, *, sides=10, top=True, bottom=False, axis='z'):
         """A cylinder up from `centre` (along `axis`, 'z' or 'x'); `bottom` closes its foot, which a shadow caster
@@ -165,11 +194,16 @@ def fire_escape(stair=True):  # one storey: a grated platform at z = 0 with rail
         mesh.box((x - 0.02, 0.0, 0.95), (x + 0.02, depth, 1.0), 'iron', skip=('-y',))  # end rails back to the wall
     if not stair:  # the top platform: nothing climbs past it into the cornice
         return mesh, False
-    steps = 14; rise = STOREY / steps; run = (width - 0.4) / steps
-    for step in range(steps):  # a stair rising along the platform toward +x, under the next platform
-        x = -width / 2 + 0.2 + step * run
-        mesh.box((x, 0.15, rise * (step + 1) - 0.03), (x + run, 0.75, rise * (step + 1)), 'iron')
-    mesh.quad((-width / 2 + 0.2, 0.76, 0.0), (width / 2 - 0.2, 0.76, STOREY), (width / 2 - 0.2, 0.78, STOREY), (-width / 2 + 0.2, 0.78, 0.0), 'iron')  # stringer
+    steps = 14; rise = STOREY / steps; run = (width - 0.4) / steps; foot, head = -width / 2 + 0.2, width / 2 - 0.2
+    for step in range(steps):  # slatted treads rising along the platform toward +x, under the next platform
+        x = foot + step * run
+        mesh.box((x, 0.17, rise * (step + 1) - 0.03), (x + run * 0.9, 0.73, rise * (step + 1)), 'iron')
+    for y0, y1 in ((0.13, 0.17), (0.73, 0.77)):  # the two stringers the treads hang between
+        mesh.beam((foot, -0.12), (head, STOREY - 0.12), y0, y1, 0.16, 'iron')
+    mesh.beam((foot, 0.9), (head, STOREY + 0.9), 0.75, 0.78, 0.04, 'iron')  # the handrail
+    for x in (foot + 0.3, head - 0.3):  # its posts
+        z = (x - foot) / (head - foot) * STOREY
+        mesh.box((x - 0.015, 0.75, z), (x + 0.015, 0.78, z + 0.92), 'iron')
     return mesh, False
 
 
@@ -201,14 +235,25 @@ def hvac():  # roof plant on a plinth: cover
 
 def junction_box():  # a broken electrical box on a wall, its torn cable hanging below: where sparks come from
     mesh = Mesh(); mesh.box((-0.18, 0.0, 0.0), (0.18, 0.14, 0.42), 'paint', skip=('-y',))
+    mesh.box((-0.16, 0.14, 0.03), (0.16, 0.155, 0.39), 'paint', skip=('-y',))  # its door, a little proud
+    for z in (0.08, 0.31):
+        mesh.box((-0.185, 0.12, z), (-0.16, 0.16, z + 0.05), 'iron', skip=('-y',))  # hinges
+    mesh.box((0.11, 0.155, 0.17), (0.13, 0.175, 0.25), 'iron', skip=('-y',))  # handle
+    mesh.box((-0.07, 0.155, 0.27), (0.07, 0.158, 0.35), 'yellow', skip=('-y',))  # warning sticker
     mesh.cylinder((0.1, 0.07, 0.42), 0.02, 0.9, 'galvanised', sides=6, top=False)  # its conduit up the wall
     mesh.cylinder((-0.06, 0.08, -0.35), 0.022, 0.35, 'rubber', sides=6, top=False)  # the torn cable out of its broken bottom
     return mesh, False
 
 
-def vent():  # a roof vent: cover for a crouching man
-    mesh = Mesh(); mesh.box((-0.35, -0.35, 0.0), (0.35, 0.35, 0.6), 'galvanised', skip=('-z',))
-    mesh.box((-0.45, -0.45, 0.6), (0.45, 0.45, 0.7), 'galvanised', skip=())
+def vent():  # a mushroom roof vent on a flashing: cover for a crouching man
+    mesh = Mesh(); mesh.box((-0.45, -0.45, 0.0), (0.45, 0.45, 0.08), 'galvanised', skip=('-z',))
+    mesh.cylinder((0.0, 0.0, 0.08), 0.26, 0.5, 'galvanised', sides=12, top=False)
+    for x, y in ((-0.2, 0.0), (0.2, 0.0), (0.0, -0.2), (0.0, 0.2)):  # stays holding the cowl over the pipe
+        mesh.box((x - 0.015, y - 0.015, 0.55), (x + 0.015, y + 0.015, 0.68), 'iron')
+    mesh.cylinder((0.0, 0.0, 0.66), 0.42, 0.05, 'galvanised', sides=14, top=False, bottom=True)  # the cowl's rim
+    for index in range(14):  # and its low cone
+        one, other = 2 * math.pi * index / 14, 2 * math.pi * (index + 1) / 14
+        mesh.triangle((math.cos(one) * 0.42, math.sin(one) * 0.42, 0.71), (math.cos(other) * 0.42, math.sin(other) * 0.42, 0.71), (0.0, 0.0, 0.86), 'galvanised')
     return mesh, True
 
 
@@ -223,11 +268,25 @@ def tank():  # a water tank on legs over a plinth
 def dish():  # a satellite dish on a weighted stand
     mesh = Mesh(); mesh.box((-0.45, -0.45, 0.0), (0.45, 0.45, 0.25), 'concrete', skip=('-z',))
     mesh.cylinder((0.0, 0.0, 0.25), 0.04, 1.0, 'galvanised', sides=6, top=False)
-    centre = (0.0, 0.1, 1.25); rim, deep, sides = 0.55, 0.18, 14
-    for index in range(sides):  # a shallow cone facing up and toward -y
-        one, other = 2 * math.pi * index / sides, 2 * math.pi * (index + 1) / sides
-        at = lambda angle: (centre[0] + math.cos(angle) * rim, centre[1] - 0.25 + math.sin(angle) * rim * 0.6, centre[2] + 0.25 + math.sin(angle) * rim * 0.8)
-        mesh.triangle(at(other), at(one), centre, 'paint'); mesh.triangle(at(one), at(other), (centre[0], centre[1] + deep, centre[2] - 0.05), 'paint')
+    axis = np.array((0.0, -0.6, 0.8)); u = np.array((1.0, 0.0, 0.0)); v = np.cross(axis, u)  # it looks up and toward -y
+    middle = np.array((0.0, 0.0, 1.35)); rings, sides, rim = (0.0, 0.2, 0.38, 0.55), 16, 0.55
+
+    def point(r, angle):  # on the bowl
+        return tuple(middle + u * math.cos(angle) * r + v * math.sin(angle) * r + axis * 0.35 * (r / rim) ** 2)
+    for inner, outer in zip(rings, rings[1:]):
+        for index in range(sides):
+            one, other = 2 * math.pi * index / sides, 2 * math.pi * (index + 1) / sides
+            quad = (point(inner, one), point(outer, one), point(outer, other), point(inner, other))
+            front = np.cross(np.subtract(quad[1], quad[0]), np.subtract(quad[3], quad[0])) @ axis > 0
+            mesh.quad(*(quad if front else quad[::-1]), 'paint'); mesh.quad(*(quad[::-1] if front else quad), 'paint')  # its dished face and its back
+    mesh.box((-0.03, -0.03, 1.2), (0.03, 0.03, 1.38), 'galvanised')  # the bracket holding it on the pole
+    tip = middle + axis * 0.55
+    for angle in (0.0, 2.1, 4.2):  # three struts out to the feed
+        foot = np.array(point(rim * 0.9, angle))
+        side = np.cross(tip - foot, axis); side = side / np.linalg.norm(side) * 0.012
+        mesh.quad(tuple(foot - side), tuple(foot + side), tuple(tip + side), tuple(tip - side), 'galvanised')
+        mesh.quad(tuple(foot + side), tuple(foot - side), tuple(tip - side), tuple(tip + side), 'galvanised')
+    mesh.box(tuple(tip - 0.05), tuple(tip + 0.05), 'rubber')  # the feed
     return mesh, True
 
 
@@ -252,10 +311,25 @@ def ledge():  # 2.5 m of a steel ledge along a facade
     return mesh, False
 
 
-def camera():  # a security camera on an arm, its red light on
-    mesh = Mesh(); mesh.box((-0.025, 0.0, -0.03), (0.025, 0.3, 0.02), 'iron', skip=('-y',))
-    mesh.box((-0.08, 0.22, -0.16), (0.08, 0.48, -0.03), 'paint')
-    mesh.box((-0.02, 0.48, -0.08), (0.02, 0.49, -0.05), 'red')
+CAMERA_TILT, CAMERA_TURN = 20.0, 25.0  # degrees the camera's head looks down, and aside, from straight out of the wall
+
+
+def camera():  # a security camera on a wall arm: a hooded housing, a dark lens, its red light on; it looks down and aside
+    mesh = Mesh(); mesh.box((-0.06, 0.0, -0.02), (0.06, 0.02, 0.14), 'paint', skip=('-y',))  # wall plate
+    mesh.box((-0.02, 0.02, 0.05), (0.02, 0.24, 0.09), 'paint')  # arm
+    mesh.box((-0.03, 0.2, 0.0), (0.03, 0.26, 0.06), 'iron')  # its swivel
+    head = Mesh()  # built about the swivel at the origin, then turned
+    head.box((-0.065, -0.06, -0.14), (0.065, 0.24, -0.03), 'paint')  # housing
+    head.box((-0.08, -0.08, -0.03), (0.08, 0.29, -0.01), 'paint')  # sun hood
+    head.box((-0.048, 0.24, -0.125), (0.048, 0.25, -0.045), 'rubber', skip=('-y',))  # lens
+    head.box((0.03, 0.25, -0.06), (0.045, 0.255, -0.048), 'red', skip=('-y',))
+    tilt, turn = math.radians(CAMERA_TILT), math.radians(CAMERA_TURN)
+
+    def aim(point):  # down about x, then aside about z, then out to the swivel
+        x, y, z = point; y, z = y * math.cos(tilt) + z * math.sin(tilt), -y * math.sin(tilt) + z * math.cos(tilt)
+        x, y = x * math.cos(turn) - y * math.sin(turn), x * math.sin(turn) + y * math.cos(turn)
+        return (x, y + 0.23, z + 0.03)
+    mesh.extend(head, aim)
     return mesh, False
 
 
