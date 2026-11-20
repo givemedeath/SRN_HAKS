@@ -47,7 +47,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from headkit.common import require  # noqa: E402
-from headkit.predicates import when  # noqa: E402
+from headkit.predicates import Values, when  # noqa: E402
 from headkit.paint import colour_values, surface_outline  # noqa: E402
 
 SCHEMA = 1
@@ -281,6 +281,16 @@ def number(v):
     return type(v) in (int, float)
 
 
+def validate_predicate(condition, known, regions, name):
+    """Evaluate a predicate on one dummy texel, so unknown regions, quantities and masks refuse before any work."""
+    flag = lambda q: q == 'mapped' or q.startswith('mask:')
+    dummy = Values({q: (lambda q=q: np.zeros(1, bool) if flag(q) else np.zeros(1)) for q in known})
+    try:
+        when(condition, dummy, regions)
+    except ValueError as error:
+        raise ValueError(f'{name}: {error}') from None
+
+
 def validate_rows(rows, name='previewRows'):
     """Preview rows {channel: row}: channels 0..9, rows >= 0 (the palette height bounds them at decode)."""
     require(isinstance(rows, dict), name+' must map channels to rows')
@@ -311,6 +321,9 @@ def validate_spec(spec):
     for kind in ('plt', 'mdl'):
         require(isinstance(source[kind].get('sha256'), str), 'Spec must pin source.'+kind+'.sha256')
     known = QUANTITIES | {'mask:'+n for n in spec.get('surfaceOutlines', {})}
+    regions = spec.get('regions', {})
+    for region, condition in regions.items():
+        validate_predicate(condition, known, regions, 'region '+str(region))
     ops = spec.get('operations')
     require(isinstance(ops, list) and ops, 'Non-empty operations list required')
     require(all(isinstance(op, dict) for op in ops), 'Operations must be objects')
@@ -321,6 +334,8 @@ def validate_spec(spec):
         name = op['name']; extra = set(op)-COMMON_KEYS-OP_KEYS[op['op']]
         require(not extra, name+': unknown keys '+', '.join(sorted(extra)))
         require(isinstance(op.get('when'), dict), name+': when predicate required')
+        for key in ('when', 'donors', 'reference'):
+            if key in op: validate_predicate(op[key], known, regions, name+' '+key)
         require(type(op.get('allowEmpty', False)) is bool, name+': allowEmpty true or false')
         limit = op.get('maxFraction', 0.25); require(number(limit) and 0 < limit <= 1, name+': maxFraction in (0, 1]')
         if 'neighbours' in op: require(type(op['neighbours']) is int and 1 <= op['neighbours'] <= 256, name+': neighbours 1..256')
@@ -403,7 +418,9 @@ def parse_rows(text):
     rows = {}
     for item in (text or '').split(','):
         if item:
-            parts = item.split(':'); require(len(parts) == 2, '--rows takes channel:row pairs, e.g. 0:5,1:65')
+            parts = item.split(':')
+            require(len(parts) == 2 and all(q.strip().lstrip('-').isdigit() for q in parts),
+                    '--rows takes channel:row pairs, e.g. 0:5,1:65')
             rows[int(parts[0])] = int(parts[1])
     return validate_rows(rows, '--rows')
 
@@ -423,7 +440,9 @@ def load(args, spec=None, pinned=True):
             validate_spec(spec); check_pins(spec, plt, mdl)
         else:
             validate_view(spec)
-    model = spec.get('model') or args.model or Path(args.mdl).stem
+    given = getattr(args, 'model', None)
+    require(not (spec and given) or given == spec['model'], '--model differs from the spec model')
+    model = spec.get('model') or given or Path(args.mdl).stem
     flag = getattr(args, 'texture', None)
     if spec:
         texture = spec.get('texture') or model
@@ -437,6 +456,12 @@ def load(args, spec=None, pinned=True):
     return model, texture, mdl, plt, value, header, shades, layers
 
 
+def view_size(text):
+    value = int(text)
+    if not 64 <= value <= 2048: raise argparse.ArgumentTypeError('--size takes 64..2048 pixels')
+    return value
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     sub = parser.add_subparsers(dest='command', required=True)
@@ -446,7 +471,7 @@ def main(argv=None):
         p.add_argument('--palettes', required=True, help='folder with the stock pal-*.tga files')
         p.add_argument('--embree', required=True, help='embree4.dll for the view sheets')
         p.add_argument('--out', required=True); p.add_argument('--model'); p.add_argument('--texture', help='texture the trimeshes sample (default: the model name)')
-        p.add_argument('--size', type=int, default=384)
+        p.add_argument('--size', type=view_size, default=384)
         if name != 'apply': p.add_argument('--rows', default='', help='preview rows, e.g. 0:5,1:65,9:120')
         if name == 'view': p.add_argument('--channels', action='store_true', help='also a channel false-colour sheet')
         if name == 'probe':

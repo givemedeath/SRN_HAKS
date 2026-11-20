@@ -234,8 +234,43 @@ class ReviewRegressions(Base):
             self.assertEqual(pr.load(args(), s)[1], model)
             self.assertEqual(pr.load(args(model.upper()), s)[1], model)
             with self.assertRaises(ValueError): pr.load(args('other'), s)
+            with self.assertRaises(ValueError):
+                pr.load(argparse.Namespace(mdl=str(mdl), plt=str(plt), model='pfo0_head015', texture=None), s)
             plt.write_bytes(pr.PLT_MAGIC+np.array([10, 0, SIZE, SIZE//2], '<u4').tobytes()+bytes(SIZE*SIZE))
             with self.assertRaises(ValueError): pr.load(args())
+
+    def test_predicates_refuse_before_any_work(self):
+        good = {'name': 'a', 'op': 'shade', 'shade': 3, 'when': {'region': 'nape'}}
+        regions = {'nape': {'all': [{'of': 'y', 'lt': 0.4}, {'mask': 'ear'}]}}
+        pr.validate_spec(spec(good, regions=regions, surfaceOutlines={'ear': {}}))
+        for bad in (spec(dict(good, when={'region': 'nap'}), regions=regions, surfaceOutlines={'ear': {}}),
+                    spec(good, regions=regions),
+                    spec(dict(good, when={'of': 'lumm', 'gt': 3})),
+                    spec({'name': 'f', 'op': 'fill', 'donors': {'of': 'y', 'lt': 'x'}, 'when': {'channel': 1}}),
+                    spec({'name': 'm', 'op': 'match', 'reference': {'channel': 12}, 'when': {'channel': 1}})):
+            with self.subTest(bad=bad), self.assertRaises(ValueError): pr.validate_spec(bad)
+
+    def test_cli_arguments(self):
+        import argparse
+        for text in ('1:a', '1', 'x:2'):
+            with self.subTest(text=text), self.assertRaises(ValueError): pr.parse_rows(text)
+        self.assertEqual(pr.parse_rows('0:5, 1:65'), {0: 5, 1: 65})
+        for text in ('0', '-5', '4096'):
+            with self.subTest(text=text), self.assertRaises(argparse.ArgumentTypeError): pr.view_size(text)
+
+    def test_apply_writes_nothing_when_a_sheet_fails(self):
+        import json, tempfile
+        from unittest import mock
+        shades, layers = self.planes()
+        loaded = ('test', 'test', b'm', b'p', self.value, header(), shades, layers)
+        s = spec({'name': 'a', 'op': 'shade', 'shade': 3, 'when': {'all': [{'of': 'u', 'lt': 0.2}, {'of': 'v', 'lt': 0.2}]}})
+        with tempfile.TemporaryDirectory() as d, mock.patch.object(pr, 'load', return_value=loaded), \
+                mock.patch.object(pr, 'load_palettes', return_value=self.pal), \
+                mock.patch.object(pr, 'render', side_effect=RuntimeError('embree')):
+            path = Path(d)/'s.json'; path.write_text(json.dumps(s), encoding='utf-8'); out = Path(d)/'out'
+            with self.assertRaises(RuntimeError):
+                pr.main(['apply', '--mdl', 'm', '--plt', 'p', '--palettes', d, '--embree', 'e', '--out', str(out), '--spec', str(path)])
+            self.assertFalse((out/'test.plt').exists() or (out/'receipt.json').exists())
 
 
 class Guards(Base):

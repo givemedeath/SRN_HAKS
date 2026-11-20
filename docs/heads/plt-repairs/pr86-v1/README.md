@@ -26,5 +26,5 @@ Each `<slot>.json` here is the spec. It pins the published PLT and MDL by SHA-25
 ## Status
 
 - **Accepted** by the user on 2026-11-20: "Accept all nine". This covers elf-male-a with its v1 speck fix only; its streaks stay as known lighting.
-- Publication (push and PR) needs separate authorization.
+- Pushed and opened as PR 183 on 2026-11-20 with the user's approval. Merging needs the user.
 - Working data (runs, receipts, sheets and client sessions) is in ignored scratch: `pr86-plt-repair-20261120` and the head library workspace's `trials/client-sessions/rp*`.
