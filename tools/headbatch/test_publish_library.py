@@ -127,9 +127,32 @@ class Stage(unittest.TestCase):
         checkpoint.write_text(json.dumps(data), encoding='utf-8')
         self.assertEqual(self.stage(ws)[0], 1); self.assertFalse((self.repo/'docs').exists())
 
+    def test_overrides_and_review_text(self):
+        ws = Workspace(self.tmp.name); overrides = Path(self.tmp.name)/'overrides.json'
+        for bad in ({'troll-male-b': {'reviewNotes': ['x']}}, {HEAD: {'reviewNote': ['x']}}, {HEAD: {'reviewNotes': 'x'}}):
+            with self.subTest(bad=bad):
+                overrides.write_text(json.dumps(bad), encoding='utf-8')
+                self.assertEqual(self.stage(ws, '--overrides', str(overrides))[0], 1)
+        self.assertEqual(self.stage(ws, '--checkpoints', str(ws.root/'runtime/batch-*-checkpoint-*.json'))[0], 1)
+        overrides.write_text(json.dumps({HEAD: {'reviewNotes': ['user "Keep it"']}}), encoding='utf-8')
+        self.assertEqual(self.stage(ws, '--overrides', str(overrides), '--review', 'Reviewed by the user in the client.')[0], 0)
+        manifest = json.loads((self.repo/'docs/heads/head-library-test-v1.json').read_text(encoding='utf-8'))
+        self.assertEqual(manifest['review'], 'Reviewed by the user in the client.')
+        self.assertEqual(manifest['heads'][0]['reviewNotes'], ['user "Accept 0.82"', 'user "Keep it"'])
+
     def test_existing_manifest_refuses(self):
         ws = Workspace(self.tmp.name); self.assertEqual(self.stage(ws)[0], 0)
         self.assertEqual(self.stage(ws)[0], 1)
+
+
+class Archive(unittest.TestCase):
+    def test_reader_refuses_truncated_and_duplicate_archives(self):
+        good = erf({(SLOT, 2002): b'a', (SLOT, 6): b'b'})
+        self.assertEqual(pl.erf_resources(good)[(SLOT, 6)], b'b')
+        for bad in (good[:100], good[:170], good[:-1]):
+            with self.assertRaises(pl.PublishError): pl.erf_resources(bad)
+        with self.assertRaises(pl.PublishError):
+            pl.erf_resources(erf({(SLOT, 6): b'a', (SLOT.upper(), 6): b'b'}))
 
 
 class NativeSources(unittest.TestCase):

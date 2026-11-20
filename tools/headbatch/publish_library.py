@@ -30,7 +30,7 @@ TILE = (340, 320)
 VIEWS = (('three', 'three-quarter right'), ('threeleft', 'three-quarter left'), ('backright', 'back right'),
          ('backleft', 'back left'), ('motion', 'talk/look motion'), ('alt', 'second look'))
 CROPS = Path(__file__).with_name('library-crops.json')
-REVIEW = ('Claude operator client review delegated by the user; user decisions quoted in reviewNotes. '
+DEFAULT_REVIEW = ('Claude operator client review delegated by the user; user decisions quoted in reviewNotes. '
           'Exact client-reviewed native bytes; publication reruns nothing.')
 RESREF = re.compile(r'[a-z0-9_]{1,16}')
 
@@ -55,8 +55,10 @@ def read_json(path):
 def erf_resources(data):
     """{(resref, type): bytes} of an ERF/HAK V1.0 or V1.1 archive."""
     require(data[:4] in (b'HAK ', b'ERF ', b'MOD ') and data[4:8] in (b'V1.0', b'V1.1'), 'Not an ERF V1.0/V1.1 archive')
+    require(len(data) >= 160, 'Truncated ERF header')
     count, keys, offsets = (struct.unpack_from('<I', data, at)[0] for at in (16, 24, 28))
     width = 24 if data[4:8] == b'V1.0' else 40
+    require(keys+count*width <= len(data) and offsets+count*8 <= len(data), 'ERF key or resource list past the end of the archive')
     found = {}
     for i in range(count):
         key = data[keys+i*width:keys+(i+1)*width]
@@ -64,6 +66,7 @@ def erf_resources(data):
         kind = struct.unpack_from('<H', key, width-4)[0]
         offset, size = struct.unpack_from('<II', data, offsets+i*8)
         require(offset+size <= len(data), f'{name}: resource past the end of the archive')
+        require((name, kind) not in found, f'{name}: listed twice in one archive')
         found[(name, kind)] = data[offset:offset+size]
     return found
 
@@ -274,11 +277,25 @@ byte-identical.
 """
 
 
+OVERRIDE_KEYS = {'session', 'reviewNotes', 'reviewedNativeAttempt'}
+
+
+def check_overrides(overrides, heads):
+    """Every override names a staged head and only known keys, so a typo never drops a correction silently."""
+    require(isinstance(overrides, dict), '--overrides must map head names to objects')
+    for head, entry in overrides.items():
+        require(head in heads, f'Override for {head!r}, which is not being staged')
+        require(isinstance(entry, dict) and set(entry) <= OVERRIDE_KEYS, f'{head}: override keys are {sorted(OVERRIDE_KEYS)}')
+        require(all(isinstance(entry.get(k, ''), str) for k in ('session', 'reviewedNativeAttempt')), f'{head}: session and reviewedNativeAttempt are strings')
+        notes = entry.get('reviewNotes', [])
+        require(isinstance(notes, list) and all(isinstance(n, str) for n in notes), f'{head}: reviewNotes is a list of strings')
+
+
 def write_new(path, data):
     """Write bytes, or accept an identical existing file; refuse a different one."""
     path = Path(path)
     if path.exists():
-        require(path.read_bytes() == data, f'{path} exists with different bytes')
+        require(path.read_bytes() == data, f'{path} exists with different bytes (gallery JPEGs also depend on the Pillow version)')
         return False
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(data)
@@ -291,8 +308,10 @@ def stage(args):
     require(re.fullmatch(r'\d{4}-\d{2}-\d{2}', args.created), '--created takes YYYY-MM-DD')
     crops = read_json(args.crops or CROPS)
     overrides = read_json(args.overrides) if args.overrides else {}
+    require(not Path(args.checkpoints).is_absolute(), '--checkpoints is a glob inside the workspace, e.g. runtime/batch-*-checkpoint-*.json')
     latest = latest_checkpoints(W, args.checkpoints)
     heads = select(latest, args.heads.split(',') if args.heads else None, args.prefix)
+    check_overrides(overrides, heads)
     rows = read_json(W/'spool/reviewed-rows.json')
     target = out/'repo' if args.dry_run else repo
     head_folder = repo/'srn_head'
@@ -314,14 +333,15 @@ def stage(args):
     slots = [e['slot'] for e in entries]
     require(len(set(slots)) == len(slots), 'Two heads share a slot')
     manifest = {'kind': KIND, 'created': args.created, 'heads': entries, **({'notes': args.notes} if args.notes else {}),
-                'review': REVIEW}
+                'review': args.review}
     text = json.dumps(manifest, indent=1, ensure_ascii=False)+'\n'
     names = {f"{r['slot']}.{ext}" for r in staged for ext in r['files']}
     existing = len([p for p in head_folder.iterdir() if p.is_file() and p.name not in names]) if head_folder.is_dir() else 0
     writes = [(target/'srn_head'/f"{r['slot']}.{ext}", f['data']) for r in staged for ext, f in r['files'].items()]
     writes += [(evidence/f"{r['slot']}-client.jpg", (sheets/f"{r['slot']}-client.jpg").read_bytes()) for r in staged]
     for path, data in writes:  # every target is checked before the first write
-        require(not path.exists() or path.read_bytes() == data, f'{path} exists with different bytes')
+        require(not path.exists() or path.read_bytes() == data,
+                f'{path} exists with different bytes (gallery JPEGs also depend on the Pillow version)')
     require(not re.search(r'[A-Za-z]:[\\/]|\\\\|"/|\s/(home|Users|mnt|tmp|var|srv)/', text), 'The manifest would hold a local path')
     for path, data in writes:
         write_new(path, data)
@@ -364,6 +384,7 @@ def parser():
     p.add_argument('--crops', type=Path, help=f'gallery crop boxes per head family (default {CROPS.name})')
     p.add_argument('--overrides', type=Path, help='JSON {head: {session?, reviewNotes?, reviewedNativeAttempt?}} for heads whose checkpoint lacks them')
     p.add_argument('--notes', help='manifest-level note, e.g. how designSubmissions was recorded')
+    p.add_argument('--review', default=DEFAULT_REVIEW, help='who reviewed the heads in the client and on whose authority')
     p.add_argument('--out', required=True, help='folder for the record draft (and the repository files with --dry-run)')
     p.add_argument('--dry-run', action='store_true', help='write the repository files under OUT/repo instead')
     p.set_defaults(handler=stage)
@@ -377,7 +398,7 @@ def main(argv=None):
     args = parser().parse_args(argv)
     try:
         return args.handler(args)
-    except (PublishError, OSError, KeyError, json.JSONDecodeError) as error:
+    except (ValueError, OSError, KeyError, struct.error) as error:  # ValueError covers JSON and UTF-8 decode errors
         print('REFUSED:', error if isinstance(error, PublishError) else f'{type(error).__name__}: {error}', file=sys.stderr)
         return 1
 

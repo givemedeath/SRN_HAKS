@@ -31,14 +31,17 @@ For each head it:
 
 The manifest's triangles and material come from the export receipt the native attempt pinned by hash (a fit
 variant without a native receipt uses the newest export). Nothing reaches the repository until every head has resolved
-and every target path is checked. An existing resource with different bytes refuses, and so
+and every target path is checked. Gallery JPEG bytes depend on the Pillow version, so restaging an existing
+publication needs the Pillow that made it. An existing resource with different bytes refuses, and so
 does an existing manifest of the same name. The manifest refuses to hold a local path.
 
 ## Inputs the checkpoint may lack
 
 `--overrides FILE` takes `{head: {session?, reviewNotes?, reviewedNativeAttempt?}}`. PR 177 used it for three Human male
 heads whose final review was a fit-variant session the checkpoint did not name. `--notes` sets the manifest's
-top-level note (for example, how `designSubmissions` was recorded).
+top-level note (for example, how `designSubmissions` was recorded). `--review` sets who reviewed the heads and on whose
+authority; the default is the operator review the user delegated. An override for a head that is not being staged, or
+an unknown override key, refuses.
 
 ## After staging
 

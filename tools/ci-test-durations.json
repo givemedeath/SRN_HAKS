@@ -48,7 +48,7 @@
   "tools/headbatch/test_client_capture.py": 0.76,
   "tools/headbatch/test_fitassembly.py": 0.008,
   "tools/headbatch/test_headbatch.py": 16.812,
-  "tools/headbatch/test_publish_library.py": 1.18,
+  "tools/headbatch/test_publish_library.py": 0.77,
   "tools/headbatch/test_material_evidence.py": 0.024,
   "tools/headbatch/test_process_contracts.py": 0.471,
   "tools/headbatch/test_trial_settings.py": 0.18,
