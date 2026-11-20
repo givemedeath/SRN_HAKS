@@ -62,7 +62,7 @@
     "clothes_sheet": {"kind": "cloth", "district": "barrens", "note": "A white bed sheet hanging, with soft folds."},
     "clothes_shirts": {"kind": "cloth", "district": "barrens", "note": "Four T-shirts: grey, blue, black and red."},
     "clothes_pants": {"kind": "cloth", "district": "barrens", "note": "Two pairs of dark jeans."},
-    "motel2": {"kind": "sign", "district": "barrens", "note": "A tall narrow red sign with the white letters M, O, T, E, L one under another."},
+    "motel2": {"kind": "sign", "district": "barrens", "note": "A tall narrow red sign of a coffin hotel with white letters one under another, a little smaller than before so that seven fit, evenly spaced from top to bottom.", "words": "COFFINS, one letter under another: C, O, F, F, I, N, S"},
     "checks": {"kind": "sign", "district": "barrens", "note": "Neon tubes on black. The upper two lines are unlit dark tubes; the lower two lines are the same words lit in red neon. No other lettering.", "words": "NUYEN on the first line and XCHANGE on the second, on both the unlit upper pair and the lit lower pair"},
     "parking": {"kind": "sign", "district": "barrens", "note": "The word Parking and a down arrow painted in black on cracked grey render."},
     "j_watches1": {"kind": "shopfront", "district": "barrens", "note": "Three wristwatches on a pale display stand."},
