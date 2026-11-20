@@ -311,7 +311,7 @@ node trimesh Object25.012
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -420,7 +420,7 @@ node trimesh Object25.025
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -531,7 +531,7 @@ node trimesh Plane12.000
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -696,7 +696,7 @@ node trimesh Object668.000
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -749,7 +749,7 @@ node trimesh Plane12.003
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -914,7 +914,7 @@ node trimesh Object668.003
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -967,7 +967,7 @@ node trimesh Plane196.034
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1036,7 +1036,7 @@ node trimesh Plane196.035
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1105,7 +1105,7 @@ node trimesh Plane196.036
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1174,7 +1174,7 @@ node trimesh Plane196.037
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1297,11 +1297,11 @@ node aabb wokmesh.016
     -5.0 -4.0 20.0 4.0 5.0 22.75002 9
     4.0 -4.0 19.5 4.5 5.0 20.0 2
 endnode
-node light dgt04_e11_14sl1
+node light dgt04_e11_14ml1
   parent dgt04_e11_14
   position -0.00250 -4.58000  4.95000
   orientation  0.00000  0.00000  1.00000  1.57080
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -1313,11 +1313,11 @@ node light dgt04_e11_14sl1
   lensflares 1
   flareradius 1.0
 endnode
-node light dgt04_e11_14sl2
+node light dgt04_e11_14ml2
   parent dgt04_e11_14
   position  4.58000 -0.00250  4.95000
   orientation  0.00000  0.00000 -1.00000  3.14159
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -1396,10 +1396,10 @@ newanim tiledefault dgt04_e11_14
   node aabb wokmesh.016
     parent dgt04_e11_14
   endnode
-  node light dgt04_e11_14sl1
+  node light dgt04_e11_14ml1
     parent dgt04_e11_14
   endnode
-  node light dgt04_e11_14sl2
+  node light dgt04_e11_14ml2
     parent dgt04_e11_14
   endnode
 doneanim tiledefault dgt04_e11_14
@@ -1468,10 +1468,10 @@ newanim animloop01 dgt04_e11_14
   node aabb wokmesh.016
     parent dgt04_e11_14
   endnode
-  node light dgt04_e11_14sl1
+  node light dgt04_e11_14ml1
     parent dgt04_e11_14
   endnode
-  node light dgt04_e11_14sl2
+  node light dgt04_e11_14ml2
     parent dgt04_e11_14
   endnode
 doneanim animloop01 dgt04_e11_14

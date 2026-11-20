@@ -21,7 +21,7 @@ node trimesh Box13.001
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -113,7 +113,7 @@ node trimesh Box13.011
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -205,7 +205,7 @@ node trimesh Cylinder.000
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -391,7 +391,7 @@ node trimesh Cylinder.001
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -569,11 +569,11 @@ node dummy dgt05_g06_01_DO1
   position -2.97000  0.00000 -3.00000
   orientation  1.00000  0.00000  0.00000  0.00000
 endnode
-node light dgt05_g06_01sl1
+node light dgt05_g06_01ml1
   parent dgt05_g06_01
   position  2.81250 -2.81633  3.16638
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -584,11 +584,11 @@ node light dgt05_g06_01sl1
   fadingLight 0
   flareradius 0.0
 endnode
-node light dgt05_g06_01sl2
+node light dgt05_g06_01ml2
   parent dgt05_g06_01
   position  2.81250  2.81633  3.16638
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -612,7 +612,7 @@ node trimesh dtm_hosp_oc01_lamp1
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -853,7 +853,7 @@ node trimesh dtm_hosp_oc01_lamp1.001
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -941,7 +941,7 @@ node trimesh dtm_hosp_oc01_lamp1.002
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1029,7 +1029,7 @@ node trimesh dtm_hosp_oc01_lamp1.003
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1081,7 +1081,7 @@ node trimesh dtm_hosp_oc01_lamp1.004
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1130,7 +1130,7 @@ node trimesh dtm_hosp_oc01_lamp1.005
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1184,7 +1184,7 @@ node trimesh dtm_hosp_oc01_lamp1.006
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1233,7 +1233,7 @@ node trimesh dtm_hosp_oc01_lamp1.007
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1285,7 +1285,7 @@ node trimesh dtm_hosp_oc01_lamp1.008
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1334,7 +1334,7 @@ node trimesh dtm_hosp_oc01_lamp1.009
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1386,7 +1386,7 @@ node trimesh dtm_hosp_oc01_lamp1.010
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1435,7 +1435,7 @@ node trimesh dtm_hosp_oc01_lamp1.011
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1489,7 +1489,7 @@ node trimesh dtm_hosp_oc01_lamp1.012
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1538,7 +1538,7 @@ node trimesh dtm_hosp_oc01_lamp1.013
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1590,7 +1590,7 @@ node trimesh dtm_hosp_oc01_lamp1.014
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1639,7 +1639,7 @@ node trimesh dtm_hosp_oc01_lamp1.015
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1880,7 +1880,7 @@ node trimesh dtm_hosp_oc01_lamp1.016
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1963,7 +1963,7 @@ node trimesh dtm_hosp_oc01_lamp1.017
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2138,7 +2138,7 @@ node trimesh dtm_hosp_oc01_lamp1.018
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2223,7 +2223,7 @@ node trimesh dtm_hosp_oc01_lamp1.019
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2398,7 +2398,7 @@ node trimesh dtm_hosp_oc01_lamp1.020
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2666,7 +2666,7 @@ node trimesh Plane.002
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2699,7 +2699,7 @@ node trimesh Plane.003
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2768,7 +2768,7 @@ node trimesh Plane.004
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2837,7 +2837,7 @@ node trimesh Plane.005
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2908,7 +2908,7 @@ node trimesh Plane.006
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2981,7 +2981,7 @@ node trimesh Plane.660
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0

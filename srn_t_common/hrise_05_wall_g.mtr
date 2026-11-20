@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 hrise_05_wg
+texture1 hrise_05_wg_n
+texture2 hrise_05_wg_s
+texture3 hrise_05_wg_r
+texture4 null
+texture5 null

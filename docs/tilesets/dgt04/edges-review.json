@@ -1,0 +1,15 @@
+{
+ "tileset": "dgt04",
+ "fill": 0,
+ "block": {
+  "width": 8,
+  "height": 6,
+  "lights": ["day", "night"],
+  "patches": [
+   {"terrain": "Highrise_08", "at": [0, 2], "border": true},
+   {"terrain": "Highrise_09", "at": [7, 2], "border": true}
+  ],
+  "crossings": [[2, 2], [5, 2]],
+  "views": ["x02y02-nw", "x02y02-sw", "x05y02-ne", "x05y02-se"]
+ }
+}

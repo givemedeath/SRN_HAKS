@@ -1,0 +1,225 @@
+texture,surface_m2,share_pct,cumulative_pct,models,largest_px,copies,other_sets,other_packs,terrains
+brick_tex19,14483.3,6.475,6.475,59,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_placeable:2 srn_t_dgt04:1,Concrete Slums1
+brick7,13393.75,5.988,12.464,30,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_placeable:1,Slums3
+concrete_08,10700.47,4.784,17.248,69,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_t_dgt04:1,Concrete Freeway Highrise_02 Hospital concrte freeway
+hrise_06_wall2,9189.52,4.109,21.356,16,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,,,Highrise_03 Highrise_06 Highrise_07
+sidewalk10,8401.67,3.756,25.113,179,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Apartments Concrete Freeway Highrise_01 Highrise_02 Highrise_03 Highrise_05 Highrise_06 Hospital Police_Station Slums2 Slums3 concrte freeway
+concrete_10,7716.03,3.45,28.563,131,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_placeable:4 srn_t_dgt04:5,Concrete Highrise_01 Slums1 Slums2 Slums3 Warehouse_01 Warehouse_02
+hrise_06_wall2_g,7644.18,3.418,31.98,13,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,,,Highrise_03 Highrise_06 Highrise_07
+concrete_02,7533.02,3.368,35.348,38,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Concrete Green_Bridge Water freeway
+brick10,6778.56,3.031,38.379,30,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,srn_placeable:1 srn_t_dgt04:1,Slums2
+roof_gravel1,6289.85,2.812,41.191,68,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,srn_t_dgt04:1,Highrise_03 Slums1 Slums2 Slums3
+tcn01_water01,5500.0,2.459,43.65,55,,,fcx01,,Concrete Green_Bridge Water
+pavement,5044.76,2.255,45.906,71,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,udp1,,Aqueduct Concrete Freeway Green_Bridge Warehouse_01 Warehouse_02 Water
+asphalt_road01,5043.0,2.255,48.16,66,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete Freeway concrte freeway
+hrise_06_wall3,4420.74,1.976,50.137,15,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Highrise_01 Highrise_03 Slums2
+barrier02,4283.68,1.915,52.052,48,256,srn_t_common:dds:256x128 srn_t_common:tga:256x128,,,Aqueduct Concrete Freeway Green_Bridge Water freeway
+dgt04_black,4079.14,1.824,53.876,109,16,srn_placeable:dds:16x16 srn_t_common:dds:16x16 srn_t_common:tga:16x16,,srn_placeable:6 srn_t_dgt04:4,Apartments Aqueduct Concrete Highrise_01 Highrise_02 Highrise_03 Highrise_04 Highrise_05 Highrise_06 Highrise_07 Hospital Lab Police_Station Slums1 Slums2 Slums3 Warehouse_01 Warehouse_02
+hrise_05_wall,3348.16,1.497,55.373,13,512,srn_t_common:dds:256x512 srn_t_common:tga:256x512,,,Highrise_01 Highrise_05
+hrise_05_wall2,3202.31,1.432,56.804,21,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Highrise_05 Highrise_06 Hospital
+hrise_05_roof,3012.25,1.347,58.151,34,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Highrise_01 Highrise_05 Highrise_06 Highrise_07
+conalgae,2943.71,1.316,59.467,7,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Highrise_04
+hrise_05_wall_g,2845.43,1.272,60.74,11,512,srn_t_common:dds:256x512 srn_t_common:tga:256x512,,,Highrise_01 Highrise_05
+bricks_23,2753.67,1.231,61.971,18,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Apartments
+sea_floor,2743.12,1.226,63.197,43,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Green_Bridge Water
+rusted_plates,2699.94,1.207,64.404,23,128,srn_t_common:dds:128x128 srn_t_common:tga:128x128,,,Concrete Green_Bridge Water
+concrete02,2678.97,1.198,65.602,23,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Apartments Freeway
+fence_chainlink,2522.89,1.128,66.73,26,64,srn_t_common:dds:64x64 srn_t_common:tga:64x64,,,Aqueduct Concrete Slums1
+wall02_cncrt01,2485.17,1.111,67.841,7,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Concrete
+lab_win1,2478.59,1.108,68.949,14,64,srn_door:dds:64x64 srn_door:tga:64x64,fcx01,srn_door:1 srn_t_dgt04:1,Concrete Highrise_07 Lab
+pavement_dirty,2406.48,1.076,70.025,29,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Aqueduct Slums3
+hrise_07_wall2,2314.29,1.035,71.06,16,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Highrise_01 Highrise_07
+fr_escp_fence3,2181.72,0.975,72.035,34,256,srn_t_common:dds:64x256 srn_t_common:tga:16x64,,srn_placeable:7,Apartments Highrise_03 Slums1 Slums2 Slums3
+chainlink_fence,2090.0,0.934,72.97,19,256,srn_t_common:dds:256x256,,srn_placeable:1,Green_Bridge Water
+win003_unbrknd,1985.0,0.887,73.857,26,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums3
+asphalt_street01,1855.22,0.829,74.687,23,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete Green_Bridge Water
+win001_unbrknd,1720.0,0.769,75.456,40,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums1
+pavement_dirty05,1702.29,0.761,76.217,17,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Slums1
+lab_floor01,1600.0,0.715,76.932,16,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,srn_t_dgt04:2,Highrise_07 Lab
+pavement_dirty04,1592.98,0.712,77.644,16,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Slums2
+warehse2_wall1,1499.0,0.67,78.315,8,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Warehouse_02
+brick_tex06,1488.91,0.666,78.98,7,512,srn_t_common:dds:512x256 srn_t_common:tga:512x256,,,Highrise_04
+fire_escape3,1408.0,0.63,79.61,12,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_placeable:7,Slums1 Slums2 Slums3
+wood_fence,1386.76,0.62,80.23,22,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Concrete Freeway Green_Bridge Water freeway
+warehse1_wall1,1379.18,0.617,80.846,8,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Warehouse_01
+dgt04_chrome,1349.04,0.603,81.45,52,128,srn_door:dds:128x128 srn_door:tga:128x128 srn_placeable:dds:128x128,fcx01,srn_door:1 srn_placeable:46 srn_t_dgt04:1,Concrete Highrise_03 Highrise_05 Highrise_06 Hospital Lab Police_Station Slums2 Water
+pd_wall2,1335.96,0.597,82.047,7,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Police_Station
+arcology_win02,1314.5,0.588,82.635,5,64,srn_door:dds:64x64 srn_door:tga:64x64,fcx01,srn_door:1,Concrete
+r_brick_02b,1296.59,0.58,83.214,7,512,srn_t_common:dds:512x256 srn_t_common:tga:512x256,,,Highrise_04
+lab_wall05,1258.62,0.563,83.777,7,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_t_dgt04:1,Lab
+sea_plant04,1110.28,0.496,84.273,24,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Water
+concrete_29,1083.59,0.484,84.758,12,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_t_dgt04:1,Hospital
+window_tex20b,941.79,0.421,85.179,13,512,srn_t_common:dds:512x256 srn_t_common:tga:512x256,,,Warehouse_01 Warehouse_02
+concrete_07,878.26,0.393,85.572,6,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_t_dgt04:1,Highrise_02
+warehse2_roof1,873.52,0.391,85.962,10,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Warehouse_02
+lab_wall02,841.61,0.376,86.338,7,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_t_dgt04:1,Lab
+sinkhole,821.02,0.367,86.705,12,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Concrete
+win_unbrkn_002a,810.0,0.362,87.068,27,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Slums2
+concrete_33,810.0,0.362,87.43,6,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:128x128,,,Concrete
+building_roof,809.25,0.362,87.792,20,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Apartments
+build_01_g,808.0,0.361,88.153,1,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,,,Highrise_02
+build_01,800.0,0.358,88.511,1,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,fcx01,,Highrise_02
+barrier02a,745.25,0.333,88.844,12,256,srn_t_common:tga:256x128,,,Aqueduct
+asphalt1,725.0,0.324,89.168,9,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Police_Station Slums
+dock,720.74,0.322,89.49,7,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:512x512,,srn_placeable:4,Water
+pavement_dark,709.76,0.317,89.807,9,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Police_Station Slums
+dock_piling,698.9,0.312,90.12,7,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:512x512,,,Water
+warehse1_roof1,694.26,0.31,90.43,9,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Warehouse_01
+hrise_05_wall3,681.13,0.305,90.735,11,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Highrise_05 Highrise_06
+concrete_04,672.41,0.301,91.035,3,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Slums1
+hr3_stairwell_w,668.18,0.299,91.334,1,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:512x512,,,Highrise_03
+lab_roof01,660.0,0.295,91.629,8,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_t_dgt04:2,Lab
+asphalt_road03,656.25,0.293,91.923,7,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete
+chain_fence02,650.32,0.291,92.213,10,128,srn_t_dgt04:dds:64x128 srn_t_dgt04:tga:16x32,,,Concrete
+window_01,630.0,0.282,92.495,16,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,fcx01,,Apartments
+concrete_04a,598.37,0.268,92.763,6,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Highrise_03
+fence_metalst,536.49,0.24,93.003,55,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,,srn_t_dgt04:1,Aqueduct Concrete Highrise_03 Slums1 Slums2 Slums3 Water
+white_tile,531.71,0.238,93.24,16,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:64x64,,,Concrete concrte
+concrete_05,510.65,0.228,93.469,13,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Aqueduct Concrete
+warehse1_roof2,503.45,0.225,93.694,6,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Warehouse_01 Warehouse_02
+asphalt_street02,500.0,0.224,93.917,5,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete Green_Bridge Water
+win003_unbrknn,485.0,0.217,94.134,24,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums3
+concrete_04f,468.98,0.21,94.344,8,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Police_Station
+arcology_floor02,468.5,0.209,94.553,5,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,fcx01 shp02,,Concrete
+hosp_win01,450.0,0.201,94.754,9,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,srn_t_dgt04:1,Hospital
+lab_wall04,414.38,0.185,94.94,7,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_t_dgt04:1,Lab
+doortrim1,406.69,0.182,95.121,37,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,,srn_placeable:12,Apartments Slums1 Slums2 Slums3
+win001_unbrknn,395.0,0.177,95.298,38,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums1
+window_tex20b_g,379.29,0.17,95.468,11,512,srn_t_common:dds:512x256 srn_t_common:tga:512x256,,,Warehouse_01 Warehouse_02
+arcology_wall04,340.06,0.152,95.62,5,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,fcx01 shp02,,Concrete
+dstryd_rubble01,315.48,0.141,95.761,3,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Highrise_04
+asphalt_road01b,300.0,0.134,95.895,4,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete
+arcology_wall01,286.75,0.128,96.023,5,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,fcx01 shp02,,Concrete
+con014,281.77,0.126,96.149,7,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Police_Station
+asphalt_road03b,281.25,0.126,96.275,3,1024,srn_t_dgt04:dds:1024x1024 srn_t_dgt04:tga:1024x1024,,,Concrete
+asphalt_road03a,281.25,0.126,96.401,3,1024,srn_t_dgt04:dds:1024x1024 srn_t_dgt04:tga:1024x1024,,,Concrete
+barbed_wire5,273.63,0.122,96.523,11,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:128x128,,,Concrete Slums1
+sinkhole2,272.25,0.122,96.645,10,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Concrete
+gutter_grey02,268.13,0.12,96.764,34,128,srn_t_common:dds:16x128 srn_t_common:tga:4x32,,,Slums1 Slums2 Slums3
+ac_back,261.12,0.117,96.881,29,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,srn_placeable:2,Apartments Slums1 Slums2 Slums3
+dgt04_guard_rail,255.54,0.114,96.995,16,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Concrete concrte freeway
+dumpster,254.95,0.114,97.109,9,256,srn_placeable:dds:256x256 srn_t_common:dds:256x256 srn_t_common:tga:64x64,,srn_door:1 srn_placeable:5,Slums1 Slums2 Slums3
+asphalt_road02,225.0,0.101,97.21,4,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete Freeway
+doortrim2,218.94,0.098,97.308,20,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,,,Aqueduct Concrete Highrise_01 Highrise_02 Highrise_03 Highrise_05 Highrise_06 Hospital Police_Station Warehouse_01 Warehouse_02
+win002_unbrknn,205.0,0.092,97.4,25,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Slums2
+concrete_35,190.0,0.085,97.485,3,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:64x64,,,Concrete
+r_brick_02a,185.27,0.083,97.567,5,512,srn_t_common:dds:512x256 srn_t_common:tga:512x256,,,Highrise_04
+hr3_stairwell,185.12,0.083,97.65,1,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:512x512,,,Highrise_03
+window_tex24,184.1,0.082,97.732,16,512,srn_t_common:dds:512x256 srn_t_common:tga:128x64,,,Highrise_05 Highrise_06 Slums1 Slums3
+sea_plant01,178.23,0.08,97.812,16,256,srn_t_common:dds:128x256 srn_t_common:tga:32x64,,,Water
+tmi_metal01,177.73,0.079,97.892,23,64,srn_placeable:dds:64x64 srn_t_common:dds:64x64 srn_t_common:tga:16x16,,srn_placeable:1 srn_t_dgt04:1,Concrete Freeway freeway
+window_tall,165.0,0.074,97.965,6,128,srn_t_common:dds:64x128 srn_t_common:tga:64x128,,,Police_Station
+asphalt_road01a,150.0,0.067,98.032,2,1024,srn_t_dgt04:dds:1024x1024 srn_t_dgt04:tga:1024x1024,,,Concrete
+window_tex07,149.77,0.067,98.099,9,512,srn_t_common:dds:512x256 srn_t_common:tga:128x64,,srn_t_dgt04:1,Highrise_01 Highrise_02 Slums1
+ttr01_wood03,136.08,0.061,98.16,16,,,,,Concrete concrte freeway
+garbage03,134.92,0.06,98.221,12,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_placeable:1,Aqueduct Concrete Slums1 Slums2 Slums3
+hosp_win01_g,130.0,0.058,98.279,8,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Hospital
+window_01_lit,130.0,0.058,98.337,14,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Apartments
+tcn01_treefol02,122.32,0.055,98.391,4,,,,,Apartments Concrete Hospital
+hrise_06_trim1,120.0,0.054,98.445,6,512,srn_t_common:dds:512x128 srn_t_common:tga:128x32,,,Highrise_06
+window_tex08,115.14,0.051,98.497,5,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,,srn_t_dgt04:1,Highrise_02
+air_duct_01,113.45,0.051,98.547,8,256,srn_t_common:dds:64x64 srn_t_common:tga:256x256,,,Apartments Highrise_05 Highrise_06 Hospital Warehouse_01 Warehouse_02
+ttr01_grass02,111.5,0.05,98.597,6,,,fcx01,,Concrete Highrise_02
+slumbrd4,104.6,0.047,98.644,10,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Slums1 Slums2 Slums3
+lamp_dirty,101.03,0.045,98.689,140,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,srn_placeable:1 srn_t_dgt04:1,Apartments Aqueduct Highrise_02 Police_Station Slums1 Slums2 Slums3 Water
+asphalt_street03,100.0,0.045,98.734,1,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete
+asphalt_street04,100.0,0.045,98.779,1,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete
+concrete_25b,100.0,0.045,98.823,1,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Concrete
+hosp_helip_01,100.0,0.045,98.868,1,1024,srn_t_dgt04:dds:1024x1024 srn_t_dgt04:tga:1024x1024,,,Hospital
+hosp_helip_02,100.0,0.045,98.913,1,1024,srn_t_dgt04:dds:1024x1024 srn_t_dgt04:tga:1024x1024,,,Hospital
+hosp_helip_03,100.0,0.045,98.957,1,1024,srn_t_dgt04:dds:1024x1024 srn_t_dgt04:tga:1024x1024,,,Hospital
+hosp_helip_04,100.0,0.045,99.002,1,1024,srn_t_dgt04:dds:1024x1024 srn_t_dgt04:tga:1024x1024,,,Hospital
+hrise_05_trim,100.0,0.045,99.047,5,128,srn_t_common:dds:128x64 srn_t_common:tga:32x16,,,Highrise_05
+pavement10,100.0,0.045,99.092,1,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:128x128,udp1,,
+slumbrd2,97.86,0.044,99.135,8,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Slums1 Slums3
+window_tex08_g,92.36,0.041,99.177,4,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,,,Highrise_02
+window_store003,91.38,0.041,99.217,3,512,srn_t_common:dds:512x256 srn_t_common:tga:128x64,,,Slums1 Slums2 Slums3
+aluminumrust,89.47,0.04,99.257,10,128,srn_t_common:dds:128x64 srn_t_common:tga:32x16,,srn_placeable:2,Green_Bridge Slums1 Slums2 Water
+dgt_dark_trim02,84.7,0.038,99.295,17,128,srn_t_dgt04:dds:128x32 srn_t_dgt04:tga:32x8,,,Concrete concrte
+fence_iron_02,70.2,0.031,99.327,1,512,srn_t_common:dds:512x256 srn_t_common:tga:128x64,,,Slums1
+trim_concrete05b,67.55,0.03,99.357,1,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Slums1
+greenwood_02,66.34,0.03,99.387,2,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Slums1 Slums3
+window_tex23,63.8,0.029,99.415,4,512,srn_t_common:dds:512x256 srn_t_common:tga:128x64,,,Highrise_03 Slums2 Slums3
+window_tall_b,60.0,0.027,99.442,6,128,srn_t_common:dds:64x128 srn_t_common:tga:64x128,,,Police_Station
+sea_plant03,60.0,0.027,99.469,17,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Water
+brshed_alumnm,58.9,0.026,99.495,1,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Slums2
+tcn01_barnicle02,56.56,0.025,99.52,1,,,,,Water
+asphalt_road02a,56.25,0.025,99.545,1,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,,,Concrete
+wthrdplywd,46.42,0.021,99.566,4,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Slums1 Slums2
+metal_rusted,46.36,0.021,99.587,13,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Water
+j_wall1,36.7,0.016,99.603,1,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Slums2
+window_tall_g,35.0,0.016,99.619,5,128,srn_t_common:dds:64x128 srn_t_common:tga:64x128,,,Police_Station
+pipe_rusted_02ve,33.23,0.015,99.634,2,512,srn_t_common:dds:64x512 srn_t_common:tga:16x128,,srn_placeable:1,Warehouse_01
+frontage02,32.21,0.014,99.648,1,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Slums1
+drainhole,31.77,0.014,99.662,1,512,srn_t_dgt04:tga:512x512,,,Aqueduct
+traffic_light,31.47,0.014,99.677,9,512,srn_t_common:tga:256x512,,,Concrete
+white_tile_f,30.94,0.014,99.69,1,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:256x256,,,Concrete
+warehse1_wall3,30.23,0.014,99.704,1,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:128x128,,,Concrete
+win005_unbrknd,30.0,0.013,99.717,1,512,srn_t_common:dds:256x512 srn_t_common:tga:256x512,,,Slums1
+clothes_sheet,28.88,0.013,99.73,1,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:256x256,,,Slums1
+tcn01_bark02,25.37,0.011,99.742,4,,,,srn_placeable:2,Apartments Concrete Hospital
+parking,25.27,0.011,99.753,1,512,srn_t_common:dds:512x256 srn_t_common:tga:128x64,,,Slums1
+grey_city_metal,22.64,0.01,99.763,7,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Concrete Warehouse_01 Warehouse_02
+win2,22.0,0.01,99.773,2,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums1 Slums2
+win2_g,22.0,0.01,99.783,2,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums1 Slums2
+arcology_torii02,21.6,0.01,99.792,1,256,srn_t_common:dds:256x64 srn_t_common:tga:256x64,,,Concrete
+sea_plant02,21.6,0.01,99.802,7,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Water
+tree_grate,21.5,0.01,99.812,4,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Apartments Concrete Hospital
+pd_wall1,20.02,0.009,99.821,7,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Police_Station
+dock_rope,19.85,0.009,99.829,7,128,srn_t_dgt04:dds:128x64 srn_t_dgt04:tga:128x64,,,Water
+gas_meter02,19.45,0.009,99.838,5,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,srn_placeable:1,Hospital Slums1 Slums2 Slums3
+tcn01_stone18,18.21,0.008,99.846,5,,,fcx01,srn_placeable:7,Aqueduct Concrete Water
+arcology_torii01,17.74,0.008,99.854,1,256,srn_t_common:dds:256x64 srn_t_common:tga:256x64,,,Concrete
+motel2,15.0,0.007,99.861,2,256,srn_t_common:dds:64x256 srn_t_common:tga:64x256,,srn_placeable:1,Slums1 Slums2
+window_tall_b_g,15.0,0.007,99.868,2,128,srn_t_common:dds:64x128 srn_t_common:tga:64x128,,,Police_Station
+electric_meter1,14.55,0.007,99.874,5,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,srn_placeable:1,Hospital Slums1 Slums2 Slums3
+window_tex09,14.18,0.006,99.88,1,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:64x64,,,Highrise_02
+clothes_shirts,13.22,0.006,99.886,1,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:256x256,,,Slums1
+j_sign,12.62,0.006,99.892,1,512,srn_t_common:dds:512x128 srn_t_common:tga:128x32,,,Slums2
+arcology_torii03,12.03,0.005,99.897,1,256,srn_t_common:dds:256x128 srn_t_common:tga:256x128,,,Concrete
+ceiling_light,11.29,0.005,99.902,38,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Concrete Hospital Warehouse_01 Warehouse_02
+pharmwin1,11.0,0.005,99.907,1,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums1
+pharmwin1_g,11.0,0.005,99.912,1,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums1
+win_pawn,11.0,0.005,99.917,1,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums3
+win_pawn_g,11.0,0.005,99.922,1,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums3
+window_tex05,11.0,0.005,99.927,1,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Highrise_01
+lab_stainless01,10.5,0.005,99.932,1,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Lab
+dirtmap_003,10.12,0.005,99.936,1,512,srn_t_common:dds:512x32 srn_t_common:tga:128x8,,,Hospital
+glass,10.09,0.005,99.941,23,512,srn_door:dds:512x512 srn_door:tga:256x256 srn_placeable:dds:512x512,fcx01 shp02 udp1,srn_door:3 srn_placeable:40,Concrete Freeway freeway
+win005_unbrknn,10.0,0.004,99.945,1,512,srn_t_common:dds:256x512 srn_t_common:tga:256x512,,,Slums1
+wall_lamp,9.46,0.004,99.949,37,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Highrise_01 Highrise_03 Highrise_05 Highrise_06 Hospital Lab
+tcn01_blst02,9.31,0.004,99.954,2,,,,srn_placeable:1,Concrete
+air_duct_fan,9.01,0.004,99.958,4,64,srn_t_common:dds:64x64 srn_t_common:tga:16x16,,,Apartments Warehouse_01 Warehouse_02
+clothes_pants,8.64,0.004,99.962,1,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:256x256,,,Slums1
+grafitti_10,8.61,0.004,99.965,3,256,srn_t_common:dds:256x128 srn_t_common:tga:64x32,,,Slums1 Slums2 Slums3
+yellmetl,6.28,0.003,99.968,9,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Concrete
+brown_metal,6.11,0.003,99.971,19,64,srn_t_common:dds:64x64 srn_t_common:tga:16x16,,,Hospital Warehouse_01 Warehouse_02
+warehse2_wall2,6.0,0.003,99.974,1,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Warehouse_02
+vent_turbine5,5.9,0.003,99.976,2,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,srn_t_dgt04:1,Slums1 Slums2
+tcn01_splotch01,5.24,0.002,99.979,2,,,,srn_placeable:1,Concrete
+pd_sign2,4.46,0.002,99.981,1,256,srn_t_common:dds:256x64 srn_t_common:tga:64x16,,,Police_Station
+storm_drain,4.41,0.002,99.983,7,128,srn_t_common:dds:128x64 srn_t_common:tga:32x16,,,Slums1 Slums2 Slums3
+motelt,4.13,0.002,99.984,2,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,srn_placeable:6,Slums1 Slums2
+hosp_wings,3.53,0.002,99.986,1,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:64x64,,,Hospital
+rebar,3.41,0.002,99.987,1,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,srn_placeable:1,Highrise_04
+tire_tread,3.07,0.001,99.989,1,256,srn_t_common:dds:256x64 srn_t_common:tga:64x16,,,Concrete
+tme_yellow,3.0,0.001,99.99,1,256,srn_t_dgt04:dds:256x256 srn_t_dgt04:tga:64x64,,,
+checks,2.3,0.001,99.991,1,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,,,Slums3
+sign_delivery,2.28,0.001,99.992,3,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Slums1 Slums2 Slums3
+vent_turbine5b,2.19,0.001,99.993,2,128,srn_t_common:dds:64x128 srn_t_common:tga:16x32,,srn_t_dgt04:1,Slums1 Slums2
+air_duct_grate,1.84,0.001,99.994,2,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Warehouse_01 Warehouse_02
+blk_alum,1.81,0.001,99.995,1,512,srn_t_common:dds:512x512 srn_t_common:tga:128x128,,,Police_Station
+police2,1.51,0.001,99.996,1,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Police_Station
+pd_sign1,1.36,0.001,99.996,1,128,srn_t_common:dds:128x64 srn_t_common:tga:32x16,,,Police_Station
+stainless_fade,1.29,0.001,99.997,1,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:tga:512x512,,,Highrise_03
+j_watches1,1.2,0.001,99.997,1,256,srn_t_common:dds:256x128 srn_t_common:tga:64x32,,,Slums2
+hosp_emergency,1.09,0.0,99.998,1,256,srn_t_common:dds:256x256 srn_t_common:tga:64x64,,,Hospital
+dumpster_sign,0.97,0.0,99.998,4,128,srn_placeable:dds:128x64 srn_t_common:dds:128x64 srn_t_common:tga:32x16,,srn_placeable:1,Slums2
+walk,0.73,0.0,99.999,9,1024,srn_placeable:tga:256x64 srn_t_common:dds:1024x256 srn_t_common:tga:256x64,fcx01 net01 shp02 udp1 vmp01,srn_body:9 srn_placeable:7 srn_weapon:10,Concrete
+strt_line_white,0.7,0.0,99.999,1,64,srn_t_dgt04:dds:64x64 srn_t_dgt04:tga:16x16,,srn_t_dgt04:3,
+coral_reef3,0.66,0.0,99.999,8,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Water
+grey_canvas,0.65,0.0,99.999,1,256,srn_t_common:dds:256x128 srn_t_common:tga:64x32,,,Slums2
+manhole_tex2,0.62,0.0,100.0,1,256,srn_door:dds:256x256 srn_door:tga:64x64 srn_placeable:dds:256x256,,srn_door:1,Concrete
+tcn01_bridge02,0.58,0.0,100.0,3,,,,,Aqueduct Concrete
+coral_reef01,0.07,0.0,100.0,1,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Water
+coral_reef2,0.07,0.0,100.0,1,128,srn_t_common:dds:128x128 srn_t_common:tga:32x32,,,Water

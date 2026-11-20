@@ -100,11 +100,11 @@ node trimesh window_unlit.006
      1.000  0.999  0
      0.999  0.000  0
 endnode
-node light dgt05_i07_12sl1
+node light dgt05_i07_12ml1
   parent dgt05_i07_12
   position -2.50024 -0.26975  2.87583
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -115,11 +115,11 @@ node light dgt05_i07_12sl1
   fadingLight 0
   flareradius 0.0
 endnode
-node light dgt05_i07_12sl2
+node light dgt05_i07_12ml2
   parent dgt05_i07_12
   position  2.49976 -0.26975  2.87583
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -281,7 +281,7 @@ node trimesh Object01.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -348,7 +348,7 @@ node trimesh Object07.004
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -397,7 +397,7 @@ node trimesh Object07.073
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -434,7 +434,7 @@ node trimesh Object07.074
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -471,7 +471,7 @@ node trimesh Object07.075
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -520,7 +520,7 @@ node trimesh Object07.076
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -569,7 +569,7 @@ node trimesh Object744.003
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -636,7 +636,7 @@ node trimesh Object744.009
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -717,7 +717,7 @@ node trimesh Plane09.007
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -829,7 +829,7 @@ node trimesh WallLight.000
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -965,7 +965,7 @@ node trimesh WallLightGlass.001
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1006,7 +1006,7 @@ node trimesh WallLight.002
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1142,7 +1142,7 @@ node trimesh WallLightGlass
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1402,10 +1402,10 @@ newanim tiledefault dgt05_i07_12
       0.00000 -0.00000 -0.01000  12.00000
       0.03333 -0.00000 -0.01000  12.00000
   endnode
-  node light dgt05_i07_12sl1
+  node light dgt05_i07_12ml1
     parent dgt05_i07_12
   endnode
-  node light dgt05_i07_12sl2
+  node light dgt05_i07_12ml2
     parent dgt05_i07_12
   endnode
   node trimesh e11_02_drblk.003
@@ -1489,10 +1489,10 @@ newanim animloop01 dgt05_i07_12
       0.00000 -0.00000 -0.01000 -7.00000
       0.03333 -0.00000 -0.01000 -7.00000
   endnode
-  node light dgt05_i07_12sl1
+  node light dgt05_i07_12ml1
     parent dgt05_i07_12
   endnode
-  node light dgt05_i07_12sl2
+  node light dgt05_i07_12ml2
     parent dgt05_i07_12
   endnode
   node trimesh e11_02_drblk.003

@@ -21,7 +21,7 @@ node trimesh Box13.020
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -90,7 +90,7 @@ node trimesh Box13.021
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -159,7 +159,7 @@ node trimesh Box738
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -417,7 +417,7 @@ node trimesh Box738.004
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -468,7 +468,7 @@ node trimesh Object30.008
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -524,7 +524,7 @@ node trimesh Object37
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -846,11 +846,11 @@ node aabb wokmesh05
     -0.0 -5.0 18.0 5.0 -4.5 18.0 21
     -0.0 -5.0 18.0 5.0 -4.5 18.0 9
 endnode
-node light dgt04_d20_02sl1
+node light dgt04_d20_02ml1
   parent dgt04_d20_02
   position -0.00000 -4.45001 -7.02783
   orientation  0.00000  0.00000 -1.00000  1.57080
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0

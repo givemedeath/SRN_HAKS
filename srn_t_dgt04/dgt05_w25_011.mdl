@@ -21,7 +21,7 @@ node trimesh Cube.088
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -87,7 +87,7 @@ node trimesh Cube.089
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -140,7 +140,7 @@ node trimesh Cube.090
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -193,7 +193,7 @@ node trimesh Cube.091
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -852,7 +852,7 @@ node trimesh Cylinder.119
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -967,7 +967,7 @@ node trimesh Cylinder.120
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1650,7 +1650,7 @@ node trimesh dock_piling_mc.014
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1794,7 +1794,7 @@ node trimesh dock_piling_mc_g.014
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1841,7 +1841,7 @@ node trimesh dock_piling_mc.015
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1985,7 +1985,7 @@ node trimesh dock_piling_mc_g.015
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2032,7 +2032,7 @@ node trimesh object03.048
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2111,7 +2111,7 @@ node trimesh object03.107
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2158,7 +2158,7 @@ node trimesh object03.108
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2205,7 +2205,7 @@ node trimesh Object282.010
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2468,7 +2468,7 @@ node trimesh Plane247.016
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2527,7 +2527,7 @@ node trimesh Plane247.017
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2606,11 +2606,11 @@ node trimesh Water.023
      0.000  0.000  0
      4.000  4.000  0
 endnode
-node light dgt05_w25_011sl1
+node light dgt05_w25_011ml1
   parent dgt05_w25_011
   position -2.49998  2.50001 -1.71516
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 0.0 0.0 0.0
   ambientonly 0
@@ -2622,11 +2622,11 @@ node light dgt05_w25_011sl1
   lensflares 1
   flareradius 1.0
 endnode
-node light dgt05_w25_011sl2
+node light dgt05_w25_011ml2
   parent dgt05_w25_011
   position -2.49999 -2.50001 -1.71516
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 0.0 0.0 0.0
   ambientonly 0

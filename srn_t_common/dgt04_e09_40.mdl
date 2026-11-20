@@ -111,11 +111,11 @@ node trimesh window_unlit.002
      1.000  0.999  0
      0.999  0.000  0
 endnode
-node light dgt04_e09_40sl1
+node light dgt04_e09_40ml1
   parent dgt04_e09_40
   position -3.61132  0.00001  3.53862
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -126,11 +126,11 @@ node light dgt04_e09_40sl1
   fadingLight 0
   flareradius 0.0
 endnode
-node light dgt04_e09_40sl2
+node light dgt04_e09_40ml2
   parent dgt04_e09_40
   position -1.88868 -0.00001 -1.71221
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -154,7 +154,7 @@ node trimesh e11_01_lamp01.000
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -444,7 +444,7 @@ node trimesh Object09.000
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -495,7 +495,7 @@ node trimesh Object09.005
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -603,7 +603,7 @@ node trimesh Object186.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -660,7 +660,7 @@ node trimesh Object186.075
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -727,7 +727,7 @@ node trimesh Object186.076
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -790,7 +790,7 @@ node trimesh Object186.077
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -861,7 +861,7 @@ node trimesh Object186.078
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -918,7 +918,7 @@ node trimesh Object186.079
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -989,7 +989,7 @@ node trimesh Object186.080
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1046,7 +1046,7 @@ node trimesh Object186.081
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1117,7 +1117,7 @@ node trimesh Object186.082
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1174,7 +1174,7 @@ node trimesh Object186.083
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1241,7 +1241,7 @@ node trimesh Object186.084
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1304,7 +1304,7 @@ node trimesh Object186.085
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1375,7 +1375,7 @@ node trimesh Object186.086
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1432,7 +1432,7 @@ node trimesh Object186.087
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1503,7 +1503,7 @@ node trimesh Object186.088
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1560,7 +1560,7 @@ node trimesh Object186.089
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1631,7 +1631,7 @@ node trimesh Object44
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1682,7 +1682,7 @@ node trimesh Object44.006
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1733,7 +1733,7 @@ node trimesh Object47.001
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1802,7 +1802,7 @@ node trimesh Object56.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1853,7 +1853,7 @@ node trimesh Object56.011
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1904,7 +1904,7 @@ node trimesh Object56.012
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1955,7 +1955,7 @@ node trimesh Plane09.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -2304,10 +2304,10 @@ newanim tiledefault dgt04_e09_40
       0.00000 -3.01000 -0.00197  7.76748
       0.03333 -3.01000 -0.00197  7.76748
   endnode
-  node light dgt04_e09_40sl1
+  node light dgt04_e09_40ml1
     parent dgt04_e09_40
   endnode
-  node light dgt04_e09_40sl2
+  node light dgt04_e09_40ml2
     parent dgt04_e09_40
   endnode
   node trimesh e11_01_lamp01.000
@@ -2430,10 +2430,10 @@ newanim animloop01 dgt04_e09_40
       0.00000 -2.96000 -0.00197  7.76748
       0.03333 -2.96000 -0.00197  7.76748
   endnode
-  node light dgt04_e09_40sl1
+  node light dgt04_e09_40ml1
     parent dgt04_e09_40
   endnode
-  node light dgt04_e09_40sl2
+  node light dgt04_e09_40ml2
     parent dgt04_e09_40
   endnode
   node trimesh e11_01_lamp01.000

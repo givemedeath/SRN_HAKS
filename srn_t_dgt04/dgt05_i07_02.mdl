@@ -21,7 +21,7 @@ node trimesh Cylinder.000
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -81,7 +81,7 @@ node trimesh Cylinder.001
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -136,7 +136,7 @@ node trimesh Cylinder.002
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -197,7 +197,7 @@ node trimesh Cylinder.003
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -252,7 +252,7 @@ node trimesh Cylinder.032
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -288,7 +288,7 @@ node trimesh Cylinder.033
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -328,7 +328,7 @@ node trimesh Cylinder.034
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -374,7 +374,7 @@ node trimesh Cylinder.035
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -401,11 +401,11 @@ node trimesh Cylinder.035
      0.675  0.793  0
      0.300  0.775  0
 endnode
-node light dgt05_i07_02sl1
+node light dgt05_i07_02ml1
   parent dgt05_i07_02
   position  2.74415 -2.74416  20.08454
   orientation  0.00000  0.00000 -1.00000  1.57080
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -416,11 +416,11 @@ node light dgt05_i07_02sl1
   fadingLight 0
   flareradius 0.0
 endnode
-node light dgt05_i07_02sl2
+node light dgt05_i07_02ml2
   parent dgt05_i07_02
   position -1.25000  1.24999  20.21265
   orientation  0.00000  0.00000 -1.00000  1.57080
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -444,7 +444,7 @@ node trimesh Plane08.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0

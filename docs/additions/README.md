@@ -20,7 +20,7 @@ of each tileset that has additions.
 - every row of `placeables.2da` above the baseline is in the catalog, with the same model and label, and the rows
   run on without a gap
 - every group above a tileset's baseline is in the catalog, with the name, size, tile numbers and tile models the
-  set file gives it, and every tile above the baseline belongs to one of those groups
+  set file gives it, and every tile above the baseline belongs to one of those groups or to a terrain's entry
 - no row and no group has two entries
 - every model with a glow map has its whole lights-out set in its pack, and its entry names it under `lights`
 - every listed model (`.mdl`), tile walkmesh (`.wok`) and blueprint (`.utp`) is a file of the pack the entry names
@@ -97,9 +97,12 @@ A group made without envkit (the arcology groups are the example) gets its entry
 `"madeBy": "hand"` and the same fields as the entries beside it. `source` says where it came from and `provenance`
 names its section of `PROVENANCE.md`.
 
-The catalog records tiles by their group. A tile added outside any group (a terrain tile, a crosser) has no entry
-form yet and fails verification: give the catalog and its check in `tools/Test-Repository.ps1` a form for lone
-tiles before adding one.
+The catalog records tiles by their group. Tiles of no group, such as a terrain copied by `tilekit terrain`
+(`tools/tilekit/terrain.py`), are listed under `terrainTiles`, one entry per terrain: `tileset`, `terrain`, `tiles`
+and their `models` in the same order, `pack`, `madeBy`, `source`, `provenance` and `added`. A tile is listed under
+one terrain at most. A tile that is also in a group (a terrain's roof access) is listed in both. `tilekit terrain`
+writes these entries, and the new groups', into its overlay's `made-from.json`; `tilekit apply` writes them here when it
+moves the overlay into the packs, as envkit's `install` does for its groups.
 
 A row's label is changed by hand, in the table and in its catalog entry together; `envkit placeables` refuses to
 convert a model again under a label other than the one its row has.

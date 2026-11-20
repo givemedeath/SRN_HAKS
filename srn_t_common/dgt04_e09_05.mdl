@@ -21,7 +21,7 @@ node trimesh Box3205.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -90,7 +90,7 @@ node trimesh Box3205.073
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -151,7 +151,7 @@ node trimesh Box3205.074
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -221,7 +221,7 @@ node trimesh Box3205.075
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -282,7 +282,7 @@ node trimesh Box3205.076
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -351,7 +351,7 @@ node trimesh Box3205.077
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -412,7 +412,7 @@ node trimesh Box3205.078
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -481,7 +481,7 @@ node trimesh Box3205.079
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -550,7 +550,7 @@ node trimesh Box3205.080
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -619,7 +619,7 @@ node trimesh Box3205.081
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -688,7 +688,7 @@ node trimesh Box3206.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -764,7 +764,7 @@ node trimesh Box3212.006
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -945,7 +945,7 @@ node trimesh e09_17_trim.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1058,7 +1058,7 @@ node trimesh e11_01_lamp01.004
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1293,7 +1293,7 @@ node trimesh Object335.000
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1389,7 +1389,7 @@ node trimesh Object544
   shininess 13
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1494,7 +1494,7 @@ node trimesh Object551.003
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1581,7 +1581,7 @@ node trimesh Plane50
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1862,11 +1862,11 @@ node aabb wokmesh.011
     -4.0 -3.0 30.0 5.0 5.0 30.0 17
     -4.0 3.0 30.0 5.0 5.0 30.0 3
 endnode
-node light dgt04_e09_05sl1
+node light dgt04_e09_05ml1
   parent dgt04_e09_05
   position -5.79133  0.00000  3.83619
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -1974,7 +1974,7 @@ newanim tiledefault dgt04_e09_05
   node aabb wokmesh.011
     parent dgt04_e09_05
   endnode
-  node light dgt04_e09_05sl1
+  node light dgt04_e09_05ml1
     parent dgt04_e09_05
   endnode
   node dummy dgt04_e09_05_D01
@@ -2070,7 +2070,7 @@ newanim animloop01 dgt04_e09_05
   node aabb wokmesh.011
     parent dgt04_e09_05
   endnode
-  node light dgt04_e09_05sl1
+  node light dgt04_e09_05ml1
     parent dgt04_e09_05
   endnode
   node dummy dgt04_e09_05_D01

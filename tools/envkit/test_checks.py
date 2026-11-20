@@ -290,6 +290,25 @@ class CheckTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, said):
                 checks.walked(told, count)
 
+    def test_the_check_ground_brings_the_maps_its_restyled_materials_name(self):
+        """dgt04's restyle (2026-11-19) made pavement a material whose maps have names of their own: the check area drew it without them."""
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as scratch:
+            repo = Path(scratch); pack, common, resources = repo / 'srn_t_dgt04', repo / 'srn_t_common', repo / 'resources'
+            for folder in (pack, common, repo / 'srn_placeable', resources):
+                folder.mkdir()
+            fill = checks.FILL['dgt04']
+            (pack / 'dgt04.set').write_bytes(f'[TILE{fill}]\r\nModel=t_plain\r\nImageMap2D=MI_plain\r\n'.encode('cp1252')); (pack / 'dgt04palstd.itp').write_bytes(b'ITP ')
+            (pack / 't_plain.mdl').write_text('node trimesh ground\n  bitmap kerb\nendnode\n', encoding='cp1252'); (pack / 'mi_plain.tga').write_bytes(b'tga')
+            (common / 'pavement.mtr').write_text('texture0 pavement\ntexture1 pavement_n\ntexture2 null\ntexture3 pv_r\n', encoding='ascii')
+            (common / 'kerb.mtr').write_text('texture0 kerb\ntexture1 kerb_n\n', encoding='ascii')
+            for name in ('pavement.dds', 'pavement_n.dds', 'pv_r.dds', 'kerb.dds', 'kerb_n.dds', 'unused_n.dds'):
+                (common / name).write_bytes(b'dds')
+            checks._ground(repo, 'dgt04', resources)
+            self.assertEqual(sorted(path.name for path in resources.iterdir()), ['dgt04.set', 'dgt04palstd.itp', 'kerb.dds', 'kerb.mtr', 'kerb_n.dds', 'mi_plain.tga',
+                                                                               'pavement.dds', 'pavement.mtr', 'pavement_n.dds', 'pv_r.dds', 't_plain.mdl'])
+
     def test_a_check_is_built_into_fresh_folders_and_reads_a_set_file_whatever_its_line_endings(self):
         import tempfile
         from pathlib import Path
