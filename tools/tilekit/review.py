@@ -148,6 +148,8 @@ def grid(numbers, fill, across=32):
     return across, height, laid, rows
 
 
+PITCH_LIMIT, DISTANCE_LIMIT = 150.0, 200.0  # a view's camera may look up from the street (pitch over 90) at a tower's top, and stand far off
+
 def _shot(area, label, x, y, facing, distance, pitch):
     return {'area': area, 'label': label, 'stand': [round(x, 2), round(y, 2)], 'facing': facing, 'distance': distance, 'pitch': pitch, 'height': 1.0}
 
@@ -202,7 +204,7 @@ def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
               '  DelayCommand(wait,SetCameraHeight(pc,height)); DelayCommand(wait,AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP)));',
               f'  DelayCommand(wait+{prop_fixture.LINE_DELAY:.1f},Line(pc,n,label,area));',
               f'  DelayCommand(wait+{hold:.1f},Shot(pc,n+1));', '}',
-              'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', '  SetCameraLimits(pc,1.0,89.0,0.5,60.0);',
+              'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', f'  SetCameraLimits(pc,1.0,{PITCH_LIMIT:.1f},0.5,{DISTANCE_LIMIT:.1f});',
               '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
               '  SetCutsceneMode(pc,TRUE,FALSE);', f'  WriteTimestampedLogEntry("{prefix} enter shots={len(shots)}");',
               f'  DelayCommand({start:.1f},Shot(pc,0));', '}']
@@ -300,8 +302,8 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     require(areas and shots and {shot['area'] for shot in shots} <= {area['tag'] for area in areas}, 'Every view is of one of the areas')
     missing = [pack for pack in haks if not (built / f'{pack}.hak').is_file()] + ([] if (built / f'{tlk}.tlk').is_file() else [tlk + '.tlk'])
     require(not missing, f'The built packs are needed in {built}: ' + ', '.join(missing))
-    from .apply import MADE_FROM, MODELS_FROM  # an overlay's records, for apply: no game files
-    laid_over = sorted(path for path in Path(overlay).iterdir() if path.name not in (MADE_FROM, MODELS_FROM)) if overlay else []  # refused before anything is made: the folder stays fresh
+    from .apply import KIT_FILES, MADE_FROM, MODELS_FROM, WALK_CUTS  # an overlay's records, for apply: no game files
+    laid_over = sorted(path for path in Path(overlay).iterdir() if path.name not in (MADE_FROM, MODELS_FROM, WALK_CUTS, KIT_FILES)) if overlay else []  # refused before anything is made: the folder stays fresh
     for path in laid_over:
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Overlay files are lowercase resref files: ' + path.name)
     user, staged, documents, binary = (output / part for part in ('userdir', 'hak-resources', 'json', 'module'))

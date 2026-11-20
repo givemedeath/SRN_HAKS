@@ -11,14 +11,14 @@ from . import material, redraw
 from .test_material import fake_compress
 
 
-class RedrawTests(unittest.TestCase):
+class RedrawFixture(unittest.TestCase):
     def setUp(self):
         folder = tempfile.TemporaryDirectory(); self.addCleanup(folder.cleanup); self.root = Path(folder.name); (self.root / 'srn_t_common').mkdir()
         pane = np.zeros((16, 8, 3), np.uint8); pane[:, 3:5] = 200  # a tall picture with a mullion down the middle
         for name in ('pane', 'pane_g', 'sign'):
             Image.fromarray(pane).save(self.root / 'srn_t_common' / f'{name}.tga')
         self.spec = {'textures': {'pane_g': {'kind': 'window', 'district': 'barrens', 'of': 'pane', 'light': 'green'},
-                                  'pane': {'kind': 'window', 'district': 'barrens', 'note': 'A sash window.', 'tiles': True},
+                                  'pane': {'kind': 'window', 'district': 'barrens', 'note': 'A sash window.', 'tiles': True, 'opening': 'door'},
                                   'sign': {'kind': 'sign', 'district': 'civic'}}}
         self.asked = []
 
@@ -29,6 +29,8 @@ class RedrawTests(unittest.TestCase):
         with Image.open(Path(folder) / 'ref.png') as reference:
             reference.save(Path(folder) / 'out.png')
 
+
+class RedrawTests(RedrawFixture):
     def test_a_prompt_names_the_thing_its_district_and_the_layout_to_keep(self):
         text = redraw.prompt('pane', self.spec['textures']['pane'], (512, 1024), tiles=True)
         for part in ('exactly 512x1024 pixels', 'game texture of a window', 'Shadowrun Barrens', 'A sash window.', 'stays in the same position', 'pure black', 'tile seamlessly'):
@@ -96,6 +98,31 @@ class WordsTests(unittest.TestCase):
         text = redraw.prompt('sign', {'kind': 'sign', 'district': 'barrens', 'words': 'NUYEN XCHANGE'}, (512, 512), tool=False)
         self.assertIn('reads exactly NUYEN XCHANGE', text); self.assertNotIn('wording stays the same', text)
         self.assertIn('wording stays the same', redraw.prompt('sign', {'kind': 'sign', 'district': 'barrens'}, (512, 512), tool=False))
+
+
+class GlazedTests(RedrawFixture):
+    def run_one(self, how, keep=None):
+        self.spec['textures'] = {'pane': how}
+        return redraw.redraw(self.spec, self.root, self.root / 'out', self.draw, only=['pane'], say=None)['pane']
+
+    def test_a_mostly_black_window_must_say_what_its_openings_are(self):
+        state = self.run_one({'kind': 'window', 'district': 'corporate'})
+        self.assertTrue(state.startswith('failed') and 'glazed' in state and '"opening": "door"' in state, state)
+        self.assertFalse(self.asked)
+
+    def test_a_glazed_window_is_drawn_with_glass_in_its_openings(self):
+        self.assertEqual(self.run_one({'kind': 'window', 'district': 'corporate', 'glazed': True}), 'redrawn')
+        (_, _, text), = self.asked
+        self.assertIn(redraw.GLAZED, text); self.assertNotIn(redraw.KEEP_BLACK, text)
+        with Image.open(self.root / 'out' / 'pane.png') as made:  # the reference's openings were glass, and stay so
+            shown = np.asarray(made.convert('RGB'))
+        self.assertLess(redraw.mostly_black(shown), 0.05)
+        self.assertTrue(json.loads((self.root / 'out' / 'pane.json').read_text(encoding='utf-8'))['glazed'])
+
+    def test_a_window_drawn_black_before_is_refused_once_it_is_glazed(self):
+        self.assertEqual(self.run_one({'kind': 'window', 'district': 'corporate', 'opening': 'door'}), 'redrawn')
+        state = self.run_one({'kind': 'window', 'district': 'corporate', 'glazed': True})
+        self.assertTrue(state.startswith('failed') and 'draw it again glazed' in state, state)
 
 
 class BlackKeptTests(unittest.TestCase):

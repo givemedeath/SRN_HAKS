@@ -48,6 +48,21 @@ class ApplyTests(unittest.TestCase):
         apply.apply(self.repo, self.spec, self.overlay)  # again: every entry where it stood
         self.assertEqual(json.loads((self.repo / 'hakbuilder.json').read_text(encoding='utf-8'))['ExpectedOverrides'], overrides)
 
+    def test_the_kit_s_files_go_to_the_tileset_s_pack_as_detail_recorded_them(self):
+        for name in ('tst_kit.mtr', 'tst_kit.dds', 'tst_fx.tga'):
+            (self.overlay / name).write_bytes(name.encode())
+        record = {'kind': 'tilekit-kit-files', 'tileset': 'tst', 'files': {name: hashlib.sha256(name.encode()).hexdigest() for name in ('tst_kit.mtr', 'tst_kit.dds', 'tst_fx.tga')}}
+        (self.overlay / apply.KIT_FILES).write_text(json.dumps(record), encoding='utf-8')
+        told = apply.apply(self.repo, None, self.overlay)
+        self.assertEqual(self.names('srn_t_tst'), ['tst.set', 'tst_fx.tga', 'tst_kit.dds', 'tst_kit.mtr']); self.assertEqual(told['put'], 4)
+        apply.apply(self.repo, None, self.overlay)  # again: over its own copies
+        (self.overlay / 'tst_fx.tga').write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError, 'not in the overlay as'):
+            apply.apply(self.repo, None, self.overlay)
+        (self.overlay / 'tst_fx.tga').write_bytes(b'tst_fx.tga'); (self.repo / 'srn_placeable' / 'tst_kit.dds').write_bytes(b'other')
+        with self.assertRaisesRegex(ValueError, 'already a file of srn_placeable'):
+            apply.apply(self.repo, None, self.overlay)
+
     def test_an_overlay_of_models_alone_needs_no_spec(self):
         self.assertEqual(apply.apply(self.repo, None, self.overlay)['put'], 1)
         self.assertEqual((self.repo / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'model'); self.assertEqual((self.repo / 'srn_t_common' / 'wall.tga').read_bytes(), b'old')
@@ -99,7 +114,7 @@ class ApplyTests(unittest.TestCase):
         self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
         self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), laid(3))
         (overlay / 'n_t01.wok').write_bytes(b'moved')
-        with self.assertRaisesRegex(ValueError, 'a walkmesh in a pack is not replaced'):
+        with self.assertRaisesRegex(ValueError, 'a walkmesh in a pack is replaced only as walk-cuts.json records'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (overlay / 'n_t01.wok').write_bytes(b'walk')
         (self.repo / 'srn_t_tst' / 'tst.set').write_bytes(laid(4))  # another addition since the overlay was made

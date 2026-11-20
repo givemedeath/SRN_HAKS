@@ -185,14 +185,14 @@ def _other_sets(repo, tileset, *, edges=False):
 
 def drawn_copies(repo, tileset, folder, packs):
     """(name, file name, text, other tilesets using it, pack file) for each uncompiled model the tileset draws, in the
-    first of `packs` that holds it (the copy the game shows), read from `folder` where a copy is already there."""
+    first of `packs` that holds it (the copy the game shows), read from `folder` (None: none) where a copy is already there."""
     tiles, others, seen = drawn_models(repo, tileset), _other_sets(repo, tileset, edges=True), set()
     for pack in packs:
         for path in sorted((Path(repo) / pack.format(tileset=tileset)).glob('*.mdl')):
             name = path.stem.lower()
             if name not in tiles or name in seen:
                 continue
-            seen.add(name); data = (Path(folder) / path.name if (Path(folder) / path.name).is_file() else path).read_bytes()
+            seen.add(name); data = (Path(folder) / path.name if folder is not None and (Path(folder) / path.name).is_file() else path).read_bytes()
             if not compiled(data):
                 yield name, path.name, data.decode('cp1252'), sorted(others.get(name, ())), path
 
