@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 sign_delivery
+texture1 sign_delivery_n
+texture2 sign_delivery_s
+texture3 sign_delivery_r
+texture4 null
+texture5 null

@@ -90,6 +90,7 @@ node trimesh Object154
 endnode
 #Tile trimesh node
 node trimesh Object155
+  shadow 0
   parent dgt04_z09_01
   position 0.0 0.0 0.0
   orientation  0.0 0.0 0.0  0.0

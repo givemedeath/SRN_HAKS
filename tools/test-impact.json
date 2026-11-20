@@ -5697,6 +5697,120 @@
     ],
     "tools/test_test_impact.py": [
       "tools/test_impact.py"
+    ],
+    "tools/tilekit/__init__.py": [],
+    "tools/tilekit/__main__.py": [
+      "tools/headkit/comfy.py",
+      "tools/shared_tools.py",
+      "tools/tilekit/apply.py",
+      "tools/tilekit/enlarge.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py",
+      "tools/tilekit/material.py",
+      "tools/tilekit/redraw.py",
+      "tools/tilekit/review.py",
+      "tools/tilekit/shadows.py",
+      "tools/tilekit/terrain.py"
+    ],
+    "tools/tilekit/apply.py": [
+      "hakbuilder.json",
+      "tools/envkit/__init__.py",
+      "tools/envkit/catalog.py",
+      "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/enlarge.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/reference.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py",
+      "tools/tilekit/material.py"
+    ],
+    "tools/tilekit/inventory.py": [],
+    "tools/tilekit/lamps.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/material.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/convert.py",
+      "tools/envkit/reference.py",
+      "tools/tilekit/enlarge.py",
+      "tools/tilekit/pictures.py"
+    ],
+    "tools/tilekit/pictures.py": [],
+    "tools/tilekit/redraw.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/reference.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py",
+      "tools/tilekit/material.py"
+    ],
+    "tools/tilekit/review.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/armorkit/client_fixture.py",
+      "tools/envkit/__init__.py",
+      "tools/envkit/checks.py",
+      "tools/envkit/placeables.py",
+      "tools/envkit/prop_fixture.py",
+      "tools/phenotypes/tool_runtime.py",
+      "tools/tilekit/apply.py",
+      "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/shadows.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/terrain.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/review.py"
+    ],
+    "tools/tilekit/test_apply.py": [
+      "hakbuilder.json",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/apply.py"
+    ],
+    "tools/tilekit/test_baselines.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/test_enlarge.py": [
+      "tools/tilekit/enlarge.py",
+      "tools/tilekit/material.py",
+      "tools/tilekit/test_material.py"
+    ],
+    "tools/tilekit/test_inventory.py": [
+      "tools/tilekit/__main__.py",
+      "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/test_lamps.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/test_material.py": [
+      "tools/tilekit/material.py",
+      "tools/tilekit/pictures.py"
+    ],
+    "tools/tilekit/test_redraw.py": [
+      "tools/tilekit/material.py",
+      "tools/tilekit/redraw.py",
+      "tools/tilekit/test_material.py"
+    ],
+    "tools/tilekit/test_review.py": [
+      "tools/tilekit/__main__.py",
+      "tools/tilekit/review.py"
+    ],
+    "tools/tilekit/test_shadows.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/shadows.py"
+    ],
+    "tools/tilekit/test_terrain.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/__main__.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/terrain.py"
     ]
   },
   "unresolved": [],
@@ -5751,6 +5865,11 @@
     ],
     "tools/envkit/study.py": [
       "srn_t_common"
+    ],
+    "tools/envkit/test_checks.py": [
+      "srn_placeable",
+      "srn_t_common",
+      "srn_t_dgt04"
     ],
     "tools/envkit/test_study.py": [
       "srn_t_common"
@@ -5914,6 +6033,72 @@
       "srn_body",
       "srn_body_tex",
       "srn_weapon"
+    ],
+    "tools/tilekit/__main__.py": [
+      "srn_2da"
+    ],
+    "tools/tilekit/inventory.py": [
+      "srn_2da",
+      "srn_t_common"
+    ],
+    "tools/tilekit/lamps.py": [
+      "srn_t_common"
+    ],
+    "tools/tilekit/material.py": [
+      "srn_door",
+      "srn_placeable",
+      "srn_t_common",
+      "srn_t_dgt04"
+    ],
+    "tools/tilekit/review.py": [
+      "srn_2da",
+      "srn_door",
+      "srn_placeable",
+      "srn_t_common",
+      "srn_t_dgt04",
+      "srn_t_udp1"
+    ],
+    "tools/tilekit/terrain.py": [
+      "srn_2da",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_apply.py": [
+      "srn_placeable",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_baselines.py": [
+      "srn_2da",
+      "srn_t_common",
+      "srn_t_dgt04"
+    ],
+    "tools/tilekit/test_enlarge.py": [
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_inventory.py": [
+      "srn_2da",
+      "srn_placeable",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_lamps.py": [
+      "srn_2da",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_material.py": [
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_redraw.py": [
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_review.py": [
+      "srn_2da"
+    ],
+    "tools/tilekit/test_shadows.py": [
+      "srn_2da",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_terrain.py": [
+      "srn_2da",
+      "srn_t_common"
     ]
   },
   "tests": [
@@ -6233,6 +6418,16 @@
     "tools/test_combat_release_manifest.py",
     "tools/test_hak_copies.py",
     "tools/test_shared_tools.py",
-    "tools/test_test_impact.py"
+    "tools/test_test_impact.py",
+    "tools/tilekit/test_apply.py",
+    "tools/tilekit/test_baselines.py",
+    "tools/tilekit/test_enlarge.py",
+    "tools/tilekit/test_inventory.py",
+    "tools/tilekit/test_lamps.py",
+    "tools/tilekit/test_material.py",
+    "tools/tilekit/test_redraw.py",
+    "tools/tilekit/test_review.py",
+    "tools/tilekit/test_shadows.py",
+    "tools/tilekit/test_terrain.py"
   ]
 }

@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 fr_escp_fence3
+texture1 fr_escp_fence3_n
+texture2 fr_escp_fence3_s
+texture3 fr_escp_fence3_r
+texture4 null
+texture5 null

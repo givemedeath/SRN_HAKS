@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 air_duct_fan
+texture1 air_duct_fan_n
+texture2 air_duct_fan_s
+texture3 air_duct_fan_r
+texture4 null
+texture5 null

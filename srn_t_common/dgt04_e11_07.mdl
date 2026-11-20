@@ -115,11 +115,11 @@ node trimesh window_unlit.004
      1.000  0.999  0
      0.999  0.000  0
 endnode
-node light dgt04_e11_07sl1
+node light dgt04_e11_07ml1
   parent dgt04_e11_07
   position -0.00026 -5.14278  2.87583
   orientation  0.00000  0.00000 -1.00000  1.57080
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -130,11 +130,11 @@ node light dgt04_e11_07sl1
   fadingLight 0
   flareradius 0.0
 endnode
-node light dgt04_e11_07sl2
+node light dgt04_e11_07ml2
   parent dgt04_e11_07
   position  5.26984  0.12693  2.87583
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -158,7 +158,7 @@ node trimesh Object04
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -263,7 +263,7 @@ node trimesh Object07.002
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -314,7 +314,7 @@ node trimesh Object07.050
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -365,7 +365,7 @@ node trimesh Object07.051
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -416,7 +416,7 @@ node trimesh Object07.052
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -467,7 +467,7 @@ node trimesh Object07.053
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -518,7 +518,7 @@ node trimesh Object07.054
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -569,7 +569,7 @@ node trimesh Object07.055
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -620,7 +620,7 @@ node trimesh Object07.056
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -671,7 +671,7 @@ node trimesh Plane09.001
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -776,7 +776,7 @@ node trimesh Plane09.021
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -881,7 +881,7 @@ node trimesh WallLight.004
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1019,7 +1019,7 @@ node trimesh WallLightGlass.004
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1062,7 +1062,7 @@ node trimesh WallLight.005
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1200,7 +1200,7 @@ node trimesh WallLightGlass.005
   shininess 1
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1396,10 +1396,10 @@ newanim tiledefault dgt04_e11_07
       0.00000  2.50500 -2.50500  12.00000
       0.03333  2.50500 -2.50500  12.00000
   endnode
-  node light dgt04_e11_07sl1
+  node light dgt04_e11_07ml1
     parent dgt04_e11_07
   endnode
-  node light dgt04_e11_07sl2
+  node light dgt04_e11_07ml2
     parent dgt04_e11_07
   endnode
   node trimesh Object04
@@ -1477,10 +1477,10 @@ newanim animloop01 dgt04_e11_07
       0.00000  2.50500 -2.50500 -7.00000
       0.03333  2.50500 -2.50500 -7.00000
   endnode
-  node light dgt04_e11_07sl1
+  node light dgt04_e11_07ml1
     parent dgt04_e11_07
   endnode
-  node light dgt04_e11_07sl2
+  node light dgt04_e11_07ml2
     parent dgt04_e11_07
   endnode
   node trimesh Object04

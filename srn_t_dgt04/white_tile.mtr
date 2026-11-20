@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 white_tile
+texture1 white_tile_n
+texture2 white_tile_s
+texture3 white_tile_r
+texture4 null
+texture5 null

@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 building_roof
+texture1 building_roof_n
+texture2 building_roof_s
+texture3 building_roof_r
+texture4 null
+texture5 null

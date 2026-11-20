@@ -2222,6 +2222,83 @@ exceptions and limitations are in that document and its JSON manifest. The heads
 materials; stock material and palette payloads are not redistributed. Machine bindings, intermediate models, private
 logs and generated HAKs remain outside the repository.
 
+## Modern Exterior restyle, release 1 (`srn_t_common`, `srn_t_dgt04`, `srn_door`, `srn_placeable`; 2026-11-19)
+
+The textures D20 Modern Exterior (`dgt04`) draws are restyled in place for a 2070s Shadowrun city, under the plan in
+`docs/tilesets/dgt04-upfit-plan.md`, and the look was passed by the SRN project operator in the game client on
+2026-11-19 (review captures in ignored `output/tilekit/tkacc1` to `tkacc3`). Each of the 215 textures in
+`docs/tilesets/dgt04/materials.json` keeps its name and is now a material file (`<name>.mtr`, normal and specular
+mapped) with DDS colour, normal, specular and roughness maps (`<stem>`, `_n`, `_s`, `_r`), written by
+`tools/tilekit` (SRN project operator with Claude); the canal water `tcn01_water01` is a plain DDS beside the
+game's own TXI, so its moving water is kept. The old TGA and DDS copies of those names are deleted. Four names
+other packs share keep a copy in each pack that held them: `dumpster`, `dumpster_sign` and `tmi_metal01` in
+`srn_t_common` and `srn_placeable`, `manhole_tex2` in `srn_door` and `srn_placeable`.
+
+Origins, by route:
+
+- Master (43 textures): CC0 scans from [ambientCG](https://ambientcg.com/) (1K JPG), tinted, graded and stained:
+  Asphalt033, Bricks032, Bricks073C, Bricks090, Bricks094, Bricks097, Concrete034, Concrete046, Concrete047A,
+  CorrugatedSteel007A, CorrugatedSteel009, Gravel043, MetalPlates013, Planks023A, Road012A and Rust009. The fetched
+  archives and their hashes are recorded in `tilekit/masters/fetched.json` of the shared tool root.
+- Layout (56): the original D20 Modern picture's own layout kept, with the grain of one of those scans laid over it.
+- Upscale (116): the original picture doubled by the upscaling model of the shared local ComfyUI, with a normal map
+  derived from it. Of these, 90 were first redrawn on their own layout by an image generator (OpenAI image
+  generation through the Codex CLI, or the local Qwen image edit model on the shared ComfyUI), from prompts in
+  `docs/tilesets/dgt04/redraw.json`: signs carry generic 2070s wording and no brand names.
+- Ten base-game textures (`tcn01_bark02`, `tcn01_barnicle02`, `tcn01_blst02`, `tcn01_bridge02`,
+  `tcn01_splotch01`, `tcn01_stone18`, `tcn01_treefol02`, `tcn01_water01`, `ttr01_grass02`, `ttr01_wood03`) are
+  derivatives of Neverwinter Nights: Enhanced Edition stock textures, layout unchanged, in `srn_t_dgt04`; they
+  replace the stock look in any module that loads that pack. A licensed NWN:EE installation is required.
+
+Model edits, to 434 D20 Modern tile models in `srn_t_common` and `srn_t_dgt04` (402 tiles of the set and 32 edge
+tiles of `srn_2da/dgt04_edge.2da`; the upstream D20 Modern Haks 2.2 terms above apply): tile lamps on 152 models are moved from source lights, which the game draws as flames, to main
+lights of radius 7 (`tilekit lamps`); small trims and flat panels cast no shadow, which the game drew as wedges on
+the walls behind them (`tilekit shadows`). No walkmesh, texture name or geometry changes: all 589 walkmeshes (467 in ASCII models, 122 `.wok` files of compiled ones) hash
+as `docs/tilesets/dgt04/walkmesh.json` records. Areas built with a tile's source lights on go dark at those 152
+tiles until switched to main lights. Generation intermediates, scans, review captures and local bindings stay
+outside the repository.
+
+## Modern Exterior restyle, strata 4 and 5 (`srn_t_common`, `srn_t_dgt04`, `srn_2da`; 2026-11-19)
+
+Two building terrains are added to D20 Modern Exterior (`dgt04`) as copies of existing ones, by `tools/tilekit`
+(`terrain.py`, spec `docs/tilesets/dgt04/terrains.json`; SRN project operator with Claude), and the look was passed
+by the SRN project operator in the game client on 2026-11-19 (review captures in ignored `output/tilekit/tkter1`,
+`tkter2`):
+
+- `Highrise_08`, Residential Block: the six `Highrise_05` tile models `dgt04_e09_50`, `dgt04_e11_10`,
+  `dgt04_e10_07`, `dgt04_e12_07`, `dgt05_h41_01` and `dgt05_h46_01` copied as `srt04_r01_01` to `srt04_r06_01`,
+  with the roof-access group `Highrise8_RoofAccess`.
+- `Highrise_09`, Derelict Tower: the six `Highrise_02` tile models `dgt04_e05_01`, `dgt04_e08_01`, `dgt04_e06_01`,
+  `dgt04_e07_01`, `dgt05_h11_01` and `dgt05_h10_01` copied as `srt04_x01_01` to `srt04_x06_01`.
+
+The copies are derivatives of the upstream D20 Modern models (the D20 Modern Haks 2.2 terms above apply): node
+names and texture names are renamed, geometry, door hooks and minimap images are the source tiles' own, and each
+walkmesh is the source's unchanged (`docs/tilesets/dgt04/walkmesh.json` now holds 603 entries; the 589 earlier ones
+are unchanged). The models and walkmeshes are in `srn_t_dgt04`; `dgt04.set` gains tiles 556-567 and group 68 after
+every earlier entry, so tile and group numbers of existing areas do not move; `srn_2da/dgt04_edge.2da` gains ten
+rows; `dgt04palstd.itp` gains their entries.
+
+Each copy also gets its own edge tile, laid outside an area's border next to Concrete, so the border shows the
+copy's textures and not its source's: `dgt05_z08_01` copied as `srt04_r07_01` for `Highrise_08` and `dgt05_z06_01`
+as `srt04_x07_01` for `Highrise_09` (the `edges` of each copy in `terrains.json`; textures renamed as for the tiles,
+neither has a walkmesh). Edge rows 132 and 137 name them in place of the source models. Border views in the client
+(ignored `output/tilekit/tkedg0` to `tkedg3`, spec `docs/tilesets/dgt04/edges-review.json`) showed no visible
+difference; the SRN project operator approved applying them on 2026-11-19.
+
+Their twelve textures (`hr08_*` and `hr09_*`, spec `docs/tilesets/dgt04/materials-terrains.json`) are made as in
+release 1, from the pictures of the textures they copy. `hr08_wall`, `hr08_wall_g`, `hr09_build` and `hr09_win08`
+were redrawn by the local Qwen image edit model on the shared ComfyUI, from prompts in
+`docs/tilesets/dgt04/redraw-terrains.json` (curtained, balconied flats; broken and boarded windows). The others
+reuse release 1's work for their source, or take the CC0 ambientCG scans listed above (Concrete034, Concrete047A,
+Gravel043).
+
+The palette's display names of the building terrains become descriptive ("Office Block, Concrete", "Tenement,
+Brick", "Warehouse, Metal Siding" and so on, in `terrains.json`); terrain names in the set and edge table are
+unchanged.
+
+Stratum 5 evens wear across families: `concrete_07` and `concrete_08` take stain 0.3, `lab_wall02` and `lab_wall05`
+stain 0.2, and `lab_floor01` the street grade (`docs/tilesets/dgt04/materials.json`).
+
 ## Dynamic skies: Denver, its acid storm, Awakened peaks (`srn_skybox`, `srn_2da`; 2026-11-19)
 
 Eight new skybox rows (16 `SRN_Denver_Dynamic`, 17 `SRN_Sprawl_AcidStorm`, 18 `SRN_Denver_Dusk_Fixed`, 19

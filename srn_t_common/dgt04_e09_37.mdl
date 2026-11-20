@@ -21,7 +21,7 @@ node trimesh Box3205.020
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -86,7 +86,7 @@ node trimesh Box3205.111
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -151,7 +151,7 @@ node trimesh Box3205.112
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -216,7 +216,7 @@ node trimesh Box3205.113
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -281,7 +281,7 @@ node trimesh Box3206.024
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -484,7 +484,7 @@ node trimesh e09_17_trim.022
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -571,7 +571,7 @@ node trimesh e11_01_lamp01.019
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -839,7 +839,7 @@ node trimesh Object335.010
   shininess 12
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -935,7 +935,7 @@ node trimesh Object551.017
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1022,7 +1022,7 @@ node trimesh Object685
   shininess 13
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1127,7 +1127,7 @@ node trimesh Plane32.001
   shininess 11
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -1368,11 +1368,11 @@ node aabb wokmesh.022
     -4.0 -4.0 20.0 5.0 5.0 20.0 16
     -4.0 4.0 20.0 5.0 5.0 20.0 3
 endnode
-node light dgt04_e09_37sl1
+node light dgt04_e09_37ml1
   parent dgt04_e09_37
   position -5.79132  0.00003  3.83620
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -1463,7 +1463,7 @@ newanim tiledefault dgt04_e09_37
   node aabb wokmesh.022
     parent dgt04_e09_37
   endnode
-  node light dgt04_e09_37sl1
+  node light dgt04_e09_37ml1
     parent dgt04_e09_37
   endnode
 doneanim tiledefault dgt04_e09_37
@@ -1542,7 +1542,7 @@ newanim animloop01 dgt04_e09_37
   node aabb wokmesh.022
     parent dgt04_e09_37
   endnode
-  node light dgt04_e09_37sl1
+  node light dgt04_e09_37ml1
     parent dgt04_e09_37
   endnode
 doneanim animloop01 dgt04_e09_37

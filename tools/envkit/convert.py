@@ -1513,7 +1513,8 @@ def _compress(image, target, mode, size, crunch, *, data):
     175, 2026-11-18). All but the COMPRESSED_KEPT last used are taken away."""
     import hashlib, io, shutil
     from . import cache
-    pixels = io.BytesIO(); image.resize((size, size)).save(pixels, 'PNG'); tool = Path(crunch)
+    # `size` is pixels across a square map, or (width, height) for one that is not (a tileset's facade, tilekit).
+    pixels = io.BytesIO(); image.resize((size, size) if isinstance(size, int) else tuple(size)).save(pixels, 'PNG'); tool = Path(crunch)
     renormal = ['-renormalize'] if mode == '-DXN' else []; settings = [mode, '-mipMode', 'Generate', '-noprogress', '-gamma', '1.0' if data else '2.2', *renormal]
     stamp = [tool.name, tool.stat().st_size, tool.stat().st_mtime_ns] if tool.is_file() else [str(crunch)]
     kept = COMPRESSED / (hashlib.sha256(pixels.getvalue() + repr([settings, stamp]).encode()).hexdigest() + '.dds')

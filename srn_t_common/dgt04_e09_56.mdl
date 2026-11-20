@@ -237,7 +237,7 @@ node trimesh Object25.024
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -349,7 +349,7 @@ node trimesh Plane11.005
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -514,7 +514,7 @@ node trimesh Object667.005
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -567,7 +567,7 @@ node trimesh Plane196
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -636,7 +636,7 @@ node trimesh Plane196.009
   shininess 10
   selfillumcolor  0.00  0.00  0.00
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -746,11 +746,11 @@ node aabb wokmesh
     -4.0 -5.0 20.0 -3.775 5.0 20.06875 2
     -3.775 -5.0 20.06875 5.0 5.0 22.75 4
 endnode
-node light dgt04_e09_56sl1
+node light dgt04_e09_56ml1
   parent dgt04_e09_56
   position -4.58000  0.00249  4.95000
   orientation  1.00000  0.00000  0.00000  0.00000
-  radius 0.0
+  radius 7.0
   multiplier 1.0
   color 1.0 1.0 1.0
   ambientonly 0
@@ -811,7 +811,7 @@ newanim tiledefault dgt04_e09_56
   node aabb wokmesh
     parent dgt04_e09_56
   endnode
-  node light dgt04_e09_56sl1
+  node light dgt04_e09_56ml1
     parent dgt04_e09_56
   endnode
 doneanim tiledefault dgt04_e09_56
@@ -862,7 +862,7 @@ newanim animloop01 dgt04_e09_56
   node aabb wokmesh
     parent dgt04_e09_56
   endnode
-  node light dgt04_e09_56sl1
+  node light dgt04_e09_56ml1
     parent dgt04_e09_56
   endnode
 doneanim animloop01 dgt04_e09_56

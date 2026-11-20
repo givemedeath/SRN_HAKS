@@ -1,0 +1,177 @@
+{
+ "tileset": "dgt04",
+ "fill": 0,
+ "haks": [
+  "srn_t_dgt04",
+  "srn_t_fcx01",
+  "srn_t_shp02",
+  "srn_t_udp1",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "shared": {
+  "lights": [
+   "day"
+  ],
+  "tilesets": {
+   "fcx01": {
+    "models": [
+     "cor01_b01_03",
+     "cor01_b01_04",
+     "cor01_b01_05",
+     "cor01_b01_08",
+     "cor01_b01_09",
+     "cor01_b01_10",
+     "cor01_b01_11",
+     "cor01_b01_12",
+     "cor01_b01_13",
+     "fcx01_o01_01",
+     "fcx01_p01_01",
+     "nar01_a01_01",
+     "nar01_a01_02",
+     "nar01_a01_03",
+     "nar01_a01_04",
+     "nar01_a01_05",
+     "nar01_a01_06"
+    ],
+    "lights": [
+     "day",
+     "night"
+    ]
+   },
+   "shp02": {
+    "models": [
+     "fci01_a01_02",
+     "fci01_a01_03",
+     "fci01_k01_05",
+     "fci01_k01_09",
+     "fci01_o01_01",
+     "fci01_o01_02",
+     "fci01_o01_03",
+     "fci01_o01_04",
+     "fci01_o01_05",
+     "fci01_o01_06",
+     "fci01_o01_07",
+     "fci01_o01_08",
+     "fci01_o01_09",
+     "fci01_o01_10",
+     "fci01_o02_01",
+     "fci01_o03_01",
+     "fci01_o04_01",
+     "fci01_o05_01",
+     "fci01_o06_01",
+     "fci01_o06_02",
+     "fci01_t01_01",
+     "jab01_a01_12",
+     "jab01_a01_17"
+    ]
+   },
+   "udp1": {
+    "models": [
+     "udp1_a03_15",
+     "udp1_a04_16",
+     "udp1_a06_05",
+     "udp1_a06_10",
+     "udp1_a07_02",
+     "udp1_a18_13"
+    ]
+   }
+  },
+  "placeables": {
+   "groups": [
+    {
+     "name": "small",
+     "models": [
+      "dumpster",
+      "jr_dumpster",
+      "plc_stein",
+      "udp-p-45",
+      "udp-p-47",
+      "vos_aircond_l",
+      "vos_aircond_s",
+      "vos_drshutter1",
+      "vos_drshutter10",
+      "vos_drshutter3",
+      "vos_drshutter4",
+      "vos_drshutter5",
+      "vos_drshutter6",
+      "vos_drshutter8",
+      "vos_drshutter9",
+      "vos_lamp1",
+      "vos_sgn_gunstr",
+      "vos_sign_phone",
+      "vos_stairrail1",
+      "vos_stairrail2"
+     ],
+     "across": 3,
+     "spacing": 4,
+     "apart": 10,
+     "distance": 10,
+     "pitch": 75
+    },
+    {
+     "name": "medium",
+     "models": [
+      "vos_fireescape_3",
+      "jr_newsstand",
+      "newsstand",
+      "chainlink_fence",
+      "mod01_o01_06",
+      "ffscout",
+      "vos_sign_motl",
+      "vos_sign_xxx",
+      "vos_fireescape_2",
+      "vos_fireescape1",
+      "vos_wall_b1",
+      "vos_wall_b2",
+      "vos_wall_b3",
+      "vos_drshutter11",
+      "vos_drshutter2",
+      "vos_drshutter7",
+      "vos_sideentr",
+      "cube",
+      "vos_elecbox4",
+      "udp-p-111",
+      "udp-p-42",
+      "udp-p-96"
+     ],
+     "across": 2,
+     "spacing": 12,
+     "apart": 18,
+     "distance": 22,
+     "pitch": 70
+    },
+    {
+     "name": "large",
+     "models": [
+      "ffscoutlg",
+      "ffcargo2",
+      "mod01_o01_01",
+      "p_jruin_06",
+      "p_jruin_07"
+     ],
+     "across": 1,
+     "spacing": 70,
+     "apart": 35,
+     "distance": 50,
+     "pitch": 40,
+     "bearing": 1.5708
+    },
+    {
+     "name": "huge",
+     "models": [
+      "ffcargo2lg"
+     ],
+     "across": 1,
+     "spacing": 160,
+     "apart": 40,
+     "distance": 60,
+     "pitch": 35,
+     "bearing": 1.5708
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 window_tall
+texture1 window_tall_n
+texture2 window_tall_s
+texture3 window_tall_r
+texture4 null
+texture5 null

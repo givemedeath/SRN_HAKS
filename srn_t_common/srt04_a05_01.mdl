@@ -138,6 +138,7 @@ node trimesh Object437
 endnode
 #Tile trimesh node
 node trimesh Object438
+  shadow 0
   parent srt04_a05_01
   position -1.75 0.0 1.5
   orientation  0.0 0.0 0.0  0.0
@@ -166,6 +167,7 @@ node trimesh Object438
 endnode
 #Tile trimesh node
 node trimesh Plane81
+  shadow 0
   parent srt04_a05_01
   position 5.0 0.0 5.01
   orientation  0.0 0.0 0.0  0.0
@@ -272,6 +274,7 @@ node trimesh Plane37
 endnode
 #Tile trimesh node
 node trimesh Object27
+  shadow 0
   parent srt04_a05_01
   position -1.75 0.0 1.5
   orientation  0.0 0.0 0.0  0.0
@@ -737,6 +740,7 @@ node trimesh Object436
 endnode
 #Tile trimesh node
 node trimesh Line13
+  shadow 0
   parent srt04_a05_01
   position -3.4 0.0 3.4
   orientation  0.0 0.0 0.0  0.0
@@ -1493,6 +1497,7 @@ node trimesh Line13
 endnode
 #Tile trimesh node
 node trimesh Cylinder03
+  shadow 0
   parent Line13
   position 0.0 2.4 1.1
   orientation  0.0 0.0 0.0  0.0
@@ -1582,6 +1587,7 @@ node trimesh Cylinder03
 endnode
 #Tile trimesh node
 node trimesh Cylinder04
+  shadow 0
   parent Line13
   position 0.0 -2.4 1.1
   orientation  0.0 0.0 0.0  0.0
@@ -1671,6 +1677,7 @@ node trimesh Cylinder04
 endnode
 #Tile trimesh node
 node trimesh Cylinder01
+  shadow 0
   parent Line13
   position 0.0 -2.4 -3.4
   orientation  0.0 0.0 0.0  0.0
@@ -1760,6 +1767,7 @@ node trimesh Cylinder01
 endnode
 #Tile trimesh node
 node trimesh Cylinder02
+  shadow 0
   parent Line13
   position 0.0 2.4 -3.4
   orientation  0.0 0.0 0.0  0.0
@@ -1849,6 +1857,7 @@ node trimesh Cylinder02
 endnode
 #Tile trimesh node
 node trimesh Box04
+  shadow 0
   parent Line13
   position 0.15 0.0 1.8
   orientation  0.0 0.0 0.0  0.0
@@ -2137,6 +2146,7 @@ node trimesh Box04
 endnode
 #Tile trimesh node
 node trimesh Object28
+  shadow 0
   parent srt04_a05_01
   position 0.0 0.0 0.0
   orientation  0.0 0.0 0.0  0.0

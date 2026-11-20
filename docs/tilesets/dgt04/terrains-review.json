@@ -1,0 +1,80 @@
+{
+ "tileset": "dgt04",
+ "fill": 0,
+ "block": {
+  "width": 8,
+  "height": 8,
+  "lights": [
+   "day",
+   "night"
+  ],
+  "patches": [
+   {
+    "terrain": "Highrise_05",
+    "at": [
+     1,
+     1
+    ]
+   },
+   {
+    "terrain": "Highrise_08",
+    "at": [
+     5,
+     1
+    ]
+   },
+   {
+    "terrain": "Highrise_02",
+    "at": [
+     1,
+     5
+    ]
+   },
+   {
+    "terrain": "Highrise_09",
+    "at": [
+     5,
+     5
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "Street",
+    "cells": [
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      7
+     ]
+    ]
+   },
+   {
+    "crosser": "Street",
+    "cells": [
+     [
+      0,
+      3
+     ],
+     [
+      7,
+      3
+     ]
+    ]
+   }
+  ],
+  "crossings": [
+   [
+    3,
+    3
+   ]
+  ],
+  "near": {
+   "distance": 14,
+   "pitch": 80
+  }
+ }
+}
