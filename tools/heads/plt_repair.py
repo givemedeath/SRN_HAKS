@@ -16,8 +16,8 @@ Operations, applied in order, each on the texels its "when" selects (mapped texe
   fill       shade := median shade of the k nearest unselected texels of the target channel (3D distance). With
              "channel", the texels move to that channel first. "donors" restricts donor texels. Repairs blotches,
              ovals and stray patches by the surrounding surface.
-  despeckle  replace texels whose shade differs from the median of their k nearest same-channel neighbours by more
-             than "threshold" shades ("passes" times; "side" both, darker or lighter limits it to low or high outliers, in
+  despeckle  replace texels whose shade differs from the median of themselves and their k nearest same-channel
+             neighbours by more than "threshold" shades ("passes" times; "side" both, darker or lighter limits it to low or high outliers, in
              shade terms). Repairs specks and streaks while keeping broad detail.
   match      quantile-map the selection's shades onto a reference selection's shade distribution ("reference"
              predicate, same channel), blended by "strength" (0..1) and an optional feather "ramp"
@@ -31,7 +31,8 @@ Operations, applied in order, each on the texels its "when" selects (mapped texe
              inside another (skin specks in hair, hair bits on skin). "to" limits the channels texels may move to.
   channel    move texels to "channel" keeping their shades.
   shade      set an absolute "shade".
-Every operation needs a unique "name"; an operation that selects nothing refuses unless "allowEmpty" is true, and one
+The spec's optional "texture" names the texture the trimeshes sample and the output PLT (default: the model name).
+Every operation needs a unique "name" and takes only its documented keys; an operation that selects nothing refuses unless "allowEmpty" is true, and one
 that changes more than "maxFraction" (default 0.25) of the mapped texels refuses. Unmapped padding texels follow their
 nearest mapped texel wherever that texel changed, so filtering never bleeds the old value.
 """
@@ -58,7 +59,12 @@ CHANNEL_COLOURS = np.array([[205, 160, 130], [120, 70, 30], [150, 150, 170], [90
                             [30, 90, 30], [140, 100, 60], [90, 60, 30], [40, 120, 220], [230, 60, 160]], np.uint8)
 VIEW_NAMES = ('front', 'right-three-quarter', 'left-three-quarter', 'back', 'right-back-three-quarter',
               'left-back-three-quarter', 'right temple profile', 'left temple profile')
-OPS = ('fill', 'despeckle', 'match', 'clamp', 'curve', 'relabel', 'channel', 'shade')
+COMMON_KEYS = {'name', 'op', 'when', 'allowEmpty', 'maxFraction'}
+OP_KEYS = {'fill': {'channel', 'neighbours', 'donors'}, 'despeckle': {'neighbours', 'threshold', 'passes', 'side'},
+           'match': {'reference', 'strength', 'ramp'}, 'clamp': {'reference', 'percentiles', 'lo', 'hi'},
+           'curve': {'points', 'ramp'}, 'relabel': {'neighbours', 'minShare', 'to'}, 'channel': {'channel'},
+           'shade': {'shade'}}
+OPS = tuple(OP_KEYS)
 
 
 def sha256(data):
@@ -145,7 +151,8 @@ def decode_colours(shades, layers, palettes, rows):
     out = np.zeros(shades.shape+(3,), np.uint8)
     for channel in np.unique(layers):
         c = int(channel); require(c in palettes, 'No palette for channel '+str(c)); k = layers == channel
-        out[k] = palettes[c][int(rows.get(c, 0)), shades[k]]
+        row = int(rows.get(c, 0)); require(0 <= row < palettes[c].shape[0], f'Preview row {row} outside the channel {c} palette')
+        out[k] = palettes[c][row, shades[k]]
     return out
 
 
@@ -160,15 +167,14 @@ def knn_median(points, shades, queries, k):
 def ramp_weight(ramp, values, target):
     """Feather weight per target texel: 0 where quantity `of` is at `from`, 1 at `to` and beyond (linear). A list of
     ramps multiplies; no ramp is weight 1."""
-    if ramp is None: return np.ones(int(target.sum()))
-    if isinstance(ramp, list):
-        require(ramp, 'Empty ramp list')
-        return np.prod([ramp_weight(r, values, target) for r in ramp], axis=0)
-    require(isinstance(ramp, dict) and {'of', 'from', 'to'} <= set(ramp) <= {'of', 'center', 'from', 'to'}
-            and ramp['from'] != ramp['to'], 'ramp needs of, from and to (from != to), optionally center')
-    q = values[ramp['of']][target].astype(float)
-    if 'center' in ramp: q = np.abs(q-float(ramp['center']))
-    return np.clip((q-ramp['from'])/(ramp['to']-ramp['from']), 0, 1)
+    weight = np.ones(int(target.sum()))
+    if ramp is None: return weight
+    validate_ramp(ramp, 'ramp')
+    for r in ramp if isinstance(ramp, list) else [ramp]:
+        q = values[r['of']][target].astype(float)
+        if 'center' in r: q = np.abs(q-float(r['center']))
+        weight = weight*np.clip((q-r['from'])/(r['to']-r['from']), 0, 1)
+    return weight
 
 
 def operate(op, texels, shades, layers, selected, values, regions):
@@ -264,19 +270,58 @@ def validate_ramp(ramp, name):
                 name+': ramp needs of, numeric from and to (from != to), optionally numeric center')
 
 
+def number(v):
+    return type(v) in (int, float)
+
+
+def validate_rows(rows, name='previewRows'):
+    """Preview rows {channel: row}: channels 0..9, rows >= 0 (the palette height bounds them at decode)."""
+    require(isinstance(rows, dict), name+' must map channels to rows')
+    for k, v in rows.items():
+        require(str(k).isdigit() and 0 <= int(k) <= 9 and type(v) is int and v >= 0, name+': channels 0..9, rows >= 0')
+    return {int(k): v for k, v in rows.items()}
+
+
+def validate_view(spec):
+    """The parts of a spec that probe also reads: model, texture, preview rows, regions and outlines."""
+    require(isinstance(spec, dict), 'Repair spec must be an object')
+    require(isinstance(spec.get('model'), str) and spec['model'], 'Spec model name required')
+    require(isinstance(spec.get('texture', 'x'), str) and spec.get('texture', 'x'), 'Spec texture must be a name')
+    require(isinstance(spec.get('regions', {}), dict) and isinstance(spec.get('surfaceOutlines', {}), dict),
+            'Spec regions and surfaceOutlines must be objects')
+    return validate_rows(spec.get('previewRows', {}))
+
+
 def validate_spec(spec):
     require(isinstance(spec, dict) and spec.get('schemaVersion') == SCHEMA, 'Repair spec schemaVersion 1 required')
-    require(isinstance(spec.get('model'), str) and spec['model'], 'Spec model name required')
+    validate_view(spec)
     source = spec.get('source', {})
     for kind in ('plt', 'mdl'):
         require(isinstance(source.get(kind, {}).get('sha256'), str), 'Spec must pin source.'+kind+'.sha256')
     ops = spec.get('operations')
     require(isinstance(ops, list) and ops, 'Non-empty operations list required')
+    require(all(isinstance(op, dict) for op in ops), 'Operations must be objects')
     names = [op.get('name') for op in ops]
     require(all(isinstance(n, str) and n for n in names) and len(set(names)) == len(names), 'Unique operation names required')
     for op in ops:
         require(op.get('op') in OPS, 'Unknown operation '+str(op.get('op')))
-        require(isinstance(op.get('when'), dict), op['name']+': when predicate required')
+        name = op['name']; extra = set(op)-COMMON_KEYS-OP_KEYS[op['op']]
+        require(not extra, name+': unknown keys '+', '.join(sorted(extra)))
+        require(isinstance(op.get('when'), dict), name+': when predicate required')
+        require(type(op.get('allowEmpty', False)) is bool, name+': allowEmpty true or false')
+        limit = op.get('maxFraction', 0.25); require(number(limit) and 0 < limit <= 1, name+': maxFraction in (0, 1]')
+        if 'neighbours' in op: require(type(op['neighbours']) is int and 1 <= op['neighbours'] <= 256, name+': neighbours 1..256')
+        if op['op'] == 'fill' and 'donors' in op: require(isinstance(op['donors'], dict), name+': donors predicate')
+        if op['op'] == 'despeckle':
+            require(number(op.get('threshold')) and op['threshold'] > 0, name+': despeckle threshold > 0 required')
+            passes = op.get('passes', 1); require(type(passes) is int and 1 <= passes <= 8, name+': despeckle passes 1..8')
+            require(op.get('side', 'both') in ('both', 'darker', 'lighter'), name+': despeckle side both, darker or lighter')
+        if op['op'] == 'match':
+            strength = op.get('strength', 1.0); require(number(strength) and 0 < strength <= 1, name+': match strength in (0, 1]')
+        if op['op'] == 'relabel':
+            share = op.get('minShare', 0.6); require(number(share) and 0.5 <= share <= 1, name+': relabel minShare 0.5..1')
+            to = op.get('to', list(range(10)))
+            require(isinstance(to, list) and to and all(type(c) is int and 0 <= c <= 9 for c in to), name+': relabel to: channels 0..9')
         if op['op'] in ('channel',) or 'channel' in op:
             require(type(op.get('channel')) is int and 0 <= op['channel'] <= 9, op['name']+': channel 0..9')
         if op['op'] == 'shade': require(type(op.get('shade')) is int and 0 <= op['shade'] <= 255, op['name']+': shade 0..255')
@@ -289,7 +334,8 @@ def validate_spec(spec):
                         and all(type(v) in (int, float) for v in pct) and 0 <= pct[0] <= pct[1] <= 100,
                         op['name']+': clamp reference predicate and percentiles [lo, hi] in 0..100')
             else:
-                require(all(type(op.get(k, 0)) in (int, float) for k in ('lo', 'hi')), op['name']+': numeric clamp lo and hi')
+                lo, hi = op.get('lo', 0), op.get('hi', 255)
+                require(number(lo) and number(hi) and 0 <= lo <= hi <= 255, op['name']+': clamp 0 <= lo <= hi <= 255')
         if op['op'] == 'curve':
             points = op.get('points')
             require(isinstance(points, list) and len(points) >= 2
@@ -302,8 +348,7 @@ def validate_spec(spec):
 
 def repair(spec, value, header, shades, layers, palettes, texels=None):
     """Pure repair: returns (shades, layers, report). The inputs are not modified."""
-    validate_spec(spec)
-    rows = {int(k): int(v) for k, v in spec.get('previewRows', {}).items()}
+    validate_spec(spec); rows = validate_rows(spec.get('previewRows', {}))
     texels = texels or Texels(value, shades.shape[0])
     require(shades.shape[0] == shades.shape[1] == texels.size, 'Square texture of the measured size required')
     shades, layers = shades.copy(), layers.copy(); before_s, before_l = shades.copy(), layers.copy()
@@ -343,8 +388,9 @@ def parse_rows(text):
     rows = {}
     for item in (text or '').split(','):
         if item:
-            k, v = item.split(':'); rows[int(k)] = int(v)
-    return rows
+            parts = item.split(':'); require(len(parts) == 2, '--rows takes channel:row pairs, e.g. 0:5,1:65')
+            rows[int(parts[0])] = int(parts[1])
+    return validate_rows(rows, '--rows')
 
 
 def check_pins(spec, plt, mdl):
@@ -353,14 +399,22 @@ def check_pins(spec, plt, mdl):
     require(sha256(mdl) == spec['source']['mdl']['sha256'], 'MDL differs from the spec pin')
 
 
-def load(args, spec=None):
+def load(args, spec=None, pinned=True):
+    """Inputs for a command. A spec's model and texture win; --texture must agree with the spec texture."""
     mdl = Path(args.mdl).read_bytes(); plt = Path(args.plt).read_bytes()
-    model = (spec or {}).get('model') or args.model or Path(args.mdl).stem
+    spec = spec or {}
     if spec:
-        validate_spec(spec); check_pins(spec, plt, mdl)
-    value = native_mesh(mdl, model, getattr(args, 'texture', None) or model)
+        if pinned:
+            validate_spec(spec); check_pins(spec, plt, mdl)
+        else:
+            validate_view(spec)
+    model = spec.get('model') or args.model or Path(args.mdl).stem
+    flag = getattr(args, 'texture', None); texture = spec.get('texture') or flag or model
+    require(not (spec and flag) or flag.lower() == texture.lower(), '--texture differs from the spec texture; put the texture in the spec')
+    value = native_mesh(mdl, model, texture)
     header, shades, layers = read_plt(plt)
-    return model, mdl, plt, value, header, shades, layers
+    require(shades.shape[0] == shades.shape[1], 'Only square PLTs are supported')
+    return model, texture, mdl, plt, value, header, shades, layers
 
 
 def main(argv=None):
@@ -382,33 +436,35 @@ def main(argv=None):
     out = Path(args.out)
     if args.command == 'apply':
         spec = json.loads(Path(args.spec).read_text(encoding='utf-8'))
-        model, mdl, plt, value, header, shades, layers = load(args, spec)
-        rows = {int(k): int(v) for k, v in spec.get('previewRows', {}).items()}
+        model, texture, mdl, plt, value, header, shades, layers = load(args, spec)
+        rows = validate_rows(spec.get('previewRows', {})); output = out/(texture+'.plt')
         out.mkdir(parents=True, exist_ok=True)
-        require(not (out/(model+'.plt')).exists(), 'Output PLT exists; use a fresh --out')
+        require(not output.exists() and not (out/'receipt.json').exists(), 'Output PLT or receipt exists; use a fresh --out')
         palettes = load_palettes(args.palettes, set(np.unique(layers).tolist()) | set(rows) |
                                  {op['channel'] for op in spec['operations'] if 'channel' in op})
         new_s, new_l, report = repair(spec, value, header, shades, layers, palettes)
-        data = write_plt(header, new_s, new_l); (out/(model+'.plt')).write_bytes(data)
+        data = write_plt(header, new_s, new_l)
+        # Sheets first, so a render failure leaves no repaired PLT without its receipt.
         before = render(value, decode_colours(shades, layers, palettes, rows), args.embree, out/'before.png', args.size, label='before')
         after = render(value, decode_colours(new_s, new_l, palettes, rows), args.embree, out/'after.png', args.size, label='after')
         diff = decode_colours(new_s, new_l, palettes, rows); moved = (new_s != shades) | (new_l != layers)
         diff[moved] = [255, 0, 255]
         changed = render(value, diff, args.embree, out/'changed.png', args.size, label='changed')
-        receipt = {'schemaVersion': SCHEMA, 'kind': 'plt-repair-receipt', 'model': model,
+        receipt = {'schemaVersion': SCHEMA, 'kind': 'plt-repair-receipt', 'model': model, 'texture': texture,
                    'tool': {'path': 'tools/heads/plt_repair.py', 'sha256': sha256(Path(__file__).read_bytes())},
                    'spec': {'path': Path(args.spec).as_posix(), 'sha256': sha256(Path(args.spec).read_bytes())},
                    'source': {'plt': {'path': Path(args.plt).as_posix(), 'sha256': sha256(plt)},
                               'mdl': {'path': Path(args.mdl).as_posix(), 'sha256': sha256(mdl)}},
-                   'output': {'plt': {'path': (out/(model+'.plt')).as_posix(), 'sha256': sha256(data)}},
+                   'output': {'plt': {'path': output.as_posix(), 'sha256': sha256(data)}},
                    'sheets': {'before': before, 'after': after, 'changed': changed}, 'report': report,
                    'approval': 'none: sheets and measurements never approve appearance; client review and the user decide'}
+        output.write_bytes(data)
         (out/'receipt.json').write_text(json.dumps(receipt, indent=1)+'\n', encoding='utf-8', newline='\n')
         print(json.dumps(report, indent=1)); print(out/'receipt.json')
         return 0
     spec = json.loads(Path(args.spec).read_text(encoding='utf-8')) if getattr(args, 'spec', None) else {}
-    model, mdl, plt, value, header, shades, layers = load(args)
-    rows = parse_rows(args.rows) or {int(k): int(v) for k, v in spec.get('previewRows', {}).items()}
+    model, texture, mdl, plt, value, header, shades, layers = load(args, spec, pinned=False)
+    rows = parse_rows(args.rows) or validate_rows(spec.get('previewRows', {}))
     palettes = load_palettes(args.palettes, set(np.unique(layers).tolist()) | set(rows))
     decoded = decode_colours(shades, layers, palettes, rows); out.mkdir(parents=True, exist_ok=True)
     if args.command == 'view':

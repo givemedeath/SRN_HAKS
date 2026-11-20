@@ -181,6 +181,33 @@ class ReviewRegressions(Base):
                    {**base, 'op': 'clamp', 'lo': '3'}):
             with self.subTest(op=op), self.assertRaises(ValueError): pr.validate_spec(spec(op))
 
+    def test_validation_refuses_unknown_keys_and_bad_parameters(self):
+        base = {'name': 'd', 'when': {'channel': 1}}
+        for op in ({**base, 'op': 'despeckle', 'threshold': 10, 'neighbors': 48},
+                   {**base, 'op': 'despeckle'},
+                   {**base, 'op': 'despeckle', 'threshold': 10, 'side': 'up'},
+                   {**base, 'op': 'fill', 'neighbours': 0},
+                   {**base, 'op': 'match', 'reference': {'channel': 1}, 'strength': 2},
+                   {**base, 'op': 'relabel', 'minshare': 0.8},
+                   {**base, 'op': 'relabel', 'to': [12]},
+                   {**base, 'op': 'shade', 'shade': 1, 'maxFraction': 0},
+                   {**base, 'op': 'shade', 'shade': 1, 'allowEmpty': 'yes'}):
+            with self.subTest(op=op), self.assertRaises(ValueError): pr.validate_spec(spec(op))
+        op = {**base, 'op': 'shade', 'shade': 1}
+        for rows in ({'1': -1}, {'12': 3}, {'1': 'a'}):
+            with self.subTest(rows=rows), self.assertRaises(ValueError): pr.validate_spec(spec(op, previewRows=rows))
+        with self.assertRaises(ValueError): pr.parse_rows('1:-1')
+
+    def test_preview_row_beyond_the_palette_refuses(self):
+        shades, layers = self.planes()
+        with self.assertRaises(ValueError): pr.decode_colours(shades, layers, self.pal, {1: 176})
+
+    def test_ramp_weight_uses_spec_validation(self):
+        values = {'z': np.zeros((SIZE, SIZE))}; target = self.texels.mapped
+        with self.assertRaises(ValueError): pr.ramp_weight({'of': 'z', 'from': '0', 'to': 1}, values, target)
+        w = pr.ramp_weight([{'of': 'z', 'from': -1, 'to': 1}, {'of': 'z', 'from': -3, 'to': 1}], values, target)
+        np.testing.assert_allclose(w, 0.5*0.75)
+
 
 class Guards(Base):
     def test_empty_selection_and_change_cap(self):
