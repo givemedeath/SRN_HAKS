@@ -5728,6 +5728,7 @@
     ],
     "tools/tilekit/pictures.py": [],
     "tools/tilekit/placer.py": [
+      "tools/tilekit/detail.py",
       "tools/tilekit/geometry.py"
     ],
     "tools/tilekit/redraw.py": [

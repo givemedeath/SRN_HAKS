@@ -59,3 +59,21 @@ class PlacerTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class PlacerEffectsTest(unittest.TestCase):
+    def test_drips_hang_under_the_lowest_platform_and_air_conditioner_and_smoke_rises_from_a_vent(self):
+        found = [{'piece': 'fire_escape', 'at': [-5.01, -2.5, 5.83], 'turn': 90.0}, {'piece': 'fire_escape_top', 'at': [-5.01, -2.5, 10.63], 'turn': 90.0},
+                 {'piece': 'ac_unit', 'at': [-5.01, 2.9, 5.35], 'turn': 90.0}]
+        roof = [{'piece': 'vent', 'at': [1.0, 1.0, 20.0], 'turn': 0, 'blocks': True}]
+        fx = placer._effects([], found, [], roof, 0)
+        drips = [one for one in fx if one['piece'] == 'drip']
+        self.assertEqual([one['at'] for one in drips], [[-6.01, -1.5, 5.76], [-5.56, 3.0, 5.34]])
+        self.assertTrue(all(one['fall'] == one['at'][2] for one in drips))
+        self.assertIn({'piece': 'smoke', 'at': [1.0, 1.0, 20.75]}, fx)
+        self.assertLessEqual(len(fx), 4)
+
+    def test_a_proposal_stays_within_four_effects(self):
+        for seed in range(12):
+            found = placer.propose(MODEL.format(z=10.0), seed)
+            self.assertLessEqual(sum(one['piece'] in ('sparks', 'drip', 'smoke') for one in found), 4)

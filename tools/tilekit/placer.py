@@ -11,7 +11,11 @@ editing the spec, and `detail` checks every placement the same whatever made it.
 - **Air conditioners** hang under some of the other windows, **boards** cover some and **bars** guard some of the
   lowest, chosen by a pattern from the tile's seed. A **downpipe** runs down one end of each facade.
 - **Roof clutter** stands on the highest walkable surface, a margin in from the cell's side, clear of what the roof
-  already has, apart from each other. It is cover (`blocks`)."""
+  already has, apart from each other. It is cover (`blocks`).
+- **Effects**, at most four a tile (the budget): on about one tile in four a broken **junction box** at street level
+  between two windows, clear of the tile's own lamps and signs, with **sparks** (electric arcs) where its cable leaves
+  it; a **drip** under the lowest fire escape platform and one under the lowest air conditioner; **smoke** from one
+  roof vent on about half the tiles that have one."""
 import math
 import zlib
 
@@ -20,6 +24,10 @@ from . import geometry
 WINDOW = ('win', 'window')
 EDGE = 1.2  # metres from the cell's side roof clutter keeps
 APART = 2.4  # metres between roof pieces
+BOX_Z = 3.3  # the junction box's foot: its cable clear of a player's head on a raised sidewalk, below the first floor's windows
+ARC = (-0.06, 0.24, 0.0)  # in the box's own coordinates: just out from its broken bottom, where the cable leaves it
+ESCAPE_DRIP = (1.0, 1.0, -0.07)  # under a fire escape platform's outer corner
+AC_DRIP = (0.1, 0.55, -0.01)  # under an air conditioner's front
 ROOF = (('hvac', 1.0, None), ('tank', 1.0, None), ('vent', 0.5, None), ('dish', 0.6, None), ('antenna', 0.35, {'size': [0.6, 0.6], 'height': 0.5}), ('vent', 0.5, None))
 
 
@@ -81,8 +89,9 @@ def propose(text, seed, *, look='brick'):
     _, _, nodes = geometry.parse(text); rng = zlib.crc32(str(seed).encode()); found = []
     facades = {facing: [pane for pane in panes if not _fitted(nodes, facing, pane)] for facing, panes in windows(nodes).items()}
     facades = {facing: panes for facing, panes in facades.items() if panes}
+    walls = []
     for number, (facing, panes) in enumerate(sorted(facades.items())):
-        turn = _turn(facing); plane = panes[0][3]; columns = sorted({round(along, 1) for along, *_ in panes})
+        turn = _turn(facing); plane = panes[0][3]; columns = sorted({round(along, 1) for along, *_ in panes}); walls.append((facing, plane, columns, turn))
         climbs = [column for column in columns if sum(round(along, 1) == column for along, *_ in panes) >= 2]  # two clear storeys at least
         escape = climbs[0] if number == 0 and climbs else None
         rows = sorted({round(bottom, 1) for _, bottom, *_ in panes})
@@ -102,8 +111,40 @@ def propose(text, seed, *, look='brick'):
             roof = max(top for _, _, top, _ in panes)
             for z in [geometry.OVER + 3.0 * index for index in range(int((roof - geometry.OVER) // 3.0) + 1)]:
                 found.append({'piece': 'downpipe', 'at': _on_wall(facing, end, plane, z), 'turn': turn})
-    found += _roof(nodes, rng)
-    return found
+    roof = _roof(nodes, rng); found += roof
+    return found + _effects(nodes, found, walls, roof, rng)
+
+
+def _fixtures(nodes):
+    """The points of what a tile already has off its walls (as `detail` guards them)."""
+    moves = geometry.placed(nodes)
+    return [point for node in nodes if node.rendered for point in map(moves[id(node)], node.verts)
+            if max(abs(point[0]), abs(point[1])) - geometry.HALF > 0.2]
+
+
+def _effects(nodes, found, walls, roof, rng):
+    from .detail import turned
+    fx = []
+    if walls and (rng >> 20) % 4 == 0:  # about one tile in four has a broken junction box
+        facing, plane, columns, turn = walls[0]; fixtures = _fixtures(nodes)
+        middles = [(one + other) / 2 for one, other in zip(columns, columns[1:])] or [columns[0] + 1.6]
+        for along in [middle + shift for middle in middles for shift in (0.0, 1.0, -1.0)]:
+            if abs(along) > geometry.HALF - 0.6:
+                continue
+            at = _on_wall(facing, along, plane, BOX_Z); move = turned(at, turn, 1.0)
+            ends = [move(point) for point in ((-0.25, 0.0, -0.45), (0.25, 0.35, 1.4))]  # the box, its cable and conduit
+            low = [min(end[axis] for end in ends) for axis in range(3)]; high = [max(end[axis] for end in ends) for axis in range(3)]
+            if not any(all(low[axis] - 0.05 <= point[axis] <= high[axis] + 0.05 for axis in range(3)) for point in fixtures):
+                fx += [{'piece': 'junction_box', 'at': at, 'turn': turn}, {'piece': 'sparks', 'at': [round(value, 3) for value in move(ARC)]}]
+                break
+    for pieces, offset in (([one for one in found if one['piece'].startswith('fire_escape')], ESCAPE_DRIP), ([one for one in found if one['piece'] == 'ac_unit'], AC_DRIP)):
+        if pieces:
+            lowest = min(pieces, key=lambda one: one['at'][2]); point = [round(value, 3) for value in turned(lowest['at'], lowest['turn'], 1.0)(offset)]
+            fx.append({'piece': 'drip', 'at': point, 'fall': point[2]})  # Slums streets are at 0 m
+    vents = [one for one in roof if one['piece'] == 'vent']
+    if vents and (rng >> 23) % 2 == 0:
+        x, y, z = vents[0]['at']; fx.append({'piece': 'smoke', 'at': [x, y, round(z + 0.75, 3)]})
+    return fx
 
 
 def _roof(nodes, rng):
