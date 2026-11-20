@@ -8,7 +8,9 @@ tile gains as few draws as the materials it adds.
 
 A placement is refused where it would put geometry outside the tile's cell, or between `geometry.LOW` and
 `geometry.HEAD` metres over any walkable face, the street and walkable roofs alike: the walkmesh is not changed, so
-a player would walk through it. The walkmesh is hashed before and after. Changed models are written into a review's
+a player would walk through it. A piece marked `blocks` is cover instead: it stands on a walkable roof, and its
+footprint is raised out of the roof's walkmesh to the piece's top (`cuts`), so nothing walks through it or sees past it.
+The walkmesh is hashed before and after. Changed models are written into a review's
 overlay, with `models-from.json`, as the lamps and shadows are, and a model there already (the lamps') is the one
 changed; a tile's earlier pieces there are replaced, so the spec can be run again as it changes."""
 import math
@@ -99,7 +101,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
             roof = min(heights, key=lambda height: abs(height - at[2]), default=None)
             require(roof is not None and abs(roof - at[2]) <= cuts.STOREY, f'{name} #{number} ({piece}) blocks, so it stands on a walkable surface: there is none at {at}')
             require(roof > geometry.HEAD, f'{name} #{number} ({piece}) blocks, and only on a roof: the walkable surface at {at} is {roof:.2f} m up, street level')
-            footprints.append((cuts.hull([(x, y) for _, verts, _, _ in mine for x, y, _ in verts]), roof))
+            footprints.append((cuts.hull([(x, y) for _, verts, _, _ in mine for x, y, _ in verts]), roof, max(z for _, verts, _, _ in mine for _, _, z in verts)))
         else:
             blocked = geometry.in_the_way(faces, walk)
             require(not blocked, f'{name} #{number} ({piece}) stands where a player walks, over the walkable surface at '

@@ -134,7 +134,7 @@ class Detail(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'leaves the cell'):
                 detail.detail(root, spec, kit, root / 'out')
 
-    def test_a_blocking_piece_on_a_roof_is_cut_out_of_its_walkmesh_as_nonwalk(self):
+    def test_a_blocking_piece_on_a_roof_is_raised_out_of_its_walkmesh_as_a_walled_block(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); own, kit = _repo(root)
             spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [1.0, 1.0, 10.0], 'blocks': True}]}}
@@ -143,11 +143,18 @@ class Detail(unittest.TestCase):
             model, wok = ((root / 'out' / name).read_text(encoding='cp1252') for name in ('t_a01.mdl', 't_a01.wok'))
             node, other = cuts._walk_node(model), cuts._walk_node(wok)
             self.assertEqual((node.verts, node.faces), (other.verts, other.faces))  # the model's walkmesh and the .wok agree
-            self.assertAlmostEqual(_area(node, cuts.NONWALK), 0.8, places=3)  # the box's footprint, 1 by 0.8 turned a quarter
+            self.assertAlmostEqual(_area(node, cuts.BLOCK), 0.8, places=3)  # the box's footprint, 1 by 0.8 turned a quarter (its walls have no area from above)
+            block = [node.verts[index] for face in node.faces if face[7] == cuts.BLOCK for index in face[:3]]
+            self.assertEqual({round(z, 3) for _, _, z in block}, {10.0, 11.0})  # raised to the box's top, walled down to the roof
+            walls = [face for face in node.faces if face[7] == cuts.BLOCK and len({round(node.verts[index][2], 3) for index in face[:3]}) == 2]
+            wall_area = sum(0.5 * sum(value ** 2 for value in [(b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1]), (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]),
+                                                               (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])]) ** 0.5
+                            for a, b, c in ([node.verts[index] for index in face[:3]] for face in walls))
+            self.assertAlmostEqual(wall_area, 3.6, places=3)  # all round the footprint (1 + 0.8 + 1 + 0.8 m), 1 m high
             self.assertAlmostEqual(_area(node, 4), 99.2, places=3)  # the rest of the roof keeps its material
             self.assertFalse([1 for face in node.faces for side in range(3) for index, vertex in enumerate(node.verts)
                               if index not in face[:3] and cuts._on(node.verts[face[side]], node.verts[face[(side + 1) % 3]], vertex)])  # no T-junction
-            self.assertTrue(all(cuts._side(*[node.verts[index] for index in face[:3]]) > 0 for face in node.faces))  # every face still faces up
+            self.assertTrue(all(cuts._side(*[node.verts[index] for index in face[:3]]) > 0 for face in node.faces if face not in walls))  # every other face still faces up
             self.assertIn('t_a01_pwk', wok)  # the walkmesh file keeps its own header
             record = json.loads((root / 'out' / cuts.WALK_CUTS).read_text(encoding='utf-8'))['models']['t_a01']
             self.assertEqual(record['wokFrom'], hashlib.sha256((own / 't_a01.wok').read_bytes()).hexdigest())
@@ -182,10 +189,10 @@ class Detail(unittest.TestCase):
 
     def test_a_footprint_over_a_face_s_side_splits_both_faces_alike(self):
         walk = cuts.Walkmesh([(-5, -5, 10), (5, -5, 10), (5, 5, 10), (-5, 5, 10)], [(0, 1, 2, 1, 0, 0, 0, 4), (0, 2, 3, 1, 0, 0, 0, 4)])
-        self.assertEqual(walk.cut(cuts.hull([(-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5)]), 10.0), 2)  # across the diagonal
+        self.assertEqual(walk.cut(cuts.hull([(-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5)]), 10.0, 11.0), 2)  # across the diagonal
         walk.mend()
-        self.assertAlmostEqual(sum(cuts._area(*walk.corners(face)) for face in walk.faces if face[7] == cuts.NONWALK), 1.0, places=6)
-        self.assertAlmostEqual(sum(cuts._area(*walk.corners(face)) for face in walk.faces), 100.0, places=6)
+        self.assertAlmostEqual(sum(cuts._area(*walk.corners(face)) for face in walk.faces if face[7] == cuts.BLOCK), 1.0, places=6)
+        self.assertAlmostEqual(sum(cuts._area(*walk.corners(face)) for face in walk.faces if face[7] != cuts.BLOCK), 99.0, places=6)
         self.assertFalse([1 for face in walk.faces for side in range(3) for index, vertex in enumerate(walk.verts)
                           if index not in face[:3] and cuts._on(walk.verts[face[side]], walk.verts[face[(side + 1) % 3]], vertex)])
 

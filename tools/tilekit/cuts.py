@@ -2,9 +2,10 @@
 
 A blocking kit piece (`detail`, `"blocks": true`) stands on a walkable surface more than `geometry.HEAD` metres over
 the tile's root: a roof, never the street. Its footprint, the convex hull of the piece seen from above, is cut out of
-the walkable faces of that roof: each face it overlaps is split along the hull's sides, the part inside becomes
-`NONWALK` (surfacemat.2da row 7, Nonwalk: no walking, and LineOfSight 1, so it blocks sight), and the rest keeps its
-material. A vertex a split puts on the side of a face next to it splits that face too, so the walkmesh has no
+the walkable faces of that roof: each face it overlaps is split along the hull's sides, and the rest keeps its material.
+The part inside is raised to the piece's top and walled down to the roof, all `BLOCK` (surfacemat.2da Obscuring), as
+envkit raises its buildings: in the game a flat Nonwalk patch stops walking but not sight, and the walkmesh's height is
+what blocks a line of sight (client check, 2026-11-19). A vertex a split puts on the side of a face next to it splits that face too, so the walkmesh has no
 T-junction. The box tree is built again as envkit builds its own (`tools.envkit.tile.tree`), and the model's `aabb`
 node and its `.wok` are written the same.
 
@@ -17,7 +18,7 @@ from pathlib import Path
 
 from . import geometry, inventory, require
 
-NONWALK = 7
+BLOCK = 2  # surfacemat.2da Obscuring: no walking, and it blocks sight; envkit's raised building masses are made of it
 WALK_CUTS = 'walk-cuts.json'  # {tileset, models: {model: {aabbFrom, aabbTo, wokFrom, wokTo, footprints}}}
 NEAR = 1e-4
 STOREY = 1.0  # metres: a face this close to a piece's base, over its footprint, is the roof it stands on
@@ -198,21 +199,38 @@ class Walkmesh:
     def corners(self, face):
         return tuple(self.verts[corner] for corner in face[:3])
 
-    def cut(self, footprint, base):
-        """Cut a convex footprint [(x, y)] out of the walkable faces near height `base`: inside is NONWALK. Each face
-        it overlaps keeps the rest of itself, triangulated again with no vertex but its own corners and the points the
-        footprint's sides cross it at. Returns the number of faces it covered."""
-        kept, covered = [], 0
+    def cut(self, footprint, base, top):
+        """Cut a convex footprint [(x, y)] out of the walkable faces near height `base` and raise it to `top` as a
+        block of `BLOCK` faces with walls down to the roof. Each face it overlaps keeps the rest of itself, triangulated
+        again with no vertex but its own corners and the points the footprint's sides cross it at. Returns the number of
+        faces it covered."""
+        kept, covered, raised = [], 0, []
         for face in self.faces:
             triangle = self.corners(face)
             if face[7] not in geometry.WALKABLE or abs(sum(point[2] for point in triangle) / 3 - base) > STOREY or not _overlaps(triangle, footprint):
                 kept.append(face); continue
             covered += 1; inside = _clip(triangle, footprint)
-            kept += [self._face(part, face, NONWALK) for part in _fan(inside)]
+            raised += [self._face(part, face, BLOCK) for part in _fan(inside)]
             for ring in _rest(triangle, inside):
                 kept += [self._face(part, face, face[7]) for part in _ears(ring)]
-        self.faces = kept
+        self.faces = kept + self._raised(raised, top)
         return covered
+
+    def _raised(self, faces, top):
+        """`faces` (the footprint, at roof height) lifted to `top`, with a wall down each side the footprint has."""
+        sides = {}
+        for face in faces:
+            for side in range(3):
+                one, other = face[side], face[(side + 1) % 3]
+                sides[(one, other)] = sides.get((one, other), 0) + 1
+        rim = [(one, other) for (one, other) in sides if (other, one) not in sides]  # sides no other footprint face shares
+        up = {}
+        lift = lambda index: up.setdefault(index, self.vertex((*self.verts[index][:2], top)))
+        made = [(lift(face[0]), lift(face[1]), lift(face[2]), *face[3:]) for face in faces]
+        for one, other in rim:  # inside lies left of one→other: the wall faces out, to its right
+            like = faces[0][3:]
+            made += [(one, other, lift(other), *like), (one, lift(other), lift(one), *like)]
+        return made
 
     def _face(self, triangle, like, material):
         a, b, c = (self.vertex(point) for point in triangle)
@@ -274,14 +292,15 @@ def rewritten(text, walk):
 
 
 def cut_walkmesh(model_text, wok_text, footprints, half=geometry.HALF):
-    """(model text, wok text) with each footprint [(polygon, base)] cut out of its roof. The model's walkmesh and the
+    """(model text, wok text) with each footprint [(polygon, base, top)] cut out of its roof and raised to its top. The model's walkmesh and the
     .wok must be the same mesh to begin with."""
     model, wok = _walk_node(model_text), _walk_node(wok_text)
     require(len(model.verts) == len(wok.verts) and len(model.faces) == len(wok.faces) and all(math_close(a, b) for a, b in zip(model.verts, wok.verts)),
             'The model\'s walkmesh and its .wok differ: cut neither')
     walk = Walkmesh(model.verts, model.faces)
-    for polygon, base in footprints:
-        require(walk.cut(polygon, base), f'A blocking piece at {polygon[0]} stands on no walkable roof face at {base:.2f} m')
+    for polygon, base, top in footprints:
+        require(top > base + geometry.LOW, f'A blocking piece at {polygon[0]} is too low to block anything')
+        require(walk.cut(polygon, base, top), f'A blocking piece at {polygon[0]} stands on no walkable roof face at {base:.2f} m')
     walk.mend()
     edge = [walk.verts[index] for index in walk.made if abs(walk.verts[index][0]) >= half - 1e-3 or abs(walk.verts[index][1]) >= half - 1e-3]
     require(not edge, f'A cut reaches the side of the cell at {edge[:1]}: the neighbour\'s walkmesh would not meet it; move the piece inward')
@@ -298,7 +317,7 @@ def noted(folder, tileset, model, before, after, wok_before, wok_after, footprin
     require(held.get('tileset') == tileset, f'{WALK_CUTS} in the overlay is of {held.get("tileset")}, not {tileset}')
     sha = lambda text: hashlib.sha256(text.encode('cp1252')).hexdigest()
     held['models'][model] = {'aabbFrom': inventory.walk_hash(before), 'aabbTo': inventory.walk_hash(after), 'wokFrom': sha(wok_before), 'wokTo': sha(wok_after),
-                             'footprints': [{'base': round(base, 3), 'polygon': [list(point) for point in polygon]} for polygon, base in footprints]}
+                             'footprints': [{'base': round(base, 3), 'top': round(top, 3), 'polygon': [list(point) for point in polygon]} for polygon, base, top in footprints]}
     path.write_text(json.dumps(held, indent=1) + '\n', encoding='utf-8')
 
 
