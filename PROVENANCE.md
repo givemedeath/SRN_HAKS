@@ -2343,3 +2343,17 @@ geometry or picture of another door is used. The atlas is flat colours made in c
 takes the CC0 ambientCG scan MetalPlates013 listed under release 1. `srn_2da/genericdoors.2da` rows 1094-1103,
 empty until now, name them. The SRN project operator passed the look in the game client on 2026-11-20 (review
 captures in ignored `output/tilekit/doorset-review` and `doorset-review2`).
+
+## Modern Exterior restyle, release 2, stage 4 (remeshing) (`srn_t_dgt04`, `srn_2da`; 2026-11-20)
+
+`Highrise_10`, "Walled Compound, Glass, Crowned", is a crowned copy of `Highrise_07` added to D20 Modern Exterior
+(`dgt04`) by `tools/tilekit` (`terrain.py`, `crown.py`, `remesh.py --add --joins`; spec
+`docs/tilesets/dgt04/terrains-crowned.json`; SRN project operator with Claude). Its seven tiles 568-574
+(`srt04_c01_01` to `srt04_c07_01`) and its edge tile `srt04_c08_01` copy `Highrise_07`'s tiles, as the copies of
+strata 4 and 5 do, and the D20 Modern Haks 2.2 terms above apply to them. Each tile keeps its source's meshes, door
+hooks, lamps and walkmesh, and gains a crown made in code: a parapet, coping and cornice on each facade, and a
+grating screen with steel posts and a lit band 1 m behind it. The crown draws the release 2 kit atlas
+(`dgt04_kit`); no picture is new. `dgt04.set` gains terrain 24, tiles 568-574 and their rules after every earlier
+entry, so existing areas do not move; `srn_2da/dgt04_edge.2da` and `dgt04palstd.itp` gain their entries. The SRN
+project operator passed the look in the game client on 2026-11-20 (review captures in ignored
+`output/tilekit/crown-review3` and `crown-review4`).

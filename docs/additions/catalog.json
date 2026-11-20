@@ -3382,6 +3382,33 @@
     "srt04_x05_01",
     "srt04_x06_01"
    ]
+  },
+  {
+   "tileset": "dgt04",
+   "pack": "srn_t_dgt04",
+   "madeBy": "tilekit",
+   "source": "docs/tilesets/dgt04/terrains-crowned.json",
+   "provenance": "Modern Exterior restyle, release 2, stage 4 (remeshing)",
+   "added": "2026-11-20",
+   "terrain": "Highrise_10",
+   "tiles": [
+    568,
+    569,
+    570,
+    571,
+    572,
+    573,
+    574
+   ],
+   "models": [
+    "srt04_c01_01",
+    "srt04_c02_01",
+    "srt04_c03_01",
+    "srt04_c04_01",
+    "srt04_c05_01",
+    "srt04_c06_01",
+    "srt04_c07_01"
+   ]
   }
  ]
 }
