@@ -306,6 +306,33 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
   back; only the later glass bitmaps differ from the pre-apply copies. Then both batches were detailed and applied
   again with the new kit.
 
+#### Batch 5: Concrete streets (look gate pending)
+
+- **Scope (user, 2026-11-20):** the 147 uncompiled Concrete tiles. The other 122 are compiled envkit tiles (`ek_*`),
+  left as they are. Flat pieces everywhere, plus a few pieces of street furniture cut out of the street's walkmesh;
+  steam off some manholes.
+- **Kit:** a kerb drain (a grating in the gutter and an inlet in the kerb's face), a manhole cover, a steel bollard,
+  a fire hydrant and a litter bin, built in code like the rest.
+- **Placer (`placer.propose_street`):** kerbs are found in the walkmesh, as an edge along x or y with the sidewalk at
+  its height on one side and the road 0.1–0.35 m lower on the other. Most kerbs are 0.2 m. Placements:
+  - a drain every 6 m along each kerb;
+  - on about half the kerbs, a row of three bollards 1.5 m apart, 0.45 m behind the kerb's face;
+  - sometimes a hydrant or a litter bin;
+  - a manhole in the road of about half the tiles without one of their own;
+  - steam off a manhole on about one tile in four.
+
+  Every piece goes only where the tile draws nothing above the ground there, such as a lamp post, a traffic light or
+  its own manhole. Furniture also needs walkable sidewalk all round it and stays 0.8 m in from the cell's side.
+- **Obstacles (`detail`, `"obstacle": true`):** a piece of street furniture stands on the street. Its footprint is
+  cut out of the street's walkmesh flat, as NonWalk (surfacemat 7): players can't walk through it but can see past
+  it. A roof's cover pieces stay walled Obscuring blocks.
+- **Placed:** 76 tiles in `docs/tilesets/dgt04/detail-streets.json`:
+  - 62 drains, 60 bollards, 26 hydrants, 21 litter bins, 52 manholes and 15 steam emitters;
+  - 107 footprints cut in 44 tiles;
+  - at most 1,256 faces added to a tile.
+
+  The review overlay is `output/tilekit/b5-ov`. Client views, day and night, are in `output/tilekit/b5-review1`.
+
 ### 4 — Selective remeshing
 
 - A candidate list from the review captures: the tiles whose shape reads worst once they are detailed.

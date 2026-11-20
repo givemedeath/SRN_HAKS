@@ -193,6 +193,27 @@ class Detail(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'only on a roof'):
                 detail.detail(root, spec, kit, root / 'out')
 
+    def test_a_street_obstacle_is_cut_out_of_the_street_flat_as_nonwalk(self):  # street furniture stops walking, not sight (batch 5)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); _, kit = _repo(root, z=0.0)
+            spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [1.0, 1.0, 0.0], 'obstacle': True}]}}
+            self.assertEqual(detail.detail(root, spec, kit, root / 'out')['t_a01']['cuts'], 1)
+            node = cuts._walk_node((root / 'out' / 't_a01.mdl').read_text(encoding='cp1252'))
+            self.assertAlmostEqual(_area(node, cuts.NONWALK), 0.8, places=3); self.assertAlmostEqual(_area(node, 4), 99.2, places=3)
+            self.assertEqual({round(z, 3) for _, _, z in node.verts}, {0.0})  # left flat: nothing raised, no walls
+            record = json.loads((root / 'out' / cuts.WALK_CUTS).read_text(encoding='utf-8'))['models']['t_a01']
+            self.assertIsNone(record['footprints'][0]['top'])
+
+    def test_obstacles_go_on_the_street_only(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); _, kit = _repo(root)
+            spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [1.0, 1.0, 10.0], 'obstacle': True}]}}
+            with self.assertRaisesRegex(ValueError, 'only on the street'):
+                detail.detail(root, spec, kit, root / 'out')
+            spec['tiles']['t_a01'][0]['blocks'] = True
+            with self.assertRaisesRegex(ValueError, 'not with `blocks`'):
+                detail.detail(root, spec, kit, root / 'out')
+
     def test_a_cut_reaching_the_cell_s_side_is_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); _, kit = _repo(root)

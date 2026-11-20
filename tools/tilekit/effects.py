@@ -39,6 +39,10 @@ EFFECTS = {
               'colorEnd': (0.3, 0.3, 0.3), 'alphaStart': 0.6, 'alphaEnd': 0.0, 'sizeStart': 0.4, 'sizeEnd': 2.4, 'sizeStart_y': 0.4,
               'sizeEnd_y': 2.4, 'birthrate': 8.0, 'lifeExp': 4.0, 'mass': -0.04, 'spread': 0.5, 'velocity': 0.4, 'randvel': 0.25,
               'particleRot': 3.0, 'affectedByWind': 'true', 'fps': 12, 'frameend': 11},
+    'steam': {'texture': 'fxpa_mist', 'stock': True, 'Blend': 'Normal', 'xSize': 60.0, 'ySize': 60.0, 'colorStart': (0.85, 0.85, 0.85),
+              'colorEnd': (0.7, 0.7, 0.72), 'alphaStart': 0.35, 'alphaEnd': 0.0, 'sizeStart': 0.3, 'sizeEnd': 1.8, 'sizeStart_y': 0.3,
+              'sizeEnd_y': 1.8, 'birthrate': 5.0, 'lifeExp': 3.0, 'mass': -0.06, 'spread': 0.6, 'velocity': 0.3, 'randvel': 0.2,
+              'particleRot': 2.0, 'affectedByWind': 'true', 'fps': 12, 'frameend': 11},  # rising off a manhole cover: whiter and thinner than smoke
     'drip': {'texture': 'dgt04_fx_drip', 'Blend': 'Normal', 'xSize': 6.0, 'ySize': 6.0, 'colorStart': (0.75, 0.82, 0.9), 'colorEnd': (0.6, 0.68, 0.78),
              'alphaStart': 0.9, 'alphaEnd': 0.8, 'sizeStart': 0.07, 'sizeEnd': 0.06, 'sizeStart_y': 0.18, 'sizeEnd_y': 0.22, 'birthrate': 1.2,
              'lifeExp': None, 'mass': 1.0, 'spread': 0.0, 'velocity': 0.0, 'randvel': 0.05,

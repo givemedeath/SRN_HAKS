@@ -322,3 +322,80 @@ class MountTest(unittest.TestCase):  # cameras hung over recessed windows and gl
     def test_glass_flush_with_the_wall_is_no_mount_either(self):
         glass = [([(-5, 0), (5, 0), (5, 8)], 3.0, True), ([(-5, 0), (5, 8), (-5, 8)], 3.0, True)]
         self.assertIsNone(placer._mount(glass, 0.0, 4.0, -5.0, 5.0))
+
+
+STREET = """newmodel s
+beginmodelgeom s
+node dummy s
+  parent NULL
+endnode
+node trimesh ground
+  parent s
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap street
+  verts 12
+    -5 -2.5 0
+    5 -2.5 0
+    5 5 0
+    -5 5 0
+    -5 -5 0.2
+    5 -5 0.2
+    5 -2.5 0.2
+    -5 -2.5 0.2
+    -5 -2.5 0
+    5 -2.5 0
+    5 -2.5 0.2
+    -5 -2.5 0.2
+  tverts 1
+    0 0 0
+  faces 6
+    0 1 2 1 0 0 0 1
+    0 2 3 1 0 0 0 1
+    4 5 6 1 0 0 0 1
+    4 6 7 1 0 0 0 1
+    8 9 10 1 0 0 0 1
+    8 10 11 1 0 0 0 1
+endnode
+node aabb walk
+  parent s
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  verts 8
+    -5 -2.5 0
+    5 -2.5 0
+    5 5 0
+    -5 5 0
+    -5 -5 0.2
+    5 -5 0.2
+    5 -2.5 0.2
+    -5 -2.5 0.2
+  faces 4
+    0 1 2 1 0 0 0 4
+    0 2 3 1 0 0 0 4
+    4 5 6 1 0 0 0 4
+    4 6 7 1 0 0 0 4
+endnode
+endmodelgeom s
+donemodel s
+"""
+
+
+class StreetTest(unittest.TestCase):  # batch 5, the Concrete street tiles (user, 2026-11-20)
+    def test_a_kerb_is_found_with_the_road_on_its_far_side(self):
+        _, _, nodes = geometry.parse(STREET)
+        self.assertEqual(placer._kerbs(nodes), [((0, 1), -2.5, -5.0, 5.0, 0.0, 0.2)])
+
+    def test_drains_lie_in_the_gutter_and_furniture_stands_on_the_sidewalk_as_obstacles(self):
+        found = [one for seed in range(12) for one in placer.propose_street(STREET, seed)]
+        drains = [one for one in found if one['piece'] == 'drain']; furniture = [one for one in found if one.get('obstacle')]
+        self.assertTrue(drains and furniture)
+        self.assertTrue(all(one['at'][1] == -2.5 and one['at'][2] == placer.LIFT and one['turn'] == 0.0 for one in drains))  # at the kerb's foot, the road ahead
+        self.assertTrue(all(one['at'][1] == -2.5 - placer.SETBACK and one['at'][2] == 0.2 for one in furniture))
+        self.assertTrue(all(abs(one['at'][0]) <= geometry.HALF - placer.SIDE_CLEAR for one in found if one['piece'] != 'steam'))
+        manholes = [one for one in found if one['piece'] == 'manhole']
+        self.assertTrue(manholes and all(one['at'][1] - (-2.5) >= 1.0 for one in manholes))  # in the road, clear of the kerb
+        for seed in range(12):
+            rows = [one['at'][0] for one in placer.propose_street(STREET, seed) if one['piece'] == 'bollard']
+            self.assertIn(len(rows), (0, 3))
+            self.assertTrue(all(abs(b - a - placer.BOLLARDS) < 1e-6 for a, b in zip(sorted(rows), sorted(rows)[1:])))

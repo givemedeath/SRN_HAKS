@@ -12,6 +12,8 @@ the neighbouring street above a player's head (`geometry.overhanging`: a facade 
 `geometry.HEAD` metres over any walkable face, the street and walkable roofs alike: the walkmesh is not changed, so
 a player would walk through it. A piece marked `blocks` is cover instead: it stands on a walkable roof, and its
 footprint is raised out of the roof's walkmesh to the piece's top (`cuts`), so nothing walks through it or sees past it.
+A piece marked `obstacle` is street furniture (a bollard, a bin): it stands on the street, and its footprint is cut
+out of the street's walkmesh flat, as NonWalk, so nothing walks through it and the street is seen past it.
 The walkmesh is hashed before and after. Changed models are written into a review's
 overlay, with `models-from.json`, as the lamps and shadows are, and a model there already (the lamps') is the one
 changed; a tile's earlier pieces there are replaced, so the spec can be run again as it changes. The kit's atlas
@@ -215,14 +217,16 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
         require(isinstance(scale, (int, float)) and scale > 0 or isinstance(scale, list) and len(scale) == 3 and all(isinstance(value, (int, float)) and value > 0 for value in scale),
                 f'{name} #{number}: `scale` is a positive number, or three: [across, out, up]')
         blocks = placement.get('blocks', False); require(isinstance(blocks, bool), f'{name} #{number}: `blocks` is true or false')
+        obstacle = placement.get('obstacle', False); require(isinstance(obstacle, bool) and not (blocks and obstacle), f'{name} #{number}: `obstacle` is true or false, and not with `blocks`')
         mine = geometry.baked(piece_parts(kit, piece, cache), turned(at, placement.get('turn', 0.0), scale))
         require(mine, f'{piece} draws nothing'); faces = geometry.faces_of(mine)
         out = geometry.overhanging(faces); require(not out, f'{name} #{number} ({piece}) leaves the cell, other than flush to its side or over the street above {geometry.OVER} m, at ' + ', '.join(map(str, out[:3])))
-        if blocks:  # cover: cut out of the roof it stands on, so nothing walks through it or sees past it
+        if blocks or obstacle:  # cover, cut out of the roof it stands on so nothing walks through it or sees past it; or a street obstacle, cut out flat so nothing walks through it
             heights = walk.get(geometry.cell(at), [])
             roof = min(heights, key=lambda height: abs(height - at[2]), default=None)
             require(roof is not None and abs(roof - at[2]) <= cuts.STOREY, f'{name} #{number} ({piece}) blocks, so it stands on a walkable surface: there is none at {at}')
-            require(roof > geometry.HEAD, f'{name} #{number} ({piece}) blocks, and only on a roof: the walkable surface at {at} is {roof:.2f} m up, street level')
+            require(roof > geometry.HEAD if blocks else roof <= geometry.HEAD, f'{name} #{number} ({piece}) ' + (f'blocks, and only on a roof: the walkable surface at {at} is {roof:.2f} m up, street level'
+                                                                               if blocks else f'is an obstacle, and only on the street: the walkable surface at {at} is {roof:.2f} m up, a roof'))
             cover = placement.get('cover')  # a block smaller than the piece: a mast's foot, not its crossbars
             if cover is None:
                 polygon, top = cuts.outline([(x, y) for _, verts, _, _ in mine for x, y, _ in verts]), max(z for _, verts, _, _ in mine for _, _, z in verts)
@@ -230,7 +234,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
                 require(isinstance(cover, dict) and len(cover.get('size', ())) == 2 and isinstance(cover.get('height'), (int, float)), f'{name} #{number}: `cover` is {{size: [width, depth], height}}')
                 move = turned(at, placement.get('turn', 0.0), scale); width, depth = (value / 2 for value in cover['size'])
                 polygon = cuts.hull([move((x, y, 0.0))[:2] for x, y in ((-width, -depth), (width, -depth), (width, depth), (-width, depth))]); top = move((0.0, 0.0, cover['height']))[2]
-            footprints.append((polygon, roof, top))
+            footprints.append((polygon, roof, top if blocks else None))
             outside = {key: heights for key, heights in geometry.in_the_way(faces, walk).items()
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}
             require(not outside, f'{name} #{number} ({piece}) reaches past its cover where a player walks; raise that part above head height or widen `cover`')
