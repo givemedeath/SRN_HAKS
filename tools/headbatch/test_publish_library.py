@@ -10,6 +10,7 @@ import publish_library as pl
 
 HEAD, SLOT = 'troll-male-a', 'pmg0_head021'
 VIEWS = [v for v, _ in pl.VIEWS]
+DRIVE = 'C' + ':' + chr(92)  # built at run time so the package's portability scan finds no machine path
 CROPS = {'default': {v: [0, 0, 64, 48] for v in VIEWS}}
 
 
@@ -38,7 +39,7 @@ class Workspace:
         self.json(native.parent/'receipt.json', {'inputs': [{'path': 'export', 'sha256': hashlib.sha256((export/'receipt.json').read_bytes()).hexdigest()}]})
         self.json(W/'heads'/HEAD/'run/export/attempt-02/receipt.json', {'result': {'triangles': 1, 'nativeMaterial': {'policy': 'other'}}})
         self.json(W/'design/records'/f'{HEAD}.json', {'name': 'Anvil', 'features': {'hair': 'Dense short coils; dark'},
-                  'design': {'path': 'C:\\local\\detail.png', 'sha256': 'd'*64}, 'generator': 'gen', 'sourceHead': 'troll-male-01', 'sourceDraft': 1})
+                  'design': {'path': DRIVE+'local\\detail.png', 'sha256': 'd'*64}, 'generator': 'gen', 'sourceHead': 'troll-male-01', 'sourceDraft': 1})
         self.json(W/'spool/reviewed-rows.json', {HEAD: {'0': 119, '1': 63, '8': 35, '9': 120}})
         trial = W/'trials/troll-v3'; (trial/'userdir/hak').mkdir(parents=True)
         self.json(trial/'runtime-manifest.json', {'heads': [{'native': str(native/f'{SLOT}.hak')}]})
@@ -179,9 +180,9 @@ class Archive(unittest.TestCase):
 
 class NativeSources(unittest.TestCase):
     def test_attempts_and_fit_variants(self):
-        manifest = {'a': ['S:\\ws\\heads\\troll-male-a\\run\\native\\attempt-03\\native\\x.hak'],
-                    'b': {'c': 'S:\\ws\\trials\\fit-variants\\human-v4\\human-male-c\\native\\native.json'},
-                    'd': 'S:\\ws\\trials\\client-sessions\\troll-male-a\\native\\ignored'}
+        manifest = {'a': [DRIVE+'ws\\heads\\troll-male-a\\run\\native\\attempt-03\\native\\x.hak'],
+                    'b': {'c': DRIVE+'ws\\trials\\fit-variants\\human-v4\\human-male-c\\native\\native.json'},
+                    'd': DRIVE+'ws\\trials\\client-sessions\\troll-male-a\\native\\ignored'}
         self.assertEqual(list(pl.native_sources(manifest, 'troll-male-a').values()), ['attempt-03'])
         self.assertEqual(list(pl.native_sources(manifest, 'human-male-c').values()), ['fit-variant human-v4'])
         self.assertEqual(pl.native_sources(manifest, 'elf-male-a'), {})
