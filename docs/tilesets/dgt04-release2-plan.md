@@ -248,6 +248,18 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 - **Applied:** `tilekit apply` moved the overlay into `srn_t_common` (models) and `srn_t_dgt04` (the kit's atlas
   and the effects' pictures, recorded by `detail` in `kit-files.json`).
 
+#### Batch 2: corporate highrises (look decision deferred to the final review, user 2026-11-20)
+
+- **Placements:** `docs/tilesets/dgt04/detail-highrise.json`, 42 tiles of Highrise 1, 2, 3, 5, 6 and 7, proposed by
+  `placer.propose_corporate`: steel ledges on about half the tower walls, a canopy and a security camera at each
+  street door, roof masts with red warning lights, plant and dishes. At most 440 added faces a tile, no effects.
+- **Dropped:** megacorp signage (user, 2026-11-20).
+- **Review:** whole towers laid by the set's rules, each side from the street and a view looking up at the top; the
+  review camera may now look up (pitch 150, distance 200). The pieces read faintly: the masts barely show over the
+  parapets. Choices at the final review: approve as it is, or make it stronger (masts at the roof edge, brighter
+  lights, heavier podium ledges).
+- **Not applied:** nothing of batch 2 is in the packs until that decision.
+
 ### 4 — Selective remeshing
 
 - A candidate list from the review captures: the tiles whose shape reads worst once they are detailed.
