@@ -29,6 +29,9 @@ BOX_Z = 3.3  # the junction box's foot: its cable clear of a player's head on a 
 ARC = (-0.06, 0.24, 0.0)  # in the box's own coordinates: just out from its broken bottom, where the cable leaves it
 ESCAPE_DRIP = (1.0, 1.0, -0.07)  # under a fire escape platform's outer corner
 AC_DRIP = (0.1, 0.55, -0.01)  # under an air conditioner's front
+ESCAPES = ('brick', 'timber', 'shopfront')  # looks whose storeys suit the kit's fire escape (`kit.STOREY`)
+AIR = {'residential': (0, 3, 5), 'derelict': ()}  # the window patterns (of 7) that get an air conditioner, by look
+BOARDS = {'residential': (), 'derelict': (1, 4, 5)}  # and that get boarded up
 CORPORATE_ROOF = (('mast', 0.45, {'size': [0.8, 0.8], 'height': 0.3}), ('hvac', 1.0, None), ('vent', 0.5, None), ('dish', 0.6, None),
                   ('mast', 0.45, {'size': [0.8, 0.8], 'height': 0.3}))
 ROOF = (('hvac', 1.0, None), ('tank', 1.0, None), ('vent', 0.5, None), ('dish', 0.6, None), ('antenna', 0.35, {'size': [0.6, 0.6], 'height': 0.5}), ('vent', 0.5, None))
@@ -41,10 +44,11 @@ def _facing(triangle):
 
 
 def windows(nodes):
-    """{(nx, ny): [(along, bottom, top, plane)]} of the upright window faces above head height, one per window."""
+    """{(nx, ny): [(along, bottom, top, plane)]} of the upright window faces above head height, one per window: a face
+    whose texture names a window (win..., ...window..., ..._win...)."""
     found = {}
     for node in nodes:
-        if not node.rendered or not node.material or not node.material.startswith(WINDOW) and 'window' not in node.material:
+        if not node.rendered or not node.material or not (node.material.startswith(WINDOW) or 'window' in node.material or '_win' in node.material):
             continue
         for triangle in geometry.triangles(nodes, lambda other, node=node: other is node):
             facing = _facing(triangle)
@@ -123,35 +127,83 @@ def open_sides(corners, building):
     return {facing for facing, (one, other) in sides.items() if not building(corners[one]) and not building(corners[other])}
 
 
-def propose(text, seed, *, look='brick', open=None):
+GRIDS = {'hr08_wall': (8, 10, 0.18, 0.98), 'hr09_build': (4, 4, 0.2, 0.8)}  # windows painted in a texture: columns, rows, and the glass's bottom and top in a cell (of v)
+
+
+def grid_windows(nodes, grids=GRIDS):
+    """{(nx, ny): [(along, bottom, top, plane)]} of windows painted in a texture as a regular grid (`grids`: texture:
+    (columns, rows, glass bottom, glass top)), found through each upright face's texture coordinates, above head height."""
+    import numpy as np
+    found = {}
+    for node in nodes:
+        if not node.rendered or (node.material or '').lower() not in grids:
+            continue
+        columns, rows, low, high = grids[node.material.lower()]; move = geometry.placed(nodes)[id(node)]
+        for face in node.faces:
+            if max(face[4:7]) >= len(node.tverts):
+                continue
+            points = [move(node.verts[corner]) for corner in face[:3]]; uv = [tuple(node.tverts[corner][:2]) for corner in face[4:7]]
+            facing = _facing(points)
+            if facing is None or abs(facing[0]) + abs(facing[1]) != 1:
+                continue
+            solve = np.array([[u, v, 1.0] for u, v in uv])
+            if abs(np.linalg.det(solve)) < 1e-9:
+                continue
+            to_world = np.linalg.solve(solve, np.array(points))  # [u, v, 1] @ to_world = (x, y, z)
+            plane = sum(point[0] * facing[0] + point[1] * facing[1] for point in points) / 3
+            us, vs = [u for u, _ in uv], [v for _, v in uv]
+            for column in range(int(np.floor(min(us) * columns)), int(np.ceil(max(us) * columns))):
+                for row in range(int(np.floor(min(vs) * rows)), int(np.ceil(max(vs) * rows))):
+                    centre = ((column + 0.5) / columns, (row + 0.5) / rows)
+                    weights = np.linalg.solve(solve.T, np.array([centre[0], centre[1], 1.0]))  # barycentric: is the cell's middle on this face
+                    if weights.min() < -1e-6:
+                        continue
+                    ends = [np.array([centre[0], (row + fraction) / rows, 1.0]) @ to_world for fraction in (low, high)]
+                    middle = np.array([centre[0], centre[1], 1.0]) @ to_world
+                    bottom, top = sorted(end[2] for end in ends)
+                    if bottom >= geometry.HEAD:
+                        along = middle[1] if facing[0] else middle[0]
+                        found.setdefault(facing, set()).add((round(float(along), 2), round(float(bottom), 2), round(float(top), 2), round(plane, 3)))
+    return {facing: sorted(panes) for facing, panes in found.items()}
+
+
+def propose(text, seed, *, look='brick', open=None, grids=None, above=None):
     """[{piece, at, turn, blocks?, cover?}] for a tile model's text. `open`: the facings of its sides on a street
-    (`open_sides`); a facade on the cell's side facing any other way meets the next building, and gets nothing."""
+    (`open_sides`); a facade on the cell's side facing any other way meets the next building, and gets nothing, unless
+    all its windows stand `above` the neighbours' roofs (a tower in the middle of a lower block). `grids`: windows
+    painted in textures (`GRIDS`)."""
     _, _, nodes = geometry.parse(text); rng = zlib.crc32(str(seed).encode()); found = []
-    facades = {facing: [pane for pane in panes if not _fitted(nodes, facing, pane)] for facing, panes in windows(nodes).items()}
+    seen = windows(nodes)
+    for facing, panes in (grid_windows(nodes, grids) if grids else {}).items():
+        seen[facing] = sorted(seen.get(facing, []) + panes)
+    facades = {facing: [pane for pane in panes if not _fitted(nodes, facing, pane)] for facing, panes in seen.items()}
     facades = {facing: panes for facing, panes in facades.items() if panes
-               and (open is None or facing in open or abs(panes[0][3]) < geometry.HALF - 0.3)}
+               and (open is None or facing in open or abs(panes[0][3]) < geometry.HALF - 0.3
+                    or above is not None and min(bottom for _, bottom, *_ in panes) >= above)}
     walls, openings = [], _openings(nodes)
     for number, (facing, panes) in enumerate(sorted(facades.items())):
         turn = _turn(facing); plane = panes[0][3]; columns = sorted({round(along, 1) for along, *_ in panes}); walls.append((facing, plane, columns, turn))
         climbs = [column for column in columns if sum(round(along, 1) == column for along, *_ in panes) >= 2]  # two clear storeys at least
-        escape = climbs[0] if number == 0 and climbs else None
+        escape = climbs[0] if number == 0 and climbs and look in ESCAPES else None
         rows = sorted({round(bottom, 1) for _, bottom, *_ in panes})
         for along, bottom, top, _ in panes:
             column, row = columns.index(round(along, 1)), rows.index(round(bottom, 1)); pick = (rng >> (column * 3 + row)) % 7
             if escape is not None and round(along, 1) == escape:  # the highest platform has no stair up into the cornice
                 top = bottom == max(low for at, low, *_ in panes if round(at, 1) == escape)
                 found.append({'piece': 'fire_escape_top' if top else 'fire_escape', 'at': _on_wall(facing, along, plane, bottom - 0.12), 'turn': turn})
-            elif pick in (0, 3) and bottom - 0.6 >= geometry.OVER:
+            elif pick in AIR.get(look, (0, 3)) and bottom - 0.6 >= geometry.OVER:
                 found.append({'piece': 'ac_unit', 'at': _on_wall(facing, along + 0.4, plane, bottom - 0.6), 'turn': turn})
-            elif pick == 5 or (look == 'timber' and pick == 1):
+            elif pick in BOARDS.get(look, (5,)) or (look == 'timber' and pick == 1):
                 found.append({'piece': 'boards', 'at': _on_wall(facing, along, plane, bottom + 0.45), 'turn': turn})
-            elif row == 0 and pick in (2, 6):
+            elif row == 0 and pick in (2, 6) and look != 'residential':
                 found.append({'piece': 'bars', 'at': _on_wall(facing, along, plane, bottom + 0.45), 'turn': turn})
         ends = [end for end in (min(along for along, *_ in panes) - 1.0, max(along for along, *_ in panes) + 1.0)
                 if abs(end) <= geometry.HALF - 0.3 and not _over_opening(openings, facing, plane, end)]
         if ends:
             end = ends[0]; roof = max(top for _, _, top, _ in panes)
-            for z in [geometry.OVER + 3.0 * index for index in range(int((roof - geometry.OVER) // 3.0) + 1)]:
+            raised = open is not None and facing not in open and abs(plane) >= geometry.HALF - 0.3  # stands on its neighbours' roofs
+            foot = min(bottom for _, bottom, *_ in panes) - 1.0 if raised else geometry.OVER
+            for z in [foot + 3.0 * index for index in range(int((roof - foot) // 3.0) + 1)]:
                 found.append({'piece': 'downpipe', 'at': _on_wall(facing, end, plane, z), 'turn': turn})
     roof = _roof(nodes, rng); found += roof
     return found + _effects(nodes, found, walls, roof, rng)

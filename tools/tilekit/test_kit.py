@@ -179,3 +179,58 @@ class CorporateTest(unittest.TestCase):
         self.assertTrue(all(one['turn'] == placer._turn((-1, 0)) for one in found))
         self.assertFalse(any(one['piece'].startswith(('sign', 'crown')) for one in found))
         self.assertLessEqual(len(kit.ORDER), kit.CELLS * kit.CELLS); self.assertIn('red', kit.GLOWS)
+
+
+PAINTED = """newmodel t
+beginmodelgeom t
+node dummy t
+  parent NULL
+endnode
+node trimesh wall
+  parent t
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap grid
+  verts 4
+    -5.0 5.0 12.0
+    -5.0 -5.0 12.0
+    -5.0 -5.0 32.0
+    -5.0 5.0 32.0
+  tverts 4
+    0 0 0
+    1 0 0
+    1 1 0
+    0 1 0
+  faces 2
+    0 1 2 1 0 1 2 1
+    0 2 3 1 0 2 3 1
+endnode
+endmodelgeom t
+donemodel t
+"""
+GRID = {'grid': (2, 4, 0.2, 0.8)}
+
+
+class PaintedWindowsTest(unittest.TestCase):
+    def test_windows_painted_in_a_texture_are_found_through_its_coordinates(self):
+        _, _, nodes = geometry.parse(PAINTED)
+        found = placer.grid_windows(nodes, GRID)
+        self.assertEqual(list(found), [(-1, 0)])
+        self.assertEqual(found[(-1, 0)], sorted((along, 12.0 + 5 * row + 1, 12.0 + 5 * row + 4, 5.0)
+                                                for along in (-2.5, 2.5) for row in range(4)))
+        self.assertEqual(placer.grid_windows(nodes, {'other': (2, 4, 0.2, 0.8)}), {})
+
+    def test_a_tower_over_lower_neighbours_is_dressed_from_its_windows_up(self):
+        closed = placer.propose(PAINTED, 'seed', look='derelict', grids=GRID, open=set())
+        self.assertFalse([one for one in closed if one['piece'] in ('boards', 'downpipe', 'ac_unit', 'bars')])
+        found = placer.propose(PAINTED, 'seed', look='derelict', grids=GRID, open=set(), above=13.0)
+        pieces = {one['piece'] for one in found}
+        self.assertIn('boards', pieces); self.assertNotIn('ac_unit', pieces)
+        self.assertGreaterEqual(min(one['at'][2] for one in found if one['piece'] == 'downpipe'), 12.0)
+
+    def test_residential_walls_get_air_conditioners_and_no_escapes_or_bars(self):
+        found = placer.propose(PAINTED, 'seed', look='residential', grids=GRID)
+        pieces = {one['piece'] for one in found}
+        self.assertIn('ac_unit', pieces)
+        self.assertFalse(pieces & {'fire_escape', 'fire_escape_top', 'bars', 'boards'})
+
