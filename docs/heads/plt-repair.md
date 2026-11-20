@@ -2,7 +2,7 @@
 
 `tools/heads/plt_repair.py` edits a published head texture (PLT) in place, against the head's native model. Use it when the stage run that made the head is gone, or when a rerun would change approved geometry. The geometry and UVs never change. Only the (shade, channel) pair of each texel does.
 
-The tool works for any single-PLT native model whose trimeshes sample one square texture, named after the model by default. A spec's `texture` names another texture, and the output PLT takes that name. `--texture` does the same for `view` and `probe`, and must agree with the spec's texture.
+The tool works for any single-PLT native model whose trimeshes sample one square texture, named after the model by default. A spec's `texture` names another texture, and the output PLT takes that name. Model and texture names are lowercase resource names of up to 16 characters. `--texture` does the same for `view` and `probe`; with a spec, it must agree with the spec's texture (or its model).
 
 ## Commands
 
@@ -46,7 +46,7 @@ Operations run in order. Each acts only on mapped texels that its `when` selects
 | `despeckle` | Replaces texels that differ by more than `threshold` shades from the median of themselves and their `neighbours` nearest texels. `side` takes `both`, `darker` or `lighter`. Use it for specks and flecks. A large `neighbours` value smears strands, so prefer 24-64. |
 | `match` | Quantile-maps the selection onto a `reference` selection's shade distribution, keeping rank order. Use it for brows, or to bring one region's tone to another's. It keeps relative darkness, so a dark patch stays the darkest part of what you select. |
 | `curve` | Remaps shades through piecewise-linear `points`, from 0 to 255. Use it to compress baked highlights or shadows without losing detail. |
-| `clamp` | Clips shades to absolute bounds, or to percentiles of a `reference` selection. |
+| `clamp` | Clips shades to absolute `lo` and `hi`, or to `percentiles` of a `reference` selection, not both. |
 | `relabel` | Majority vote: a texel whose neighbours mostly (`minShare`) belong to another channel moves to that channel. `to` limits the target channels. Use it for skin flecks in hair and hair bits on skin. |
 | `channel`, `shade` | Set the channel, or set an absolute shade. |
 
@@ -55,7 +55,7 @@ Operations run in order. Each acts only on mapped texels that its `when` selects
 ## Guards
 
 - A spec pins the SHA-256 of the PLT and MDL it was measured on, and applies to no other bytes.
-- Each operation takes only its documented keys, so a misspelled key refuses instead of falling back to a default. Parameters and preview rows are checked before any work.
+- The spec and each operation take only their documented keys, so a misspelled key refuses instead of falling back to a default. Parameters and preview rows are checked before any work.
 - An operation that selects nothing refuses, unless it sets `allowEmpty: true`.
 - An operation that changes more than `maxFraction` of the mapped texels refuses. The default is 0.25.
 - Padding texels follow their nearest mapped texel wherever that texel changed, so filtering never bleeds the old value. Padding next to unchanged texels keeps its bytes.

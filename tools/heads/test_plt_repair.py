@@ -208,6 +208,35 @@ class ReviewRegressions(Base):
         w = pr.ramp_weight([{'of': 'z', 'from': -1, 'to': 1}, {'of': 'z', 'from': -3, 'to': 1}], values, target)
         np.testing.assert_allclose(w, 0.5*0.75)
 
+    def test_spec_keys_names_sources_clamps_and_ramp_quantities(self):
+        good = {'name': 'a', 'op': 'shade', 'shade': 3, 'when': {'channel': 1}}
+        curve = {'name': 'c', 'op': 'curve', 'points': [[0, 0], [255, 255]], 'when': {'channel': 1}}
+        pr.validate_spec(spec(dict(curve, ramp={'of': 'mask:ear', 'from': 0, 'to': 1}), surfaceOutlines={'ear': {}}))
+        for bad in (spec(good, previewRow={'1': 65}), spec(good, texture='../srn_head/x'), spec(good, texture='PFO0_HEAD014'),
+                    spec(good, texture='a'*17), {**spec(good), 'model': 'a/b'}, {**spec(good), 'source': 'abc'},
+                    {**spec(good), 'source': {'plt': 'x', 'mdl': {'sha256': 'b'}}},
+                    spec({'name': 'k', 'op': 'clamp', 'reference': {'channel': 1}, 'hi': 200, 'when': {'channel': 1}}),
+                    spec({'name': 'k', 'op': 'clamp', 'percentiles': [5, 95], 'when': {'channel': 1}}),
+                    spec(dict(curve, ramp={'of': 'lumm', 'from': 0, 'to': 1})),
+                    spec(dict(curve, ramp={'of': 'mask:ear', 'from': 0, 'to': 1}))):
+            with self.subTest(bad=bad), self.assertRaises(ValueError): pr.validate_spec(bad)
+
+    def test_load_pins_the_texture_and_refuses_non_square(self):
+        import argparse, tempfile
+        model = 'pfo0_head014'; mdl = ROOT/'srn_head'/(model+'.mdl')
+        if not mdl.is_file(): self.skipTest('published head not present')
+        with tempfile.TemporaryDirectory() as d:
+            plt = Path(d)/'x.plt'; plt.write_bytes(header()+bytes(2*SIZE*SIZE))
+            pins = {'plt': {'sha256': hashlib.sha256(plt.read_bytes()).hexdigest()},
+                    'mdl': {'sha256': hashlib.sha256(mdl.read_bytes()).hexdigest()}}
+            s = {**spec({'name': 'a', 'op': 'shade', 'shade': 3, 'when': {'channel': 1}}), 'model': model, 'source': pins}
+            args = lambda texture=None: argparse.Namespace(mdl=str(mdl), plt=str(plt), model=None, texture=texture)
+            self.assertEqual(pr.load(args(), s)[1], model)
+            self.assertEqual(pr.load(args(model.upper()), s)[1], model)
+            with self.assertRaises(ValueError): pr.load(args('other'), s)
+            plt.write_bytes(pr.PLT_MAGIC+np.array([10, 0, SIZE, SIZE//2], '<u4').tobytes()+bytes(SIZE*SIZE))
+            with self.assertRaises(ValueError): pr.load(args())
+
 
 class Guards(Base):
     def test_empty_selection_and_change_cap(self):

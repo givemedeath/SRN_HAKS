@@ -39,6 +39,7 @@ nearest mapped texel wherever that texel changed, so filtering never bleeds the 
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -65,6 +66,10 @@ OP_KEYS = {'fill': {'channel', 'neighbours', 'donors'}, 'despeckle': {'neighbour
            'curve': {'points', 'ramp'}, 'relabel': {'neighbours', 'minShare', 'to'}, 'channel': {'channel'},
            'shade': {'shade'}}
 OPS = tuple(OP_KEYS)
+SPEC_KEYS = {'schemaVersion', 'model', 'texture', 'head', 'defect', 'source', 'previewRows', 'operations', 'regions',
+             'surfaceOutlines'}
+QUANTITIES = {'x', 'y', 'z', 'u', 'v', 'channel', 'shade', 'mapped', 'r', 'g', 'b', 'lum', 'sat', 'red', 'rb', 'gb'}
+RESREF = re.compile(r'[a-z0-9_]{1,16}')
 
 
 def sha256(data):
@@ -261,13 +266,15 @@ def operate(op, texels, shades, layers, selected, values, regions):
     return report
 
 
-def validate_ramp(ramp, name):
+def validate_ramp(ramp, name, known=None):
+    """Ramp shape; with `known`, its quantity must be one of those names."""
     ramps = ramp if isinstance(ramp, list) else [ramp]
     require(ramps, name+': empty ramp list')
     for r in ramps:
         require(isinstance(r, dict) and {'of', 'from', 'to'} <= set(r) <= {'of', 'center', 'from', 'to'}
                 and isinstance(r['of'], str) and all(type(r[k]) in (int, float) for k in set(r)-{'of'}) and r['from'] != r['to'],
                 name+': ramp needs of, numeric from and to (from != to), optionally numeric center')
+        require(known is None or r['of'] in known, name+': unknown ramp quantity '+r['of'])
 
 
 def number(v):
@@ -285,8 +292,11 @@ def validate_rows(rows, name='previewRows'):
 def validate_view(spec):
     """The parts of a spec that probe also reads: model, texture, preview rows, regions and outlines."""
     require(isinstance(spec, dict), 'Repair spec must be an object')
-    require(isinstance(spec.get('model'), str) and spec['model'], 'Spec model name required')
-    require(isinstance(spec.get('texture', 'x'), str) and spec.get('texture', 'x'), 'Spec texture must be a name')
+    extra = set(spec)-SPEC_KEYS; require(not extra, 'Unknown spec keys '+', '.join(sorted(extra)))
+    for key in ('model', 'texture'):
+        if key in spec or key == 'model':
+            require(isinstance(spec.get(key), str) and RESREF.fullmatch(spec[key]),
+                    'Spec '+key+' must be a lowercase resource name of 1-16 characters (a-z, 0-9, _)')
     require(isinstance(spec.get('regions', {}), dict) and isinstance(spec.get('surfaceOutlines', {}), dict),
             'Spec regions and surfaceOutlines must be objects')
     return validate_rows(spec.get('previewRows', {}))
@@ -295,9 +305,12 @@ def validate_view(spec):
 def validate_spec(spec):
     require(isinstance(spec, dict) and spec.get('schemaVersion') == SCHEMA, 'Repair spec schemaVersion 1 required')
     validate_view(spec)
-    source = spec.get('source', {})
+    source = spec.get('source')
+    require(isinstance(source, dict) and all(isinstance(source.get(kind), dict) for kind in ('plt', 'mdl')),
+            'Spec source.plt and source.mdl objects required')
     for kind in ('plt', 'mdl'):
-        require(isinstance(source.get(kind, {}).get('sha256'), str), 'Spec must pin source.'+kind+'.sha256')
+        require(isinstance(source[kind].get('sha256'), str), 'Spec must pin source.'+kind+'.sha256')
+    known = QUANTITIES | {'mask:'+n for n in spec.get('surfaceOutlines', {})}
     ops = spec.get('operations')
     require(isinstance(ops, list) and ops, 'Non-empty operations list required')
     require(all(isinstance(op, dict) for op in ops), 'Operations must be objects')
@@ -326,8 +339,10 @@ def validate_spec(spec):
             require(type(op.get('channel')) is int and 0 <= op['channel'] <= 9, op['name']+': channel 0..9')
         if op['op'] == 'shade': require(type(op.get('shade')) is int and 0 <= op['shade'] <= 255, op['name']+': shade 0..255')
         if op['op'] == 'match': require(isinstance(op.get('reference'), dict), op['name']+': reference predicate required')
-        if 'ramp' in op: validate_ramp(op['ramp'], op['name'])
+        if 'ramp' in op: validate_ramp(op['ramp'], op['name'], known)
         if op['op'] == 'clamp':
+            require(not ('reference' in op and ({'lo', 'hi'} & set(op))) and ('reference' in op or 'percentiles' not in op),
+                    op['name']+': clamp takes reference with percentiles, or absolute lo and hi, not both')
             if 'reference' in op:
                 pct = op.get('percentiles', [5, 95])
                 require(isinstance(op['reference'], dict) and isinstance(pct, list) and len(pct) == 2
@@ -409,8 +424,13 @@ def load(args, spec=None, pinned=True):
         else:
             validate_view(spec)
     model = spec.get('model') or args.model or Path(args.mdl).stem
-    flag = getattr(args, 'texture', None); texture = spec.get('texture') or flag or model
-    require(not (spec and flag) or flag.lower() == texture.lower(), '--texture differs from the spec texture; put the texture in the spec')
+    flag = getattr(args, 'texture', None)
+    if spec:
+        texture = spec.get('texture') or model
+        require(flag is None or flag.lower() == texture, '--texture differs from the spec texture (default: its model); '
+                'put the texture in the spec')
+    else:
+        texture = flag or model
     value = native_mesh(mdl, model, texture)
     header, shades, layers = read_plt(plt)
     require(shades.shape[0] == shades.shape[1], 'Only square PLTs are supported')
@@ -465,6 +485,8 @@ def main(argv=None):
     spec = json.loads(Path(args.spec).read_text(encoding='utf-8')) if getattr(args, 'spec', None) else {}
     model, texture, mdl, plt, value, header, shades, layers = load(args, spec, pinned=False)
     rows = parse_rows(args.rows) or validate_rows(spec.get('previewRows', {}))
+    if args.rows and spec.get('previewRows'):
+        print('note: --rows overrides the spec previewRows; apply decodes colours with the spec rows', file=sys.stderr)
     palettes = load_palettes(args.palettes, set(np.unique(layers).tolist()) | set(rows))
     decoded = decode_colours(shades, layers, palettes, rows); out.mkdir(parents=True, exist_ok=True)
     if args.command == 'view':
