@@ -98,4 +98,5 @@ a motion frame and the second look.
 ## Loading
 
 Load `srn_head` above `srn_body` and use the slots above. All 216 existing `srn_head` resources remain byte-identical. No
-bodies, tables, pack registration or existing head slots change. Armorkit head envelopes are not re-measured here.
+bodies, tables, pack registration or existing head slots change. Armorkit head envelopes are re-measured with these
+heads (Troll rows only; see docs/armorkit/seam-contract.md).
