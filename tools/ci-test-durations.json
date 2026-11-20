@@ -86,6 +86,7 @@
   "tools/heads/test_meshy_dispatch.py": 1.57,
   "tools/heads/test_microface_materials.py": 0.0,
   "tools/heads/test_palette_sampling.py": 1.96,
+  "tools/heads/test_plt_repair.py": 0.25,
   "tools/heads/test_reindex_head.py": 0.002,
   "tools/heads/test_submission_reconciliation.py": 1.09,
   "tools/heads/test_target_and_publication.py": 2.63,
