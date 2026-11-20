@@ -36,9 +36,12 @@ LOOKS = {
     'concrete': ('Concrete034', (122, 120, 116), None, None),
     'red': (None, (210, 26, 18), 0.4, 0.0),  # a warning light: glows
     'steel': (None, (150, 155, 160), 0.32, 0.85),  # clean brushed steel: the corporate towers' pieces
+    'white': (None, (236, 240, 244), 0.5, 0.0),  # a lit sign's face: glows
+    'yellow': (None, (222, 178, 24), 0.55, 0.0),  # hazard yellow
+    'ember': (None, (255, 120, 30), 0.9, 0.0),  # embers in a burn barrel: glows
 }
 ORDER = list(LOOKS)
-GLOWS = {'red': (255, 48, 36)}  # cells that glow whole
+GLOWS = {'red': (255, 48, 36), 'white': (210, 220, 230), 'ember': (255, 110, 24)}  # cells that glow whole
 
 
 def cell_of(look):
@@ -256,6 +259,28 @@ def camera():  # a security camera on an arm, its red light on
     return mesh, False
 
 
+def cross_sign():  # a lit hospital sign standing out from the wall on an arm: a white box with a red cross each side
+    mesh = Mesh(); mesh.box((-0.03, 0.0, 0.62), (0.03, 0.2, 0.68), 'iron', skip=('-y',))
+    mesh.box((-0.07, 0.2, 0.0), (0.07, 1.0, 0.8), 'white')
+    for side in (-1, 1):
+        x0, x1 = sorted((side * 0.07, side * 0.075))
+        mesh.box((x0, 0.52, 0.12), (x1, 0.68, 0.68), 'red'); mesh.box((x0, 0.32, 0.32), (x1, 0.88, 0.48), 'red')
+    return mesh, False
+
+
+def hazard_sign():  # a yellow warning panel flush to the wall, with three slanted black stripes
+    mesh = Mesh(); mesh.box((-0.45, 0.0, 0.0), (0.45, 0.02, 0.6), 'yellow', skip=('-y',))
+    for left in (-0.38, -0.1, 0.18):  # parallelograms on the face, wound to face +y
+        mesh.quad((left + 0.12, 0.025, 0.05), (left, 0.025, 0.05), (left + 0.15, 0.025, 0.55), (left + 0.27, 0.025, 0.55), 'rubber')
+    return mesh, False
+
+
+def barrel():  # a rusted burn barrel, embers glowing in its top
+    mesh = Mesh(); mesh.cylinder((0.0, 0.0, 0.0), 0.3, 0.9, 'rust', sides=10, top=False, bottom=True)
+    mesh.box((-0.2, -0.2, 0.78), (0.2, 0.2, 0.82), 'ember', skip=('-z',))
+    return mesh, True
+
+
 def mast():  # a tall antenna mast on a weighted foot, a red warning light on top
     mesh = Mesh(); mesh.box((-0.4, -0.4, 0.0), (0.4, 0.4, 0.3), 'concrete', skip=('-z',))
     mesh.cylinder((0.0, 0.0, 0.3), 0.08, 7.5, 'steel', sides=6, top=False)
@@ -267,7 +292,7 @@ def mast():  # a tall antenna mast on a weighted foot, a red warning light on to
 
 PIECES = {'ac_unit': ac_unit, 'downpipe': downpipe, 'fire_escape': fire_escape, 'fire_escape_top': lambda: fire_escape(stair=False), 'boards': boards, 'bars': bars,
           'hvac': hvac, 'junction_box': junction_box, 'vent': vent, 'tank': tank, 'dish': dish, 'antenna': antenna,
-          'canopy': canopy, 'ledge': ledge, 'camera': camera, 'mast': mast}
+          'canopy': canopy, 'ledge': ledge, 'camera': camera, 'mast': mast, 'cross_sign': cross_sign, 'hazard_sign': hazard_sign, 'barrel': barrel}
 
 
 def make(folder, masters, crunch, *, compress=None):

@@ -28,11 +28,13 @@ STANDOFF = 0.2  # metres off the cell's side beyond which a tile's own geometry 
 
 
 def turned(at, turn, scale):
-    """The move of a piece's point to the tile's coordinates: scaled, turned about the vertical, then put `at`."""
+    """The move of a piece's point to the tile's coordinates: scaled (one number, or [across, out, up] in the piece's
+    own axes), turned about the vertical, then put `at`."""
     angle = math.radians(turn); c, s = math.cos(angle), math.sin(angle)
+    scales = tuple(scale) if isinstance(scale, (list, tuple)) else (scale,) * 3
 
     def move(point):
-        x, y, z = (value * scale for value in point)
+        x, y, z = (value * factor for value, factor in zip(point, scales))
         return (x * c - y * s + at[0], x * s + y * c + at[1], z + at[2])
     return move
 
@@ -103,7 +105,9 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
         if piece in effects.EFFECTS:  # an emitter, not geometry (`effects`)
             effects.check(name, number, at, piece); fx.append((piece, at, placement.get('fall'))); continue
         require(isinstance(at, list) and len(at) == 3 and all(isinstance(value, (int, float)) for value in at), f'{name} #{number}: `at` is [x, y, z]')
-        scale = placement.get('scale', 1.0); require(isinstance(scale, (int, float)) and scale > 0, f'{name} #{number}: `scale` is a positive number')
+        scale = placement.get('scale', 1.0)
+        require(isinstance(scale, (int, float)) and scale > 0 or isinstance(scale, list) and len(scale) == 3 and all(isinstance(value, (int, float)) and value > 0 for value in scale),
+                f'{name} #{number}: `scale` is a positive number, or three: [across, out, up]')
         blocks = placement.get('blocks', False); require(isinstance(blocks, bool), f'{name} #{number}: `blocks` is true or false')
         mine = geometry.baked(piece_parts(kit, piece, cache), turned(at, placement.get('turn', 0.0), scale))
         require(mine, f'{piece} draws nothing'); faces = geometry.faces_of(mine)
@@ -119,7 +123,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
             else:
                 require(isinstance(cover, dict) and len(cover.get('size', ())) == 2 and isinstance(cover.get('height'), (int, float)), f'{name} #{number}: `cover` is {{size: [width, depth], height}}')
                 move = turned(at, placement.get('turn', 0.0), scale); width, depth = (value / 2 for value in cover['size'])
-                polygon = cuts.hull([move((x, y, 0.0))[:2] for x, y in ((-width, -depth), (width, -depth), (width, depth), (-width, depth))]); top = at[2] + cover['height'] * scale
+                polygon = cuts.hull([move((x, y, 0.0))[:2] for x, y in ((-width, -depth), (width, -depth), (width, depth), (-width, depth))]); top = move((0.0, 0.0, cover['height']))[2]
             footprints.append((polygon, roof, top))
             outside = {key: heights for key, heights in geometry.in_the_way(faces, walk).items()
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}

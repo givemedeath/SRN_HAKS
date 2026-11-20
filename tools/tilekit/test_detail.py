@@ -240,5 +240,13 @@ class ApplyCuts(unittest.TestCase):
                 apply.apply(root, None, root / 'out')
 
 
+class TurnedTest(unittest.TestCase):
+    def test_a_piece_scales_by_axis_before_it_turns(self):
+        move = detail.turned([1.0, 2.0, 3.0], 90.0, [2.0, 1.0, 3.0])  # across 2x, up 3x, then turned a quarter
+        x, y, z = move((1.0, 0.5, 1.0))
+        self.assertAlmostEqual(x, 1.0 - 0.5); self.assertAlmostEqual(y, 2.0 + 2.0); self.assertAlmostEqual(z, 6.0)
+        self.assertEqual(detail.turned([0, 0, 0], 0.0, 2.0)((1.0, 1.0, 1.0)), (2.0, 2.0, 2.0))
+
+
 if __name__ == '__main__':
     unittest.main()

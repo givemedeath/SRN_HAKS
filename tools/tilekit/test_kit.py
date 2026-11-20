@@ -224,7 +224,7 @@ endnode
 endmodelgeom t
 donemodel t
 """
-GRID = {'grid': (2, 4, 0.2, 0.8)}
+GRID = {'grid': (2, 4, 0.2, 0.8, 0.7)}  # 5 m columns, glass 3.5 m wide
 
 
 class PaintedWindowsTest(unittest.TestCase):
@@ -232,9 +232,9 @@ class PaintedWindowsTest(unittest.TestCase):
         _, _, nodes = geometry.parse(PAINTED)
         found = placer.grid_windows(nodes, GRID)
         self.assertEqual(list(found), [(-1, 0)])
-        self.assertEqual(found[(-1, 0)], sorted((along, 12.0 + 5 * row + 1, 12.0 + 5 * row + 4, 5.0)
+        self.assertEqual(found[(-1, 0)], sorted((along, 12.0 + 5 * row + 1, 12.0 + 5 * row + 4, 5.0, 3.5)
                                                 for along in (-2.5, 2.5) for row in range(4)))
-        self.assertEqual(placer.grid_windows(nodes, {'other': (2, 4, 0.2, 0.8)}), {})
+        self.assertEqual(placer.grid_windows(nodes, {'other': (2, 4, 0.2, 0.8, 0.7)}), {})
 
     def test_a_tower_over_lower_neighbours_is_dressed_from_its_windows_up(self):
         closed = placer.propose(PAINTED, 'seed', look='derelict', grids=GRID, open=set())
@@ -250,12 +250,33 @@ class PaintedWindowsTest(unittest.TestCase):
         self.assertIn('ac_unit', pieces)
         self.assertFalse(pieces & {'fire_escape', 'fire_escape_top', 'bars', 'boards'})
 
+FLOORED = TOWER.replace('endmodelgeom t', """node aabb floor
+  parent t
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap NULL
+  verts 4
+    -4.0 -4.0 6.0
+    4.0 -4.0 6.0
+    4.0 4.0 6.0
+    -4.0 4.0 6.0
+  faces 2
+    0 1 2 1 0 0 0 4
+    0 2 3 1 0 0 0 4
+endnode
+endmodelgeom t""")  # a walkable upper floor, 6 m up
+
+
 class FamilyLooksTest(unittest.TestCase):
     def test_a_secure_site_bars_every_lowest_window_and_a_civic_one_none(self):
         _, _, nodes = geometry.parse(PAINTED); lowest = min(bottom for _, bottom, *_ in placer.grid_windows(nodes, GRID)[(-1, 0)])
         secure = placer.propose(PAINTED, 'seed', look='secure', grids=GRID)
-        self.assertEqual(sorted(one['at'][1] for one in secure if one['piece'] == 'bars'), [-2.5, 2.5])
-        self.assertTrue(all(abs(one['at'][2] - lowest - 0.45) < 1e-6 for one in secure if one['piece'] == 'bars'))
+        bars = [one for one in secure if one['piece'] == 'bars']
+        for along in (-2.5, 2.5):  # each 3.5 by 3 m window is barred whole, by two panels side by side
+            mine = [one for one in bars if abs(one['at'][1] - along) < 1.75]
+            self.assertEqual(len(mine), 2)
+            self.assertAlmostEqual(sum(one['scale'][0] for one in mine) * placer.PANEL[0], 3.5 - 2 * placer.INSET, places=2)
+            self.assertTrue(all(abs(one['at'][2] - lowest - placer.INSET) < 1e-6 and abs(one['scale'][2] * placer.PANEL[1] - (3.0 - 2 * placer.INSET)) < 0.01 for one in mine))
         civic = {one['piece'] for one in placer.propose(PAINTED, 'seed', look='civic', grids=GRID)}
         self.assertFalse(civic & {'bars', 'boards', 'ac_unit', 'fire_escape'})
 
@@ -266,5 +287,13 @@ class FamilyLooksTest(unittest.TestCase):
 
     def test_a_watched_wall_without_a_door_gets_a_camera(self):
         self.assertFalse([one for one in placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False) if one['piece'] == 'camera'])
-        cameras = [one for one in placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False, watch=True) if one['piece'] == 'camera']
-        self.assertEqual(len(cameras), 1); self.assertEqual(cameras[0]['turn'], placer._turn((-1, 0)))
+        found = placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False, watch=True, sign='hazard_sign', eye=1.6)
+        cameras = [one for one in found if one['piece'] == 'camera']
+        self.assertEqual(sorted(one['at'][1] for one in cameras), [-3.4, 3.4]); self.assertTrue(all(one['scale'] == 1.6 and one['turn'] == placer._turn((-1, 0)) for one in cameras))
+        self.assertEqual([one['at'] for one in found if one['piece'] == 'hazard_sign'], [[-2.5, 0.0, round(geometry.OVER + 0.05, 3)]])
+
+    def test_a_ruin_has_smoking_barrels_and_no_roof_plant(self):
+        found = placer.propose(FLOORED, 'seed', look='ruin', plant=None)
+        barrels = [one for one in found if one['piece'] == 'barrel']; smoke = [one for one in found if one['piece'] == 'smoke']
+        self.assertTrue(1 <= len(barrels) <= 2); self.assertEqual(len(smoke), len(barrels))
+        self.assertFalse({one['piece'] for one in found} & {'hvac', 'tank', 'dish', 'antenna', 'vent'})
