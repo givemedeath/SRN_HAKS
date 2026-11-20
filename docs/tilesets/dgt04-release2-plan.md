@@ -278,7 +278,7 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
   doorways (`dgt04_black`) stay black.
 - **Applied:** to `srn_t_common` and `srn_t_dgt04`, 117 models, both packs built.
 
-#### Batch 4: ruin, Apartments, Warehouses, Police, Hospital and Lab (look gate pending)
+#### Batch 4 result: ruin, Apartments, Warehouses, Police, Hospital and Lab (approved by the user and applied, 2026-11-20)
 
 - **Placements:** `docs/tilesets/dgt04/detail-batch4.json`, 73 tiles. Each family has a look: ruin (burn barrels
   smoking on the upper floors, no roof plant), residential, industrial, secure (bars on every lowest window, a camera
