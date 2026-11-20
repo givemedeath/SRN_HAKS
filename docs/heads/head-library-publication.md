@@ -29,7 +29,9 @@ For each head it:
    It crops each view with the boxes in `tools/headbatch/library-crops.json` (per head family, for example
    `troll-male`; `default` for the rest) and reduces them; it never edits textures or geometry.
 
-Nothing reaches the repository until every head has resolved. An existing resource with different bytes refuses, and so
+The manifest's triangles and material come from the export receipt the native attempt pinned by hash (a fit
+variant without a native receipt uses the newest export). Nothing reaches the repository until every head has resolved
+and every target path is checked. An existing resource with different bytes refuses, and so
 does an existing manifest of the same name. The manifest refuses to hold a local path.
 
 ## Inputs the checkpoint may lack

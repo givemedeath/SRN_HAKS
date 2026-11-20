@@ -87,6 +87,7 @@ def latest_checkpoints(workspace, pattern):
 
 def select(latest, heads, prefix):
     if heads:
+        require(len(set(heads)) == len(heads), 'A head is listed twice in --heads')
         missing = sorted(set(heads)-set(latest))
         require(not missing, 'Heads not in any checkpoint: '+', '.join(missing))
         return list(heads)
@@ -120,7 +121,22 @@ def resolve(workspace, head, row, override):
         require(payload[ext][0][1] == native, f'{head}: trial {ext} differs from its native source ({label})')
         files[ext] = {'hak': payload[ext][0][0], 'data': native}
     require(files['mdl']['hak'] == files['plt']['hak'], f'{head}: MDL and PLT come from different trial HAKs')
-    return {'head': head, 'slot': slot, 'session': session, 'trial': trial, 'attempt': attempt, 'files': files}
+    receipt = folder.parent/'receipt.json' if label.startswith('attempt-') else W/'heads'/head/'run/native'/attempt/'receipt.json'
+    return {'head': head, 'slot': slot, 'session': session, 'trial': trial, 'attempt': attempt, 'files': files,
+            'nativeReceipt': receipt if receipt.is_file() else None}
+
+
+def export_receipt(workspace, head, native_receipt):
+    """The export receipt the native attempt consumed (its sha256 is among the native receipt's inputs). A fit variant
+    without a native receipt falls back to the newest export attempt."""
+    exports = sorted((Path(workspace)/'heads'/head/'run/export').glob('attempt-*/receipt.json'))
+    require(exports, f'{head}: no export attempt')
+    if native_receipt is None:
+        return exports[-1]
+    pinned = {item.get('sha256') for item in read_json(native_receipt).get('inputs') or []}
+    matched = [e for e in exports if sha256(e.read_bytes()) in pinned]
+    require(len(matched) == 1, f'{head}: {len(matched)} export receipts are pinned by native {native_receipt.parent.name}, need one')
+    return matched[0]
 
 
 def native_sources(manifest, head):
@@ -195,9 +211,7 @@ def gallery(workspace, resolved, crops, path):
 def head_entry(workspace, row, resolved, evidence, rows, extra_notes):
     W = Path(workspace); head = resolved['head']
     design = read_json(W/'design/records'/f'{head}.json')
-    exports = sorted(p for p in (W/'heads'/head/'run/export').iterdir() if p.name.startswith('attempt-'))
-    require(exports, f'{head}: no export attempt')
-    export = read_json(exports[-1]/'receipt.json')['result']
+    export = read_json(export_receipt(W, head, resolved['nativeReceipt']))['result']
     material = export.get('nativeMaterial')
     if isinstance(material, dict):
         material = {k: material[k] for k in ('policy', 'applied', 'material', 'channels', 'reason') if k in material}
@@ -274,6 +288,7 @@ def write_new(path, data):
 def stage(args):
     W, repo, out = Path(args.workspace), Path(args.repo), Path(args.out)
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', args.name), '--name is a lowercase file stem, e.g. head-library-trolls-v1')
+    require(re.fullmatch(r'\d{4}-\d{2}-\d{2}', args.created), '--created takes YYYY-MM-DD')
     crops = read_json(args.crops or CROPS)
     overrides = read_json(args.overrides) if args.overrides else {}
     latest = latest_checkpoints(W, args.checkpoints)
@@ -281,7 +296,6 @@ def stage(args):
     rows = read_json(W/'spool/reviewed-rows.json')
     target = out/'repo' if args.dry_run else repo
     head_folder = repo/'srn_head'
-    existing = len([p for p in head_folder.iterdir() if p.is_file()]) if head_folder.is_dir() else 0
     manifest_path = target/'docs/heads'/f'{args.name}.json'
     require(not manifest_path.exists(), f'{manifest_path} exists; publish under a new name')
     evidence = target/'docs/heads/evidence'/args.name
@@ -302,12 +316,15 @@ def stage(args):
     manifest = {'kind': KIND, 'created': args.created, 'heads': entries, **({'notes': args.notes} if args.notes else {}),
                 'review': REVIEW}
     text = json.dumps(manifest, indent=1, ensure_ascii=False)+'\n'
-    require(not re.search(r'[A-Za-z]:[\\/]|\\\\', text), 'The manifest would hold a local path')
-    for resolved in staged:
-        for ext, f in resolved['files'].items():
-            write_new(target/'srn_head'/f"{resolved['slot']}.{ext}", f['data'])
-        name = f"{resolved['slot']}-client.jpg"
-        write_new(evidence/name, (sheets/name).read_bytes())
+    names = {f"{r['slot']}.{ext}" for r in staged for ext in r['files']}
+    existing = len([p for p in head_folder.iterdir() if p.is_file() and p.name not in names]) if head_folder.is_dir() else 0
+    writes = [(target/'srn_head'/f"{r['slot']}.{ext}", f['data']) for r in staged for ext, f in r['files'].items()]
+    writes += [(evidence/f"{r['slot']}-client.jpg", (sheets/f"{r['slot']}-client.jpg").read_bytes()) for r in staged]
+    for path, data in writes:  # every target is checked before the first write
+        require(not path.exists() or path.read_bytes() == data, f'{path} exists with different bytes')
+    require(not re.search(r'[A-Za-z]:[\\/]|\\\\|"/|\s/(home|Users|mnt|tmp|var|srv)/', text), 'The manifest would hold a local path')
+    for path, data in writes:
+        write_new(path, data)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(text, encoding='utf-8', newline='\n')
     out.mkdir(parents=True, exist_ok=True)
@@ -345,7 +362,7 @@ def parser():
     which.add_argument('--prefix', help='every checkpointed head whose name starts with this, e.g. troll-')
     p.add_argument('--checkpoints', default='runtime/batch-*-checkpoint-*.json', help='checkpoint glob in the workspace')
     p.add_argument('--crops', type=Path, help=f'gallery crop boxes per head family (default {CROPS.name})')
-    p.add_argument('--overrides', type=Path, help='JSON {head: {session?, reviewNotes?}} for heads whose checkpoint lacks them')
+    p.add_argument('--overrides', type=Path, help='JSON {head: {session?, reviewNotes?, reviewedNativeAttempt?}} for heads whose checkpoint lacks them')
     p.add_argument('--notes', help='manifest-level note, e.g. how designSubmissions was recorded')
     p.add_argument('--out', required=True, help='folder for the record draft (and the repository files with --dry-run)')
     p.add_argument('--dry-run', action='store_true', help='write the repository files under OUT/repo instead')
@@ -360,8 +377,8 @@ def main(argv=None):
     args = parser().parse_args(argv)
     try:
         return args.handler(args)
-    except PublishError as error:
-        print('REFUSED:', error, file=sys.stderr)
+    except (PublishError, OSError, KeyError, json.JSONDecodeError) as error:
+        print('REFUSED:', error if isinstance(error, PublishError) else f'{type(error).__name__}: {error}', file=sys.stderr)
         return 1
 
 

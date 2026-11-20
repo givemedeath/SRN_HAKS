@@ -34,6 +34,9 @@ class Workspace:
         export = W/'heads'/HEAD/'run/export/attempt-01'; export.mkdir(parents=True)
         self.json(export/'receipt.json', {'result': {'triangles': 20000, 'nativeMaterial': {
             'policy': 'stock-organic-head-v1', 'applied': True, 'material': 'oldm_head', 'channels': [0, 1, 8, 9], 'expectedStockSha256': 'x'}}})
+        import hashlib  # the native attempt pins export attempt-01; a later re-export must not be read
+        self.json(native.parent/'receipt.json', {'inputs': [{'path': 'export', 'sha256': hashlib.sha256((export/'receipt.json').read_bytes()).hexdigest()}]})
+        self.json(W/'heads'/HEAD/'run/export/attempt-02/receipt.json', {'result': {'triangles': 1, 'nativeMaterial': {'policy': 'other'}}})
         self.json(W/'design/records'/f'{HEAD}.json', {'name': 'Anvil', 'features': {'hair': 'Dense short coils; dark'},
                   'design': {'path': 'C:\\local\\detail.png', 'sha256': 'd'*64}, 'generator': 'gen', 'sourceHead': 'troll-male-01', 'sourceDraft': 1})
         self.json(W/'spool/reviewed-rows.json', {HEAD: {'0': 119, '1': 63, '8': 35, '9': 120}})
@@ -102,6 +105,27 @@ class Stage(unittest.TestCase):
         (self.repo/'srn_head'/f'{SLOT}.mdl').write_bytes(b'published-different')
         code, _ = self.stage(Workspace(self.tmp.name)); self.assertEqual(code, 1)
         self.assertFalse((self.repo/'docs').exists())
+
+    def test_a_conflicting_gallery_refuses_before_any_write(self):
+        ws = Workspace(self.tmp.name); gallery = self.repo/'docs/heads/evidence/head-library-test-v1'/f'{SLOT}-client.jpg'
+        gallery.parent.mkdir(parents=True); gallery.write_bytes(b'old crop')
+        self.assertEqual(self.stage(ws)[0], 1)
+        self.assertFalse((self.repo/'srn_head'/f'{SLOT}.mdl').exists())
+
+    def test_input_refusals(self):
+        ws = Workspace(self.tmp.name)
+        self.assertEqual(self.stage(ws, '--created', 'yesterday')[0], 1)
+        (ws.root/'design/records'/f'{HEAD}.json').unlink()
+        self.assertEqual(self.stage(ws)[0], 1)  # a missing input refuses instead of a traceback
+        out = Path(self.tmp.name)/'out'
+        self.assertEqual(pl.main(['stage', '--workspace', str(ws.root), '--repo', str(self.repo), '--name', 'x', '--created', '2026-11-20',
+                                  '--heads', f'{HEAD},{HEAD}', '--out', str(out)]), 1)
+
+    def test_posix_paths_never_reach_the_manifest(self):
+        ws = Workspace(self.tmp.name); checkpoint = ws.root/'runtime/batch-09-checkpoint-23.json'
+        data = json.loads(checkpoint.read_text(encoding='utf-8')); data['heads'][0]['corrections'] = ['moved /home/user/ws/heads aside']
+        checkpoint.write_text(json.dumps(data), encoding='utf-8')
+        self.assertEqual(self.stage(ws)[0], 1); self.assertFalse((self.repo/'docs').exists())
 
     def test_existing_manifest_refuses(self):
         ws = Workspace(self.tmp.name); self.assertEqual(self.stage(ws)[0], 0)
