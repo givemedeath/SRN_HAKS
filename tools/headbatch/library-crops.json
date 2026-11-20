@@ -1,0 +1,9 @@
+{
+ "description": "Gallery crop boxes [left, top, right, bottom] in client frame pixels, per head family (race-sex); 'default' for the rest. Troll tours at 1536x864 frame heads off-centre (measured on four heads per sex, 2026-11-20).",
+ "default": {"three": [560, 120, 1240, 760], "threeleft": [560, 120, 1240, 760], "backright": [560, 120, 1240, 760],
+             "backleft": [560, 120, 1240, 760], "motion": [560, 120, 1240, 760], "alt": [560, 120, 1240, 760]},
+ "troll-male": {"three": [518, 184, 1241, 864], "threeleft": [532, 184, 1255, 864], "backright": [686, 184, 1409, 864],
+                "backleft": [670, 184, 1393, 864], "motion": [676, 392, 1076, 768], "alt": [469, 184, 1192, 864]},
+ "troll-female": {"three": [198, 184, 921, 864], "threeleft": [634, 184, 1357, 864], "backright": [558, 184, 1281, 864],
+                  "backleft": [813, 184, 1536, 864], "motion": [736, 392, 1136, 768], "alt": [349, 184, 1072, 864]}
+}
