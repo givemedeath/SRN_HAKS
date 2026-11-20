@@ -453,6 +453,18 @@ Sizes, matching the existing doors (approved by the user, 2026-11-19):
 
 The unclear hooks are checked against pictures.
 
+**Unclear hooks, checked against client pictures** (2026-11-20, `output/tilekit/door-hooks/unclear.jpg`; user's
+answers):
+
+- **`dgt04_e01_05` (Highrise_01):** its four hooks stand side by side in one black 8 × 3 m opening. Each takes a
+  2 × 3 m roller shutter.
+- **`dgt04_i02_01`–`03` and `i05_02`/`03`:** these hooks stand in open walled yards, with no doorway. Nothing new is
+  made for them.
+- **`dgt04_e09_17` and `e09_37`:** these hooks stand on roofs among the clutter. Nothing new is made for them either.
+- **`dgt05_h41_01`, `h51_01` and `srt04_r05_01`:** each hook stands at the jamb of a black 2 × 3 m opening. They are
+  sized as 2 × 3 m singles, and the client test shows whether a door stands off-centre.
+- **`dgt05_s15_32` and `s15_52`:** clear 2 × 3 m doorways. The measurement hit a low step.
+
 ### 6 — Cohesion and release
 
 - Performance against the baseline on the same views.
