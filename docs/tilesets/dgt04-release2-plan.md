@@ -1,6 +1,7 @@
 # Modern Exterior (`dgt04`) upfit, release 2 — plan
 
-Status: revision 1, 2026-11-19, scope decided by the user; nothing built yet. Release 1 (materials, lamps, shadows,
+Status: revision 2, 2026-11-19. The scope was decided by the user, and the baseline method was revised after a
+review with the user. Nothing has been built yet. Release 1 (materials, lamps, shadows,
 edge tiles, strata 4 and 5; `docs/tilesets/dgt04-upfit-plan.md`) is on `main` (PR 181, 816c5aa6). Release 2 works on
 `restyle/dgt04-r2`.
 
@@ -52,12 +53,24 @@ Release 1's constraints hold, except that original models are now edited:
 ### 0 — Merge and baseline
 
 - PR 181 merged to `main` (816c5aa6); `restyle/dgt04-r2` branched from it (done 2026-11-19).
-- Take the performance baseline on the review block and on one large built area:
+- Take the performance baseline on two areas in the review module:
+  - the review block;
+  - a generated 32×32 area, mostly Slums. The pilot is measured on this same area.
+- Measure:
   - frame rate standing at three fixed views, by day and by night;
-  - area load time from the client log;
-  - pack sizes.
-- The capture method is confirmed in a probe first: the client's frame counter in the captures, and load times from
-  the log's area-entry lines.
+  - area load time;
+  - pack sizes;
+  - faces, mesh nodes and materials per tile.
+- Client settings for the measurement, in the review client's own `settings.tml` only (your own settings are not
+  touched):
+  - frame counter on (`graphics.stats.enabled`, "FPS Stats Display"), read from the window grabs;
+  - vsync off and frame limiter off. Today vsync is "adaptive" at 60 Hz, which would cap a cheap tile and a heavy
+    one at the same 60;
+  - the fixed 1600×900 window.
+- Load time is timed by the launcher, which polls the client log every few milliseconds for the area-entry line.
+  The log itself has whole seconds only, and the review block loads in about one second.
+- The method is confirmed in a short probe first.
+- The numbers hold for this machine at 1600×900 only, and are recorded with that note.
 - Done when the numbers are recorded here and repeat within a few percent on a second run.
 
 ### 1 — Tooling
@@ -72,9 +85,12 @@ Release 1's constraints hold, except that original models are now edited:
   - keeps every `aabb` node, door hook and lamp;
   - checks the silhouette rule;
   - writes into the same kind of overlay.
-- A face and texture count per tile, against the budget once it is set.
-- The kit-piece library: models, their materials, and a contact sheet. Its source is settled in the pilot (Meshy
+- A count per tile of faces, mesh nodes and materials, checked against the budget once it is set. In this engine
+  separate nodes and materials (draw calls) may cost more than faces, so the budget covers all three.
+- The kit-piece library: models, their materials, and a contact sheet. Kit pieces share one atlas, and pieces on a
+  tile are merged into as few nodes as their materials allow. The library's source is settled in the pilot (Meshy
   or Blender, piece by piece).
+- Alongside this stage: the door inventory (stage 5's first step). It is read-only and depends on nothing else.
 
 ### 2 — Slums pilot
 
@@ -110,7 +126,7 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 
 ### 5 — Doors
 
-- Inventory of the 113 door models: type (exterior entrance, interior, gate, curtain), the tilesets and placeables that
+- Inventory of the 113 door models, taken during stage 1: type (exterior entrance, interior, gate, curtain), the tilesets and placeables that
   use each, current textures and faces, and one picture each.
 - You pick the set. It is then restyled with release 1's material route, and remeshed where the inventory shows a need.
 - Door hooks and door types (`doortypes.2da` rows) do not move.
@@ -132,7 +148,7 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 
 ## Open until the pilot
 
-- The face budget.
+- The budget: faces, mesh nodes and materials per tile.
 - The geometry source for each piece type.
 - Whether the Concrete tiles are detailed at all, or left to envkit and placeables.
 - Desk time: measured in the pilot, then estimated for each batch.
