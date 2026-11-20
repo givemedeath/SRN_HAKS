@@ -225,6 +225,26 @@ As planned:
 
 Each batch ends with a day-and-night contact sheet and a look gate. Each lands as one PR into `restyle/dgt04-r2`.
 
+#### Batch 1 result: Slums (approved by the user, 2026-11-20)
+
+- **Tiles:** all 105 Slums models (`dgt04_*` and the `dgt05_s*` copies), placements in
+  `docs/tilesets/dgt04/detail-slums.json`, proposed by `placer.py`; the six pilot tiles keep their approved pieces.
+  1,138 pieces, 178 effects, 25 junction boxes, 55 roofs with blocking clutter cut into the walkmesh; the largest
+  addition is under 1,800 faces, inside the budget.
+- **Placer rules added in the batch:** no wall pieces on a cell-side facade that meets the next building (the set
+  file's corners say which sides face a street); a downpipe keeps out of a column with a street-level door or window
+  (one ran down into a doorway on `e09_19`), taking the facade's other end or none.
+- **Textures:** the motel sign (`motel2`) reads COFFINS, its letters set by script on the release 1 sign. The wide
+  shop window `win2` / `win2_g` is drawn anew to its face's shape (5 × 2.2 m, UVs over the whole picture), with the
+  local Qwen model on a scripted layout: frame, two mullions, three panes of blinds; the release 1 picture had its
+  square layout stretched across the glass. Records in `output/tilekit/redrawn` (`tilekit-made-by-hand`).
+- **Frame rate:** at a 200 cap the Slums views held 173–180 fps in the steadiest run; one run fell to 129–172 with
+  the review block falling too, which has no detail (another load on the PC). **Loads** from the overlay's loose
+  files were 1.7–5.3 s against the packed baseline's 0.9–2.1 s; accepted by the user as the cost of loose ASCII
+  files, which compiled, packed models should not have.
+- **Applied:** `tilekit apply` moved the overlay into `srn_t_common` (models) and `srn_t_dgt04` (the kit's atlas
+  and the effects' pictures, recorded by `detail` in `kit-files.json`).
+
 ### 4 — Selective remeshing
 
 - A candidate list from the review captures: the tiles whose shape reads worst once they are detailed.
@@ -306,5 +326,5 @@ The unclear hooks are checked against pictures.
 
 - The budget and the geometry source are settled (see the pilot result).
 - Whether the Concrete tiles are detailed at all, or left to envkit and placeables.
-- Frame rate with effects in, and load times: measured on the first batch.
+- Frame rate with effects in, and load times: measured on the first batch (see its result).
 - Desk time per batch: estimated from the first batch.
