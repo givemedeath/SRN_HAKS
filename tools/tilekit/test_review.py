@@ -1,4 +1,5 @@
 """The review module: how a tile turns, an area laid from a set's own rules, the views taken of it and its script."""
+import math
 import tempfile
 import unittest
 from pathlib import Path
@@ -106,6 +107,14 @@ class ReviewTests(unittest.TestCase):
             review.area_documents('tkbd', 'Block', 'tst01', 2, 4, laid, 'day')
         with self.assertRaisesRegex(ValueError, 'lit by'):
             review.area_documents('tkbd', 'Block', 'tst01', 2, 3, laid, 'dusk')
+
+    def test_a_generic_door_stands_where_asked_its_row_past_255_in_the_new_field(self):
+        laid = {(0, 0): (0, 0)}
+        git = review.area_documents('tkd', 'Doors', 'tst01', 1, 1, laid, 'day', doors=[{'row': 1094, 'position': (5.0, 4.1, 0.2), 'bearing': -90.0, 'opened': 1}])['tkd.git']
+        one = git['Door List']['value'][0]
+        self.assertEqual((one['__struct_id'], one['Appearance']['value'], one['GenericType_New']['value'], one['GenericType']['value'], one['OpenState']['value']), (8, 0, 1094, 255, 1))
+        self.assertAlmostEqual(one['Bearing']['value'], -math.pi / 2, places=5); self.assertAlmostEqual(one['Y']['value'], 4.1, places=5)
+        self.assertEqual(review.area_documents('tkd', 'Doors', 'tst01', 1, 1, laid, 'day')['tkd.git']['Door List']['value'], [])
 
     def test_the_shared_part_lays_another_tileset_s_tiles_on_its_plain_tile_and_stands_placeables_in_rows(self):
         table = '2DA V2.0\n\n   Label StrRef ModelName\n0  Bin 1 plc_bin\n1  Crate 2 plc_crate\n'

@@ -243,10 +243,27 @@ def prop_shots(area, prefix, rows, *, across=5, spacing=6.0, apart=12.0, distanc
     return [_shot(area, f'{prefix}-r{row:02d}', TILE + spacing * across / 2, TILE + apart * (row + 0.5) - 3.0, 90, distance, pitch) for row in range(rows)]
 
 
-def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, props=()):
+def door(tag, generic, position, bearing, opened=0):
+    """One generic door of an area's door list: `generic` its row of genericdoors.2da (a row past 255 is read from
+    GenericType_New), standing at `position` (x, y, z) turned `bearing` degrees, `opened` 0 shut, 1 or 2 open that way."""
+    x, y, z = position; gff_float = client_fixture.gff_float
+    values = {'Tag': field('cexostring', tag), 'LocName': field('cexolocstring', {'0': tag}), 'Description': field('cexolocstring', {}),
+              'TemplateResRef': field('resref', ''), 'Appearance': field('dword', 0), 'GenericType': field('byte', min(generic, 255)),
+              'GenericType_New': field('dword', generic), 'OpenState': field('byte', opened), 'AnimationState': field('byte', opened),
+              'Plot': field('byte', 1), 'HP': field('short', 15), 'CurrentHP': field('short', 15), 'Hardness': field('byte', 5),
+              'Fort': field('byte', 16), 'Ref': field('byte', 0), 'Will': field('byte', 0), 'Faction': field('dword', 1),
+              'Lockable': field('byte', 0), 'Locked': field('byte', 0), 'KeyRequired': field('byte', 0), 'KeyName': field('cexostring', ''),
+              'Interruptable': field('byte', 1), 'Conversation': field('resref', ''), 'LinkedTo': field('cexostring', ''),
+              'LinkedToFlags': field('byte', 0), 'PortraitId': field('word', 0), 'TrapFlag': field('byte', 0),
+              'X': gff_float(x), 'Y': gff_float(y), 'Z': gff_float(z), 'Bearing': gff_float(math.radians(bearing))}
+    return {'__struct_id': 8, **values}
+
+
+def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, props=(), doors=()):
     """{file: document} of one area: its tiles as laid ({(column, row): (tile number, turn)}, every cell), its lighting
-    one of LIGHTS, nothing standing in it but `props` (`prop_rows`). lamps: {main, source} switches every tile's own
-    lights on, as a builder does in the Toolset: each a row of lightcolor.2da for both of that kind, 0 for off."""
+    one of LIGHTS, nothing standing in it but `props` (`prop_rows`) and `doors` ([{row, position, bearing, opened}],
+    `door`). lamps: {main, source} switches every tile's own lights on, as a builder does in the Toolset: each a row of
+    lightcolor.2da for both of that kind, 0 for off."""
     require(NAME.fullmatch(tag) and len(tag) <= client_fixture.RESREF, 'An area\'s tag is a lowercase resref')
     require(light in LIGHTS, 'An area is lit by ' + ', '.join(LIGHTS)); require(len(laid) == width * height, f'{tag}: every cell of the area is laid')
     made = client_fixture.area_documents(tag, [], 1); are = made.pop(tag + '_a.are'); git = made.pop(tag + '_a.git'); template = are['Tile_List']['value'][0]  # a tile's fields, copied for every cell
@@ -266,6 +283,8 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
     if props:
         git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', SOUTH))
                                                for index, prop in enumerate(props)])
+    if doors:
+        git['Door List'] = field('list', [door(f'{tag}_d{index}', one['row'], one['position'], one['bearing'], one.get('opened', 0)) for index, one in enumerate(doors)])
     return {tag + '.are': are, tag + '.git': git}
 
 
@@ -325,7 +344,8 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     ifo['Mod_Area_list']['value'] = [{'__struct_id': 6, 'Area_Name': field('resref', area['tag'])} for area in areas]
     ifo['Mod_Entry_Area'] = field('resref', shots[0]['area']); ifo['Mod_Name'] = field('cexolocstring', {'0': 'Tilekit review ' + name})
     for area in areas:
-        made.update(area_documents(area['tag'], area['title'], area['tileset'], area['width'], area['height'], area['laid'], area['light'], area.get('lamps'), area.get('props', ())))
+        made.update(area_documents(area['tag'], area['title'], area['tileset'], area['width'], area['height'], area['laid'], area['light'], area.get('lamps'), area.get('props', ()),
+                                   area.get('doors', ())))
     for filename, document in made.items():
         path = documents / (filename + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
         run('nwn_gff', ['-i', path, '-o', binary / filename])
