@@ -1,0 +1,11 @@
+Use your built-in image generation tool to create ONE landscape image, 1536x1024, then copy the resulting PNG into the current working directory as view.png. Do not write any code or other files.
+
+Art style: painterly, highly detailed, realistic digital matte painting of untouched alpine wilderness. Lighting: soft, even, neutral overcast daylight with no strong shadows, no sunset colours and no warm or cool colour cast, so the image can later be tinted for dawn, day, dusk and night. Colours: grey granite, white snow, dark green pines, slate-blue distant ranges. Absolutely no magenta, pink or purple anywhere in the image.
+
+Subject: the high Rocky Mountains of the Awakened wilderness. Layers from back to front: a range of very tall, sharp, glaciated granite peaks with snowfields and couloirs; a dramatic hanging glacier; forested slopes; a dark alpine lake shoreline with pine forest across the bottom.
+
+This is one 120-degree slice of a 360-degree game skybox horizon. Composition rules, all mandatory:
+- A very wide, LOW horizon view seen from far away, straight-on, eye level, no perspective tilt, no roads or rivers leading toward the viewer.
+- The whole landscape occupies ONLY the bottom 45% of the image: the highest point of the silhouette is at most 45% up from the bottom edge.
+- EVERYTHING above the landscape silhouette is a perfectly flat, uniform, pure chroma-key magenta (#FF00FF): no clouds, no gradient, no stars, no moon, no glow, no haze, no smoke plumes, no light beams, no aircraft, nothing floating in the sky. The silhouette edge against the magenta must be crisp.
+- The left and right edges of the image show continuous landscape (no frame, no border, no vignette, no text, no lettering, no logos, no watermark).

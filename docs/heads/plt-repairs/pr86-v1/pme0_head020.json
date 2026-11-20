@@ -1,0 +1,35 @@
+{
+ "schemaVersion": 1,
+ "model": "pme0_head020",
+ "head": "elf-male-a",
+ "defect": "client check 2026-11-04 (PR 86 heads): olive streaks in light hair",
+ "source": {
+  "plt": {
+   "path": "srn_head/pme0_head020.plt",
+   "sha256": "7d0068ffbf413cb447c75426af04836e69cb9a9693d11911c0f2cc2a613669f4"
+  },
+  "mdl": {
+   "path": "srn_head/pme0_head020.mdl",
+   "sha256": "7061567933891c705ae164c441762b6b151ae2d4ce9f90e7de56597dd497ed21"
+  }
+ },
+ "previewRows": {
+  "0": 3,
+  "1": 17,
+  "8": 26,
+  "9": 26
+ },
+ "operations": [
+  {
+   "name": "hair-dark-streaks",
+   "op": "despeckle",
+   "threshold": 30,
+   "neighbours": 48,
+   "passes": 2,
+   "side": "darker",
+   "when": {
+    "channel": 1
+   }
+  }
+ ]
+}

@@ -128,18 +128,22 @@ Re-measured 2026-11-18 with the 40 head-library heads (docs/heads/head-library-4
 hair and braids set several envelopes: Orc female now reaches 17.5 cm below the head bone and is 40 cm wide, Orc male
 35 cm. How headgear treats hair that hangs below the jaw is decided when headgear is fitted.
 
+Re-measured 2026-11-20 with the 10 head-library troll heads (docs/heads/head-library-trolls-v1.md; user decision).
+Only the two Troll rows change. Troll male now reaches 18.4 cm below the head bone and
+27.0 cm in front, and Troll female is 55.2 cm wide.
+
 | Body | Heads | Width (cm) | Depth back / front (cm) | Below / above head bone (cm) | Largest radius (cm) | Head bone height (m) |
 |---|---|---|---|---|---|---|
 | Human male | 7 | 28.4 | 13.1 / 13.9 | 12.0 / 20.1 | 14.6 | 1.753 |
 | Dwarf male | 9 | 32.5 | 17.3 / 14.0 | 14.1 / 19.8 | 17.0 | 1.167 |
 | Elf male | 9 | 24.2 | 11.6 / 11.4 | 10.8 / 20.4 | 12.2 | 1.902 |
 | Orc male | 7 | 34.7 | 22.2 / 14.3 | 6.9 / 27.1 | 18.6 | 1.900 |
-| Troll male | 20 | 62.0 | 22.5 / 23.7 | 13.9 / 36.1 | 32.4 | 2.501 |
+| Troll male | 25 | 62.0 | 22.5 / 27.0 | 18.4 / 36.1 | 32.9 | 2.501 |
 | Human female | 9 | 30.1 | 12.9 / 12.1 | 13.3 / 23.8 | 15.3 | 1.665 |
 | Dwarf female | 9 | 29.8 | 15.6 / 15.1 | 12.8 / 20.3 | 15.7 | 1.115 |
 | Elf female | 9 | 27.1 | 12.8 / 12.4 | 11.8 / 18.0 | 13.7 | 1.770 |
 | Orc female | 9 | 40.1 | 22.0 / 15.0 | 17.5 / 29.7 | 20.1 | 1.800 |
-| Troll female | 20 | 54.4 | 29.8 / 19.1 | 19.2 / 36.6 | 28.5 | 2.301 |
+| Troll female | 25 | 55.2 | 29.8 / 19.1 | 19.2 / 36.6 | 28.5 | 2.301 |
 
 ## Limits
 

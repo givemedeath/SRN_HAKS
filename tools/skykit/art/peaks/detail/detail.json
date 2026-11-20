@@ -1,0 +1,21 @@
+{
+  "inputSha256": "1dffe30a5a9f03fb727f9f459c124530cdb77550b351eab8c5642f42c605289d",
+  "tileWidth": 622,
+  "starts": [
+    0,
+    449,
+    898,
+    1346,
+    1795,
+    2244,
+    2693,
+    3142,
+    3590,
+    4039
+  ],
+  "height": 415,
+  "padTop": 32,
+  "seed": 51,
+  "profile": "qwen21-int8-v1",
+  "promptSha256": "5cd10948c60a31a236d05753d75760b89aab53a01056543188ed2081a4ce309a"
+}

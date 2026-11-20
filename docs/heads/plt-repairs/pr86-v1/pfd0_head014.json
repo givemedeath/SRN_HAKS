@@ -1,0 +1,106 @@
+{
+ "schemaVersion": 1,
+ "model": "pfd0_head014",
+ "head": "dwarf-female-b",
+ "defect": "client check 2026-11-04 (PR 86 heads): mottled grey rear scalp, stray white strands",
+ "source": {
+  "plt": {
+   "path": "srn_head/pfd0_head014.plt",
+   "sha256": "54f0c811977e267e49886fa959d2604e8600f6845670c3a8a0970be83d82a53f"
+  },
+  "mdl": {
+   "path": "srn_head/pfd0_head014.mdl",
+   "sha256": "9bae7bff90038f25c0643b694be36af23f1becbf65f9d29c42e1299f5868c703"
+  }
+ },
+ "previewRows": {
+  "0": 3,
+  "1": 62,
+  "8": 26,
+  "9": 21
+ },
+ "regions": {
+  "shaved": {
+   "all": [
+    {
+     "channel": 1
+    },
+    {
+     "of": "y",
+     "lt": 0.7
+    },
+    {
+     "of": "z",
+     "lt": 0.78
+    }
+   ]
+  }
+ },
+ "operations": [
+  {
+   "name": "white-strands",
+   "op": "fill",
+   "neighbours": 48,
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "y",
+      "lt": 0.66
+     },
+     {
+      "of": "z",
+      "lt": 0.78
+     },
+     {
+      "of": "shade",
+      "gt": 48
+     }
+    ]
+   },
+   "donors": {
+    "region": "shaved"
+   }
+  },
+  {
+   "name": "shaved-strands-and-specks",
+   "op": "despeckle",
+   "threshold": 10,
+   "neighbours": 64,
+   "passes": 3,
+   "maxFraction": 0.5,
+   "when": {
+    "region": "shaved"
+   }
+  },
+  {
+   "name": "shaved-mottling",
+   "op": "curve",
+   "points": [
+    [
+     0,
+     16
+    ],
+    [
+     26,
+     26
+    ],
+    [
+     255,
+     120
+    ]
+   ],
+   "maxFraction": 0.5,
+   "when": {
+    "region": "shaved"
+   },
+   "ramp": {
+    "of": "y",
+    "from": 0.7,
+    "to": 0.64
+   }
+  }
+ ]
+}

@@ -18,6 +18,7 @@ Shared toolchains, pipeline runners, test selection engines, and batch orchestra
 - [phenomorpher](./phenomorpher/README.md) - Intermediate blueprint and runner harness for PhenoMorpher body fitting and armor adaptation.
 - [phenotypes](./phenotypes/README.md) - Purpose-built phenotype tools for part generation, rig retargeting, volume-conserving RBF mesh refinement, joint connector auditing, material baking, native compilation, and client preflight verification.
 - [robes](./robes/README.md) - Automated pipeline for generating, inspecting, fitting, skinning, and packaging custom NWN robes and garments for Human male phenotype 0 (pmh0) via Meshy AI, Blender, and NWN toolchain fixtures.
+- [skykit](./skykit/README.md) - Dynamic skyboxes: keyed land panoramas, an animated sky shader (clouds, stars, moon, storm), sky dome models, `skyboxes.2da` rows, GL previews and a client fixture.
 
 ## Verification
 - Run: `pytest tools/`

@@ -15,7 +15,7 @@ CONFIG='tools/ci-scope.json'
 EXCLUDED={'vendor','__pycache__','build','dist','.venv'}
 LITERAL_SUFFIXES=('.py','.json','.ps1','.psm1','.md')
 # Bare package markers and output READMEs name no particular file; a qualified path such as pkg/__init__.py still resolves.
-GENERIC_LITERALS={'__init__.py','readme.md'}
+GENERIC_LITERALS={'__init__.py','readme.md','detail.json'}  # detail.json: per-folder records (skykit tile sets) and untracked run receipts
 PACK=re.compile(r'\bsrn_[a-z0-9_]+\b')
 
 def import_root(path):

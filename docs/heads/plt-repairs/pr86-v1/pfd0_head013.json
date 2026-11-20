@@ -1,0 +1,145 @@
+{
+ "schemaVersion": 1,
+ "model": "pfd0_head013",
+ "head": "dwarf-female-a",
+ "defect": "client check 2026-11-04 (PR 86 heads): bright oval on temple; left brow near-black (metal channel), right brown",
+ "source": {
+  "plt": {
+   "path": "srn_head/pfd0_head013.plt",
+   "sha256": "999c48f1e313ea7e911731deff97dd9bb6c69fb907cc7f591186cdb81f5189d9"
+  },
+  "mdl": {
+   "path": "srn_head/pfd0_head013.mdl",
+   "sha256": "2f926fab3040cbc4ba5b72383fba1e41ca7e8a5e9f47b12bb6d4fa8224ee2eb1"
+  }
+ },
+ "previewRows": {
+  "0": 12,
+  "1": 157,
+  "8": 26,
+  "9": 0
+ },
+ "regions": {
+  "rightBrow": {
+   "all": [
+    {
+     "channel": 1
+    },
+    {
+     "of": "z",
+     "gt": 0.78
+    },
+    {
+     "of": "y",
+     "gt": 0.44
+    },
+    {
+     "of": "y",
+     "lt": 0.54
+    },
+    {
+     "of": "x",
+     "gt": 0.2
+    },
+    {
+     "of": "x",
+     "lt": 0.44
+    }
+   ]
+  }
+ },
+ "operations": [
+  {
+   "name": "left-brow-metal-to-hair",
+   "op": "channel",
+   "channel": 1,
+   "when": {
+    "channel": 2
+   }
+  },
+  {
+   "name": "left-brow-match-right",
+   "op": "match",
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "gt": 0.78
+     },
+     {
+      "of": "y",
+      "gt": 0.44
+     },
+     {
+      "of": "y",
+      "lt": 0.54
+     },
+     {
+      "of": "x",
+      "gt": 0.56
+     },
+     {
+      "of": "x",
+      "lt": 0.8
+     }
+    ]
+   },
+   "reference": {
+    "region": "rightBrow"
+   }
+  },
+  {
+   "name": "temple-highlights",
+   "op": "curve",
+   "points": [
+    [
+     0,
+     0
+    ],
+    [
+     140,
+     140
+    ],
+    [
+     255,
+     175
+    ]
+   ],
+   "when": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "gt": 0.45
+     },
+     {
+      "of": "y",
+      "gt": 0.2
+     },
+     {
+      "of": "y",
+      "lt": 0.55
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "gt": 0.2
+     }
+    ]
+   },
+   "ramp": [
+    {
+     "of": "x",
+     "center": 0.5,
+     "from": 0.2,
+     "to": 0.26
+    }
+   ]
+  }
+ ]
+}

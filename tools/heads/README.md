@@ -62,6 +62,7 @@ The toolchain enforces strict immutable event ledgers, input SHA-256 hash pinnin
 - `[meshy_cli.py:collect]`: Downloads and verifies task result assets and consumed credits.
 - `[meshy_cli.py:reconcile_rejection]`: Releases reservation on validated API 400 rejection proofs.
 - `[native_reader.py:decode]`: Re-exported native MDL decoder function from `headkit.native_reader`.
+- `[plt_repair.py:repair]`: Repairs a published PLT directly against its native model from a hash-pinned spec (fill, despeckle, match, curve, clamp, relabel); `view`, `probe` and `apply` commands. See `docs/heads/plt-repair.md`.
 - `[prepare_assembly.py:prepare]`: Compiles clay assembly scenes combining body, neck, and head.
 - `[prepare_derived_target.py:prepare]`: Proposes target contracts for derived racial bodies.
 - `[prepare_fixture_rig.py:prepare]`: Prepares rig hierarchy serialization for fixtures.

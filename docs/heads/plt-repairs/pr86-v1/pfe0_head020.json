@@ -1,0 +1,96 @@
+{
+ "schemaVersion": 1,
+ "model": "pfe0_head020",
+ "head": "elf-female-c",
+ "defect": "client check 2026-11-04 (PR 86 heads): dark patch at ear/hair edge, patchy dark hair on look 5",
+ "source": {
+  "plt": {
+   "path": "srn_head/pfe0_head020.plt",
+   "sha256": "b7a9ae0fcea21e2e3f892eef69e14d08f82ba7eb4721418c3b53b845998fe8cb"
+  },
+  "mdl": {
+   "path": "srn_head/pfe0_head020.mdl",
+   "sha256": "fab4c91330b69fd4dfc46a2c64310755c9f9479632e55f69c047ada6e2269ebe"
+  }
+ },
+ "previewRows": {
+  "0": 3,
+  "1": 157,
+  "8": 26,
+  "9": 23
+ },
+ "operations": [
+  {
+   "name": "flecks",
+   "op": "relabel",
+   "neighbours": 32,
+   "minShare": 0.7,
+   "when": {
+    "all": [
+     {
+      "any": [
+       {
+        "channel": 0
+       },
+       {
+        "channel": 1
+       }
+      ]
+     }
+    ]
+   },
+   "to": [
+    0,
+    1
+   ]
+  },
+  {
+   "name": "bright-strips-by-ears",
+   "op": "fill",
+   "neighbours": 48,
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "shade",
+      "gt": 150
+     },
+     {
+      "of": "y",
+      "lt": 0.6
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "gt": 0.15
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "lt": 0.42
+     },
+     {
+      "of": "z",
+      "gt": 0.3
+     }
+    ]
+   },
+   "donors": {
+    "of": "shade",
+    "le": 150
+   }
+  },
+  {
+   "name": "hair-specks",
+   "op": "despeckle",
+   "threshold": 30,
+   "neighbours": 32,
+   "passes": 2,
+   "when": {
+    "channel": 1
+   }
+  }
+ ]
+}

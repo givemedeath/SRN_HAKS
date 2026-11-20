@@ -1765,6 +1765,14 @@
     "tools/heads/native_reader.py": [
       "tools/headkit/native_reader.py"
     ],
+    "tools/heads/plt_repair.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/native_reader.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/textures.py"
+    ],
     "tools/heads/prepare_assembly.py": [
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py",
@@ -1915,6 +1923,9 @@
       "tools/heads/head_workflow.py",
       "tools/heads/prepare_palette_assembly.py",
       "tools/heads/propose_material_masks.py"
+    ],
+    "tools/heads/test_plt_repair.py": [
+      "tools/heads/plt_repair.py"
     ],
     "tools/heads/test_reindex_head.py": [
       "tools/heads/reindex_head.py"
@@ -5614,6 +5625,52 @@
       "tools/shared-tools.lock.json",
       "tools/toolchain.lock.json"
     ],
+    "tools/skykit/__init__.py": [],
+    "tools/skykit/__main__.py": [
+      "tools/phenotypes/tool_runtime.py",
+      "tools/skykit/detail.py",
+      "tools/skykit/normals.py",
+      "tools/skykit/panorama.py",
+      "tools/skykit/preview.py",
+      "tools/skykit/profiles.py",
+      "tools/skykit/sphere.py",
+      "tools/skykit/upscale.py"
+    ],
+    "tools/skykit/client_fixture.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/skykit/detail.py": [
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py",
+      "tools/skykit/__main__.py",
+      "tools/skykit/panorama.py",
+      "tools/skykit/profiles.py",
+      "tools/skykit/upscale.py"
+    ],
+    "tools/skykit/normals.py": [
+      "tools/skykit/panorama.py",
+      "tools/skykit/upscale.py"
+    ],
+    "tools/skykit/panorama.py": [],
+    "tools/skykit/preview.py": [
+      "tools/skykit/panorama.py"
+    ],
+    "tools/skykit/profiles.py": [],
+    "tools/skykit/sphere.py": [],
+    "tools/skykit/test_skykit.py": [
+      "tools/skykit/__init__.py",
+      "tools/skykit/__main__.py",
+      "tools/skykit/detail.py",
+      "tools/skykit/panorama.py",
+      "tools/skykit/preview.py",
+      "tools/skykit/profiles.py",
+      "tools/skykit/sphere.py"
+    ],
+    "tools/skykit/upscale.py": [
+      "tools/skykit/panorama.py"
+    ],
     "tools/test_ci_result.py": [
       "tools/ci_result.py"
     ],
@@ -5784,7 +5841,8 @@
       "tools/tilekit/cuts.py",
       "tools/tilekit/detail.py",
       "tools/tilekit/geometry.py",
-      "tools/tilekit/inventory.py"
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/kit.py"
     ],
     "tools/tilekit/test_doors.py": [
       "tools/tilekit/__init__.py",
@@ -5938,6 +5996,9 @@
     "tools/heads/test_head_trial.py": [
       "srn_head"
     ],
+    "tools/heads/test_plt_repair.py": [
+      "srn_head"
+    ],
     "tools/heads/test_target_and_publication.py": [
       "srn_head"
     ],
@@ -6045,6 +6106,24 @@
     ],
     "tools/robes/package_trial.py": [
       "srn_2da"
+    ],
+    "tools/skykit/__main__.py": [
+      "srn_2da",
+      "srn_skybox"
+    ],
+    "tools/skykit/client_fixture.py": [
+      "srn_2da",
+      "srn_skybox"
+    ],
+    "tools/skykit/preview.py": [
+      "srn_skybox"
+    ],
+    "tools/skykit/profiles.py": [
+      "srn_skybox"
+    ],
+    "tools/skykit/test_skykit.py": [
+      "srn_2da",
+      "srn_skybox"
     ],
     "tools/test_combat_release_manifest.py": [
       "srn_2da",
@@ -6219,6 +6298,7 @@
     "tools/heads/test_meshy_dispatch.py",
     "tools/heads/test_microface_materials.py",
     "tools/heads/test_palette_sampling.py",
+    "tools/heads/test_plt_repair.py",
     "tools/heads/test_reindex_head.py",
     "tools/heads/test_submission_reconciliation.py",
     "tools/heads/test_target_and_publication.py",
@@ -6443,6 +6523,7 @@
     "tools/robes/test_robe_core.py",
     "tools/robes/test_robe_packaging.py",
     "tools/robes/test_robe_pipeline.py",
+    "tools/skykit/test_skykit.py",
     "tools/test_ci_result.py",
     "tools/test_ci_scope.py",
     "tools/test_clean_checkout.py",
