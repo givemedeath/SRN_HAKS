@@ -5772,6 +5772,10 @@
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py"
     ],
+    "tools/tilekit/doorset.py": [
+      "tools/tilekit/kit.py",
+      "tools/tilekit/material.py"
+    ],
     "tools/tilekit/effects.py": [
       "tools/tilekit/geometry.py"
     ],
@@ -5867,6 +5871,12 @@
     "tools/tilekit/test_doors.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/doors.py"
+    ],
+    "tools/tilekit/test_doorset.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/doorset.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/material.py"
     ],
     "tools/tilekit/test_effects.py": [
       "tools/tilekit/__init__.py",
@@ -6166,6 +6176,10 @@
       "srn_t_common"
     ],
     "tools/tilekit/doors.py": [
+      "srn_2da",
+      "srn_door"
+    ],
+    "tools/tilekit/doorset.py": [
       "srn_2da",
       "srn_door"
     ],
@@ -6571,6 +6585,7 @@
     "tools/tilekit/test_crown.py",
     "tools/tilekit/test_detail.py",
     "tools/tilekit/test_doors.py",
+    "tools/tilekit/test_doorset.py",
     "tools/tilekit/test_effects.py",
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_inventory.py",
