@@ -73,6 +73,59 @@ Release 1's constraints hold, except that original models are now edited:
 - The numbers hold for this machine at 1600×900 only, and are recorded with that note.
 - Done when the numbers are recorded here and repeat within a few percent on a second run.
 
+#### Baseline, taken 2026-11-19
+
+This machine only, 1600×900 window. Tiles and packs as merged in PR 181. Two runs, each holding every view for 14 s
+and reading the client's 6-second average 10 s in.
+
+Lessons from the probe:
+
+- With no frame limit at all, the client renders at 200–440 fps. That pinned the graphics card and hung the PC
+  during one run, so every limit is now capped at 200 fps: foreground, background and non-interactive.
+- At the default background limit of 10 fps, readings collapse whenever the window loses focus.
+- The client reaches about 180 fps under its 200 cap.
+
+**Frame rate**: 6-second average, three views each, run 1 / run 2.
+
+| Area | Day | Night |
+|---|---|---|
+| Review block, 15×15 | 181 180 182 / 181 180 181 | 165 163 178 / 182 182 181 |
+| Slums, 32×32 | 178 174 177 / 178 175 177 | 174 175 170 / 177 179 181 |
+
+- Every view holds the cap. The repeat run agrees within 2%, except the block by night in run 1, which was up to 10% lower.
+- Headroom above the cap, from the uncapped probe's 1-second readings:
+  - review block: about 310–440 fps;
+  - Slums area by day: about 220–270 fps;
+  - Slums area by night: about 280–290 fps.
+- **Budget test:** a pilot tile passes when the Slums views still hold the cap (175 fps or more at a 200 cap). An
+  uncapped spot check of the same views then shows the remaining headroom.
+
+**Area load**: the load screen's length in the window grabs, ±0.1 s. Three capped runs, plus the probe.
+
+| Load | Seconds |
+|---|---|
+| Review block, night (from the block by day) | 0.9–1.2 |
+| Slums 32×32, day (from the block by night) | 1.25–1.45 |
+| Slums 32×32, night (from the Slums area by day) | 1.5–2.1 |
+
+Loads vary by up to 20% from run to run. A pilot is compared on the mean of three runs.
+
+**Packs** (built): `srn_t_dgt04` 43 MB, `srn_t_udp1` 79 MB, `srn_t_common` 841 MB, `srn_door` 29 MB.
+
+**Per tile model**: the 445 ASCII models the set draws. Mesh nodes count only those rendered; materials are distinct
+material or bitmap names.
+
+| Models | Faces (median / p90 / max) | Mesh nodes | Materials |
+|---|---|---|---|
+| All | 263 / 552 / 970 | 23 / 111 / 222 | 7 / 10 / 16 |
+| With a Slums corner (105) | 391 / 585 / 790 | 87 / 138 / 222 | 8 / 11 / 15 |
+| With a Highrise corner (61) | 298 / 512 / 880 | 66 / 111 / 138 | 7 / 10 / 12 |
+
+Slums tiles already average 87 mesh nodes. Kit pieces are therefore merged per material, and the budget counts nodes.
+
+The measurement script becomes a `tilekit` command in stage 1. Until then the run's records are in
+`output/tilekit/perf/` (`base5`, `base6`).
+
 ### 1 — Tooling
 
 - `tilekit detail`:
