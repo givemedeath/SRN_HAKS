@@ -387,7 +387,7 @@ class StreetTest(unittest.TestCase):  # batch 5, the Concrete street tiles (user
         self.assertEqual(placer._kerbs(nodes), [((0, 1), -2.5, -5.0, 5.0, 0.0, 0.2)])
 
     def test_drains_lie_in_the_gutter_and_furniture_stands_on_the_sidewalk_as_obstacles(self):
-        found = [one for seed in range(12) for one in placer.propose_street(STREET, seed)]
+        found = [one for seed in range(30) for one in placer.propose_street(STREET, seed)]
         drains = [one for one in found if one['piece'] == 'drain']; furniture = [one for one in found if one.get('obstacle')]
         self.assertTrue(drains and furniture)
         self.assertTrue(all(one['at'][1] == -2.5 and one['at'][2] == placer.LIFT and one['turn'] == 0.0 for one in drains))  # at the kerb's foot, the road ahead
@@ -395,7 +395,9 @@ class StreetTest(unittest.TestCase):  # batch 5, the Concrete street tiles (user
         self.assertTrue(all(abs(one['at'][0]) <= geometry.HALF - placer.SIDE_CLEAR for one in found if one['piece'] != 'steam'))
         manholes = [one for one in found if one['piece'] == 'manhole']
         self.assertTrue(manholes and all(one['at'][1] - (-2.5) >= 1.0 for one in manholes))  # in the road, clear of the kerb
-        for seed in range(12):
-            rows = [one['at'][0] for one in placer.propose_street(STREET, seed) if one['piece'] == 'bollard']
+        for seed in range(30):
+            made = placer.propose_street(STREET, seed); rows = [one['at'][0] for one in made if one['piece'] == 'bollard']
             self.assertIn(len(rows), (0, 3))
+            counts = {piece: sum(one['piece'] == piece for one in made) for piece in ('drain', 'hydrant', 'litter_bin', 'manhole')}
+            self.assertTrue(all(count <= 1 for count in counts.values()))  # at most one of each a tile (too many, user 2026-11-20)
             self.assertTrue(all(abs(b - a - placer.BOLLARDS) < 1e-6 for a, b in zip(sorted(rows), sorted(rows)[1:])))

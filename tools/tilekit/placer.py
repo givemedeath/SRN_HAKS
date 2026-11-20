@@ -437,7 +437,9 @@ def propose_corporate(text, seed, *, open=None, plant=CORPORATE_ROOF, ledges=Tru
 
 KERB = (0.1, 0.35)  # metres: how high a kerb stands over its road
 SIDE_CLEAR = 0.8  # metres a street piece's cut keeps off the cell's side, so the neighbour's walkmesh still meets this one
-DRAIN_EVERY = 6.0  # metres between kerb drains along a kerb
+# one tile in this many gets each street piece (at most one, or one row of bollards, a tile); every 6 m along every
+# kerb drains, and bollards, hydrants and bins on most kerbs, were far too many (user, 2026-11-20)
+ONE_IN = {'drain': 3, 'manhole': 4, 'bollards': 8, 'hydrant': 10, 'litter_bin': 8, 'steam': 4}
 SETBACK = 0.45  # metres from the kerb's face to the middle of the furniture on the sidewalk behind it
 FURNITURE = {'bollard': 0.1, 'hydrant': 0.24, 'litter_bin': 0.26}  # each piece's radius seen from above
 BOLLARDS = 1.5  # metres between the bollards of a row
@@ -526,49 +528,60 @@ def _within(point, margin):
 
 
 def propose_street(text, seed):
-    """[{piece, at, turn, obstacle?}] for a street tile (the Concrete terrain): a drain in the gutter along each kerb
-    every `DRAIN_EVERY` metres; a row of bollards, a hydrant or a litter bin on the sidewalk behind a kerb, each an
-    `obstacle` (cut out of the street's walkmesh flat); a manhole in the road of about half the tiles that have none
-    of their own; and steam off a manhole on about one tile in four. Every piece stands on clear ground, where the tile
+    """[{piece, at, turn, obstacle?}] for a street tile (the Concrete terrain), each piece on one tile in `ONE_IN`
+    of it at most once: a drain in the gutter of a kerb; a row of three bollards, a hydrant or a litter bin on the
+    sidewalk behind a kerb, each an `obstacle` (cut out of the street's walkmesh flat); a manhole in the road of a
+    tile that has none of its own; and steam off a manhole. Every piece stands on clear ground, where the tile
     draws nothing over it (a lamp post, a traffic light, its own manhole), and furniture on walkable sidewalk all
     round, `SIDE_CLEAR` in from the cell's side."""
     _, _, nodes = geometry.parse(text); rng = zlib.crc32(str(seed).encode()); found, fx = [], []
     walk, ground, kerbs = geometry.walkable(nodes), _ground(nodes), _kerbs(nodes)
-    standing = []  # (x, y, radius, piece) of the furniture placed
-    for number, (normal, plane, low, high, road, top) in enumerate(kerbs):
-        turn = _turn(normal); low, high = max(low, -geometry.HALF + SIDE_CLEAR), min(high, geometry.HALF - SIDE_CLEAR)
-        along = low + 1.0 + (rng >> (number % 8)) % 3
-        while along <= high - 0.5:  # drains in the gutter, the road side of the face
-            middle = _on_wall(normal, along, plane + 0.24, 0.0)[:2]; road_side = _side_of(normal, plane, 1)
-            level = _clear_ground(ground, middle, 0.3, keep=road_side)
-            if level is not None and abs(level - road) < 0.05 and _on_walk(walk, middle, 0.2, road, keep=road_side):
-                found.append({'piece': 'drain', 'at': _on_wall(normal, along, plane, level + LIFT), 'turn': turn})
-            along += DRAIN_EVERY
-        wanted = (['bollards'] if (rng >> (3 + number)) % 2 == 0 else []) + (['hydrant'] if (rng >> (5 + number)) % 3 == 0 else []) \
-            + (['litter_bin'] if (rng >> (7 + number)) % 2 == 0 else [])
-        spots = [low + 0.6 + 0.25 * index for index in range(max(0, int((high - low - 1.2) / 0.25)) + 1)]
-        shift = (rng >> (9 + number)) % len(spots) if spots else 0; spots = spots[shift:] + spots[:shift]
+    standing = []  # (x, y, radius) of the furniture placed
+    chance = lambda what: zlib.crc32(f'{seed}:{what}'.encode()) % ONE_IN[what] == 0  # each piece's own draw, so the rates are independent
+    order = sorted(range(len(kerbs)), key=lambda number: zlib.crc32(f'{seed}:kerb{number}'.encode()))  # which kerb is tried first
 
-        def fits(piece, along):  # (x, y, ground) of a piece on the sidewalk behind this kerb, or None
-            radius = FURNITURE[piece]; middle = tuple(_on_wall(normal, along, plane - SETBACK, 0.0)[:2])
-            if not _within(middle, SIDE_CLEAR + radius) or any(math.dist(middle, (x, y)) < APART_STREET + radius + reach for x, y, reach in standing):
-                return None
-            behind = _side_of(normal, plane, -1); level = _clear_ground(ground, middle, radius + 0.3, keep=behind)
-            return (*middle, level) if level is not None and abs(level - top) <= 0.05 and _on_walk(walk, middle, radius + 0.25, top, keep=behind) else None
-        for wish in wanted:
-            piece = 'bollard' if wish == 'bollards' else wish
-            for along in spots:
-                row = [fits(piece, along + BOLLARDS * index) for index in range(3 if wish == 'bollards' else 1)]  # a row of three bollards, or one piece
+    def spots(low, high, what):  # places along a kerb, from a point of the tile's own
+        found = [low + 0.6 + 0.25 * index for index in range(max(0, int((high - low - 1.2) / 0.25)) + 1)]
+        shift = zlib.crc32(f'{seed}:{what}'.encode()) % len(found) if found else 0
+        return found[shift:] + found[:shift]
+
+    def kerb(number):
+        normal, plane, low, high, road, top = kerbs[number]
+        return normal, plane, max(low, -geometry.HALF + SIDE_CLEAR), min(high, geometry.HALF - SIDE_CLEAR), road, top
+    if chance('drain'):  # one drain in the gutter, the road side of a kerb's face
+        for number in order:
+            normal, plane, low, high, road, top = kerb(number); road_side = _side_of(normal, plane, 1); placed = False
+            for along in spots(low, high, 'drain'):
+                middle = _on_wall(normal, along, plane + 0.24, 0.0)[:2]; level = _clear_ground(ground, middle, 0.3, keep=road_side)
+                if level is not None and abs(level - road) < 0.05 and _on_walk(walk, middle, 0.2, road, keep=road_side):
+                    found.append({'piece': 'drain', 'at': _on_wall(normal, along, plane, level + LIFT), 'turn': _turn(normal)}); placed = True; break
+            if placed:
+                break
+    for wish in [what for what in ('bollards', 'hydrant', 'litter_bin') if chance(what)]:  # furniture on the sidewalk behind a kerb
+        piece = 'bollard' if wish == 'bollards' else wish; radius = FURNITURE[piece]; placed = False
+        for number in order:
+            normal, plane, low, high, road, top = kerb(number); behind = _side_of(normal, plane, -1)
+
+            def fits(along):  # (x, y, ground) of the piece there, or None
+                middle = tuple(_on_wall(normal, along, plane - SETBACK, 0.0)[:2])
+                if not _within(middle, SIDE_CLEAR + radius) or any(math.dist(middle, (x, y)) < APART_STREET + radius + reach for x, y, reach in standing):
+                    return None
+                level = _clear_ground(ground, middle, radius + 0.3, keep=behind)
+                return (*middle, level) if level is not None and abs(level - top) <= 0.05 and _on_walk(walk, middle, radius + 0.25, top, keep=behind) else None
+            for along in spots(low, high, wish):
+                row = [fits(along + BOLLARDS * index) for index in range(3 if wish == 'bollards' else 1)]  # a row of three bollards, or one piece
                 if all(row):
                     for x, y, level in row:
-                        found.append({'piece': piece, 'at': [round(x, 3), round(y, 3), round(level, 3)], 'turn': turn, 'obstacle': True})
-                    standing.extend((x, y, FURNITURE[piece]) for x, y, _ in row); break
+                        found.append({'piece': piece, 'at': [round(x, 3), round(y, 3), round(level, 3)], 'turn': _turn(normal), 'obstacle': True})
+                    standing.extend((x, y, radius) for x, y, _ in row); placed = True; break
+            if placed:
+                break
     moves = geometry.placed(nodes); holes = []
     for node in nodes:  # the tile's own manholes
         if node.rendered and node.verts and ('manhole' in node.name.lower() or 'manhole' in (node.material or '').lower()):
             points = [moves[id(node)](vertex) for vertex in node.verts]
             holes.append([round(sum(point[axis] for point in points) / len(points), 3) for axis in range(3)])
-    if not holes and (rng >> 13) % 2 == 0:  # a manhole in the road, clear of the kerbs
+    if not holes and chance('manhole'):  # a manhole in the road, clear of the kerbs
         lowest = min((height for heights in walk.values() for height in heights if height < geometry.HEAD), default=None)
         spots = [(x / 2, y / 2) for x in range(-7, 8) for y in range(-7, 8)]; shift = (rng >> 14) % len(spots); spots = spots[shift:] + spots[:shift]
         for spot in spots if lowest is not None else []:
@@ -578,6 +591,6 @@ def propose_street(text, seed):
             if level is not None and abs(level - lowest) < 0.05 and _on_walk(walk, spot, 0.5, lowest):
                 found.append({'piece': 'manhole', 'at': [spot[0], spot[1], round(level + LIFT, 3)], 'turn': (rng >> 15) % 4 * 90}); holes.append([spot[0], spot[1], round(level, 3)])
                 break
-    if holes and (rng >> 17) % 4 == 0:  # steam off a manhole
+    if holes and chance('steam'):  # steam off a manhole
         x, y, z = holes[0]; fx.append({'piece': 'steam', 'at': [x, y, round(z + 0.05, 3)]})
     return found + fx
