@@ -17,7 +17,7 @@ changed; a tile's earlier pieces there are replaced, so the spec can be run agai
 import math
 from pathlib import Path
 
-from . import cuts, geometry, inventory, lamps, require
+from . import cuts, effects, geometry, inventory, lamps, require
 
 MARK = '_kit'  # added nodes are named <tile>_kitNN
 
@@ -85,12 +85,14 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     """(new text, {pieces, faces, nodes, cuts}, new .wok text or None) of a tile model with its placements added,
     refused where a piece leaves the cell or stands where a player walks. A piece that `blocks` stands on a walkable
     roof instead, and its footprint is cut out of the roof's walkmesh (`cuts`): `wok`, the tile's .wok, is cut with it."""
-    cache = {} if cache is None else cache; text = without_kit(text)
+    cache = {} if cache is None else cache; text = effects.without_fx(without_kit(text))
     if pack_text is not None:
         text = with_walkmesh_of(text, pack_text)
-    _, _, nodes = geometry.parse(text); walk = geometry.walkable(nodes); parts, footprints = [], []
+    _, root, nodes = geometry.parse(text); walk = geometry.walkable(nodes); parts, footprints, fx = [], [], []
     for number, placement in enumerate(placements):
         piece = placement['piece']; at = placement['at']
+        if piece in effects.EFFECTS:  # an emitter, not geometry (`effects`)
+            effects.check(name, number, at, piece); fx.append((piece, at, placement.get('fall'), placement.get('seed'))); continue
         require(isinstance(at, list) and len(at) == 3 and all(isinstance(value, (int, float)) for value in at), f'{name} #{number}: `at` is [x, y, z]')
         scale = placement.get('scale', 1.0); require(isinstance(scale, (int, float)) and scale > 0, f'{name} #{number}: `scale` is a positive number')
         blocks = placement.get('blocks', False); require(isinstance(blocks, bool), f'{name} #{number}: `blocks` is true or false')
@@ -118,12 +120,12 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
             require(not blocked, f'{name} #{number} ({piece}) stands where a player walks, over the walkable surface at '
                     + ', '.join(f'{heights}' for heights in list(blocked.values())[:3]) + ' m; move it off the walkable faces or above head height, or make it block (roofs only)')
         parts += mine
-    new, count = added(text, name, parts); cut = None
+    new, count = added(text, name, parts); new, emitters = effects.added(new, root, fx); cut = None
     if footprints:
         require(wok is not None, f'{name} has no .wok to cut'); new, cut = cuts.cut_walkmesh(new, wok, footprints)
     else:
         require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
-    return new, {'pieces': len(placements), 'faces': sum(len(part[3]) for part in parts), 'nodes': count, 'cuts': len(footprints)}, cut, footprints
+    return new, {'pieces': len(placements) - emitters, 'faces': sum(len(part[3]) for part in parts), 'nodes': count, 'effects': emitters, 'cuts': len(footprints)}, cut, footprints
 
 
 def detail(repo, spec, kit, folder):
@@ -141,6 +143,12 @@ def detail(repo, spec, kit, folder):
         wok = wok_path.read_bytes().decode('cp1252') if wok_path.is_file() else None
         made[name] = (file, source, wok_path, wok, pack_text, *place(text, name, wanted[name], kit, cache, pack_text=pack_text, wok=wok))
     missing = sorted(set(wanted) - set(made)); require(not missing, 'No uncompiled model of the tileset is ' + ', '.join(missing))
+    pictures = sorted({effects.EFFECTS[one['piece']]['texture'] for placements in wanted.values() for one in placements
+                       if one.get('piece') in effects.EFFECTS and not effects.EFFECTS[one['piece']].get('stock')})
+    for picture in pictures:
+        require((Path(kit) / f'{picture}.tga').is_file(), f'No effect picture {picture}.tga in {kit}')
+    for picture in pictures:
+        (folder / f'{picture}.tga').write_bytes((Path(kit) / f'{picture}.tga').read_bytes())
     for name, (file, source, wok_path, wok, pack_text, new, said, cut, footprints) in made.items():  # every tile checked before any is written
         noted(folder, file, source); (folder / file).write_bytes(new.encode('cp1252')); told[name] = said
         if cut is not None:

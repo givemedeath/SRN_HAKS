@@ -121,7 +121,7 @@ class Detail(unittest.TestCase):
             root = Path(temporary); own, kit = _repo(root)
             spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [1.0, 1.0, 13.0]}, {'piece': 'box', 'at': [-2.0, 1.0, 13.0], 'turn': 90}]}}
             told = detail.detail(root, spec, kit, root / 'out')
-            self.assertEqual(told['t_a01'], {'pieces': 2, 'faces': 4, 'nodes': 1, 'cuts': 0})
+            self.assertEqual(told['t_a01'], {'pieces': 2, 'faces': 4, 'nodes': 1, 'effects': 0, 'cuts': 0})
             made = (root / 'out' / 't_a01.mdl').read_text(encoding='cp1252')
             self.assertIn('node trimesh t_a01_kit00', made); self.assertEqual(made.count('_kit'), 1)
             self.assertEqual(inventory.walk_hash(made), inventory.walk_hash((own / 't_a01.mdl').read_text(encoding='cp1252')))

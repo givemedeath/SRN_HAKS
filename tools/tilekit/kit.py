@@ -188,6 +188,13 @@ def hvac():  # roof plant on a plinth: cover
     return mesh, True
 
 
+def junction_box():  # a broken electrical box on a wall, its torn cable hanging below: where sparks come from
+    mesh = Mesh(); mesh.box((-0.18, 0.0, 0.0), (0.18, 0.14, 0.42), 'paint', skip=('-y',))
+    mesh.cylinder((0.1, 0.07, 0.42), 0.02, 0.9, 'galvanised', sides=6, top=False)  # its conduit up the wall
+    mesh.cylinder((-0.06, 0.08, -0.32), 0.012, 0.32, 'rubber', sides=5, top=False)  # the torn cable
+    return mesh, False
+
+
 def vent():  # a roof vent: cover for a crouching man
     mesh = Mesh(); mesh.box((-0.35, -0.35, 0.0), (0.35, 0.35, 0.6), 'galvanised', skip=('-z',))
     mesh.box((-0.45, -0.45, 0.6), (0.45, 0.45, 0.7), 'galvanised', skip=())
@@ -222,7 +229,7 @@ def antenna():  # a mast with crossbars, on a weighted foot
 
 
 PIECES = {'ac_unit': ac_unit, 'downpipe': downpipe, 'fire_escape': fire_escape, 'boards': boards, 'bars': bars,
-          'hvac': hvac, 'vent': vent, 'tank': tank, 'dish': dish, 'antenna': antenna}
+          'hvac': hvac, 'junction_box': junction_box, 'vent': vent, 'tank': tank, 'dish': dish, 'antenna': antenna}
 
 
 def make(folder, masters, crunch, *, compress=None):
