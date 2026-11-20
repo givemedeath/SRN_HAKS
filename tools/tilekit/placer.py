@@ -86,12 +86,12 @@ def windows(nodes):
 def _fitted(nodes, facing, pane, reach=1.2):
     """Whether the tile already has something off its wall at a window (its own air conditioner, a sign, a lamp):
     nothing is added there."""
-    along, bottom, top, *_ = pane; moves = geometry.placed(nodes)
+    along, bottom, top, plane, *_ = pane; moves = geometry.placed(nodes)
     for node in nodes:
         if not node.rendered:
             continue
-        for x, y, z in map(moves[id(node)], node.verts):
-            if max(abs(x), abs(y)) - geometry.HALF > 0.2 and abs((y if facing[0] else x) - along) <= reach and bottom - 0.8 <= z <= top + 0.3:
+        for x, y, z in map(moves[id(node)], node.verts):  # out in front of the window's wall, wherever the wall stands in the cell (a set-back facade's own units were missed, 2026-11-20)
+            if 0.15 < x * facing[0] + y * facing[1] - plane < 2.0 and abs((y if facing[0] else x) - along) <= reach and bottom - 0.8 <= z <= top + 0.3:
                 return True
     return False
 
@@ -260,7 +260,7 @@ def propose(text, seed, *, look='brick', open=None, grids=None, above=None, plan
     roof = _roof(nodes, rng, plant) if plant else []; found += roof
     fx = _effects(nodes, found, walls, roof, rng)
     if look == 'ruin':  # squatters' fires in the rubble of the upper floors
-        barrels = _roof(nodes, rng, RUIN)[:2]; found += barrels
+        barrels = _roof(nodes, rng, RUIN, underside=True)[:2]; found += barrels
         fx += [{'piece': 'smoke', 'at': [one['at'][0], one['at'][1], round(one['at'][2] + 1.0, 3)]} for one in barrels]
     return found + fx
 
@@ -298,11 +298,22 @@ def _effects(nodes, found, walls, roof, rng):
     return fx
 
 
-def _roof(nodes, rng, plant=ROOF):
+def _ceiling(nodes, roof, depth=1.0):
+    """The grid cells with a face drawn facing down under the floor at `roof`, within `depth`: a floor seen from below."""
+    found = set()
+    for a, b, c in geometry.triangles(nodes):
+        if (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]) < -1e-6 and all(roof - depth < point[2] < roof + 0.01 for point in (a, b, c)):
+            found |= {geometry.cell(point) for point in geometry.samples((a, b, c))}
+    return found
+
+
+def _roof(nodes, rng, plant=ROOF, underside=False):
+    """Roof pieces on the highest walkable surface. `underside`: only where that floor is drawn from below too; a
+    ruin's floors are drawn from above alone, and from the street its burn barrels hung in the air (2026-11-20)."""
     walk = geometry.walkable(nodes); heights = [height for both in walk.values() for height in both if height > geometry.HEAD]
     if not heights:
         return []
-    roof = max(heights)
+    roof = max(heights); below = _ceiling(nodes, roof) if underside else None
     taken = {geometry.cell(point) for triangle in geometry.triangles(nodes) for point in geometry.samples(triangle) if roof + 0.1 < point[2] < roof + 4.0}
     placed, found = [], []
     spots = [(x / 2, y / 2) for x in range(-8, 9) for y in range(-8, 9)]
@@ -312,7 +323,7 @@ def _roof(nodes, rng, plant=ROOF):
             if abs(x) > geometry.HALF - EDGE or abs(y) > geometry.HALF - EDGE or any(math.hypot(x - px, y - py) < APART for px, py in placed):
                 continue
             cells = {geometry.cell((x + dx, y + dy)) for dx in (-reach, 0, reach) for dy in (-reach, 0, reach)}
-            if all(any(abs(height - roof) < 0.05 for height in walk.get(one, ())) for one in cells) and not cells & geometry.grown(taken):
+            if all(any(abs(height - roof) < 0.05 for height in walk.get(one, ())) for one in cells) and not cells & geometry.grown(taken) and (below is None or cells <= below):
                 placed.append((x, y)); entry = {'piece': piece, 'at': [x, y, round(roof, 3)], 'turn': (rng >> index) % 4 * 90, 'blocks': True}
                 if cover:
                     entry['cover'] = cover
@@ -390,14 +401,18 @@ def _solid(faces, along, z, size=1.0, reach=(0.12, -0.24, 0.17)):
     return max(planes) if max(planes) - min(planes) <= FLUSH else None
 
 
-def _mount(faces, along, z, low, high, size=1.0):
-    """(along, z, plane) nearest to the wanted spot where the wall is solid, within 2.5 m along it and 0.4 m up or
-    down, or None."""
+SIGN_REACH = (0.5, -0.02, 0.65)  # a hazard plate's half width, and its foot and top over its origin
+SIGN_LIFTS = (0.0, 0.4, 0.8)  # a plate goes up, never down below head height
+
+
+def _mount(faces, along, z, low, high, size=1.0, reach=(0.12, -0.24, 0.17), lifts=(0.0, 0.4, -0.4)):
+    """(along, z, plane) nearest to the wanted spot where the wall is solid behind a fixture of `reach` (a camera's by
+    default) `size` times over, within 2.5 m along it and `lifts` up or down, or None."""
     for step in range(26):
         for shift in ((0.0,) if step == 0 else (step * 0.1, -step * 0.1)):
-            for lift in (0.0, 0.4, -0.4):
+            for lift in lifts:
                 if low + 0.3 <= along + shift <= high - 0.3:
-                    plane = _solid(faces, along + shift, z + lift, size)
+                    plane = _solid(faces, along + shift, z + lift, size, reach)
                     if plane is not None:
                         return round(along + shift, 3), z + lift, plane
     return None
@@ -423,12 +438,15 @@ def propose_corporate(text, seed, *, open=None, plant=CORPORATE_ROOF, ledges=Tru
                 found.append({'piece': beside, 'at': _on_wall(facing, spot[0], spot[2], spot[1]), 'turn': turn,
                               **({'scale': eye} if beside == 'camera' and eye != 1.0 else {})})
         if watch and not doors and high - low > 1.2:
-            for end in (low + 0.6, high - 0.6):
+            # one watch camera a tile, at one end of one wall: one at each end of every wall put two a metre apart
+            # where tiles meet, and four on a corner (too frequent, user 2026-11-20)
+            for end in ((low + 0.6,) if bits % 2 else (high - 0.6,)) if not any(one['piece'] == 'camera' for one in found) else ():
                 spot = _mount(wall, end, 4.0, low, high, eye)
                 if spot:
                     found.append({'piece': 'camera', 'at': _on_wall(facing, spot[0], spot[2], spot[1]), 'turn': turn, **({'scale': eye} if eye != 1.0 else {})})
-            if sign and high - low > 3.0:
-                found.append({'piece': sign, 'at': _on_wall(facing, (low + high) / 2, plane, geometry.OVER + 0.05), 'turn': turn})
+            spot = _mount(wall, (low + high) / 2, geometry.OVER + 0.05, low, high, reach=SIGN_REACH, lifts=SIGN_LIFTS) if sign and high - low > 3.0 else None
+            if spot:  # on solid wall, as the cameras are: plates were put on a lab's glass (2026-11-20)
+                found.append({'piece': sign, 'at': _on_wall(facing, spot[0], spot[2], spot[1]), 'turn': turn})
         if ledges and bits % 2 == 0:
             for along in [low + 1.25 + 2.5 * index for index in range(int((high - low) // 2.5))]:
                 found.append({'piece': 'ledge', 'at': _on_wall(facing, along, plane, 4.7), 'turn': turn})

@@ -272,6 +272,25 @@ endnode
 endmodelgeom t""")  # a walkable upper floor, 6 m up
 
 
+CEILING = """node trimesh ceiling
+  parent t
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap ceiling_tex
+  verts 4
+    -4.0 -4.0 5.9
+    4.0 -4.0 5.9
+    4.0 4.0 5.9
+    -4.0 4.0 5.9
+  tverts 1
+    0 0 0
+  faces 2
+    0 2 1 1 0 0 0 1
+    0 3 2 1 0 0 0 1
+endnode
+"""
+
+
 class FamilyLooksTest(unittest.TestCase):
     def test_a_secure_site_bars_every_lowest_window_and_a_civic_one_none(self):
         _, _, nodes = geometry.parse(PAINTED); lowest = min(bottom for _, bottom, *_ in placer.grid_windows(nodes, GRID)[(-1, 0)])
@@ -294,13 +313,16 @@ class FamilyLooksTest(unittest.TestCase):
         self.assertFalse([one for one in placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False) if one['piece'] == 'camera'])
         found = placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False, watch=True, sign='hazard_sign', eye=1.6)
         cameras = [one for one in found if one['piece'] == 'camera']
-        self.assertEqual(sorted(one['at'][1] for one in cameras), [-3.4, 3.4]); self.assertTrue(all(one['scale'] == 1.6 and one['turn'] == placer._turn((-1, 0)) for one in cameras))
+        self.assertEqual(len(cameras), 1); self.assertIn(cameras[0]['at'][1], (-3.4, 3.4))  # one a tile, at one end (two a metre apart where tiles met, 2026-11-20)
+        self.assertTrue(all(one['scale'] == 1.6 and one['turn'] == placer._turn((-1, 0)) for one in cameras))
         self.assertEqual([one['at'] for one in found if one['piece'] == 'hazard_sign'], [[-2.5, 0.0, round(geometry.OVER + 0.05, 3)]])
 
     def test_a_ruin_has_smoking_barrels_and_no_roof_plant(self):
-        found = placer.propose(FLOORED, 'seed', look='ruin', plant=None)
+        ceiled = FLOORED.replace('node aabb floor', CEILING + 'node aabb floor')  # the floor drawn from below too
+        found = placer.propose(ceiled, 'seed', look='ruin', plant=None)
         barrels = [one for one in found if one['piece'] == 'barrel']; smoke = [one for one in found if one['piece'] == 'smoke']
         self.assertTrue(1 <= len(barrels) <= 2); self.assertEqual(len(smoke), len(barrels))
+        self.assertFalse([one for one in placer.propose(FLOORED, 'seed', look='ruin', plant=None) if one['piece'] == 'barrel'])  # drawn from above alone, barrels would hang in the air
         self.assertFalse({one['piece'] for one in found} & {'hvac', 'tank', 'dish', 'antenna', 'vent'})
 
 
@@ -401,3 +423,19 @@ class StreetTest(unittest.TestCase):  # batch 5, the Concrete street tiles (user
             counts = {piece: sum(one['piece'] == piece for one in made) for piece in ('drain', 'hydrant', 'litter_bin', 'manhole')}
             self.assertTrue(all(count <= 1 for count in counts.values()))  # at most one of each a tile (too many, user 2026-11-20)
             self.assertTrue(all(abs(b - a - placer.BOLLARDS) < 1e-6 for a, b in zip(sorted(rows), sorted(rows)[1:])))
+
+
+class FixtureGuardsTest(unittest.TestCase):  # review of batch 4, 2026-11-20
+    def test_a_hazard_plate_goes_on_solid_wall_never_glass(self):
+        glass = [([(-5, 0), (5, 0), (5, 8)], 3.0, True), ([(-5, 0), (5, 8), (-5, 8)], 3.0, True)]
+        wall = [([(-5, 0), (5, 0), (5, 8)], 3.0, False), ([(-5, 0), (5, 8), (-5, 8)], 3.0, False)]
+        self.assertIsNone(placer._mount(glass, 0.0, 2.8, -5.0, 5.0, reach=placer.SIGN_REACH, lifts=placer.SIGN_LIFTS))
+        self.assertEqual(placer._mount(wall, 0.0, 2.8, -5.0, 5.0, reach=placer.SIGN_REACH, lifts=placer.SIGN_LIFTS), (0.0, 2.8, 3.0))
+
+    def test_a_wall_piece_is_refused_where_a_set_back_facade_has_its_own_unit(self):
+        from tools.tilekit import detail
+        unit = [(f'own_ac', (x, y, z)) for x in (0.5, 0.7, 1.0) for y in (-3.4, -2.5, -1.6) for z in (6.6, 7.2, 7.7)]  # proud of a wall at x = 1.0 facing -x
+        faces = [((0.9, -2.8, 6.4), (0.6, -2.2, 6.4), (0.6, -2.2, 7.3))]
+        with self.assertRaisesRegex(ValueError, 'own_ac'):
+            detail._clear('t', 0, 'ac_unit', faces, [], {}, ((-1.0, 0.0), -1.0), unit)
+        detail._clear('t', 0, 'downpipe', faces, [], {}, None, unit)  # a climber keeps to the fixtures outside the cell

@@ -288,6 +288,18 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 - **Not applied:** the batch waits for its look gate. The camera tiles need `AnimLoop1` set in `dgt04.set` when it
   is applied, and areas built before that need `Tile_AnimLoop1` on for those tiles.
 
+- **Review fixes (user, 2026-11-20):**
+  - A kit AC unit sat inside the tile's own AC on `rdt02_a01_01`. Two guards missed it: the placer's fitted-window
+    check and `detail`'s fixture guard only saw what sticks out past the cell's side, and only at mesh corners. Both
+    now also count what the tile draws more than 0.3 m in front of the wall, sampled across faces. Fire escapes,
+    downpipes, drains and manholes, which run past trim or lie on the ground, keep the old check.
+  - The ruin's burn barrels hung in the air from the street, because its upper floors are drawn from above only.
+    Barrels now go only where a ceiling is drawn under the floor (`placer._ceiling`), which leaves 2 barrels on one tile.
+  - A hazard plate was on a Lab's glass. Plates now mount on solid wall the way cameras do (`SIGN_REACH`).
+  - Cameras were too frequent on the Lab: one at each end of every wall without a door put two a metre apart where
+    tiles met, and four on a corner tile. It is now one watch camera per tile.
+  - Batch 2 (not applied): 2 canopies and 6 ledges that ran into the tiles' own wall lights and boxes were taken out.
+
 #### Kit rework (approved by the user, 2026-11-20)
 
 - **Meshes:** bevelled boxes, smooth pipes and cylinders (shared corners), mitred tubes, and one picture projection

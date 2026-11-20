@@ -27,6 +27,8 @@ from pathlib import Path
 from . import cuts, effects, geometry, inventory, lamps, require
 
 MARK = '_kit'  # added nodes are named <tile>_kitNN
+CLIMBERS = ('fire_escape', 'fire_escape_top', 'downpipe', 'drain', 'manhole')  # pieces that run past what a wall has by nature, or lie on the ground the tile draws: kept to the fixtures outside the cell
+PROUD = 0.3  # metres in front of the wall a piece is fixed to beyond which the tile's own geometry is a fixture there (a unit, a sign box), not trim or a cornice a pipe runs past
 STANDOFF = 0.2  # metres off the cell's side beyond which a tile's own geometry is a fixture on its wall, not the wall
 
 
@@ -166,15 +168,18 @@ def added(text, name, parts, mark=MARK):
     return _ending(text).join(lines[:end] + made + lines[end:]), len(joined)
 
 
-def _clear(name, number, piece, faces, fixtures, walk):
-    """Refuse a wall piece's `faces` where they run into what the tile hangs on its walls already, or stand where a player walks."""
-    low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
-    high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
-    hit = sorted({fixture for fixture, point in fixtures if all(low[axis] <= point[axis] <= high[axis] for axis in range(3))})
-    require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
+def _clear(name, number, piece, faces, fixtures, walk, out=None, drawn=()):
+    """Refuse a wall piece's `faces` where they run into what the tile hangs on its walls already, or stand where a player
+    walks. `out` (direction, wall): what the tile draws more than `PROUD` in front of the wall the piece is fixed to,
+    inside the cell too, is a fixture of its own (a set-back facade's own air conditioners, 2026-11-20)."""
     blocked = geometry.in_the_way(faces, walk)
     require(not blocked, f'{name} #{number} ({piece}) stands where a player walks, over the walkable surface at '
             + ', '.join(f'{heights}' for heights in list(blocked.values())[:3]) + ' m; move it off the walkable faces or above head height, or make it block (roofs only)')
+    low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
+    high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
+    near = [(fixture, point) for fixture, point in drawn if out and point[0] * out[0][0] + point[1] * out[0][1] - out[1] > PROUD]
+    hit = sorted({fixture for fixture, point in list(fixtures) + near if all(low[axis] <= point[axis] <= high[axis] for axis in range(3))})
+    require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
 
 
 def piece_parts(kit, piece, cache):
@@ -208,6 +213,12 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     moves = geometry.placed(nodes)  # what the tile already hangs off its walls (lamps, signs): a wall piece keeps clear of it
     fixtures = [(node.name, point) for node in nodes if node.rendered for point in map(moves[id(node)], node.verts)
                 if max(abs(point[0]), abs(point[1])) - geometry.HALF > STANDOFF]
+    drawn = []  # all of it, for what stands proud of a wall in the cell: points over its faces, not only their corners (a box's corners miss a piece set into it)
+    for node in nodes:
+        if node.rendered:
+            points = [moves[id(node)](vertex) for vertex in node.verts]
+            drawn += [(node.name, point) for face in node.faces if max(face[:3]) < len(points)
+                      for point in geometry.samples(tuple(points[corner] for corner in face[:3]), 0.15)]
     for number, placement in enumerate(placements):
         piece = placement['piece']; at = placement['at']
         if piece in effects.EFFECTS:  # an emitter, not geometry (`effects`)
@@ -239,7 +250,8 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}
             require(not outside, f'{name} #{number} ({piece}) reaches past its cover where a player walks; raise that part above head height or widen `cover`')
         else:
-            _clear(name, number, piece, faces, fixtures, walk)
+            facing = math.radians(placement.get('turn', 0.0)); out = (-math.sin(facing), math.cos(facing))
+            _clear(name, number, piece, faces, fixtures, walk, (out, at[0] * out[0] + at[1] * out[1]) if piece not in CLIMBERS else None, drawn)
         parts += mine
         if piece in SWEEPS:  # its head, a node of its own turning about the pivot: clear of everything at both ends of its sweep
             sweep = SWEEPS[piece]; turn = placement.get('turn', 0.0); scales = tuple(scale) if isinstance(scale, list) else (scale,) * 3
