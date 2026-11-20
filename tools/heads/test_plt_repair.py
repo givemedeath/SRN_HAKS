@@ -160,6 +160,28 @@ class Operations(Base):
         self.assertTrue((out[left] >= lo).all() and lo > shades[left].max())
 
 
+class ReviewRegressions(Base):
+    def test_relabel_on_a_tiny_pool(self):
+        value = grid_mesh(1); texels = pr.Texels(value, 8)
+        shades = np.full((8, 8), 100, np.uint8); layers = np.ones((8, 8), np.uint8); layers[texels.mapped] = 1
+        s = spec({'name': 'r', 'op': 'relabel', 'neighbours': 256, 'when': {'channel': 1}, 'maxFraction': 1})
+        pr.repair(s, value, header(8), shades, layers, self.pal, texels)
+
+    def test_missing_palette_previews_grey(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            pal = pr.load_palettes(d, {4})
+        self.assertEqual(pal[4].shape, (176, 256, 3)); self.assertEqual(pal[4][3, 77].tolist(), [77, 77, 77])
+
+    def test_validation_catches_bad_ramps_clamps_and_curves(self):
+        base = {'name': 'c', 'when': {'channel': 1}}
+        for op in ({**base, 'op': 'curve', 'points': [[0, 'a'], [255, 255]]},
+                   {**base, 'op': 'curve', 'points': [[0, 0], [255, 255]], 'ramp': {'of': 'z', 'from': 0.5}},
+                   {**base, 'op': 'clamp', 'reference': {'channel': 1}, 'percentiles': [5]},
+                   {**base, 'op': 'clamp', 'lo': '3'}):
+            with self.subTest(op=op), self.assertRaises(ValueError): pr.validate_spec(spec(op))
+
+
 class Guards(Base):
     def test_empty_selection_and_change_cap(self):
         shades, layers = self.planes()

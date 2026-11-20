@@ -95,6 +95,7 @@ def native_mesh(data, model, texture=None):
         positions.append(np.c_[-p[:, 0], p[:, 2], p[:, 1]]); faces.append(m['faces'].astype(np.int64)+base); uv.append(t)
         base += len(p)
     positions, faces, uv = np.concatenate(positions), np.concatenate(faces), np.concatenate(uv)
+    require(uv.min() >= -1e-4 and uv.max() <= 1+1e-4, 'UVs outside [0, 1] (tiled or wrapped) are not supported')
     return {'positions': positions, 'faces': faces, 'uv': np.clip(uv, 0, 1)[faces]}
 
 
@@ -131,8 +132,12 @@ def load_palettes(directory, channels):
     palettes = {}
     for channel in sorted(int(c) for c in channels):
         path = Path(directory)/PALETTE_FILES[channel]
-        require(path.is_file(), 'Missing stock palette '+str(path))
-        palettes[channel] = np.asarray(Image.open(path).convert('RGB'))
+        if path.is_file():
+            palettes[channel] = np.asarray(Image.open(path).convert('RGB'))
+        else:
+            # Decoded colour only drives previews and colour predicates; a grey ramp keeps other channels usable.
+            print(f'note: {path.name} missing; channel {channel} previews as a grey ramp', file=sys.stderr)
+            palettes[channel] = np.repeat(np.arange(256, dtype=np.uint8)[None, :, None], 176, 0).repeat(3, 2)
     return palettes
 
 
@@ -215,8 +220,12 @@ def operate(op, texels, shades, layers, selected, values, regions):
         from scipy.spatial import cKDTree
         k = int(op.get('neighbours', 24)); share = float(op.get('minShare', 0.6))
         require(1 <= k <= 256 and 0.5 <= share <= 1, 'relabel needs 1..256 neighbours and minShare 0.5..1')
-        pool = np.flatnonzero(mapped.ravel()); _, index = cKDTree(unit.reshape(-1, 3)[pool]).query(unit[selected], k=k+1)
-        near = pool[index[:, 1:]]; flat_l = layers.ravel(); flat_s = shades.ravel()
+        pool = np.flatnonzero(mapped.ravel()); k = min(k, len(pool)-1); require(k >= 1, 'relabel needs at least two mapped texels')
+        _, index = cKDTree(unit.reshape(-1, 3)[pool]).query(unit[selected], k=k+1)
+        found = pool[index.reshape(len(index), -1)]; own_index = np.flatnonzero(selected.ravel())
+        # Drop the texel itself wherever it appears (coincident seam texels can rank ahead of it), keeping k neighbours.
+        keep = found != own_index[:, None]; keep[keep.sum(1) > k, -1] = False
+        near = found[keep].reshape(len(found), k); flat_l = layers.ravel(); flat_s = shades.ravel()
         near_l = flat_l[near]; own = layers[selected]
         allowed = op.get('to', list(range(10)))
         require(isinstance(allowed, list) and allowed and all(type(c) is int and 0 <= c <= 9 for c in allowed), 'relabel to: channels 0..9')
@@ -246,6 +255,15 @@ def operate(op, texels, shades, layers, selected, values, regions):
     return report
 
 
+def validate_ramp(ramp, name):
+    ramps = ramp if isinstance(ramp, list) else [ramp]
+    require(ramps, name+': empty ramp list')
+    for r in ramps:
+        require(isinstance(r, dict) and {'of', 'from', 'to'} <= set(r) <= {'of', 'center', 'from', 'to'}
+                and isinstance(r['of'], str) and all(type(r[k]) in (int, float) for k in set(r)-{'of'}) and r['from'] != r['to'],
+                name+': ramp needs of, numeric from and to (from != to), optionally numeric center')
+
+
 def validate_spec(spec):
     require(isinstance(spec, dict) and spec.get('schemaVersion') == SCHEMA, 'Repair spec schemaVersion 1 required')
     require(isinstance(spec.get('model'), str) and spec['model'], 'Spec model name required')
@@ -263,9 +281,19 @@ def validate_spec(spec):
             require(type(op.get('channel')) is int and 0 <= op['channel'] <= 9, op['name']+': channel 0..9')
         if op['op'] == 'shade': require(type(op.get('shade')) is int and 0 <= op['shade'] <= 255, op['name']+': shade 0..255')
         if op['op'] == 'match': require(isinstance(op.get('reference'), dict), op['name']+': reference predicate required')
+        if 'ramp' in op: validate_ramp(op['ramp'], op['name'])
+        if op['op'] == 'clamp':
+            if 'reference' in op:
+                pct = op.get('percentiles', [5, 95])
+                require(isinstance(op['reference'], dict) and isinstance(pct, list) and len(pct) == 2
+                        and all(type(v) in (int, float) for v in pct) and 0 <= pct[0] <= pct[1] <= 100,
+                        op['name']+': clamp reference predicate and percentiles [lo, hi] in 0..100')
+            else:
+                require(all(type(op.get(k, 0)) in (int, float) for k in ('lo', 'hi')), op['name']+': numeric clamp lo and hi')
         if op['op'] == 'curve':
             points = op.get('points')
-            require(isinstance(points, list) and len(points) >= 2 and all(isinstance(q, list) and len(q) == 2 for q in points),
+            require(isinstance(points, list) and len(points) >= 2
+                    and all(isinstance(q, list) and len(q) == 2 and all(type(v) in (int, float) for v in q) for q in points),
                     op['name']+': curve points [[in, out], ...] required')
             xs = [q[0] for q in points]; ys = [q[1] for q in points]
             require(xs[0] == 0 and xs[-1] == 255 and all(a < b for a, b in zip(xs, xs[1:])) and all(0 <= y <= 255 for y in ys),

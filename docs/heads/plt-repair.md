@@ -14,10 +14,10 @@ All three take `--mdl`, `--plt`, `--palettes` (a folder with the stock `pal-*.tg
 | `probe --rows ... --when '{predicate}'` | Measures a selection: per-channel texel counts, plus shade, lightness and position percentiles. Writes a views sheet with the selection in magenta. Read-only. |
 | `apply --spec SPEC.json` | Runs a repair spec. Writes `<model>.plt`, `receipt.json`, and `before.png`, `after.png` and `changed.png` sheets. |
 
-Run it with the workspace Python and the bound packages on `PYTHONPATH`, for example:
+Run it with the bundled workspace Python (never the Windows Store `python` shim) and the bound packages on `PYTHONPATH`, for example:
 
 ```powershell
-python -B tools/heads/plt_repair.py apply --mdl srn_head/pfo0_head014.mdl --plt srn_head/pfo0_head014.plt --spec docs/heads/plt-repairs/pr86-v1/pfo0_head014.json --palettes <workspace>/references/palettes --embree <embree4.dll> --out <scratch>/pfo0_head014-v1
+& <workspace-python> -B tools/heads/plt_repair.py apply --mdl srn_head/pfo0_head014.mdl --plt srn_head/pfo0_head014.plt --spec docs/heads/plt-repairs/pr86-v1/pfo0_head014.json --palettes <workspace>/references/palettes --embree <embree4.dll> --out <scratch>/pfo0_head014-v1
 ```
 
 ## Selections
