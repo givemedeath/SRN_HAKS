@@ -322,6 +322,7 @@
   "tools/test_test_impact.py": 1.65,
   "tools/tilekit/test_apply.py": 0.3,
   "tools/tilekit/test_baselines.py": 0.6,
+  "tools/tilekit/test_crown.py": 4.1,
   "tools/tilekit/test_detail.py": 0.8,
   "tools/tilekit/test_doors.py": 0.1,
   "tools/tilekit/test_effects.py": 0.5,

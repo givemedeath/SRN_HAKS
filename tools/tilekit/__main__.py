@@ -108,7 +108,14 @@ def detail_command(chosen):
 
 def remesh_command(chosen):
     from . import remesh
-    told = remesh.remesh(chosen.repo, chosen.tileset, [name for name in chosen.tiles.split(',') if name], chosen.source, chosen.out)
+    told = remesh.remesh(chosen.repo, chosen.tileset, [name for name in chosen.tiles.split(',') if name], chosen.source, chosen.out, joins=chosen.joins, add=chosen.add)
+    print(json.dumps(told, indent=1))
+    return 0
+
+
+def crown_command(chosen):
+    from . import crown
+    told = crown.write(chosen.repo, chosen.tileset, chosen.terrain, [name for name in chosen.tiles.split(',') if name], chosen.out, chosen.overlay)
     print(json.dumps(told, indent=1))
     return 0
 
@@ -214,16 +221,24 @@ def main(arguments=None):
     twelve.add_argument('--tileset', required=True); twelve.add_argument('--tiles', required=True, help='the tile models rebuilt, comma separated')
     twelve.add_argument('--source', required=True, type=Path, help='the folder of rebuilds, <tile>.mdl uncompiled in the tile\'s coordinates')
     twelve.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); twelve.add_argument('--repo', type=Path, default=REPO)
+    twelve.add_argument('--joins', help='a terrain whose tiles may change their sides where they meet one another alike (a crown)')
+    twelve.add_argument('--add', action='store_true', help="keep the tiles' own meshes and draw the rebuilds as well (a crown)")
     thirteen = commands.add_parser('count', help='faces, rendered mesh nodes and materials of each tile, against a budget (exit 1 when any is over)')
     thirteen.add_argument('--tileset', required=True); thirteen.add_argument('--overlay', type=Path, help='a review overlay, read before the packs')
     thirteen.add_argument('--faces', type=int); thirteen.add_argument('--nodes', type=int); thirteen.add_argument('--materials', type=int)
     thirteen.add_argument('--out', type=Path, help='a JSON file for every tile\'s counts'); thirteen.add_argument('--repo', type=Path, default=REPO)
     fourteen = commands.add_parser('doors', help='list the door pack\'s models: family, kind, faces, textures, and the table rows and tile hooks that use them')
     fourteen.add_argument('--out', required=True, type=Path, help='the folder doors.json and doors.csv are written to'); fourteen.add_argument('--repo', type=Path, default=REPO)
+    fifteen = commands.add_parser('crown', help='write rebuilds of a tower terrain\'s tiles with a parapet, cornice and set-back screen, for remesh --joins')
+    fifteen.add_argument('--tileset', required=True); fifteen.add_argument('--terrain', required=True, help='the tower\'s terrain, as the set file names it')
+    fifteen.add_argument('--tiles', required=True, help='its tile models, comma separated'); fifteen.add_argument('--out', required=True, type=Path, help='the folder of rebuilds: remesh --source')
+    fifteen.add_argument('--overlay', type=Path, help='a review overlay read before the packs (a copied terrain\'s)'); fifteen.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
         if chosen.command == 'doors':
             return doors_command(chosen)
+        if chosen.command == 'crown':
+            return crown_command(chosen)
         if chosen.command == 'detail':
             return detail_command(chosen)
         if chosen.command == 'remesh':

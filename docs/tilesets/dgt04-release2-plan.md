@@ -358,6 +358,41 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 - The list comes to you with pictures and you pick.
 - Remeshed under the silhouette rule, in the same batches, or as one batch after them.
 
+#### Candidates (2026-11-20)
+
+- **Ranking:** every building tile's own geometry (kit pieces left out) by faces per m² above head height, the share of
+  that area on box planes, and the number of roof levels.
+- **Result:** the corporate towers are by far the plainest, at 0.16–0.28 faces/m² against 0.6–0.8 for the Slums. In
+  order:
+  1. Highrise_07
+  2. Highrise_02 (and its copy 09)
+  3. Highrise_01
+  4. Highrise_05 (and its copy 08)
+  5. Highrise_06
+  6. Highrise_03
+- **Sheet:** `output/tilekit/remesh-candidates/towers.jpg`. The ranking data and script are in the same folder.
+- **User's pick:** a trial on Highrise_07, made as a new terrain so the original stays, with a crown and parapet: no
+  setbacks.
+
+#### Highrise_07 trial: a crowned copy
+
+- **The copy:** `Highrise_10`, "Walled Compound, Glass, Crowned".
+  - Tiles 568–574 (`srt04_c01_01`–`c07_01`), plus the edge tile `srt04_c08_01`.
+  - Spec: `docs/tilesets/dgt04/terrains-crowned.json`.
+- **The crown** (`tilekit crown`) is drawn from the set file's corners alone, so every tile of the terrain draws it
+  alike:
+  - a parapet, coping and cornice on each facade (a side whose two corners are the street's);
+  - a 6 m screen 1 m back from the facade, with posts and a lit band along its top;
+  - the parapet's and the screen's turn at an inner corner.
+- **`remesh --add --joins <terrain>`:**
+  - `--add` keeps the tile's own meshes and draws the crown as well. Replacing them lost the lit windows: they hang
+    from the animated `<tile>a` dummy, and merging them changed how the glass and the wall draw.
+  - With `--joins`, a facade may rise only where it already reaches its top.
+  - Any other side may change only where every side of the terrain that can meet it draws the same.
+  - A side's samples past its ends no longer count as on it: a cornice wrapped round a corner meets the diagonal
+    neighbour.
+- **Edge tile:** the edge tile (`c08`) is not crowned, since it is laid outside the area.
+
 ### 5 — Doors
 
 - Inventory of the 113 door models, taken during stage 1: type (exterior entrance, interior, gate, curtain), the tilesets and placeables that

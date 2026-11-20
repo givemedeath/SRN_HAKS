@@ -5722,6 +5722,7 @@
       "tools/shared_tools.py",
       "tools/tilekit/apply.py",
       "tools/tilekit/count.py",
+      "tools/tilekit/crown.py",
       "tools/tilekit/detail.py",
       "tools/tilekit/doors.py",
       "tools/tilekit/enlarge.py",
@@ -5746,6 +5747,11 @@
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/crown.py": [
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/kit.py"
     ],
     "tools/tilekit/cuts.py": [
       "tools/envkit/__init__.py",
@@ -5841,6 +5847,12 @@
     "tools/tilekit/test_baselines.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/test_crown.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/crown.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/remesh.py"
     ],
     "tools/tilekit/test_detail.py": [
       "hakbuilder.json",
@@ -6150,6 +6162,9 @@
     "tools/tilekit/__main__.py": [
       "srn_2da"
     ],
+    "tools/tilekit/crown.py": [
+      "srn_t_common"
+    ],
     "tools/tilekit/doors.py": [
       "srn_2da",
       "srn_door"
@@ -6187,6 +6202,9 @@
       "srn_2da",
       "srn_t_common",
       "srn_t_dgt04"
+    ],
+    "tools/tilekit/test_crown.py": [
+      "srn_t_common"
     ],
     "tools/tilekit/test_detail.py": [
       "srn_t_common"
@@ -6550,6 +6568,7 @@
     "tools/test_test_impact.py",
     "tools/tilekit/test_apply.py",
     "tools/tilekit/test_baselines.py",
+    "tools/tilekit/test_crown.py",
     "tools/tilekit/test_detail.py",
     "tools/tilekit/test_doors.py",
     "tools/tilekit/test_effects.py",
