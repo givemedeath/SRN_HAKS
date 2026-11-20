@@ -1,0 +1,316 @@
+{
+ "schemaVersion": 1,
+ "model": "pfo0_head014",
+ "head": "orc-female-b",
+ "defect": "client check 2026-11-04 (PR 86 heads): black blotches on rear hair, skin patch behind ear, dark face mottling, bright forehead stripe",
+ "source": {
+  "plt": {
+   "path": "srn_head/pfo0_head014.plt",
+   "sha256": "f2e96654b8b61204b85f2d4cf049aef7573e1e5df42d7f9c3e8d881080af0a21"
+  },
+  "mdl": {
+   "path": "srn_head/pfo0_head014.mdl",
+   "sha256": "7c49b83e0628caef745b12dffee9cfdf74e2bbd280ec17fa3719310fda81558f"
+  }
+ },
+ "previewRows": {
+  "0": 5,
+  "1": 65,
+  "8": 26,
+  "9": 120
+ },
+ "operations": [
+  {
+   "name": "rear-hair-tone",
+   "op": "match",
+   "maxFraction": 0.5,
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "lt": 0.6
+     }
+    ]
+   },
+   "reference": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "gt": 0.6
+     },
+     {
+      "of": "y",
+      "gt": 0.55
+     }
+    ]
+   },
+   "ramp": {
+    "of": "z",
+    "from": 0.6,
+    "to": 0.45
+   }
+  },
+  {
+   "name": "rear-hair-black-floor",
+   "op": "clamp",
+   "maxFraction": 0.5,
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "lt": 0.5
+     }
+    ]
+   },
+   "reference": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "gt": 0.6
+     },
+     {
+      "of": "y",
+      "gt": 0.55
+     }
+    ]
+   },
+   "percentiles": [
+    12,
+    100
+   ]
+  },
+  {
+   "name": "rear-hair-blotches",
+   "op": "despeckle",
+   "threshold": 18,
+   "neighbours": 120,
+   "passes": 2,
+   "maxFraction": 0.5,
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "lt": 0.6
+     }
+    ]
+   }
+  },
+  {
+   "name": "temple-skin-patch-to-hair",
+   "op": "channel",
+   "channel": 1,
+   "when": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "lt": 0.6
+     },
+     {
+      "of": "z",
+      "gt": 0.25
+     },
+     {
+      "of": "y",
+      "gt": 0.42
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "lt": 0.42
+     },
+     {
+      "of": "shade",
+      "lt": 60
+     }
+    ]
+   }
+  },
+  {
+   "name": "temple-patch-hair-tone",
+   "op": "match",
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "lt": 0.6
+     },
+     {
+      "of": "z",
+      "gt": 0.25
+     },
+     {
+      "of": "y",
+      "gt": 0.42
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "lt": 0.42
+     }
+    ]
+   },
+   "reference": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "y",
+      "gt": 0.5
+     },
+     {
+      "of": "z",
+      "lt": 0.65
+     },
+     {
+      "of": "z",
+      "gt": 0.3
+     }
+    ]
+   }
+  },
+  {
+   "name": "side-and-nape-skin",
+   "op": "match",
+   "maxFraction": 0.2,
+   "when": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "lt": 0.6
+     },
+     {
+      "of": "y",
+      "gt": 0.05
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "lt": 0.42
+     }
+    ]
+   },
+   "reference": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "gt": 0.6
+     },
+     {
+      "of": "z",
+      "lt": 0.75
+     },
+     {
+      "of": "y",
+      "gt": 0.15
+     },
+     {
+      "of": "y",
+      "lt": 0.55
+     }
+    ]
+   },
+   "ramp": {
+    "of": "z",
+    "from": 0.6,
+    "to": 0.48
+   }
+  },
+  {
+   "name": "forehead-stripe",
+   "op": "match",
+   "strength": 0.85,
+   "when": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "gt": 0.75
+     },
+     {
+      "of": "y",
+      "gt": 0.5
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "lt": 0.06
+     }
+    ]
+   },
+   "reference": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "gt": 0.75
+     },
+     {
+      "of": "y",
+      "gt": 0.5
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "ge": 0.06
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "lt": 0.14
+     }
+    ]
+   }
+  },
+  {
+   "name": "face-spots",
+   "op": "despeckle",
+   "threshold": 28,
+   "neighbours": 64,
+   "passes": 2,
+   "maxFraction": 0.5,
+   "when": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "gt": 0.5
+     }
+    ]
+   }
+  }
+ ]
+}
