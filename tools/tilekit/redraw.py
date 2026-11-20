@@ -48,6 +48,24 @@ RULES = ('Hard requirements:\n- Exactly straight-on orthographic view: no perspe
          '- No real brand names, logos or trademarks, no people.\n')
 
 
+KEEP_BLACK = '- Any area that is pure black in the reference stays pure black.'
+GLAZED = ('- The openings, pure black or dark in the reference, are window glass: draw them as glass in every opening, none left black or empty, '
+          'with only the room behind seen faintly through it.')
+GLASS = (34, 42, 52)  # a glazed texture's black openings are filled with this before the reference goes to the generator
+MOSTLY_BLACK = 0.5  # a window texture more pure black than this says what its openings are (`glazed` or `opening`: 'door')
+
+
+def mostly_black(old, below=8):
+    """The share of a picture that is pure black (each channel under `below`)."""
+    return float((np.asarray(old)[..., :3].max(axis=2) < below).mean())
+
+
+def glass_filled(old, below=8):
+    """`old` with its pure-black openings filled with `GLASS`, as a glazed texture's reference."""
+    shown = np.asarray(old)[..., :3].copy(); shown[shown.max(axis=2) < below] = GLASS
+    return shown
+
+
 def prompt(name, how, size, tiles=False, tool=True):
     """What the generator is asked for one texture. how: {kind, district, note (optional), of (a lit variant's day
     texture), light (a lit variant's light, optional), words (new lettering for a sign, optional)}. size: the (width, height) the picture is saved at. tool: the
@@ -69,7 +87,10 @@ def prompt(name, how, size, tiles=False, tool=True):
                   f'photographic-quality texture of the same thing for {DISTRICTS[how["district"]]}.']
     if how.get('note'):
         lines.append(how['note'])
-    lines += ['', RULES.rstrip()]
+    rules = RULES.rstrip()
+    if how.get('glazed'):  # the black is a window's empty opening, not a door's: it is drawn as glass
+        rules = rules.replace(KEEP_BLACK, GLAZED)
+    lines += ['', rules]
     if tiles:
         lines.append('- It must tile seamlessly: what leaves the right edge continues at the left edge, and the top continues at the bottom.')
     return '\n'.join(lines) + '\n'
@@ -194,9 +215,14 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         source = lambda texture: textures.get(texture, {}).get('copy', texture)  # a copied terrain's texture is drawn from its source's picture
         original = lambda: np.asarray(material.current(repo, source(name), stock=stock, before=spec.get('before')))
         day = folder / f'{how["of"]}.png' if how.get('of') else None  # a lit variant's day picture, as redrawn
+        if how.get('kind') == 'window' and not how.get('of') and not how.get('glazed') and how.get('opening') != 'door':
+            share = mostly_black(original())  # empty black windows went unnoticed in release 1 (2026-11-20): each is said
+            require(share <= MOSTLY_BLACK, f'{name} is {share:.0%} pure black: say whether its openings are window glass ("glazed": true, drawn as glass) '
+                    'or a door opening a model is hooked up to ("opening": "door", kept black)')
         if target.is_file():  # kept where it was made from the picture the game draws now, a lit one from its day picture as it is; one with no record was placed by hand
             was = json.loads(record.read_text(encoding='utf-8')) if record.is_file() else {}
             require('source' not in was or was['source'] == _sha(original()[..., :3]), f'{target} was not made from the {name} the game draws now: take it and its record away and draw it again')
+            require(not how.get('glazed') or was.get('glazed') or 'source' not in was, f'{target} was drawn with its openings black: take it and its record away and draw it again glazed')
             require(day is None or 'day' not in was or (day.is_file() and was['day'] == _file_sha(day)),
                     f'{target} was made from another {how.get("of")} day picture: take it and its record away and draw it again')
             return 'kept'
@@ -218,6 +244,8 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
             shutil.rmtree(work)
         work.mkdir(parents=True); images = [work / 'ref.png']
         reference = _opened(better) if better is not None and better.is_file() else Image.fromarray(old)
+        if how.get('glazed'):
+            reference = Image.fromarray(glass_filled(np.asarray(reference.convert('RGB'))))
         reference.resize(size, Image.LANCZOS).save(work / 'ref.png')
         if day is not None:
             require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
@@ -227,10 +255,12 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         require((work / 'out.png').is_file(), 'the generator left no out.png')
         with Image.open(work / 'out.png') as made:
             picture = made.convert('RGB').resize(size, Image.LANCZOS)
-        picture = black_kept(old, picture)  # a generator paints over black openings (doors are hooked up there), by day or night: they are put back
+        if not how.get('glazed'):
+            picture = black_kept(old, picture)  # a generator paints over black openings (doors are hooked up there), by day or night: they are put back
         picture.save(target)
         record.write_text(json.dumps({'kind': 'tilekit-redrawn', 'texture': name, 'source': _sha(old), 'prompt': text, 'size': list(size),
-                                      **({'of': how['of'], 'day': _file_sha(day)} if day is not None else {}), 'alike': round(alike(old, picture), 2)}, indent=1) + '\n', encoding='utf-8')
+                                      **({'of': how['of'], 'day': _file_sha(day)} if day is not None else {}),
+                                      **({'glazed': True} if how.get('glazed') else {}), 'alike': round(alike(old, picture), 2)}, indent=1) + '\n', encoding='utf-8')
         return 'redrawn'
 
     def safe(name):

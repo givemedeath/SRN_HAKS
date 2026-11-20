@@ -285,6 +285,18 @@
    "roughness": 0.6,
    "redrawn": true,
    "copy": "window_tex08_g"
+  },
+  "hr09_win07": {
+   "route": "upscale",
+   "size": [
+    1024,
+    512
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "ruin",
+   "redrawn": true,
+   "copy": "window_tex07"
   }
  }
 }

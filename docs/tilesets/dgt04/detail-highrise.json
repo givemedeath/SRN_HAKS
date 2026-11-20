@@ -1,0 +1,1743 @@
+{
+ "tileset": "dgt04",
+ "tiles": {
+  "dgt05_h01_01": [
+   {
+    "piece": "canopy",
+    "at": [
+     -5.0,
+     0.0,
+     3.4
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "camera",
+    "at": [
+     -5.0,
+     2.0,
+     4.0
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -0.5,
+     0.0,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -0.5,
+     2.5,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     0.0,
+     -3.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     1.5,
+     -1.5,
+     50.0
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     2.0,
+     1.0,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ],
+  "dgt05_h06_01": [
+   {
+    "piece": "mast",
+    "at": [
+     0.0,
+     3.5,
+     50.0
+    ],
+    "turn": 0,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     1.5,
+     -3.5,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     1.0,
+     -1.0,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     1.5,
+     1.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   }
+  ],
+  "dgt05_h10_01": [],
+  "dgt05_h11_01": [],
+  "dgt05_h21_01": [],
+  "dgt05_h26_01": [],
+  "dgt05_h41_01": [
+   {
+    "piece": "canopy",
+    "at": [
+     -2.53,
+     0.0,
+     3.4
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "camera",
+    "at": [
+     -2.53,
+     2.0,
+     4.0
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     3.5,
+     1.5,
+     40.5
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -1.5,
+     -3.5,
+     40.5
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -2.0,
+     2.0,
+     40.5
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     0.0,
+     -1.5,
+     40.5
+    ],
+    "turn": 0,
+    "blocks": true
+   }
+  ],
+  "dgt05_h46_01": [
+   {
+    "piece": "mast",
+    "at": [
+     -3.5,
+     0.0,
+     40.5
+    ],
+    "turn": 0,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     1.5,
+     -3.5,
+     40.5
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -3.5,
+     2.5,
+     40.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     -1.0,
+     3.5,
+     40.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -3.0,
+     -3.5,
+     40.5
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ],
+  "dgt05_h51_01": [
+   {
+    "piece": "canopy",
+    "at": [
+     -2.53,
+     0.0,
+     3.4
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "camera",
+    "at": [
+     -2.53,
+     2.0,
+     4.0
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     0.5,
+     -3.5,
+     60.5
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     1.0,
+     -1.0,
+     60.5
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     0.5,
+     1.5,
+     60.5
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     2.0,
+     3.5,
+     60.5
+    ],
+    "turn": 180,
+    "blocks": true
+   }
+  ],
+  "dgt05_h56_01": [
+   {
+    "piece": "mast",
+    "at": [
+     0.5,
+     3.5,
+     60.5
+    ],
+    "turn": 0,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     1.5,
+     -3.5,
+     60.5
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     1.0,
+     -1.0,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     2.0,
+     1.5,
+     60.5
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     3.5,
+     -2.0,
+     60.5
+    ],
+    "turn": 180,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ],
+  "dgt05_h56_02": [
+   {
+    "piece": "ledge",
+    "at": [
+     -3.75,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -1.25,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     1.25,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -3.5,
+     0.5,
+     60.5
+    ],
+    "turn": 180,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -3.5,
+     3.5,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -1.0,
+     3.0,
+     60.5
+    ],
+    "turn": 90,
+    "blocks": true
+   }
+  ],
+  "dgt04_e01_01": [
+   {
+    "piece": "mast",
+    "at": [
+     -1.0,
+     -3.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -0.5,
+     -1.0,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -1.0,
+     1.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true
+   }
+  ],
+  "dgt04_e01_02": [
+   {
+    "piece": "mast",
+    "at": [
+     -0.5,
+     -3.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -0.5,
+     -1.0,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -0.5,
+     1.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     1.0,
+     3.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     2.0,
+     -3.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ],
+  "dgt04_e01_03": [
+   {
+    "piece": "mast",
+    "at": [
+     -1.0,
+     -3.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -0.5,
+     -1.0,
+     50.0
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -1.0,
+     1.5,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true
+   }
+  ],
+  "dgt04_e01_04": [
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -3.75,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     3.75,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     1.5,
+     3.0,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     2.0,
+     -3.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     2.0,
+     -1.0,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true
+   }
+  ],
+  "dgt04_e01_05": [
+   {
+    "piece": "canopy",
+    "at": [
+     -5.0,
+     0.0,
+     3.4
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "camera",
+    "at": [
+     -5.0,
+     2.0,
+     4.0
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -3.75,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     3.75,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     0.5,
+     -2.5,
+     50.0
+    ],
+    "turn": 0,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     0.5,
+     0.0,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     0.5,
+     2.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     3.0,
+     -3.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   }
+  ],
+  "dgt04_e02_01": [
+   {
+    "piece": "mast",
+    "at": [
+     -0.5,
+     -1.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -0.5,
+     1.0,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -0.5,
+     3.5,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     1.0,
+     -3.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     2.0,
+     -1.0,
+     50.0
+    ],
+    "turn": 0,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ],
+  "dgt04_e03_01": [
+   {
+    "piece": "ledge",
+    "at": [
+     -3.75,
+     -5.0,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -1.25,
+     -5.0,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     1.25,
+     -5.0,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     3.75,
+     -5.0,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     0.0,
+     1.0,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     0.0,
+     3.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -3.5,
+     -1.0,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     -3.5,
+     1.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true
+   }
+  ],
+  "dgt04_e04_01": [
+   {
+    "piece": "mast",
+    "at": [
+     -3.0,
+     -3.0,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -3.0,
+     -0.5,
+     50.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -3.0,
+     2.0,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     -1.0,
+     3.5,
+     50.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -0.5,
+     -3.5,
+     50.0
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ],
+  "dgt04_e05_01": [],
+  "dgt04_e06_01": [],
+  "dgt04_e07_01": [],
+  "dgt04_e08_01": [],
+  "dgt04_e09_50": [
+   {
+    "piece": "mast",
+    "at": [
+     0.0,
+     3.0,
+     40.5
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     0.5,
+     -3.5,
+     40.5
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     0.5,
+     -1.0,
+     40.5
+    ],
+    "turn": 180,
+    "blocks": true
+   }
+  ],
+  "dgt04_e09_51": [
+   {
+    "piece": "mast",
+    "at": [
+     2.5,
+     3.0,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     3.0,
+     -3.5,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     3.0,
+     -1.0,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     1.0,
+     0.5,
+     60.5
+    ],
+    "turn": 90,
+    "blocks": true
+   }
+  ],
+  "dgt04_e09_52": [],
+  "dgt04_e09_53": [],
+  "dgt04_e09_54": [
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -3.75,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     1.25,
+     4.7
+    ],
+    "turn": 90.0
+   }
+  ],
+  "dgt04_e09_55": [
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -3.75,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     3.75,
+     4.7
+    ],
+    "turn": 90.0
+   }
+  ],
+  "dgt04_e10_07": [
+   {
+    "piece": "mast",
+    "at": [
+     -2.5,
+     -0.5,
+     40.5
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -2.5,
+     2.0,
+     40.5
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -2.0,
+     -3.5,
+     40.5
+    ],
+    "turn": 90,
+    "blocks": true
+   }
+  ],
+  "dgt04_e10_08": [
+   {
+    "piece": "mast",
+    "at": [
+     0.0,
+     0.5,
+     60.5
+    ],
+    "turn": 0,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     0.0,
+     3.0,
+     60.5
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     0.5,
+     -3.5,
+     60.5
+    ],
+    "turn": 90,
+    "blocks": true
+   }
+  ],
+  "dgt04_e10_09": [],
+  "dgt04_e11_10": [
+   {
+    "piece": "ledge",
+    "at": [
+     -3.75,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -1.25,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     1.25,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     2.5,
+     -1.25,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     2.5,
+     1.25,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     2.5,
+     3.75,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -3.0,
+     -2.0,
+     40.5
+    ],
+    "turn": 180,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -3.0,
+     0.5,
+     40.5
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -3.0,
+     3.0,
+     40.5
+    ],
+    "turn": 0,
+    "blocks": true
+   }
+  ],
+  "dgt04_e11_11": [
+   {
+    "piece": "ledge",
+    "at": [
+     -3.75,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -1.25,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     1.25,
+     -2.5,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     2.5,
+     -1.25,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     2.5,
+     1.25,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     2.5,
+     3.75,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -3.0,
+     0.5,
+     60.5
+    ],
+    "turn": 0,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -3.0,
+     3.0,
+     60.5
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -0.5,
+     0.5,
+     60.5
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ],
+  "dgt04_e11_12": [
+   {
+    "piece": "ledge",
+    "at": [
+     -3.75,
+     -5.0,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -1.25,
+     -5.0,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     1.25,
+     -5.0,
+     4.7
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     3.75,
+     -5.0,
+     4.7
+    ],
+    "turn": 180.0
+   }
+  ],
+  "dgt04_e12_07": [
+   {
+    "piece": "mast",
+    "at": [
+     3.5,
+     3.0,
+     40.5
+    ],
+    "turn": 180,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -3.5,
+     -3.5,
+     40.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -3.5,
+     -1.0,
+     40.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     -3.5,
+     1.5,
+     40.5
+    ],
+    "turn": 90,
+    "blocks": true
+   }
+  ],
+  "dgt04_e12_08": [
+   {
+    "piece": "mast",
+    "at": [
+     2.5,
+     3.5,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     3.0,
+     -3.5,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     3.0,
+     -1.0,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     -3.5,
+     -3.5,
+     60.5
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -3.5,
+     -1.0,
+     60.5
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ],
+  "dgt04_e12_09": [],
+  "dgt04_h20_01": [
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -3.75,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     -1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     1.25,
+     4.7
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     -5.0,
+     3.75,
+     4.7
+    ],
+    "turn": 90.0
+   }
+  ],
+  "dgt04_h21_01": [
+   {
+    "piece": "ledge",
+    "at": [
+     5.0,
+     -3.75,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     5.0,
+     -1.25,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     5.0,
+     1.25,
+     4.7
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "ledge",
+    "at": [
+     5.0,
+     3.75,
+     4.7
+    ],
+    "turn": 270.0
+   }
+  ],
+  "dgt04_h22_01": [],
+  "dgt04_h23_01": [
+   {
+    "piece": "mast",
+    "at": [
+     -3.5,
+     -3.5,
+     62.5
+    ],
+    "turn": 0,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -3.5,
+     -1.0,
+     62.5
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -3.5,
+     1.5,
+     62.5
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     -2.0,
+     3.5,
+     62.5
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "mast",
+    "at": [
+     -1.0,
+     -3.5,
+     62.5
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.8,
+      0.8
+     ],
+     "height": 0.3
+    }
+   }
+  ]
+ }
+}
