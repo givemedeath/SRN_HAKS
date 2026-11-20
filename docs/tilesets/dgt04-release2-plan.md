@@ -306,7 +306,7 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
   back; only the later glass bitmaps differ from the pre-apply copies. Then both batches were detailed and applied
   again with the new kit.
 
-#### Batch 5: Concrete streets (look gate pending)
+#### Batch 5 result: Concrete streets (approved by the user and applied, 2026-11-20)
 
 - **Scope (user, 2026-11-20):** the 147 uncompiled Concrete tiles. The other 122 are compiled envkit tiles (`ek_*`),
   left as they are. Flat pieces everywhere, plus a few pieces of street furniture cut out of the street's walkmesh;
