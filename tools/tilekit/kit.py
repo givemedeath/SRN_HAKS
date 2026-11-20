@@ -212,6 +212,7 @@ class Mesh:
         """A round pipe along `path` (points), its sides smooth, mitred at its bends; `start` and `end` close its ends."""
         points = [np.array(point, float) for point in path]; smooth = self.key()
         ways = [(points[index + 1] - points[index]) / np.linalg.norm(points[index + 1] - points[index]) for index in range(len(points) - 1)]
+        require(all(np.dot(one, other) > -0.999 for one, other in zip(ways, ways[1:])), 'A pipe cannot turn back on itself')
         side = np.cross(ways[0], (0.0, 0.0, 1.0) if abs(ways[0][2]) < 0.9 else (1.0, 0.0, 0.0)); side /= np.linalg.norm(side)
         rings = []
         for index, point in enumerate(points):

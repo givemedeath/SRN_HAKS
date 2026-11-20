@@ -20,7 +20,7 @@ def count(repo, tileset, folder=None, budget=None):
     """{tiles: {model: counts}, over: {model: [what is over]}, summary: {key: {median, p90, max}}} of a tileset's
     uncompiled tile models, read from `folder` where it holds a copy. budget: {faces, nodes, materials}, any of them."""
     budget = budget or {}; require(set(budget) <= set(KEYS), 'A budget is any of ' + ', '.join(KEYS))
-    tiles = {name: of(text) for name, _, text, _, _ in inventory.drawn_copies(repo, tileset.lower(), folder or repo, lamps.PACKS)}
+    tiles = {name: of(text) for name, _, text, _, _ in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS)}
     require(tiles, f'No uncompiled model of {tileset}')
     over = {name: [f'{key} {said[key]} > {budget[key]}' for key in KEYS if key in budget and said[key] > budget[key]] for name, said in tiles.items()}
     summary = {}

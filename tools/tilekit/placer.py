@@ -274,7 +274,7 @@ def _fixtures(nodes):
 
 def _effects(nodes, found, walls, roof, rng):
     from .detail import turned
-    fx = []
+    fx = []; walk = geometry.walkable(nodes)
     if walls and (rng >> 20) % 4 == 0:  # about one tile in four has a broken junction box
         facing, plane, columns, turn = walls[0]; fixtures = _fixtures(nodes)
         middles = [(one + other) / 2 for one, other in zip(columns, columns[1:])] or [columns[0] + 1.6]
@@ -290,7 +290,8 @@ def _effects(nodes, found, walls, roof, rng):
     for pieces, offset in (([one for one in found if one['piece'].startswith('fire_escape')], ESCAPE_DRIP), ([one for one in found if one['piece'] == 'ac_unit'], AC_DRIP)):
         if pieces:
             lowest = min(pieces, key=lambda one: one['at'][2]); point = [round(value, 3) for value in turned(lowest['at'], lowest['turn'], lowest.get('scale', 1.0))(offset)]
-            fx.append({'piece': 'drip', 'at': point, 'fall': point[2]})  # Slums streets are at 0 m
+            below = [height for height in walk.get(geometry.cell(point), ()) if height < point[2]]  # the ground under it, else the street at 0 m
+            fx.append({'piece': 'drip', 'at': point, 'fall': round(point[2] - max(below, default=0.0), 3)})
     vents = [one for one in roof if one['piece'] == 'vent']
     if vents and (rng >> 23) % 2 == 0:
         x, y, z = vents[0]['at']; fx.append({'piece': 'smoke', 'at': [x, y, round(z + 0.75, 3)]})

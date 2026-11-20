@@ -29,6 +29,19 @@ def _say(cells, step=geometry.STEP, most=4):
     return ', '.join(f'({key[0] * step:.2f}, {key[1] * step:.2f})' for key in sorted(cells)[:most]) + (f' and {len(cells) - most} more' if len(cells) > most else '')
 
 
+def _unlisted(text, gone):
+    """`text` with the animation entries of the nodes named in `gone` taken out (their geometry is gone already)."""
+    out, skipping = [], False
+    for line in text.replace('\r\n', '\n').split('\n'):
+        words = line.split()
+        if not skipping and len(words) >= 3 and words[0].lower() == 'node' and words[2].lower() in gone:
+            skipping = True; continue
+        if skipping:
+            skipping = not (words[:1] and words[0].lower() == 'endnode'); continue
+        out.append(line)
+    return detail._ending(text).join(out)
+
+
 def rebuilt(text, name, source_text):
     """(new text, {faces before, faces after, nodes before, nodes after}) of a tile model with its visible meshes
     replaced by those of `source_text`, refused where the shape changes where a player stands."""
@@ -53,6 +66,7 @@ def rebuilt(text, name, source_text):
     require(not edge, f'The rebuild of {name} changes its sides where a neighbour meets them: ' + ', '.join(f'{side} {along * geometry.STEP:.2f} m along at {height * geometry.STEP:.2f} m' for side, along, height in sorted(edge)[:4]))
     drop = {index for node in replaced for index in range(node.start, node.end + 1)}
     kept = detail._ending(text).join(line for index, line in enumerate(lines) if index not in drop)
+    kept = _unlisted(kept, gone)  # the animations name them no longer: a node they list is one the model has
     new, count = detail.added(kept, name, parts, mark=MARK)  # not named as kit pieces: a later `detail` keeps them
     require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
     return new, {'faces': [len(before), len(after)], 'nodes': [len(replaced), count]}

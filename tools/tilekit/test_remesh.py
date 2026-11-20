@@ -85,6 +85,16 @@ class Remesh(unittest.TestCase):
             self.assertEqual(inventory.walk_hash(made), inventory.walk_hash((own / 't_a01.mdl').read_text(encoding='cp1252')))
             self.assertEqual(count.of(made), {'faces': 5, 'nodes': 1, 'materials': 1})
 
+    def test_a_replaced_mesh_leaves_the_animations_too(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); own = _repo(root); path = own / 't_a01.mdl'
+            anim = ('newanim animloop01 t_a01\n  length 0.0\n  transtime 0.0\n  animroot t_a01\n  node dummy t_a01\n    parent null\n  endnode\n'
+                    '  node trimesh wall\n    parent t_a01\n  endnode\n  node light t_a01ml1\n    parent t_a01\n  endnode\ndoneanim animloop01 t_a01\n')
+            path.write_text(path.read_text(encoding='cp1252').replace('donemodel t_a01', anim + 'donemodel t_a01'), encoding='cp1252')
+            self._run(root, TILE.format(top=12, lamp='t_a01'))
+            made = (root / 'out' / 't_a01.mdl').read_text(encoding='cp1252'); listed = made[made.index('newanim'):]
+            self.assertNotIn('node trimesh wall', made); self.assertIn('node light t_a01ml1', listed)
+
     def test_a_taller_wall_at_the_cell_s_side_is_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); _repo(root)

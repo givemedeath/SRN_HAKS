@@ -219,7 +219,8 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
         parts += mine
         if piece in SWEEPS:  # its head, a node of its own turning about the pivot: clear of everything at both ends of its sweep
             sweep = SWEEPS[piece]; turn = placement.get('turn', 0.0); scales = tuple(scale) if isinstance(scale, list) else (scale,) * 3
-            look, verts, tverts, faces = geometry.merged(geometry.baked(piece_parts(kit, sweep['head'], cache), lambda point: tuple(value * factor for value, factor in zip(point, scales))))[0]
+            joined = geometry.merged(geometry.baked(piece_parts(kit, sweep['head'], cache), lambda point: tuple(value * factor for value, factor in zip(point, scales))))
+            require(len(joined) == 1, f'{sweep["head"]}: a turning head draws with one look, as one node'); look, verts, tverts, faces = joined[0]
             pivot = turned(at, turn, scale)(sweep['pivot'])
             for aside in (-sweep['sweep'], 0.0, sweep['sweep']):
                 move = turned(pivot, turn + aside, 1.0); swung = [tuple(move(verts[corner]) for corner in face[:3]) for face in faces]
