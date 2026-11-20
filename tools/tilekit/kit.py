@@ -35,6 +35,7 @@ LOOKS = {
     'iron': ('MetalPlates013', (44, 42, 40), None, None),
     'concrete': ('Concrete034', (122, 120, 116), None, None),
     'red': (None, (210, 26, 18), 0.4, 0.0),  # a warning light: glows
+    'steel': (None, (150, 155, 160), 0.32, 0.85),  # clean brushed steel: the corporate towers' pieces
 }
 ORDER = list(LOOKS)
 GLOWS = {'red': (255, 48, 36)}  # cells that glow whole
@@ -235,7 +236,7 @@ def antenna():  # a mast with crossbars, on a weighted foot
 
 
 def canopy():  # a steel canopy over a door, its back edge at the origin, with two hangers up the wall
-    mesh = Mesh(); mesh.box((-1.6, 0.0, 0.0), (1.6, 1.5, 0.14), 'galvanised', skip=('-y',))
+    mesh = Mesh(); mesh.box((-1.6, 0.0, 0.0), (1.6, 1.5, 0.14), 'steel', skip=('-y',))
     for x in (-1.4, 1.4):
         mesh.quad((x, 1.4, 0.14), (x, 0.0, 1.3), (x + 0.03, 0.0, 1.3), (x + 0.03, 1.4, 0.14), 'iron')
         mesh.quad((x + 0.03, 1.4, 0.14), (x + 0.03, 0.0, 1.3), (x, 0.0, 1.3), (x, 1.4, 0.14), 'iron')
@@ -243,7 +244,7 @@ def canopy():  # a steel canopy over a door, its back edge at the origin, with t
 
 
 def ledge():  # 2.5 m of a steel ledge along a facade
-    mesh = Mesh(); mesh.box((-1.25, 0.0, 0.0), (1.25, 0.45, 0.12), 'galvanised', skip=('-y',))
+    mesh = Mesh(); mesh.box((-1.25, 0.0, 0.0), (1.25, 0.45, 0.12), 'steel', skip=('-y',))
     return mesh, False
 
 
@@ -256,9 +257,9 @@ def camera():  # a security camera on an arm, its red light on
 
 def mast():  # a tall antenna mast on a weighted foot, a red warning light on top
     mesh = Mesh(); mesh.box((-0.4, -0.4, 0.0), (0.4, 0.4, 0.3), 'concrete', skip=('-z',))
-    mesh.cylinder((0.0, 0.0, 0.3), 0.08, 7.5, 'galvanised', sides=6, top=False)
+    mesh.cylinder((0.0, 0.0, 0.3), 0.08, 7.5, 'steel', sides=6, top=False)
     for z, half in ((4.5, 0.9), (5.6, 0.7), (6.6, 0.5)):
-        mesh.box((-half, -0.02, z), (half, 0.02, z + 0.04), 'galvanised'); mesh.box((-0.02, -half, z), (0.02, half, z + 0.04), 'galvanised')
+        mesh.box((-half, -0.02, z), (half, 0.02, z + 0.04), 'steel'); mesh.box((-0.02, -half, z), (0.02, half, z + 0.04), 'steel')
     mesh.box((-0.1, -0.1, 7.8), (0.1, 0.1, 8.0), 'red')
     return mesh, True
 
