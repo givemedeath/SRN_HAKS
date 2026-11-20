@@ -278,6 +278,34 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
   doorways (`dgt04_black`) stay black.
 - **Applied:** to `srn_t_common` and `srn_t_dgt04`, 117 models, both packs built.
 
+#### Batch 4: ruin, Apartments, Warehouses, Police, Hospital and Lab (look gate pending)
+
+- **Placements:** `docs/tilesets/dgt04/detail-batch4.json`, 73 tiles. Each family has a look: ruin (burn barrels
+  smoking on the upper floors, no roof plant), residential, industrial, secure (bars on every lowest window, a camera
+  by each street door), civic (a canopy and a lit red-cross sign at each entrance), and lab (watched walls: a large
+  camera at each end and a hazard panel). Three roofs (`dgt05_i07_11`, `i07_13`, `rdt02_a05_51`) run 2,828–3,054
+  added faces, over the 2,700 budget, since the kit rework.
+- **Not applied:** the batch waits for its look gate. The camera tiles need `AnimLoop1` set in `dgt04.set` when it
+  is applied, and areas built before that need `Tile_AnimLoop1` on for those tiles.
+
+#### Kit rework (approved by the user, 2026-11-20)
+
+- **Meshes:** bevelled boxes, smooth pipes and cylinders (shared corners), mitred tubes, and one picture projection
+  for each quad and each cylinder cap. Every piece was remade with real detail. AC units are window units on the
+  sill, about 62% of the window's width. Other pieces: clamped downpipes, grated fire escapes with pickets, nailed
+  planks, welded grilles, louvred roof plant with fan guards, a hooped tank with a lid and ladder, aerials, and a
+  burning drum. Offline renders in `output/tilekit/prop-renders`.
+- **Sweeping cameras:** the head is its own node, swept ±35° over 24 s in a free `animloop`. The client animates only
+  tile geometry under the animation dummy `<tile>a` (nwn.wiki, Animations), and `tiledefault` only resets a tile. The
+  first two attempts, with the keys in `tiledefault` and the head under the root, stayed still. Cameras mount only on
+  flush, solid wall: no glass and no recessed window behind them.
+- **Walkmesh mend:** the round footprints of the new roof pieces made the mend split the same sliver faces back and
+  forth forever. Footprints are now at most eight-sided with no side under 5 cm, sliver splits are skipped, and the
+  mend stops after `MENDS` splits.
+- **Re-applied:** batches 1 and 3. The kit was taken out of the pack copies and each tile's pre-apply walkmesh put
+  back; only the later glass bitmaps differ from the pre-apply copies. Then both batches were detailed and applied
+  again with the new kit.
+
 ### 4 — Selective remeshing
 
 - A candidate list from the review captures: the tiles whose shape reads worst once they are detailed.
