@@ -5659,6 +5659,7 @@
       "tools/tilekit/apply.py",
       "tools/tilekit/count.py",
       "tools/tilekit/detail.py",
+      "tools/tilekit/doors.py",
       "tools/tilekit/enlarge.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py",
@@ -5693,6 +5694,10 @@
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/doors.py": [
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/enlarge.py": [
       "tools/envkit/__init__.py",
@@ -5768,6 +5773,10 @@
       "tools/tilekit/detail.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/test_doors.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/doors.py"
     ],
     "tools/tilekit/test_enlarge.py": [
       "tools/tilekit/enlarge.py",
@@ -6018,6 +6027,10 @@
     "tools/tilekit/__main__.py": [
       "srn_2da"
     ],
+    "tools/tilekit/doors.py": [
+      "srn_2da",
+      "srn_door"
+    ],
     "tools/tilekit/inventory.py": [
       "srn_2da",
       "srn_t_common"
@@ -6054,6 +6067,10 @@
     ],
     "tools/tilekit/test_detail.py": [
       "srn_t_common"
+    ],
+    "tools/tilekit/test_doors.py": [
+      "srn_2da",
+      "srn_door"
     ],
     "tools/tilekit/test_enlarge.py": [
       "srn_t_common"
@@ -6408,6 +6425,7 @@
     "tools/tilekit/test_apply.py",
     "tools/tilekit/test_baselines.py",
     "tools/tilekit/test_detail.py",
+    "tools/tilekit/test_doors.py",
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_inventory.py",
     "tools/tilekit/test_lamps.py",

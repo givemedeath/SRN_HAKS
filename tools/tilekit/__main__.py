@@ -123,6 +123,14 @@ def count_command(chosen):
     return 1 if told['over'] else 0
 
 
+def doors_command(chosen):
+    from . import doors
+    found = doors.doors(chosen.repo); written = doors.write(chosen.out, found)
+    print(json.dumps({'written': written, 'doors': len(found), 'used by tiles': sum(1 for door in found if door['tileHooks']),
+                      'placed only': sum(1 for door in found if door['genericdoors'] and not door['doortypes'])}, indent=1))
+    return 0
+
+
 def apply_command(chosen):
     from . import apply
     spec = _json(chosen.spec) if chosen.spec else None  # none: the overlay's changed models alone
@@ -210,8 +218,12 @@ def main(arguments=None):
     thirteen.add_argument('--tileset', required=True); thirteen.add_argument('--overlay', type=Path, help='a review overlay, read before the packs')
     thirteen.add_argument('--faces', type=int); thirteen.add_argument('--nodes', type=int); thirteen.add_argument('--materials', type=int)
     thirteen.add_argument('--out', type=Path, help='a JSON file for every tile\'s counts'); thirteen.add_argument('--repo', type=Path, default=REPO)
+    fourteen = commands.add_parser('doors', help='list the door pack\'s models: family, kind, faces, textures, and the table rows and tile hooks that use them')
+    fourteen.add_argument('--out', required=True, type=Path, help='the folder doors.json and doors.csv are written to'); fourteen.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
+        if chosen.command == 'doors':
+            return doors_command(chosen)
         if chosen.command == 'detail':
             return detail_command(chosen)
         if chosen.command == 'remesh':
