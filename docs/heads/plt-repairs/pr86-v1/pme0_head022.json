@@ -83,39 +83,26 @@
    }
   },
   {
-   "name": "rear-hair-black-lift",
+   "name": "hair-dark-end-lift",
    "op": "curve",
    "points": [
     [
      0,
-     28
+     64
     ],
     [
-     70,
-     70
+     110,
+     118
     ],
     [
      255,
      255
     ]
    ],
+   "maxFraction": 1,
    "when": {
-    "all": [
-     {
-      "channel": 1
-     },
-     {
-      "of": "z",
-      "lt": 0.65
-     }
-    ]
-   },
-   "ramp": {
-    "of": "z",
-    "from": 0.65,
-    "to": 0.55
-   },
-   "maxFraction": 0.5
+    "channel": 1
+   }
   }
  ]
 }

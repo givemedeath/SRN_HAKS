@@ -330,7 +330,7 @@ def load(args, spec=None):
     model = (spec or {}).get('model') or args.model or Path(args.mdl).stem
     if spec:
         validate_spec(spec); check_pins(spec, plt, mdl)
-    value = native_mesh(mdl, model, getattr(args, 'texture', None) or Path(args.plt).stem)
+    value = native_mesh(mdl, model, getattr(args, 'texture', None) or model)
     header, shades, layers = read_plt(plt)
     return model, mdl, plt, value, header, shades, layers
 
@@ -343,7 +343,7 @@ def main(argv=None):
         p.add_argument('--mdl', required=True); p.add_argument('--plt', required=True)
         p.add_argument('--palettes', required=True, help='folder with the stock pal-*.tga files')
         p.add_argument('--embree', required=True, help='embree4.dll for the view sheets')
-        p.add_argument('--out', required=True); p.add_argument('--model'); p.add_argument('--texture')
+        p.add_argument('--out', required=True); p.add_argument('--model'); p.add_argument('--texture', help='texture the trimeshes sample (default: the model name)')
         p.add_argument('--size', type=int, default=384)
         if name != 'apply': p.add_argument('--rows', default='', help='preview rows, e.g. 0:5,1:65,9:120')
         if name == 'view': p.add_argument('--channels', action='store_true', help='also a channel false-colour sheet')
