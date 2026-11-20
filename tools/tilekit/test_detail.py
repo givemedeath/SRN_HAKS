@@ -94,6 +94,12 @@ class Geometry(unittest.TestCase):
         self.assertEqual(corners[0], (-0.4, -0.5, 1.0))  # a quarter turn takes (-0.5, 0.4, 0.5) to (-0.4, -0.5), then up by the position
         self.assertEqual({round(z, 3) for _, _, z in part[1]}, {0.0, 1.0})
 
+    def test_a_mesh_named_like_the_root_hangs_from_the_root_not_from_itself(self):
+        twin = PIECE.replace('node trimesh body', 'node trimesh box')  # the mesh shares the model root's name, as some doors' do
+        _, _, nodes = geometry.parse(twin)
+        (part,) = geometry.baked(nodes)
+        self.assertEqual({round(z, 3) for _, _, z in part[1]}, {0.0, 1.0})
+
     def test_a_piece_s_meshes_with_one_look_are_merged_into_one_node(self):
         _, _, nodes = geometry.parse(PIECE); parts = geometry.baked(nodes)
         self.assertEqual(len(geometry.merged(parts + parts)), 1)

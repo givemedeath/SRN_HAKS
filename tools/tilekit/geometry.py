@@ -103,25 +103,27 @@ def _rotate(axis_angle, point):
 
 
 def placed(nodes):
-    """{node name (lowercase): function taking a point in the node's own space to the model's}."""
-    named = {node.name.lower(): node for node in nodes}; made = {}
+    """{id(node): function taking a point in the node's own space to the model's}, for every node. A parent is named:
+    where two nodes share a name, the first is the one named (a model's root dummy is often named like a mesh), and a
+    node naming itself as its parent hangs from the model's origin."""
+    named = {}
+    for node in nodes:
+        named.setdefault(node.name.lower(), node)
+    made = {}
 
-    def of(name, seen=()):
-        key = name.lower()
-        if key in made:
-            return made[key]
-        node = named.get(key)
-        if node is None:
-            return lambda point: point
-        require(key not in seen, f'{node.name} is its own ancestor')
-        above = of(node.parent, seen + (key,)) if node.parent else (lambda point: point)
+    def of(node, seen=()):
+        if id(node) in made:
+            return made[id(node)]
+        require(id(node) not in seen, f'{node.name} is its own ancestor')
+        parent = named.get(node.parent.lower()) if node.parent else None
+        above = of(parent, seen + (id(node),)) if parent is not None and parent is not node else (lambda point: point)
 
         def move(point, node=node, above=above):
             turned = _rotate(node.orientation, point)
             return above(tuple(turned[axis] + node.position[axis] for axis in range(3)))
-        made[key] = move
+        made[id(node)] = move
         return move
-    return {node.name.lower(): of(node.name) for node in nodes}
+    return {id(node): of(node) for node in nodes}
 
 
 def triangles(nodes, chosen=lambda node: node.rendered):
@@ -130,7 +132,7 @@ def triangles(nodes, chosen=lambda node: node.rendered):
     for node in nodes:
         if not chosen(node):
             continue
-        points = [moves[node.name.lower()](vertex) for vertex in node.verts]
+        points = [moves[id(node)](vertex) for vertex in node.verts]
         for face in node.faces:
             if max(face[:3]) < len(points):
                 found.append(tuple(points[corner] for corner in face[:3]))
@@ -168,7 +170,7 @@ def walkable(nodes, step=STEP):
 
 
 def _corners(node, nodes):
-    move = placed(nodes)[node.name.lower()]; points = [move(vertex) for vertex in node.verts]
+    move = placed(nodes)[id(node)]; points = [move(vertex) for vertex in node.verts]
     return [tuple(points[corner] for corner in face[:3]) for face in node.faces if max(face[:3]) < len(points)]
 
 
@@ -274,7 +276,7 @@ def baked(nodes, move=lambda point: point):
         if not node.rendered:
             continue
         require(node.kind == 'trimesh', f'{node.name} is a {node.kind}: only trimesh nodes are baked')
-        to_model = moves[node.name.lower()]
+        to_model = moves[id(node)]
         parts.append((node.look, [move(to_model(vertex)) for vertex in node.verts], list(node.tverts), list(node.faces)))
     return parts
 

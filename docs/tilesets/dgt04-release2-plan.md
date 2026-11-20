@@ -245,11 +245,21 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 | Unclear: open yards (`dgt04_i02`, `i05`), or a low step hit | 9 |
 
 NWN's doors are large, so each door is scaled to fill its whole opening, with no frame or transom above the leaf
-(user, 2026-11-19). Proposed sizes, to settle with you:
+(user, 2026-11-19).
 
-- 2.0 × 2.9 m single, for doors, shop doors, steel doors and interior doors;
-- 4.0 × 2.9 m double or shutter;
-- 6.0–8.0 m gates and loading shutters.
+**Existing door models** (bounds of the 107 ASCII models in `srn_door`):
+
+- 2.0 × 3.0 m is the standard. 31 models, including every `gn_door` (the generic doors) and every `shp_door`.
+- Doubles and gates are 3.9–4.0 × 3.0 m (`t1doora`, `tn_gdoor`, `vmr_gdoor`), and one 6.0 × 3.0 m.
+- Many `t_door` models measure 4.0 × 8.0 or 2.0 × 8.0 m: those bounds take in a tall frame or wall piece, not the leaf.
+- The doorways agree: 2.0 × 2.9 m measured from 0.1 m above the hook, so 2.0 × 3.0 m from the hook itself.
+
+Proposed sizes, matching the existing doors:
+
+- 2.0 × 3.0 m single: doors, shop doors, steel doors, interior doors, curtains.
+- 4.0 × 3.0 m double or roller shutter.
+- 6.0 × 3.0 m gate, and 6.0 × 4.0 m loading shutter for the two taller warehouse openings.
+- The four 8.0 m openings may be open yards rather than doorways.
 
 The unclear hooks are checked against pictures.
 
