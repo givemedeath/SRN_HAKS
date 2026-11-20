@@ -54,6 +54,7 @@ Orchestrates multi-head generation, GPU inference, stage progression, and automa
 - [client_trial.py](./client_trial.py): Holds CPU/GPU leases through the owned private client lifetime; enforces window/FPS, memory and time limits; closes the child on startup/receipt failures; archives each finished session log.
 - [stock_materials.py](./stock_materials.py): Validates the installed stock organic material bytes before a client trial.
 - [review/fitassembly.py](./review/fitassembly.py): Shows the bound torso and neck with the stock reference and exact fit attempt.
+- [publish_library.py](./publish_library.py): Stages client-reviewed library heads into `srn_head` with their exact reviewed bytes, client galleries (crop boxes in [library-crops.json](./library-crops.json)) and a portable manifest, and verifies built HAKs against manifests. See [head-library-publication.md](../../docs/heads/head-library-publication.md).
 
 ## Invariants
 - Machine-specific filesystem paths must reside solely in `workspace.json` and never in committed repository files.
@@ -69,6 +70,7 @@ Orchestrates multi-head generation, GPU inference, stage progression, and automa
 - Sends HTTP requests to local ComfyUI endpoints (`/prompt`, `/history`, `/view`, `/interrupt`).
 - Appends execution timing records to `{workspace}/timing.log`.
 - Builds compiled NWN trial modules (`.mod`) and HAK archives (`.hak`).
+- `publish_library.py stage` writes `srn_head` resources, gallery JPEGs and a manifest into the repository checkout it is given (or under `--out` with `--dry-run`).
 
 ## Verification
 - Run: `pytest tools/headbatch`
