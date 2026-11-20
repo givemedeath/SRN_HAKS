@@ -214,6 +214,44 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 - You pick the set. It is then restyled with release 1's material route, and remeshed where the inventory shows a need.
 - Door hooks and door types (`doortypes.2da` rows) do not move.
 
+#### Universal door set (user, 2026-11-19)
+
+- **The pack today** (`docs/tilesets/doors/`, written by `tilekit doors`):
+  - 113 door models;
+  - 93 are only placed through `genericdoors.2da`;
+  - 16 are tied to a tileset through `doortypes.2da`;
+  - 3 are used nowhere.
+- **`dgt04`'s 97 door hooks:**
+  - 80 are Generic (row 0): the builder fills them with any `genericdoors` door;
+  - 15 are type 58, envkit's invisible transition door;
+  - 1 is a tile-specific glass window.
+- **Decided:**
+  - The set is new `genericdoors.2da` rows appended after the existing ones. Built areas keep their doors exactly.
+  - Kinds: street doors (single, shop door with glass, double), security (steel door, roller shutter), gates, and
+    interior (plain door, curtain or strip door).
+  - Other tilesets' tile-specific hooks (38 in `tbx78`, and those in `fcx01`, `vmr01`, `vmp01`) keep their fitted
+    doors.
+  - Sizes come from measuring the doorways first.
+- **Doorways measured** by casting rays across and up from each of the 80 Generic hooks (width × height, to 0.1 m):
+
+| Opening | Hooks |
+|---|---|
+| 2.0 × 2.9 m | 52 |
+| 4.0 × 2.9 m | 8 |
+| 4.0 × 2.7 m | 2 |
+| 6.0 × 2.9 m | 3 |
+| 6.0 × 3.9 m | 2 |
+| 8.0 × 2.9 m | 4 |
+| Unclear: open yards (`dgt04_i02`, `i05`), or a low step hit | 9 |
+
+Proposed sizes, to settle with you:
+
+- 2.0 × 2.9 m single, for doors, shop doors, steel doors and interior doors;
+- 4.0 × 2.9 m double or shutter;
+- 6.0–8.0 m gates and loading shutters.
+
+The unclear hooks are checked against pictures.
+
 ### 6 — Cohesion and release
 
 - Performance against the baseline on the same views.
