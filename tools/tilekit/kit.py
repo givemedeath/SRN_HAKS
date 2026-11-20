@@ -336,8 +336,8 @@ def fire_escape(stair=True):  # one storey: a grated platform at z = 0 on wall b
         mesh.box((-width / 2, y0, -0.08), (width / 2, y1, 0.0), 'iron')
     for x in (-width / 2, width / 2):  # and its ends
         mesh.box((x - 0.02, 0.0, -0.08), (x + 0.02, depth, 0.0), 'iron', skip=('-y',))
-        brace = Mesh(); brace.box((-0.015, 0.0, -0.015), (0.015, 1.15, 0.015), 'iron')  # a bracket strut from the wall below
-        mesh.extend(brace, turning(math.atan2(0.75, 0.85), 'x', (x * 0.85, 0.0, -0.75)))
+        brace = Mesh(); brace.box((-0.015, 0.0, -0.015), (0.015, 0.5, 0.015), 'iron')  # a short gusset from the wall up under it: kept within 0.25 m below, clear of the lamps under a platform
+        mesh.extend(brace, turning(math.atan2(0.2, 0.45), 'x', (x * 0.85, 0.0, -0.25)))
     for x in (-width / 2, width / 2):
         mesh.tube(((x, depth - 0.02, -0.06), (x, depth - 0.02, 1.0)), 0.022, 'iron', sides=6)  # posts
     mesh.tube(((-width / 2, 0.0, 1.0), (-width / 2, depth - 0.02, 1.0), (width / 2, depth - 0.02, 1.0), (width / 2, 0.0, 1.0)), 0.02, 'iron', sides=6)  # top rail
@@ -352,8 +352,9 @@ def fire_escape(stair=True):  # one storey: a grated platform at z = 0 on wall b
         mesh.box((x, 0.17, rise * (step + 1) - 0.03), (x + run * 0.9, 0.73, rise * (step + 1)), 'grating')
     for y0, y1 in ((0.13, 0.17), (0.73, 0.77)):  # the two stringers the treads hang between
         mesh.beam((foot, -0.12), (head, STOREY - 0.12), y0, y1, 0.16, 'iron')
-    mesh.tube(((foot, 0.765, 0.9), (head, 0.765, STOREY + 0.9)), 0.018, 'iron', sides=6)  # the handrail
-    for x in (foot + 0.3, (foot + head) / 2, head - 0.3):  # its posts
+    end = foot + (head - foot) * (STOREY - 0.95) / STOREY  # the handrail stops where it meets the platform above, never over it (into what hangs there)
+    mesh.tube(((foot, 0.765, 0.9), (end, 0.765, STOREY - 0.05)), 0.018, 'iron', sides=6)
+    for x in (foot + 0.3, (foot + end) / 2, end - 0.1):  # its posts
         z = (x - foot) / (head - foot) * STOREY
         mesh.tube(((x, 0.765, z + 0.02), (x, 0.765, z + 0.9)), 0.014, 'iron', sides=6)
     return mesh, False
@@ -408,7 +409,7 @@ def junction_box():  # a broken electrical box on a wall, its torn cable hanging
     mesh.cylinder((0.1, 0.065, 0.42), 0.03, 0.03, 'iron', sides=8)  # a gland, and the conduit up the wall from it
     mesh.tube(((0.1, 0.065, 0.45), (0.1, 0.065, 1.32)), 0.02, 'galvanised', sides=8)
     mesh.box((0.07, 0.0, 0.86), (0.13, 0.09, 0.89), 'galvanised', skip=('-y',))  # its saddle clip
-    mesh.tube(((-0.06, 0.07, 0.0), (-0.055, 0.1, -0.12), (-0.08, 0.13, -0.24), (-0.05, 0.14, -0.34)), 0.016, 'rubber', sides=6, end=True)  # the torn cable
+    mesh.tube(((-0.06, 0.07, 0.0), (-0.055, 0.08, -0.12), (-0.08, 0.084, -0.24), (-0.05, 0.08, -0.34)), 0.016, 'rubber', sides=6, end=True)  # the torn cable, close to the wall
     return mesh, False
 
 
