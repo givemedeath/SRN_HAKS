@@ -49,7 +49,10 @@ def sha256(data):
 
 
 def read_json(path):
-    return json.loads(Path(path).read_text(encoding='utf-8'))
+    """A JSON object; every file this tool reads holds one."""
+    data = json.loads(Path(path).read_text(encoding='utf-8'))
+    require(isinstance(data, dict), f'{Path(path).name}: expected a JSON object')
+    return data
 
 
 def erf_resources(data):
@@ -82,9 +85,9 @@ def latest_checkpoints(workspace, pattern):
     paths = [p for p in Path(workspace).glob(pattern) if checkpoint_order(p)]
     require(paths, f'No checkpoints match {pattern} in {workspace}')
     for path in sorted(paths, key=checkpoint_order):
-        data = read_json(path); require(isinstance(data, dict), f'{path.name}: a checkpoint is a JSON object')
-        for row in data.get('heads') or []:
+        for row in read_json(path).get('heads') or []:
             if isinstance(row, dict) and 'head' in row:
+                require(isinstance(row['head'], str), f'{path.name}: a head name is not a string')
                 latest[row['head']] = dict(row, _checkpoint=path.name, _batch=checkpoint_order(path)[1])
     return latest
 
@@ -130,18 +133,21 @@ def resolve(workspace, head, row, override):
         files[ext] = {'hak': payload[ext][0][0], 'data': native}
     require(files['mdl']['hak'] == files['plt']['hak'], f'{head}: MDL and PLT come from different trial HAKs')
     receipt = folder.parent/'receipt.json' if label.startswith('attempt-') else W/'heads'/head/'run/native'/attempt/'receipt.json'
+    require('reviewedNativeAttempt' not in override or receipt.is_file(), f'{head}: native {attempt} has no receipt')
     return {'head': head, 'slot': slot, 'session': session, 'trial': trial, 'attempt': attempt, 'files': files,
             'nativeReceipt': receipt if receipt.is_file() else None}
 
 
 def export_receipt(workspace, head, native_receipt):
     """The export receipt the native attempt consumed (its sha256 is among the native receipt's inputs). A fit variant
-    without a native receipt falls back to the newest export attempt."""
+    without a native receipt is read only when its head has a single export attempt."""
     exports = sorted((Path(workspace)/'heads'/head/'run/export').glob('attempt-*/receipt.json'))
     require(exports, f'{head}: no export attempt')
     if native_receipt is None:
-        return exports[-1]
-    pinned = {item.get('sha256') for item in read_json(native_receipt).get('inputs') or []}
+        require(len(exports) == 1, f'{head}: {len(exports)} export attempts and no native receipt pins one '
+                                   '(name the fit variant\'s attempt with reviewedNativeAttempt)')
+        return exports[0]
+    pinned = {item.get('sha256') for item in read_json(native_receipt).get('inputs') or [] if isinstance(item, dict)}
     matched = [e for e in exports if sha256(e.read_bytes()) in pinned]
     require(len(matched) == 1, f'{head}: {len(matched)} export receipts are pinned by native {native_receipt.parent.name}, need one')
     return matched[0]
@@ -177,6 +183,7 @@ def actors(trial, head):
     for line in (Path(trial)/'README.md').read_text(encoding='utf-8').splitlines():
         cells = [c.strip() for c in line.strip().strip('|').split('|')]
         if len(cells) >= 5 and cells[3] == head and cells[2].startswith('sr_h_actor') and cells[1].isdigit():
+            require(int(cells[1]) not in rows, f'{head}: trial README lists look {cells[1]} twice')
             rows[int(cells[1])] = cells[2]
     require(1 in rows and 2 in rows, f'{head}: trial README lists no first and second look actors')
     return rows[1], rows[2]
@@ -334,6 +341,8 @@ def stage(args):
     head_folder = repo/'srn_head'
     manifest_path = target/'docs/heads'/f'{args.name}.json'
     require(not manifest_path.exists(), f'{manifest_path} exists; publish under a new name')
+    if args.dry_run and (repo/'docs/heads'/f'{args.name}.json').exists():
+        print(f'WARNING: {args.name}.json is already in the repository; the real stage would refuse this name', file=sys.stderr)
     evidence = target/'docs/heads/evidence'/args.name
     sheets = out/'galleries'  # nothing reaches the repository until every head has resolved
     staged, entries = [], []
@@ -360,6 +369,11 @@ def stage(args):
         require(not path.exists() or path.read_bytes() == data,
                 f'{path} exists with different bytes (gallery JPEGs also depend on the Pillow version)')
     require(not re.search(r'[A-Za-z]:[\\/]|\\\\|"/|\s/(home|Users|mnt|tmp|var|srv)/', text), 'The manifest would hold a local path')
+    if args.dry_run:
+        for path, data in writes:
+            published = repo/path.relative_to(target)
+            if published.exists() and published.read_bytes() != data:
+                print(f'WARNING: {published} differs; the real stage would refuse it', file=sys.stderr)
     for path, data in writes:
         write_new(path, data)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)

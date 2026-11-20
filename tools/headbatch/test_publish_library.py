@@ -1,3 +1,5 @@
+import contextlib
+import io
 import json
 import struct
 import tempfile
@@ -149,6 +151,9 @@ class Stage(unittest.TestCase):
         (variant/'resources'/f'{SLOT}.mdl').write_bytes(b'MDL-bytes'); (variant/'resources'/f'{SLOT}.plt').write_bytes(b'PLT-bytes')
         ws.json(trial/'runtime-manifest.json', {'heads': [{'native': str(variant/'native.json')}]})
         ws.json(ws.root/'trials/client-sessions/troll-1/session.json', {'trial': 'trials/troll-v3'})  # relative to the workspace
+        self.assertEqual(self.stage(ws)[0], 1)  # two export attempts and nothing pins one
+        overrides.write_text(json.dumps({HEAD: {'reviewedNativeAttempt': 'attempt-05'}}), encoding='utf-8')
+        self.assertEqual(self.stage(ws, '--overrides', str(overrides))[0], 1)  # no such native receipt
         overrides.write_text(json.dumps({HEAD: {'reviewedNativeAttempt': 'attempt-02', 'reviewNotes': ['fit variant']}}), encoding='utf-8')
         self.assertEqual(self.stage(ws, '--overrides', str(overrides))[0], 0)
         head = json.loads((self.repo/'docs/heads/head-library-test-v1.json').read_text(encoding='utf-8'))['heads'][0]
@@ -163,9 +168,21 @@ class Stage(unittest.TestCase):
                 self.assertEqual(self.stage(ws)[0], 1)
         self.assertFalse((self.repo/'docs').exists())
 
-    def test_existing_manifest_refuses(self):
+    def test_malformed_workspace_files_refuse(self):
+        ws = Workspace(self.tmp.name); readme = ws.root/'trials/troll-v3/README.md'; text = readme.read_text(encoding='utf-8')
+        readme.write_text(text+f'| 4 | 1 | sr_h_actor4 | {HEAD} | reused |\n', encoding='utf-8')
+        self.assertEqual(self.stage(ws)[0], 1)  # look 1 listed twice
+        readme.write_text(text, encoding='utf-8'); ws.json(ws.root/'spool/reviewed-rows.json', [])
+        self.assertEqual(self.stage(ws)[0], 1)  # refused, not a traceback
+        self.assertFalse((self.repo/'docs').exists())
+
+    def test_existing_manifest_refuses_and_a_dry_run_warns(self):
         ws = Workspace(self.tmp.name); self.assertEqual(self.stage(ws)[0], 0)
         self.assertEqual(self.stage(ws)[0], 1)
+        errors = io.StringIO()
+        with contextlib.redirect_stderr(errors):
+            self.assertEqual(self.stage(ws, '--dry-run')[0], 0)
+        self.assertIn('already in the repository', errors.getvalue())
 
 
 class Archive(unittest.TestCase):

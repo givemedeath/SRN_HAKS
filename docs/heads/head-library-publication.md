@@ -30,7 +30,8 @@ For each head it:
    `troll-male`; `default` for the rest) and reduces them; it never edits textures or geometry.
 
 The manifest's triangles and material come from the export receipt the native attempt pinned by hash (a fit
-variant without a native receipt uses the newest export). Nothing reaches the repository until every head has resolved
+variant without a native receipt is read only when the head has one export attempt; otherwise name its attempt with
+`reviewedNativeAttempt`). A dry run warns where the real stage would refuse an existing manifest or gallery. Nothing reaches the repository until every head has resolved
 and every target path is checked. Gallery JPEG bytes depend on the Pillow version, so restaging an existing
 publication needs the Pillow that made it. An existing resource with different bytes refuses, and so
 does an existing manifest of the same name. The manifest refuses to hold a local path.
