@@ -250,3 +250,21 @@ class PaintedWindowsTest(unittest.TestCase):
         self.assertIn('ac_unit', pieces)
         self.assertFalse(pieces & {'fire_escape', 'fire_escape_top', 'bars', 'boards'})
 
+class FamilyLooksTest(unittest.TestCase):
+    def test_a_secure_site_bars_every_lowest_window_and_a_civic_one_none(self):
+        _, _, nodes = geometry.parse(PAINTED); lowest = min(bottom for _, bottom, *_ in placer.grid_windows(nodes, GRID)[(-1, 0)])
+        secure = placer.propose(PAINTED, 'seed', look='secure', grids=GRID)
+        self.assertEqual(sorted(one['at'][1] for one in secure if one['piece'] == 'bars'), [-2.5, 2.5])
+        self.assertTrue(all(abs(one['at'][2] - lowest - 0.45) < 1e-6 for one in secure if one['piece'] == 'bars'))
+        civic = {one['piece'] for one in placer.propose(PAINTED, 'seed', look='civic', grids=GRID)}
+        self.assertFalse(civic & {'bars', 'boards', 'ac_unit', 'fire_escape'})
+
+    def test_no_plant_means_no_roof_pieces(self):
+        for look in ('ruin', 'industrial'):
+            found = placer.propose(PAINTED, 'seed', look=look, grids=GRID, plant=None)
+            self.assertFalse([one for one in found if one.get('blocks')], look)
+
+    def test_a_watched_wall_without_a_door_gets_a_camera(self):
+        self.assertFalse([one for one in placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False) if one['piece'] == 'camera'])
+        cameras = [one for one in placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False, watch=True) if one['piece'] == 'camera']
+        self.assertEqual(len(cameras), 1); self.assertEqual(cameras[0]['turn'], placer._turn((-1, 0)))

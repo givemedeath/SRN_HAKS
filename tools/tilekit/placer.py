@@ -30,8 +30,9 @@ ARC = (-0.06, 0.24, 0.0)  # in the box's own coordinates: just out from its brok
 ESCAPE_DRIP = (1.0, 1.0, -0.07)  # under a fire escape platform's outer corner
 AC_DRIP = (0.1, 0.55, -0.01)  # under an air conditioner's front
 ESCAPES = ('brick', 'timber', 'shopfront')  # looks whose storeys suit the kit's fire escape (`kit.STOREY`)
-AIR = {'residential': (0, 3, 5), 'derelict': ()}  # the window patterns (of 7) that get an air conditioner, by look
-BOARDS = {'residential': (), 'derelict': (1, 4, 5)}  # and that get boarded up
+AIR = {'residential': (0, 3, 5), 'derelict': (), 'industrial': (), 'civic': (), 'secure': ()}  # the window patterns (of 7) that get an air conditioner, by look
+BOARDS = {'residential': (), 'derelict': (1, 4, 5), 'industrial': (5,), 'civic': (), 'secure': ()}  # and that get boarded up
+BARS = {'residential': (), 'civic': (), 'secure': tuple(range(7))}  # and, on the lowest row, barred (else patterns 2 and 6)
 CORPORATE_ROOF = (('mast', 0.45, {'size': [0.8, 0.8], 'height': 0.3}), ('hvac', 1.0, None), ('vent', 0.5, None), ('dish', 0.6, None),
                   ('mast', 0.45, {'size': [0.8, 0.8], 'height': 0.3}))
 ROOF = (('hvac', 1.0, None), ('tank', 1.0, None), ('vent', 0.5, None), ('dish', 0.6, None), ('antenna', 0.35, {'size': [0.6, 0.6], 'height': 0.5}), ('vent', 0.5, None))
@@ -181,11 +182,12 @@ def _wall_top(nodes, facing, plane, near=0.05):
     return top if top is not None else 1e9
 
 
-def propose(text, seed, *, look='brick', open=None, grids=None, above=None):
+def propose(text, seed, *, look='brick', open=None, grids=None, above=None, plant=ROOF):
     """[{piece, at, turn, blocks?, cover?}] for a tile model's text. `open`: the facings of its sides on a street
     (`open_sides`); a facade on the cell's side facing any other way meets the next building, and gets nothing, unless
     all its windows stand `above` the neighbours' roofs (a tower in the middle of a lower block). `grids`: windows
-    painted in textures (`GRIDS`)."""
+    painted in textures (`GRIDS`). `plant`: the roof's pieces (`ROOF`), None for none; a roofless ruin (`look`
+    'ruin') has smoke from a fire on its top floor instead, one tile in two."""
     _, _, nodes = geometry.parse(text); rng = zlib.crc32(str(seed).encode()); found = []
     seen = windows(nodes)
     for facing, panes in (grid_windows(nodes, grids) if grids else {}).items():
@@ -209,7 +211,7 @@ def propose(text, seed, *, look='brick', open=None, grids=None, above=None):
                 found.append({'piece': 'ac_unit', 'at': _on_wall(facing, along + 0.4, plane, bottom - 0.6), 'turn': turn})
             elif pick in BOARDS.get(look, (5,)) or (look == 'timber' and pick == 1):
                 found.append({'piece': 'boards', 'at': _on_wall(facing, along, plane, bottom + 0.45), 'turn': turn})
-            elif row == 0 and pick in (2, 6) and look != 'residential':
+            elif row == 0 and pick in BARS.get(look, (2, 6)):
                 found.append({'piece': 'bars', 'at': _on_wall(facing, along, plane, bottom + 0.45), 'turn': turn})
         apart = min((b - a for a, b in zip(columns, columns[1:])), default=0.0); clear = max(1.0, 0.3 * apart)  # off a wide window's glass
         ends = [end for end in (min(along for along, *_ in panes) - clear, max(along for along, *_ in panes) + clear)
@@ -221,8 +223,13 @@ def propose(text, seed, *, look='brick', open=None, grids=None, above=None):
             crown = _wall_top(nodes, facing, plane)  # the last length ends under the wall's top, not above a roof
             for z in sorted({round(min(foot + 3.0 * index, max(foot, crown - 3.0)), 3) for index in range(int((roof - foot) // 3.0) + 1)}):
                 found.append({'piece': 'downpipe', 'at': _on_wall(facing, end, plane, z), 'turn': turn})
-    roof = _roof(nodes, rng); found += roof
-    return found + _effects(nodes, found, walls, roof, rng)
+    roof = _roof(nodes, rng, plant) if plant else []; found += roof
+    fx = _effects(nodes, found, walls, roof, rng)
+    if look == 'ruin' and (rng >> 23) % 2 == 0:  # a fire burning in the rubble of the top floor
+        spot = _roof(nodes, rng, (('vent', 0.5, None),))
+        if spot:
+            x, y, z = spot[0]['at']; fx.append({'piece': 'smoke', 'at': [x, y, round(z + 0.3, 3)]})
+    return found + fx
 
 
 def _fixtures(nodes):
@@ -302,9 +309,10 @@ def facades(nodes, open=None):
     return found
 
 
-def propose_corporate(text, seed, *, open=None):
+def propose_corporate(text, seed, *, open=None, plant=CORPORATE_ROOF, ledges=True, watch=False):
     """[{piece, at, turn, blocks?, cover?}] for a corporate tower tile: on each tower wall a canopy over each street door
-    with a camera beside it, and a ledge on about half; masts and plant on the roof."""
+    with a camera beside it, and a ledge on about half (`ledges`); `plant` on the roof (masts and plant), None for none.
+    `watch`: a wall with no street door has a camera near one end (a secure site)."""
     _, _, nodes = geometry.parse(text); rng = zlib.crc32(str(seed).encode()); found = []; openings = _openings(nodes)
     for number, (facing, (plane, low, high, top)) in enumerate(sorted(facades(nodes, open).items())):
         turn = _turn(facing); bits = rng >> (number * 5); middle = (low + high) / 2
@@ -315,7 +323,9 @@ def propose_corporate(text, seed, *, open=None):
             side = door + 2.0 if door + 2.0 < high - 0.3 else door - 2.0
             if low + 0.3 < side < high - 0.3:
                 found.append({'piece': 'camera', 'at': _on_wall(facing, side, plane, 4.0), 'turn': turn})
-        if bits % 2 == 0:
+        if watch and not doors and high - low > 1.2:
+            found.append({'piece': 'camera', 'at': _on_wall(facing, low + 0.6 if bits % 2 else high - 0.6, plane, 4.0), 'turn': turn})
+        if ledges and bits % 2 == 0:
             for along in [low + 1.25 + 2.5 * index for index in range(int((high - low) // 2.5))]:
                 found.append({'piece': 'ledge', 'at': _on_wall(facing, along, plane, 4.7), 'turn': turn})
-    return found + _roof(nodes, rng, CORPORATE_ROOF)
+    return found + (_roof(nodes, rng, plant) if plant else [])
