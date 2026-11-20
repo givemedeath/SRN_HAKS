@@ -5657,11 +5657,14 @@
       "tools/headkit/comfy.py",
       "tools/shared_tools.py",
       "tools/tilekit/apply.py",
+      "tools/tilekit/count.py",
+      "tools/tilekit/detail.py",
       "tools/tilekit/enlarge.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py",
       "tools/tilekit/material.py",
       "tools/tilekit/redraw.py",
+      "tools/tilekit/remesh.py",
       "tools/tilekit/review.py",
       "tools/tilekit/shadows.py",
       "tools/tilekit/terrain.py"
@@ -5670,7 +5673,26 @@
       "hakbuilder.json",
       "tools/envkit/__init__.py",
       "tools/envkit/catalog.py",
+      "tools/tilekit/cuts.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/count.py": [
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/cuts.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/tile.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/detail.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/cuts.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/enlarge.py": [
       "tools/envkit/__init__.py",
@@ -5679,6 +5701,7 @@
       "tools/headkit/design.py",
       "tools/tilekit/material.py"
     ],
+    "tools/tilekit/geometry.py": [],
     "tools/tilekit/inventory.py": [],
     "tools/tilekit/lamps.py": [
       "tools/tilekit/apply.py",
@@ -5698,6 +5721,13 @@
       "tools/headkit/__init__.py",
       "tools/headkit/design.py",
       "tools/tilekit/material.py"
+    ],
+    "tools/tilekit/remesh.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/detail.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/review.py": [
       "tools/armorkit/__init__.py",
@@ -5730,6 +5760,15 @@
       "tools/tilekit/__init__.py",
       "tools/tilekit/inventory.py"
     ],
+    "tools/tilekit/test_detail.py": [
+      "hakbuilder.json",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/apply.py",
+      "tools/tilekit/cuts.py",
+      "tools/tilekit/detail.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py"
+    ],
     "tools/tilekit/test_enlarge.py": [
       "tools/tilekit/enlarge.py",
       "tools/tilekit/material.py",
@@ -5751,6 +5790,12 @@
       "tools/tilekit/material.py",
       "tools/tilekit/redraw.py",
       "tools/tilekit/test_material.py"
+    ],
+    "tools/tilekit/test_remesh.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/count.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/remesh.py"
     ],
     "tools/tilekit/test_review.py": [
       "tools/tilekit/__main__.py",
@@ -6007,6 +6052,9 @@
       "srn_t_common",
       "srn_t_dgt04"
     ],
+    "tools/tilekit/test_detail.py": [
+      "srn_t_common"
+    ],
     "tools/tilekit/test_enlarge.py": [
       "srn_t_common"
     ],
@@ -6023,6 +6071,9 @@
       "srn_t_common"
     ],
     "tools/tilekit/test_redraw.py": [
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_remesh.py": [
       "srn_t_common"
     ],
     "tools/tilekit/test_review.py": [
@@ -6356,11 +6407,13 @@
     "tools/test_test_impact.py",
     "tools/tilekit/test_apply.py",
     "tools/tilekit/test_baselines.py",
+    "tools/tilekit/test_detail.py",
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_inventory.py",
     "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",
     "tools/tilekit/test_redraw.py",
+    "tools/tilekit/test_remesh.py",
     "tools/tilekit/test_review.py",
     "tools/tilekit/test_shadows.py",
     "tools/tilekit/test_terrain.py"

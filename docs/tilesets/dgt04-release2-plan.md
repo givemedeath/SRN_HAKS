@@ -16,6 +16,7 @@ edge tiles, strata 4 and 5; `docs/tilesets/dgt04-upfit-plan.md`) is on `main` (P
 | Face budget | Not set in advance. A frame-rate and load-time baseline is taken first, and the budget comes from a pilot tile measured against it. |
 | Remeshing | May change the silhouette above ground: roof lines, parapets and upper massing. The walkable footprint and the walkmesh stay exactly as they are. |
 | Doors | Inventory first: the 113 door models in `srn_door` listed by type, with pictures. The user picks the set. |
+| Roof clutter | Cover for rooftop battles (user, 2026-11-19): roof clutter blocks movement and line of sight. Its footprint is cut out of the walkable roof as Nonwalk. Street level stays fixed. |
 | Signage | By district: Shadowrun megacorps' names and logos on corporate towers; invented local brands in the Barrens and on shops. This replaces release 1's no-brands rule for new signs only; release 1's generic signs stay as they are. |
 
 ## What the tiles are today (measured 2026-11-19)
@@ -34,11 +35,19 @@ edge tiles, strata 4 and 5; `docs/tilesets/dgt04-upfit-plan.md`) is on `main` (P
 
 Release 1's constraints hold, except that original models are now edited:
 
-- **Walkmesh:** no change. Every `.wok` and every `aabb` node hashes as `docs/tilesets/dgt04/walkmesh.json`
-  records. `tilekit` refuses a model whose walkmesh would change.
+- **Walkmesh:** no change, except under blocking roof clutter. Every other `.wok` and `aabb` node still hashes as
+  `docs/tilesets/dgt04/walkmesh.json` records.
+  - A kit piece marked `blocks` stands on a walkable roof, more than 2.5 m above the tile's root.
+  - Its footprint (the piece's convex hull from above) is cut out of that roof and marked Nonwalk (surfacemat 7).
+    Nonwalk stops walking and blocks line of sight, so the piece is cover.
+  - The cut may not reach the cell's side: a neighbour's walkmesh still meets it.
+  - `apply` replaces a walkmesh only as the overlay's `walk-cuts.json` records it, then writes the new hashes, with
+    the number of cuts, into the baseline.
 - **Set file:** no tile number, terrain, crosser or group moves in `dgt04.set`. New tiles, if any, are appended.
 - **Door hooks and lamps:** door hooks, tile lamps (`ml1`/`ml2`) and their positions are kept.
-- **Silhouette:** may change only above head height, about 2.5 m. Nothing is added inside the walkable footprint below it.
+- **Silhouette:** may change only above head height, about 2.5 m. Nothing that does not block is added between
+  0.25 and 2.5 m above any walkable face, whether street or roof. The walkmesh is unchanged there, so a player would
+  walk through it. Many buildings have walkable roofs: 59 of the 105 Slums tiles.
 - **Neighbours:** kit pieces stay inside the tile's 10 m cell, so neighbours never overlap. Edges that meet a neighbour
   keep their profile, so a detailed tile still joins an undetailed one.
 - **Textures:** a kit piece draws release 1's materials or a shared kit atlas, one material file plus its DDS maps. Signs follow the
@@ -128,6 +137,25 @@ The measurement script becomes a `tilekit` command in stage 1. Until then the ru
 
 ### 1 — Tooling
 
+Built 2026-11-19 (`tools/tilekit/geometry.py`, `detail.py`, `cuts.py`, `remesh.py`, `count.py`):
+
+- `tilekit count --tileset dgt04 [--overlay] [--faces N --nodes N --materials N]` lists each tile's faces, rendered
+  mesh nodes and materials, and exits 1 when any tile is over the budget.
+- `tilekit detail --spec <placements.json> --kit <folder> --out <overlay>` adds kit pieces. The spec is
+  `{tileset, tiles: {model: [{piece, at, turn, scale, blocks}]}}`.
+  - Pieces are baked into tile coordinates and merged into one node per look.
+  - A run is repeatable: earlier pieces are replaced, and a cut is always made from the pack's walkmesh.
+- `tilekit remesh --tileset dgt04 --tiles a,b --source <folder> --out <overlay>` replaces a tile's rendered meshes.
+  It refuses a rebuild that:
+  - reaches past the original's own overhang;
+  - changes massing between 0.25 and 2.5 m;
+  - stands where a player walks;
+  - drops a floor over a walkable face;
+  - changes the profile on the cell's sides.
+- Every Slums tile passes `remesh` when rebuilt as itself, so the checks raise no false refusals on today's tiles.
+
+As planned:
+
 - `tilekit detail`:
   - adds kit pieces to a tile model as mesh nodes under the tile's root, from a placement spec per tile (piece, position,
     turn, scale);
@@ -157,6 +185,8 @@ The measurement script becomes a `tilekit` command in stage 1. Until then the ru
   - invented-brand shop signs;
   - roof clutter.
 - Remesh one or two of the plainest tiles to try the silhouette rule.
+- Blocking roof clutter checked in the client: a creature cannot walk through it, and it blocks line of sight across a
+  roof.
 - Measure frame rate and load time against the baseline, and set the face budget from that.
 - Look gate: you approve the pilot, the kit, the budget, and the geometry source for each piece type.
 

@@ -99,7 +99,7 @@ class ApplyTests(unittest.TestCase):
         self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
         self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), laid(3))
         (overlay / 'n_t01.wok').write_bytes(b'moved')
-        with self.assertRaisesRegex(ValueError, 'a walkmesh in a pack is not replaced'):
+        with self.assertRaisesRegex(ValueError, 'a walkmesh in a pack is replaced only as walk-cuts.json records'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (overlay / 'n_t01.wok').write_bytes(b'walk')
         (self.repo / 'srn_t_tst' / 'tst.set').write_bytes(laid(4))  # another addition since the overlay was made
