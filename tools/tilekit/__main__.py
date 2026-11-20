@@ -37,9 +37,11 @@ def review_command(chosen):
                                    table=(chosen.repo / 'srn_2da' / 'placeables.2da').read_text(encoding='cp1252') if shared.get('placeables') else None)
     except KeyError as error:
         raise ValueError(f'The review spec lacks {error}') from error
-    if chosen.views:
-        shots = [shot for shot in shots if shot['label'].startswith(tuple(chosen.views.split(',')))]
-        require(shots, 'No view begins with ' + ' or '.join(chosen.views.split(',')))
+    views = tuple(view for view in (chosen.views or '').split(',') if view)  # a stray comma asks for no view, not every one
+    if chosen.views is not None:
+        require(views, 'No view named in --views')
+        shots = [shot for shot in shots if shot['label'].startswith(views)]
+        require(shots, 'No view begins with ' + ' or '.join(views))
     shots = shots[::max(1, chosen.every)]; kept = {shot['area'] for shot in shots}; areas = [area for area in areas if area['tag'] in kept]
     lacking = sorted({f'srn_t_{area["tileset"]}' for area in areas} - set(haks))  # each tileset laid is one of this project's packs (its set file is read there)
     require(not lacking, 'The module would not load the pack of every tileset it lays: add ' + ', '.join(lacking) + ' to the spec\'s haks')
@@ -203,6 +205,9 @@ def main(arguments=None):
         return 1 if lines else 0
     except (ValueError, OSError) as error:  # a refusal, or a file that is not there: said, not thrown
         print(f'tilekit: {error}', file=sys.stderr)
+        return 2
+    except KeyError as error:  # a spec (terrain, material, redraw, enlarge) without a key its command reads
+        print(f'tilekit: the spec lacks {error}', file=sys.stderr)
         return 2
 
 

@@ -40,9 +40,14 @@ class ReviewTests(unittest.TestCase):
         self.assertEqual(review.disagreements(5, cells, TILES), [])
         cells[6] = (0, 0)  # plain ground where the tower's middle stood
         self.assertIn('tile 0 at 1,1: Ground where a neighbour has Tower', review.disagreements(5, cells, TILES))
+        # A terrain is matched in any case, as the game matches it: dgt04 spells Freeway two ways.
+        spelled = {**TILES, 4: tile(4, ('tower',) * 4), 11: tile(11, ('TOWER', 'tower', 'Tower', 'tower'))}; cells[6] = (4, 0)
+        self.assertEqual(review.disagreements(5, cells, spelled), [])
+        self.assertEqual(review.solve({11: spelled[11], 0: TILES[0]}, 'ground', 1, 1, [{'terrain': 'Tower', 'at': [0, 0], 'size': [2, 2], 'border': True}]), {(0, 0): (11, 0)})
+        self.assertEqual(review.plain({'default': 'Ground', 'groups': [], 'tiles': [tile(3, (T,) * 4), tile(5, ('ground',) * 4)]}), 5)
         crossing = review.solve(TILES, G, 3, 3, [], [{'crosser': 'Road', 'cells': [[1, 0], [1, 2]]}, {'crosser': 'Road', 'cells': [[0, 1], [2, 1]]}])
         self.assertEqual(crossing[(1, 1)][0], 7)  # two runs that reach the area's edges cross in the middle
-        with self.assertRaisesRegex(ValueError, r'No tile of the set fits: 0,0 needs corners Ground/Lake/Ground/Ground'):
+        with self.assertRaisesRegex(ValueError, r'(?i)No tile of the set fits: 0,0 needs corners Ground/Lake/Ground/Ground'):
             review.solve(TILES, G, 3, 3, [{'terrain': 'Lake', 'at': [1, 1], 'size': [1, 1]}])
         with self.assertRaisesRegex(ValueError, "reaches the area's edge"):
             review.solve(TILES, G, 3, 3, [{'terrain': T, 'at': [2, 1]}])
@@ -178,6 +183,8 @@ class ReviewTests(unittest.TestCase):
             self.assertEqual(run(spec, '--overlay', str(root / 'over')), (2, 'tilekit: Overlay files are lowercase resref files: Brick.tga\n'))
             self.assertIn('add srn_t_tst01 to the spec\'s haks', run({**spec, 'haks': list(review.HAKS)})[1])  # a tileset whose pack the module would not load
             self.assertIn('The fill tile 99 is no tile of tst01', run({**spec, 'fill': 99})[1])
+            self.assertEqual(run(spec, '--views', ','), (2, 'tilekit: No view named in --views\n'))  # a stray comma is no view, not every one
+            self.assertIn('not named like a pack it loads (srn_2da)', run(spec, '--name', 'srn_2da')[1])  # its own pack would be written over the built one
             self.assertFalse((root / 'out').exists())
 
     def test_what_the_views_wait_is_counted_for_every_change_of_area(self):

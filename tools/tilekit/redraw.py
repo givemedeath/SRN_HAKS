@@ -230,7 +230,7 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         picture = black_kept(old, picture)  # a generator paints over black openings (doors are hooked up there), by day or night: they are put back
         picture.save(target)
         record.write_text(json.dumps({'kind': 'tilekit-redrawn', 'texture': name, 'source': _sha(old), 'prompt': text, 'size': list(size),
-                                      **({'day': _file_sha(day)} if day is not None else {}), 'alike': round(alike(old, picture), 2)}, indent=1) + '\n', encoding='utf-8')
+                                      **({'of': how['of'], 'day': _file_sha(day)} if day is not None else {}), 'alike': round(alike(old, picture), 2)}, indent=1) + '\n', encoding='utf-8')
         return 'redrawn'
 
     def safe(name):

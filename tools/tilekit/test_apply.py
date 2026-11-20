@@ -168,6 +168,38 @@ class ApplyTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, message):
                 apply.plan(self.repo, {'tileset': 'oth'} if wrong is record else {'tileset': 'tst'}, overlay)
 
+    def test_a_changed_model_replaces_only_the_pack_copy_it_was_made_from(self):
+        apply.noted(self.overlay, 'T_A01.mdl', self.repo / 'srn_t_common' / 't_a01.mdl')  # as lamps and shadows record it
+        apply.noted(self.overlay, 't_a01.mdl', self.overlay / 't_a01.mdl')  # changed again (shadows after lamps): still made from the first
+        self.assertEqual(json.loads((self.overlay / apply.MODELS_FROM).read_text(encoding='utf-8')), {'t_a01.mdl': hashlib.sha256(b'old').hexdigest()})
+        (self.repo / 'srn_t_common' / 't_a01.mdl').write_bytes(b'changed since')  # another overlay applied, or a hand edit
+        with self.assertRaisesRegex(ValueError, 't_a01.mdl: the pack copy changed since the overlay copy was made from it'):
+            apply.plan(self.repo, None, self.overlay)
+        (self.repo / 'srn_t_common' / 't_a01.mdl').write_bytes(b'old')
+        told = apply.apply(self.repo, None, self.overlay); self.assertEqual(told['put'], 1); self.assertNotIn(apply.MODELS_FROM, told['not applied'])  # the record is no pack file
+        self.assertEqual(len(apply.plan(self.repo, None, self.overlay)['put']), 1)  # applied again: in place already
+
+    def test_a_plain_texture_takes_away_the_material_an_earlier_apply_put_in(self):
+        apply.apply(self.repo, self.spec, self.overlay)
+        for name in ('wall.mtr', 'wall_n.dds'):
+            (self.overlay / name).unlink()
+        (self.overlay / 'wall.txi').write_bytes(b'envmap x')  # the look the game makes from its TXI, which the material would take over
+        apply.apply(self.repo, self.spec, self.overlay)
+        self.assertEqual([name for name in self.names('srn_t_common') if name.startswith('wall')], ['wall.dds', 'wall.txi'])
+
+    def test_a_copy_of_a_tileset_the_catalog_has_no_baseline_for_is_refused(self):
+        overlay = self.overlay.parent / 'unknown'; overlay.mkdir(); self.catalog(); path = self.repo / 'docs' / 'additions' / 'catalog.json'
+        data = json.loads(path.read_text(encoding='utf-8')); data['baseline']['tilesets'] = {}; path.write_text(json.dumps(data), encoding='utf-8')  # tst has none
+        entry = {'tileset': 'tst', 'terrain': 'Tower_2', 'tiles': [2], 'models': ['n_t01'], 'pack': 'srn_t_tst', 'madeBy': 'tilekit', 'source': 's', 'provenance': 'p', 'added': '2026-11-19'}
+        (overlay / apply.MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': {}, 'catalog': {'terrainTiles': [entry]}}), encoding='utf-8')
+        (overlay / 'n_t01.mdl').write_bytes(b'model'); (overlay / 'n_t01.wok').write_bytes(b'walk')
+        with self.assertRaisesRegex(ValueError, 'The additions catalog has no baseline for tst'):  # as envkit's install refuses it
+            apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+        for wrong in ({'edges': 5}, {'catalog': []}):  # refused in words, not thrown
+            (overlay / apply.MADE_FROM).write_text(json.dumps({'kind': 'tilekit-terrain-copy', 'from': {}, **wrong}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'is not a terrain copy'):
+                apply.plan(self.repo, {'tileset': 'tst'}, overlay)
+
     def test_names_are_matched_in_any_case_and_a_pack_s_spelling_kept(self):
         (self.repo / 'srn_t_common' / 'wall.tga').rename(self.repo / 'srn_t_common' / 'Wall.TGA')
         apply.apply(self.repo, self.spec, self.overlay)

@@ -14,6 +14,7 @@ Every check waits while another game client runs and never closes it. These were
 (2026-11-11, 2026-11-12); the layouts are worked out from each model's size, so they serve any sheet."""
 import json
 import math
+import re
 import shutil
 import subprocess
 import time
@@ -351,6 +352,13 @@ def _ground(repo, tileset, resources):
         for one in (plain, picture, 'pavement', *bitmaps):
             for path in folder.glob(one + '.*'):
                 shutil.copyfile(path, resources / path.name.lower())
+    # A restyled texture is a material naming maps of other names (pavement.mtr: pavement_n, _s, _r): those go too.
+    for material in sorted(resources.glob('*.mtr')):
+        for stem in re.findall(r'(?im)^\s*texture\d\s+(\S+)', material.read_text(encoding='cp1252')):
+            for folder in (pack, common) if stem.lower() != 'null' else ():
+                for path in folder.glob(stem + '.*'):
+                    if not (resources / path.name.lower()).exists():
+                        shutil.copyfile(path, resources / path.name.lower())
     return text
 
 

@@ -207,11 +207,14 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
     after `before` is read from the pack as it is."""
     repo = Path(repo)
     for pack in packs if before is not None else ():
+        tree = _tree(str(repo), before, pack); late = f'{name} is restyled already at {before} ({pack}): a spec\'s `before` is a commit whose packs hold the originals'
+        require(f'{name}.mtr'.lower() not in tree, late)  # the same rule as the packs' own copies below
         for kind in ('dds', 'tga'):
-            file = _tree(str(repo), before, pack).get(f'{name}.{kind}'.lower())  # as the pack spelled it
+            file = tree.get(f'{name}.{kind}'.lower())  # as the pack spelled it
             if file:
                 shown = subprocess.run(['git', '-C', str(repo), 'show', f'{before}:{pack}/{file}'], capture_output=True)
                 require(shown.returncode == 0, f'git cannot read {pack}/{file} at {before}')
+                require(kind != 'dds' or shown.stdout[:4] != b'DDS ', late)
                 return pictures.read(file, shown.stdout)
     restyled = [pack for pack in packs if (repo / pack / f'{name}.mtr').is_file()]
     for pack in packs if not restyled else ():
@@ -226,6 +229,25 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
             return pictures.read(Path(stock) / f'{name}.{kind}')
     require(not restyled, f'{name} is restyled already ({", ".join(restyled)}): its old picture is read from the spec\'s `before` commit')
     raise ValueError(f'No pack holds a picture of {name}' + ('' if stock else ' (a base-game texture needs --stock)'))
+
+
+def _derived(folder, name, old, *, doubled=None):
+    """Refuse a picture `redraw` or `enlarge` left in `folder` whose record says it was made from another original
+    than `old` (the picture the spec starts from), another day picture (a lit one), or another enlargement; one with
+    no record was placed by hand and is taken as it is, as those commands keep it."""
+    import hashlib
+    import json
+    record = Path(folder) / f'{name}.json'
+    if not record.is_file():
+        return
+    was = json.loads(record.read_text(encoding='utf-8-sig')); old = np.ascontiguousarray(np.asarray(old)[..., :3])
+    again = f'{name}: its picture in {folder} was made from'
+    require(was.get('source') in (None, hashlib.sha256(repr(old.shape).encode() + old.tobytes()).hexdigest()), f'{again} another picture than the one the spec starts from: make it again')
+    day = Path(folder) / f'{was["of"]}.png' if was.get('of') else None
+    require(day is None or 'day' not in was or (day.is_file() and hashlib.sha256(day.read_bytes()).hexdigest() == was['day']), f'{again} another {was.get("of")} day picture: make it again')
+    if doubled is not None:
+        from tools.envkit import reference
+        require(was.get('doubled') in (None, doubled) and was.get('upscaler') in (None, reference.UPSCALER), f'{again} another enlargement than {doubled} times by {reference.UPSCALER}: enlarge it again')
 
 
 def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enlarged=None, redrawn=None, stock=None):
@@ -248,7 +270,10 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             scan = scans[how['master']]
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
-        made = make(np.asarray(current(repo, how.get('copy', name), stock=stock, before=spec.get('before'))), how, scan, enlarged=picture)  # a copy starts from its source's picture
+        old = np.asarray(current(repo, how.get('copy', name), stock=stock, before=spec.get('before')))  # a copy starts from its source's picture
+        if picture is not None:  # made from that picture, as its record says
+            _derived(redrawn if how.get('redrawn') else enlarged, name, old, doubled=None if how.get('redrawn') else how['doubled'])
+        made = make(old, how, scan, enlarged=picture)
         if how.get('stain'):  # grime over the whole texture, before the district's grade; see pictures.stained
             require(0 < float(how['stain']) <= 1, f'{name}: a stain is between 0 and 1')
             made = pictures.stained(made, name, float(how['stain']))

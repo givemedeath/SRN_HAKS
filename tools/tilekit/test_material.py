@@ -186,6 +186,27 @@ class MaterialTests(unittest.TestCase):
         (pack / 'water.dds').write_bytes(b'DDS ' + bytes(124))  # a plain restyle has no material: a standard DDS is one
         with self.assertRaisesRegex(ValueError, 'water is restyled already'):
             material.current(repo, 'water', before=before)
+        git('add', '-A'); git('commit', '-q', '-m', 'restyled'); late = git('rev-parse', 'HEAD')  # a `before` after the restyle holds no originals
+        for name in ('wall', 'water'):
+            with self.assertRaisesRegex(ValueError, f'{name} is restyled already at {late}'):
+                material.current(repo, name, before=late)
+
+    def test_a_redrawn_or_enlarged_picture_is_taken_only_as_its_record_says_it_was_made(self):
+        import hashlib, json
+        old = np.zeros((4, 4, 3), np.uint8); sha = lambda picture: hashlib.sha256(repr(picture.shape).encode() + picture.tobytes()).hexdigest()
+        folder = self.root / 'made'; folder.mkdir(); (folder / 'day.png').write_bytes(b'day picture')
+        material._derived(folder, 'hand', old)  # no record: placed by hand, taken as it is
+        record = lambda name, **values: (folder / f'{name}.json').write_text(json.dumps(values), encoding='utf-8')
+        record('lit', source=sha(old), of='day', day=hashlib.sha256(b'day picture').hexdigest()); material._derived(folder, 'lit', old)
+        record('other', source=sha(old + 1))
+        with self.assertRaisesRegex(ValueError, 'made from another picture than the one the spec starts from'):
+            material._derived(folder, 'other', old)
+        (folder / 'day.png').write_bytes(b'day redrawn again')
+        with self.assertRaisesRegex(ValueError, 'made from another day day picture'):
+            material._derived(folder, 'lit', old)
+        record('big', source=sha(old), doubled=1, upscaler='RealESRGAN_x2plus.pth'); material._derived(folder, 'big', old, doubled=1)
+        with self.assertRaisesRegex(ValueError, 'another enlargement than 2 times'):
+            material._derived(folder, 'big', old, doubled=2)
 
     def test_the_wrapped_blur_is_a_box_blur_that_wraps(self):
         values = np.random.default_rng(3).random((9, 13))

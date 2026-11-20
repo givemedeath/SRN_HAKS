@@ -5681,11 +5681,13 @@
     ],
     "tools/tilekit/inventory.py": [],
     "tools/tilekit/lamps.py": [
+      "tools/tilekit/apply.py",
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/material.py": [
       "tools/envkit/__init__.py",
       "tools/envkit/convert.py",
+      "tools/envkit/reference.py",
       "tools/tilekit/enlarge.py",
       "tools/tilekit/pictures.py"
     ],
@@ -5710,6 +5712,7 @@
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/shadows.py": [
+      "tools/tilekit/apply.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py"
     ],
@@ -5759,6 +5762,7 @@
     ],
     "tools/tilekit/test_terrain.py": [
       "tools/tilekit/__init__.py",
+      "tools/tilekit/__main__.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/terrain.py"
     ]
@@ -5815,6 +5819,11 @@
     ],
     "tools/envkit/study.py": [
       "srn_t_common"
+    ],
+    "tools/envkit/test_checks.py": [
+      "srn_placeable",
+      "srn_t_common",
+      "srn_t_dgt04"
     ],
     "tools/envkit/test_study.py": [
       "srn_t_common"
@@ -6015,6 +6024,9 @@
     ],
     "tools/tilekit/test_redraw.py": [
       "srn_t_common"
+    ],
+    "tools/tilekit/test_review.py": [
+      "srn_2da"
     ],
     "tools/tilekit/test_shadows.py": [
       "srn_2da",

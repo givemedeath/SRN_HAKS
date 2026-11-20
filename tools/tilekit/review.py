@@ -71,6 +71,12 @@ def _cell(column, row):
             (('h', column, row + 1), ('v', column + 1, row), ('h', column, row), ('v', column, row)))
 
 
+def _folded(sides):
+    """(corners, crossers) with every name in lower case: the game matches terrain and crosser names in any case, and
+    a set may spell one two ways (dgt04: Freeway and freeway)."""
+    return tuple(tuple(name.lower() for name in part) for part in sides)
+
+
 def disagreements(width, laid, tiles):
     """Where the tiles of an area disagree with a neighbour, as lines: empty for an area a builder could have painted.
     laid: [(tile number, turn)] row by row from the south-west; tiles: {number: tile of the set}."""
@@ -78,7 +84,7 @@ def disagreements(width, laid, tiles):
     for index, (number, turn) in enumerate(laid):
         column, row = index % width, index // width; corners, crossers = turned(tiles[number], turn); keys = _cell(column, row)
         for key, name in [*zip(keys[0], corners), *zip(keys[1], crossers)]:
-            if seen.setdefault(key, name) != name:
+            if seen.setdefault(key, name).lower() != name.lower():  # told as each tile spells it
                 lines.append(f'tile {number} at {column},{row}: {name or "nothing"} where a neighbour has {seen[key] or "nothing"}')
     return lines
 
@@ -97,24 +103,24 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
         for x in range(x0, x0 + columns):
             for y in range(y0, y0 + rows):
                 require((x, y) not in corner, f'{patch["terrain"]} at {x0},{y0} lies over another patch')
-                corner[(x, y)] = patch['terrain']
+                corner[(x, y)] = patch['terrain'].lower()  # names in any case, as the game reads them (`_folded`)
     for run in runs:
         (c0, r0), (c1, r1) = run['cells']; require(c0 == c1 or r0 == r1, 'A run of a crosser is straight')
         if c0 == c1:
             ends = sorted((r0, r1))
             for row in range(ends[0] + (0 if ends[0] == 0 else 1), ends[1] + (2 if ends[1] == height - 1 else 1)):
-                edge[('h', c0, row)] = run['crosser']
+                edge[('h', c0, row)] = run['crosser'].lower()
         else:
             ends = sorted((c0, c1))
             for column in range(ends[0] + (0 if ends[0] == 0 else 1), ends[1] + (2 if ends[1] == width - 1 else 1)):
-                edge[('v', column, r0)] = run['crosser']
-    avoid = set(avoid); fits = {}
+                edge[('v', column, r0)] = run['crosser'].lower()
+    avoid = set(avoid); fits = {}; default = default.lower()
     for number in sorted(tiles):
         tile = tiles[number]
         if number in avoid or any(tile['heights']):
             continue
         for turn in range(4):
-            fitting = fits.setdefault(turned(tile, turn), [])
+            fitting = fits.setdefault(_folded(turned(tile, turn)), [])
             if not fitting or fitting[-1][0] != number:  # each tile once, at its first turn that fits, however many do
                 fitting.append((number, turn))
     laid, missing = {}, []
@@ -207,7 +213,7 @@ def plain(laid):
     """The number of a set's plain tile: its default terrain at every corner, level, with no crosser, outside groups."""
     grouped = {number for group in laid['groups'] for number in group['tiles']}
     found = [tile['number'] for tile in laid['tiles'] if tile['number'] not in grouped and not any(tile['heights']) and not any(tile['crossers'])
-             and set(tile['corners']) == {laid['default']}]
+             and {corner.lower() for corner in tile['corners']} == {laid['default'].lower()}]  # in any case, as the game reads them
     require(found, 'The set has no plain tile of its default terrain: give the review a fill')
     return found[0]
 
@@ -266,7 +272,8 @@ def _tools():
     found = {}
 
     def run(tool, arguments):
-        found.setdefault(tool, tool_runtime.tool(tool))
+        if tool not in found:  # resolved (and its use recorded) once per tool, not once per call
+            found[tool] = tool_runtime.tool(tool)
         result = subprocess.run([str(found[tool]), *map(str, arguments)], capture_output=True, timeout=600, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         require(result.returncode == 0, tool + ' failed: ' + result.stderr.decode(errors='replace')[-2000:])
         return result.stdout
@@ -286,14 +293,15 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     of the module's own first in its list holding the files of `overlay`. areas: [{tag, title, tileset, width, height,
     laid, light}]. Returns the record envkit's client run takes."""
     require(NAME.fullmatch(name), 'A review\'s name is a lowercase resref of at most 11 characters')
+    require(name not in {pack.lower() for pack in haks}, f'A review is not named like a pack it loads ({name}): its own pack would be written over that one')
     root, output, built = Path(game), Path(output).resolve(), Path(built).resolve()
     require((root / 'data').is_dir(), 'The game install folder is required (the one holding data/)')
     require(not output.exists(), 'A review is built into a fresh folder: ' + str(output))
     require(areas and shots and {shot['area'] for shot in shots} <= {area['tag'] for area in areas}, 'Every view is of one of the areas')
     missing = [pack for pack in haks if not (built / f'{pack}.hak').is_file()] + ([] if (built / f'{tlk}.tlk').is_file() else [tlk + '.tlk'])
     require(not missing, f'The built packs are needed in {built}: ' + ', '.join(missing))
-    from .apply import MADE_FROM  # a copied terrain's record, for apply: no game file
-    laid_over = sorted(path for path in Path(overlay).iterdir() if path.name != MADE_FROM) if overlay else []  # refused before anything is made: the folder stays fresh
+    from .apply import MADE_FROM, MODELS_FROM  # an overlay's records, for apply: no game files
+    laid_over = sorted(path for path in Path(overlay).iterdir() if path.name not in (MADE_FROM, MODELS_FROM)) if overlay else []  # refused before anything is made: the folder stays fresh
     for path in laid_over:
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Overlay files are lowercase resref files: ' + path.name)
     user, staged, documents, binary = (output / part for part in ('userdir', 'hak-resources', 'json', 'module'))
@@ -357,7 +365,8 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
     tile (sets: {tileset: its set file's text}), and the placeables of each group stood in rows on this tileset's fill,
     a group of about one size to an area (table: the text of placeables.2da, whose rows place them)."""
     from . import inventory
-    laid = inventory.read_set(set_text); tiles = {tile['number']: tile for tile in laid['tiles']}; tileset, fill = spec['tileset'], spec.get('fill', 0)
+    laid = inventory.read_set(set_text); tiles = {tile['number']: tile for tile in laid['tiles']}; tileset = spec['tileset']
+    fill = spec['fill'] if 'fill' in spec else plain(laid)  # the set's plain tile, as for the shared tilesets: tile 0 is that in dgt04 alone
     require(all(part in PARTS for part in parts), 'A review\'s parts are ' + ', '.join(PARTS))
     require(fill in tiles, f'The fill tile {fill} is no tile of {tileset}')
     envkit = {number for number, tile in tiles.items() if tile['model'].startswith('ek_')}

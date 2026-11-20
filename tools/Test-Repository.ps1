@@ -307,7 +307,7 @@ try {
     foreach ($entry in @($additions.tileGroups)) {
         if ($baselineNames -cnotcontains [string]$entry.tileset) { Add-ValidationError "The additions catalog lists a group of $($entry.tileset), which has no baseline." }
     }
-    $terrainEntries = @($additions.PSObject.Properties['terrainTiles'] | ForEach-Object { $_.Value } | ForEach-Object { $_ } | Where-Object { $_ })  # optional in the catalog
+    $terrainEntries = @(if ($additions.PSObject.Properties['terrainTiles']) { $additions.terrainTiles | Where-Object { $_ } })  # optional in the catalog: absent, nothing
     foreach ($entry in $terrainEntries) {
         if ($baselineNames -cnotcontains [string]$entry.tileset) { Add-ValidationError "The additions catalog lists terrain tiles of $($entry.tileset), which has no baseline." }
     }

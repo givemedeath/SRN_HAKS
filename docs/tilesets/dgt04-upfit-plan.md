@@ -176,6 +176,10 @@ a tile's source lights on goes dark at those 152 tiles until its main lights are
 - Edge tiles of their own (`edges` in `terrains.json`): `srt04_r07_01` from `dgt05_z08_01` and `srt04_x07_01` from
   `dgt05_z06_01`, named by edge rows 132 and 137 in place of the sources' models (`walkmesh.json` 603 entries).
   Border views (`edges-review.json`, `tkedg0`-`tkedg3`) showed no difference; applied on the user's go.
+- Not reproducible from the specs alone: `hr08_trim`, `hr09_build_g` and `hr09_win08_g` are `redrawn` in
+  `materials-terrains.json` but not in `redraw-terrains.json`; their pictures were placed by hand in the ignored
+  `output/tilekit/redrawn-terrains` without records (`hr08_trim` is release 1's `hrise_05_trim`). A rebuild needs
+  them redrawn, and looked at again, first.
 - Facades by the local Qwen image edit model (`redraw-terrains.json`), because the Codex image quota was out:
   curtains and balconies for the residential block, broken and plywood-boarded windows for the derelict tower
   (seed 2; seed 1 ignored the boarding). Night windows of the residential block take the warm lit grade.

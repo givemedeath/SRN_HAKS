@@ -60,9 +60,17 @@ def read_set(text):
     return told
 
 
+WORD = re.compile(r'"[^"]*"|\S+')  # a 2DA cell: a quoted one holds its spaces ("Rock Wall")
+
+
+def words(line):
+    """The cells of a 2DA row as the game reads them: a quoted cell is one, spaces and all, without its quotes."""
+    return [cell[1:-1] if len(cell) > 1 and cell[0] == cell[-1] == '"' else cell for cell in WORD.findall(line)]
+
+
 def edge_models(text):
     """The models an edge table names, lower case, with its row count: (models, rows)."""
-    lines = [line.split() for line in text.replace('\r', '').split('\n') if line.strip() and not line.lstrip().upper().startswith('DEFAULT:')]
+    lines = [words(line) for line in text.replace('\r', '').split('\n') if line.strip() and not line.lstrip().upper().startswith('DEFAULT:')]
     require(len(lines) >= 2 and lines[0][0].upper() == '2DA', 'An edge table is a 2DA file')  # the game reads its words in any case
     heads = [word.lower() for word in lines[1]]; column = heads.index('model') + 1 if 'model' in heads else None
     require(column is not None, 'The edge table has no Model column')
@@ -176,8 +184,8 @@ def _other_sets(repo, tileset, *, edges=False):
 
 
 def drawn_copies(repo, tileset, folder, packs):
-    """(name, file name, text, other tilesets using it) for each uncompiled model the tileset draws, in the first of
-    `packs` that holds it (the copy the game shows), read from `folder` where a copy is already there."""
+    """(name, file name, text, other tilesets using it, pack file) for each uncompiled model the tileset draws, in the
+    first of `packs` that holds it (the copy the game shows), read from `folder` where a copy is already there."""
     tiles, others, seen = drawn_models(repo, tileset), _other_sets(repo, tileset, edges=True), set()
     for pack in packs:
         for path in sorted((Path(repo) / pack.format(tileset=tileset)).glob('*.mdl')):
@@ -186,7 +194,7 @@ def drawn_copies(repo, tileset, folder, packs):
                 continue
             seen.add(name); data = (Path(folder) / path.name if (Path(folder) / path.name).is_file() else path).read_bytes()
             if not compiled(data):
-                yield name, path.name, data.decode('cp1252'), sorted(others.get(name, ()))
+                yield name, path.name, data.decode('cp1252'), sorted(others.get(name, ())), path
 
 
 def inventory(repo, tileset, *, walkmesh_only=False):

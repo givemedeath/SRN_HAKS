@@ -72,7 +72,8 @@ def copied_set(text, copies, laid=None):
         require(source in laid['terrains'], f'The set has no terrain {source}'); require(terrain.lower() not in names, f'The set has a terrain {terrain} already')
         names.add(terrain.lower()); used = set()
         index = laid['terrains'].index(source)
-        added['TERRAIN'].append(re.sub(r'^\[TERRAIN\d+\]', f'[TERRAIN{terrains}]', re.sub(r'(?m)^Name=.*?(\r?)$', f'Name={terrain}\\1', raw[f'TERRAIN{index}'], count=1)))
+        # Names go in by function, not as replacement templates: a spec's name is text, whatever its backslashes.
+        added['TERRAIN'].append(re.sub(r'^\[TERRAIN\d+\]', lambda _: f'[TERRAIN{terrains}]', re.sub(r'(?m)^Name=.*?(\r?)$', lambda found: f'Name={terrain}' + found.group(1), raw[f'TERRAIN{index}'], count=1)))
         terrains += 1
         mine = cornered(laid, source); require(mine, f'{terrain}: no tile of the set has a corner of {source}')
         theirs, named = {tile['model'] for tile in mine}, {name.lower() for name in one['models']}  # the copy's models are the source's, every one
@@ -81,9 +82,9 @@ def copied_set(text, copies, laid=None):
         models = {old.lower(): new for old, new in one['models'].items()}; numbers[terrain] = {}
         for tile in mine:
             new = tiles; tiles += 1; numbers[terrain][tile['number']] = new
-            body = re.sub(r'(?m)^Model=.*?(\r?)$', f'Model={models[tile["model"]]}\\1', raw[f'TILE{tile["number"]}'], count=1)
+            body = re.sub(r'(?m)^Model=.*?(\r?)$', lambda found: f'Model={models[tile["model"]]}' + found.group(1), raw[f'TILE{tile["number"]}'], count=1)
             for corner in CORNERS:
-                body = re.sub(rf'(?mi)^({corner})={re.escape(source)}(\r?)$', f'\\1={terrain}\\2', body)
+                body = re.sub(rf'(?mi)^({corner})={re.escape(source)}(\r?)$', lambda found: f'{found.group(1)}={terrain}{found.group(2)}', body)
             added['TILE'].append(body.replace(f'[TILE{tile["number"]}]', f'[TILE{new}]', 1))
             for name, door in parts:
                 if re.fullmatch(rf'TILE{tile["number"]}DOOR\d+', name):
@@ -94,7 +95,8 @@ def copied_set(text, copies, laid=None):
             name = one.get('groups', {}).get(group['name'])
             if copied and (len(copied) == len(cells) or name):  # a group of the terrain's tiles, or one the copy names that mixes them with others
                 require(name, f'{terrain}: the copy names no new group for {group["name"]}')
-                body = re.sub(r'(?m)^Name=.*?(\r?)$', f'Name={name}\\1', raw[f'GROUP{position}'], count=1)
+                require(isinstance(name, str) and re.fullmatch(r'[^\r\n\[\]=]{1,64}', name), f'{name!r}: a group is named on one line, without [ ] or =')
+                body = re.sub(r'(?m)^Name=.*?(\r?)$', lambda found: f'Name={name}' + found.group(1), raw[f'GROUP{position}'], count=1)
                 body = re.sub(r'(?m)^(Tile\d+)=(-?\d+)', lambda found: f'{found.group(1)}={numbers[terrain].get(int(found.group(2)), int(found.group(2)))}', body)
                 added['GROUP'].append(body.replace(f'[GROUP{position}]', f'[GROUP{groups}]', 1)); groups += 1; used.add(group['name'])
         unused = sorted(set(one.get('groups', {})) - used)
@@ -117,7 +119,23 @@ def copied_set(text, copies, laid=None):
 def edge_rows(text, terrain):
     """The rows of an edge table (Corner1 Edge Corner2 Height Model) with `terrain` at a corner or as the edge, its
     name read in any case as the game reads a table's words."""
-    return [line for line in text.split('\n')[3:] if line.strip() and terrain.lower() in line.lower().split()[1:4]]
+    return [line for line in text.split('\n')[3:] if line.strip() and terrain.lower() in [word.lower() for word in inventory.words(line)[1:4]]]
+
+
+def _rewritten(line, number, source, terrain, models):
+    """An edge row again as row `number`, `source` (at a corner or as the edge) made `terrain` and its model renamed by
+    `models`, every other cell and the spacing as they were."""
+    cells = list(inventory.WORD.finditer(line)); out, at = [], 0
+    for index, found in enumerate(cells):
+        cell, value = found.group(0), inventory.words(found.group(0))[0]
+        if index == 0:
+            cell = str(number).ljust(len(cell))
+        elif index in (1, 2, 3) and value.lower() == source.lower():
+            cell = terrain
+        elif index == len(cells) - 1 and value.lower() in models:
+            cell = models[value.lower()]
+        out += [line[at:found.start()], cell]; at = found.end()
+    return ''.join(out) + line[at:]
 
 
 def copied_edge(text, copies):
@@ -128,9 +146,7 @@ def copied_edge(text, copies):
     for one in copies:
         models = {old.lower(): new for old, new in {**one['models'], **one.get('edges', {})}.items()}
         for line in edge_rows(text, one['from']):
-            new = re.sub(rf'(?i)(?<!\S){re.escape(one["from"])}(?!\S)', one['terrain'], line)
-            new = re.sub(r'(?<!\S)(\S+)(\s*)$', lambda found: models.get(found.group(1).lower(), found.group(1)) + found.group(2), new)
-            extra.append(re.sub(r'^\d+', lambda found: str(count).ljust(len(found.group(0))), new)); count += 1
+            extra.append(_rewritten(line, count, one['from'], one['terrain'], models)); count += 1
     body = '\n'.join(lines).rstrip('\r\n')
     return body + end + '\n' + ''.join(line.rstrip('\r') + end + '\n' for line in extra)
 
@@ -196,8 +212,11 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
     twice = sorted(name for name, count in Counter(new_names).items() if count > 1); require(not twice, 'The spec gives more than one model the name ' + ', '.join(twice))
     edge = repo / 'srn_2da' / f'{tileset}_edge.2da'; itp = own / f'{tileset}palstd.itp'; set_path = own / f'{tileset}.set'; homes = (own, repo / 'srn_t_common')
     writing = {f'{new}{suffix}' for new in new_names for suffix in MODELS} | {set_path.name.lower(), itp.name.lower()} | ({edge.name.lower()} if edge.is_file() and copies else set())
-    stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in MODELS + TABLES and path.name.lower() not in writing)
+    # A changed copy of a pack's file (lamps', shadows') is the overlay's own, which apply checks against its pack copy.
+    stale = sorted(path.name for path in folder.iterdir() if path.suffix.lower() in MODELS + TABLES and path.name.lower() not in writing | taken)
     require(not stale, 'The folder holds files of an earlier run, which apply would install: ' + ', '.join(stale))
+    for one in copies:  # what the palette is written with, checked before any file is
+        require(isinstance(one.get('display'), str) and one['display'].strip(), f'{one.get("terrain")}: a copy has a `display` name for the palette')
     made_from = {}; sha = lambda data: hashlib.sha256(data).hexdigest()  # each table hashed as the bytes it was made from, read once
     data = set_path.read_bytes(); before = data.decode('cp1252'); edge_data = edge.read_bytes() if edge.is_file() and copies else None
     laid = inventory.read_set(before); set_text, numbers = copied_set(before, copies, laid); made_from[set_path.name] = sha(data); outputs = []; retextures = set()  # every model made and checked before any file is written
@@ -206,7 +225,7 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
         textures = {old.lower(): new for old, new in one.get('textures', {}).items()}; drawn = set()  # the textures the source's models draw
         # An edge tile the source's rows lay at an area's border, and no tile of the set, is this project's to copy too (the
         # game's own, tcn01's, are left): laid beside the copy, the source's would show the source's look there.
-        beside = {line.split()[-1].lower() for line in edge_rows(edge_data.decode('cp1252'), one['from'])} - tiled if edge_data else set()
+        beside = {inventory.words(line)[-1].lower() for line in edge_rows(edge_data.decode('cp1252'), one['from'])} - tiled if edge_data else set()
         ours = {model for model in beside if any((pack, f'{model}.mdl') in held for pack in homes)}; edges = {old.lower(): new for old, new in one.get('edges', {}).items()}
         require(ours <= set(edges), f'{one["terrain"]}: the edge table lays ' + ', '.join(sorted(ours - set(edges))) + f' beside {one["from"]}: the copy names a new model for each (edges)')
         require(set(edges) <= ours, f'{one["terrain"]}: no edge row of {one["from"]} lays ' + ', '.join(sorted(set(edges) - ours)))

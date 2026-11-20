@@ -40,7 +40,8 @@ def move(repo, tileset, folder, *, radius=RADIUS):
     place) and tell {model: state}. A model whose walkmesh would differ afterwards is a refusal: nothing here touches one."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
     # the set's tiles and its edge tiles; a copy already in the folder (the shadows') is the one moved, so neither undoes the other
-    for name, file, text, others in inventory.drawn_copies(repo, tileset.lower(), folder, PACKS):
+    from .apply import noted
+    for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, PACKS):
         new, said = moved(text, radius)
         if new is None:
             if said != 'no source light':
@@ -49,5 +50,5 @@ def move(repo, tileset, folder, *, radius=RADIUS):
             told[name] = 'shared with ' + ', '.join(others)
         else:
             require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
-            (folder / file).write_bytes(new.encode('cp1252')); told[name] = 'moved'
+            noted(folder, file, source); (folder / file).write_bytes(new.encode('cp1252')); told[name] = 'moved'
     return told

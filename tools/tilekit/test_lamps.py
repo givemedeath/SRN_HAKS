@@ -1,3 +1,5 @@
+import hashlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -67,7 +69,9 @@ class Lamps(unittest.TestCase):
             (common / 't_z01.mdl').write_text(MODEL.format(first='sl1').replace('t_a01', 't_z01'), encoding='cp1252')  # no tile of the set
             told = lamps.move(repo, 't', repo / 'out')
             self.assertEqual(told, {'t_a01': 'moved', 't_b01': 'has a main light', 't_c01': 'shared with u'})
-            self.assertEqual([path.name for path in (repo / 'out').iterdir()], ['t_a01.mdl'])
+            self.assertEqual(sorted(path.name for path in (repo / 'out').iterdir()), ['models-from.json', 't_a01.mdl'])
+            made_from = json.loads((repo / 'out' / 'models-from.json').read_text(encoding='utf-8'))  # the pack copy it was made from, for apply
+            self.assertEqual(made_from, {'t_a01.mdl': hashlib.sha256((own / 't_a01.mdl').read_bytes()).hexdigest()})
 
     def test_an_edge_tile_s_lamps_are_moved_too(self):
         with tempfile.TemporaryDirectory() as temporary:

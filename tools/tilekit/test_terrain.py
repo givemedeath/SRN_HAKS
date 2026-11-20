@@ -60,6 +60,25 @@ class TerrainTests(unittest.TestCase):
         rows = terrain.copied_edge(EDGE, [COPY]).split('\r\n')
         self.assertEqual(rows[-2].split(), ['2', 'Tower_2', '****', 'Tower_2', '0', 'n_t02']); self.assertEqual(len([row for row in rows if row.strip()]), 5)  # the header, three rows
         self.assertEqual(terrain.copied_edge(EDGE.replace('Tower **** Tower', 'TOWER **** tower'), [COPY]).split('\r\n')[-2].split()[1:4], ['Tower_2', '****', 'Tower_2'])  # read in any case
+        # A quoted cell is one cell, spaces and all (vmp01: "Alien Plaza"): its rows are the copy's too, and the columns after it stay where they are.
+        quoted = EDGE.replace('Tower **** Tower 0 t_t02', '"Old Tower" **** "Old Tower" 0 t_t02') + '2  "Rock Wall" **** Ground 0 t_r01\r\n'
+        self.assertEqual(len(terrain.edge_rows(quoted, 'Old Tower')), 1); self.assertEqual(inventory.edge_models(quoted), (['t_a01', 't_r01', 't_t02'], 3))
+        self.assertEqual(terrain.copied_edge(quoted, [{**COPY, 'from': 'Old Tower'}]).split('\r\n')[-2].split(), ['3', 'Tower_2', '****', 'Tower_2', '0', 'n_t02'])
+
+    def test_spec_names_are_written_as_given_not_read_as_patterns(self):
+        made, _ = terrain.copied_set(SET, [{**COPY, 'groups': {'Tower_Roof': r'Flats\g<0>Roof'}}])  # a backslash in a name is a backslash
+        self.assertEqual(inventory.read_set(made)['groups'][1]['name'], r'Flats\g<0>Roof')
+        with self.assertRaisesRegex(ValueError, 'a group is named on one line'):
+            terrain.copied_set(SET, [{**COPY, 'groups': {'Tower_Roof': 'Flats\r\n[GROUP9]'}}])
+
+    def test_the_command_says_which_key_a_spec_lacks(self):
+        import contextlib, io
+        from tools.tilekit import __main__ as command
+        with tempfile.TemporaryDirectory() as temporary:
+            spec = Path(temporary) / 'spec.json'; spec.write_text(json.dumps({'provenance': 'Towers', 'copies': []}), encoding='utf-8'); said = io.StringIO()
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(said):
+                code = command.main(['terrain', '--spec', str(spec), '--out', str(Path(temporary) / 'out'), '--repo', temporary])
+            self.assertEqual((code, said.getvalue()), (2, "tilekit: the spec lacks 'tileset'\n"))
 
     def test_the_palette_gains_the_copy_s_entries_and_takes_descriptive_names(self):
         made = terrain.palette(PALETTE, [COPY], {'Tower 1': 'Stone Tower'})
@@ -96,6 +115,8 @@ class TerrainTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'files of an earlier run, which apply would install: n_t09.mdl, oth.set'):
                 terrain.copy(repo, spec, repo / 'out', gff=gff)
             (repo / 'out' / 'n_t09.mdl').unlink(); (repo / 'out' / 'oth.set').unlink()
+            (repo / 'out' / 't_a01.mdl').write_text(MODEL)  # a changed copy of a pack's model (lamps', shadows') is the overlay's own
+            terrain.copy(repo, spec, repo / 'out', gff=gff); (repo / 'out' / 't_a01.mdl').unlink()
             with self.assertRaisesRegex(ValueError, 'broken'):  # a run that fails part way leaves no record of an earlier one
                 terrain.copy(repo, spec, repo / 'out', gff=lambda arguments: (_ for _ in ()).throw(ValueError('broken')))
             self.assertFalse((repo / 'out' / 'made-from.json').exists())
@@ -111,7 +132,8 @@ class TerrainTests(unittest.TestCase):
                                     ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'ground_x'}}, 'A pack holds ground_x already'),
                                     ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n_t01'}}, 'more than one model the name n_t01'),
                                     ({**COPY, 'models': {'t_t01': 'n_t01', 't_t02': 'n t02'}}, 'n t02: a model is named by a resref'),
-                                    ({**COPY, 'textures': {**COPY['textures'], 'Tower_Wal': 'flat_wal'}}, 'renames textures none of its models draws: tower_wal')):
+                                    ({**COPY, 'textures': {**COPY['textures'], 'Tower_Wal': 'flat_wal'}}, 'renames textures none of its models draws: tower_wal'),
+                                    ({key: value for key, value in COPY.items() if key != 'display'}, 'a copy has a `display` name')):
                 with self.assertRaisesRegex(ValueError, message):
                     terrain.copy(repo, {**spec, 'copies': [broken]}, repo / 'refused', gff=gff)
                 self.assertEqual(list((repo / 'refused').iterdir()), [])

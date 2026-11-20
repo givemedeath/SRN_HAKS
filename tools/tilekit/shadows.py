@@ -56,11 +56,12 @@ def quiet(repo, tileset, folder, *, thin=THIN, small=SMALL, flat=FLAT):
     """Write the models of a tileset whose trims cast shadows, with those trims quiet, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {model: count of trims}."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
-    for name, file, text, others in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):  # the edge tiles too
+    from .apply import noted
+    for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):  # the edge tiles too
         if others:  # another tileset draws it too
             continue
         new, names = quieted(text, thin, small, flat)
         if names:
             require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
-            (folder / file).write_bytes(new.encode('cp1252')); told[name] = len(names)
+            noted(folder, file, source); (folder / file).write_bytes(new.encode('cp1252')); told[name] = len(names)
     return told

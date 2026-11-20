@@ -22,6 +22,16 @@ HELD = OLD + ('.mtr',)  # what says which packs hold a name: a restyled one may 
 MODELS = ('.mdl', '.wok')  # a tile's model and walkmesh: a changed one replaces its pack copy, a new one goes to the tileset's pack
 TABLES = ('.set', '.2da', '.itp')  # a tileset's set file, edge table and palette: each replaces its one pack copy
 MADE_FROM = 'made-from.json'  # a copied terrain's record (terrain.copy): the pack files its tables were made from, and its catalog entries
+MODELS_FROM = 'models-from.json'  # {model file: hash of the pack copy it was changed from}, written by lamps and shadows (`noted`)
+
+
+def noted(folder, file, source):
+    """Record in the overlay `folder` the pack copy (`source`) its changed model `file` was first made from: apply
+    then refuses it over a pack copy changed since, which it would otherwise undo."""
+    path = Path(folder) / MODELS_FROM; held = json.loads(path.read_text(encoding='utf-8-sig')) if path.is_file() else {}
+    if file.lower() not in held:  # a copy changed again (shadows after lamps) was still made from the first
+        held[file.lower()] = hashlib.sha256(Path(source).read_bytes()).hexdigest()
+        path.write_text(json.dumps(dict(sorted(held.items())), indent=1) + '\n', encoding='utf-8')
 
 
 def _configuration(repo):
@@ -47,6 +57,8 @@ def _catalogued(repo, entries):
         return None
     from tools.envkit import catalog
     data = catalog.load(repo / catalog.PATH); same = lambda one, other: (one['tileset'], one['terrain']) == (other['tileset'], other['terrain'])
+    unknown = sorted({entry['tileset'] for kind in ('terrainTiles', 'tileGroups') for entry in entries.get(kind, [])} - set(data['baseline']['tilesets']))
+    require(not unknown, 'The additions catalog has no baseline for ' + ', '.join(unknown) + ': give it one (docs/additions/README.md) before tiles are added to it')  # as envkit's install
     today = datetime.date.today().isoformat()  # the day the numbers reach the packs, as envkit's install records it
     for group in entries.get('tileGroups', []):  # an entry already there keeps the day it was first added
         there = [old for old in data['tileGroups'] if (old['tileset'], old['group']) == (group['tileset'], group['group'])]
@@ -79,8 +91,11 @@ def plan(repo, spec, overlay):
     repo, overlay = Path(repo), Path(overlay); packs = [pack['Name'] for pack in _configuration(repo)['HakList']]
     record = json.loads((overlay / MADE_FROM).read_text(encoding='utf-8')) if (overlay / MADE_FROM).is_file() else {'kind': 'tilekit-terrain-copy', 'from': {}}
     require(record.get('kind') == 'tilekit-terrain-copy' and isinstance(record.get('from'), dict) and isinstance(record.get('textures', []), list)
-            and all(isinstance(name, str) and name for key in ('textures', 'edges') for name in record.get(key, [])) and isinstance(record.get('edges', []), list),
+            and isinstance(record.get('edges', []), list) and isinstance(record.get('catalog', {}), dict)  # each a list (a dict) before it is read as one
+            and all(isinstance(name, str) and name for key in ('textures', 'edges') for name in record.get(key, [])),
             f'{MADE_FROM} is not a terrain copy\'s record')
+    sources = json.loads((overlay / MODELS_FROM).read_text(encoding='utf-8-sig')) if (overlay / MODELS_FROM).is_file() else {}
+    require(isinstance(sources, dict) and all(isinstance(sha, str) for sha in sources.values()), f'{MODELS_FROM} is not a record of the pack copies changed models were made from')
     named = {entry['tileset'] for kind in ('terrainTiles', 'tileGroups') for entry in record.get('catalog', {}).get(kind, [])}
     require(named <= {(spec or {}).get('tileset')}, f'{MADE_FROM} is a copy of ' + ', '.join(sorted(named)) + ', not of the spec\'s tileset')
     recorded = {str(model).lower() for entry in record.get('catalog', {}).get('terrainTiles', []) for model in entry.get('models', [])}  # the new tiles the record catalogues (its entries checked by `_catalogued`)
@@ -97,6 +112,10 @@ def plan(repo, spec, overlay):
     for name in sorted(spec['textures']):
         holders = sorted({pack for suffix in HELD for pack in held.get((name + suffix).lower(), {})}) or [own]
         delete += [path for suffix in OLD for path in held.get((name + suffix).lower(), {}).values()]
+        if not (overlay / f'{name}.mtr').is_file():  # a plain one: a material an earlier apply put in would still take it over, so it and its maps go
+            for material in held.get(f'{name}.mtr'.lower(), {}).values():
+                maps = {stem.lower() for stem in re.findall(r'(?m)^\s*texture\d\s+(\S+)', material.read_text(encoding='ascii', errors='replace')) if stem.lower() != 'null'}
+                delete += [material] + [path for stem in sorted(maps) for path in held.get(f'{stem}.dds', {}).values() if path.parent == material.parent]
         for path in files_of(overlay, name):
             key = path.name.lower(); strangers = sorted(set(held.get(key, {})) - set(holders))
             require(not strangers, f'{name}: {path.name} is already a file of {", ".join(strangers)}')
@@ -120,6 +139,8 @@ def plan(repo, spec, overlay):
             require(inventory.walk_hash(made.decode('cp1252')) == inventory.walk_hash(there.decode('cp1252')), f'{path.name}: its walkmesh differs from the pack copy it replaces')
         if path.suffix.lower() == '.wok':
             require(made == there, f'{path.name}: a walkmesh in a pack is not replaced')
+        if path.name.lower() in sources and made != there:  # a changed model (lamps', shadows') over the very pack copy it was made from
+            require(hashlib.sha256(there).hexdigest() == sources[path.name.lower()], f'{path.name}: the pack copy changed since the overlay copy was made from it: make the overlay again')
         if path.name.lower() in made_from and made != there:  # the palette too, which cannot be compared entry by entry; one in place already is applied again
             require(hashlib.sha256(there).hexdigest() == made_from[path.name.lower()], f'{path.name}: the pack copy changed since the overlay was made from it: make the overlay again')
         if path.suffix.lower() in ('.set', '.2da'):
@@ -134,7 +155,7 @@ def plan(repo, spec, overlay):
     require(not bare, f'The copied tiles name textures no pack holds and this apply brings none of: {", ".join(bare)} (apply them with the copies\' material spec)')
     touched = {path.name.lower() for path in delete} | {target.name.lower() for _, target in put}
     overrides = {name: sorted(after[name]) for name in sorted(touched) if len(after.get(name, ())) > 1}
-    used = {path.name for path, _ in put} | {MADE_FROM}; left = sorted(path.name for path in files if path.name not in used)
+    used = {path.name for path, _ in put} | {MADE_FROM, MODELS_FROM}; left = sorted(path.name for path in files if path.name not in used)
     return {'put': put, 'delete': sorted(set(delete) - {target for _, target in put}), 'overrides': overrides, 'touched': touched, 'left': left,
             'catalog': _catalogued(repo, record.get('catalog', {}))}  # merged before anything is written, so a refusal changes nothing
 
