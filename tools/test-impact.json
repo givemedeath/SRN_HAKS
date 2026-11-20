@@ -1765,6 +1765,14 @@
     "tools/heads/native_reader.py": [
       "tools/headkit/native_reader.py"
     ],
+    "tools/heads/plt_repair.py": [
+      "tools/headkit/common.py",
+      "tools/headkit/diagnostics.py",
+      "tools/headkit/native_reader.py",
+      "tools/headkit/paint.py",
+      "tools/headkit/predicates.py",
+      "tools/headkit/textures.py"
+    ],
     "tools/heads/prepare_assembly.py": [
       "tools/heads/head_export.py",
       "tools/heads/head_workflow.py",
@@ -1915,6 +1923,9 @@
       "tools/heads/head_workflow.py",
       "tools/heads/prepare_palette_assembly.py",
       "tools/heads/propose_material_masks.py"
+    ],
+    "tools/heads/test_plt_repair.py": [
+      "tools/heads/plt_repair.py"
     ],
     "tools/heads/test_reindex_head.py": [
       "tools/heads/reindex_head.py"
@@ -5902,6 +5913,9 @@
     "tools/heads/test_head_trial.py": [
       "srn_head"
     ],
+    "tools/heads/test_plt_repair.py": [
+      "srn_head"
+    ],
     "tools/heads/test_target_and_publication.py": [
       "srn_head"
     ],
@@ -6187,6 +6201,7 @@
     "tools/heads/test_meshy_dispatch.py",
     "tools/heads/test_microface_materials.py",
     "tools/heads/test_palette_sampling.py",
+    "tools/heads/test_plt_repair.py",
     "tools/heads/test_reindex_head.py",
     "tools/heads/test_submission_reconciliation.py",
     "tools/heads/test_target_and_publication.py",
