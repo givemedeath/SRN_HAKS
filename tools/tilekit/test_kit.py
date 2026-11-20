@@ -171,17 +171,11 @@ donemodel t
 
 
 class CorporateTest(unittest.TestCase):
-    def test_a_tower_set_back_behind_a_plaza_is_found_and_signed(self):
+    def test_a_tower_set_back_behind_a_plaza_is_found(self):
         _, _, nodes = geometry.parse(TOWER)
         self.assertEqual(placer.facades(nodes), {(-1, 0): (2.5, -4.0, 4.0, 40.0)})
         self.assertEqual(placer.facades(nodes, open={(1, 0)}), {})
-        found = placer.propose_corporate(TOWER, 'seed', 'sk')
-        self.assertIn(('sign_sk', [-2.5, 0.0, 6.2]), [(one['piece'], one['at']) for one in found])
+        found = placer.propose_corporate(TOWER, 'seed')
         self.assertTrue(all(one['turn'] == placer._turn((-1, 0)) for one in found))
-
-    def test_every_sign_has_its_cell_and_glows_only_in_its_lettering(self):
-        for look in kit.SIGNS:
-            self.assertIn(look, kit.LOOKS); self.assertIn(f'crown_{look[5:]}', kit.PIECES)
-        colour, alpha = kit.sign_picture(256, *kit.SIGNS['sign_sk'])
-        self.assertEqual(colour.shape[1], 256); self.assertGreater(alpha.max(), 0.9); self.assertEqual(alpha[:, :3].max(), 0.0)  # the margin stays dark
-        self.assertLessEqual(len(kit.ORDER), kit.CELLS * kit.CELLS)
+        self.assertFalse(any(one['piece'].startswith(('sign', 'crown')) for one in found))
+        self.assertLessEqual(len(kit.ORDER), kit.CELLS * kit.CELLS); self.assertIn('red', kit.GLOWS)

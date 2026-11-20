@@ -35,20 +35,9 @@ LOOKS = {
     'iron': ('MetalPlates013', (44, 42, 40), None, None),
     'concrete': ('Concrete034', (122, 120, 116), None, None),
     'red': (None, (210, 26, 18), 0.4, 0.0),  # a warning light: glows
-    'sign_renraku': (None, (20, 22, 26), 0.35, 0.6),  # megacorp signs: a dark panel, the lettering glows (`SIGNS`)
-    'sign_aztech': (None, (20, 22, 26), 0.35, 0.6),
-    'sign_sk': (None, (20, 22, 26), 0.35, 0.6),
-    'sign_mct': (None, (20, 22, 26), 0.35, 0.6),
 }
 ORDER = list(LOOKS)
-# A sign's lettering, its colour and its mark (circle, pyramid, diamond, hexagon). A sign face is `SIGN` (width, height)
-# in proportion, and `Mesh.triangle` puts a face that fills its cell's width in the band at the cell's top, upside
-# down and, seen from the front (+y), mirrored: the lettering is drawn turned half round, in that band.
-SIGNS = {'sign_renraku': ('RENRAKU', (255, 74, 52), 'circle'), 'sign_aztech': ('AZTECHNOLOGY', (255, 196, 64), 'pyramid'),
-         'sign_sk': ('SAEDER-KRUPP', (150, 200, 255), 'diamond'), 'sign_mct': ('MITSUHAMA', (80, 255, 214), 'hexagon')}
-SIGN = (4.0, 1.0)
 GLOWS = {'red': (255, 48, 36)}  # cells that glow whole
-FONT = r'C:\Windows\Fonts\bahnschrift.ttf'
 
 
 def cell_of(look):
@@ -80,45 +69,7 @@ def atlas(masters):
         colour[box], normal[box], roughness[box], metal[box] = made['colour'], made['normal'], made['roughness'], made['metal']
         if look in GLOWS:
             colour[box] = GLOWS[look]; glow[box] = GLOWS[look]
-        if look in SIGNS:
-            lettering = sign_picture(side, *SIGNS[look])  # (colour, how much it glows), the band at the cell's top
-            band = lettering[0].shape[0]; top = (slice(row * side, row * side + band), box[1])
-            colour[top] = np.uint8(colour[top] * (1 - lettering[1][..., None]) + lettering[0] * lettering[1][..., None])
-            glow[top] = np.uint8(lettering[0] * lettering[1][..., None])
     return {'colour': colour, 'normal': normal, 'roughness': roughness, 'metal': metal, 'glow': glow}
-
-
-def sign_picture(side, words, tint, mark):
-    """(colour, alpha) of a sign's lettering for a cell `side` pixels wide: the band a `SIGN`-shaped face fills, the
-    mark at the left and the words after it, turned half round (see `SIGNS`)."""
-    from PIL import Image, ImageDraw, ImageFilter, ImageFont
-    inner = side * (1 - 2 * MARGIN); width, height = round(inner), round(inner * SIGN[1] / SIGN[0]); margin = round(side * MARGIN)
-    canvas = Image.new('L', (width, height)); draw = ImageDraw.Draw(canvas); pad = round(height * 0.16); mark_side = height - 2 * pad
-    x0, y0, x1, y1 = pad, pad, pad + mark_side, pad + mark_side; mid = ((x0 + x1) / 2, (y0 + y1) / 2); r = mark_side / 2
-    if mark == 'circle':
-        draw.ellipse((x0, y0, x1, y1), outline=255, width=max(2, round(r * 0.28)))
-    elif mark == 'pyramid':
-        steps = 4
-        for step in range(steps):
-            top = y0 + mark_side * step / steps; inset = r * (steps - 1 - step) / steps
-            draw.rectangle((x0 + inset, top + 1, x1 - inset, top + mark_side / steps - 1), fill=255)
-    elif mark == 'diamond':
-        draw.polygon([(mid[0], y0), (x1, mid[1]), (mid[0], y1), (x0, mid[1])], fill=255)
-    else:
-        draw.regular_polygon((mid[0], mid[1], r), 6, fill=255)
-    room = width - x1 - 2 * pad; size = height
-    font = ImageFont.truetype(FONT, size)
-    while size > 6 and (font.getbbox(words)[2] - font.getbbox(words)[0] > room or font.getbbox(words)[3] - font.getbbox(words)[1] > height - 2.4 * pad):
-        size -= 1; font = ImageFont.truetype(FONT, size)
-    box = font.getbbox(words); left = x1 + pad + (room - (box[2] - box[0])) / 2 - box[0]
-    draw.text((left, (height - (box[3] - box[1])) / 2 - box[1]), words, font=font, fill=255)
-    alpha = np.asarray(canvas.filter(ImageFilter.GaussianBlur(0.6))) / 255.0
-    halo = np.asarray(canvas.filter(ImageFilter.GaussianBlur(height * 0.06))) / 255.0 * 0.45  # backlit acrylic: a soft glow round the letters
-    alpha = np.maximum(alpha, halo)
-    colour = np.empty((height, width, 3)); colour[:] = tint; colour = colour * (0.55 + 0.45 * (np.asarray(canvas) / 255.0)[..., None])
-    full_colour = np.zeros((height + margin, side, 3)); full_alpha = np.zeros((height + margin, side))
-    full_colour[margin:, margin:margin + width] = colour[::-1, ::-1]; full_alpha[margin:, margin:margin + width] = alpha[::-1, ::-1]  # half round
-    return np.uint8(np.clip(full_colour, 0, 255)), full_alpha
 
 
 class Mesh:
@@ -283,12 +234,6 @@ def antenna():  # a mast with crossbars, on a weighted foot
     return mesh, True
 
 
-def sign(look, scale=1.0):  # a backlit megacorp sign on the wall, `SIGN` metres times `scale`, its middle at the origin
-    width, height = SIGN[0] * scale, SIGN[1] * scale; mesh = Mesh()
-    mesh.box((-width / 2, 0.0, -height / 2), (width / 2, 0.18 * scale, height / 2), 'iron', front=look, skip=('-y',))
-    return mesh, False
-
-
 def canopy():  # a steel canopy over a door, its back edge at the origin, with two hangers up the wall
     mesh = Mesh(); mesh.box((-1.6, 0.0, 0.0), (1.6, 1.5, 0.14), 'galvanised', skip=('-y',))
     for x in (-1.4, 1.4):
@@ -320,8 +265,7 @@ def mast():  # a tall antenna mast on a weighted foot, a red warning light on to
 
 PIECES = {'ac_unit': ac_unit, 'downpipe': downpipe, 'fire_escape': fire_escape, 'fire_escape_top': lambda: fire_escape(stair=False), 'boards': boards, 'bars': bars,
           'hvac': hvac, 'junction_box': junction_box, 'vent': vent, 'tank': tank, 'dish': dish, 'antenna': antenna,
-          'canopy': canopy, 'ledge': ledge, 'camera': camera, 'mast': mast,
-          **{look: (lambda look=look: sign(look)) for look in SIGNS}, **{f'crown_{look[5:]}': (lambda look=look: sign(look, 2.0)) for look in SIGNS}}
+          'canopy': canopy, 'ledge': ledge, 'camera': camera, 'mast': mast}
 
 
 def make(folder, masters, crunch, *, compress=None):

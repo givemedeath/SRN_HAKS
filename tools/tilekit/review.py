@@ -148,6 +148,8 @@ def grid(numbers, fill, across=32):
     return across, height, laid, rows
 
 
+PITCH_LIMIT, DISTANCE_LIMIT = 150.0, 200.0  # a view's camera may look up from the street (pitch over 90) at a tower's top, and stand far off
+
 def _shot(area, label, x, y, facing, distance, pitch):
     return {'area': area, 'label': label, 'stand': [round(x, 2), round(y, 2)], 'facing': facing, 'distance': distance, 'pitch': pitch, 'height': 1.0}
 
@@ -202,7 +204,7 @@ def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
               '  DelayCommand(wait,SetCameraHeight(pc,height)); DelayCommand(wait,AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP)));',
               f'  DelayCommand(wait+{prop_fixture.LINE_DELAY:.1f},Line(pc,n,label,area));',
               f'  DelayCommand(wait+{hold:.1f},Shot(pc,n+1));', '}',
-              'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', '  SetCameraLimits(pc,1.0,89.0,0.5,60.0);',
+              'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', f'  SetCameraLimits(pc,1.0,{PITCH_LIMIT:.1f},0.5,{DISTANCE_LIMIT:.1f});',
               '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
               '  SetCutsceneMode(pc,TRUE,FALSE);', f'  WriteTimestampedLogEntry("{prefix} enter shots={len(shots)}");',
               f'  DelayCommand({start:.1f},Shot(pc,0));', '}']
