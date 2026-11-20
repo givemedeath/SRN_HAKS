@@ -21,6 +21,22 @@ class PiecesTest(unittest.TestCase):
                     self.assertLess(max(face[:3]), len(mesh.verts)); self.assertLess(max(face[4:7]), len(mesh.tverts))
                 self.assertTrue(all(0 <= u <= 1 and 0 <= v <= 1 for u, v in mesh.tverts))
 
+    def test_every_piece_shows_its_front_off_the_wall(self):
+        # a piece's frontmost faces (+y, away from the wall) face +y: the client culls a face from behind, and boards
+        # wound toward the wall were never seen (batch 3 review, 2026-11-20)
+        for name, build in kit.PIECES.items():
+            mesh, _ = build(); front = max(vert[1] for vert in mesh.verts)
+            with self.subTest(name):
+                for face in mesh.faces:
+                    normal = _normal(mesh, face); size = sum(axis * axis for axis in normal) ** 0.5
+                    if size < 1e-12:
+                        continue
+                    normal = [axis / size for axis in normal]
+                    if all(abs(mesh.verts[corner][1] - front) < 1e-6 for corner in face[:3]) and abs(normal[1]) > 0.9:
+                        self.assertGreater(normal[1], 0)
+                    if name == 'boards' and abs(normal[0]) > 0.9:  # the ends face out of the piece
+                        self.assertGreater(normal[0] * sum(mesh.verts[corner][0] for corner in face[:3]), 0)
+
     def test_the_tank_is_closed_and_faces_outward(self):
         mesh = kit.Mesh(); mesh.cylinder((0.0, 0.0, 0.8), 0.9, 1.6, 'rust', sides=8, bottom=True)
         centre = (0.0, 0.0, 1.6)

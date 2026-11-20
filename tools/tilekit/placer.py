@@ -167,6 +167,20 @@ def grid_windows(nodes, grids=GRIDS):
     return {facing: sorted(panes) for facing, panes in found.items()}
 
 
+def _wall_top(nodes, facing, plane, near=0.05):
+    """The highest point of the rendered faces in a wall's plane, the facade's top."""
+    placed = geometry.placed(nodes); top = None
+    for node in nodes:
+        if not node.rendered:
+            continue
+        move = placed[id(node)]
+        for face in node.faces:
+            points = [move(node.verts[corner]) for corner in face[:3]]
+            if all(abs(point[0] * facing[0] + point[1] * facing[1] - plane) < near for point in points):
+                top = max([top or -1e9] + [point[2] for point in points])
+    return top if top is not None else 1e9
+
+
 def propose(text, seed, *, look='brick', open=None, grids=None, above=None):
     """[{piece, at, turn, blocks?, cover?}] for a tile model's text. `open`: the facings of its sides on a street
     (`open_sides`); a facade on the cell's side facing any other way meets the next building, and gets nothing, unless
@@ -197,13 +211,15 @@ def propose(text, seed, *, look='brick', open=None, grids=None, above=None):
                 found.append({'piece': 'boards', 'at': _on_wall(facing, along, plane, bottom + 0.45), 'turn': turn})
             elif row == 0 and pick in (2, 6) and look != 'residential':
                 found.append({'piece': 'bars', 'at': _on_wall(facing, along, plane, bottom + 0.45), 'turn': turn})
-        ends = [end for end in (min(along for along, *_ in panes) - 1.0, max(along for along, *_ in panes) + 1.0)
+        apart = min((b - a for a, b in zip(columns, columns[1:])), default=0.0); clear = max(1.0, 0.3 * apart)  # off a wide window's glass
+        ends = [end for end in (min(along for along, *_ in panes) - clear, max(along for along, *_ in panes) + clear)
                 if abs(end) <= geometry.HALF - 0.3 and not _over_opening(openings, facing, plane, end)]
         if ends:
             end = ends[0]; roof = max(top for _, _, top, _ in panes)
             raised = open is not None and facing not in open and abs(plane) >= geometry.HALF - 0.3  # stands on its neighbours' roofs
             foot = min(bottom for _, bottom, *_ in panes) - 1.0 if raised else geometry.OVER
-            for z in [foot + 3.0 * index for index in range(int((roof - foot) // 3.0) + 1)]:
+            crown = _wall_top(nodes, facing, plane)  # the last length ends under the wall's top, not above a roof
+            for z in sorted({round(min(foot + 3.0 * index, max(foot, crown - 3.0)), 3) for index in range(int((roof - foot) // 3.0) + 1)}):
                 found.append({'piece': 'downpipe', 'at': _on_wall(facing, end, plane, z), 'turn': turn})
     roof = _roof(nodes, rng); found += roof
     return found + _effects(nodes, found, walls, roof, rng)

@@ -173,8 +173,9 @@ def fire_escape(stair=True):  # one storey: a grated platform at z = 0 with rail
 def boards():  # three planks over a window, 1.1 by 1.5 m, flush to the wall
     mesh = Mesh()
     for index, (z, tilt) in enumerate(((0.15, 0.04), (0.65, -0.03), (1.15, 0.02))):
-        mesh.quad((-0.55, 0.03, z - tilt), (0.55, 0.03, z + tilt), (0.55, 0.03, z + 0.28 + tilt), (-0.55, 0.03, z + 0.28 - tilt), 'planks')
-        mesh.quad((-0.55, 0.0, z - tilt), (-0.55, 0.03, z - tilt), (-0.55, 0.03, z + 0.28 - tilt), (-0.55, 0.0, z + 0.28 - tilt), 'planks')
+        mesh.quad((0.55, 0.03, z + tilt), (-0.55, 0.03, z - tilt), (-0.55, 0.03, z + 0.28 - tilt), (0.55, 0.03, z + 0.28 + tilt), 'planks')  # faces +y, off the wall
+        mesh.quad((-0.55, 0.03, z - tilt), (-0.55, 0.0, z - tilt), (-0.55, 0.0, z + 0.28 - tilt), (-0.55, 0.03, z + 0.28 - tilt), 'planks')
+        mesh.quad((0.55, 0.0, z + tilt), (0.55, 0.03, z + tilt), (0.55, 0.03, z + 0.28 + tilt), (0.55, 0.0, z + 0.28 + tilt), 'planks')
     return mesh, False
 
 
