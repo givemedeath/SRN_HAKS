@@ -362,8 +362,9 @@ def cut_walkmesh(model_text, wok_text, footprints, half=geometry.HALF):
             'The model\'s walkmesh and its .wok differ: cut neither')
     walk = Walkmesh(model.verts, model.faces)
     for polygon, base, top in footprints:
-        require(top is None or top > base + geometry.LOW, f'A blocking piece at {polygon[0]} is too low to block anything')
-        require(walk.cut(polygon, base, top), f'A blocking piece at {polygon[0]} stands on no walkable roof face at {base:.2f} m')
+        what = 'A blocking piece' if top is not None else 'An obstacle'
+        require(top is None or top > base + geometry.LOW, f'{what} at {polygon[0]} is too low to block anything')
+        require(walk.cut(polygon, base, top), f'{what} at {polygon[0]} stands on no walkable face at {base:.2f} m')
     walk.mend()
     edge = [walk.verts[index] for index in walk.made if abs(walk.verts[index][0]) >= half - 1e-3 or abs(walk.verts[index][1]) >= half - 1e-3]
     require(not edge, f'A cut reaches the side of the cell at {edge[:1]}: the neighbour\'s walkmesh would not meet it; move the piece inward')

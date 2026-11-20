@@ -87,6 +87,17 @@ def files_of(overlay, name):
     return found
 
 
+def _loop_flags(repo, packs, model, number):
+    """[whether AnimLoop`number` is on] for each tile of the packs' set files drawn by `model`."""
+    found = []
+    for pack in packs:
+        for path in sorted((Path(repo) / pack).glob('*.set')):
+            for section, keys in inventory.sections(path.read_bytes().decode('cp1252')):
+                if re.fullmatch(r'TILE\d+', section, re.I) and keys.get('Model', '').lower() == model.lower():
+                    found.append(keys.get(f'AnimLoop{number}', '0').strip() == '1')
+    return found
+
+
 def plan(repo, spec, overlay):
     """{'put': [(overlay file, pack file)], 'delete': [pack file], 'overrides': {resource: packs}, 'touched': names,
     'left': [overlay files that are of no texture of the spec and no model]} for a spec's textures (none where spec is
@@ -154,6 +165,10 @@ def plan(repo, spec, overlay):
                 f'{path.name}: a set file, edge table or palette replaces its pack copy only with the {MADE_FROM} of the copy that made it')  # only terrain.copy makes them
         entry = cut['models'].get(path.stem.lower())
         if path.suffix.lower() == '.mdl':
+            from .detail import turning_loops
+            for number in sorted(turning_loops(made.decode('cp1252'))):  # a camera's sweep plays only where the set file turns its loop on
+                flags = _loop_flags(repo, packs, path.stem, number)
+                require(flags and all(flags), f'{path.name}: its turning heads sweep in animloop0{number}, and the set file has AnimLoop{number} off for it: turn it on first')
             was_walk, made_walk = inventory.walk_hash(there.decode('cp1252')), inventory.walk_hash(made.decode('cp1252'))
             require(made_walk == was_walk or (entry and (was_walk, made_walk) == (entry['aabbFrom'], entry['aabbTo'])),
                     f'{path.name}: its walkmesh differs from the pack copy it replaces' + (f', and not as {WALK_CUTS} records' if entry else ''))

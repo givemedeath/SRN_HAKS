@@ -586,8 +586,11 @@ def propose_street(text, seed):
                     return None
                 level = _clear_ground(ground, middle, radius + 0.3, keep=behind)
                 return (*middle, level) if level is not None and abs(level - top) <= 0.05 and _on_walk(walk, middle, radius + 0.25, top, keep=behind) else None
+            count = 3 if wish == 'bollards' else 1
             for along in spots(low, high, wish):
-                row = [fits(along + BOLLARDS * index) for index in range(3 if wish == 'bollards' else 1)]  # a row of three bollards, or one piece
+                if along + BOLLARDS * (count - 1) > high - 0.6:  # the whole row behind this kerb, not past its end
+                    continue
+                row = [fits(along + BOLLARDS * index) for index in range(count)]  # a row of three bollards, or one piece
                 if all(row):
                     for x, y, level in row:
                         found.append({'piece': piece, 'at': [round(x, 3), round(y, 3), round(level, 3)], 'turn': _turn(normal), 'obstacle': True})

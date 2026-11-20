@@ -439,3 +439,14 @@ class FixtureGuardsTest(unittest.TestCase):  # review of batch 4, 2026-11-20
         with self.assertRaisesRegex(ValueError, 'own_ac'):
             detail._clear('t', 0, 'ac_unit', faces, [], {}, ((-1.0, 0.0), -1.0), unit)
         detail._clear('t', 0, 'downpipe', faces, [], {}, None, unit)  # a climber keeps to the fixtures outside the cell
+
+    def test_a_window_with_the_tile_s_own_unit_in_front_of_a_set_back_facade_is_fitted(self):
+        def box(name, low, high):
+            (x0, y0, z0), (x1, y1, z1) = low, high
+            verts = [(x, y, z) for x in (x0, x1) for y in (y0, y1) for z in (z0, z1)]
+            return (f'node trimesh {name}\n  parent t\n  position 0 0 0\n  orientation 0 0 0 0\n  bitmap unit\n  verts 8\n'
+                    + ''.join(f'    {x} {y} {z}\n' for x, y, z in verts) + '  tverts 1\n    0 0 0\n  faces 2\n    0 1 3 1 0 0 0 1\n    0 3 2 1 0 0 0 1\nendnode\n')
+        model = 'newmodel t\nbeginmodelgeom t\nnode dummy t\n  parent NULL\nendnode\n' + box('unit', (-2.0, 1.0, 3.0), (-1.5, 1.8, 4.0)) + 'endmodelgeom t\ndonemodel t\n'
+        _, _, nodes = geometry.parse(model)  # a facade at x = -1.0 facing -x, well inside the cell, its own unit 0.5 m out in front at y 1.4
+        self.assertTrue(placer._fitted(nodes, (-1, 0), (1.4, 3.2, 4.4, 1.0, 1.0)))
+        self.assertFalse(placer._fitted(nodes, (-1, 0), (-3.0, 3.2, 4.4, 1.0, 1.0)))  # a window along the wall, clear of it
