@@ -5739,6 +5739,7 @@
       "tools/envkit/__init__.py",
       "tools/envkit/catalog.py",
       "tools/tilekit/cuts.py",
+      "tools/tilekit/detail.py",
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/count.py": [
@@ -5875,6 +5876,7 @@
     ],
     "tools/tilekit/test_kit.py": [
       "tools/tilekit/__init__.py",
+      "tools/tilekit/detail.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/kit.py",
       "tools/tilekit/placer.py",
