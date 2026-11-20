@@ -254,7 +254,7 @@ NWN's doors are large, so each door is scaled to fill its whole opening, with no
 - Many `t_door` models measure 4.0 × 8.0 or 2.0 × 8.0 m: those bounds take in a tall frame or wall piece, not the leaf.
 - The doorways agree: 2.0 × 2.9 m measured from 0.1 m above the hook, so 2.0 × 3.0 m from the hook itself.
 
-Proposed sizes, matching the existing doors:
+Sizes, matching the existing doors (approved by the user, 2026-11-19):
 
 - 2.0 × 3.0 m single: doors, shop doors, steel doors, interior doors, curtains.
 - 4.0 × 3.0 m double or roller shutter.
