@@ -5730,7 +5730,8 @@
     "tools/tilekit/pictures.py": [],
     "tools/tilekit/placer.py": [
       "tools/tilekit/detail.py",
-      "tools/tilekit/geometry.py"
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/kit.py"
     ],
     "tools/tilekit/redraw.py": [
       "tools/envkit/__init__.py",

@@ -142,3 +142,46 @@ class SetBackDoorTest(unittest.TestCase):
         _, _, nodes = geometry.parse(SET_BACK_DOOR)
         self.assertTrue(placer._over_opening(placer._openings(nodes), (-1, 0), 5.01, -3.5))
         self.assertFalse(placer._over_opening(placer._openings(nodes), (-1, 0), 5.01, 1.5))
+
+
+TOWER = """newmodel t
+beginmodelgeom t
+node dummy t
+  parent NULL
+endnode
+node trimesh wall
+  parent t
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap hrise_05_wall
+  verts 4
+    -2.5 4.0 0.0
+    -2.5 -4.0 0.0
+    -2.5 -4.0 40.0
+    -2.5 4.0 40.0
+  tverts 1
+    0 0 0
+  faces 2
+    0 1 2 1 0 0 0 1
+    0 2 3 1 0 0 0 1
+endnode
+endmodelgeom t
+donemodel t
+"""
+
+
+class CorporateTest(unittest.TestCase):
+    def test_a_tower_set_back_behind_a_plaza_is_found_and_signed(self):
+        _, _, nodes = geometry.parse(TOWER)
+        self.assertEqual(placer.facades(nodes), {(-1, 0): (2.5, -4.0, 4.0, 40.0)})
+        self.assertEqual(placer.facades(nodes, open={(1, 0)}), {})
+        found = placer.propose_corporate(TOWER, 'seed', 'sk')
+        self.assertIn(('sign_sk', [-2.5, 0.0, 6.2]), [(one['piece'], one['at']) for one in found])
+        self.assertTrue(all(one['turn'] == placer._turn((-1, 0)) for one in found))
+
+    def test_every_sign_has_its_cell_and_glows_only_in_its_lettering(self):
+        for look in kit.SIGNS:
+            self.assertIn(look, kit.LOOKS); self.assertIn(f'crown_{look[5:]}', kit.PIECES)
+        colour, alpha = kit.sign_picture(256, *kit.SIGNS['sign_sk'])
+        self.assertEqual(colour.shape[1], 256); self.assertGreater(alpha.max(), 0.9); self.assertEqual(alpha[:, :3].max(), 0.0)  # the margin stays dark
+        self.assertLessEqual(len(kit.ORDER), kit.CELLS * kit.CELLS)

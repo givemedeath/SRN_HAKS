@@ -29,6 +29,9 @@ BOX_Z = 3.3  # the junction box's foot: its cable clear of a player's head on a 
 ARC = (-0.06, 0.24, 0.0)  # in the box's own coordinates: just out from its broken bottom, where the cable leaves it
 ESCAPE_DRIP = (1.0, 1.0, -0.07)  # under a fire escape platform's outer corner
 AC_DRIP = (0.1, 0.55, -0.01)  # under an air conditioner's front
+CORPORATE_ROOF = (('mast', 0.45, {'size': [0.8, 0.8], 'height': 0.3}), ('hvac', 1.0, None), ('vent', 0.5, None), ('dish', 0.6, None),
+                  ('mast', 0.45, {'size': [0.8, 0.8], 'height': 0.3}))
+CORPS = {'Highrise_01': 'renraku', 'Highrise_03': 'aztech', 'Highrise_05': 'sk', 'Highrise_06': 'mct', 'Highrise_07': 'renraku'}  # whose tower each is
 ROOF = (('hvac', 1.0, None), ('tank', 1.0, None), ('vent', 0.5, None), ('dish', 0.6, None), ('antenna', 0.35, {'size': [0.6, 0.6], 'height': 0.5}), ('vent', 0.5, None))
 
 
@@ -187,7 +190,7 @@ def _effects(nodes, found, walls, roof, rng):
     return fx
 
 
-def _roof(nodes, rng):
+def _roof(nodes, rng, plant=ROOF):
     walk = geometry.walkable(nodes); heights = [height for both in walk.values() for height in both if height > geometry.HEAD]
     if not heights:
         return []
@@ -196,7 +199,7 @@ def _roof(nodes, rng):
     placed, found = [], []
     spots = [(x / 2, y / 2) for x in range(-8, 9) for y in range(-8, 9)]
     spots = spots[rng % len(spots):] + spots[:rng % len(spots)]
-    for index, (piece, reach, cover) in enumerate(ROOF[: 3 + rng % 3]):
+    for index, (piece, reach, cover) in enumerate(plant[: 3 + rng % 3]):
         for x, y in spots:
             if abs(x) > geometry.HALF - EDGE or abs(y) > geometry.HALF - EDGE or any(math.hypot(x - px, y - py) < APART for px, py in placed):
                 continue
@@ -207,3 +210,55 @@ def _roof(nodes, rng):
                     entry['cover'] = cover
                 found.append(entry); break
     return found
+
+
+def facades(nodes, open=None):
+    """{(nx, ny): (plane, low along, high along, top)} of a tile's tower walls: for each way out of the cell, the
+    outermost wall within 3.5 m of the cell's side whose upright faces reach from below `geometry.OVER` to 8 m or more
+    (towers stand back from the street behind a plaza); `open` as in `propose`."""
+    walls = {}
+    for triangle in geometry.triangles(nodes):
+        facing = _facing(triangle)
+        if facing is None or abs(facing[0]) + abs(facing[1]) != 1 or (open is not None and facing not in open):
+            continue
+        plane = sum(point[0] * facing[0] + point[1] * facing[1] for point in triangle) / 3
+        if plane < geometry.HALF - 3.5:
+            continue
+        along = [point[1] if facing[0] else point[0] for point in triangle]
+        one = walls.setdefault((facing, round(plane * 4) / 4), [plane, min(along), max(along), 99.0, -99.0])
+        one[0] = max(one[0], plane); one[1] = min(one[1], min(along)); one[2] = max(one[2], max(along))
+        one[3] = min(one[3], min(point[2] for point in triangle)); one[4] = max(one[4], max(point[2] for point in triangle))
+    found = {}
+    for (facing, _), (plane, low, high, bottom, top) in sorted(walls.items(), key=lambda item: item[1][0]):
+        if bottom < geometry.OVER and top >= 8.0 and high - low >= 2.0:
+            found[facing] = (round(plane, 3), max(low, -geometry.HALF), min(high, geometry.HALF), top)  # the outermost last
+    return found
+
+
+def propose_corporate(text, seed, corp, *, open=None):
+    """[{piece, at, turn, blocks?, cover?}] for a corporate tower tile: on each tower wall a canopy over each street door
+    with a camera beside it, a ledge on about half, the corp's sign on every one wide enough, and its large sign high up on
+    about half the tall walls; masts and plant on the roof. `corp` is a key of `CORPS`' values (its sign looks)."""
+    _, _, nodes = geometry.parse(text); rng = zlib.crc32(str(seed).encode()); found = []; openings = _openings(nodes)
+    for number, (facing, (plane, low, high, top)) in enumerate(sorted(facades(nodes, open).items())):
+        turn = _turn(facing); bits = rng >> (number * 5); middle = (low + high) / 2
+        doors = sorted({round((one[2] + one[3]) / 2 if facing[0] else (one[0] + one[1]) / 2, 2) for one in openings if one[4]
+                        and _over_opening([one], facing, plane, (one[2] + one[3]) / 2 if facing[0] else (one[0] + one[1]) / 2)})
+        for door in doors:
+            found.append({'piece': 'canopy', 'at': _on_wall(facing, door, plane, 3.4), 'turn': turn})
+            side = door + 2.0 if door + 2.0 < high - 0.3 else door - 2.0
+            if low + 0.3 < side < high - 0.3:
+                found.append({'piece': 'camera', 'at': _on_wall(facing, side, plane, 4.0), 'turn': turn})
+        if bits % 2 == 0:
+            for along in [low + 1.25 + 2.5 * index for index in range(int((high - low) // 2.5))]:
+                found.append({'piece': 'ledge', 'at': _on_wall(facing, along, plane, 4.7), 'turn': turn})
+        if high - low >= kit_sign_width() + 0.6:
+            found.append({'piece': f'sign_{corp}', 'at': _on_wall(facing, middle, plane, 6.2), 'turn': turn})
+        if (bits >> 2) % 2 == 0 and top >= 30.0 and high - low >= 2 * kit_sign_width() + 0.6:
+            found.append({'piece': f'crown_{corp}', 'at': _on_wall(facing, middle, plane, round(top - 4.0, 2)), 'turn': turn})
+    return found + _roof(nodes, rng, CORPORATE_ROOF)
+
+
+def kit_sign_width():
+    from .kit import SIGN
+    return SIGN[0]
