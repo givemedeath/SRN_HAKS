@@ -199,6 +199,22 @@ def floors(triangles_, walk, step=STEP, near=0.15):
     return found
 
 
+FLUSH, OVERHANG, OVER = 0.15, 1.5, 2.75  # metres: flush to the wall anywhere, or out over the neighbour's street this far only this high
+
+
+def overhanging(triangles_, half=HALF, flush=FLUSH, overhang=OVERHANG, over=OVER, tolerance=0.001):
+    """The corners of `triangles_` past the tile's cell that are neither flush to its side (within `flush`) nor out over
+    the neighbouring street no further than `overhang` and at least `over` metres up: a wall piece hangs over the
+    neighbour's sidewalk, where this tile's walkmesh cannot say whether a player walks, so only above a player's head."""
+    found = set()
+    for triangle in triangles_:
+        for x, y, z in triangle:
+            past = max(abs(x), abs(y)) - half
+            if past > tolerance and not (past <= flush or (past <= overhang and z >= over)):
+                found.add((round(x, 3), round(y, 3), round(z, 3)))
+    return sorted(found)
+
+
 def outside(triangles_, half=HALF, tolerance=0.001):
     """The corners of `triangles_` outside the tile's cell, as (x, y)."""
     return sorted({(round(point[0], 3), round(point[1], 3)) for triangle in triangles_ for point in triangle

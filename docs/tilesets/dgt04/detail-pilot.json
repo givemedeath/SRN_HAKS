@@ -1,0 +1,1134 @@
+{
+ "tileset": "dgt04",
+ "tiles": {
+  "dgt04_e09_18": [
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     5.83
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     10.63
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     15.43
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ac_unit",
+    "at": [
+     -5.01,
+     2.9,
+     5.35
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     2.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     5.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     8.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     11.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     14.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     17.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -1.0,
+     -2.0,
+     20.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "tank",
+    "at": [
+     -1.0,
+     0.5,
+     20.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -1.0,
+     3.0,
+     20.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     1.0,
+     -3.5,
+     20.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "antenna",
+    "at": [
+     1.5,
+     -1.0,
+     20.0
+    ],
+    "turn": 180,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.6,
+      0.6
+     ],
+     "height": 0.5
+    }
+   }
+  ],
+  "dgt04_e11_01": [
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     5.83
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     10.63
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     15.43
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     2.5,
+     -5.01,
+     6.4
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     2.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     5.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     8.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     11.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     14.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     17.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ac_unit",
+    "at": [
+     5.01,
+     -2.1,
+     5.35
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     5.01,
+     2.5,
+     6.4
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     2.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     5.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     8.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     11.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     14.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     17.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     3.0,
+     -1.0,
+     20.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "tank",
+    "at": [
+     3.0,
+     1.5,
+     20.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -3.5,
+     -3.5,
+     20.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     -3.5,
+     -1.0,
+     20.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "antenna",
+    "at": [
+     -3.5,
+     1.5,
+     20.0
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.6,
+      0.6
+     ],
+     "height": 0.5
+    }
+   }
+  ],
+  "dgt04_e09_08": [
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     5.83
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     10.63
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "ac_unit",
+    "at": [
+     -5.01,
+     2.9,
+     5.35
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     2.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     5.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     8.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     11.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -2.5,
+     3.5,
+     15.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "tank",
+    "at": [
+     -2.0,
+     -3.5,
+     15.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -2.0,
+     -1.0,
+     15.0
+    ],
+    "turn": 270,
+    "blocks": true
+   }
+  ],
+  "dgt04_e11_03": [
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     5.83
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     10.63
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     2.5,
+     -5.01,
+     11.2
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     2.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     5.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     8.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     11.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     5.01,
+     -2.5,
+     6.4
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     5.01,
+     2.5,
+     11.2
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     2.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     5.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     8.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     11.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     1.5,
+     3.0,
+     15.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "tank",
+    "at": [
+     2.0,
+     -3.0,
+     15.0
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     2.0,
+     -0.5,
+     15.0
+    ],
+    "turn": 180,
+    "blocks": true
+   }
+  ],
+  "dgt04_e09_02": [
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     5.83
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     10.63
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     15.43
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     20.23
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -5.01,
+     -2.5,
+     25.03
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     -5.01,
+     2.5,
+     6.4
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     2.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     5.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     8.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     11.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     14.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     17.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     20.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     23.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -5.01,
+     -3.5,
+     26.75
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     -2.5,
+     -3.5,
+     30.0
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "tank",
+    "at": [
+     -2.5,
+     -1.0,
+     30.0
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     -3.0,
+     1.5,
+     30.0
+    ],
+    "turn": 0,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     -1.5,
+     3.5,
+     30.0
+    ],
+    "turn": 180,
+    "blocks": true
+   }
+  ],
+  "dgt04_e11_04": [
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     5.83
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     10.63
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     15.43
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     20.23
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "fire_escape",
+    "at": [
+     -2.5,
+     -5.01,
+     25.03
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "bars",
+    "at": [
+     2.5,
+     -5.01,
+     6.4
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "ac_unit",
+    "at": [
+     2.9,
+     -5.01,
+     19.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     2.5,
+     -5.01,
+     25.6
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     2.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     5.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     8.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     11.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     14.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     17.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     20.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     23.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     -3.5,
+     -5.01,
+     26.75
+    ],
+    "turn": 180.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     5.01,
+     -2.5,
+     6.4
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     5.01,
+     -2.5,
+     16.0
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "bars",
+    "at": [
+     5.01,
+     2.5,
+     6.4
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "ac_unit",
+    "at": [
+     5.01,
+     2.9,
+     19.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "boards",
+    "at": [
+     5.01,
+     2.5,
+     25.6
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     2.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     5.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     8.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     11.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     14.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     17.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     20.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     23.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "downpipe",
+    "at": [
+     5.01,
+     -3.5,
+     26.75
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "hvac",
+    "at": [
+     1.5,
+     -0.5,
+     30.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "tank",
+    "at": [
+     1.5,
+     2.0,
+     30.0
+    ],
+    "turn": 90,
+    "blocks": true
+   },
+   {
+    "piece": "vent",
+    "at": [
+     2.0,
+     -3.5,
+     30.0
+    ],
+    "turn": 180,
+    "blocks": true
+   },
+   {
+    "piece": "dish",
+    "at": [
+     3.5,
+     3.5,
+     30.0
+    ],
+    "turn": 270,
+    "blocks": true
+   },
+   {
+    "piece": "antenna",
+    "at": [
+     -3.5,
+     -3.5,
+     30.0
+    ],
+    "turn": 90,
+    "blocks": true,
+    "cover": {
+     "size": [
+      0.6,
+      0.6
+     ],
+     "height": 0.5
+    }
+   }
+  ]
+ }
+}

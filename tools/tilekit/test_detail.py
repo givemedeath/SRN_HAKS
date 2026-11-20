@@ -127,12 +127,15 @@ class Detail(unittest.TestCase):
             self.assertEqual(inventory.walk_hash(made), inventory.walk_hash((own / 't_a01.mdl').read_text(encoding='cp1252')))
             self.assertFalse((root / 'out' / 't_a01.wok').exists()); self.assertFalse((root / 'out' / cuts.WALK_CUTS).exists())
 
-    def test_a_piece_leaving_the_cell_is_refused(self):
+    def test_a_piece_past_the_cell_is_refused_unless_flush_or_high_over_the_street(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); _, kit = _repo(root)
-            spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [4.8, 0.0, 13.0]}]}}
-            with self.assertRaisesRegex(ValueError, 'leaves the cell'):
-                detail.detail(root, spec, kit, root / 'out')
+            for at in ([4.8, 0.0, 1.0], [6.8, 0.0, 13.0]):  # past the side at head height, and too far out over the street
+                spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': at}]}}
+                with self.assertRaisesRegex(ValueError, 'leaves the cell, other than'):
+                    detail.detail(root, spec, kit, root / 'out')
+            spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [4.8, 0.0, 13.0]}]}}  # over the street, high up
+            self.assertEqual(detail.detail(root, spec, kit, root / 'out')['t_a01']['pieces'], 1)
 
     def test_a_blocking_piece_on_a_roof_is_raised_out_of_its_walkmesh_as_a_walled_block(self):
         with tempfile.TemporaryDirectory() as temporary:

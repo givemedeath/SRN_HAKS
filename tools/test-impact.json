@@ -5708,6 +5708,9 @@
     ],
     "tools/tilekit/geometry.py": [],
     "tools/tilekit/inventory.py": [],
+    "tools/tilekit/kit.py": [
+      "tools/tilekit/material.py"
+    ],
     "tools/tilekit/lamps.py": [
       "tools/tilekit/apply.py",
       "tools/tilekit/inventory.py"
@@ -5720,6 +5723,9 @@
       "tools/tilekit/pictures.py"
     ],
     "tools/tilekit/pictures.py": [],
+    "tools/tilekit/placer.py": [
+      "tools/tilekit/geometry.py"
+    ],
     "tools/tilekit/redraw.py": [
       "tools/envkit/__init__.py",
       "tools/envkit/reference.py",
@@ -5786,6 +5792,13 @@
     "tools/tilekit/test_inventory.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/test_kit.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/kit.py",
+      "tools/tilekit/placer.py",
+      "tools/tilekit/test_detail.py"
     ],
     "tools/tilekit/test_lamps.py": [
       "tools/tilekit/__init__.py",
@@ -6428,6 +6441,7 @@
     "tools/tilekit/test_doors.py",
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_inventory.py",
+    "tools/tilekit/test_kit.py",
     "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",
     "tools/tilekit/test_redraw.py",

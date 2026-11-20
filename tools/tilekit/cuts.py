@@ -13,6 +13,7 @@ Only the cut tiles' walkmeshes change, only on their roofs, and only with a reco
 each tile's walkmesh before and after, and `apply` replaces a pack's walkmesh only as that record says, then records
 the new hashes in the tileset's walkmesh baseline."""
 import hashlib
+import math
 import json
 from pathlib import Path
 
@@ -177,6 +178,15 @@ def _ears(ring):
 
 def _inside(point, a, b, c):
     return _side(a, b, point) > NEAR * NEAR and _side(b, c, point) > NEAR * NEAR and _side(c, a, point) > NEAR * NEAR
+
+
+def covers(polygon, point, slack=0.0):
+    """Whether a counter-clockwise convex polygon holds `point` (x, y), `slack` metres beyond its sides counted in."""
+    for index, a in enumerate(polygon):
+        b = polygon[(index + 1) % len(polygon)]; length = math.hypot(b[0] - a[0], b[1] - a[1]) or 1.0
+        if _side(a, b, point) / length < -slack:
+            return False
+    return True
 
 
 class Walkmesh:
