@@ -34,6 +34,10 @@ SHOTS = [
     ('dusk-fixed-at-noon', 18, 12, 0, 0, (90.0,), 86.0),
     ('denver-day-fixed-at-night', 22, 23, 0, 0, (90.0,), 86.0),
     ('peaks-day-fixed-at-night', 23, 23, 0, 0, (90.0,), 86.0),
+    # pitched above the horizon (SetCameraLimits lifts the 89-degree cap) for the stars and the moon, which rises in
+    # the east at night
+    ('denver-night-sky-up', 16, 23, 0, 0, (0.0, 90.0), 125.0),
+    ('peaks-night-sky-up', 20, 23, 0, 0, (0.0, 90.0), 125.0),
 ]
 AREA, MODULE, HAK = 'sk_test', 'srn_skytest', 'srn_skytest'
 # The transition run: two-minute hours, time left to run from just before dusk and just before dawn, a capture every
@@ -64,7 +68,7 @@ def script(shots):
                      f' DelayCommand(2.5, WriteTimestampedLogEntry("{PREFIX} shot={index} name={label} row={row} hour={hour} rain={rain} facing={int(facing)}")); }}')
     lines.append(f'  DelayCommand({HOLD}, Shot(n + 1));')
     lines += ['}', '', 'void main()', '{', '  object pc = GetEnteringObject(); if (!GetIsPC(pc)) return;',
-              '  SetCameraMode(pc, CAMERA_MODE_TOP_DOWN);',
+              '  SetCameraMode(pc, CAMERA_MODE_TOP_DOWN); SetCameraLimits(pc, 1.0, 170.0);',
               f'  WriteTimestampedLogEntry("{PREFIX} enter shots={len(rows)}");', '  DelayCommand(6.0, Shot(0));', '}', '']
     return '\n'.join(lines), len(rows)
 
