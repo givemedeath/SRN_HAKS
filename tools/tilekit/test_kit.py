@@ -86,6 +86,7 @@ class PlacerEffectsTest(unittest.TestCase):
         drips = [one for one in fx if one['piece'] == 'drip']
         self.assertEqual([one['at'] for one in drips], [[-6.01, -1.5, 5.76], [-5.41, 2.9, 5.3]])  # under the window unit's front
         self.assertEqual((placer._ac_size(1.0), placer._ac_size(2.0), placer._ac_size(3.0)), (1.0, 1.879, 2.0))  # sized from its window
+        self.assertEqual((placer._ac_size(3.0, 0.8), placer._ac_size(3.0, 0.4), placer._ac_size(1.0, 1.5)), (1.702, None, 1.0))  # never taller than it
         self.assertTrue(all(one['fall'] == one['at'][2] for one in drips))
         self.assertIn({'piece': 'smoke', 'at': [1.0, 1.0, 20.75]}, fx)
         self.assertLessEqual(len(fx), 4)

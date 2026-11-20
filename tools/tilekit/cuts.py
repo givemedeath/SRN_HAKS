@@ -292,7 +292,7 @@ class Walkmesh:
             changed = False; splits += 1
             require(splits < MENDS, f'Mending the cut walkmesh did not finish in {MENDS} splits')
             for number, face in enumerate(self.faces):
-                if _thin(*(self.verts[corner] for corner in face[:3])):  # a sliver: its corners all but in a line, it holds no ground, and split it only makes more
+                if any(corner in self.made for corner in face[:3]) and _thin(*(self.verts[corner] for corner in face[:3])):  # a sliver the cut made: its corners all but in a line, it holds no ground, and split it only makes more
                     del self.faces[number]; changed = True; break
                 for side in range(3):
                     one, other = face[side], face[(side + 1) % 3]; p, q = self.verts[one], self.verts[other]

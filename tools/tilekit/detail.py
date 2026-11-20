@@ -174,7 +174,7 @@ def with_walkmesh_of(text, pack_text):
 
 
 def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
-    """(new text, {pieces, faces, nodes, cuts}, new .wok text or None) of a tile model with its placements added,
+    """(new text, {pieces, faces, nodes, cuts}, new .wok text or None, footprints [(polygon, roof, top)]) of a tile model with its placements added,
     refused where a piece leaves the cell or stands where a player walks. A piece that `blocks` stands on a walkable
     roof instead, and its footprint is cut out of the roof's walkmesh (`cuts`): `wok`, the tile's .wok, is cut with it."""
     from .kit import SWEEPS

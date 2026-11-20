@@ -129,7 +129,7 @@ def plan(repo, spec, overlay):
             require(not strangers, f'{name}: {path.name} is already a file of {", ".join(strangers)}')
             require(key not in placed or placed[key] == holders, f'{path.name} belongs to two textures')
             placed[key] = holders; put += [(path, held.get(key, {}).get(pack, repo / pack / path.name)) for pack in holders]
-    kit = json.loads((overlay / KIT_FILES).read_text(encoding='utf-8')) if (overlay / KIT_FILES).is_file() else {'kind': 'tilekit-kit-files', 'tileset': None, 'files': {}}
+    kit = json.loads((overlay / KIT_FILES).read_text(encoding='utf-8-sig')) if (overlay / KIT_FILES).is_file() else {'kind': 'tilekit-kit-files', 'tileset': None, 'files': {}}
     require(kit.get('kind') == 'tilekit-kit-files' and isinstance(kit.get('files'), dict) and all(isinstance(sha, str) for sha in kit['files'].values()), f'{KIT_FILES} is not a record of kit files')
     require(not kit['files'] or not spec.get('tileset') or spec['tileset'] == kit.get('tileset'), f'{KIT_FILES} is of {kit.get("tileset")}, not of the tileset of the spec')
     kit_pack = f"srn_t_{str(kit.get('tileset') or '').lower()}"; require(not kit['files'] or kit_pack in packs, f'{kit_pack} is no pack of hakbuilder.json')
