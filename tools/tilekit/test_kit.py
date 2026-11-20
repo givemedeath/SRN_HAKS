@@ -77,3 +77,11 @@ class PlacerEffectsTest(unittest.TestCase):
         for seed in range(12):
             found = placer.propose(MODEL.format(z=10.0), seed)
             self.assertLessEqual(sum(one['piece'] in ('sparks', 'drip', 'smoke') for one in found), 4)
+
+
+class OpenSidesTest(unittest.TestCase):
+    def test_a_side_is_on_a_street_when_both_its_corners_are(self):
+        slums = lambda terrain: terrain.startswith('Slums')
+        self.assertEqual(placer.open_sides(['Concrete', 'Slums3', 'Concrete', 'Slums3'], slums), {(-1, 0)})
+        self.assertEqual(placer.open_sides(['Slums1', 'Concrete', 'Concrete', 'Concrete'], slums), {(1, 0), (0, -1)})
+        self.assertEqual(placer.open_sides(['Slums1'] * 4, slums), set())

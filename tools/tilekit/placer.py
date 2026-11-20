@@ -84,11 +84,20 @@ def _on_wall(facing, along, plane, z):
     return [round(facing[0] * plane + (0 if facing[0] else along), 3), round(facing[1] * plane + (along if facing[0] else 0), 3), round(z, 3)]
 
 
-def propose(text, seed, *, look='brick'):
-    """[{piece, at, turn, blocks?, cover?}] for a tile model's text."""
+def open_sides(corners, building):
+    """The facings {(nx, ny)} of a tile's sides on a street: both corners of the side are not of a `building` terrain.
+    Corners are top left, top right, bottom left, bottom right, as a set file gives them (+y is the top)."""
+    sides = {(-1, 0): (0, 2), (1, 0): (1, 3), (0, 1): (0, 1), (0, -1): (2, 3)}
+    return {facing for facing, (one, other) in sides.items() if not building(corners[one]) and not building(corners[other])}
+
+
+def propose(text, seed, *, look='brick', open=None):
+    """[{piece, at, turn, blocks?, cover?}] for a tile model's text. `open`: the facings of its sides on a street
+    (`open_sides`); a facade on the cell's side facing any other way meets the next building, and gets nothing."""
     _, _, nodes = geometry.parse(text); rng = zlib.crc32(str(seed).encode()); found = []
     facades = {facing: [pane for pane in panes if not _fitted(nodes, facing, pane)] for facing, panes in windows(nodes).items()}
-    facades = {facing: panes for facing, panes in facades.items() if panes}
+    facades = {facing: panes for facing, panes in facades.items() if panes
+               and (open is None or facing in open or abs(panes[0][3]) < geometry.HALF - 0.3)}
     walls = []
     for number, (facing, panes) in enumerate(sorted(facades.items())):
         turn = _turn(facing); plane = panes[0][3]; columns = sorted({round(along, 1) for along, *_ in panes}); walls.append((facing, plane, columns, turn))
