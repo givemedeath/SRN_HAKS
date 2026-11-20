@@ -1,8 +1,9 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
-from tools.tilekit import detail, effects, geometry, inventory
+from tools.tilekit import apply, detail, effects, geometry, inventory
 from tools.tilekit.test_detail import _repo
 
 ANIMATED = """
@@ -85,6 +86,8 @@ class Placed(unittest.TestCase):
             self.assertEqual(made.count('newanim'), 1)  # the tile's animations are left as they were
             self.assertEqual(inventory.walk_hash(made), inventory.walk_hash((own / 't_a01.mdl').read_text(encoding='cp1252')))
             self.assertEqual((root / 'out' / 'dgt04_fx_arc.tga').read_bytes(), b'spark'); self.assertFalse((root / 'out' / 'fxpa_mist.tga').exists())
+            record = json.loads((root / 'out' / apply.KIT_FILES).read_text(encoding='utf-8'))  # what apply brings to the pack: the pictures, no atlas (no kit piece)
+            self.assertEqual(sorted(record['files']), ['dgt04_fx_arc.tga', 'dgt04_fx_drip.tga'])
             _, _, nodes = geometry.parse(made); self.assertEqual(sum(node.kind == 'emitter' for node in nodes), 3)
             again = detail.detail(root, spec, kit, root / 'out')  # a second run replaces, it does not add
             self.assertEqual(again, told); self.assertEqual((root / 'out' / 't_a01.mdl').read_text(encoding='cp1252'), made)

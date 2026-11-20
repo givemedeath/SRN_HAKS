@@ -13,7 +13,11 @@ a player would walk through it. A piece marked `blocks` is cover instead: it sta
 footprint is raised out of the roof's walkmesh to the piece's top (`cuts`), so nothing walks through it or sees past it.
 The walkmesh is hashed before and after. Changed models are written into a review's
 overlay, with `models-from.json`, as the lamps and shadows are, and a model there already (the lamps') is the one
-changed; a tile's earlier pieces there are replaced, so the spec can be run again as it changes."""
+changed; a tile's earlier pieces there are replaced, so the spec can be run again as it changes. The kit's atlas
+(its material and maps, from `<kit>/atlas`) and the effects' pictures are copied in beside them and recorded in
+`apply.KIT_FILES`, so `apply` brings them to the tileset's own pack."""
+import hashlib
+import json
 import math
 from pathlib import Path
 
@@ -139,7 +143,8 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
 def detail(repo, spec, kit, folder):
     """Add the spec's pieces to its tiles' models, written into `folder` (a review's overlay), with the walkmeshes of
     tiles that have blocking pieces cut and recorded (`cuts.WALK_CUTS`). {tile: what was added}."""
-    from .apply import noted
+    from .apply import KIT_FILES, files_of, noted
+    from .kit import ATLAS
     require(isinstance(spec, dict) and isinstance(spec.get('tiles'), dict) and spec['tiles'], 'A placement spec names its tileset and its tiles')
     tileset = spec['tileset'].lower(); folder = Path(folder); folder.mkdir(parents=True, exist_ok=True)
     wanted = {name.lower(): placements for name, placements in spec['tiles'].items()}; told, cache, made = {}, {}, {}
@@ -155,8 +160,13 @@ def detail(repo, spec, kit, folder):
                        if one.get('piece') in effects.EFFECTS and not effects.EFFECTS[one['piece']].get('stock')})
     for picture in pictures:
         require((Path(kit) / f'{picture}.tga').is_file(), f'No effect picture {picture}.tga in {kit}')
-    for picture in pictures:
-        (folder / f'{picture}.tga').write_bytes((Path(kit) / f'{picture}.tga').read_bytes())
+    copied = [Path(kit) / f'{picture}.tga' for picture in pictures]
+    if (Path(kit) / 'atlas' / f'{ATLAS}.mtr').is_file() and any(one.get('piece') not in effects.EFFECTS for placements in wanted.values() for one in placements):  # kit pieces draw with the kit's atlas (`kit.build` makes it)
+        copied += files_of(Path(kit) / 'atlas', ATLAS)
+    for path in copied:
+        (folder / path.name).write_bytes(path.read_bytes())
+    (folder / KIT_FILES).write_text(json.dumps({'kind': 'tilekit-kit-files', 'tileset': tileset, 'files': {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in copied}},
+                                               indent=1) + '\n', encoding='utf-8', newline='\n')
     for name, (file, source, wok_path, wok, pack_text, new, said, cut, footprints) in made.items():  # every tile checked before any is written
         noted(folder, file, source); (folder / file).write_bytes(new.encode('cp1252')); told[name] = said
         if cut is not None:

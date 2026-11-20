@@ -25,6 +25,7 @@ HELD = OLD + ('.mtr',)  # what says which packs hold a name: a restyled one may 
 MODELS = ('.mdl', '.wok')  # a tile's model and walkmesh: a changed one replaces its pack copy, a new one goes to the tileset's pack
 TABLES = ('.set', '.2da', '.itp')  # a tileset's set file, edge table and palette: each replaces its one pack copy
 MADE_FROM = 'made-from.json'  # a copied terrain's record (terrain.copy): the pack files its tables were made from, and its catalog entries
+KIT_FILES = 'kit-files.json'  # {kind, tileset, files: {name: sha256}}: the kit's atlas and effect pictures `detail` copied in, new to the packs
 MODELS_FROM = 'models-from.json'  # {model file: hash of the pack copy it was changed from}, written by lamps and shadows (`noted`)
 
 
@@ -128,6 +129,15 @@ def plan(repo, spec, overlay):
             require(not strangers, f'{name}: {path.name} is already a file of {", ".join(strangers)}')
             require(key not in placed or placed[key] == holders, f'{path.name} belongs to two textures')
             placed[key] = holders; put += [(path, held.get(key, {}).get(pack, repo / pack / path.name)) for pack in holders]
+    kit = json.loads((overlay / KIT_FILES).read_text(encoding='utf-8')) if (overlay / KIT_FILES).is_file() else {'kind': 'tilekit-kit-files', 'tileset': None, 'files': {}}
+    require(kit.get('kind') == 'tilekit-kit-files' and isinstance(kit.get('files'), dict) and all(isinstance(sha, str) for sha in kit['files'].values()), f'{KIT_FILES} is not a record of kit files')
+    require(not kit['files'] or not spec.get('tileset') or spec['tileset'] == kit.get('tileset'), f'{KIT_FILES} is of {kit.get("tileset")}, not of the tileset of the spec')
+    kit_pack = f"srn_t_{str(kit.get('tileset') or '').lower()}"; require(not kit['files'] or kit_pack in packs, f'{kit_pack} is no pack of hakbuilder.json')
+    for name, sha in sorted(kit['files'].items()):  # the kit's own files: new to the tileset's pack, or replacing its copy there
+        path = overlay / name; require(path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == sha, f'{name}: not in the overlay as {KIT_FILES} records it: make the overlay again')
+        holders = held.get(name.lower(), {}); strangers = sorted(set(holders) - {kit_pack})
+        require(not strangers, f'{name} is already a file of {", ".join(strangers)}')
+        put.append((path, holders.get(kit_pack, repo / kit_pack / name)))
     files = [path for path in overlay.iterdir() if path.is_file()]; present = {path.name.lower() for path in files}  # the overlay, listed once
     lacking = sorted((set(made_from) | {model + suffix for model in recorded for suffix in MODELS} | {model + '.mdl' for model in edged}) - present)
     require(not lacking, f'The overlay lacks what its {MADE_FROM} says the copy made: ' + ', '.join(lacking) + ': make the overlay again')  # a copy applies whole
@@ -168,7 +178,7 @@ def plan(repo, spec, overlay):
     overrides = {name: sorted(after[name]) for name in sorted(touched) if len(after.get(name, ())) > 1}
     lacking = sorted(model + suffix for model in cut['models'] for suffix in MODELS if model + suffix not in present)
     require(not lacking, f'{WALK_CUTS} names cut walkmeshes the overlay lacks: ' + ', '.join(lacking))
-    used = {path.name for path, _ in put} | {MADE_FROM, MODELS_FROM, WALK_CUTS}; left = sorted(path.name for path in files if path.name not in used)
+    used = {path.name for path, _ in put} | {MADE_FROM, MODELS_FROM, WALK_CUTS, KIT_FILES}; left = sorted(path.name for path in files if path.name not in used)
     return {'put': put, 'delete': sorted(set(delete) - {target for _, target in put}), 'overrides': overrides, 'touched': touched, 'left': left,
             'catalog': _catalogued(repo, record.get('catalog', {})), 'cut': cut}  # merged before anything is written, so a refusal changes nothing
 
