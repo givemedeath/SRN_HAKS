@@ -21,7 +21,7 @@
     "turn": 90.0
    },
    {
-    "piece": "fire_escape",
+    "piece": "fire_escape_top",
     "at": [
      -5.01,
      -2.5,
@@ -153,8 +153,8 @@
     "piece": "junction_box",
     "at": [
      -5.01,
-     0.0,
-     3.2
+     1.3,
+     3.0
     ],
     "turn": 90.0
    },
@@ -162,8 +162,8 @@
     "piece": "sparks",
     "at": [
      -5.09,
-     -0.06,
-     2.88
+     1.24,
+     2.68
     ]
    },
    {
@@ -213,7 +213,7 @@
     "turn": 180.0
    },
    {
-    "piece": "fire_escape",
+    "piece": "fire_escape_top",
     "at": [
      -2.5,
      -5.01,
@@ -419,26 +419,17 @@
     "piece": "fire_escape",
     "at": [
      -5.01,
-     -2.5,
+     2.5,
      5.83
     ],
     "turn": 90.0
    },
    {
-    "piece": "fire_escape",
+    "piece": "fire_escape_top",
     "at": [
      -5.01,
-     -2.5,
+     2.5,
      10.63
-    ],
-    "turn": 90.0
-   },
-   {
-    "piece": "ac_unit",
-    "at": [
-     -5.01,
-     2.9,
-     5.35
     ],
     "turn": 90.0
    },
@@ -520,7 +511,7 @@
     "turn": 180.0
    },
    {
-    "piece": "fire_escape",
+    "piece": "fire_escape_top",
     "at": [
      -2.5,
      -5.01,
@@ -696,7 +687,7 @@
     "turn": 90.0
    },
    {
-    "piece": "fire_escape",
+    "piece": "fire_escape_top",
     "at": [
      -5.01,
      -2.5,
@@ -881,7 +872,7 @@
     "turn": 180.0
    },
    {
-    "piece": "fire_escape",
+    "piece": "fire_escape_top",
     "at": [
      -2.5,
      -5.01,
@@ -1184,8 +1175,8 @@
     "piece": "junction_box",
     "at": [
      5.01,
-     0.0,
-     3.2
+     -1.3,
+     3.0
     ],
     "turn": 270.0
    },
@@ -1193,8 +1184,8 @@
     "piece": "sparks",
     "at": [
      5.09,
-     0.06,
-     2.88
+     -1.24,
+     2.68
     ]
    },
    {

@@ -6,9 +6,10 @@ is the emitter's point in the tile's coordinates. It becomes an emitter node und
 <tile>_fxNN. Its picture is a sprite sheet of `GRID` by `GRID` frames, `<texture>.tga` in the kit folder, copied
 into the overlay beside the model; each particle takes a frame at random. Smoke uses the game's own smoke sheet.
 
-Sparks come in bursts as irregular as the engine allows: the emitter's birth rate is keyed in the tile's
-`tiledefault` animation, which every tile plays all the time, over a loop of `LOOP` seconds (the animation is
-lengthened to it where it is shorter; its other nodes carry no timed keys, only a value at time 0). Each emitter
+Sparks come in bursts as irregular as the engine allows: the emitter's birth rate is keyed in every animation the
+tile has, `tiledefault` and its `animloopNN`s, as a tile plays its animation loops instead of `tiledefault` where
+they are on (a key only in `tiledefault` never fires there). Each is a loop of `LOOP` seconds (lengthened to it where
+it is shorter; their other nodes carry no timed keys, only a value at time 0). Each emitter
 draws its own bursts from a seed of its tile and number (`bursts`): one to four pulses of a random length and
 strength, then a quiet gap of random length, again and again through the loop, so two emitters never keep step and a
 pattern only repeats after `LOOP` seconds. The engine starts every copy of a tile's animation together, so copies of
@@ -26,6 +27,7 @@ MARK = '_fx'
 GRID = 4
 LOOP = 29.0  # seconds; long and odd, so a repeat is hard to notice
 GRAVITY = 9.8
+WATER = (150, 172, 190)  # the colour a drop's body is lifted to
 COMMON = {'update': 'Fountain', 'render': 'Normal', 'spawnType': 0, 'inherit': 0, 'inherit_local': 1, 'inheritvel': 0, 'inherit_part': 0, 'renderorder': 0,
           'threshold': 0.0, 'combinetime': 0.0, 'deadspace': 0.0, 'opacity': 1.0, 'particleRot': 0.0, 'bounce_co': 0.0, 'blurlength': 10.0, 'loop': 0,
           'bounce': 0, 'm_isTinted': 0, 'splat': 0, 'affectedByWind': 'false', 'twosidedtex': 1, 'xgrid': GRID, 'ygrid': GRID, 'fps': 0,
@@ -34,7 +36,7 @@ COMMON = {'update': 'Fountain', 'render': 'Normal', 'spawnType': 0, 'inherit': 0
           'p2p_bezier3': 0.0, 'grav': 0.0, 'drag': 0.0}
 EFFECTS = {
     'sparks': {'texture': 'dgt04_fx_spark', 'Blend': 'Lighten', 'xSize': 4.0, 'ySize': 4.0, 'colorStart': (1.0, 0.92, 0.65), 'colorEnd': (1.0, 0.45, 0.1),
-               'alphaStart': 1.0, 'alphaEnd': 0.0, 'sizeStart': 0.09, 'sizeEnd': 0.03, 'sizeStart_y': 0.0, 'sizeEnd_y': 0.0, 'birthrate': 0.0,
+               'alphaStart': 1.0, 'alphaEnd': 0.0, 'sizeStart': 0.14, 'sizeEnd': 0.05, 'sizeStart_y': 0.0, 'sizeEnd_y': 0.0, 'birthrate': 0.0,
                'lifeExp': 0.8, 'mass': 1.0, 'spread': 1.4, 'velocity': 2.2, 'randvel': 1.6,
                'keys': 'bursts'},
     'smoke': {'texture': 'fxpa_mist', 'stock': True, 'Blend': 'Normal', 'xSize': 20.0, 'ySize': 20.0, 'colorStart': (0.55, 0.55, 0.55),
@@ -42,7 +44,7 @@ EFFECTS = {
               'sizeEnd_y': 1.6, 'birthrate': 5.0, 'lifeExp': 3.5, 'mass': -0.04, 'spread': 0.5, 'velocity': 0.4, 'randvel': 0.25,
               'particleRot': 3.0, 'affectedByWind': 'true', 'fps': 12, 'frameend': 11, 'keys': None},
     'drip': {'texture': 'dgt04_fx_drip', 'Blend': 'Normal', 'xSize': 6.0, 'ySize': 6.0, 'colorStart': (0.75, 0.82, 0.9), 'colorEnd': (0.6, 0.68, 0.78),
-             'alphaStart': 0.85, 'alphaEnd': 0.7, 'sizeStart': 0.035, 'sizeEnd': 0.03, 'sizeStart_y': 0.07, 'sizeEnd_y': 0.08, 'birthrate': 1.2,
+             'alphaStart': 0.9, 'alphaEnd': 0.8, 'sizeStart': 0.07, 'sizeEnd': 0.06, 'sizeStart_y': 0.18, 'sizeEnd_y': 0.22, 'birthrate': 2.0,
              'lifeExp': None, 'mass': 1.0, 'spread': 0.0, 'velocity': 0.0, 'randvel': 0.05, 'keys': None},
 }
 
@@ -124,7 +126,7 @@ def check(name, number, at, effect):
 
 def added(text, root, placed):
     """`text` with the emitters of `placed` [(effect, at, fall, seed)] added: their nodes before the geometry ends, their
-    keys in `tiledefault` (made where the model has none). Returns (text, emitters)."""
+    keys in every animation of the model (a `tiledefault` made where it has none). Returns (text, emitters)."""
     if not placed:
         return text, 0
     ending = '\r\n' if '\r\n' in text else '\n'; lines = text.replace('\r\n', '\n').split('\n')
@@ -135,15 +137,44 @@ def added(text, root, placed):
     end = next(index for index, line in enumerate(lines) if line.split()[:1] and line.split()[0].lower() == 'endmodelgeom')
     lines = lines[:end] + nodes + lines[end:]
     if keys:
-        start = next((index for index, line in enumerate(lines) if line.split()[:2] and line.split()[0].lower() == 'newanim' and line.split()[1].lower() == 'tiledefault'), None)
-        if start is None:
+        if not any(line.split()[:1] and line.split()[0].lower() == 'newanim' for line in lines):
             done = max(index for index, line in enumerate(lines) if line.split()[:1] and line.split()[0].lower() == 'donemodel')
-            lines = lines[:done] + [f'newanim tiledefault {root}', f'  length {LOOP:.5f}', '  transtime 0.0', f'  animroot {root}'] + keys + [f'doneanim tiledefault {root}', ''] + lines[done:]
-        else:
-            finish = next(index for index in range(start, len(lines)) if lines[index].split()[:1] and lines[index].split()[0].lower() == 'doneanim')
-            for index in range(start, finish):
-                words = lines[index].split()
-                if words[:1] and words[0].lower() == 'length' and float(words[1]) < LOOP:
-                    lines[index] = f'  length {LOOP:.5f}'
-            lines = lines[:finish] + keys + lines[finish:]
+            lines = lines[:done] + [f'newanim tiledefault {root}', f'  length {LOOP:.5f}', '  transtime 0.0', f'  animroot {root}', f'doneanim tiledefault {root}', ''] + lines[done:]
+        out, inside = [], False
+        for line in lines:
+            words = line.split(); head = words[0].lower() if words else ''
+            if head == 'newanim':
+                inside = True
+            elif inside and head == 'length' and float(words[1]) < LOOP:
+                line = f'  length {LOOP:.5f}'
+            elif head == 'doneanim':
+                out += keys; inside = False
+            out.append(line)
+        lines = out
     return ending.join(lines), len(placed)
+
+
+def sheet(picture, *, filled=False, frame=64, floor=10, body=0.35):
+    """An emitter's sprite sheet (RGBA, `GRID` x `GRID` frames of `frame` pixels) from a drawn picture of `GRID` x `GRID`
+    effects on black: each cell's effect, the pixels brighter than `floor`, is cut out square around its middle with a
+    margin and scaled to the frame. Alpha is the brightness, for sparks drawn added to the scene; `filled` also gives
+    the inside of each shape (a water drop drawn as its rim and highlight) at least `body`, so it reads as a body of
+    water over a lit wall."""
+    from PIL import Image, ImageChops, ImageDraw, ImageFilter
+    picture = picture.convert('RGB'); width, height = picture.size; out = Image.new('RGBA', (GRID * frame, GRID * frame), (0, 0, 0, 0))
+    for row in range(GRID):
+        for column in range(GRID):
+            cell = picture.crop((column * width // GRID, row * height // GRID, (column + 1) * width // GRID, (row + 1) * height // GRID))
+            bright = cell.convert('L'); shape = bright.point(lambda value: 255 if value > floor else 0)
+            box = shape.getbbox(); require(box is not None, f'Frame {row * GRID + column} of the picture is empty')
+            side = int(max(box[2] - box[0], box[3] - box[1]) * 1.25) + 4; middle = ((box[0] + box[2]) // 2, (box[1] + box[3]) // 2)
+            square = (middle[0] - side // 2, middle[1] - side // 2, middle[0] - side // 2 + side, middle[1] - side // 2 + side)
+            colour, alpha = cell.crop(square), bright.crop(square).point(lambda value: min(255, int(value * 1.6)))
+            if filled:  # the shape's inside: what the black outside cannot reach
+                outside = shape.crop(square).filter(ImageFilter.MaxFilter(3)).convert('L'); ImageDraw.floodfill(outside, (0, 0), 128)
+                inside = outside.point(lambda value: int(255 * body) if value == 0 else 0)
+                alpha = ImageChops.lighter(alpha, inside)
+                colour = ImageChops.lighter(colour, Image.new('RGB', colour.size, WATER))  # a dark inside would read as a hole
+            one = colour.convert('RGBA'); one.putalpha(alpha)
+            out.paste(one.resize((frame, frame), Image.LANCZOS), (column * frame, row * frame))
+    return out

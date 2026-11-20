@@ -146,7 +146,7 @@ def downpipe():  # 3 m of pipe on brackets, its foot at the origin
 STOREY = 4.8  # metres between the Slums' window rows
 
 
-def fire_escape():  # one storey: a grated platform at z = 0 with railing, and a stair up to the next, a storey above
+def fire_escape(stair=True):  # one storey: a grated platform at z = 0 with railing, and a stair up to the next, a storey above
     mesh = Mesh(); width, depth = 2.6, 1.1
     mesh.box((-width / 2, 0.0, -0.06), (width / 2, depth, 0.0), 'iron', skip=('-y',))
     for x in (-width / 2, width / 2):
@@ -155,6 +155,8 @@ def fire_escape():  # one storey: a grated platform at z = 0 with railing, and a
     mesh.box((-width / 2, depth - 0.03, 0.45), (width / 2, depth, 0.48), 'iron')  # mid rail
     for x in (-width / 2, width / 2):
         mesh.box((x - 0.02, 0.0, 0.95), (x + 0.02, depth, 1.0), 'iron', skip=('-y',))  # end rails back to the wall
+    if not stair:  # the top platform: nothing climbs past it into the cornice
+        return mesh, False
     steps = 14; rise = STOREY / steps; run = (width - 0.4) / steps
     for step in range(steps):  # a stair rising along the platform toward +x, under the next platform
         x = -width / 2 + 0.2 + step * run
@@ -228,7 +230,7 @@ def antenna():  # a mast with crossbars, on a weighted foot
     return mesh, True
 
 
-PIECES = {'ac_unit': ac_unit, 'downpipe': downpipe, 'fire_escape': fire_escape, 'boards': boards, 'bars': bars,
+PIECES = {'ac_unit': ac_unit, 'downpipe': downpipe, 'fire_escape': fire_escape, 'fire_escape_top': lambda: fire_escape(stair=False), 'boards': boards, 'bars': bars,
           'hvac': hvac, 'junction_box': junction_box, 'vent': vent, 'tank': tank, 'dish': dish, 'antenna': antenna}
 
 

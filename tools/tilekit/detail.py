@@ -20,6 +20,7 @@ from pathlib import Path
 from . import cuts, effects, geometry, inventory, lamps, require
 
 MARK = '_kit'  # added nodes are named <tile>_kitNN
+STANDOFF = 0.2  # metres off the cell's side beyond which a tile's own geometry is a fixture on its wall, not the wall
 
 
 def turned(at, turn, scale):
@@ -89,6 +90,9 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     if pack_text is not None:
         text = with_walkmesh_of(text, pack_text)
     _, root, nodes = geometry.parse(text); walk = geometry.walkable(nodes); parts, footprints, fx = [], [], []
+    moves = geometry.placed(nodes)  # what the tile already hangs off its walls (lamps, signs): a wall piece keeps clear of it
+    fixtures = [(node.name, point) for node in nodes if node.rendered for point in map(moves[id(node)], node.verts)
+                if max(abs(point[0]), abs(point[1])) - geometry.HALF > STANDOFF]
     for number, placement in enumerate(placements):
         piece = placement['piece']; at = placement['at']
         if piece in effects.EFFECTS:  # an emitter, not geometry (`effects`)
@@ -116,6 +120,10 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}
             require(not outside, f'{name} #{number} ({piece}) reaches past its cover where a player walks; raise that part above head height or widen `cover`')
         else:
+            low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
+            high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
+            hit = sorted({fixture for fixture, point in fixtures if all(low[axis] <= point[axis] <= high[axis] for axis in range(3))})
+            require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
             blocked = geometry.in_the_way(faces, walk)
             require(not blocked, f'{name} #{number} ({piece}) stands where a player walks, over the walkable surface at '
                     + ', '.join(f'{heights}' for heights in list(blocked.values())[:3]) + ' m; move it off the walkable faces or above head height, or make it block (roofs only)')

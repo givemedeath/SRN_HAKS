@@ -4,7 +4,8 @@ A proposal is a starting point written into a placement spec for review: a perso
 editing the spec, and `detail` checks every placement the same whatever made it.
 
 - **Windows** are the rendered faces whose texture names a window, upright, above `geometry.HEAD`. They are grouped
-  into windows by facing and position, and a facade is the windows facing one way.
+  into windows by facing and position, and a facade is the windows facing one way. A window the tile already fits
+  out (its own air conditioner, a sign or lamp off the wall) gets nothing.
 - **A fire escape** climbs the first column of windows of one facade: a platform under each window from the second
   storey up, each with its stair to the next.
 - **Air conditioners** hang under some of the other windows, **boards** cover some and **bars** guard some of the
@@ -53,6 +54,19 @@ def windows(nodes):
     return merged
 
 
+def _fitted(nodes, facing, pane, reach=1.2):
+    """Whether the tile already has something off its wall at a window (its own air conditioner, a sign, a lamp):
+    nothing is added there."""
+    along, bottom, top, _ = pane; moves = geometry.placed(nodes)
+    for node in nodes:
+        if not node.rendered:
+            continue
+        for x, y, z in map(moves[id(node)], node.verts):
+            if max(abs(x), abs(y)) - geometry.HALF > 0.2 and abs((y if facing[0] else x) - along) <= reach and bottom - 0.8 <= z <= top + 0.3:
+                return True
+    return False
+
+
 def _turn(facing):
     """A wall piece's turn (degrees) that points its +y along `facing`."""
     return round(math.degrees(math.atan2(-facing[0], facing[1])), 1) % 360
@@ -65,15 +79,18 @@ def _on_wall(facing, along, plane, z):
 def propose(text, seed, *, look='brick'):
     """[{piece, at, turn, blocks?, cover?}] for a tile model's text."""
     _, _, nodes = geometry.parse(text); rng = zlib.crc32(str(seed).encode()); found = []
-    facades = windows(nodes)
+    facades = {facing: [pane for pane in panes if not _fitted(nodes, facing, pane)] for facing, panes in windows(nodes).items()}
+    facades = {facing: panes for facing, panes in facades.items() if panes}
     for number, (facing, panes) in enumerate(sorted(facades.items())):
         turn = _turn(facing); plane = panes[0][3]; columns = sorted({round(along, 1) for along, *_ in panes})
-        escape = columns[0] if number == 0 and len({round(bottom, 1) for _, bottom, *_ in panes}) >= 2 else None
+        climbs = [column for column in columns if sum(round(along, 1) == column for along, *_ in panes) >= 2]  # two clear storeys at least
+        escape = climbs[0] if number == 0 and climbs else None
         rows = sorted({round(bottom, 1) for _, bottom, *_ in panes})
         for along, bottom, top, _ in panes:
             column, row = columns.index(round(along, 1)), rows.index(round(bottom, 1)); pick = (rng >> (column * 3 + row)) % 7
-            if escape is not None and round(along, 1) == escape:
-                found.append({'piece': 'fire_escape', 'at': _on_wall(facing, along, plane, bottom - 0.12), 'turn': turn})
+            if escape is not None and round(along, 1) == escape:  # the highest platform has no stair up into the cornice
+                top = bottom == max(low for at, low, *_ in panes if round(at, 1) == escape)
+                found.append({'piece': 'fire_escape_top' if top else 'fire_escape', 'at': _on_wall(facing, along, plane, bottom - 0.12), 'turn': turn})
             elif pick in (0, 3) and bottom - 0.6 >= geometry.OVER:
                 found.append({'piece': 'ac_unit', 'at': _on_wall(facing, along + 0.4, plane, bottom - 0.6), 'turn': turn})
             elif pick == 5 or (look == 'timber' and pick == 1):
