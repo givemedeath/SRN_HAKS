@@ -229,11 +229,14 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 
 - **Tiles:** all 105 Slums models (`dgt04_*` and the `dgt05_s*` copies), placements in
   `docs/tilesets/dgt04/detail-slums.json`, proposed by `placer.py`; the six pilot tiles keep their approved pieces.
-  1,138 pieces, 178 effects, 25 junction boxes, 55 roofs with blocking clutter cut into the walkmesh; the largest
+  1,105 pieces, 178 effects, 25 junction boxes, 55 roofs with blocking clutter cut into the walkmesh; the largest
   addition is under 1,800 faces, inside the budget.
 - **Placer rules added in the batch:** no wall pieces on a cell-side facade that meets the next building (the set
   file's corners say which sides face a street); a downpipe keeps out of a column with a street-level door or window
-  (one ran down into a doorway on `e09_19`), taking the facade's other end or none.
+  (one ran down into a doorway on `e09_19`), taking the facade's other end or none. A door counts whole, set back
+  up to 2.5 m (`e09_19`'s black opening stands 2 m behind its frame, which the first version of the rule missed).
+- **Detail starts from the copy before an apply:** `detail` refuses a pack copy that already has kit pieces; after
+  batch 1 was applied, proposing from the packs cut the cut roofs again and refused their clutter tile by tile.
 - **Textures:** the motel sign (`motel2`) reads COFFINS, its letters set by script on the release 1 sign. The wide
   shop window `win2` / `win2_g` is drawn anew to its face's shape (5 × 2.2 m, UVs over the whole picture), with the
   local Qwen model on a scripted layout: frame, two mullions, three panes of blinds; the release 1 picture had its
