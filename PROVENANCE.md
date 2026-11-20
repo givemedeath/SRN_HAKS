@@ -2332,3 +2332,14 @@ peaks views as edits of that start view. Denver's land was then redrawn at about
 searchlights and rain are procedural, written for this project (SRN project operator with Claude); the approach of a
 material-driven animated sky in a skybox model follows the community Dynamic Skies example by Bhaal in its general
 method only: no code, models or pictures of it are included.
+
+## Universal door set (`srn_door`, `srn_2da`; 2026-11-20)
+
+Ten generic doors are original work built in code by `tools/tilekit/doorset.py` (SRN project operator with Claude):
+`srn_dr_street`, `srn_dr_shop`, `srn_dr_double`, `srn_dr_steel`, `srn_dr_shut2`, `srn_dr_shut4`, `srn_dr_load`,
+`srn_dr_gate`, `srn_dr_inner` and `srn_dr_strip`, each with its walkmesh (`.dwk`), and their shared material
+`srn_doors` (`.mtr` and four maps). Node layout and animation names follow the pack's own doors' structure; no
+geometry or picture of another door is used. The atlas is flat colours made in code, except the `iron` cell, which
+takes the CC0 ambientCG scan MetalPlates013 listed under release 1. `srn_2da/genericdoors.2da` rows 1094-1103,
+empty until now, name them. The SRN project operator passed the look in the game client on 2026-11-20 (review
+captures in ignored `output/tilekit/doorset-review` and `doorset-review2`).
