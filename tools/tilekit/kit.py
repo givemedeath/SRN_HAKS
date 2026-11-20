@@ -300,19 +300,19 @@ def turning(angle, axis, offset=(0.0, 0.0, 0.0)):
     return move
 
 
-def ac_unit():  # a split air conditioner's outdoor unit on wall brackets: a fan behind a round guard, louvred sides, its pipes into the wall
-    mesh = Mesh(); mesh.box((-0.38, 0.12, 0.0), (0.38, 0.62, 0.48), 'casing', bevel=0.02)
-    mesh.cylinder((-0.1, 0.62, 0.24), 0.19, 0.012, 'grating', sides=16, axis='y')  # the fan guard, a little proud
-    mesh.cylinder((-0.1, 0.632, 0.24), 0.04, 0.008, 'rubber', sides=8, axis='y')  # its hub
-    mesh.box((0.16, 0.62, 0.06), (0.34, 0.625, 0.42), 'grille')  # the louvred panel beside it
-    mesh.box((0.38, 0.18, 0.06), (0.385, 0.56, 0.42), 'grille'); mesh.box((-0.385, 0.18, 0.06), (-0.38, 0.56, 0.42), 'grille')
-    for x in (-0.3, 0.3):  # L-brackets: an arm under the unit and a strut back up the wall
-        mesh.box((x - 0.02, 0.0, -0.06), (x + 0.02, 0.62, -0.02), 'iron', skip=('-y',))
-        strut = Mesh(); strut.box((-0.015, 0.0, -0.015), (0.015, 0.62, 0.015), 'iron')
-        mesh.extend(strut, turning(math.atan2(0.34, 0.5), 'x', (x, 0.0, -0.4)))
-        mesh.box((x - 0.03, 0.0, -0.44), (x + 0.03, 0.01, -0.36), 'iron', skip=('-y',))  # its foot plate
-    mesh.tube(((0.3, 0.3, 0.12), (0.43, 0.3, 0.12), (0.43, 0.05, 0.12), (0.43, 0.0, 0.12)), 0.018, 'rubber', sides=6)  # insulated pipes
-    mesh.tube(((0.3, 0.26, 0.2), (0.45, 0.26, 0.2), (0.45, 0.05, 0.2), (0.45, 0.0, 0.2)), 0.012, 'rubber', sides=6)
+def ac_unit():  # a window air conditioner on the sill in the bottom of a window, its back inside: louvred front and sides out over the street, a bracket under it
+    mesh = Mesh(); mesh.box((-0.33, -0.12, 0.0), (0.33, 0.46, 0.42), 'casing', bevel=0.018)  # origin: the middle of the sill, on the window's plane
+    mesh.box((-0.3, 0.46, 0.04), (0.12, 0.47, 0.38), 'grille')  # the front louvres
+    mesh.box((0.15, 0.46, 0.22), (0.3, 0.465, 0.38), 'rubber')  # its control panel and knobs
+    for x in (0.19, 0.26):
+        mesh.cylinder((x, 0.465, 0.3), 0.018, 0.012, 'paint', sides=8, axis='y')
+    for side in (-1, 1):  # louvred sides, out past the wall
+        x0, x1 = sorted((side * 0.33, side * 0.335)); mesh.box((x0, 0.08, 0.06), (x1, 0.42, 0.36), 'grille')
+    mesh.box((-0.34, -0.02, 0.42), (0.34, 0.03, 0.47), 'paint', bevel=0.005)  # the sash brought down onto it
+    for x in (-0.25, 0.25):  # a bracket: an arm under it and a strut back to the wall below the sill
+        mesh.box((x - 0.018, 0.0, -0.035), (x + 0.018, 0.42, 0.0), 'iron', skip=('-y',))
+        strut = Mesh(); strut.box((-0.012, 0.0, -0.012), (0.012, 0.5, 0.012), 'iron')
+        mesh.extend(strut, turning(math.atan2(0.3, 0.4), 'x', (x, 0.0, -0.3)))
     return mesh, False
 
 

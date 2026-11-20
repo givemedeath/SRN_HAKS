@@ -84,7 +84,8 @@ class PlacerEffectsTest(unittest.TestCase):
         roof = [{'piece': 'vent', 'at': [1.0, 1.0, 20.0], 'turn': 0, 'blocks': True}]
         fx = placer._effects([], found, [], roof, 0)
         drips = [one for one in fx if one['piece'] == 'drip']
-        self.assertEqual([one['at'] for one in drips], [[-6.01, -1.5, 5.76], [-5.56, 3.0, 5.34]])
+        self.assertEqual([one['at'] for one in drips], [[-6.01, -1.5, 5.76], [-5.41, 2.9, 5.3]])  # under the window unit's front
+        self.assertEqual((placer._ac_size(1.0), placer._ac_size(2.0), placer._ac_size(3.0)), (1.0, 1.879, 2.0))  # sized from its window
         self.assertTrue(all(one['fall'] == one['at'][2] for one in drips))
         self.assertIn({'piece': 'smoke', 'at': [1.0, 1.0, 20.75]}, fx)
         self.assertLessEqual(len(fx), 4)
@@ -249,6 +250,9 @@ class PaintedWindowsTest(unittest.TestCase):
         pieces = {one['piece'] for one in found}
         self.assertIn('ac_unit', pieces)
         self.assertFalse(pieces & {'fire_escape', 'fire_escape_top', 'bars', 'boards'})
+        panes = [pane for panes in placer.grid_windows(geometry.parse(PAINTED)[2], GRID).values() for pane in panes]
+        for one in (one for one in found if one['piece'] == 'ac_unit'):  # each sits on a window's sill, in the window
+            self.assertTrue(any(abs(one['at'][2] - bottom) < 1e-3 for _, bottom, *_ in panes))
 
 FLOORED = TOWER.replace('endmodelgeom t', """node aabb floor
   parent t

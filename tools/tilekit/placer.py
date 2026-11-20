@@ -28,7 +28,14 @@ APART = 2.4  # metres between roof pieces
 BOX_Z = 3.3  # the junction box's foot: its cable clear of a player's head on a raised sidewalk, below the first floor's windows
 ARC = (-0.06, 0.24, 0.0)  # in the box's own coordinates: just out from its broken bottom, where the cable leaves it
 ESCAPE_DRIP = (1.0, 1.0, -0.07)  # under a fire escape platform's outer corner
-AC_DRIP = (0.1, 0.55, -0.01)  # under an air conditioner's front
+AC_DRIP = (0.0, 0.4, -0.05)  # under a window air conditioner's front (scaled with it)
+AC_WIDTH, AC_SHARE, AC_LARGEST = 0.66, 0.62, 2.0  # the kit's unit is this wide, and fills about this share of its window's width
+
+
+def _ac_size(width):
+    """A window air conditioner's scale for a window `width` wide: about AC_SHARE of it (at 45% they looked small,
+    2026-11-20), never smaller than real size nor over AC_LARGEST times it."""
+    return round(min(AC_LARGEST, max(1.0, width * AC_SHARE / AC_WIDTH)), 3)
 RUIN = (('barrel', 0.4, None),) * 3  # a ruin's upper floors: burn barrels (two at most), each smoking
 ESCAPES = ('brick', 'timber', 'shopfront')  # looks whose storeys suit the kit's fire escape (`kit.STOREY`)
 AIR = {'residential': (0, 3, 5), 'derelict': (), 'industrial': (), 'civic': (), 'secure': ()}  # the window patterns (of 7) that get an air conditioner, by look
@@ -227,8 +234,9 @@ def propose(text, seed, *, look='brick', open=None, grids=None, above=None, plan
             if escape is not None and round(along, 1) == escape:  # the highest platform has no stair up into the cornice
                 top = bottom == max(low for at, low, *_ in panes if round(at, 1) == escape)
                 found.append({'piece': 'fire_escape_top' if top else 'fire_escape', 'at': _on_wall(facing, along, plane, bottom - 0.12), 'turn': turn})
-            elif pick in AIR.get(look, (0, 3)) and bottom - 0.6 >= geometry.OVER:
-                found.append({'piece': 'ac_unit', 'at': _on_wall(facing, along + 0.4, plane, bottom - 0.6), 'turn': turn})
+            elif pick in AIR.get(look, (0, 3)) and bottom - 0.35 * _ac_size(width) >= geometry.OVER:  # in the window, on its sill (units hung under the windows looked small and wrong, 2026-11-20)
+                size = _ac_size(width)
+                found.append({'piece': 'ac_unit', 'at': _on_wall(facing, along, plane, bottom), 'turn': turn, **({'scale': size} if size != 1.0 else {})})
             elif pick in BOARDS.get(look, (5,)) or (look == 'timber' and pick == 1):
                 found += _panels('boards', facing, along, bottom, top, plane, width, turn)
             elif row == 0 and pick in BARS.get(look, (2, 6)):
@@ -276,7 +284,7 @@ def _effects(nodes, found, walls, roof, rng):
                 break
     for pieces, offset in (([one for one in found if one['piece'].startswith('fire_escape')], ESCAPE_DRIP), ([one for one in found if one['piece'] == 'ac_unit'], AC_DRIP)):
         if pieces:
-            lowest = min(pieces, key=lambda one: one['at'][2]); point = [round(value, 3) for value in turned(lowest['at'], lowest['turn'], 1.0)(offset)]
+            lowest = min(pieces, key=lambda one: one['at'][2]); point = [round(value, 3) for value in turned(lowest['at'], lowest['turn'], lowest.get('scale', 1.0))(offset)]
             fx.append({'piece': 'drip', 'at': point, 'fall': point[2]})  # Slums streets are at 0 m
     vents = [one for one in roof if one['piece'] == 'vent']
     if vents and (rng >> 23) % 2 == 0:
