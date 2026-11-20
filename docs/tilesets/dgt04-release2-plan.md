@@ -196,6 +196,24 @@ As planned:
 - Measure frame rate and load time against the baseline, and set the face budget from that.
 - Look gate: you approve the pilot, the kit, the budget, and the geometry source for each piece type.
 
+#### Pilot result (approved by the user, 2026-11-19)
+
+- **Tiles:** `e09_18`, `e09_08`, `e09_02` (side) and `e11_01`, `e11_03`, `e11_04` (corner); placements in
+  `docs/tilesets/dgt04/detail-pilot.json`, proposed by `tilekit/placer.py` and checked by `detail`.
+- **Kit:** AC units, downpipes, fire escapes (a stairless top platform under the cornice), boards, bars, a junction
+  box, and roof clutter that is cover (HVAC, tank, vent, dish, antenna), on one 2048 atlas from the tiling masters.
+- **Geometry source:** every piece is built in code (`tilekit/kit.py`); none needed Meshy. Effect sprite sheets are
+  drawn with the local Qwen model and packed by `effects.sheet` / `effects.sparse`.
+- **Effects:** electric arcs at the junction box, drips under fire escapes and AC units, smoke from some roof vents.
+  Emitters run at a steady rate; a tile never plays a birth rate keyed in its animations, so arcs and drips are
+  made random by sparse sheets (mostly empty frames): an arc about every 8 s, a drop about every 3 s.
+- **Guards added:** a wall piece may not run into a tile's own fixtures (lamps, its own AC units, cornices); the
+  placer skips fitted windows and needs two clear storeys for a fire escape.
+- **Budget (set from the pilot):** per tile up to about 2,700 added faces, 2 added mesh nodes, 1 added material and
+  4 emitters. Every pilot view held 177–180 fps at a 200 cap (the test is 175). Frame rate with the effects in, and
+  load times, are still to be measured on the first batch.
+- **Not done in the pilot, carried into stage 3:** invented-brand shop signs; the remesh trial of a plain tile.
+
 ### 3 — Families, one batch each
 
 1. Slums 1–3 (104 tiles).
@@ -284,9 +302,9 @@ The unclear hooks are checked against pictures.
 - envkit's check area now stages the maps of restyled materials, which affects `pavement`. It has not been seen in
   a client check yet.
 
-## Open until the pilot
+## Open after the pilot
 
-- The budget: faces, mesh nodes and materials per tile.
-- The geometry source for each piece type.
+- The budget and the geometry source are settled (see the pilot result).
 - Whether the Concrete tiles are detailed at all, or left to envkit and placeables.
-- Desk time: measured in the pilot, then estimated for each batch.
+- Frame rate with effects in, and load times: measured on the first batch.
+- Desk time per batch: estimated from the first batch.
