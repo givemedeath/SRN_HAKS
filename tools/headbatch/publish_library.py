@@ -82,7 +82,8 @@ def latest_checkpoints(workspace, pattern):
     paths = [p for p in Path(workspace).glob(pattern) if checkpoint_order(p)]
     require(paths, f'No checkpoints match {pattern} in {workspace}')
     for path in sorted(paths, key=checkpoint_order):
-        for row in read_json(path).get('heads') or []:
+        data = read_json(path); require(isinstance(data, dict), f'{path.name}: a checkpoint is a JSON object')
+        for row in data.get('heads') or []:
             if isinstance(row, dict) and 'head' in row:
                 latest[row['head']] = dict(row, _checkpoint=path.name, _batch=checkpoint_order(path)[1])
     return latest
@@ -106,11 +107,15 @@ def resolve(workspace, head, row, override):
     require(session, f'{head}: no client session in {row["_checkpoint"]} (give one with --overrides)')
     require(row.get('clientPassed', True) is not False, f'{head}: its checkpoint says the client review did not pass')
     trial = Path(read_json(W/session/'session.json')['trial'])
+    trial = trial if trial.is_absolute() else W/trial
     slot = row.get('slot'); require(isinstance(slot, str) and RESREF.fullmatch(slot), f'{head}: bad slot {slot!r}')
     sources = native_sources(read_json(trial/'runtime-manifest.json'), head)
     require(len(sources) == 1, f'{head}: trial {trial.name} names native sources {sorted(sources)}, need exactly one')
     (folder, label), = sources.items()
     attempt = override.get('reviewedNativeAttempt') or label
+    if 'reviewedNativeAttempt' in override:
+        require(label.startswith('fit-variant '), f'{head}: the trial packed {label}; reviewedNativeAttempt is only for fit variants')
+        require(re.fullmatch(r'attempt-\d+', attempt), f'{head}: reviewedNativeAttempt takes attempt-NN')
     payload = {}
     for hak in sorted((trial/'userdir/hak').glob('*.hak')):
         resources = erf_resources(hak.read_bytes())
@@ -177,12 +182,22 @@ def actors(trial, head):
     return rows[1], rows[2]
 
 
+def check_crops(crops):
+    """A default and per-family boxes, each family with exactly the six views as [left, top, right, bottom]."""
+    require(isinstance(crops, dict) and 'default' in crops, 'The crops file needs a default family')
+    for family, boxes in crops.items():
+        if family == 'description':
+            continue
+        require(isinstance(boxes, dict) and set(boxes) == {v for v, _ in VIEWS},
+                f'{family}: crop boxes need exactly the views {[v for v, _ in VIEWS]}')
+        for view, box in boxes.items():
+            require(isinstance(box, list) and len(box) == 4 and all(type(n) is int and n >= 0 for n in box),
+                    f'{family} {view}: a crop box is four non-negative integers')
+    return crops
+
+
 def crop_boxes(head, crops):
-    family = head.rsplit('-', 1)[0]
-    boxes = crops.get(family) or crops['default']
-    require(isinstance(boxes, dict), f'{family}: crop boxes must be an object')
-    require(set(boxes) == {v for v, _ in VIEWS}, f'{family}: crop boxes need exactly the views {[v for v, _ in VIEWS]}')
-    return boxes
+    return crops.get(head.rsplit('-', 1)[0]) or crops['default']
 
 
 def gallery(workspace, resolved, crops, path):
@@ -244,7 +259,9 @@ def draft(manifest, name, existing):
         return text[:1].upper()+text[1:] if text else '-'
     def family(h):
         return h['head'].rsplit('-', 1)[0].replace('-', ' ').capitalize()
-    rows = '\n'.join(f"| {h['design']} | {family(h)} | `{h['slot']}` | {hair(h)} | "
+    def cell(text):
+        return str(text).replace('|', '\\|')
+    rows = '\n'.join(f"| {cell(h['design'])} | {family(h)} | `{h['slot']}` | {cell(hair(h))} | "
                      + ' / '.join(str((h['paletteRows'] or {}).get(c)) for c in ('0', '1', '8', '9')) + ' |'
                      for h in manifest['heads'])
     gallery = '\n\n'.join(f"![{h['design']} ({h['slot']}) in the client](evidence/{name}/{h['clientEvidence']['gallery']})"
@@ -306,7 +323,7 @@ def stage(args):
     W, repo, out = Path(args.workspace), Path(args.repo), Path(args.out)
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', args.name), '--name is a lowercase file stem, e.g. head-library-trolls-v1')
     require(re.fullmatch(r'\d{4}-\d{2}-\d{2}', args.created), '--created takes YYYY-MM-DD')
-    crops = read_json(args.crops or CROPS)
+    crops = check_crops(read_json(args.crops or CROPS))
     overrides = read_json(args.overrides) if args.overrides else {}
     require(not Path(args.checkpoints).is_absolute(), '--checkpoints is a glob inside the workspace, e.g. runtime/batch-*-checkpoint-*.json')
     latest = latest_checkpoints(W, args.checkpoints)

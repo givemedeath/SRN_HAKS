@@ -38,10 +38,12 @@ does an existing manifest of the same name. The manifest refuses to hold a local
 ## Inputs the checkpoint may lack
 
 `--overrides FILE` takes `{head: {session?, reviewNotes?, reviewedNativeAttempt?}}`. PR 177 used it for three Human male
-heads whose final review was a fit-variant session the checkpoint did not name. `--notes` sets the manifest's
+heads whose final review was a fit-variant session the checkpoint did not name; `reviewedNativeAttempt` names the
+native attempt a fit variant was made from and refuses for a trial that packed a native attempt itself. `--notes` sets the manifest's
 top-level note (for example, how `designSubmissions` was recorded). `--review` sets who reviewed the heads and on whose
 authority; the default is the operator review the user delegated. An override for a head that is not being staged, or
-an unknown override key, refuses.
+an unknown override key, refuses. A session's relative `trial` path is read from the workspace, and every crop box
+must be four non-negative integers.
 
 ## After staging
 

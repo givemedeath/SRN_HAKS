@@ -140,6 +140,28 @@ class Stage(unittest.TestCase):
         self.assertEqual(manifest['review'], 'Reviewed by the user in the client.')
         self.assertEqual(manifest['heads'][0]['reviewNotes'], ['user "Accept 0.82"', 'user "Keep it"'])
 
+    def test_fit_variant_head_with_override(self):
+        ws = Workspace(self.tmp.name); trial = ws.root/'trials/troll-v3'; overrides = Path(self.tmp.name)/'overrides.json'
+        overrides.write_text(json.dumps({HEAD: {'reviewedNativeAttempt': 'attempt-01'}}), encoding='utf-8')
+        self.assertEqual(self.stage(ws, '--overrides', str(overrides))[0], 1)  # the trial packed attempt-02 itself
+        variant = ws.root/'trials/fit-variants/troll-v4'/HEAD/'native'; (variant/'resources').mkdir(parents=True)
+        (variant/'resources'/f'{SLOT}.mdl').write_bytes(b'MDL-bytes'); (variant/'resources'/f'{SLOT}.plt').write_bytes(b'PLT-bytes')
+        ws.json(trial/'runtime-manifest.json', {'heads': [{'native': str(variant/'native.json')}]})
+        ws.json(ws.root/'trials/client-sessions/troll-1/session.json', {'trial': 'trials/troll-v3'})  # relative to the workspace
+        overrides.write_text(json.dumps({HEAD: {'reviewedNativeAttempt': 'attempt-02', 'reviewNotes': ['fit variant']}}), encoding='utf-8')
+        self.assertEqual(self.stage(ws, '--overrides', str(overrides))[0], 0)
+        head = json.loads((self.repo/'docs/heads/head-library-test-v1.json').read_text(encoding='utf-8'))['heads'][0]
+        self.assertEqual((head['reviewedNativeAttempt'], head['triangles'], head['reviewNotes'][-1]), ('attempt-02', 20000, 'fit variant'))
+
+    def test_bad_crop_boxes_refuse(self):
+        ws = Workspace(self.tmp.name)
+        for crops in ({'troll-male': CROPS['default']}, {'default': dict(CROPS['default'], three=[0, 0, 64])},
+                      {'default': dict(CROPS['default'], three=[0, 0, 64.5, 48])}):
+            with self.subTest(crops=crops):
+                ws.json(ws.root/'crops.json', crops)
+                self.assertEqual(self.stage(ws)[0], 1)
+        self.assertFalse((self.repo/'docs').exists())
+
     def test_existing_manifest_refuses(self):
         ws = Workspace(self.tmp.name); self.assertEqual(self.stage(ws)[0], 0)
         self.assertEqual(self.stage(ws)[0], 1)
