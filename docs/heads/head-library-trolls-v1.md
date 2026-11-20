@@ -20,8 +20,8 @@ Each head is a rigid 20,000-triangle MDL with a 1024×1024 PLT. These are the ex
 loaded in each head's final review session, taken from that session's trial HAK. The combined-pack check loaded the same
 bytes. Publication reruns nothing.
 
-Each head has its own PLT. Irises are on tattoo1. Horns and tusks are on tattoo2, row 120 ivory, so they keep their colour
-when a player changes the tattoo colours. Cyberware is on metal1. Seven heads use the built-in organic head material.
+Each head has its own PLT. Irises are on tattoo1. Horns and tusks are on tattoo2 with row 120 ivory as the default, so a
+character's tattoo-2 colour sets their colour. Cyberware is on metal1. Seven heads use the built-in organic head material.
 Duskforge, Oxbow and Deepwell carry metal1 cyberware, so they keep the legacy material. Stock material and palette
 payloads are not redistributed.
 
@@ -61,7 +61,7 @@ per-head threshold exceptions were the user's decisions. Each is quoted in that 
   - Basinfog's horns are gold-brown with darker roots.
   - Oxbow keeps a small dark spot at the inner root of one horn.
 - **Cyberware:** metal1 shows the armour's metal colour. Without armour, the client draws stock row 0 with environment
-  shine. This affects Duskforge's temple implant and the Oxbow and Deepwell datajacks.
+  shine. This affects Duskforge's temple implant, Oxbow's datajack and cheek plates, and Deepwell's datajack.
 
 The [combined-pack check](race-heads-v1-runbook.md) (runbook row 501) loaded all 50 library heads together:
 - the 40 published heads from the production `srn_head`
