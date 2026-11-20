@@ -260,6 +260,24 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
   lights, heavier podium ledges).
 - **Not applied:** nothing of batch 2 is in the packs until that decision.
 
+#### Batch 3 result: Residential Block and Derelict Tower (approved by the user, 2026-11-20)
+
+- **Placements:** `docs/tilesets/dgt04/detail-batch3.json`, the 12 tiles of Highrise 8 and 9. Their windows are
+  painted into `hr08_wall` and `hr09_build`; `placer.grid_windows` finds them from the texture's window grid.
+  Residential look: air conditioners under about half the windows, downpipes and roof plant; no fire escapes, bars
+  or boards. Derelict look: boards over about half the windows, no air conditioners. The derelict tower stands in
+  the middle of lower plaza blocks and is dressed from its first window row (13 m) up.
+- **Boards fixed:** the kit's boards faced the wall and were culled, so batch 1's boards never showed. The kit is
+  fixed, a test checks every piece's front, and batch 1 was detailed again from its pre-apply copies and applied
+  with batch 3; all 97 boards in the packs face the street.
+- **Glass:** `window_tex07`, `09`, `23` and `24` had kept their black openings as if doors were hooked up there, but
+  every use is a window 0.8 m or more above the ground. They are redrawn glazed (`"glazed": true` in the redraw
+  list); `redraw` now refuses a window texture over half pure black that does not say `glazed` or
+  `"opening": "door"`. The corporate glass was too clean for the Slums (user), so 15 Slums tiles take Barrens copies
+  `sl_win07/23/24` and the three Highrise 9 tiles a broken `hr09_win07` (`dgt04/retexture-glass.json`). Real
+  doorways (`dgt04_black`) stay black.
+- **Applied:** to `srn_t_common` and `srn_t_dgt04`, 117 models, both packs built.
+
 ### 4 — Selective remeshing
 
 - A candidate list from the review captures: the tiles whose shape reads worst once they are detailed.

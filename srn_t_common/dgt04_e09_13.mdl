@@ -1475,7 +1475,7 @@ node trimesh Plane46
   ambient  1.00  1.00  1.00
   diffuse  1.00  1.00  1.00
   specular  0.00  0.00  0.00
-  bitmap window_tex23
+  bitmap sl_win23
   alpha 1.0
   shininess 12
   selfillumcolor  0.00  0.00  0.00
