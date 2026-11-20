@@ -176,6 +176,15 @@ class Detail(unittest.TestCase):
             self.assertFalse((root / 'out' / 't_a01.wok').exists())
             self.assertEqual(json.loads((root / 'out' / cuts.WALK_CUTS).read_text(encoding='utf-8'))['models'], {})
 
+    def test_a_pack_copy_that_has_pieces_already_is_refused(self):  # an applied batch, detailed again over itself
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); own, kit = _repo(root)
+            spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [1.0, 1.0, 13.0]}]}}
+            detail.detail(root, spec, kit, root / 'out')
+            (own / 't_a01.mdl').write_bytes((root / 'out' / 't_a01.mdl').read_bytes())
+            with self.assertRaisesRegex(ValueError, 'has kit pieces already'):
+                detail.detail(root, spec, kit, root / 'again')
+
     def test_blocking_pieces_go_on_roofs_only(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); _, kit = _repo(root, z=0.0)

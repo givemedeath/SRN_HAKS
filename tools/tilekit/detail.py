@@ -91,7 +91,8 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     refused where a piece leaves the cell or stands where a player walks. A piece that `blocks` stands on a walkable
     roof instead, and its footprint is cut out of the roof's walkmesh (`cuts`): `wok`, the tile's .wok, is cut with it."""
     cache = {} if cache is None else cache; text = effects.without_fx(without_kit(text))
-    if pack_text is not None:
+    if pack_text is not None:  # an applied batch: its walkmesh is cut already, and cut again it refuses its own roof clutter
+        require(not any(is_kit(node.name) for node in geometry.parse(pack_text)[2]), f'{name}: the pack copy has kit pieces already (an applied batch): detail it again from the copy before that apply')
         text = with_walkmesh_of(text, pack_text)
     _, root, nodes = geometry.parse(text); walk = geometry.walkable(nodes); parts, footprints, fx = [], [], []
     moves = geometry.placed(nodes)  # what the tile already hangs off its walls (lamps, signs): a wall piece keeps clear of it

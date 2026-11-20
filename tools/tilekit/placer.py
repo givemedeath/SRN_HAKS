@@ -86,25 +86,30 @@ def _on_wall(facing, along, plane, z):
 
 
 def _openings(nodes):
-    """[(low x, high x, low y, high y)] of the tile's street-level openings: each upright rendered triangle of a door
-    (its frame or its black opening) or a window that starts below `geometry.OVER`."""
+    """[(low x, high x, low y, high y)] of the tile's street-level openings, from their upright rendered triangles that
+    start below `geometry.OVER`: a door (its frame or its black opening) whole, as one box, since a door is often set
+    back into the building and its frame is thin jambs; a window face by face, as one node may hold many windows."""
     found = []
     for node in nodes:
-        name = (node.material or '').lower()
-        if not node.rendered or not (name.startswith('door') or 'black' in name or name.startswith(WINDOW) or 'window' in name):
+        name = (node.material or '').lower(); door = name.startswith('door') or 'black' in name
+        if not node.rendered or not (door or name.startswith(WINDOW) or 'window' in name):
             continue
-        for triangle in geometry.triangles(nodes, lambda other, node=node: other is node):
-            if _facing(triangle) is not None and min(point[2] for point in triangle) < geometry.OVER:
-                found.append((min(p[0] for p in triangle), max(p[0] for p in triangle), min(p[1] for p in triangle), max(p[1] for p in triangle)))
+        low = [triangle for triangle in geometry.triangles(nodes, lambda other, node=node: other is node)
+               if _facing(triangle) is not None and min(point[2] for point in triangle) < geometry.OVER]
+        for group in ([low] if door and low else [[triangle] for triangle in low]):
+            points = [point for triangle in group for point in triangle]
+            found.append((min(p[0] for p in points), max(p[0] for p in points), min(p[1] for p in points), max(p[1] for p in points), door))
     return found
 
 
-def _over_opening(openings, facing, plane, along, clear=0.3, depth=0.6):
-    """Whether a downpipe at `along` on the facade (`facing`, `plane`) would run down into a door or a shop window."""
-    for low_x, high_x, low_y, high_y in openings:
+def _over_opening(openings, facing, plane, along, clear=0.3, depth=0.6, recess=2.5):
+    """Whether a downpipe at `along` on the facade (`facing`, `plane`) would run down into a door or a shop window: one
+    within `depth` of the wall, or a door within `recess` (its black opening may stand well back from its frame)."""
+    for low_x, high_x, low_y, high_y, *door in openings:
         (across_low, across_high), (side_low, side_high) = ((low_x, high_x), (low_y, high_y)) if facing[0] else ((low_y, high_y), (low_x, high_x))
         out = plane * (facing[0] or facing[1])  # the facade's coordinate across it
-        if across_low - depth <= out <= across_high + depth and side_low - clear <= along <= side_high + clear:
+        gap = max(across_low - out, out - across_high, 0.0)
+        if gap <= (recess if door and door[0] else depth) and side_low - clear <= along <= side_high + clear:
             return True
     return False
 

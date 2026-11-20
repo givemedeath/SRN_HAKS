@@ -93,3 +93,52 @@ class DownpipeOpeningTest(unittest.TestCase):
         self.assertTrue(placer._over_opening(door, (-1, 0), 5.01, -3.5))
         self.assertFalse(placer._over_opening(door, (-1, 0), 5.01, 1.5))
         self.assertFalse(placer._over_opening(door, (1, 0), 5.01, -3.5))  # the facade across the cell
+
+
+SET_BACK_DOOR = """newmodel t
+beginmodelgeom t
+node dummy t
+  parent NULL
+endnode
+node trimesh jamb
+  parent t
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap doortrim1
+  verts 4
+    -5.06 -2.02 0.2
+    -5.06 -1.9 0.2
+    -5.06 -1.9 3.2
+    -5.06 -2.02 3.2
+  tverts 1
+    0 0 0
+  faces 2
+    0 1 2 1 0 0 0 1
+    0 2 3 1 0 0 0 1
+endnode
+node trimesh opening
+  parent t
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap dgt04_black
+  verts 4
+    -2.96 -3.98 0.2
+    -2.96 -2.02 0.2
+    -2.96 -2.02 3.2
+    -2.96 -3.98 3.2
+  tverts 1
+    0 0 0
+  faces 2
+    0 1 2 1 0 0 0 1
+    0 2 3 1 0 0 0 1
+endnode
+endmodelgeom t
+donemodel t
+"""
+
+
+class SetBackDoorTest(unittest.TestCase):
+    def test_a_door_set_back_into_the_building_counts_whole(self):  # dgt04_e09_19: a thin jamb on the wall, the opening 2 m in
+        _, _, nodes = geometry.parse(SET_BACK_DOOR)
+        self.assertTrue(placer._over_opening(placer._openings(nodes), (-1, 0), 5.01, -3.5))
+        self.assertFalse(placer._over_opening(placer._openings(nodes), (-1, 0), 5.01, 1.5))
