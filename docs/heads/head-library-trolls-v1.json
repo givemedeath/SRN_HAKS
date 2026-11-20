@@ -1,0 +1,1098 @@
+{
+ "kind": "srn-head-library-publish-v1",
+ "created": "2026-11-20",
+ "heads": [
+  {
+   "head": "troll-female-a",
+   "design": "Kintsilt",
+   "batch": 10,
+   "slot": "pfg0_head021",
+   "resources": {
+    "mdl": {
+     "name": "pfg0_head021.mdl",
+     "sha256": "e73ccfce156232850e8c20aa615a82aef286b4e3a65414987f076ee3a00ef57b",
+     "bytes": 1252636
+    },
+    "plt": {
+     "name": "pfg0_head021.plt",
+     "sha256": "8879993f4cc5699ac795beb3cf5b988eb355a1d8b4b39befbcb2cadfdd4fdee6",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true,
+    "material": "oldf_head",
+    "channels": [
+     0,
+     1,
+     8,
+     9
+    ]
+   },
+   "paletteRows": {
+    "0": 13,
+    "1": 6,
+    "2": 0,
+    "3": 0,
+    "8": 113,
+    "9": 120
+   },
+   "features": {
+    "face": "adult strong angular Troll jaw and heavy cheekbones, warm sienna skin with subtle dermal texture, two thick ivory horns with single short outward-upward curves, two short ivory lower tusks and large pointed ears; full short dark auburn coils, amber irises. quiet warmth with a small closed-lip smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two large pointed Troll ears, anatomically attached, standing clear of the coils.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two thick ivory horns, one short outward-upward curve each from the temples.",
+    "tusks": "Two short ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Full short dark auburn coils with a full crown and a closed rear; dark auburn brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "94a07087cc22513c86933856eaf8d6bfa8e537a75f5b111ebfc91adc27601e21",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-female-01",
+    "sourceDraft": 2
+   },
+   "geometrySubmissions": 2,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "troll-20261120-000402921209",
+    "trialHak": "srn_rh_tro5.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pfg0_head021-client.jpg",
+    "gallerySha256": "4291e21fdd500fb8991327f51259806bfadd7df3aa01886b247d53bd12a90753",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "2105d99c289332c6b06c61c6cfed0135f767a4af999387d31acb91659bf63e21"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "c498da9ade1dd7cf64710ba469ffcf22d34ab87f3250cb13bdb7e3d8e883e426"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "29cbea51a8b453cfd64063a613874991c3ba97181f014fd9c508e38cc3e0ad16"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "924c0acc635807949306b642d8c622fbf1865ce5bafecafcc8ec7ce476924910"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "324120bbd4cb6420cf4d42692997a197e90ae3c2a2ae3c26473b2aad15f9a012"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "579753ae1e0ff891080f8d8275d243bdbdc0eda15b8503169ae468cd6dd769b8"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; female troll fit start x1.0 / -0.015 (pfg0 reference includes its neck)",
+    "browsOnHair 0.78; user \"Accept both, check in client (Recommended)\"",
+    "palette 0:13 1:6 8:113 9:120 (copper coils)",
+    "client v4: black/white rim under the horns; user \"Fix all three\": tattoo2 toneMatch human-female-skin-v1 instead of head-metal-v1 (the metal reference sent ~20% of the horn below shade 30, black on row 120); palette-03",
+    "client v5: horns clean ivory; mouth-corner shading as baked"
+   ]
+  },
+  {
+   "head": "troll-female-b",
+   "design": "Basinfog",
+   "batch": 10,
+   "slot": "pfg0_head022",
+   "resources": {
+    "mdl": {
+     "name": "pfg0_head022.mdl",
+     "sha256": "57f5cebe73ef12d3a4663a1cececba77ad0e158b9118e4b33d416b8ed6a801ab",
+     "bytes": 1242396
+    },
+    "plt": {
+     "name": "pfg0_head022.plt",
+     "sha256": "1402552a1005ce358e633620ad026b2f6e73bc0b5aee653c77645540e08adf6e",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true,
+    "material": "oldf_head",
+    "channels": [
+     0,
+     1,
+     8,
+     9
+    ]
+   },
+   "paletteRows": {
+    "0": 17,
+    "1": 62,
+    "2": 0,
+    "3": 0,
+    "8": 114,
+    "9": 120
+   },
+   "features": {
+    "face": "mature broad Troll jaw and muted slate-olive skin, two thick short single-arc horns sweeping upward from temples, two small lower tusks and pointed ears; dense silver waves in a jaw-length bob that leaves both horns and ears visible, storm-gray irises. slightly attentive with subtly lifted brows. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Troll ears, anatomically attached, visible in front of the waves.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two thick short horns sweeping upward from the temples, one arc each.",
+    "tusks": "Two small ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Dense silver waves in a jaw-length bob with a full crown, leaving both horns and ears visible; silver-grey brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "ef8f1a53e4f657c8e4bb68f5805835264310c2ea7104ac5120e3e99812f535bf",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-female-02",
+    "sourceDraft": 2
+   },
+   "geometrySubmissions": 1,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "troll-20261120-000402921209",
+    "trialHak": "srn_rh_tro5.hak",
+    "actors": [
+     "sr_h_actor13",
+     "sr_h_actor14"
+    ],
+    "gallery": "pfg0_head022-client.jpg",
+    "gallerySha256": "d3b98953bd990a272e42fd0eef4eb3d6ed88528dc40c0d5667421af1db04b967",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor13-three-1.png",
+      "sha256": "ebe1c2e872fe601f0a73433bb49328533755d4d138c584d453466fd4bf34c098"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor13-threeleft-1.png",
+      "sha256": "a6aaae052ce8d070ebc040786c8326ee65808f7049a319c56b4e61bd142cfbb8"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor13-backright-1.png",
+      "sha256": "5b71b8616aa121efa01f1f2434317f0eb8278315f3a2d90a9e35d781f8d43bf4"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor13-backleft-1.png",
+      "sha256": "5ed6217d8fb2083658e34eb65a8ba217942c7521c07da5dbef5b8f20d46b30af"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor13-motion-1.png",
+      "sha256": "48e10466bd17789be2125d6d2fc5515e6ed5d19014603fd136514e7402a20cd0"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor14-front-1.png",
+      "sha256": "7180504aa08354b2085a71cfe012e94be661370ed4a3dcfddfeacc1e01eedc2a"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; female troll fit start x1.0 / -0.015 (pfg0 reference includes its neck)",
+    "repair-01 refused on 3 shells; components declared, repair rerun",
+    "browsOnHair 0.63; user \"Accept both, check in client (Recommended)\"",
+    "palette: auto hair 168 grey-olive -> 62 white for the silver waves; 0:17 1:62 8:114 9:120",
+    "client v4: tattoo2 mark above the anatomical-right brow and yellow flecks in the fringe; user \"Fix all three\": rules own04 limit the horn rule to the measured horn parts, flecks to hair, mark to skin (ownership-02, palette-03)",
+    "client v5: forehead and fringe clean; horns gold-brown with darker roots (unchanged, metal tone reference kept)"
+   ]
+  },
+  {
+   "head": "troll-female-c",
+   "design": "Duskforge",
+   "batch": 10,
+   "slot": "pfg0_head023",
+   "resources": {
+    "mdl": {
+     "name": "pfg0_head023.mdl",
+     "sha256": "5d769a0192cb9bcc9c4f6156ef671d944f0efc772081e4e6120c1a9cf20a25fb",
+     "bytes": 1286588
+    },
+    "plt": {
+     "name": "pfg0_head023.plt",
+     "sha256": "1177837cf35bd4c43b04414398a29c65cc29cc04ce9ea55219bee25f6eec3f57",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false,
+    "material": "pfg0_head023",
+    "channels": [
+     0,
+     1,
+     2,
+     8,
+     9
+    ],
+    "reason": "Mixed accessory channels retain the legacy material; review their separate material response."
+   },
+   "paletteRows": {
+    "0": 118,
+    "1": 133,
+    "2": 0,
+    "3": 0,
+    "8": 115,
+    "9": 120
+   },
+   "features": {
+    "face": "adult broad Troll face, heavy brow and deep copper-brown skin, two thick symmetrical upward curved horns and two short blunt tusks; long matte indigo-black curls hanging below the jaw in a continuous rear curtain with temples exposed, both pointed ears visible, hazel irises. mild thoughtfulness with a tiny inner-brow motion. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Troll ears, anatomically attached, visible in front of the curls.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two thick symmetrical horns curving upward from the temples, one arc each.",
+    "tusks": "Two short blunt ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long matte indigo-black curls hanging below the jaw in a continuous rear curtain, temples exposed; black brows.",
+    "beard": "Absent.",
+    "cyberware": "One small satin titanium temple implant with a single dark inset groove on the anatomical right side, below the horn root and entirely visible. Anatomical right (image-left); one implant total."
+   },
+   "designSha256": "d98a26f7da651108c47a75f4d44ced050870636db650f7a5f56bf4f481271e7d",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-female-03",
+    "sourceDraft": 2
+   },
+   "geometrySubmissions": 2,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "troll-20261120-000402921209",
+    "trialHak": "srn_rh_tro5.hak",
+    "actors": [
+     "sr_h_actor26",
+     "sr_h_actor27"
+    ],
+    "gallery": "pfg0_head023-client.jpg",
+    "gallerySha256": "2a2f25df3eaab15a38f5dc22c072f58c982318a7f236b7f39b58305935708dc9",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor26-three-1.png",
+      "sha256": "cf5613dfd18e8f9a32148d2e127b8368c2d0e8df8df6ed727a5997a61c9c40d5"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor26-threeleft-1.png",
+      "sha256": "53fbb8088b6216e74469dd2258757317e5ecd972ab461df64fb683de474b7554"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor26-backright-1.png",
+      "sha256": "40adc4badedd2640949635e3920ef7585fc05f0ee51306c6799d19193daebaac"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor26-backleft-1.png",
+      "sha256": "1c92a56da15fe04a0339db133a5ee8b71bed195895a0dee16e448ad20e5c7a71"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor26-motion-1.png",
+      "sha256": "68d0ecd90bfb5d221f4423d09458f5fe7908dcf15190a2255912c9a61af3c188"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor27-front-1.png",
+      "sha256": "d7857f5aa22b1b4c644ccc9824bc8135e743cfbce56ad0301c80a1acf2228b8b"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; female troll fit start x1.0 / -0.015 (pfg0 reference includes its neck)",
+    "anatomical-right temple implant on metal1; palette 0:118 1:133 8:115 9:120",
+    "render-01 failed while Comfy Desktop was down after the reboot (render lease reads its queue); rerun after the user restarted it",
+    "client v4/v5: clean; implant draws stock metal row 0 (RUNBOOK 482)"
+   ]
+  },
+  {
+   "head": "troll-female-d",
+   "design": "Oxbow",
+   "batch": 10,
+   "slot": "pfg0_head024",
+   "resources": {
+    "mdl": {
+     "name": "pfg0_head024.mdl",
+     "sha256": "fe83b12e890035b06605eaf90994063f8bea82413c7e516b4340a9b2e24f7406",
+     "bytes": 1240732
+    },
+    "plt": {
+     "name": "pfg0_head024.plt",
+     "sha256": "443e4f71359f7773fa09af4ee3985b38085aee9a32e275dd1555f37cda31eb3e",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false,
+    "material": "pfg0_head024",
+    "channels": [
+     0,
+     1,
+     2,
+     8,
+     9
+    ],
+    "reason": "Mixed accessory channels retain the legacy material; review their separate material response."
+   },
+   "paletteRows": {
+    "0": 2,
+    "1": 4,
+    "2": 0,
+    "3": 0,
+    "8": 115,
+    "9": 120
+   },
+   "features": {
+    "face": "adult compact wide Troll face, ochre olive skin and subtle cheek dermal plates, two stout horns with one outward-and-up arc each and two short lower tusks; soft cropped copper waves, pointed ears, dark green irises. faint curiosity with one eyebrow barely higher. Adult front-facing head, no exposed neck.",
+    "ears": "Two large pointed Troll ears, anatomically attached, standing clear of the waves.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two stout horns with one outward-and-up arc each from the temples.",
+    "tusks": "Two short ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Soft cropped copper waves with a full crown and a closed rear; copper brows.",
+    "beard": "Absent.",
+    "cyberware": "One low-profile matte cool-steel datajack with a single dark recessed port on the viewer's left temple below the horn root, clear of the cheek dermal plates. Anatomical right (image-left); one datajack total."
+   },
+   "designSha256": "0260b7051d4a9318433e87764b5fad4cbf2f7b2409fd3a2800227cad2ab73d61",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-female-04",
+    "sourceDraft": 2
+   },
+   "geometrySubmissions": 2,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "troll-20261120-000402921209",
+    "trialHak": "srn_rh_tro5.hak",
+    "actors": [
+     "sr_h_actor39",
+     "sr_h_actor40"
+    ],
+    "gallery": "pfg0_head024-client.jpg",
+    "gallerySha256": "8a1d19e31072a88e2945b0ec01181bbe4d4b1875ac263c3ddb14a2674aa8a2b4",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor39-three-1.png",
+      "sha256": "8cb44732d2384cc7162ebe1bea8c88f563ac79e8245ccdfca272180c265ad45c"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor39-threeleft-1.png",
+      "sha256": "6f272a8d5d3d9bf37e4c99518f69a4519c697dc4e7bdf4612da8a470d37d61f1"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor39-backright-1.png",
+      "sha256": "32114beca42738fe841c00868a199688ab4f2df50e91b154fef01b40088d6ddd"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor39-backleft-1.png",
+      "sha256": "ecaed6b0043d7cac3f032893673d1696e361d51017aad57b940363e01db26440"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor39-motion-1.png",
+      "sha256": "dbba844c971f3db45fd26d96fc746fa7af0048005dd9b099ee45cf95de21c490"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor40-front-1.png",
+      "sha256": "f27d58906ddf96ca1a4f8eb2672eaed824166560dc1d2a3358d3f33aa819cb1f"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; female troll fit start x1.0 / -0.015 (pfg0 reference includes its neck)",
+    "anatomical-right datajack on metal1, cheek plates; ears kept skin by a lateral colour box (own05)",
+    "palette 0:2 1:4 8:115 9:120",
+    "render-01 failed while Comfy Desktop was down; rerun",
+    "client v4: lower third of each horn hair-owned (baked copper); user \"Fix all three\": rules own08 add horn-root silhouette outlines from headkit protrusion faces (xy+zy) and tattoo2 toneMatch human-female-skin-v1 (ownership-02, palette-03)",
+    "client v5: horns ivory to the root; small dark spot at the inner root of the anatomical-right horn accepted with the batch"
+   ]
+  },
+  {
+   "head": "troll-female-e",
+   "design": "Moonquarry",
+   "batch": 10,
+   "slot": "pfg0_head025",
+   "resources": {
+    "mdl": {
+     "name": "pfg0_head025.mdl",
+     "sha256": "7401db6b08310d862f7422c16f64168e31c9479be1cab55a3ce32830ac540735",
+     "bytes": 1235324
+    },
+    "plt": {
+     "name": "pfg0_head025.plt",
+     "sha256": "abf50fe8faee0a1dbf13fb3bd26c1a42231cb795af92cbdcf0fcd0b42d912f77",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true,
+    "material": "oldf_head",
+    "channels": [
+     0,
+     1,
+     8,
+     9
+    ]
+   },
+   "paletteRows": {
+    "0": 118,
+    "1": 50,
+    "2": 0,
+    "3": 0,
+    "8": 115,
+    "9": 120
+   },
+   "features": {
+    "face": "adult strongly shaped Troll jaw and broad cheekbones, cool dark brown skin, two short thick tapered ivory horns with a continuous upward arc, two short lower tusks and large pointed ears; long platinum curls in two broad braids extending below the jaw with a continuous rear hair mass and rich brown irises. calm confidence with the smallest closed-lip corner lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two large pointed Troll ears, anatomically attached, standing clear of the curls.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two short thick tapered ivory horns, one continuous upward arc each.",
+    "tusks": "Two short ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Long platinum curls in two broad braids extending below the jaw with a continuous rear hair mass; platinum brows.",
+    "beard": "Absent.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "762de3e043819c5f6395cd60fa5e750492b05da9c890ef92fcc1d6c3acba5334",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-female-05",
+    "sourceDraft": 2
+   },
+   "geometrySubmissions": 3,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "troll-20261120-000402921209",
+    "trialHak": "srn_rh_tro5.hak",
+    "actors": [
+     "sr_h_actor52",
+     "sr_h_actor53"
+    ],
+    "gallery": "pfg0_head025-client.jpg",
+    "gallerySha256": "0bbcc8f9930ee56630464288d87c12859107ad239a7fb7c14a19daa7027a62fa",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor52-three-1.png",
+      "sha256": "fec9d3a5d1c2f11c5cd81b2a3abbe71c52e5527ff8916c5e53502a2914eec5bc"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor52-threeleft-1.png",
+      "sha256": "d67656c054dfcb830f828faab8bbf30fb9c4a345fb144333cb4aa7bee6a0b1b4"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor52-backright-1.png",
+      "sha256": "fdfcf2fd75d6ae1ee55397ae7e8d750f1c70c1c239fb7298953036cdce4c62e9"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor52-backleft-1.png",
+      "sha256": "235b27b439e9decefa72f8b6600ce74a7ffaa6c30221f84ec9dfd85a4838c9d9"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor52-motion-1.png",
+      "sha256": "c37256214209d73d6c0bb301fb24bae72d38f7cf91b4e6ef0526472a653ec2ec"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor53-front-1.png",
+      "sha256": "f2f15b91379ef405df59081abc0579d2c1027587ca374e0bc236b19b4d5de05f"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; female troll fit start x1.0 / -0.015 (pfg0 reference includes its neck)",
+    "palette 0:118 1:50 8:115 9:120 (platinum braids, hair 50 as elf-female-b/dwarf-female-d)",
+    "client v4: black notch at the hairline beside the anatomical-left horn; user \"Fix all three\": dark skin texels in the hornR outline corner go to skin (own04) and tattoo2 toneMatch human-female-skin-v1 (ownership-02, palette-04)",
+    "client v5: hairline clean, horns ivory"
+   ]
+  },
+  {
+   "head": "troll-male-a",
+   "design": "Anvil",
+   "batch": 9,
+   "slot": "pmg0_head021",
+   "resources": {
+    "mdl": {
+     "name": "pmg0_head021.mdl",
+     "sha256": "9119e83f3d2b3edebbc5298d38b6c9b20e3b2fadc8132644f1b6f5f351f4997c",
+     "bytes": 1200892
+    },
+    "plt": {
+     "name": "pmg0_head021.plt",
+     "sha256": "cd04d9e9ae0d197e4c16f1c96239e0a5cb98a32698eff7000641900f0a79c947",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true,
+    "material": "oldm_head",
+    "channels": [
+     0,
+     1,
+     8,
+     9
+    ]
+   },
+   "paletteRows": {
+    "0": 119,
+    "1": 63,
+    "2": 0,
+    "3": 0,
+    "8": 35,
+    "9": 120
+   },
+   "features": {
+    "face": "adult massive square Troll jaw, broad heavy brow and subtly pebbled warm brown skin, two thick compact dark-ivory horns curving upward once at the temples, two short ivory lower tusks and large pointed ears; dense short charcoal coils, cropped beard, amber irises. quiet attention with a tiny eyebrow lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two large pointed Troll ears, anatomically attached, standing clear of the coils.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two thick compact dark-ivory horns, one upward curve each from the temples.",
+    "tusks": "Two short ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Dense short charcoal coils with a full crown and a closed rear; dark charcoal brows.",
+    "beard": "Cropped dense charcoal beard covering the jaw and chin.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "69b522ea33f4c965f591b56400224ce1b04b813c741b0e16f4cd2e799f32bb22",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-male-01",
+    "sourceDraft": 1
+   },
+   "geometrySubmissions": 1,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "troll-20261119-175030968702",
+    "trialHak": "srn_rh_tro3.hak",
+    "actors": [
+     "sr_h_actor0",
+     "sr_h_actor1"
+    ],
+    "gallery": "pmg0_head021-client.jpg",
+    "gallerySha256": "38853e0b92be5738faee8f28640cbd47cfa8972e6cbacdadb3771080ac159fbc",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "001-inspect-sr_h_actor0-three-1.png",
+      "sha256": "3252fe06129b29b043c094cf74d6f9e8217d43427092fdeff47545c1eb694c05"
+     },
+     {
+      "view": "threeleft",
+      "frame": "002-inspect-sr_h_actor0-threeleft-1.png",
+      "sha256": "707110a8ce72ebf4e4a96187f3d3df7f4e9e6c20c4852b27daaece1fbc3e3ea1"
+     },
+     {
+      "view": "backright",
+      "frame": "003-inspect-sr_h_actor0-backright-1.png",
+      "sha256": "6845101109b56e83e0d00b3aa8eec6ea391dd398c5c050d73bd09a24805b6807"
+     },
+     {
+      "view": "backleft",
+      "frame": "004-inspect-sr_h_actor0-backleft-1.png",
+      "sha256": "05c0937b3296448478744ee3847d5583622b4d9ac1239f78f0792302b46b2450"
+     },
+     {
+      "view": "motion",
+      "frame": "007-motion-sr_h_actor0-motion-1.png",
+      "sha256": "63624d0d11dd25ee8eb310f05b937b7be5eab807245639c59887fc6d5df9d95e"
+     },
+     {
+      "view": "alt",
+      "frame": "008-inspect-sr_h_actor1-front-1.png",
+      "sha256": "b8ccb2a86c8f82b31d50d5e8c9c8dd442a28519b8d155466f2c705d28ee90461"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; troll build allowance r3 x1.5 at export; fit start x1.2",
+    "geometry-0001 approved (\"Approve four, retry Deepwell (Recommended)\"); rear coil holes: local seal chains failed, user \"Judge in the client (Recommended)\"",
+    "browsOnHair 0.82; user \"Accept 0.82, check in client\"",
+    "client v1: hair 115 decoded olive -> 63, iris olive -> 35; final palette 0:119 1:63 8:35 9:120 (attempt-04)",
+    "client v3: black coils and beard, amber eyes, brows full; rear holes not visible at the tour angles; light flecks at the beard edge remain (known)"
+   ]
+  },
+  {
+   "head": "troll-male-b",
+   "design": "Siltstone",
+   "batch": 9,
+   "slot": "pmg0_head022",
+   "resources": {
+    "mdl": {
+     "name": "pmg0_head022.mdl",
+     "sha256": "6186e6e553f750a50571768f3f722e6443021e8ff3fdd1faef95e67a89e7f16d",
+     "bytes": 1302236
+    },
+    "plt": {
+     "name": "pmg0_head022.plt",
+     "sha256": "a8b6c8b5b7b7957013cb5ab356fcb0b807524d2e97abbb81ebe52993fe85fd5e",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true,
+    "material": "oldm_head",
+    "channels": [
+     0,
+     1,
+     8,
+     9
+    ]
+   },
+   "paletteRows": {
+    "0": 65,
+    "1": 60,
+    "2": 0,
+    "3": 0,
+    "8": 111,
+    "9": 120
+   },
+   "features": {
+    "face": "mature long broad Troll face, cool granite-brown skin and subtle dermal plates, two short thick upward-curving ivory horns with rounded roots and two small lower tusks; salt-and-pepper jaw-length swept waves that leave both horns and ears fully visible, clean-shaven chin, olive irises. mild focus with very slight inner-brow tension. Adult front-facing head, no exposed neck.",
+    "ears": "Two large pointed Troll ears, anatomically attached, visible in front of the waves.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two short thick upward-curving ivory horns with rounded roots, one curve each.",
+    "tusks": "Two small ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Salt-and-pepper jaw-length swept waves with a full crown and a continuous rear below the jaw, leaving both horns and ears visible; grey brows.",
+    "beard": "Absent; clean-shaven chin.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "784815ff965aecf579204e698a3ecc721c6e81a8c0fa66043dd339690a4296e5",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-male-02",
+    "sourceDraft": 2
+   },
+   "geometrySubmissions": 1,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "troll-20261119-175030968702",
+    "trialHak": "srn_rh_tro3.hak",
+    "actors": [
+     "sr_h_actor13",
+     "sr_h_actor14"
+    ],
+    "gallery": "pmg0_head022-client.jpg",
+    "gallerySha256": "0d4b1755e46448b061aca2bc517dc45271be5cd042276087e5b47b0f20055ae9",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "010-inspect-sr_h_actor13-three-1.png",
+      "sha256": "602c6d4bad001d0f7cf23e3c5a0056daaa3b22c68f6ae36650ce1b1a2d9d5af5"
+     },
+     {
+      "view": "threeleft",
+      "frame": "011-inspect-sr_h_actor13-threeleft-1.png",
+      "sha256": "68c55c68c577dae9a6d9be50d6ad50c102f15ed7b173a8a18bd7841523dd22ca"
+     },
+     {
+      "view": "backright",
+      "frame": "012-inspect-sr_h_actor13-backright-1.png",
+      "sha256": "681222677f5fb1892c40a914c8e5927689cb6ff9babd5e15b68bbe79679a60e1"
+     },
+     {
+      "view": "backleft",
+      "frame": "013-inspect-sr_h_actor13-backleft-1.png",
+      "sha256": "64e072d1ef693d6fa5ae388e35d9feeb4080626d9893a08c35f6acf7ace2ee95"
+     },
+     {
+      "view": "motion",
+      "frame": "016-motion-sr_h_actor13-motion-1.png",
+      "sha256": "96746161f39d2526086a53a5f8caf88329ba6579e0cbd869a44316d03959aff4"
+     },
+     {
+      "view": "alt",
+      "frame": "017-inspect-sr_h_actor14-front-1.png",
+      "sha256": "1c9a5ddbce801134e1bd20a8b15c63f55a71684e28fdf144749f34ca33afd6cb"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; troll build allowance r3 x1.5 at export; fit start x1.2",
+    "geometry-0001 approved (\"Approve four, retry Deepwell (Recommended)\")",
+    "palette 0:65 1:60 8:111 9:120 (grey streaked hair)",
+    "client v1-v3: grey hair with white streak, tusks and horns good; the back of the horns reads darker at the rear angles"
+   ]
+  },
+  {
+   "head": "troll-male-c",
+   "design": "Fuse",
+   "batch": 9,
+   "slot": "pmg0_head023",
+   "resources": {
+    "mdl": {
+     "name": "pmg0_head023.mdl",
+     "sha256": "360e9944e5a6cf448ca4ecd8c5cc732ef9300b37d921ab37b15ac988371dc89c",
+     "bytes": 1270620
+    },
+    "plt": {
+     "name": "pmg0_head023.plt",
+     "sha256": "e3b8b6e29483951b0d6307690c04b21815826fbfe52ce83e288d04b7ca7d69d3",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true,
+    "material": "oldm_head",
+    "channels": [
+     0,
+     1,
+     8,
+     9
+    ]
+   },
+   "paletteRows": {
+    "0": 3,
+    "1": 159,
+    "2": 0,
+    "3": 0,
+    "8": 157,
+    "9": 120
+   },
+   "features": {
+    "face": "adult wide heavy Troll face with a broad flat nose and copper-ochre skin, two thick horn roots and tips curving outward then slightly upward in one arc each, two blunt lower tusks; full short dark-red hair, neat moustache, brown irises. soft warmth with closed lips and a tiny smile. Adult front-facing head, no exposed neck.",
+    "ears": "Two pointed Troll ears, anatomically attached, visible in front of the hair.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two thick horns curving outward then slightly upward from the temples, one arc each.",
+    "tusks": "Two blunt ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Full short dark-red hair with a full crown and a closed rear reaching the jaw at the sides; dark-red brows.",
+    "beard": "Neat dark-red moustache only.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "99da10384e0b610bd626f9f074fd66294fb53d3d240d59938b5f2e37d786bae2",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-male-03",
+    "sourceDraft": 2
+   },
+   "geometrySubmissions": 1,
+   "reviewedNativeAttempt": "attempt-02",
+   "clientEvidence": {
+    "session": "troll-20261119-175030968702",
+    "trialHak": "srn_rh_tro3.hak",
+    "actors": [
+     "sr_h_actor26",
+     "sr_h_actor27"
+    ],
+    "gallery": "pmg0_head023-client.jpg",
+    "gallerySha256": "c6e7b5c563bcae4275d4a4b41dd7c5bd09d424de880eb87922395c769b289592",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "019-inspect-sr_h_actor26-three-1.png",
+      "sha256": "273a7d99bfd4587e28ff390eba602fd86d8c65dcef66fc8dd732ce7241db3810"
+     },
+     {
+      "view": "threeleft",
+      "frame": "020-inspect-sr_h_actor26-threeleft-1.png",
+      "sha256": "554d679eeadf04b990e94b8d1e6f592170cf001d533d688db47225f464b906f6"
+     },
+     {
+      "view": "backright",
+      "frame": "021-inspect-sr_h_actor26-backright-1.png",
+      "sha256": "b493cf89eddc4ba97633cc1fc148d8e6d8c0027b778898ac288d4593e2a58bd0"
+     },
+     {
+      "view": "backleft",
+      "frame": "022-inspect-sr_h_actor26-backleft-1.png",
+      "sha256": "9d74d96962e2a712899ada79cf835e7ee2aa7a86d5318efcf6589ffda5a38728"
+     },
+     {
+      "view": "motion",
+      "frame": "025-motion-sr_h_actor26-motion-1.png",
+      "sha256": "c0022c344f6cfa9935a036926b7a433de353a719ad094a61728f514aa3f19203"
+     },
+     {
+      "view": "alt",
+      "frame": "026-inspect-sr_h_actor27-front-1.png",
+      "sha256": "8c8e6d9040485e81b5ba2ffb378d79b4ed9fef5c4e68dce5c56a7d5929a9f702"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; troll build allowance r3 x1.5 at export; fit start x1.2",
+    "geometry-0001 approved; appearance reseed (\"Reseed appearance (Recommended)\")",
+    "browsOnHair 0.757 under the upper-lid guard; user \"Accept 0.75, check in client (Recommended)\"; muted moustache on skin, user \"Accept on skin, check in client (Recommended)\"",
+    "client v2: red ear-canal flecks; ear-canal skin boxes (b9c-own05, ownership attempt-03); palette 0:3 1:159 8:157 9:120",
+    "client v3: ears skin with a few small pink specks deep in the canals; user \"Accept, close the batch\"; horn-root speckles and orange-tan skin remain (known)"
+   ]
+  },
+  {
+   "head": "troll-male-d",
+   "design": "Deepwell",
+   "batch": 9,
+   "slot": "pmg0_head024",
+   "resources": {
+    "mdl": {
+     "name": "pmg0_head024.mdl",
+     "sha256": "6f554224feb20cc50bae0fe1a56b7681e874854c54b2c531e5224e5deabf99e7",
+     "bytes": 1393020
+    },
+    "plt": {
+     "name": "pmg0_head024.plt",
+     "sha256": "a5e9349e925767e63369d0dc8c12a589e65a4ae018a0767ce4f1c7c2c9b48627",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": false,
+    "material": "pmg0_head024",
+    "channels": [
+     0,
+     1,
+     2,
+     8,
+     9
+    ],
+    "reason": "Mixed accessory channels retain the legacy material; review their separate material response."
+   },
+   "paletteRows": {
+    "0": 6,
+    "1": 134,
+    "2": 0,
+    "3": 0,
+    "8": 123,
+    "9": 120
+   },
+   "features": {
+    "face": "adult very broad Troll jaw and dark umber skin, two short thick swept side horns each a single compact arc, two ivory lower tusks and large pointed ears; medium blue-black natural twists reaching the jaw behind the ears, full scalp and clear temples, clean shaven, muted hazel irises. slightly skeptical with one brow subtly higher. Adult front-facing head, no exposed neck.",
+    "ears": "Two large pointed Troll ears, anatomically attached, standing clear in front of the twists.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two short thick horns swept out to the sides, one compact arc each.",
+    "tusks": "Two ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Medium blue-black natural twists with a full scalp and clear temples, hanging behind the ears to below the jaw; blue-black brows.",
+    "beard": "Absent; clean shaven.",
+    "cyberware": "One flush matte titanium oval datajack on the anatomical left temple, below the horn root and apart from the ear. Anatomical left (image-right); one datajack total."
+   },
+   "designSha256": "08b1ed360f835394897e1e1ef49a20665267d97c54efa4856be2584acb8312db",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-male-04",
+    "sourceDraft": 2
+   },
+   "geometrySubmissions": 9,
+   "reviewedNativeAttempt": "attempt-01",
+   "clientEvidence": {
+    "session": "troll-20261119-175030968702",
+    "trialHak": "srn_rh_tro3.hak",
+    "actors": [
+     "sr_h_actor39",
+     "sr_h_actor40"
+    ],
+    "gallery": "pmg0_head024-client.jpg",
+    "gallerySha256": "fee9922ec97b0c1ad6077982f34669fc439aba19202db46d3a7fa1858335d3e9",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "028-inspect-sr_h_actor39-three-1.png",
+      "sha256": "2c3a7b8f75972118097d213cdfbe3a465c0d7e33d78a6eccc2bd8697fafbe7a5"
+     },
+     {
+      "view": "threeleft",
+      "frame": "029-inspect-sr_h_actor39-threeleft-1.png",
+      "sha256": "b41d0e57934a88f219e0607fb14b52f34a6f1a2fb57af7b8bf161f572eeba713"
+     },
+     {
+      "view": "backright",
+      "frame": "030-inspect-sr_h_actor39-backright-1.png",
+      "sha256": "7a1c97010dec170ab57e1431bb0ba0afd8792bf5cd98eab75e391b8e027a283e"
+     },
+     {
+      "view": "backleft",
+      "frame": "031-inspect-sr_h_actor39-backleft-1.png",
+      "sha256": "e659f079bc2f57dcb677f2e1c0e690420870501f9e74a47b4df7d56f4799af8d"
+     },
+     {
+      "view": "motion",
+      "frame": "034-motion-sr_h_actor39-motion-1.png",
+      "sha256": "84360073933f8fc862cfe38d8e864ad44025f88a1c6beaacb48225b8ab08638d"
+     },
+     {
+      "view": "alt",
+      "frame": "035-inspect-sr_h_actor40-front-1.png",
+      "sha256": "07b55287706b42af6392fc4ecaf4bea27b35251e7ec588c0085ff3ed4be78812"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; troll build allowance r3 x1.5 at export; fit start x1.2",
+    "geometry stopped on VRAM five times (12.0-12.5e9); user \"Increase the cap slightly\": geometry-0007 at a one-job 12.7e9 Comfy cap (peak 12.378e9), workspace.json restored byte-identically; user \"Approve, judge horns later\"",
+    "repair-01 stand-off 0.504% and fine-relief extent 4.38%; user \"Allow 0.51% / 4.5% here (Recommended)\"; repair genus 263 from twists (judged at render/client, RUNBOOK 469)",
+    "unwrap coverage 0.182, offline chart replays 0.166-0.179; user \"Allow floor 0.17 (Recommended)\"",
+    "bake eyes broken (whites with a pupil dot); masks-01 reference-eye proposal selected, masks-02",
+    "rules b9d-own01: twists and brows hair, horns and tusks tattoo2, datajack metal1; roles passed with no exceptions",
+    "palette: auto 0:5 1:134 8:115 9:168; skin 117 came out pale after the body-neck anchor (RUNBOOK 495), final 0:6 1:134 8:123 9:120 (attempt-03)",
+    "client v3: horns read clearly as ivory arcs, dark umber skin matches the body, hazel eyes; datajack draws dark (stock metal row 0, RUNBOOK 482)"
+   ]
+  },
+  {
+   "head": "troll-male-e",
+   "design": "Moraine",
+   "batch": 9,
+   "slot": "pmg0_head025",
+   "resources": {
+    "mdl": {
+     "name": "pmg0_head025.mdl",
+     "sha256": "7ba892ffef386907982bc97dc84e956d7bf7dcbd56868a607cd8e36c9b850821",
+     "bytes": 1299100
+    },
+    "plt": {
+     "name": "pmg0_head025.plt",
+     "sha256": "7069a4846e1cac85b31e38a40be38a32587d775d844039b47bf281ea6d9eaafc",
+     "bytes": 2097176
+    }
+   },
+   "triangles": 20000,
+   "nativeMaterial": {
+    "policy": "stock-organic-head-v1",
+    "applied": true,
+    "material": "oldm_head",
+    "channels": [
+     0,
+     1,
+     8,
+     9
+    ]
+   },
+   "paletteRows": {
+    "0": 75,
+    "1": 62,
+    "2": 0,
+    "3": 0,
+    "8": 123,
+    "9": 120
+   },
+   "features": {
+    "face": "older broad round Troll face with cool gray-olive subtly textured skin, two solid stout horn curves aimed upward and outward, two short lower tusks and prominent pointed ears; dense long silver coils tied back behind the horns in a coherent rear mass extending below the jaw, trimmed silver moustache, amber-gray irises. near-neutral confidence with a tiny mouth-corner lift. Adult front-facing head, no exposed neck.",
+    "ears": "Two prominent pointed Troll ears, anatomically attached, standing clear of the coils.",
+    "brows": "Two natural brows with their own hair pigment; keep brow colour off the eyelids.",
+    "horns": "Two solid stout horns, one curve each aimed upward and outward.",
+    "tusks": "Two short ivory lower tusks rising outside the closed lips.",
+    "piercings": "Absent.",
+    "tattoo": "Absent.",
+    "scars": "Absent.",
+    "hair": "Dense long silver coils tied back behind the horns in a coherent rear mass extending below the jaw; silver brows.",
+    "beard": "Trimmed silver moustache only.",
+    "cyberware": "Absent."
+   },
+   "designSha256": "0e75bbabe6edc56b1961f2c7e07bb5eadfcd7600b42c5e91e8f42781e228ec23",
+   "designSource": {
+    "generator": "Built-in ImageGen, V4 reference library",
+    "sourceHead": "troll-male-05",
+    "sourceDraft": 1
+   },
+   "geometrySubmissions": 1,
+   "reviewedNativeAttempt": "attempt-03",
+   "clientEvidence": {
+    "session": "troll-20261119-175030968702",
+    "trialHak": "srn_rh_tro3.hak",
+    "actors": [
+     "sr_h_actor52",
+     "sr_h_actor53"
+    ],
+    "gallery": "pmg0_head025-client.jpg",
+    "gallerySha256": "29238037a07b6775149496be6d625c28ffd28fb19276debde5ddf3866ed2dd78",
+    "frames": [
+     {
+      "view": "three",
+      "frame": "037-inspect-sr_h_actor52-three-1.png",
+      "sha256": "8c7c81efdbebe0f7ebc5ea1b0c807e9bc0b50ec02387cbeb9ee0c670de6b994c"
+     },
+     {
+      "view": "threeleft",
+      "frame": "038-inspect-sr_h_actor52-threeleft-1.png",
+      "sha256": "8a80d3a6e59d7525e4f7875024307fa4a7ad837b017658ee9d03c0d7c0daaadf"
+     },
+     {
+      "view": "backright",
+      "frame": "039-inspect-sr_h_actor52-backright-1.png",
+      "sha256": "240800cff192f09bd33a06fc001959b1b10b54c18e982a0b89384d6a8572efe6"
+     },
+     {
+      "view": "backleft",
+      "frame": "040-inspect-sr_h_actor52-backleft-1.png",
+      "sha256": "3a39b4ca875a9a7ecd40e5d5cfe543075701f340f9865677cfcb5dea6d9b03ca"
+     },
+     {
+      "view": "motion",
+      "frame": "043-motion-sr_h_actor52-motion-1.png",
+      "sha256": "6d8d55968fcf60a0741f38e8fa0142d01597c103bf4c9892670d16e3db727960"
+     },
+     {
+      "view": "alt",
+      "frame": "044-inspect-sr_h_actor53-front-1.png",
+      "sha256": "336efce5ca6da6e6ae806941a2a2e5b094d11bf61547b24d1ff8532652b2d3cc"
+     }
+    ]
+   },
+   "reviewNotes": [
+    "horns and tusks on tattoo2 (channel 9) row 120 ivory; troll build allowance r3 x1.5 at export; fit start x1.2",
+    "geometry-0001 approved; appearance reseed (\"Reseed appearance (Recommended)\")",
+    "bake-02 approval note wrongly said the eyes were open with irises; they were dark smudges at native size. Corrected by the masks-01 eye proposal and a masks rerun (masks-02 notes)",
+    "repair note says \"anatomical-left ear\"; the hole is in the profile +X view",
+    "browsOnHair 0.79; user \"Accept 0.79, check in client (Recommended)\"; lipHair fixed with moustache y>0.38",
+    "client v1: iris orange-red -> 123; client v2: white ear-canal flecks; ear-canal skin boxes (b9e-own03, ownership attempt-03); palette 0:75 1:62 8:123 9:120 (attempt-07)",
+    "client v3: a white fleck remains deep in both ear canals; user \"Accept, close the batch\""
+   ]
+  }
+ ],
+ "notes": "Every design comes from the V4 reference library; designSource names the library head and the draft used. designSubmissions (design attempts in this run) was not recorded by the batch 9 and 10 checkpoints.",
+ "review": "Claude operator client review delegated by the user; user decisions quoted in reviewNotes. Exact client-reviewed native bytes; publication reruns nothing."
+}
