@@ -2222,6 +2222,19 @@ exceptions and limitations are in that document and its JSON manifest. The heads
 materials; stock material and palette payloads are not redistributed. Machine bindings, intermediate models, private
 logs and generated HAKs remain outside the repository.
 
+## Head library: 10 client-reviewed troll heads (srn_head; 2026-11-20)
+
+The SRN project operator selected 10 generated Troll head designs, five male and five female.
+ImageGen supplied appearance and paired clay references; Pixal supplied geometry and saved-shape appearance.
+Headbatch/headkit performed fitting, repair, UVs, texture baking, PLT ownership/palette mapping, native compilation and
+review. The user delegated operator reviews through the private NWN:EE client, made the geometry, budget and threshold
+decisions quoted in the manifest, and authorized this publication.
+
+Only the 10 MDL/PLT pairs listed in docs/heads/head-library-trolls-v1.md are added: the exact bytes each head's final
+client session loaded. Resource and design hashes, client sessions, gallery frame hashes, user-accepted exceptions and
+limitations are in that document and its JSON manifest. Machine bindings, intermediate models, private logs and generated
+HAKs remain outside the repository.
+
 ## Modern Exterior restyle, release 1 (`srn_t_common`, `srn_t_dgt04`, `srn_door`, `srn_placeable`; 2026-11-19)
 
 The textures D20 Modern Exterior (`dgt04`) draws are restyled in place for a 2070s Shadowrun city, under the plan in
