@@ -22,6 +22,7 @@ from . import geometry, inventory, require
 BLOCK = 2  # surfacemat.2da Obscuring: no walking, and it blocks sight; envkit's raised building masses are made of it
 WALK_CUTS = 'walk-cuts.json'  # {tileset, models: {model: {aabbFrom, aabbTo, wokFrom, wokTo, footprints}}}
 NEAR = 1e-4
+MENDS = 20000  # splits mending a cut walkmesh may take before it is called stuck
 STOREY = 1.0  # metres: a face this close to a piece's base, over its footprint, is the roof it stands on
 
 
@@ -41,6 +42,44 @@ def hull(points):
             upper.pop()
         upper.append(point)
     return lower[:-1] + upper[:-1]
+
+
+def outline(points, sides=8):
+    """A convex outline of (x, y) points with at most `sides` corners, holding all of them: their hull where it has no
+    more, else the `sides`-sided polygon of the lines bounding them in evenly turned directions. A round piece's hull
+    has a corner for every facet, and every corner is a cut the roof's walkmesh is split and mended along (a tank's
+    stalled the mend, 2026-11-20)."""
+    found = _squared(hull(points))
+    if len(found) <= sides:
+        return found
+    normals = [(math.cos(2 * math.pi * k / sides), math.sin(2 * math.pi * k / sides)) for k in range(sides)]
+    reach = [max(x * nx + y * ny for x, y in found) for nx, ny in normals]; corners = []
+    for k in range(sides):  # where the bounding line of each direction meets the next one's
+        (ax, ay), (bx, by), da, db = normals[k], normals[(k + 1) % sides], reach[k], reach[(k + 1) % sides]
+        det = ax * by - ay * bx; corners.append(((da * by - ay * db) / det, (ax * db - da * bx) / det))
+    return _squared(hull(corners))
+
+
+SHORTEST = 0.05  # metres: no footprint side is shorter. A bevelled corner's short side, cut out of a roof face whose long side it all but lies along, set the mend splitting the same faces back and forth (2026-11-20)
+
+
+def _squared(polygon):
+    """A convex counter-clockwise `polygon` with each side shorter than SHORTEST replaced by the corner its two
+    neighbouring sides meet at, outside it: a bevelled box's footprint becomes its square."""
+    polygon = list(polygon)
+    while len(polygon) > 3:
+        count = len(polygon)
+        short = next((k for k in range(count) if math.dist(polygon[k], polygon[(k + 1) % count]) < SHORTEST), None)
+        if short is None:
+            break
+        before, a, b, after = (polygon[(short + offset) % count] for offset in (-1, 0, 1, 2))
+        d1, d2 = (a[0] - before[0], a[1] - before[1]), (after[0] - b[0], after[1] - b[1]); det = d1[0] * d2[1] - d1[1] * d2[0]
+        if abs(det) < 1e-12:
+            break
+        t = ((b[0] - before[0]) * d2[1] - (b[1] - before[1]) * d2[0]) / det
+        meet = (before[0] + d1[0] * t, before[1] + d1[1] * t)
+        polygon = hull([point for k, point in enumerate(polygon) if k not in (short, (short + 1) % count)] + [meet])
+    return polygon
 
 
 def _side(a, b, point):
@@ -248,19 +287,32 @@ class Walkmesh:
 
     def mend(self):
         """Split every face with another face's vertex on one of its sides, until none has: no T-junctions."""
-        changed = True
+        changed, splits = True, 0
         while changed:
-            changed = False
+            changed = False; splits += 1
+            require(splits < MENDS, f'Mending the cut walkmesh did not finish in {MENDS} splits')
             for number, face in enumerate(self.faces):
+                if _thin(*(self.verts[corner] for corner in face[:3])):  # a sliver: its corners all but in a line, it holds no ground, and split it only makes more
+                    del self.faces[number]; changed = True; break
                 for side in range(3):
                     one, other = face[side], face[(side + 1) % 3]; p, q = self.verts[one], self.verts[other]
-                    between = next((index for index in self.made if index not in face[:3] and _on(p, q, self.verts[index])), None)
+                    third = self.verts[face[(side + 2) % 3]]  # a split leaving a sliver would only be split back: the corners all but in a line hold no T worth mending
+                    between = next((index for index in self.made if index not in face[:3] and _on(p, q, self.verts[index])
+                                    and not _thin(p, self.verts[index], third) and not _thin(self.verts[index], q, third)), None)
                     if between is not None:
                         third = face[(side + 2) % 3]; rest = face[3:]
                         self.faces[number:number + 1] = [(one, between, third, *rest), (between, other, third, *rest)]
                         changed = True; break
                 if changed:
                     break
+
+
+def _thin(a, b, c):
+    """Whether triangle a, b, c is a sliver: less than NEAR * 10 high over its longest side."""
+    u = [b[axis] - a[axis] for axis in range(3)]; v = [c[axis] - a[axis] for axis in range(3)]
+    twice = math.sqrt(sum(value * value for value in (u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0])))
+    longest = max(math.dist(a, b), math.dist(b, c), math.dist(c, a))
+    return longest > 0 and twice / longest < NEAR * 10
 
 
 def _on(p, q, point):

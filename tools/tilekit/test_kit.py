@@ -297,3 +297,23 @@ class FamilyLooksTest(unittest.TestCase):
         barrels = [one for one in found if one['piece'] == 'barrel']; smoke = [one for one in found if one['piece'] == 'smoke']
         self.assertTrue(1 <= len(barrels) <= 2); self.assertEqual(len(smoke), len(barrels))
         self.assertFalse({one['piece'] for one in found} & {'hvac', 'tank', 'dish', 'antenna', 'vent'})
+
+
+class MountTest(unittest.TestCase):  # cameras hung over recessed windows and glass, 2026-11-20
+    def _wall(self):
+        def square(a0, a1, z0, z1, depth, glass=False):
+            return [([(a0, z0), (a1, z0), (a1, z1)], depth, glass), ([(a0, z0), (a1, z1), (a0, z1)], depth, glass)]
+        # a wall at depth 3.0 from -5 to 5 along, 0 to 8 up, with a window set 0.3 m back from 0 to 2 along, 2.5 to 4.5 up
+        faces = square(-5, 0, 0, 8, 3.0) + square(2, 5, 0, 8, 3.0) + square(0, 2, 0, 2.5, 3.0) + square(0, 2, 4.5, 8, 3.0)
+        return faces + square(0, 2, 2.5, 4.5, 2.7, glass=True)
+
+    def test_a_camera_is_not_hung_over_a_recessed_window_and_moves_to_solid_wall(self):
+        wall = self._wall()
+        self.assertIsNone(placer._solid(wall, 1.0, 4.0)); self.assertIsNone(placer._solid(wall, 0.05, 4.0))  # over it, and on its edge
+        self.assertEqual(placer._solid(wall, -1.0, 4.0), 3.0)
+        along, z, plane = placer._mount(wall, 1.0, 4.0, -5.0, 5.0)
+        self.assertEqual(plane, 3.0); self.assertTrue(along <= -0.12 or along >= 2.12 or z - 0.24 >= 4.5)
+
+    def test_glass_flush_with_the_wall_is_no_mount_either(self):
+        glass = [([(-5, 0), (5, 0), (5, 8)], 3.0, True), ([(-5, 0), (5, 8), (-5, 8)], 3.0, True)]
+        self.assertIsNone(placer._mount(glass, 0.0, 4.0, -5.0, 5.0))

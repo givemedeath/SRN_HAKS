@@ -4,7 +4,8 @@ A placement spec says which pieces go on which tile, where and turned how far: {
 [{piece, at: [x, y, z], turn: degrees about the vertical, scale}]}}. A piece is an uncompiled model in the kit folder,
 `<piece>.mdl`, its origin where it is fixed to the building. Its rendered trimesh nodes are baked into the tile's
 coordinates, and the tile's added geometry is merged into one node per look (material and drawing settings), so a
-tile gains as few draws as the materials it adds.
+tile gains as few draws as the materials it adds. A piece with a turning head (`kit.SWEEPS`: a security camera) has
+its head as a node of its own at the pivot, swept slowly from side to side in the tile's always-on animation.
 
 A placement is refused where it would put geometry outside the tile's cell, other than flush to its side or out over
 the neighbouring street above a player's head (`geometry.overhanging`: a facade stands on the cell's side), or between `geometry.LOW` and
@@ -50,12 +51,85 @@ def is_kit(name):
 
 
 def without_kit(text):
-    """The model's text with the kit nodes an earlier run added taken out."""
-    lines, _, nodes = geometry.parse(text); drop = set()
-    for node in nodes:
-        if is_kit(node.name):
-            drop.update(range(node.start, node.end + 1))
-    return _ending(text).join(line for index, line in enumerate(lines) if index not in drop)
+    """The model's text with the kit nodes an earlier run added taken out, from its geometry and its animations (a
+    turning head's keys)."""
+    def dropped(text, gone):
+        out, skipping = [], False
+        for line in text.replace('\r\n', '\n').split('\n'):
+            words = line.split()
+            if not skipping and len(words) >= 3 and words[0].lower() == 'node' and gone(words[2]):
+                skipping = True; continue
+            if skipping:
+                skipping = not (words[:1] and words[0].lower() == 'endnode'); continue
+            out.append(line)
+        return _ending(text).join(out)
+    text = dropped(text, is_kit)
+    lines, root, nodes = geometry.parse(text); dummy = f'{root}a'.lower()  # the animation dummy `heads` added (marked), now holding nothing
+    ours = [node for node in nodes if node.name.lower() == dummy and any(line.strip() == DUMMY_MARK for line in lines[node.start:node.end])]
+    if ours and not any((node.parent or '').lower() == dummy for node in nodes):
+        text = dropped(text, lambda name: name.lower() == dummy)
+    return text
+
+
+LOOPS = ('animloop01', 'animloop02', 'animloop03')  # a tile's looping animations, each played where its AnimLoop flag is on
+STUB = 0.5  # seconds: a tile's own loop no longer than this moves nothing, so a sweep may take it and lengthen it
+KEYS = 32  # orientation keys in one sweep there and back
+DUMMY_MARK = '# tilekit: animation dummy for turning heads'  # on a dummy `heads` adds; most tiles have an empty one of their own, kept
+
+
+def heads(text, root, turning):
+    """(text, loop number) of `text` with each of `turning` [(node, look, verts, tverts, faces, pivot, turn, sweep,
+    period)] added as its own node at its pivot, its vertices about the pivot, and turned slowly from side to side about
+    the vertical in one of the tile's looping animations: `turn` ± `sweep` degrees, there and back in `period` seconds,
+    slowing at each end. The client animates only what hangs from the tile's animation dummy, <root>a, at the root's
+    origin (nwn.wiki, Animations: tile animations; heads hung from the root sat still, 2026-11-20), and plays a loop
+    only where the tile's AnimLoop flag is on (the .set's, copied into each area tile as Tile_AnimLoopN); `tiledefault`
+    only puts a tile back to rest. The loop taken is the first the tile has no moving animation in."""
+    if not turning:
+        return text, None
+    ending = _ending(text); lines = text.replace('\r\n', '\n').split('\n')
+    end = next(index for index, line in enumerate(lines) if line.split()[:1] and line.split()[0].lower() == 'endmodelgeom')
+    dummy = f'{root}a'; made = []
+    if dummy.lower() not in {node.name.lower() for node in geometry.parse(text)[2]}:
+        made += [f'node dummy {dummy}', f'  parent {root}', '  position 0.0 0.0 0.0', '  orientation 0.0 0.0 0.0 0.0', '  ' + DUMMY_MARK, 'endnode']
+    for node, look, verts, tverts, faces, pivot, turn, sweep, period in turning:
+        mesh = geometry.mesh_text(node, dummy, look, verts, tverts, faces)
+        mesh[2] = '  position ' + ' '.join(f'{value:.5f}' for value in pivot); mesh[3] = f'  orientation 0.0 0.0 1.0 {math.radians(turn):.6f}'
+        made += mesh
+    lines = lines[:end] + made + lines[end:]
+    periods = {one[-1] for one in turning}; require(len(periods) == 1, f'{root}: turning heads with different periods share one animation')
+    period = periods.pop(); keyed = {}
+    for node, _, _, _, _, pivot, turn, sweep, _ in turning:  # it stays at its pivot, and turns
+        rows = [f'      {period * step / KEYS:.5f} 0.00000 0.00000 1.00000 {math.radians(turn + sweep * math.sin(2 * math.pi * step / KEYS)):.5f}' for step in range(KEYS + 1)]
+        still = [f'      {time:.5f} ' + ' '.join(f'{value:.5f}' for value in pivot) for time in (0.0, period)]
+        keyed[node.lower()] = [f'    orientationkey {len(rows)}', *rows, f'    positionkey {len(still)}', *still]
+    _, _, nodes = geometry.parse(ending.join(lines))  # a loop lists the model's nodes in its geometry's order, as the tiles' own do
+
+    def entry(node):
+        return [f'  node {node.kind} {node.name}', f'    parent {node.parent or "null"}', *keyed.get(node.name.lower(), []), '  endnode']
+
+    def block_of(name):
+        start = next((index for index, line in enumerate(lines) if line.split()[:2] and line.split()[0].lower() == 'newanim' and line.split()[1].lower() == name), None)
+        if start is None:
+            return None
+        stop = next(index for index in range(start, len(lines)) if lines[index].split()[:1] and lines[index].split()[0].lower() == 'doneanim')
+        length = next((index for index in range(start, stop) if lines[index].split()[:1] and lines[index].split()[0].lower() == 'length'), None)
+        require(length is not None, f'{root}: its {name} animation has no length')
+        return start, stop, length
+    for number, name in enumerate(LOOPS, 1):
+        found = block_of(name)
+        if found is None:  # none yet: one of its own, before the model ends
+            done = max(index for index, line in enumerate(lines) if line.split()[:1] and line.split()[0].lower() == 'donemodel')
+            block = [f'newanim {name} {root}', f'  length {period:.4f}', '  transtime 0.0', f'  animroot {root}', *[line for node in nodes for line in entry(node)], f'doneanim {name} {root}', '']
+            return ending.join(lines[:done] + block + lines[done:]), number
+        start, stop, length = found; had = float(lines[length].split()[1])
+        if had > STUB and abs(had - period) >= 1e-3:  # it moves something of the tile's own: the next loop
+            continue
+        listed = [words[2].lower() for words in (line.split() for line in lines[start:stop]) if len(words) >= 3 and words[0].lower() == 'node']
+        require(listed == [node.name.lower() for node in nodes][:len(listed)], f'{root}: its {name} animation does not list the model\'s nodes in their order, so nodes added after them cannot be')
+        lines[length] = f'  length {period:.4f}'
+        return ending.join(lines[:stop] + [line for node in nodes[len(listed):] for line in entry(node)] + lines[stop:]), number
+    require(False, f'{root}: all three of its looping animations move parts of its own; a turning head has none to play in')
 
 
 def added(text, name, parts, mark=MARK):
@@ -68,6 +142,17 @@ def added(text, name, parts, mark=MARK):
         node = f'{name}{mark}{number:02d}'; require(node.lower() not in taken, f'{name} already has a node named {node}')
         made += geometry.mesh_text(node, root, look, verts, tverts, faces)
     return _ending(text).join(lines[:end] + made + lines[end:]), len(joined)
+
+
+def _clear(name, number, piece, faces, fixtures, walk):
+    """Refuse a wall piece's `faces` where they run into what the tile hangs on its walls already, or stand where a player walks."""
+    low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
+    high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
+    hit = sorted({fixture for fixture, point in fixtures if all(low[axis] <= point[axis] <= high[axis] for axis in range(3))})
+    require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
+    blocked = geometry.in_the_way(faces, walk)
+    require(not blocked, f'{name} #{number} ({piece}) stands where a player walks, over the walkable surface at '
+            + ', '.join(f'{heights}' for heights in list(blocked.values())[:3]) + ' m; move it off the walkable faces or above head height, or make it block (roofs only)')
 
 
 def piece_parts(kit, piece, cache):
@@ -92,7 +177,8 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     """(new text, {pieces, faces, nodes, cuts}, new .wok text or None) of a tile model with its placements added,
     refused where a piece leaves the cell or stands where a player walks. A piece that `blocks` stands on a walkable
     roof instead, and its footprint is cut out of the roof's walkmesh (`cuts`): `wok`, the tile's .wok, is cut with it."""
-    cache = {} if cache is None else cache; text = effects.without_fx(without_kit(text))
+    from .kit import SWEEPS
+    cache = {} if cache is None else cache; text = effects.without_fx(without_kit(text)); turning = []
     if pack_text is not None:  # an applied batch: its walkmesh is cut already, and cut again it refuses its own roof clutter
         require(not any(is_kit(node.name) for node in geometry.parse(pack_text)[2]), f'{name}: the pack copy has kit pieces already (an applied batch): detail it again from the copy before that apply')
         text = with_walkmesh_of(text, pack_text)
@@ -119,7 +205,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
             require(roof > geometry.HEAD, f'{name} #{number} ({piece}) blocks, and only on a roof: the walkable surface at {at} is {roof:.2f} m up, street level')
             cover = placement.get('cover')  # a block smaller than the piece: a mast's foot, not its crossbars
             if cover is None:
-                polygon, top = cuts.hull([(x, y) for _, verts, _, _ in mine for x, y, _ in verts]), max(z for _, verts, _, _ in mine for _, _, z in verts)
+                polygon, top = cuts.outline([(x, y) for _, verts, _, _ in mine for x, y, _ in verts]), max(z for _, verts, _, _ in mine for _, _, z in verts)
             else:
                 require(isinstance(cover, dict) and len(cover.get('size', ())) == 2 and isinstance(cover.get('height'), (int, float)), f'{name} #{number}: `cover` is {{size: [width, depth], height}}')
                 move = turned(at, placement.get('turn', 0.0), scale); width, depth = (value / 2 for value in cover['size'])
@@ -129,20 +215,26 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}
             require(not outside, f'{name} #{number} ({piece}) reaches past its cover where a player walks; raise that part above head height or widen `cover`')
         else:
-            low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
-            high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
-            hit = sorted({fixture for fixture, point in fixtures if all(low[axis] <= point[axis] <= high[axis] for axis in range(3))})
-            require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
-            blocked = geometry.in_the_way(faces, walk)
-            require(not blocked, f'{name} #{number} ({piece}) stands where a player walks, over the walkable surface at '
-                    + ', '.join(f'{heights}' for heights in list(blocked.values())[:3]) + ' m; move it off the walkable faces or above head height, or make it block (roofs only)')
+            _clear(name, number, piece, faces, fixtures, walk)
         parts += mine
+        if piece in SWEEPS:  # its head, a node of its own turning about the pivot: clear of everything at both ends of its sweep
+            sweep = SWEEPS[piece]; turn = placement.get('turn', 0.0); scales = tuple(scale) if isinstance(scale, list) else (scale,) * 3
+            look, verts, tverts, faces = geometry.merged(geometry.baked(piece_parts(kit, sweep['head'], cache), lambda point: tuple(value * factor for value, factor in zip(point, scales))))[0]
+            pivot = turned(at, turn, scale)(sweep['pivot'])
+            for aside in (-sweep['sweep'], 0.0, sweep['sweep']):
+                move = turned(pivot, turn + aside, 1.0); swung = [tuple(move(verts[corner]) for corner in face[:3]) for face in faces]
+                out = geometry.overhanging(swung); require(not out, f'{name} #{number} ({sweep["head"]}) leaves the cell turned {aside:+.0f} degrees, at ' + ', '.join(map(str, out[:3])))
+                _clear(name, number, sweep['head'], swung, fixtures, walk)
+            turning.append((look, verts, tverts, faces, pivot, turn, sweep['sweep'], sweep['period']))
     new, count = added(text, name, parts); new, emitters = effects.added(new, root, fx); cut = None
+    taken = {node.name.lower() for node in geometry.parse(new)[2]}; named = [f'{name}{MARK}{count + index:02d}' for index in range(len(turning))]
+    require(not taken & {one.lower() for one in named}, f'{name} already has a node named like its turning heads')
+    new, loop = heads(new, root, [(node, *head) for node, head in zip(named, turning)]); count += len(turning)
     if footprints:
         require(wok is not None, f'{name} has no .wok to cut'); new, cut = cuts.cut_walkmesh(new, wok, footprints)
     else:
         require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
-    return new, {'pieces': len(placements) - emitters, 'faces': sum(len(part[3]) for part in parts), 'nodes': count, 'effects': emitters, 'cuts': len(footprints)}, cut, footprints
+    return new, {'pieces': len(placements) - emitters, 'faces': sum(len(part[3]) for part in parts), 'nodes': count, 'effects': emitters, 'cuts': len(footprints), **({'loop': loop} if loop else {})}, cut, footprints
 
 
 def detail(repo, spec, kit, folder):

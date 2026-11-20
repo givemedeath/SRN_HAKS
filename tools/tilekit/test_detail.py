@@ -1,4 +1,5 @@
 import hashlib
+import math
 import json
 import tempfile
 import unittest
@@ -250,3 +251,56 @@ class TurnedTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TurningHeadTest(unittest.TestCase):  # cameras sweep slowly from side to side (user, 2026-11-20)
+    def _placed(self, text, turn=30.0):
+        from tools.tilekit import kit as pieces
+        with tempfile.TemporaryDirectory() as temporary:
+            folder = Path(temporary)
+            for name in ('camera', 'camera_head'):
+                (folder / f'{name}.mdl').write_text(pieces.PIECES[name]()[0].text(name), encoding='ascii')
+            return detail.place(text, 't_a01', [{'piece': 'camera', 'at': [1.0, 1.0, 13.0], 'turn': turn}], folder)
+
+    def test_a_camera_s_head_hangs_from_the_animation_dummy_swept_in_a_loop(self):
+        from tools.tilekit import kit as pieces
+        made, told, _, _ = self._placed(MODEL.format(z=10.0))
+        _, _, nodes = geometry.parse(made); head = [node for node in nodes if detail.is_kit(node.name)][-1]
+        self.assertEqual(head.name, f't_a01_kit{told["nodes"] - 1:02d}'); self.assertEqual(told['loop'], 1)
+        dummy = next(node for node in nodes if node.name == 't_a01a')  # the client animates only what hangs from it
+        self.assertEqual((dummy.kind, dummy.parent, dummy.position), ('dummy', 't_a01', (0.0, 0.0, 0.0))); self.assertEqual(head.parent, 't_a01a')
+        self.assertAlmostEqual(head.orientation[3], 0.5235988, places=5)  # turned like the mount, about the vertical
+        pivot = detail.turned([1.0, 1.0, 13.0], 30.0, 1.0)(pieces.SWEEPS['camera']['pivot'])
+        self.assertTrue(all(abs(a - b) < 1e-4 for a, b in zip(head.position, pivot)))
+        animation = made[made.index('newanim animloop01 t_a01'):made.index('doneanim animloop01 t_a01')]
+        self.assertIn('  length 24.0000', animation); self.assertNotIn('tiledefault', made)
+        self.assertEqual([line.split()[2] for line in animation.split('\n') if line.strip().startswith('node ')], [node.name for node in nodes])  # every node, in order
+        rows = animation.split('\n'); angles = [float(line.split()[4]) for line in rows[rows.index('    orientationkey 33') + 1:][:33]]
+        self.assertAlmostEqual(min(angles), math.radians(30.0 - 35.0), places=4); self.assertAlmostEqual(max(angles), math.radians(30.0 + 35.0), places=4)
+        self.assertAlmostEqual(angles[0], angles[-1])  # it loops without a jump
+        self.assertLess(made.index('endmodelgeom'), made.index('newanim')); self.assertLess(made.index('doneanim'), made.index('donemodel'))
+
+    def test_detailing_again_replaces_the_head_and_its_keys(self):
+        made, _, _, _ = self._placed(MODEL.format(z=10.0))
+        again, _, _, _ = self._placed(made)
+        self.assertEqual(again, made)
+
+    def test_a_tile_s_stub_loop_is_taken_and_a_moving_one_left_for_the_next(self):
+        stub = MODEL.format(z=10.0).replace('donemodel t_a01', 'newanim animloop01 t_a01\n  length 0.03333\n  transtime 0.0\n  animroot t_a01\n  node dummy t_a01\n    parent null\n  endnode\ndoneanim animloop01 t_a01\ndonemodel t_a01')
+        made, told, _, _ = self._placed(stub)
+        self.assertEqual((made.count('newanim animloop01'), told['loop']), (1, 1)); self.assertIn('  length 24.0000', made); self.assertNotIn('length 0.03333', made)
+        moving, told, _, _ = self._placed(stub.replace('length 0.03333', 'length 3.0'))
+        self.assertEqual(told['loop'], 2); self.assertIn('length 3.0', moving); self.assertIn('newanim animloop02 t_a01', moving)
+
+
+class OutlineTest(unittest.TestCase):
+    def test_a_round_footprint_is_cut_as_an_octagon_holding_it(self):
+        circle = [(math.cos(angle) * 0.9, math.sin(angle) * 0.9) for angle in (2 * math.pi * k / 40 for k in range(40))]
+        found = cuts.outline(circle)
+        self.assertLessEqual(len(found), 8)
+        self.assertTrue(all(cuts._side(found[k], found[(k + 1) % len(found)], point) >= -1e-6 for k in range(len(found)) for point in circle))
+        self.assertEqual(cuts.outline([(0, 0), (1, 0), (1, 1), (0, 1)]), cuts.hull([(0, 0), (1, 0), (1, 1), (0, 1)]))
+
+    def test_a_bevelled_box_is_cut_as_its_square(self):
+        bevelled = [(0.55, -0.432), (0.568, -0.45), (1.432, -0.45), (1.45, -0.432), (1.45, 0.432), (1.432, 0.45), (0.568, 0.45), (0.55, 0.432)]
+        self.assertEqual(sorted(cuts.outline(bevelled)), sorted([(0.55, -0.45), (1.45, -0.45), (1.45, 0.45), (0.55, 0.45)]))

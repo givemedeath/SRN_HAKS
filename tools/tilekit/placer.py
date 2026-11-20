@@ -329,6 +329,66 @@ def facades(nodes, open=None):
     return found
 
 
+FLUSH = 0.06  # metres: faces this close to one plane are one flat wall
+DEEPEST = 0.6  # metres a wall a fixture is screwed to may stand behind the facade's front
+
+
+def _glassy(material):
+    name = (material or '').lower()
+    return name.startswith(WINDOW) or 'window' in name or '_win' in name or 'glass' in name
+
+
+def _wall_faces(nodes, facing, plane):
+    """[(triangle in (along, z), its plane, glass?)] of the tile's faces looking out of a wall, at most DEEPEST behind
+    the facade's front `plane`: what a fixture on that wall could be screwed to."""
+    found = []
+    for node in nodes:
+        if not node.rendered:
+            continue
+        glass = _glassy(node.material)
+        for triangle in geometry.triangles(nodes, lambda other, node=node: other is node):
+            depth = sum(point[0] * facing[0] + point[1] * facing[1] for point in triangle) / 3
+            if _facing(triangle) == tuple(facing) and plane - DEEPEST <= depth <= plane + FLUSH:
+                found.append(([((point[1] if facing[0] else point[0]), point[2]) for point in triangle], depth, glass))
+    return found
+
+
+def _inside(triangle, point):
+    (ax, ay), (bx, by), (cx, cy) = triangle; px, py = point
+    d1 = (px - bx) * (ay - by) - (ax - bx) * (py - by); d2 = (px - cx) * (by - cy) - (bx - cx) * (py - cy); d3 = (px - ax) * (cy - ay) - (cx - ax) * (py - ay)
+    return not ((d1 < -1e-9 or d2 < -1e-9 or d3 < -1e-9) and (d1 > 1e-9 or d2 > 1e-9 or d3 > 1e-9))
+
+
+def _solid(faces, along, z, size=1.0, reach=(0.12, -0.24, 0.17)):
+    """The plane of the flat, solid wall where a fixture `size` times a camera's mount goes at (along, z), or None: the
+    frontmost face behind every part of it is one plane and none of it glass, so no window set back into the wall and
+    no doorway or edge is behind any of it (cameras hung over recessed windows, 2026-11-20)."""
+    half, low, high = (value * size for value in reach); planes = []
+    for a in (along - half, along, along + half):
+        for h in (z + low, z + (low + high) / 2, z + high):
+            under = [(depth, glass) for triangle, depth, glass in faces if _inside(triangle, (a, h))]
+            if not under:
+                return None
+            depth, glass = max(under)
+            if glass:
+                return None
+            planes.append(depth)
+    return max(planes) if max(planes) - min(planes) <= FLUSH else None
+
+
+def _mount(faces, along, z, low, high, size=1.0):
+    """(along, z, plane) nearest to the wanted spot where the wall is solid, within 2.5 m along it and 0.4 m up or
+    down, or None."""
+    for step in range(26):
+        for shift in ((0.0,) if step == 0 else (step * 0.1, -step * 0.1)):
+            for lift in (0.0, 0.4, -0.4):
+                if low + 0.3 <= along + shift <= high - 0.3:
+                    plane = _solid(faces, along + shift, z + lift, size)
+                    if plane is not None:
+                        return round(along + shift, 3), z + lift, plane
+    return None
+
+
 def propose_corporate(text, seed, *, open=None, plant=CORPORATE_ROOF, ledges=True, watch=False, beside='camera', sign=None, eye=1.0):
     """[{piece, at, turn, blocks?, cover?}] for a corporate tower tile: on each tower wall a canopy over each street door
     with a camera beside it, and a ledge on about half (`ledges`); `plant` on the roof (masts and plant), None for none.
@@ -339,15 +399,20 @@ def propose_corporate(text, seed, *, open=None, plant=CORPORATE_ROOF, ledges=Tru
         turn = _turn(facing); bits = rng >> (number * 5); middle = (low + high) / 2
         doors = sorted({round((one[2] + one[3]) / 2 if facing[0] else (one[0] + one[1]) / 2, 2) for one in openings if one[4]
                         and _over_opening([one], facing, plane, (one[2] + one[3]) / 2 if facing[0] else (one[0] + one[1]) / 2)})
+        wall = _wall_faces(nodes, facing, plane)  # cameras and signs go on solid wall, never over glass or a recessed window
         for door in doors:
             found.append({'piece': 'canopy', 'at': _on_wall(facing, door, plane, 3.4), 'turn': turn})
             side = door + 2.0 if door + 2.0 < high - 0.3 else door - 2.0
-            if low + 0.3 < side < high - 0.3:
-                found.append({'piece': beside, 'at': _on_wall(facing, side, plane, 4.0 if beside == 'camera' else 3.0), 'turn': turn,
+            size = eye if beside == 'camera' else 2.0
+            spot = _mount(wall, side, 4.0 if beside == 'camera' else 3.0, low, high, size) if low + 0.3 < side < high - 0.3 else None
+            if spot and abs(spot[0] - door) > 1.0:
+                found.append({'piece': beside, 'at': _on_wall(facing, spot[0], spot[2], spot[1]), 'turn': turn,
                               **({'scale': eye} if beside == 'camera' and eye != 1.0 else {})})
         if watch and not doors and high - low > 1.2:
             for end in (low + 0.6, high - 0.6):
-                found.append({'piece': 'camera', 'at': _on_wall(facing, end, plane, 4.0), 'turn': turn, **({'scale': eye} if eye != 1.0 else {})})
+                spot = _mount(wall, end, 4.0, low, high, eye)
+                if spot:
+                    found.append({'piece': 'camera', 'at': _on_wall(facing, spot[0], spot[2], spot[1]), 'turn': turn, **({'scale': eye} if eye != 1.0 else {})})
             if sign and high - low > 3.0:
                 found.append({'piece': sign, 'at': _on_wall(facing, (low + high) / 2, plane, geometry.OVER + 0.05), 'turn': turn})
         if ledges and bits % 2 == 0:
