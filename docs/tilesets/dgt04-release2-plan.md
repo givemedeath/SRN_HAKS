@@ -465,6 +465,26 @@ answers):
   sized as 2 × 3 m singles, and the client test shows whether a door stands off-centre.
 - **`dgt05_s15_32` and `s15_52`:** clear 2 × 3 m doorways. The measurement hit a low step.
 
+**Built and approved** (user, 2026-11-20). `tools/tilekit/doorset.py` builds ten doors in `srn_door`. They share
+their own atlas, `srn_doors`, and take rows 1094–1103 of `genericdoors.2da`:
+
+| Row | Door | Size |
+|---|---|---|
+| 1094 | `srn_dr_street` street door | 2 × 3 m |
+| 1095 | `srn_dr_shop` shop door | 2 × 3 m |
+| 1096 | `srn_dr_double` double door | 4 × 3 m |
+| 1097 | `srn_dr_steel` steel security door | 2 × 3 m |
+| 1098 | `srn_dr_shut2` roller shutter | 2 × 3 m |
+| 1099 | `srn_dr_shut4` roller shutter | 4 × 3 m |
+| 1100 | `srn_dr_load` loading shutter | 6 × 4 m |
+| 1101 | `srn_dr_gate` gate | 6 × 3 m |
+| 1102 | `srn_dr_inner` interior door | 2 × 3 m |
+| 1103 | `srn_dr_strip` strip curtain | 2 × 3 m |
+
+The client review stood each door at a dgt04 hook of its size, shut and opened (`output/tilekit/doorset-review2`).
+It also tried Highrise_01's four shutters. The jamb hooks above were not tried: whether a door stands off-centre
+there is still open.
+
 ### 6 — Cohesion and release
 
 - Performance against the baseline on the same views.
