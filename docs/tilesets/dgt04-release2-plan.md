@@ -244,7 +244,8 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 | 8.0 × 2.9 m | 4 |
 | Unclear: open yards (`dgt04_i02`, `i05`), or a low step hit | 9 |
 
-Proposed sizes, to settle with you:
+NWN's doors are large, so each door is scaled to fill its whole opening, with no frame or transom above the leaf
+(user, 2026-11-19). Proposed sizes, to settle with you:
 
 - 2.0 × 2.9 m single, for doors, shop doors, steel doors and interior doors;
 - 4.0 × 2.9 m double or shutter;
