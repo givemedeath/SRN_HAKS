@@ -278,7 +278,7 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
   doorways (`dgt04_black`) stay black.
 - **Applied:** to `srn_t_common` and `srn_t_dgt04`, 117 models, both packs built.
 
-#### Batch 4: ruin, Apartments, Warehouses, Police, Hospital and Lab (look gate pending)
+#### Batch 4 result: ruin, Apartments, Warehouses, Police, Hospital and Lab (approved by the user and applied, 2026-11-20)
 
 - **Placements:** `docs/tilesets/dgt04/detail-batch4.json`, 73 tiles. Each family has a look: ruin (burn barrels
   smoking on the upper floors, no roof plant), residential, industrial, secure (bars on every lowest window, a camera
@@ -287,6 +287,18 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
   added faces, over the 2,700 budget, since the kit rework.
 - **Not applied:** the batch waits for its look gate. The camera tiles need `AnimLoop1` set in `dgt04.set` when it
   is applied, and areas built before that need `Tile_AnimLoop1` on for those tiles.
+
+- **Review fixes (user, 2026-11-20):**
+  - A kit AC unit sat inside the tile's own AC on `rdt02_a01_01`. Two guards missed it: the placer's fitted-window
+    check and `detail`'s fixture guard only saw what sticks out past the cell's side, and only at mesh corners. Both
+    now also count what the tile draws more than 0.3 m in front of the wall, sampled across faces. Fire escapes,
+    downpipes, drains and manholes, which run past trim or lie on the ground, keep the old check.
+  - The ruin's burn barrels hung in the air from the street, because its upper floors are drawn from above only.
+    Barrels now go only where a ceiling is drawn under the floor (`placer._ceiling`), which leaves 2 barrels on one tile.
+  - A hazard plate was on a Lab's glass. Plates now mount on solid wall the way cameras do (`SIGN_REACH`).
+  - Cameras were too frequent on the Lab: one at each end of every wall without a door put two a metre apart where
+    tiles met, and four on a corner tile. It is now one watch camera per tile.
+  - Batch 2 (not applied): 2 canopies and 6 ledges that ran into the tiles' own wall lights and boxes were taken out.
 
 #### Kit rework (approved by the user, 2026-11-20)
 
@@ -305,6 +317,40 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 - **Re-applied:** batches 1 and 3. The kit was taken out of the pack copies and each tile's pre-apply walkmesh put
   back; only the later glass bitmaps differ from the pre-apply copies. Then both batches were detailed and applied
   again with the new kit.
+
+#### Batch 5 result: Concrete streets (approved by the user and applied, 2026-11-20)
+
+- **Scope (user, 2026-11-20):** the 147 uncompiled Concrete tiles. The other 122 are compiled envkit tiles (`ek_*`),
+  left as they are. Flat pieces everywhere, plus a few pieces of street furniture cut out of the street's walkmesh;
+  steam off some manholes.
+- **Kit:** a kerb drain (a grating in the gutter and an inlet in the kerb's face), a manhole cover, a steel bollard,
+  a fire hydrant and a litter bin, built in code like the rest.
+- **Placer (`placer.propose_street`):** kerbs are found in the walkmesh, as an edge along x or y with the sidewalk at
+  its height on one side and the road 0.1–0.35 m lower on the other. Most kerbs are 0.2 m. A tile gets each piece at
+  most once, each on its own share of the tiles (`ONE_IN`):
+
+  | Piece | Share of tiles | Where |
+  |---|---|---|
+  | Drain | 1 in 3 | in the gutter of a kerb |
+  | Manhole | 1 in 4 of those with none of their own | in the road, clear of the kerbs |
+  | Bollards | 1 in 8 | a row of three, 1.5 m apart, 0.45 m behind the kerb |
+  | Hydrant | 1 in 10 | on the sidewalk behind a kerb |
+  | Litter bin | 1 in 8 | on the sidewalk behind a kerb |
+  | Steam | 1 in 4 of those with a manhole | off the manhole |
+
+  The first proposal was far too dense: a drain every 6 m along every kerb, and bollards, hydrants and bins behind
+  most kerbs. The user had all of them thinned (2026-11-20).
+
+  Every piece goes only where the tile draws nothing above the ground there, such as a lamp post, a traffic light or
+  its own manhole. Furniture also needs walkable sidewalk all round it and stays 0.8 m in from the cell's side.
+- **Obstacles (`detail`, `"obstacle": true`):** a piece of street furniture stands on the street. Its footprint is
+  cut out of the street's walkmesh flat, as NonWalk (surfacemat 7): players can't walk through it but can see past
+  it. A roof's cover pieces stay walled Obscuring blocks.
+- **Placed:** 36 tiles in `docs/tilesets/dgt04/detail-streets.json`: 12 drains, 20 manholes, 5 rows of bollards
+  (15 bollards), 5 hydrants, 3 litter bins and 5 steam emitters.
+
+  The review overlay is `output/tilekit/b5-ov`. Client views are in `output/tilekit/b5-review2`: a block of 12 street
+  tiles seen from above from two sides, a bollard row by day and steam by night.
 
 ### 4 — Selective remeshing
 

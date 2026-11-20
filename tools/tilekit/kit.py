@@ -580,9 +580,54 @@ def mast():  # a tall antenna mast on a weighted foot, crossarms with whips, a r
     return mesh, True
 
 
+def drain():  # a kerb drain: a grating in the gutter, its iron frame, the dark inlet in the kerb's face; origin at the kerb's foot, the road toward +y
+    mesh = Mesh(); mesh.box((-0.45, 0.0, 0.0), (0.45, 0.4, 0.012), 'iron', skip=('-z', '-y'), bevel=0.004)  # the frame
+    mesh.box((-0.4, 0.04, 0.012), (0.4, 0.36, 0.014), 'grating', skip=('-z', '-y', '-x', '+x'))  # the grating, flush in it
+    mesh.facing([(-0.35, 0.003, 0.03), (0.35, 0.003, 0.03), (0.35, 0.003, 0.13), (-0.35, 0.003, 0.13)], 'rubber', (0.0, 1.0, 0.0))  # the inlet's mouth on the kerb's face
+    return mesh, False
+
+
+def manhole():  # a round cast-iron cover in its frame, flat on the road
+    mesh = Mesh(); mesh.cylinder((0.0, 0.0, 0.0), 0.4, 0.008, 'galvanised', sides=20)  # the frame
+    mesh.cylinder((0.0, 0.0, 0.008), 0.34, 0.004, 'iron', sides=20)  # the cover
+    return mesh, False
+
+
+def bollard():  # a steel bollard: a round post, a reflective yellow band, a domed cap
+    mesh = Mesh(); mesh.cylinder((0.0, 0.0, 0.0), 0.09, 0.78, 'steel', sides=12, top=False)
+    mesh.cylinder((0.0, 0.0, 0.62), 0.092, 0.08, 'yellow', sides=12, top=False)  # the band
+    mesh.cylinder((0.0, 0.0, 0.78), 0.095, 0.03, 'steel', sides=12, top=False)  # the cap's rim
+    for index in range(12):  # and its low dome
+        one, other = 2 * math.pi * index / 12, 2 * math.pi * (index + 1) / 12
+        mesh.triangle((math.cos(one) * 0.095, math.sin(one) * 0.095, 0.81), (math.cos(other) * 0.095, math.sin(other) * 0.095, 0.81), (0.0, 0.0, 0.86), 'steel', smooth=-1)
+    return mesh, False
+
+
+def hydrant():  # a fire hydrant: a flanged foot, a barrel, two side outlets with caps, a bonnet and its nut
+    mesh = Mesh(); mesh.cylinder((0.0, 0.0, 0.0), 0.15, 0.06, 'yellow', sides=12)  # the foot's flange
+    mesh.cylinder((0.0, 0.0, 0.06), 0.11, 0.5, 'yellow', sides=12, top=False)  # the barrel
+    mesh.cylinder((0.0, 0.0, 0.56), 0.13, 0.05, 'yellow', sides=12)  # the bonnet's flange
+    mesh.cylinder((0.0, 0.0, 0.61), 0.09, 0.08, 'yellow', sides=12)  # the bonnet
+    mesh.cylinder((0.0, 0.0, 0.69), 0.03, 0.04, 'iron', sides=6)  # its operating nut
+    for side in (-1, 1):  # the outlets and their chained caps
+        x0 = side * 0.1; x1 = side * 0.2
+        mesh.cylinder((min(x0, x1), 0.0, 0.42), 0.045, abs(x1 - x0), 'yellow', sides=10, axis='x', top=False)
+        mesh.cylinder((side * 0.2 if side > 0 else -0.23, 0.0, 0.42), 0.055, 0.03, 'iron', sides=10, axis='x', bottom=True)
+    return mesh, False
+
+
+def litter_bin():  # a street litter bin: a galvanised drum on a post, a rim, a dark opening in the top
+    mesh = Mesh(); mesh.box((-0.05, -0.05, 0.0), (0.05, 0.05, 0.25), 'iron', skip=('-z',))  # its foot
+    mesh.cylinder((0.0, 0.0, 0.25), 0.24, 0.62, 'galvanised', sides=16, top=False, bottom=True)
+    mesh.cylinder((0.0, 0.0, 0.87), 0.255, 0.04, 'iron', sides=16, top=False)  # the rim
+    mesh.cylinder((0.0, 0.0, 0.88), 0.22, 0.0, 'rubber', sides=16)  # the opening
+    return mesh, False
+
+
 PIECES = {'ac_unit': ac_unit, 'downpipe': downpipe, 'fire_escape': fire_escape, 'fire_escape_top': lambda: fire_escape(stair=False), 'boards': boards, 'bars': bars,
           'hvac': hvac, 'junction_box': junction_box, 'vent': vent, 'tank': tank, 'dish': dish, 'antenna': antenna,
-          'canopy': canopy, 'ledge': ledge, 'camera': camera, 'camera_head': camera_head, 'mast': mast, 'cross_sign': cross_sign, 'hazard_sign': hazard_sign, 'barrel': barrel}
+          'canopy': canopy, 'ledge': ledge, 'camera': camera, 'camera_head': camera_head, 'mast': mast, 'cross_sign': cross_sign, 'hazard_sign': hazard_sign, 'barrel': barrel,
+          'drain': drain, 'manhole': manhole, 'bollard': bollard, 'hydrant': hydrant, 'litter_bin': litter_bin}
 
 
 def make(folder, masters, crunch, *, compress=None):

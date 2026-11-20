@@ -12,6 +12,8 @@ the neighbouring street above a player's head (`geometry.overhanging`: a facade 
 `geometry.HEAD` metres over any walkable face, the street and walkable roofs alike: the walkmesh is not changed, so
 a player would walk through it. A piece marked `blocks` is cover instead: it stands on a walkable roof, and its
 footprint is raised out of the roof's walkmesh to the piece's top (`cuts`), so nothing walks through it or sees past it.
+A piece marked `obstacle` is street furniture (a bollard, a bin): it stands on the street, and its footprint is cut
+out of the street's walkmesh flat, as NonWalk, so nothing walks through it and the street is seen past it.
 The walkmesh is hashed before and after. Changed models are written into a review's
 overlay, with `models-from.json`, as the lamps and shadows are, and a model there already (the lamps') is the one
 changed; a tile's earlier pieces there are replaced, so the spec can be run again as it changes. The kit's atlas
@@ -25,6 +27,8 @@ from pathlib import Path
 from . import cuts, effects, geometry, inventory, lamps, require
 
 MARK = '_kit'  # added nodes are named <tile>_kitNN
+CLIMBERS = ('fire_escape', 'fire_escape_top', 'downpipe', 'drain', 'manhole')  # pieces that run past what a wall has by nature, or lie on the ground the tile draws: kept to the fixtures outside the cell
+PROUD = 0.3  # metres in front of the wall a piece is fixed to beyond which the tile's own geometry is a fixture there (a unit, a sign box), not trim or a cornice a pipe runs past
 STANDOFF = 0.2  # metres off the cell's side beyond which a tile's own geometry is a fixture on its wall, not the wall
 
 
@@ -75,6 +79,22 @@ LOOPS = ('animloop01', 'animloop02', 'animloop03')  # a tile's looping animation
 STUB = 0.5  # seconds: a tile's own loop no longer than this moves nothing, so a sweep may take it and lengthen it
 KEYS = 32  # orientation keys in one sweep there and back
 DUMMY_MARK = '# tilekit: animation dummy for turning heads'  # on a dummy `heads` adds; most tiles have an empty one of their own, kept
+
+
+def turning_loops(text):
+    """The numbers of the looping animations in which a kit head turns (`heads`)."""
+    found, loop, node = set(), None, None
+    for line in text.replace('\r\n', '\n').split('\n'):
+        words = line.split()
+        if words[:1] == ['newanim'] and len(words) > 1 and words[1].lower() in LOOPS:
+            loop = LOOPS.index(words[1].lower()) + 1
+        elif words[:1] == ['doneanim']:
+            loop = None
+        elif loop and words[:1] == ['node'] and len(words) >= 3:
+            node = words[2]
+        elif loop and node and is_kit(node) and words[:1] == ['orientationkey']:
+            found.add(loop)
+    return found
 
 
 def _steady(block):
@@ -164,15 +184,19 @@ def added(text, name, parts, mark=MARK):
     return _ending(text).join(lines[:end] + made + lines[end:]), len(joined)
 
 
-def _clear(name, number, piece, faces, fixtures, walk):
-    """Refuse a wall piece's `faces` where they run into what the tile hangs on its walls already, or stand where a player walks."""
-    low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
-    high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
-    hit = sorted({fixture for fixture, point in fixtures if all(low[axis] <= point[axis] <= high[axis] for axis in range(3))})
-    require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
+def _clear(name, number, piece, faces, fixtures, walk, out=None, drawn=()):
+    """Refuse a wall piece's `faces` where they run into what the tile hangs on its walls already, or stand where a player
+    walks. `out` (direction, wall): what the tile draws more than `PROUD` in front of the wall the piece is fixed to,
+    inside the cell too, is a fixture of its own (a set-back facade's own air conditioners, 2026-11-20)."""
     blocked = geometry.in_the_way(faces, walk)
     require(not blocked, f'{name} #{number} ({piece}) stands where a player walks, over the walkable surface at '
             + ', '.join(f'{heights}' for heights in list(blocked.values())[:3]) + ' m; move it off the walkable faces or above head height, or make it block (roofs only)')
+    low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
+    high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
+    near = [(fixture, point) for fixture, point in drawn if out and all(low[axis] <= point[axis] <= high[axis] for axis in range(3))
+            and point[0] * out[0][0] + point[1] * out[0][1] - out[1] > PROUD]
+    hit = sorted({fixture for fixture, point in list(fixtures) + near if all(low[axis] <= point[axis] <= high[axis] for axis in range(3))})
+    require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
 
 
 def piece_parts(kit, piece, cache):
@@ -206,6 +230,16 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     moves = geometry.placed(nodes)  # what the tile already hangs off its walls (lamps, signs): a wall piece keeps clear of it
     fixtures = [(node.name, point) for node in nodes if node.rendered for point in map(moves[id(node)], node.verts)
                 if max(abs(point[0]), abs(point[1])) - geometry.HALF > STANDOFF]
+    sampled = []  # all of it, for what stands proud of a wall in the cell: points over its faces, not only their corners (a box's corners miss a piece set into it)
+
+    def drawn():  # sampled once, the first time a wall piece needs it
+        if not sampled:
+            for node in nodes:
+                if node.rendered:
+                    points = [moves[id(node)](vertex) for vertex in node.verts]
+                    sampled.extend((node.name, point) for face in node.faces if max(face[:3]) < len(points)
+                                   for point in geometry.samples(tuple(points[corner] for corner in face[:3]), 0.15))
+        return sampled
     for number, placement in enumerate(placements):
         piece = placement['piece']; at = placement['at']
         if piece in effects.EFFECTS:  # an emitter, not geometry (`effects`)
@@ -215,14 +249,16 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
         require(isinstance(scale, (int, float)) and scale > 0 or isinstance(scale, list) and len(scale) == 3 and all(isinstance(value, (int, float)) and value > 0 for value in scale),
                 f'{name} #{number}: `scale` is a positive number, or three: [across, out, up]')
         blocks = placement.get('blocks', False); require(isinstance(blocks, bool), f'{name} #{number}: `blocks` is true or false')
+        obstacle = placement.get('obstacle', False); require(isinstance(obstacle, bool) and not (blocks and obstacle), f'{name} #{number}: `obstacle` is true or false, and not with `blocks`')
         mine = geometry.baked(piece_parts(kit, piece, cache), turned(at, placement.get('turn', 0.0), scale))
         require(mine, f'{piece} draws nothing'); faces = geometry.faces_of(mine)
         out = geometry.overhanging(faces); require(not out, f'{name} #{number} ({piece}) leaves the cell, other than flush to its side or over the street above {geometry.OVER} m, at ' + ', '.join(map(str, out[:3])))
-        if blocks:  # cover: cut out of the roof it stands on, so nothing walks through it or sees past it
+        if blocks or obstacle:  # cover, cut out of the roof it stands on so nothing walks through it or sees past it; or a street obstacle, cut out flat so nothing walks through it
             heights = walk.get(geometry.cell(at), [])
             roof = min(heights, key=lambda height: abs(height - at[2]), default=None)
-            require(roof is not None and abs(roof - at[2]) <= cuts.STOREY, f'{name} #{number} ({piece}) blocks, so it stands on a walkable surface: there is none at {at}')
-            require(roof > geometry.HEAD, f'{name} #{number} ({piece}) blocks, and only on a roof: the walkable surface at {at} is {roof:.2f} m up, street level')
+            require(roof is not None and abs(roof - at[2]) <= cuts.STOREY, f'{name} #{number} ({piece}) ' + ('blocks' if blocks else 'is an obstacle') + f', so it stands on a walkable surface: there is none at {at}')
+            require(roof > geometry.HEAD if blocks else roof <= geometry.HEAD, f'{name} #{number} ({piece}) ' + (f'blocks, and only on a roof: the walkable surface at {at} is {roof:.2f} m up, street level'
+                                                                               if blocks else f'is an obstacle, and only on the street: the walkable surface at {at} is {roof:.2f} m up, a roof'))
             cover = placement.get('cover')  # a block smaller than the piece: a mast's foot, not its crossbars
             if cover is None:
                 polygon, top = cuts.outline([(x, y) for _, verts, _, _ in mine for x, y, _ in verts]), max(z for _, verts, _, _ in mine for _, _, z in verts)
@@ -230,12 +266,21 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
                 require(isinstance(cover, dict) and len(cover.get('size', ())) == 2 and isinstance(cover.get('height'), (int, float)), f'{name} #{number}: `cover` is {{size: [width, depth], height}}')
                 move = turned(at, placement.get('turn', 0.0), scale); width, depth = (value / 2 for value in cover['size'])
                 polygon = cuts.hull([move((x, y, 0.0))[:2] for x, y in ((-width, -depth), (width, -depth), (width, depth), (-width, depth))]); top = move((0.0, 0.0, cover['height']))[2]
-            footprints.append((polygon, roof, top))
+            footprints.append((polygon, roof, top if blocks else None))
             outside = {key: heights for key, heights in geometry.in_the_way(faces, walk).items()
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}
             require(not outside, f'{name} #{number} ({piece}) reaches past its cover where a player walks; raise that part above head height or widen `cover`')
+            if obstacle:  # street furniture keeps clear of what the tile stands on its street (a lamp post, a traffic light's pole)
+                low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(2)]
+                high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
+                hit = sorted({node for node, point in drawn() if all(low[axis] <= point[axis] <= high[axis] for axis in range(2))
+                              and roof + 0.05 < point[2] <= high[2]})
+                require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
+            against = ()
         else:
-            _clear(name, number, piece, faces, fixtures, walk)
+            facing = math.radians(placement.get('turn', 0.0)); out = (-math.sin(facing), math.cos(facing))
+            against = ((out, at[0] * out[0] + at[1] * out[1]), drawn()) if piece not in CLIMBERS else ()  # the wall it is fixed to, for its head's sweep too
+            _clear(name, number, piece, faces, fixtures, walk, *against)
         parts += mine
         if piece in SWEEPS:  # its head, a node of its own turning about the pivot: clear of everything at both ends of its sweep
             sweep = SWEEPS[piece]; turn = placement.get('turn', 0.0); scales = tuple(scale) if isinstance(scale, list) else (scale,) * 3
@@ -245,7 +290,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
             for aside in (-sweep['sweep'], 0.0, sweep['sweep']):
                 move = turned(pivot, turn + aside, 1.0); swung = [tuple(move(verts[corner]) for corner in face[:3]) for face in faces]
                 out = geometry.overhanging(swung); require(not out, f'{name} #{number} ({sweep["head"]}) leaves the cell turned {aside:+.0f} degrees, at ' + ', '.join(map(str, out[:3])))
-                _clear(name, number, sweep['head'], swung, fixtures, walk)
+                _clear(name, number, sweep['head'], swung, fixtures, walk, *against)
             turning.append((look, verts, tverts, faces, pivot, turn, sweep['sweep'], sweep['period']))
     new, count = added(text, name, parts); new, emitters = effects.added(new, root, fx); cut = None
     taken = {node.name.lower() for node in geometry.parse(new)[2]}; named = [f'{name}{MARK}{count + index:02d}' for index in range(len(turning))]

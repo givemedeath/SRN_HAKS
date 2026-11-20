@@ -19,6 +19,7 @@ from pathlib import Path
 
 from . import geometry, inventory, require
 
+NONWALK = 7  # surfacemat.2da NonWalk: a street obstacle's footprint stops walking, not sight (`detail`, `"obstacle": true`)
 BLOCK = 2  # surfacemat.2da Obscuring: no walking, and it blocks sight; envkit's raised building masses are made of it
 WALK_CUTS = 'walk-cuts.json'  # {tileset, models: {model: {aabbFrom, aabbTo, wokFrom, wokTo, footprints}}}
 NEAR = 1e-4
@@ -250,19 +251,19 @@ class Walkmesh:
 
     def cut(self, footprint, base, top):
         """Cut a convex footprint [(x, y)] out of the walkable faces near height `base` and raise it to `top` as a
-        block of `BLOCK` faces with walls down to the roof. Each face it overlaps keeps the rest of itself, triangulated
+        block of `BLOCK` faces with walls down to the roof (`top` None: left flat as `NONWALK`, a street obstacle). Each face it overlaps keeps the rest of itself, triangulated
         again with no vertex but its own corners and the points the footprint's sides cross it at. Returns the number of
         faces it covered."""
-        kept, covered, raised = [], 0, []
+        kept, covered, raised = [], 0, []; material = BLOCK if top is not None else NONWALK
         for face in self.faces:
             triangle = self.corners(face)
             if face[7] not in geometry.WALKABLE or abs(sum(point[2] for point in triangle) / 3 - base) > STOREY or not _overlaps(triangle, footprint):
                 kept.append(face); continue
             covered += 1; inside = _clip(triangle, footprint)
-            raised += [self._face(part, face, BLOCK) for part in _fan(inside)]
+            raised += [self._face(part, face, material) for part in _fan(inside)]
             for ring in _rest(triangle, inside):
                 kept += [self._face(part, face, face[7]) for part in _ears(ring)]
-        self.faces = kept + self._raised(raised, top)
+        self.faces = kept + (self._raised(raised, top) if top is not None else raised)  # an obstacle's footprint stays flat on the street
         return covered
 
     def _raised(self, faces, top):
@@ -361,8 +362,9 @@ def cut_walkmesh(model_text, wok_text, footprints, half=geometry.HALF):
             'The model\'s walkmesh and its .wok differ: cut neither')
     walk = Walkmesh(model.verts, model.faces)
     for polygon, base, top in footprints:
-        require(top > base + geometry.LOW, f'A blocking piece at {polygon[0]} is too low to block anything')
-        require(walk.cut(polygon, base, top), f'A blocking piece at {polygon[0]} stands on no walkable roof face at {base:.2f} m')
+        what = 'A blocking piece' if top is not None else 'An obstacle'
+        require(top is None or top > base + geometry.LOW, f'{what} at {polygon[0]} is too low to block anything')
+        require(walk.cut(polygon, base, top), f'{what} at {polygon[0]} stands on no walkable face at {base:.2f} m')
     walk.mend()
     edge = [walk.verts[index] for index in walk.made if abs(walk.verts[index][0]) >= half - 1e-3 or abs(walk.verts[index][1]) >= half - 1e-3]
     require(not edge, f'A cut reaches the side of the cell at {edge[:1]}: the neighbour\'s walkmesh would not meet it; move the piece inward')
@@ -379,7 +381,7 @@ def noted(folder, tileset, model, before, after, wok_before, wok_after, footprin
     require(held.get('tileset') == tileset, f'{WALK_CUTS} in the overlay is of {held.get("tileset")}, not {tileset}')
     sha = lambda text: hashlib.sha256(text.encode('cp1252')).hexdigest()
     held['models'][model] = {'aabbFrom': inventory.walk_hash(before), 'aabbTo': inventory.walk_hash(after), 'wokFrom': sha(wok_before), 'wokTo': sha(wok_after),
-                             'footprints': [{'base': round(base, 3), 'top': round(top, 3), 'polygon': [list(point) for point in polygon]} for polygon, base, top in footprints]}
+                             'footprints': [{'base': round(base, 3), 'top': None if top is None else round(top, 3), 'polygon': [list(point) for point in polygon]} for polygon, base, top in footprints]}
     path.write_text(json.dumps(held, indent=1) + '\n', encoding='utf-8')
 
 

@@ -272,6 +272,25 @@ endnode
 endmodelgeom t""")  # a walkable upper floor, 6 m up
 
 
+CEILING = """node trimesh ceiling
+  parent t
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap ceiling_tex
+  verts 4
+    -4.0 -4.0 5.9
+    4.0 -4.0 5.9
+    4.0 4.0 5.9
+    -4.0 4.0 5.9
+  tverts 1
+    0 0 0
+  faces 2
+    0 2 1 1 0 0 0 1
+    0 3 2 1 0 0 0 1
+endnode
+"""
+
+
 class FamilyLooksTest(unittest.TestCase):
     def test_a_secure_site_bars_every_lowest_window_and_a_civic_one_none(self):
         _, _, nodes = geometry.parse(PAINTED); lowest = min(bottom for _, bottom, *_ in placer.grid_windows(nodes, GRID)[(-1, 0)])
@@ -294,13 +313,16 @@ class FamilyLooksTest(unittest.TestCase):
         self.assertFalse([one for one in placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False) if one['piece'] == 'camera'])
         found = placer.propose_corporate(TOWER, 'seed', plant=None, ledges=False, watch=True, sign='hazard_sign', eye=1.6)
         cameras = [one for one in found if one['piece'] == 'camera']
-        self.assertEqual(sorted(one['at'][1] for one in cameras), [-3.4, 3.4]); self.assertTrue(all(one['scale'] == 1.6 and one['turn'] == placer._turn((-1, 0)) for one in cameras))
+        self.assertEqual(len(cameras), 1); self.assertIn(cameras[0]['at'][1], (-3.4, 3.4))  # one a tile, at one end (two a metre apart where tiles met, 2026-11-20)
+        self.assertTrue(all(one['scale'] == 1.6 and one['turn'] == placer._turn((-1, 0)) for one in cameras))
         self.assertEqual([one['at'] for one in found if one['piece'] == 'hazard_sign'], [[-2.5, 0.0, round(geometry.OVER + 0.05, 3)]])
 
     def test_a_ruin_has_smoking_barrels_and_no_roof_plant(self):
-        found = placer.propose(FLOORED, 'seed', look='ruin', plant=None)
+        ceiled = FLOORED.replace('node aabb floor', CEILING + 'node aabb floor')  # the floor drawn from below too
+        found = placer.propose(ceiled, 'seed', look='ruin', plant=None)
         barrels = [one for one in found if one['piece'] == 'barrel']; smoke = [one for one in found if one['piece'] == 'smoke']
         self.assertTrue(1 <= len(barrels) <= 2); self.assertEqual(len(smoke), len(barrels))
+        self.assertFalse([one for one in placer.propose(FLOORED, 'seed', look='ruin', plant=None) if one['piece'] == 'barrel'])  # drawn from above alone, barrels would hang in the air
         self.assertFalse({one['piece'] for one in found} & {'hvac', 'tank', 'dish', 'antenna', 'vent'})
 
 
@@ -322,3 +344,109 @@ class MountTest(unittest.TestCase):  # cameras hung over recessed windows and gl
     def test_glass_flush_with_the_wall_is_no_mount_either(self):
         glass = [([(-5, 0), (5, 0), (5, 8)], 3.0, True), ([(-5, 0), (5, 8), (-5, 8)], 3.0, True)]
         self.assertIsNone(placer._mount(glass, 0.0, 4.0, -5.0, 5.0))
+
+
+STREET = """newmodel s
+beginmodelgeom s
+node dummy s
+  parent NULL
+endnode
+node trimesh ground
+  parent s
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  bitmap street
+  verts 12
+    -5 -2.5 0
+    5 -2.5 0
+    5 5 0
+    -5 5 0
+    -5 -5 0.2
+    5 -5 0.2
+    5 -2.5 0.2
+    -5 -2.5 0.2
+    -5 -2.5 0
+    5 -2.5 0
+    5 -2.5 0.2
+    -5 -2.5 0.2
+  tverts 1
+    0 0 0
+  faces 6
+    0 1 2 1 0 0 0 1
+    0 2 3 1 0 0 0 1
+    4 5 6 1 0 0 0 1
+    4 6 7 1 0 0 0 1
+    8 9 10 1 0 0 0 1
+    8 10 11 1 0 0 0 1
+endnode
+node aabb walk
+  parent s
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  verts 8
+    -5 -2.5 0
+    5 -2.5 0
+    5 5 0
+    -5 5 0
+    -5 -5 0.2
+    5 -5 0.2
+    5 -2.5 0.2
+    -5 -2.5 0.2
+  faces 4
+    0 1 2 1 0 0 0 4
+    0 2 3 1 0 0 0 4
+    4 5 6 1 0 0 0 4
+    4 6 7 1 0 0 0 4
+endnode
+endmodelgeom s
+donemodel s
+"""
+
+
+class StreetTest(unittest.TestCase):  # batch 5, the Concrete street tiles (user, 2026-11-20)
+    def test_a_kerb_is_found_with_the_road_on_its_far_side(self):
+        _, _, nodes = geometry.parse(STREET)
+        self.assertEqual(placer._kerbs(nodes), [((0, 1), -2.5, -5.0, 5.0, 0.0, 0.2)])
+
+    def test_drains_lie_in_the_gutter_and_furniture_stands_on_the_sidewalk_as_obstacles(self):
+        found = [one for seed in range(30) for one in placer.propose_street(STREET, seed)]
+        drains = [one for one in found if one['piece'] == 'drain']; furniture = [one for one in found if one.get('obstacle')]
+        self.assertTrue(drains and furniture)
+        self.assertTrue(all(one['at'][1] == -2.5 and one['at'][2] == placer.LIFT and one['turn'] == 0.0 for one in drains))  # at the kerb's foot, the road ahead
+        self.assertTrue(all(one['at'][1] == -2.5 - placer.SETBACK and one['at'][2] == 0.2 for one in furniture))
+        self.assertTrue(all(abs(one['at'][0]) <= geometry.HALF - placer.SIDE_CLEAR for one in found if one['piece'] != 'steam'))
+        manholes = [one for one in found if one['piece'] == 'manhole']
+        self.assertTrue(manholes and all(one['at'][1] - (-2.5) >= 1.0 for one in manholes))  # in the road, clear of the kerb
+        for seed in range(30):
+            made = placer.propose_street(STREET, seed); rows = [one['at'][0] for one in made if one['piece'] == 'bollard']
+            self.assertIn(len(rows), (0, 3))
+            counts = {piece: sum(one['piece'] == piece for one in made) for piece in ('drain', 'hydrant', 'litter_bin', 'manhole')}
+            self.assertTrue(all(count <= 1 for count in counts.values()))  # at most one of each a tile (too many, user 2026-11-20)
+            self.assertTrue(all(abs(b - a - placer.BOLLARDS) < 1e-6 for a, b in zip(sorted(rows), sorted(rows)[1:])))
+
+
+class FixtureGuardsTest(unittest.TestCase):  # review of batch 4, 2026-11-20
+    def test_a_hazard_plate_goes_on_solid_wall_never_glass(self):
+        glass = [([(-5, 0), (5, 0), (5, 8)], 3.0, True), ([(-5, 0), (5, 8), (-5, 8)], 3.0, True)]
+        wall = [([(-5, 0), (5, 0), (5, 8)], 3.0, False), ([(-5, 0), (5, 8), (-5, 8)], 3.0, False)]
+        self.assertIsNone(placer._mount(glass, 0.0, 2.8, -5.0, 5.0, reach=placer.SIGN_REACH, lifts=placer.SIGN_LIFTS))
+        self.assertEqual(placer._mount(wall, 0.0, 2.8, -5.0, 5.0, reach=placer.SIGN_REACH, lifts=placer.SIGN_LIFTS), (0.0, 2.8, 3.0))
+
+    def test_a_wall_piece_is_refused_where_a_set_back_facade_has_its_own_unit(self):
+        from tools.tilekit import detail
+        unit = [(f'own_ac', (x, y, z)) for x in (0.5, 0.7, 1.0) for y in (-3.4, -2.5, -1.6) for z in (6.6, 7.2, 7.7)]  # proud of a wall at x = 1.0 facing -x
+        faces = [((0.9, -2.8, 6.4), (0.6, -2.2, 6.4), (0.6, -2.2, 7.3))]
+        with self.assertRaisesRegex(ValueError, 'own_ac'):
+            detail._clear('t', 0, 'ac_unit', faces, [], {}, ((-1.0, 0.0), -1.0), unit)
+        detail._clear('t', 0, 'downpipe', faces, [], {}, None, unit)  # a climber keeps to the fixtures outside the cell
+
+    def test_a_window_with_the_tile_s_own_unit_in_front_of_a_set_back_facade_is_fitted(self):
+        def box(name, low, high):
+            (x0, y0, z0), (x1, y1, z1) = low, high
+            verts = [(x, y, z) for x in (x0, x1) for y in (y0, y1) for z in (z0, z1)]
+            return (f'node trimesh {name}\n  parent t\n  position 0 0 0\n  orientation 0 0 0 0\n  bitmap unit\n  verts 8\n'
+                    + ''.join(f'    {x} {y} {z}\n' for x, y, z in verts) + '  tverts 1\n    0 0 0\n  faces 2\n    0 1 3 1 0 0 0 1\n    0 3 2 1 0 0 0 1\nendnode\n')
+        model = 'newmodel t\nbeginmodelgeom t\nnode dummy t\n  parent NULL\nendnode\n' + box('unit', (-2.0, 1.0, 3.0), (-1.5, 1.8, 4.0)) + 'endmodelgeom t\ndonemodel t\n'
+        _, _, nodes = geometry.parse(model)  # a facade at x = -1.0 facing -x, well inside the cell, its own unit 0.5 m out in front at y 1.4
+        self.assertTrue(placer._fitted(nodes, (-1, 0), (1.4, 3.2, 4.4, 1.0, 1.0)))
+        self.assertFalse(placer._fitted(nodes, (-1, 0), (-3.0, 3.2, 4.4, 1.0, 1.0)))  # a window along the wall, clear of it

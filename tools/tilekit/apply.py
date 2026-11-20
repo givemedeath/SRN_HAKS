@@ -87,6 +87,20 @@ def files_of(overlay, name):
     return found
 
 
+def _loop_flags(repo, packs, model, number, overlay=None):
+    """[whether AnimLoop`number` is on] for each tile of the packs' set files drawn by `model`; a set file the
+    overlay brings (a terrain copy's) is read in place of its pack copy."""
+    found = []
+    for pack in packs:
+        for path in sorted((Path(repo) / pack).glob('*.set')):
+            if overlay is not None and (Path(overlay) / path.name).is_file():
+                path = Path(overlay) / path.name
+            for section, keys in inventory.sections(path.read_bytes().decode('cp1252')):
+                if re.fullmatch(r'TILE\d+', section, re.I) and keys.get('Model', '').lower() == model.lower():
+                    found.append(keys.get(f'AnimLoop{number}', '0').strip() == '1')
+    return found
+
+
 def plan(repo, spec, overlay):
     """{'put': [(overlay file, pack file)], 'delete': [pack file], 'overrides': {resource: packs}, 'touched': names,
     'left': [overlay files that are of no texture of the spec and no model]} for a spec's textures (none where spec is
@@ -143,6 +157,11 @@ def plan(repo, spec, overlay):
     require(not lacking, f'The overlay lacks what its {MADE_FROM} says the copy made: ' + ', '.join(lacking) + ': make the overlay again')  # a copy applies whole
     for path in sorted(path for path in files if path.suffix.lower() in MODELS + TABLES):
         holders = held.get(path.name.lower(), {})
+        if path.suffix.lower() == '.mdl':  # a new tile's too
+            from .detail import turning_loops
+            for number in sorted(turning_loops(path.read_bytes().decode('cp1252'))):  # a camera's sweep plays only where the set file turns its loop on
+                flags = _loop_flags(repo, packs, path.stem, number, overlay)
+                require(flags and all(flags), f'{path.name}: its turning heads sweep in animloop0{number}, and the set file has AnimLoop{number} off for it: turn it on first')
         if not holders and path.suffix.lower() in MODELS:  # a new tile (a copied terrain's): to the tileset's own pack
             require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it')
             require((overlay / MADE_FROM).is_file(), f'{path.name} is new, and the overlay has no {MADE_FROM}: only a whole terrain copy brings new tiles')

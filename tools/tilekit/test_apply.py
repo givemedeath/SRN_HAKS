@@ -63,6 +63,18 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'already a file of srn_placeable'):
             apply.apply(self.repo, None, self.overlay)
 
+    def test_a_model_with_turning_heads_needs_its_loop_on_in_the_set_file(self):  # batch 4's flags were set by hand, 2026-11-20
+        (self.overlay / 't_a01.mdl').write_text('newanim animloop01 t_a01\n  length 24.0\n  node trimesh t_a01_kit01\n    parent t_a01a\n'
+                                                '    orientationkey 1\n      0.0 0 0 1 0.5\n  endnode\ndoneanim animloop01 t_a01\n', encoding='cp1252')
+        (self.repo / 'srn_t_tst' / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=0\n', encoding='cp1252')
+        with self.assertRaisesRegex(ValueError, 'AnimLoop1 off'):
+            apply.apply(self.repo, None, self.overlay)
+        (self.overlay / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=1\n', encoding='cp1252')  # a terrain copy's set file is read in place of the pack's
+        self.assertEqual(apply._loop_flags(self.repo, ['srn_t_tst'], 't_a01', 1, self.overlay), [True])
+        self.assertEqual(apply._loop_flags(self.repo, ['srn_t_tst'], 't_a01', 1), [False]); (self.overlay / 'tst.set').unlink()
+        (self.repo / 'srn_t_tst' / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=1\n', encoding='cp1252')
+        self.assertEqual(apply.apply(self.repo, None, self.overlay)['put'], 1)
+
     def test_an_overlay_of_models_alone_needs_no_spec(self):
         self.assertEqual(apply.apply(self.repo, None, self.overlay)['put'], 1)
         self.assertEqual((self.repo / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'model'); self.assertEqual((self.repo / 'srn_t_common' / 'wall.tga').read_bytes(), b'old')
