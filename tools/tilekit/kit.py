@@ -193,7 +193,7 @@ def hvac():  # roof plant on a plinth: cover
 def junction_box():  # a broken electrical box on a wall, its torn cable hanging below: where sparks come from
     mesh = Mesh(); mesh.box((-0.18, 0.0, 0.0), (0.18, 0.14, 0.42), 'paint', skip=('-y',))
     mesh.cylinder((0.1, 0.07, 0.42), 0.02, 0.9, 'galvanised', sides=6, top=False)  # its conduit up the wall
-    mesh.cylinder((-0.06, 0.08, -0.32), 0.012, 0.32, 'rubber', sides=5, top=False)  # the torn cable
+    mesh.cylinder((-0.06, 0.08, -0.35), 0.022, 0.35, 'rubber', sides=6, top=False)  # the torn cable out of its broken bottom
     return mesh, False
 
 

@@ -96,7 +96,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     for number, placement in enumerate(placements):
         piece = placement['piece']; at = placement['at']
         if piece in effects.EFFECTS:  # an emitter, not geometry (`effects`)
-            effects.check(name, number, at, piece); fx.append((piece, at, placement.get('fall'), placement.get('seed'))); continue
+            effects.check(name, number, at, piece); fx.append((piece, at, placement.get('fall'))); continue
         require(isinstance(at, list) and len(at) == 3 and all(isinstance(value, (int, float)) for value in at), f'{name} #{number}: `at` is [x, y, z]')
         scale = placement.get('scale', 1.0); require(isinstance(scale, (int, float)) and scale > 0, f'{name} #{number}: `scale` is a positive number')
         blocks = placement.get('blocks', False); require(isinstance(blocks, bool), f'{name} #{number}: `blocks` is true or false')

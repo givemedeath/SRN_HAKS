@@ -1,31 +1,27 @@
-"""Particle effects added to tiles: sparks from a broken junction box, water dripping from a fire escape or an air
-conditioner, smoke from a roof vent.
+"""Particle effects added to tiles: electrical discharges from a broken junction box, water dripping from a fire
+escape or an air conditioner, smoke from a roof vent.
 
 An effect is a placement in the same spec as the kit pieces, `{piece: <effect>, at: [x, y, z], fall?}`, where `at`
 is the emitter's point in the tile's coordinates. It becomes an emitter node under the tile's root named
-<tile>_fxNN. Its picture is a sprite sheet of `GRID` by `GRID` frames, `<texture>.tga` in the kit folder, copied
-into the overlay beside the model; each particle takes a frame at random. Smoke uses the game's own smoke sheet.
+<tile>_fxNN. Its picture is a sprite sheet, `<texture>.tga` in the kit folder, copied into the overlay beside the
+model; each particle takes one of its frames at random. Smoke uses the game's own smoke sheet.
 
-Sparks come in bursts as irregular as the engine allows: the emitter's birth rate is keyed in every animation the
-tile has, `tiledefault` and its `animloopNN`s, as a tile plays its animation loops instead of `tiledefault` where
-they are on (a key only in `tiledefault` never fires there). Each is a loop of `LOOP` seconds (lengthened to it where
-it is shorter; their other nodes carry no timed keys, only a value at time 0). Each emitter
-draws its own bursts from a seed of its tile and number (`bursts`): one to four pulses of a random length and
-strength, then a quiet gap of random length, again and again through the loop, so two emitters never keep step and a
-pattern only repeats after `LOOP` seconds. The engine starts every copy of a tile's animation together, so copies of
-the same tile model in one area do keep step. A placement may give its own `seed`.
+Every effect runs at a steady birth rate set on the emitter. A tile does not play timed keys on an emitter: a birth
+rate keyed to vary through a tile animation never fired in the client (2026-11-19), whether over a 29 s or a 3 s
+loop. Discharges and drips are made random instead by their sheet (`sparse`): of its frames most are left empty, so of the particles born at a steady rate only some show, at random moments, each one a short flash. No two
+emitters, nor two copies of one tile, keep step, and nothing repeats.
 
-Drips fall at a steady rate, each living as long as a drop takes to fall `fall` metres, so it ends at the surface below instead of passing through it. Effects add no geometry and
-leave the walkmesh alone; an emitter stands inside the tile's cell, or out over the street above a player's head, as
-a piece may."""
+Drips fall at a steady rate, each living as long as a drop takes to fall `fall` metres, so it ends at the surface
+below instead of passing through it. Effects add no geometry and leave the walkmesh alone; an emitter stands inside
+the tile's cell, or out over the street above a player's head, as a piece may."""
 import math
 import random
 
 from . import geometry, require
 
 MARK = '_fx'
-GRID = 4
-LOOP = 29.0  # seconds; long and odd, so a repeat is hard to notice
+GRID = 4  # frames a side of a drawn picture and of a plain sheet
+SPARSE = 8  # frames a side of a sparse sheet (the drawn frames among empty ones) unless an effect says otherwise
 GRAVITY = 9.8
 WATER = (150, 172, 190)  # the colour a drop's body is lifted to
 COMMON = {'update': 'Fountain', 'render': 'Normal', 'spawnType': 0, 'inherit': 0, 'inherit_local': 1, 'inheritvel': 0, 'inherit_part': 0, 'renderorder': 0,
@@ -35,17 +31,19 @@ COMMON = {'update': 'Fountain', 'render': 'Normal', 'spawnType': 0, 'inherit': 0
           'lightningScale': 0.0, 'blastRadius': 0.0, 'blastLength': 0.0, 'p2p': 0, 'p2p_type': 'Bezier', 'p2p_sel': 1, 'p2p_bezier2': 0.0,
           'p2p_bezier3': 0.0, 'grav': 0.0, 'drag': 0.0}
 EFFECTS = {
-    'sparks': {'texture': 'dgt04_fx_spark', 'Blend': 'Lighten', 'xSize': 4.0, 'ySize': 4.0, 'colorStart': (1.0, 0.92, 0.65), 'colorEnd': (1.0, 0.45, 0.1),
-               'alphaStart': 1.0, 'alphaEnd': 0.0, 'sizeStart': 0.14, 'sizeEnd': 0.05, 'sizeStart_y': 0.0, 'sizeEnd_y': 0.0, 'birthrate': 0.0,
-               'lifeExp': 0.8, 'mass': 1.0, 'spread': 1.4, 'velocity': 2.2, 'randvel': 1.6,
-               'keys': 'bursts'},
+    'sparks': {'texture': 'dgt04_fx_arc', 'Blend': 'Lighten', 'xSize': 2.0, 'ySize': 2.0, 'colorStart': (0.85, 0.9, 1.0), 'colorEnd': (0.7, 0.8, 1.0),
+               'alphaStart': 1.0, 'alphaEnd': 0.6, 'sizeStart': 0.6, 'sizeEnd': 0.55, 'sizeStart_y': 0.0, 'sizeEnd_y': 0.0, 'birthrate': 2.0,
+               'lifeExp': 0.12, 'mass': 0.0, 'spread': 0.0, 'velocity': 0.0, 'randvel': 0.0, 'particleRot': 0.0,
+               'xgrid': 16, 'ygrid': 16, 'frameend': 255},  # 16 of 256 frames drawn: a flash every 8 s or so, at random
     'smoke': {'texture': 'fxpa_mist', 'stock': True, 'Blend': 'Normal', 'xSize': 20.0, 'ySize': 20.0, 'colorStart': (0.55, 0.55, 0.55),
-              'colorEnd': (0.3, 0.3, 0.3), 'alphaStart': 0.35, 'alphaEnd': 0.0, 'sizeStart': 0.25, 'sizeEnd': 1.6, 'sizeStart_y': 0.25,
-              'sizeEnd_y': 1.6, 'birthrate': 5.0, 'lifeExp': 3.5, 'mass': -0.04, 'spread': 0.5, 'velocity': 0.4, 'randvel': 0.25,
-              'particleRot': 3.0, 'affectedByWind': 'true', 'fps': 12, 'frameend': 11, 'keys': None},
+              'colorEnd': (0.3, 0.3, 0.3), 'alphaStart': 0.6, 'alphaEnd': 0.0, 'sizeStart': 0.4, 'sizeEnd': 2.4, 'sizeStart_y': 0.4,
+              'sizeEnd_y': 2.4, 'birthrate': 8.0, 'lifeExp': 4.0, 'mass': -0.04, 'spread': 0.5, 'velocity': 0.4, 'randvel': 0.25,
+              'particleRot': 3.0, 'affectedByWind': 'true', 'fps': 12, 'frameend': 11},
     'drip': {'texture': 'dgt04_fx_drip', 'Blend': 'Normal', 'xSize': 6.0, 'ySize': 6.0, 'colorStart': (0.75, 0.82, 0.9), 'colorEnd': (0.6, 0.68, 0.78),
-             'alphaStart': 0.9, 'alphaEnd': 0.8, 'sizeStart': 0.07, 'sizeEnd': 0.06, 'sizeStart_y': 0.18, 'sizeEnd_y': 0.22, 'birthrate': 2.0,
-             'lifeExp': None, 'mass': 1.0, 'spread': 0.0, 'velocity': 0.0, 'randvel': 0.05, 'keys': None},
+             'alphaStart': 0.9, 'alphaEnd': 0.8, 'sizeStart': 0.07, 'sizeEnd': 0.06, 'sizeStart_y': 0.18, 'sizeEnd_y': 0.22, 'birthrate': 1.2,
+             'lifeExp': None, 'mass': 1.0, 'spread': 0.0, 'velocity': 0.0, 'randvel': 0.05,
+             'xgrid': SPARSE, 'ygrid': SPARSE, 'frameend': SPARSE * SPARSE - 1},  # 16 of 64 drawn: a drop every 3 s or so
+
 }
 
 
@@ -70,38 +68,13 @@ def life(effect, fall):
 
 def emitter(node, parent, at, effect, fall=None):
     """The geometry lines of an emitter node for `effect` at `at` (the parent's coordinates)."""
-    settings = {**COMMON, **{key: value for key, value in EFFECTS[effect].items() if key not in ('keys', 'texture', 'stock')}}
+    settings = {**COMMON, **{key: value for key, value in EFFECTS[effect].items() if key not in ('texture', 'stock')}}
     settings['lifeExp'] = life(effect, fall)
     out = [f'node emitter {node}', f'  parent {parent}', f'  position {at[0]:.5f} {at[1]:.5f} {at[2]:.5f}', '  orientation 1.0 0.0 0.0 0.0',
            '  update_sel 1', '  render_sel 1', '  blend_sel 1', '  spawntype_sel 0']
     out += [f'  {key} {_value(value)}' for key, value in settings.items()]
     out += [f'  texture {EFFECTS[effect]["texture"]}', 'endnode']
     return out
-
-
-def bursts(seed, loop=LOOP):
-    """[(seconds, particles a second)] of an emitter's bursts through the loop, drawn from `seed`: a step function (each
-    change held between two keys 0.01 s apart, as keys are interpolated), quiet at both ends so the loop joins."""
-    rng = random.Random(str(seed)); keys = [(0.0, 0.0)]; at = rng.uniform(0.2, 4.0)
-    while at < loop - 1.0:
-        for _ in range(rng.choice((1, 1, 2, 2, 3, 4))):  # a burst: pulses close together
-            length = rng.uniform(0.03, 0.18); rate = rng.uniform(25.0, 140.0)
-            if at + length + 0.02 > loop - 0.5:
-                break
-            keys += [(at, 0.0), (at + 0.01, rate), (at + 0.01 + length, rate), (at + 0.02 + length, 0.0)]
-            at += 0.02 + length + rng.uniform(0.04, 0.35)
-        at += min(max(rng.expovariate(1 / 3.2), 0.5), 9.0)  # then quiet, mostly short, now and then long
-    keys.append((loop, 0.0))
-    return [(round(time, 3), round(rate, 1)) for time, rate in keys]
-
-
-def keyed(node, parent, effect, seed):
-    """The animation lines that key an effect's birth rate, or [] for a steady one."""
-    keys = bursts(seed) if EFFECTS[effect]['keys'] == 'bursts' else None
-    if not keys:
-        return []
-    return ([f'  node emitter {node}', f'    parent {parent}', f'    birthratekey {len(keys)}'] + [f'      {time:.5f} {rate:.5f}' for time, rate in keys]
-            + ['    endlist', '  endnode'])
 
 
 def without_fx(text):
@@ -125,39 +98,31 @@ def check(name, number, at, effect):
 
 
 def added(text, root, placed):
-    """`text` with the emitters of `placed` [(effect, at, fall, seed)] added: their nodes before the geometry ends, their
-    keys in every animation of the model (a `tiledefault` made where it has none). Returns (text, emitters)."""
+    """`text` with the emitters of `placed` [(effect, at, fall)] added before its geometry ends. Returns (text, emitters)."""
     if not placed:
         return text, 0
     ending = '\r\n' if '\r\n' in text else '\n'; lines = text.replace('\r\n', '\n').split('\n')
-    nodes, keys = [], []
-    for number, (effect, at, fall, seed) in enumerate(placed):
-        node = f'{root}{MARK}{number:02d}'
-        nodes += emitter(node, root, at, effect, fall); keys += keyed(node, root, effect, f'{root}:{number}' if seed is None else seed)
+    nodes = [line for number, (effect, at, fall) in enumerate(placed) for line in emitter(f'{root}{MARK}{number:02d}', root, at, effect, fall)]
     end = next(index for index, line in enumerate(lines) if line.split()[:1] and line.split()[0].lower() == 'endmodelgeom')
-    lines = lines[:end] + nodes + lines[end:]
-    if keys:
-        if not any(line.split()[:1] and line.split()[0].lower() == 'newanim' for line in lines):
-            done = max(index for index, line in enumerate(lines) if line.split()[:1] and line.split()[0].lower() == 'donemodel')
-            lines = lines[:done] + [f'newanim tiledefault {root}', f'  length {LOOP:.5f}', '  transtime 0.0', f'  animroot {root}', f'doneanim tiledefault {root}', ''] + lines[done:]
-        out, inside = [], False
-        for line in lines:
-            words = line.split(); head = words[0].lower() if words else ''
-            if head == 'newanim':
-                inside = True
-            elif inside and head == 'length' and float(words[1]) < LOOP:
-                line = f'  length {LOOP:.5f}'
-            elif head == 'doneanim':
-                out += keys; inside = False
-            out.append(line)
-        lines = out
-    return ending.join(lines), len(placed)
+    return ending.join(lines[:end] + nodes + lines[end:]), len(placed)
 
 
-def sheet(picture, *, filled=False, frame=64, floor=10, body=0.35):
+def sparse(sheet_, seed='sparse', size=SPARSE):
+    """A sparse sheet: the `GRID` x `GRID` frames of `sheet_` (from `sheet`) scattered over `size` x `size` frames, the
+    rest left empty, in a fixed order drawn from `seed`."""
+    from PIL import Image
+    frame = sheet_.width // GRID; out = Image.new('RGBA', (size * frame, size * frame), (0, 0, 0, 0))
+    spots = random.Random(seed).sample(range(size * size), GRID * GRID)
+    for index, spot in enumerate(spots):
+        piece = sheet_.crop(((index % GRID) * frame, (index // GRID) * frame, (index % GRID + 1) * frame, (index // GRID + 1) * frame))
+        out.paste(piece, ((spot % size) * frame, (spot // size) * frame))
+    return out
+
+
+def sheet(picture, *, filled=False, frame=64, floor=10, body=0.35, gain=1.6):
     """An emitter's sprite sheet (RGBA, `GRID` x `GRID` frames of `frame` pixels) from a drawn picture of `GRID` x `GRID`
     effects on black: each cell's effect, the pixels brighter than `floor`, is cut out square around its middle with a
-    margin and scaled to the frame. Alpha is the brightness, for sparks drawn added to the scene; `filled` also gives
+    margin and scaled to the frame. Alpha is the brightness times `gain` (more for faint arcs), for light drawn added; `filled` also gives
     the inside of each shape (a water drop drawn as its rim and highlight) at least `body`, so it reads as a body of
     water over a lit wall."""
     from PIL import Image, ImageChops, ImageDraw, ImageFilter
@@ -169,7 +134,7 @@ def sheet(picture, *, filled=False, frame=64, floor=10, body=0.35):
             box = shape.getbbox(); require(box is not None, f'Frame {row * GRID + column} of the picture is empty')
             side = int(max(box[2] - box[0], box[3] - box[1]) * 1.25) + 4; middle = ((box[0] + box[2]) // 2, (box[1] + box[3]) // 2)
             square = (middle[0] - side // 2, middle[1] - side // 2, middle[0] - side // 2 + side, middle[1] - side // 2 + side)
-            colour, alpha = cell.crop(square), bright.crop(square).point(lambda value: min(255, int(value * 1.6)))
+            colour, alpha = cell.crop(square), bright.crop(square).point(lambda value: min(255, int(value * gain)))
             if filled:  # the shape's inside: what the black outside cannot reach
                 outside = shape.crop(square).filter(ImageFilter.MaxFilter(3)).convert('L'); ImageDraw.floodfill(outside, (0, 0), 128)
                 inside = outside.point(lambda value: int(255 * body) if value == 0 else 0)

@@ -26,19 +26,7 @@ def _spec(*placements):
     return {'tileset': 't', 'tiles': {'t_a01': list(placements)}}
 
 
-class Bursts(unittest.TestCase):
-    def test_bursts_are_irregular_and_differ_by_seed(self):
-        one, other = effects.bursts('t:0'), effects.bursts('t:1')
-        self.assertEqual(one, effects.bursts('t:0')); self.assertNotEqual(one, other)
-        starts = [time for (time, rate), (_, before) in zip(one[1:], one) if rate > 0 and before == 0]
-        gaps = [later - earlier for earlier, later in zip(starts, starts[1:])]
-        self.assertGreater(len(starts), 6); self.assertGreater(max(gaps) - min(gaps), 1.0)  # not a steady beat
-
-    def test_a_loop_starts_and_ends_quiet_and_keys_run_forward(self):
-        keys = effects.bursts('t:3')
-        self.assertEqual(keys[0], (0.0, 0.0)); self.assertEqual(keys[-1], (effects.LOOP, 0.0))
-        self.assertTrue(all(earlier[0] <= later[0] for earlier, later in zip(keys, keys[1:])))
-
+class Life(unittest.TestCase):
     def test_a_drop_lives_as_long_as_its_fall(self):
         self.assertAlmostEqual(effects.life('drip', 4.9), 1.0, places=2)
         with self.assertRaisesRegex(ValueError, 'how far it falls'):
@@ -46,6 +34,17 @@ class Bursts(unittest.TestCase):
 
 
 class Sheet(unittest.TestCase):
+    def test_a_sparse_sheet_holds_every_frame_once_among_empty_ones(self):
+        from PIL import Image
+        plain = Image.new('RGBA', (4 * 8, 4 * 8))
+        for index in range(16):
+            plain.paste((index * 10 + 5, 0, 0, 255), ((index % 4) * 8, (index // 4) * 8, (index % 4 + 1) * 8, (index // 4 + 1) * 8))
+        out = effects.sparse(plain)
+        self.assertEqual(out.size, (64, 64)); self.assertEqual(out, effects.sparse(plain))
+        shown = [out.getpixel((column * 8 + 4, row * 8 + 4)) for row in range(8) for column in range(8)]
+        self.assertEqual(sorted(pixel[0] for pixel in shown if pixel[3]), [index * 10 + 5 for index in range(16)])
+        self.assertEqual(sum(1 for pixel in shown if not pixel[3]), 48)
+
     def _picture(self, ring=False):
         from PIL import Image, ImageDraw
         picture = Image.new('RGB', (400, 400)); draw = ImageDraw.Draw(picture)
@@ -72,41 +71,23 @@ class Sheet(unittest.TestCase):
 
 
 class Placed(unittest.TestCase):
-    def test_effects_become_emitters_keyed_in_the_default_animation_and_leave_the_walkmesh(self):
+    def test_effects_become_steady_emitters_and_leave_the_walkmesh_and_animations(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); own, kit = _repo(root, z=0.0); _with_animation(own)
-            (kit / 'dgt04_fx_spark.tga').write_bytes(b'spark'); (kit / 'dgt04_fx_drip.tga').write_bytes(b'drip')
+            (kit / 'dgt04_fx_arc.tga').write_bytes(b'spark'); (kit / 'dgt04_fx_drip.tga').write_bytes(b'drip')
             spec = _spec({'piece': 'sparks', 'at': [-4.9, 1.0, 3.2]}, {'piece': 'drip', 'at': [-4.0, -1.0, 6.0], 'fall': 6.0},
                          {'piece': 'smoke', 'at': [1.0, 1.0, 3.0]})
             told = detail.detail(root, spec, kit, root / 'out')
             self.assertEqual(told['t_a01']['effects'], 3); self.assertEqual(told['t_a01']['pieces'], 0)
             made = (root / 'out' / 't_a01.mdl').read_text(encoding='cp1252')
             self.assertIn('node emitter t_a01_fx00', made); self.assertIn('texture fxpa_mist', made)
-            self.assertIn(f'  length {effects.LOOP:.5f}', made); self.assertEqual(made.count('birthratekey'), 1)  # only the sparks are keyed
+            self.assertNotIn('birthratekey', made); self.assertIn('  xgrid 8', made)  # a steady rate: the sparse sheet makes it random
+            self.assertEqual(made.count('newanim'), 1)  # the tile's animations are left as they were
             self.assertEqual(inventory.walk_hash(made), inventory.walk_hash((own / 't_a01.mdl').read_text(encoding='cp1252')))
-            self.assertEqual((root / 'out' / 'dgt04_fx_spark.tga').read_bytes(), b'spark'); self.assertFalse((root / 'out' / 'fxpa_mist.tga').exists())
+            self.assertEqual((root / 'out' / 'dgt04_fx_arc.tga').read_bytes(), b'spark'); self.assertFalse((root / 'out' / 'fxpa_mist.tga').exists())
             _, _, nodes = geometry.parse(made); self.assertEqual(sum(node.kind == 'emitter' for node in nodes), 3)
             again = detail.detail(root, spec, kit, root / 'out')  # a second run replaces, it does not add
             self.assertEqual(again, told); self.assertEqual((root / 'out' / 't_a01.mdl').read_text(encoding='cp1252'), made)
-
-    def test_sparks_are_keyed_in_every_animation_the_tile_plays(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary); own, kit = _repo(root, z=0.0); _with_animation(own); (kit / 'dgt04_fx_spark.tga').write_bytes(b'spark')
-            path = own / 't_a01.mdl'; text = path.read_text(encoding='cp1252')
-            path.write_text(text.replace('donemodel t_a01', ANIMATED.strip().replace('tiledefault', 'animloop01') + '\ndonemodel t_a01'), encoding='cp1252')
-            detail.detail(root, _spec({'piece': 'sparks', 'at': [0.0, 0.0, 3.0]}), kit, root / 'out')
-            made = (root / 'out' / 't_a01.mdl').read_text(encoding='cp1252')
-            self.assertEqual(made.count('birthratekey'), 2); self.assertEqual(made.count(f'  length {effects.LOOP:.5f}'), 2)
-            for name in ('tiledefault', 'animloop01'):
-                block = made[made.index(f'newanim {name}'):made.index(f'doneanim {name}')]
-                self.assertIn('node emitter t_a01_fx00', block)
-
-    def test_a_model_without_a_default_animation_gets_one(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary); _, kit = _repo(root, z=0.0); (kit / 'dgt04_fx_spark.tga').write_bytes(b'spark')
-            detail.detail(root, _spec({'piece': 'sparks', 'at': [0.0, 0.0, 3.0]}), kit, root / 'out')
-            made = (root / 'out' / 't_a01.mdl').read_text(encoding='cp1252')
-            self.assertIn('newanim tiledefault t_a01', made); self.assertLess(made.index('doneanim tiledefault'), made.index('donemodel'))
 
     def test_an_effect_without_its_picture_or_outside_the_cell_is_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
