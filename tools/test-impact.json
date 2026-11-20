@@ -720,6 +720,9 @@
       "tools/headbatch/review/slopescan.py",
       "tools/headbatch/workspace.py"
     ],
+    "tools/headbatch/publish_library.py": [
+      "tools/headbatch/library-crops.json"
+    ],
     "tools/headbatch/reference_record.py": [
       "tools/headbatch/guards.py",
       "tools/headbatch/head_files.py",
@@ -1047,6 +1050,10 @@
       "tools/headbatch/test_headbatch.py",
       "tools/headbatch/workspace.py",
       "tools/headkit/common.py"
+    ],
+    "tools/headbatch/test_publish_library.py": [
+      "tools/headbatch/README.md",
+      "tools/headbatch/publish_library.py"
     ],
     "tools/headbatch/test_trial_settings.py": [
       "tools/headbatch/client_trial.py",
@@ -5980,6 +5987,13 @@
       "srn_t_dgt04",
       "srn_t_udp1"
     ],
+    "tools/headbatch/publish_library.py": [
+      "srn_body",
+      "srn_head"
+    ],
+    "tools/headbatch/test_publish_library.py": [
+      "srn_head"
+    ],
     "tools/heads/build_head_fixture.py": [
       "srn_body",
       "srn_head"
@@ -6262,6 +6276,7 @@
     "tools/headbatch/test_headbatch.py",
     "tools/headbatch/test_material_evidence.py",
     "tools/headbatch/test_process_contracts.py",
+    "tools/headbatch/test_publish_library.py",
     "tools/headbatch/test_trial_settings.py",
     "tools/headkit/test_attestation.py",
     "tools/headkit/test_brow_edges.py",
