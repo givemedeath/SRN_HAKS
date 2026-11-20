@@ -2298,3 +2298,24 @@ unchanged.
 
 Stratum 5 evens wear across families: `concrete_07` and `concrete_08` take stain 0.3, `lab_wall02` and `lab_wall05`
 stain 0.2, and `lab_floor01` the street grade (`docs/tilesets/dgt04/materials.json`).
+
+## Dynamic skies: Denver, its acid storm, Awakened peaks (`srn_skybox`, `srn_2da`; 2026-11-19)
+
+Eight new skybox rows (16 `SRN_Denver_Dynamic`, 17 `SRN_Sprawl_AcidStorm`, 18 `SRN_Denver_Dusk_Fixed`, 19
+`SRN_Denver_Night_Fixed`, 20 `SRN_Awakened_Peaks`, 21 `SRN_Awakened_Aurora`, 22 `SRN_Denver_Day_Fixed`, 23
+`SRN_Awakened_Day_Fixed`) are appended to `skyboxes.2da`; no
+existing row changes. `srn_skybox` gains nine sky dome models (`srn_sky{den,pk}_*.mdl`,
+ASCII, written by `tools/skykit`), their materials and fallback pictures, two land panoramas in two halves with two
+light masks each (`srn_sky*_pa/_pb/_ma/_mb.dds`) and the fragment shader with its include (`srn_sky_fs.shd`,
+`srn_sky_math.shd`). The vertex shader is the game's own `vsvt`, referenced and not copied; the fragment shader
+includes the game's `inc_standard` by name.
+
+Origin: the pictures are under `tools/skykit/art/`, prompts beside them. Denver's start view (`denver/view_w.png`)
+was drawn for the SRN project operator with the Codex CLI's image generation from the Denver skyline concept the
+operator supplied; Denver's four extensions and closing join (the acid storm row shares Denver's skyline), and the peaks views and
+joins, were drawn with the local Qwen-Image 2.1 profile (`qwen21-int8-v1`) on the operator's shared ComfyUI, the
+peaks views as edits of that start view. Denver's land was then redrawn at about 2.8 times in 14 overlapping detail tiles with the same Qwen profile
+(`art/denver/detail/`), and the peaks land at about 2x in 10 (`art/peaks/detail/`). Their face normals were estimated with MoGe-2 (`moge_2_vitl_normal_fp16`) on that ComfyUI. The sky, clouds, stars, moon, aurora, lightning,
+searchlights and rain are procedural, written for this project (SRN project operator with Claude); the approach of a
+material-driven animated sky in a skybox model follows the community Dynamic Skies example by Bhaal in its general
+method only: no code, models or pictures of it are included.
