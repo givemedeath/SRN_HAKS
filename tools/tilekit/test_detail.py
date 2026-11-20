@@ -254,6 +254,11 @@ if __name__ == '__main__':
 
 
 class TurningHeadTest(unittest.TestCase):  # cameras sweep slowly from side to side (user, 2026-11-20)
+    def test_a_short_loop_is_taken_only_while_its_keys_hold_still(self):
+        steady = ['  node emitter fx', '    birthratekey 2', '      0.0 12.0', '      0.033 12.0', '  endnode']
+        moving = ['  node dummy lamp', '    positionkey 2', '      0.0 0 0 0', '      0.3 0 0 1', '  endnode']
+        self.assertTrue(detail._steady(steady)); self.assertFalse(detail._steady(moving))
+
     def _placed(self, text, turn=30.0):
         from tools.tilekit import kit as pieces
         with tempfile.TemporaryDirectory() as temporary:

@@ -77,6 +77,20 @@ KEYS = 32  # orientation keys in one sweep there and back
 DUMMY_MARK = '# tilekit: animation dummy for turning heads'  # on a dummy `heads` adds; most tiles have an empty one of their own, kept
 
 
+def _steady(block):
+    """Whether every key in an animation's lines holds one value (the tiles' short loops: rest positions, a steady birth rate)."""
+    index = 0
+    while index < len(block):
+        words = block[index].split()
+        if words and words[0].lower().endswith('key') and len(words) > 1 and words[1].isdigit():
+            rows = [line.split()[1:] for line in block[index + 1:index + 1 + int(words[1])]]
+            if any(row != rows[0] for row in rows):
+                return False
+            index += int(words[1])
+        index += 1
+    return True
+
+
 def heads(text, root, turning):
     """(text, loop number) of `text` with each of `turning` [(node, look, verts, tverts, faces, pivot, turn, sweep,
     period)] added as its own node at its pivot, its vertices about the pivot, and turned slowly from side to side about
@@ -90,8 +104,12 @@ def heads(text, root, turning):
     ending = _ending(text); lines = text.replace('\r\n', '\n').split('\n')
     end = next(index for index, line in enumerate(lines) if line.split()[:1] and line.split()[0].lower() == 'endmodelgeom')
     dummy = f'{root}a'; made = []
-    if dummy.lower() not in {node.name.lower() for node in geometry.parse(text)[2]}:
-        made += [f'node dummy {dummy}', f'  parent {root}', '  position 0.0 0.0 0.0', '  orientation 0.0 0.0 0.0 0.0', '  ' + DUMMY_MARK, 'endnode']
+    theirs = [node for node in geometry.parse(text)[2] if node.name.lower() == dummy.lower()]
+    for node in theirs:  # the heads' pivots are in the tile's coordinates: its own dummy must stand at the root's origin
+        require((node.parent or '').lower() == root.lower() and all(abs(value) < 1e-3 for value in node.position) and abs(node.orientation[3]) < 1e-4,
+                f'{root}: its animation dummy {node.name} is not at the root\'s origin, unturned')
+    if not theirs:
+        made +=[f'node dummy {dummy}', f'  parent {root}', '  position 0.0 0.0 0.0', '  orientation 0.0 0.0 0.0 0.0', '  ' + DUMMY_MARK, 'endnode']
     for node, look, verts, tverts, faces, pivot, turn, sweep, period in turning:
         mesh = geometry.mesh_text(node, dummy, look, verts, tverts, faces)
         mesh[2] = '  position ' + ' '.join(f'{value:.5f}' for value in pivot); mesh[3] = f'  orientation 0.0 0.0 1.0 {math.radians(turn):.6f}'
@@ -124,6 +142,8 @@ def heads(text, root, turning):
             return ending.join(lines[:done] + block + lines[done:]), number
         start, stop, length = found; had = float(lines[length].split()[1])
         if had > STUB and abs(had - period) >= 1e-3:  # it moves something of the tile's own: the next loop
+            continue
+        if abs(had - period) >= 1e-3 and not _steady(lines[start:stop]):  # a short loop that moves something: lengthened, it would hold still
             continue
         listed = [words[2].lower() for words in (line.split() for line in lines[start:stop]) if len(words) >= 3 and words[0].lower() == 'node']
         require(listed == [node.name.lower() for node in nodes][:len(listed)], f'{root}: its {name} animation does not list the model\'s nodes in their order, so nodes added after them cannot be')
