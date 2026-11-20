@@ -1,0 +1,61 @@
+{
+ "kind": "tilekit-retexture",
+ "tileset": "dgt04",
+ "note": "Slums and Highrise_09 tiles take grimy and derelict copies of the corporate shopfront glass (user, 2026-11-20).",
+ "models": {
+  "dgt04_e09_01": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e09_03": {
+   "window_tex23": "sl_win23"
+  },
+  "dgt04_e09_13": {
+   "window_tex23": "sl_win23"
+  },
+  "dgt04_e09_17": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e09_27": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e09_28": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e09_29": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e09_31": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e09_34": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e09_35": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e09_36": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e11_02": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt04_e11_05": {
+   "window_tex07": "sl_win07"
+  },
+  "dgt04_e11_06": {
+   "window_tex24": "sl_win24"
+  },
+  "dgt05_s01_03": {
+   "window_tex07": "sl_win07"
+  },
+  "srt04_x01_01": {
+   "window_tex07": "hr09_win07"
+  },
+  "srt04_x02_01": {
+   "window_tex07": "hr09_win07"
+  },
+  "srt04_x05_01": {
+   "window_tex07": "hr09_win07"
+  }
+ }
+}

@@ -29,6 +29,13 @@
    "district": "derelict",
    "copy": "window_tex08",
    "note": "A plain rendered wall with one small window in it. Weathered grey plywood boards are nailed across the whole window opening, covering the glass. The wall around it stays smooth and plain, only lightly stained."
+  },
+  "hr09_win07": {
+   "kind": "window",
+   "district": "derelict",
+   "copy": "window_tex07",
+   "glazed": true,
+   "note": "Abandoned: a rusted, peeling frame around wide panes of filthy glass, cracked across and one pane holed, soot and water streaks down it; a dark empty room behind."
   }
  }
 }
