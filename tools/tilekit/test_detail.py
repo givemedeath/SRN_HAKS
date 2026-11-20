@@ -204,6 +204,17 @@ class Detail(unittest.TestCase):
             record = json.loads((root / 'out' / cuts.WALK_CUTS).read_text(encoding='utf-8'))['models']['t_a01']
             self.assertIsNone(record['footprints'][0]['top'])
 
+    def test_an_obstacle_through_the_tile_s_own_post_is_refused(self):  # detail checks it, not the placer alone (PR 187 review)
+        post = 'node trimesh post\n  parent t_a01\n  bitmap post_tex\n  verts 3\n    0.9 1.0 0.0\n    1.1 1.0 0.0\n    1.0 1.0 2.5\n  tverts 1\n    0 0 0\n  faces 1\n    0 1 2 1 0 0 0 1\nendnode\n'
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); own, kit = _repo(root, z=0.0)
+            model = (own / 't_a01.mdl').read_text(encoding='cp1252'); (own / 't_a01.mdl').write_text(model.replace('node aabb', post + 'node aabb', 1), encoding='cp1252')
+            spec = {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [1.0, 1.0, 0.0], 'obstacle': True}]}}
+            with self.assertRaisesRegex(ValueError, r'runs into what the tile already has there \(post\)'):
+                detail.detail(root, spec, kit, root / 'out')
+            spec['tiles']['t_a01'][0]['at'] = [-2.0, -2.0, 0.0]  # clear of it
+            self.assertEqual(detail.detail(root, spec, kit, root / 'out')['t_a01']['cuts'], 1)
+
     def test_obstacles_go_on_the_street_only(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); _, kit = _repo(root)

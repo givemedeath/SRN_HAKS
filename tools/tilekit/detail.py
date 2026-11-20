@@ -270,9 +270,17 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
             outside = {key: heights for key, heights in geometry.in_the_way(faces, walk).items()
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}
             require(not outside, f'{name} #{number} ({piece}) reaches past its cover where a player walks; raise that part above head height or widen `cover`')
+            if obstacle:  # street furniture keeps clear of what the tile stands on its street (a lamp post, a traffic light's pole)
+                low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(2)]
+                high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
+                hit = sorted({node for node, point in drawn() if all(low[axis] <= point[axis] <= high[axis] for axis in range(2))
+                              and roof + 0.05 < point[2] <= high[2]})
+                require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
+            against = ()
         else:
             facing = math.radians(placement.get('turn', 0.0)); out = (-math.sin(facing), math.cos(facing))
-            _clear(name, number, piece, faces, fixtures, walk, *(((out, at[0] * out[0] + at[1] * out[1]), drawn()) if piece not in CLIMBERS else ()))
+            against = ((out, at[0] * out[0] + at[1] * out[1]), drawn()) if piece not in CLIMBERS else ()  # the wall it is fixed to, for its head's sweep too
+            _clear(name, number, piece, faces, fixtures, walk, *against)
         parts += mine
         if piece in SWEEPS:  # its head, a node of its own turning about the pivot: clear of everything at both ends of its sweep
             sweep = SWEEPS[piece]; turn = placement.get('turn', 0.0); scales = tuple(scale) if isinstance(scale, list) else (scale,) * 3
@@ -282,7 +290,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
             for aside in (-sweep['sweep'], 0.0, sweep['sweep']):
                 move = turned(pivot, turn + aside, 1.0); swung = [tuple(move(verts[corner]) for corner in face[:3]) for face in faces]
                 out = geometry.overhanging(swung); require(not out, f'{name} #{number} ({sweep["head"]}) leaves the cell turned {aside:+.0f} degrees, at ' + ', '.join(map(str, out[:3])))
-                _clear(name, number, sweep['head'], swung, fixtures, walk)
+                _clear(name, number, sweep['head'], swung, fixtures, walk, *against)
             turning.append((look, verts, tverts, faces, pivot, turn, sweep['sweep'], sweep['period']))
     new, count = added(text, name, parts); new, emitters = effects.added(new, root, fx); cut = None
     taken = {node.name.lower() for node in geometry.parse(new)[2]}; named = [f'{name}{MARK}{count + index:02d}' for index in range(len(turning))]

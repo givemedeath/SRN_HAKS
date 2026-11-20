@@ -462,6 +462,7 @@ SETBACK = 0.45  # metres from the kerb's face to the middle of the furniture on 
 FURNITURE = {'bollard': 0.1, 'hydrant': 0.24, 'litter_bin': 0.26}  # each piece's radius seen from above
 BOLLARDS = 1.5  # metres between the bollards of a row
 APART_STREET = 1.2  # metres kept between other furniture, beyond their radii
+MANHOLE = 1.5  # metres across beyond which a node of a manhole's name or material is not one cover
 LIFT = 0.002  # metres a flat piece stands over the ground it lies on, so the two do not flicker
 
 
@@ -560,7 +561,7 @@ def propose_street(text, seed):
 
     def spots(low, high, what):  # places along a kerb, from a point of the tile's own
         found = [low + 0.6 + 0.25 * index for index in range(max(0, int((high - low - 1.2) / 0.25)) + 1)]
-        shift = zlib.crc32(f'{seed}:{what}'.encode()) % len(found) if found else 0
+        shift = zlib.crc32(f'{seed}:{what}:along'.encode()) % len(found) if found else 0  # its own draw: `chance`'s would tie the spot to the piece being chosen
         return found[shift:] + found[:shift]
 
     def kerb(number):
@@ -601,11 +602,13 @@ def propose_street(text, seed):
     for node in nodes:  # the tile's own manholes
         if node.rendered and node.verts and ('manhole' in node.name.lower() or 'manhole' in (node.material or '').lower()):
             points = [moves[id(node)](vertex) for vertex in node.verts]
+            if max(max(point[axis] for point in points) - min(point[axis] for point in points) for axis in range(2)) > MANHOLE:
+                continue  # a road mesh in a manhole's material, not a cover
             holes.append([round(sum(point[axis] for point in points) / len(points), 3) for axis in range(3)])
     if not holes and chance('manhole'):  # a manhole in the road, clear of the kerbs
         lowest = min((height for heights in walk.values() for height in heights if height < geometry.HEAD), default=None)
-        spots = [(x / 2, y / 2) for x in range(-7, 8) for y in range(-7, 8)]; shift = (rng >> 14) % len(spots); spots = spots[shift:] + spots[:shift]
-        for spot in spots if lowest is not None else []:
+        places = [(x / 2, y / 2) for x in range(-7, 8) for y in range(-7, 8)]; shift = (rng >> 14) % len(places); places = places[shift:] + places[:shift]
+        for spot in places if lowest is not None else []:
             if not _within(spot, 1.2) or any(abs(spot[0] * normal[0] + spot[1] * normal[1] - plane) < 1.0 for normal, plane, *_ in kerbs):
                 continue
             level = _clear_ground(ground, spot, 0.5)

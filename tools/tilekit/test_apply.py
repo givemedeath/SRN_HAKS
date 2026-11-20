@@ -69,6 +69,9 @@ class ApplyTests(unittest.TestCase):
         (self.repo / 'srn_t_tst' / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=0\n', encoding='cp1252')
         with self.assertRaisesRegex(ValueError, 'AnimLoop1 off'):
             apply.apply(self.repo, None, self.overlay)
+        (self.overlay / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=1\n', encoding='cp1252')  # a terrain copy's set file is read in place of the pack's
+        self.assertEqual(apply._loop_flags(self.repo, ['srn_t_tst'], 't_a01', 1, self.overlay), [True])
+        self.assertEqual(apply._loop_flags(self.repo, ['srn_t_tst'], 't_a01', 1), [False]); (self.overlay / 'tst.set').unlink()
         (self.repo / 'srn_t_tst' / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=1\n', encoding='cp1252')
         self.assertEqual(apply.apply(self.repo, None, self.overlay)['put'], 1)
 
