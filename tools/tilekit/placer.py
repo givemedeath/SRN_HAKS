@@ -9,7 +9,8 @@ editing the spec, and `detail` checks every placement the same whatever made it.
 - **A fire escape** climbs the first column of windows of one facade: a platform under each window from the second
   storey up, each with its stair to the next.
 - **Air conditioners** hang under some of the other windows, **boards** cover some and **bars** guard some of the
-  lowest, chosen by a pattern from the tile's seed. A **downpipe** runs down one end of each facade.
+  lowest, chosen by a pattern from the tile's seed. A **downpipe** runs down one end of each facade, the other end where a street-level
+  door or window is under the first, none where both have one.
 - **Roof clutter** stands on the highest walkable surface, a margin in from the cell's side, clear of what the roof
   already has, apart from each other. It is cover (`blocks`).
 - **Effects**, at most four a tile (the budget): on about one tile in four a broken **junction box** at street level
@@ -84,6 +85,30 @@ def _on_wall(facing, along, plane, z):
     return [round(facing[0] * plane + (0 if facing[0] else along), 3), round(facing[1] * plane + (along if facing[0] else 0), 3), round(z, 3)]
 
 
+def _openings(nodes):
+    """[(low x, high x, low y, high y)] of the tile's street-level openings: each upright rendered triangle of a door
+    (its frame or its black opening) or a window that starts below `geometry.OVER`."""
+    found = []
+    for node in nodes:
+        name = (node.material or '').lower()
+        if not node.rendered or not (name.startswith('door') or 'black' in name or name.startswith(WINDOW) or 'window' in name):
+            continue
+        for triangle in geometry.triangles(nodes, lambda other, node=node: other is node):
+            if _facing(triangle) is not None and min(point[2] for point in triangle) < geometry.OVER:
+                found.append((min(p[0] for p in triangle), max(p[0] for p in triangle), min(p[1] for p in triangle), max(p[1] for p in triangle)))
+    return found
+
+
+def _over_opening(openings, facing, plane, along, clear=0.3, depth=0.6):
+    """Whether a downpipe at `along` on the facade (`facing`, `plane`) would run down into a door or a shop window."""
+    for low_x, high_x, low_y, high_y in openings:
+        (across_low, across_high), (side_low, side_high) = ((low_x, high_x), (low_y, high_y)) if facing[0] else ((low_y, high_y), (low_x, high_x))
+        out = plane * (facing[0] or facing[1])  # the facade's coordinate across it
+        if across_low - depth <= out <= across_high + depth and side_low - clear <= along <= side_high + clear:
+            return True
+    return False
+
+
 def open_sides(corners, building):
     """The facings {(nx, ny)} of a tile's sides on a street: both corners of the side are not of a `building` terrain.
     Corners are top left, top right, bottom left, bottom right, as a set file gives them (+y is the top)."""
@@ -98,7 +123,7 @@ def propose(text, seed, *, look='brick', open=None):
     facades = {facing: [pane for pane in panes if not _fitted(nodes, facing, pane)] for facing, panes in windows(nodes).items()}
     facades = {facing: panes for facing, panes in facades.items() if panes
                and (open is None or facing in open or abs(panes[0][3]) < geometry.HALF - 0.3)}
-    walls = []
+    walls, openings = [], _openings(nodes)
     for number, (facing, panes) in enumerate(sorted(facades.items())):
         turn = _turn(facing); plane = panes[0][3]; columns = sorted({round(along, 1) for along, *_ in panes}); walls.append((facing, plane, columns, turn))
         climbs = [column for column in columns if sum(round(along, 1) == column for along, *_ in panes) >= 2]  # two clear storeys at least
@@ -115,9 +140,10 @@ def propose(text, seed, *, look='brick', open=None):
                 found.append({'piece': 'boards', 'at': _on_wall(facing, along, plane, bottom + 0.45), 'turn': turn})
             elif row == 0 and pick in (2, 6):
                 found.append({'piece': 'bars', 'at': _on_wall(facing, along, plane, bottom + 0.45), 'turn': turn})
-        end = min(along for along, *_ in panes) - 1.0
-        if abs(end) <= geometry.HALF - 0.3:
-            roof = max(top for _, _, top, _ in panes)
+        ends = [end for end in (min(along for along, *_ in panes) - 1.0, max(along for along, *_ in panes) + 1.0)
+                if abs(end) <= geometry.HALF - 0.3 and not _over_opening(openings, facing, plane, end)]
+        if ends:
+            end = ends[0]; roof = max(top for _, _, top, _ in panes)
             for z in [geometry.OVER + 3.0 * index for index in range(int((roof - geometry.OVER) // 3.0) + 1)]:
                 found.append({'piece': 'downpipe', 'at': _on_wall(facing, end, plane, z), 'turn': turn})
     roof = _roof(nodes, rng); found += roof

@@ -85,3 +85,11 @@ class OpenSidesTest(unittest.TestCase):
         self.assertEqual(placer.open_sides(['Concrete', 'Slums3', 'Concrete', 'Slums3'], slums), {(-1, 0)})
         self.assertEqual(placer.open_sides(['Slums1', 'Concrete', 'Concrete', 'Concrete'], slums), {(1, 0), (0, -1)})
         self.assertEqual(placer.open_sides(['Slums1'] * 4, slums), set())
+
+
+class DownpipeOpeningTest(unittest.TestCase):
+    def test_a_downpipe_keeps_out_of_a_door_on_its_facade(self):
+        door = [(-5.06, -5.03, -4.1, -2.0)]  # a door frame on the facade facing -x, as on dgt04_e09_19
+        self.assertTrue(placer._over_opening(door, (-1, 0), 5.01, -3.5))
+        self.assertFalse(placer._over_opening(door, (-1, 0), 5.01, 1.5))
+        self.assertFalse(placer._over_opening(door, (1, 0), 5.01, -3.5))  # the facade across the cell
