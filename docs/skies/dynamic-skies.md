@@ -111,6 +111,8 @@ and resource hashes; the tests check the pack against it and the materials again
 
 - All five materials of that first build draw with the custom shader; the engine log names no shader or material
   error. The pack now has nine; all of them appear in the later `--play` cycle (rows 16, 17 and 20).
+- The day-only rows 22 and 23, shot at 23:00 by the client fixture, keep their day skies. A fixed row sets only the
+  sky: the area's own lighting still follows the clock, so a day sky over a night area sits above dark ground.
 - Letting time run (two-minute hours): day fades to dusk over about 15 to 30 seconds after 18:00, night to dawn
   after 6:00. A `SetTime` jump also fades, over several seconds.
 
