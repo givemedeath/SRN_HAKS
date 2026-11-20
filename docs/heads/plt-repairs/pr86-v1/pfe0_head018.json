@@ -1,0 +1,59 @@
+{
+ "schemaVersion": 1,
+ "model": "pfe0_head018",
+ "head": "elf-female-a",
+ "defect": "client check 2026-11-04 (PR 86 heads): dark specks, brown bits on rear hair",
+ "source": {
+  "plt": {
+   "path": "srn_head/pfe0_head018.plt",
+   "sha256": "01ceaecd0ef96d5ba707331fd72c09f2b026c97aef75c38e5106b0157d60f367"
+  },
+  "mdl": {
+   "path": "srn_head/pfe0_head018.mdl",
+   "sha256": "84c4aac19fbbec58f9001e86233e3b9007cee63403693661c560bc2712eb72ef"
+  }
+ },
+ "previewRows": {
+  "0": 0,
+  "1": 62,
+  "8": 26,
+  "9": 28
+ },
+ "operations": [
+  {
+   "name": "flecks",
+   "op": "relabel",
+   "neighbours": 32,
+   "minShare": 0.7,
+   "when": {
+    "all": [
+     {
+      "of": "z",
+      "lt": 0.75
+     },
+     {
+      "any": [
+       {
+        "channel": 0
+       },
+       {
+        "channel": 1
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "hair-dark-specks",
+   "op": "despeckle",
+   "threshold": 15,
+   "neighbours": 32,
+   "passes": 2,
+   "side": "darker",
+   "when": {
+    "channel": 1
+   }
+  }
+ ]
+}

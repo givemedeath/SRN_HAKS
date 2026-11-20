@@ -1,0 +1,121 @@
+{
+ "schemaVersion": 1,
+ "model": "pme0_head022",
+ "head": "elf-male-c",
+ "defect": "client check 2026-11-04 (PR 86 heads): blocky olive and black rear hair streaks, default colours",
+ "source": {
+  "plt": {
+   "path": "srn_head/pme0_head022.plt",
+   "sha256": "6b8526876403024775703a903ee50497c934ee114e2e51801d77cce54e568c78"
+  },
+  "mdl": {
+   "path": "srn_head/pme0_head022.mdl",
+   "sha256": "cbb29bddbdb575c8292c5efda027e0a2e7e4f60e5f3a4738a3189bf4f8a0fdb0"
+  }
+ },
+ "previewRows": {
+  "0": 117,
+  "1": 117,
+  "8": 26,
+  "9": 0
+ },
+ "operations": [
+  {
+   "name": "flecks",
+   "op": "relabel",
+   "neighbours": 32,
+   "minShare": 0.7,
+   "when": {
+    "all": [
+     {
+      "of": "z",
+      "lt": 0.75
+     },
+     {
+      "any": [
+       {
+        "channel": 0
+       },
+       {
+        "channel": 1
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "rear-hair-dark-blocks",
+   "op": "despeckle",
+   "threshold": 30,
+   "neighbours": 32,
+   "passes": 2,
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "lt": 0.7
+     }
+    ]
+   },
+   "side": "darker"
+  },
+  {
+   "name": "hair-light-flecks",
+   "op": "despeckle",
+   "threshold": 40,
+   "neighbours": 24,
+   "passes": 2,
+   "side": "lighter",
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "lt": 0.75
+     }
+    ]
+   }
+  },
+  {
+   "name": "rear-hair-black-lift",
+   "op": "curve",
+   "points": [
+    [
+     0,
+     28
+    ],
+    [
+     70,
+     70
+    ],
+    [
+     255,
+     255
+    ]
+   ],
+   "when": {
+    "all": [
+     {
+      "channel": 1
+     },
+     {
+      "of": "z",
+      "lt": 0.65
+     }
+    ]
+   },
+   "ramp": {
+    "of": "z",
+    "from": 0.65,
+    "to": 0.55
+   },
+   "maxFraction": 0.5
+  }
+ ]
+}
