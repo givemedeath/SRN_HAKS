@@ -32,6 +32,8 @@ SHOTS = [
     ('denver-night-play', 16, 23, 0, 0, (270.0,), 62.0),
     ('acid-storm', 17, 23, 0, 1, (0.0, 120.0), 86.0),
     ('dusk-fixed-at-noon', 18, 12, 0, 0, (90.0,), 86.0),
+    ('denver-day-fixed-at-night', 22, 23, 0, 0, (90.0,), 86.0),
+    ('peaks-day-fixed-at-night', 23, 23, 0, 0, (90.0,), 86.0),
 ]
 AREA, MODULE, HAK = 'sk_test', 'srn_skytest', 'srn_skytest'
 # The transition run: two-minute hours, time left to run from just before dusk and just before dawn, a capture every
