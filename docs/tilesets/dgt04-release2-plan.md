@@ -392,6 +392,10 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
   - A side's samples past its ends no longer count as on it: a cornice wrapped round a corner meets the diagonal
     neighbour.
 - **Edge tile:** the edge tile (`c08`) is not crowned, since it is laid outside the area.
+- **Open, left for later by the user (2026-11-20):** the lit windows of Highrise_06 and Highrise_07 seem to float when
+  their tower is seen from far off.
+  - The fog fades the tower's walls into the sky, but not the self-lit `window_lit` panes (`selfillumcolor 0.8`).
+  - This is an assumed cause, not yet confirmed by a capture of the original alone.
 
 ### 5 — Doors
 
