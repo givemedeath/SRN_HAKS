@@ -501,8 +501,15 @@ there is still open.
 
 ## Carried over from release 1
 
-- `hr08_trim`, `hr09_build_g` and `hr09_win08_g` are not reproducible from their specs: they are redrawn with
-  records when the Codex quota allows.
+- **Done 2026-11-20:** `hr08_trim`, `hr09_build_g` and `hr09_win08_g` are redrawn with records into
+  `output/tilekit/redrawn-terrains`. They have entries in `redraw-terrains.json` now.
+  - The user chose local Qwen for this (seed 2).
+  - The trim is redrawn by Qwen.
+  - The two derelict lit variants are composed with the new `keep` option: a share of whole windows, lit warm only
+    where the day picture is dark. The tower shows two squatters' windows, and the boarded window glows through its
+    gaps, not the office light of its source.
+  - Seen in the client: `output/tilekit/redraw3-review`.
+  - Applied to `srn_t_dgt04`.
 - The new edge tiles `srt04_r07_01` and `srt04_x07_01` have not been seen in the client. Look again with a view from
   outside the border once the detail kit makes edges matter.
 - envkit's check area now stages the maps of restyled materials, which affects `pavement`. It has not been seen in

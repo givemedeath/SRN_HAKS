@@ -80,6 +80,18 @@ class RedrawTests(RedrawFixture):
         self.assertIn('The first image is a game texture, by day. The second image', redraw.prompt('pane_g', self.spec['textures']['pane_g'], (64, 64), tool=False))
         self.assertNotIn('out.png', redraw.prompt('pane', self.spec['textures']['pane'], (64, 64), tool=False))
 
+    def test_kept_lights_light_a_share_of_whole_windows_where_they_are_dark(self):
+        mask = np.zeros((256, 256, 1)); dark = np.ones((256, 256))
+        for row in range(4):
+            for column in range(4):  # sixteen windows, each two lit panes split by a mullion
+                top, left = 16 + row * 60, 16 + column * 60; mask[top:top + 30, left:left + 12] = 1; mask[top:top + 30, left + 16:left + 28] = 1
+        dark[:, 80:86] = 0  # a board across the second column of windows, never lit
+        kept = redraw.kept_lights(mask, dark, 0.25, seed=3)[..., 0]
+        windows = [(row, column) for row in range(4) for column in range(4) if kept[16 + row * 60 + 15, 16 + column * 60 + 14] > 0.5]
+        self.assertEqual(len(windows), 4)  # a quarter of them, each lit across its mullion
+        every = redraw.kept_lights(mask, dark, 1.0)[..., 0]; self.assertGreater(every[31, 78], 0.5); self.assertTrue(np.all(every[:, 82:84] < 0.2))
+        self.assertEqual(len([one for one in range(4) if redraw.kept_lights(mask, dark, 0.0)[16 + one * 60 + 15].max() > 0.5]), 1)  # at least one
+
     def test_a_build_starts_a_redrawn_texture_from_its_redrawn_picture(self):
         (self.root / 'new').mkdir(); Image.new('RGB', (64, 64), (0, 0, 255)).save(self.root / 'new' / 'pane.png'); seen = {}
 

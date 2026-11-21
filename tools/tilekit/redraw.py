@@ -171,13 +171,50 @@ def black_kept(old, picture, *, below=8):
     return Image.fromarray(shown)
 
 
-def composed(day, old_day, old_lit, enlarged=None):
+def _blobs(lit):
+    """{label: cells} of the 4-connected True regions of a small boolean grid, labelled in reading order."""
+    labels = np.zeros(lit.shape, int); count = 0
+    for start in zip(*np.nonzero(lit)):
+        if labels[start]:
+            continue
+        count += 1; labels[start] = count; stack = [start]
+        while stack:
+            row, column = stack.pop()
+            for near in ((row + 1, column), (row - 1, column), (row, column + 1), (row, column - 1)):
+                if 0 <= near[0] < lit.shape[0] and 0 <= near[1] < lit.shape[1] and lit[near] and not labels[near]:
+                    labels[near] = count; stack.append(near)
+    return labels, count
+
+
+def kept_lights(mask, dark, share, seed=0):
+    """Where a share of the lit windows of `mask` (H, W, 1, 0 to 1) are lit instead: the panes lit near one another
+    make one window, at least one window is kept, picked by `seed`, and each kept window is lit over its whole box
+    where `dark` (H, W, 0 to 1: how dark the day picture is) says it is open or a gap, not over its frame or the boards
+    across it. A derelict tower shows two or three squatters' windows, not an office's lit grid."""
+    from PIL import Image, ImageFilter
+    height, width = mask.shape[:2]; step = max(1, min(height, width) // 128)
+    small = np.asarray(Image.fromarray(np.uint8(mask[..., 0] * 255 + 0.5)).resize((max(1, width // step), max(1, height // step)), Image.BOX)) > 127
+    near = np.asarray(Image.fromarray(np.uint8(small * 255)).filter(ImageFilter.MaxFilter(5))) > 127  # a window's panes, split by its mullions, as one
+    labels, count = _blobs(near)
+    if not count:
+        return mask
+    chosen = np.random.default_rng(seed).choice(np.arange(1, count + 1), size=max(1, round(share * count)), replace=False)
+    lit = np.zeros((height, width))
+    for label in chosen:
+        rows, columns = np.nonzero(labels == label)
+        lit[rows.min() * step:(rows.max() + 1) * step, columns.min() * step:(columns.max() + 1) * step] = 1.0
+    soft = max(1, width // 256)
+    return (np.asarray(Image.fromarray(np.uint8(lit * dark * 255 + 0.5)).filter(ImageFilter.GaussianBlur(soft)), np.float64) / 255)[..., None]
+
+
+def composed(day, old_day, old_lit, enlarged=None, keep=None):
     """The lit variant of a redrawn day picture, made with no generator: its glass lit where the old night texture is
     lit, in that texture's colours, with the day picture's own detail (a curtain, a blind, dirt) showing against the
     light; everything else as by day, darker. day: the redrawn day picture (PIL image). old_day, old_lit: the
     textures the game draws now (uint8 arrays; a lit one's alpha limits what is lit). enlarged: the old lit picture
     as the upscaling model enlarged it, for cleaner colours. Lit is what the old night texture shows well brighter
-    than the old day one, or outright bright (a neon tube is as bright by day in the old pictures)."""
+    than the old day one, or outright bright (a neon tube is as bright by day in the old pictures). keep: {share,
+    colour, seed} leaves only that share of the lit windows (`kept_lights`), lit in `colour` where it is given."""
     from PIL import Image, ImageFilter
     weights = np.array([0.2126, 0.7152, 0.0722]); size = day.size
     sized = lambda picture: np.asarray(Image.fromarray(np.ascontiguousarray(np.asarray(picture)[..., :3])).resize(size, Image.LANCZOS), np.float64)
@@ -189,6 +226,10 @@ def composed(day, old_day, old_lit, enlarged=None):
     soft = max(1, size[0] // 256)
     mask = np.asarray(Image.fromarray(np.uint8(mask * 255 + 0.5)).filter(ImageFilter.GaussianBlur(soft)), np.float64)[..., None] / 255
     colour = np.asarray(Image.fromarray(np.uint8(night + 0.5)).filter(ImageFilter.GaussianBlur(soft * 2)), np.float64)
+    if keep:
+        mask = kept_lights(mask, np.clip((60 - new @ weights) / 40, 0, 1), keep.get('share', 1.0), keep.get('seed', 0))
+        if keep.get('colour'):  # the old light's brightness, in the colour asked for
+            colour = (colour @ weights)[..., None] / 255 * np.array(keep['colour'], np.float64) * 1.4
     light = new @ weights; inside = mask[..., 0] > 0.5
     low, high = np.percentile(light[inside], [5, 95]) if inside.sum() > 50 else (0.0, 255.0)
     detail = np.clip((light - low) / max(high - low, 1.0), 0, 1)[..., None]
@@ -225,6 +266,8 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
             require(not how.get('glazed') or was.get('glazed') or 'source' not in was, f'{target} was drawn with its openings black: take it and its record away and draw it again glazed')
             require(day is None or 'day' not in was or (day.is_file() and was['day'] == _file_sha(day)),
                     f'{target} was made from another {how.get("of")} day picture: take it and its record away and draw it again')
+            require(not how.get('compose') or 'source' not in was or was.get('keep') == how.get('keep'),
+                    f'{target} was composed with other lights kept: take it and its record away and compose it again')
             return 'kept'
         whole = original(); old = whole[..., :3]; height, width = old.shape[:2]
         size = (SIDE, max(64, round(SIDE * height / width / 64) * 64)) if width >= height else (max(64, round(SIDE * width / height / 64) * 64), SIDE)
@@ -235,9 +278,10 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
             cleaner = _opened(better) if better is not None and better.is_file() else None
             with Image.open(day) as shown:
                 picture = composed(shown, np.asarray(material.current(repo, source(how['of']), stock=stock, before=spec.get('before'))), whole,
-                                   None if cleaner is None else np.asarray(cleaner)).resize(size, Image.LANCZOS)
+                                   None if cleaner is None else np.asarray(cleaner), keep=how.get('keep')).resize(size, Image.LANCZOS)
             picture.save(target)
-            record.write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'day': _file_sha(day), 'size': list(size)}, indent=1) + '\n', encoding='utf-8')
+            record.write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'day': _file_sha(day), 'size': list(size),
+                                          **({'keep': how['keep']} if how.get('keep') else {})}, indent=1) + '\n', encoding='utf-8')
             return 'composed'
         work = folder / 'jobs' / name
         if work.exists():
