@@ -545,8 +545,34 @@ rate that this test can see.
 - **Likely causes:**
   - the client parses the larger ASCII tile models, with the kit merged into them;
   - each restyled material loads four DDS maps.
-- **Not tried:** compiling the tile models for the packs. That changes what the packs hold, so it is the user's
-  decision.
+- **Compiling** the tile models for the packs was tried next (below). Adopting it changes what the packs hold, so it
+  is the user's decision.
+
+#### Compile trial with NeverBlender (user, 2026-11-20)
+
+- **Compile:** every drawn dgt04 tile model in the packs (489 ASCII models) through NeverBlender's bulk compile
+  (`tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py`), in 59 s. The binaries went into an overlay
+  (`output/tilekit/compiled-trial/converted/binary`); the packs were not changed.
+- **Audit** of each binary against its source:
+  - 437 match exactly;
+  - 33 differ by at most 3.7e-6 m and 0.0002° in static positions and rotations;
+  - 15 report clip differences that are not real: decompiled back, two of them (`dgt04_e09_06`, `dgt04_e09_17`) have
+    the same keys, under lowercased node names;
+  - 4 cannot be read by the audit's decoder, which refuses duplicate emitter names (`dgt04_e09_21`, `dgt04_z09_01`,
+    `dgt05_a00_01`, `dgt05_a01_01`).
+  The strict `compile_folder` publishes nothing when any audit differs, so the trial used its plan and run steps.
+- **Look:** 16 near views by day and night (`output/tilekit/compiled-look`) against the packed ASCII
+  (`final-look2`). 14 are pixel-identical; the other two differ in under 0.1% of pixels, in animated smoke.
+- **Frame rate:** unchanged, 174–185 at 6 s (`output/tilekit/perf/comp1`, `comp2`).
+- **Area load**, run 1 / run 2:
+
+  | Load | Baseline (s) | Packed ASCII (s) | Compiled (s) |
+  |---|---|---|---|
+  | Review block, night | 0.9–1.2 | 3.83 / 3.78 | 1.06 / 1.12 |
+  | Slums 32×32, day | 1.25–1.45 | 6.58 / 6.45 | 1.70 / 1.75 |
+  | Slums 32×32, night | 1.5–2.1 | 6.77 / 6.83 | 1.95 / 2.02 |
+
+  Compiled models bring the loads back to the baseline, within 20%. The ASCII parse was the cost, not the textures.
 - One look pass over the whole block, then `PROVENANCE.md`.
 - One merge to `main`.
 
