@@ -2357,3 +2357,16 @@ grating screen with steel posts and a lit band 1 m behind it. The crown draws th
 entry, so existing areas do not move; `srn_2da/dgt04_edge.2da` and `dgt04palstd.itp` gain their entries. The SRN
 project operator passed the look in the game client on 2026-11-20 (review captures in ignored
 `output/tilekit/crown-review3` and `crown-review4`).
+
+## Modern Exterior restyle, release 2 finish (`srn_t_dgt04`; 2026-11-20)
+
+- `hr08_trim`, `hr09_build_g` and `hr09_win08_g` are redrawn with records. Their release 1 pictures had been placed
+  by hand with none.
+  - `hr08_trim` is drawn by the local Qwen image edit model on the operator's shared ComfyUI (seed 2), from release
+    1's `hrise_05_trim`. The prompt is in `docs/tilesets/dgt04/redraw-terrains.json`.
+  - The two derelict lit variants are composed in code by `tools/tilekit/redraw.py` from their redrawn day pictures:
+    a share of whole windows lit warm where the day picture is dark (`keep`).
+  - Records: ignored `output/tilekit/redrawn-terrains`. Client check: `output/tilekit/redraw3-review`.
+- The jamb door hooks of tiles 359, 361 and 560 in `dgt04.set` are turned 90°. Each hook stood in its doorway's
+  frame but laid the door beside the opening; turned, the door fills it (client check
+  `output/tilekit/jamb-review2`).
