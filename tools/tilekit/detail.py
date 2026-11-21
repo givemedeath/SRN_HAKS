@@ -315,7 +315,7 @@ def detail(repo, spec, kit, folder):
         if name not in wanted:
             continue
         require(not others, f'{name} is drawn by other tilesets too ({", ".join(others)}): its pieces would show there')
-        pack_text = Path(source).read_bytes().decode('cp1252'); wok_path = Path(source).with_suffix('.wok')
+        pack_text = Path(source).read_bytes().decode('cp1252'); wok_path = (Path(repo) / Path(source).parent.name / Path(source).name).with_suffix('.wok')  # in the pack, beside a compiled model too
         wok = wok_path.read_bytes().decode('cp1252') if wok_path.is_file() else None
         made[name] = (file, source, wok_path, wok, pack_text, *place(text, name, wanted[name], kit, cache, pack_text=pack_text, wok=wok))
     missing = sorted(set(wanted) - set(made)); require(not missing, 'No uncompiled model of the tileset is ' + ', '.join(missing))

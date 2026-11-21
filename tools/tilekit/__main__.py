@@ -5,7 +5,8 @@ game client each time, with an overlay folder shown instead of the packs' own fi
 textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps` and `shadows` write changed tile
 models into it, `detail` adds kit pieces to tiles there and `remesh` replaces a tile's visible meshes there; `count`
 says what each tile costs to draw (faces, mesh nodes, materials) against a budget; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
-`apply` moves an overlay whose look the user passed into the packs."""
+`apply` moves an overlay whose look the user passed into the packs; `compile` makes the packs' tile models from their
+ASCII sources (`sources/<pack>/`) with NeverBlender."""
 import argparse
 import json
 import sys
@@ -108,7 +109,14 @@ def detail_command(chosen):
 
 def remesh_command(chosen):
     from . import remesh
-    told = remesh.remesh(chosen.repo, chosen.tileset, [name for name in chosen.tiles.split(',') if name], chosen.source, chosen.out)
+    told = remesh.remesh(chosen.repo, chosen.tileset, [name for name in chosen.tiles.split(',') if name], chosen.source, chosen.out, joins=chosen.joins, add=chosen.add)
+    print(json.dumps(told, indent=1))
+    return 0
+
+
+def crown_command(chosen):
+    from . import crown
+    told = crown.write(chosen.repo, chosen.tileset, chosen.terrain, [name for name in chosen.tiles.split(',') if name], chosen.out, chosen.overlay)
     print(json.dumps(told, indent=1))
     return 0
 
@@ -134,7 +142,22 @@ def doors_command(chosen):
 def apply_command(chosen):
     from . import apply
     spec = _json(chosen.spec) if chosen.spec else None  # none: the overlay's changed models alone
-    print(json.dumps(apply.apply(chosen.repo, spec, chosen.overlay)))
+    from .compiled import compile_models, toolchain
+    if chosen.blender or chosen.addon:
+        toolchain(chosen.blender, chosen.addon)  # both, checked before anything is written
+    compiler = (lambda keys: compile_models(chosen.repo, chosen.blender, chosen.addon, keys)) if chosen.blender or chosen.addon else None
+    print(json.dumps(apply.apply(chosen.repo, spec, chosen.overlay, compiler)))
+    return 0
+
+
+def compile_command(chosen):
+    from . import compiled
+    if chosen.check:
+        problems = compiled.check(chosen.repo); print(json.dumps({'problems': problems}, indent=1)); return 1 if problems else 0
+    compiled.toolchain(chosen.blender, chosen.addon)  # before anything moves
+    moved = compiled.adopt(chosen.repo, chosen.adopt) if chosen.adopt else []
+    told = compiled.compile_models(chosen.repo, chosen.blender, chosen.addon, chosen.model or None)
+    print(json.dumps({'adopted': len(moved), **told}, indent=1))
     return 0
 
 
@@ -203,6 +226,13 @@ def main(arguments=None):
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
     nine.add_argument('--spec', type=Path, help='the tileset\'s material spec: the textures moved (without it, only the overlay\'s changed models)')
     nine.add_argument('--overlay', required=True, type=Path, help='the review overlay the look was passed on'); nine.add_argument('--repo', type=Path, default=REPO)
+    nine.add_argument('--blender', type=Path, help='the Blender that runs NeverBlender: needed when the overlay changes tile models (compiled into the packs)')
+    nine.add_argument('--addon', type=Path, help='the NeverBlender add-on folder, with its bundled cleanmodels')
+    sixteen = commands.add_parser('compile', help='compile tile models from their ASCII sources (sources/<pack>/) into the packs, or --check the pairs')
+    sixteen.add_argument('--blender', type=Path, help='the Blender that runs NeverBlender'); sixteen.add_argument('--addon', type=Path, help='the NeverBlender add-on folder, with its bundled cleanmodels')
+    sixteen.add_argument('--model', action='append', help='<pack>/<name>.mdl to compile (default: every source whose binary is missing or out of date)')
+    sixteen.add_argument('--adopt', action='append', help='a tile pack whose ASCII models move to sources/ first (once per pack)')
+    sixteen.add_argument('--check', action='store_true', help='only check that every source has the binary the manifest pins'); sixteen.add_argument('--repo', type=Path, default=REPO)
     ten = commands.add_parser('terrain', help='copy building terrains under names of their own and make the palette names descriptive, into a folder')
     ten.add_argument('--spec', required=True, type=Path, help='the tileset\'s terrain spec (docs/tilesets/<tileset>/terrains.json)')
     ten.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay'); ten.add_argument('--repo', type=Path, default=REPO)
@@ -214,16 +244,24 @@ def main(arguments=None):
     twelve.add_argument('--tileset', required=True); twelve.add_argument('--tiles', required=True, help='the tile models rebuilt, comma separated')
     twelve.add_argument('--source', required=True, type=Path, help='the folder of rebuilds, <tile>.mdl uncompiled in the tile\'s coordinates')
     twelve.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); twelve.add_argument('--repo', type=Path, default=REPO)
+    twelve.add_argument('--joins', help='a terrain whose tiles may change their sides where they meet one another alike (a crown)')
+    twelve.add_argument('--add', action='store_true', help="keep the tiles' own meshes and draw the rebuilds as well (a crown)")
     thirteen = commands.add_parser('count', help='faces, rendered mesh nodes and materials of each tile, against a budget (exit 1 when any is over)')
     thirteen.add_argument('--tileset', required=True); thirteen.add_argument('--overlay', type=Path, help='a review overlay, read before the packs')
     thirteen.add_argument('--faces', type=int); thirteen.add_argument('--nodes', type=int); thirteen.add_argument('--materials', type=int)
     thirteen.add_argument('--out', type=Path, help='a JSON file for every tile\'s counts'); thirteen.add_argument('--repo', type=Path, default=REPO)
     fourteen = commands.add_parser('doors', help='list the door pack\'s models: family, kind, faces, textures, and the table rows and tile hooks that use them')
     fourteen.add_argument('--out', required=True, type=Path, help='the folder doors.json and doors.csv are written to'); fourteen.add_argument('--repo', type=Path, default=REPO)
+    fifteen = commands.add_parser('crown', help='write rebuilds of a tower terrain\'s tiles with a parapet, cornice and set-back screen, for remesh --joins')
+    fifteen.add_argument('--tileset', required=True); fifteen.add_argument('--terrain', required=True, help='the tower\'s terrain, as the set file names it')
+    fifteen.add_argument('--tiles', required=True, help='its tile models, comma separated'); fifteen.add_argument('--out', required=True, type=Path, help='the folder of rebuilds: remesh --source')
+    fifteen.add_argument('--overlay', type=Path, help='a review overlay read before the packs (a copied terrain\'s)'); fifteen.add_argument('--repo', type=Path, default=REPO)
     chosen = parser.parse_args(arguments)
     try:
         if chosen.command == 'doors':
             return doors_command(chosen)
+        if chosen.command == 'crown':
+            return crown_command(chosen)
         if chosen.command == 'detail':
             return detail_command(chosen)
         if chosen.command == 'remesh':
@@ -234,6 +272,8 @@ def main(arguments=None):
             return terrain_command(chosen)
         if chosen.command == 'apply':
             return apply_command(chosen)
+        if chosen.command == 'compile':
+            return compile_command(chosen)
         if chosen.command == 'shadows':
             return shadows_command(chosen)
         if chosen.command == 'lamps':

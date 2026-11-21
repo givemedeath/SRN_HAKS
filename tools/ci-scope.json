@@ -28,7 +28,7 @@
   "wheel": [
     "^tools/phenomorpher/"
   ],
-  "testCheckout": [".github", "docs", "test-modules", "tools"],
+  "testCheckout": [".github", "docs", "sources", "test-modules", "tools"],
   "groups": [
     {"name": "packs", "packTests": true, "shards": 1},
     {"name": "phenotypes", "pattern": "^tools/phenotypes/", "shards": 3},

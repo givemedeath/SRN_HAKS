@@ -1,7 +1,8 @@
 """A review overlay moved into the packs once its look has passed the user's gate. Each restyled texture of the spec
 is its material file and the DDS maps that file names (or, for a plain one, its DDS and the TXI beside it), put in
 every pack that held a copy of that name; the old TGA and DDS copies are deleted from every pack. A base-game texture,
-which no pack held, goes to the tileset's own pack. A changed tile model replaces the one pack copy it was made from.
+which no pack held, goes to the tileset's own pack. A changed tile model replaces the one pack copy it was made from:
+its ASCII source (`compiled`, `sources/<pack>/`), compiled into the pack once everything is written.
 A name that ends up in more than one pack is an expected override in hakbuilder.json; one that no longer does is not.
 A tileset's set file, edge table and palette replace their pack copies only with the record of the copy that made
 them (`MADE_FROM`, a copied terrain's), only over the very pack file they were made from, and a set file or table only
@@ -18,6 +19,7 @@ import re
 from pathlib import Path
 
 from . import inventory, require
+from .compiled import SOURCES, adopted, source as source_of, source_target, stale
 from .cuts import WALK_CUTS
 
 OLD = ('.tga', '.dds')  # an original's copies, deleted once its restyle is in
@@ -166,9 +168,9 @@ def plan(repo, spec, overlay):
             require(spec.get('tileset') and own in packs, f'{path.name} is new: the spec names the tileset whose pack takes it')
             require((overlay / MADE_FROM).is_file(), f'{path.name} is new, and the overlay has no {MADE_FROM}: only a whole terrain copy brings new tiles')
             require(path.stem.lower() in recorded | edged, f'{path.name} is new, and {MADE_FROM} catalogues no tile of it and names no edge tile of it')  # whose model and walkmesh are both here (`lacking`)
-            put.append((path, repo / own / path.name)); continue
+            put.append((path, source_target(repo, repo / own / path.name))); continue
         require(len(holders) == 1, f'{path.name}: a changed file replaces the one pack copy it was made from, not {len(holders)}')
-        (was,) = holders.values(); made, there = path.read_bytes(), was.read_bytes()  # each read once
+        (was,) = holders.values(); made, there = path.read_bytes(), source_of(repo, was).read_bytes()  # each read once; a compiled tile model's source
         require(path.suffix.lower() not in TABLES or path.name.lower() in made_from or made == there,
                 f'{path.name}: a set file, edge table or palette replaces its pack copy only with the {MADE_FROM} of the copy that made it')  # only terrain.copy makes them
         entry = cut['models'].get(path.stem.lower())
@@ -185,7 +187,7 @@ def plan(repo, spec, overlay):
             require(hashlib.sha256(there).hexdigest() == made_from[path.name.lower()], f'{path.name}: the pack copy changed since the overlay was made from it: make the overlay again')
         if path.suffix.lower() in ('.set', '.2da'):
             require(_extends(path.suffix, there, made),f'{path.name}: it lacks or changes entries the pack copy has (added since the overlay was made?): make the overlay again')
-        put.append((path, was))
+        put.append((path, source_target(repo, was)))  # a tile model to its source, compiled into the pack by `apply`
     after = {name: set(holding) for name, holding in held.items()}  # what each pack holds once this apply is done
     for path in delete:
         after[path.name.lower()].discard(path.parent.name)
@@ -202,11 +204,17 @@ def plan(repo, spec, overlay):
             'catalog': _catalogued(repo, record.get('catalog', {})), 'cut': cut}  # merged before anything is written, so a refusal changes nothing
 
 
-def apply(repo, spec, overlay):
-    """Carry out `plan`, rewrite hakbuilder.json's expected overrides for the names touched, and tell the counts."""
+def apply(repo, spec, overlay, compiler=None):
+    """Carry out `plan`, rewrite hakbuilder.json's expected overrides for the names touched, compile the tile models
+    written with `compiler(keys)` (`compiled.compile_models` with the user's Blender), last, and tell the counts."""
     repo = Path(repo); moves = plan(repo, spec, overlay)
+    models = [f'{target.parent.name}/{target.name}' for _, target in moves['put'] if target.parent.parent == repo / SOURCES]
+    shipped = set(adopted(repo))  # a material there decides which compiled meshes have tangents: a change recompiles them all
+    restyled = any(path.suffix.lower() == '.mtr' and path.parent.name in shipped for path in [target for _, target in moves['put']] + moves['delete'])
+    require(not (models or restyled) or compiler, f'The overlay changes {len(models)} tile model(s)' + (' and the materials of compiled packs' if restyled else '')
+            + ', compiled into the packs: give the Blender and the NeverBlender add-on that compile them (--blender, --addon)')
     for path, target in moves['put']:  # written first: a write that fails leaves the old copies in place
-        target.write_bytes(path.read_bytes())
+        target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(path.read_bytes())
     for path in moves['delete']:
         path.unlink()
     configuration = _configuration(repo); waiting = dict(moves['overrides']); entries, dropped = [], 0
@@ -226,9 +234,11 @@ def apply(repo, spec, overlay):
         for model, entry in moves['cut']['models'].items():
             baseline['models'][model] = {**baseline['models'].get(model, {}), 'wok': entry['wokTo'], 'aabb': entry['aabbTo'], 'cut': len(entry.get('footprints', []))}
         path.write_text(json.dumps(baseline, indent=2) + '\n', encoding='utf-8', newline='\n')
-    told = {'put': len(moves['put']), 'deleted': len(moves['delete']), 'overrides': len(moves['overrides']), 'new overrides': len(waiting), 'dropped overrides': dropped,
+    told = {'put': len(moves['put']), 'compiled': len(models), 'deleted': len(moves['delete']), 'overrides': len(moves['overrides']), 'new overrides': len(waiting), 'dropped overrides': dropped,
             'not applied': moves['left']}
     if moves['catalog'] is not None:  # a copied terrain's numbers, recorded as envkit's install records its own
         from tools.envkit import catalog
         catalog.save(repo / catalog.PATH, moves['catalog']); told['catalogued'] = True
+    if models or restyled:  # last, once all else is written: one audit failure compiles none, and `tilekit compile` finishes it once fixed
+        compiler(sorted(set(models) | set(stale(repo))))
     return told

@@ -578,6 +578,206 @@
    "walkmesh": false
   },
   {
+   "model": "srn_dr_double",
+   "family": "srn_dr_double",
+   "form": "ascii",
+   "faces": 780,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1096,
+     "label": "srn_DoubleDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_gate",
+   "family": "srn_dr_gate",
+   "form": "ascii",
+   "faces": 924,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1101,
+     "label": "srn_Gate"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_inner",
+   "family": "srn_dr_inner",
+   "form": "ascii",
+   "faces": 96,
+   "nodes": 2,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1102,
+     "label": "srn_InteriorDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_load",
+   "family": "srn_dr_load",
+   "form": "ascii",
+   "faces": 108,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1100,
+     "label": "srn_LoadingShutter"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_shop",
+   "family": "srn_dr_shop",
+   "form": "ascii",
+   "faces": 216,
+   "nodes": 2,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1095,
+     "label": "srn_ShopDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_shut2",
+   "family": "srn_dr_shut",
+   "form": "ascii",
+   "faces": 96,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1098,
+     "label": "srn_Shutter2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_shut4",
+   "family": "srn_dr_shut",
+   "form": "ascii",
+   "faces": 96,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1099,
+     "label": "srn_Shutter4"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_steel",
+   "family": "srn_dr_steel",
+   "form": "ascii",
+   "faces": 680,
+   "nodes": 2,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1097,
+     "label": "srn_SteelDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_street",
+   "family": "srn_dr_street",
+   "form": "ascii",
+   "faces": 416,
+   "nodes": 2,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1094,
+     "label": "srn_StreetDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_strip",
+   "family": "srn_dr_strip",
+   "form": "ascii",
+   "faces": 144,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1103,
+     "label": "srn_StripCurtain"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "curtain",
+   "walkmesh": true
+  },
+  {
    "model": "t1doora1",
    "family": "t1doora",
    "form": "ascii",

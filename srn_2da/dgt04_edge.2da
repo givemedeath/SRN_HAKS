@@ -162,3 +162,8 @@
 136     Highrise_09           ****               ****                  0                    srt04_x04_01     
 137     Highrise_09           ****               Concrete              0                    srt04_x07_01     
 138    Concrete+             ****               Highrise_09           0                    TCN01_Z15_01     
+139     Highrise_10           ****               Highrise_10           0                    srt04_c07_01     
+140     Highrise_10           ****               Water                 0                    TCN01_Z17_01     
+141     Highrise_10           ****               ****                  0                    srt04_c07_01     
+142     Highrise_10           ****               Concrete              0                    srt04_c08_01     
+143    Concrete+             ****               Highrise_10           0                    TCN01_Z15_01     

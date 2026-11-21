@@ -33,6 +33,7 @@ jobs:
           sparse-checkout: |
             .github
             docs
+            sources
             test-modules
             tools
       - uses: actions/setup-python@v6

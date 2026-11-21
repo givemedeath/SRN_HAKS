@@ -242,13 +242,14 @@ def low_massing(triangles_, step=STEP, low=LOW, head=HEAD):
 
 
 def sides(triangles_, step=STEP, half=HALF, edge=EDGE):
-    """{(side, along, height)} on a step grid of the samples lying on the cell's four sides: the profile a neighbour meets."""
+    """{(side, along, height)} on a step grid of the samples lying on the cell's four sides: the profile a neighbour meets.
+    A point past a side's ends (a cornice wrapped round an outer corner) meets the neighbour across the corner, not this one."""
     found = set()
     for triangle in triangles_:
         for point in samples(triangle, step):
             x, y, z = point
             for side, across, along in (('w', -x, y), ('e', x, y), ('s', -y, x), ('n', y, x)):
-                if abs(across - half) <= edge:
+                if abs(across - half) <= edge and abs(along) <= half + edge:
                     found.add((side, math.floor(along / step), math.floor(z / step)))
     return found
 

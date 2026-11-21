@@ -46,8 +46,8 @@ GRIMY = {'casing': 0.16, 'galvanised': 0.14, 'paint': 0.18, 'steel': 0.08, 'grat
 GLOWS = {'red': (255, 48, 36), 'white': (210, 220, 230), 'ember': (255, 110, 24)}  # cells that glow whole
 
 
-def cell_of(look):
-    index = ORDER.index(look); return index % CELLS, index // CELLS
+def cell_of(look, order=None):
+    index = (order or ORDER).index(look); return index % CELLS, index // CELLS
 
 
 def _grime(side, seed):
@@ -60,12 +60,14 @@ def _grime(side, seed):
     return np.clip(0.5 * blotch + 0.35 * streaks ** 3 + 0.15 * fine, 0, 1)
 
 
-def atlas(masters):
-    """{colour, normal, roughness, metal} of the kit's atlas, `SIZE` square."""
+def atlas(masters, looks=None, grimy=None, glows=None, painted=None):
+    """{colour, normal, roughness, metal} of the kit's atlas (or of another with `looks`, `grimy`, `glows` and
+    `painted`, {look: a function changing its cell's maps}), `SIZE` square."""
+    looks = looks or LOOKS; grimy = GRIMY if grimy is None else grimy; glows = GLOWS if glows is None else glows; order = list(looks)
     side = SIZE // CELLS; colour = np.zeros((SIZE, SIZE, 3), np.uint8); normal = np.zeros((SIZE, SIZE, 3), np.uint8)
     roughness = np.zeros((SIZE, SIZE)); metal = np.zeros((SIZE, SIZE)); glow = np.zeros((SIZE, SIZE, 3), np.uint8)
-    for look, (scan, tone, rough, metallic) in LOOKS.items():
-        column, row = cell_of(look); box = (slice(row * side, (row + 1) * side), slice(column * side, (column + 1) * side))
+    for look, (scan, tone, rough, metallic) in looks.items():
+        column, row = cell_of(look, order); box = (slice(row * side, (row + 1) * side), slice(column * side, (column + 1) * side))
         if scan:
             maps = material.master(Path(masters) / scan); size = (side, side)
             made = {'colour': material._sized(maps['colour'], size), 'normal': material._renormal(material._sized(maps['normal'], size)),
@@ -75,21 +77,23 @@ def atlas(masters):
         else:
             made = {'colour': np.full((side, side, 3), tone, np.uint8), 'normal': np.full((side, side, 3), (128, 128, 255), np.uint8),
                     'roughness': np.full((side, side), rough), 'metal': np.full((side, side), metallic)}
-            if look in GRIMY:
-                made['colour'] = np.uint8(np.clip(made['colour'] * (1 - GRIMY[look] * _grime(side, ORDER.index(look)))[..., None], 0, 255))
+            if look in grimy:
+                made['colour'] = np.uint8(np.clip(made['colour'] * (1 - grimy[look] * _grime(side, order.index(look)))[..., None], 0, 255))
             if look == 'grating':  # a hole every 16 pixels, about 7 cm, its bars' edges lit
                 rows = np.arange(side) % 16; hole = (rows[:, None] >= 4) & (rows[None, :] >= 4); made['colour'][hole] = (14, 14, 16)
                 made['normal'][(rows == 3)[:, None] & ~hole] = (128, 200, 220)
             if look == 'grille':  # slats across: a dark gap every 24 pixels, lit tops
                 rows = np.arange(side) % 24; made['colour'][rows < 6] = (18, 18, 20)
                 made['normal'][rows == 6] = (128, 200, 220); made['normal'][rows == 23] = (128, 56, 220)
+            if painted and look in painted:
+                painted[look](made, side)
         if rough is not None:
             made['roughness'] = np.full((side, side), rough)
         if metallic is not None:
             made['metal'] = np.full((side, side), metallic)
         colour[box], normal[box], roughness[box], metal[box] = made['colour'], made['normal'], made['roughness'], made['metal']
-        if look in GLOWS:
-            colour[box] = GLOWS[look]; glow[box] = GLOWS[look]
+        if look in glows:
+            colour[box] = glows[look]; glow[box] = glows[look]
     return {'colour': colour, 'normal': normal, 'roughness': roughness, 'metal': metal, 'glow': glow}
 
 
@@ -98,8 +102,10 @@ class Mesh:
     `smooth` key shares its corners with the other faces of that key, so the client rounds the light across them (a
     pipe's sides); every other face has corners of its own and a hard edge."""
 
-    def __init__(self):
+    def __init__(self, order=None, atlas=None):
+        """`order` and `atlas`: the looks and the material of another atlas than the kit's (`doorset`'s)."""
         self.verts, self.tverts, self.faces = [], [], []; self.shared = {}; self.keys = 0
+        self.order, self.atlas = order or ORDER, atlas or ATLAS
 
     def key(self):
         """A new smoothing key: one round surface."""
@@ -123,7 +129,7 @@ class Mesh:
             return
         if frame is None:
             frame = _frame((a, b, c), normal)
-        keep, low, scale = frame; column, row = cell_of(look)
+        keep, low, scale = frame; column, row = cell_of(look, self.order)
         tbase = len(self.tverts); corners = [self._vertex(point, smooth) for point in (a, b, c)]
         for point in (a, b, c):  # a texture vertex's v runs up the picture: rows from the bottom
             x, y = point[keep[0]], point[keep[1]]
@@ -262,7 +268,7 @@ class Mesh:
     def text(self, name, *, shadow=False):
         lines = [f'newmodel {name}', f'setsupermodel {name} null', 'classification TILE', f'beginmodelgeom {name}', f'node dummy {name}', '  parent null', 'endnode',
                  'node trimesh body', f'  parent {name}', '  position 0.0 0.0 0.0', '  orientation 0.0 0.0 0.0 0.0', '  ambient 1.0 1.0 1.0', '  diffuse 1.0 1.0 1.0',
-                 '  specular 0.0 0.0 0.0', f'  bitmap {ATLAS}', '  render 1', f'  shadow {1 if shadow else 0}', '  tilefade 0', f'  verts {len(self.verts)}']
+                 '  specular 0.0 0.0 0.0', f'  bitmap {self.atlas}', '  render 1', f'  shadow {1 if shadow else 0}', '  tilefade 0', f'  verts {len(self.verts)}']
         lines += [f'    {x:.4f} {y:.4f} {z:.4f}' for x, y, z in self.verts] + [f'  tverts {len(self.tverts)}'] + [f'    {u:.5f} {v:.5f} 0' for u, v in self.tverts]
         lines += [f'  faces {len(self.faces)}'] + ['    ' + ' '.join(map(str, face)) for face in self.faces] + ['endnode', f'endmodelgeom {name}', f'donemodel {name}', '']
         return '\n'.join(lines)

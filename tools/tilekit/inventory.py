@@ -184,15 +184,17 @@ def _other_sets(repo, tileset, *, edges=False):
 
 
 def drawn_copies(repo, tileset, folder, packs):
-    """(name, file name, text, other tilesets using it, pack file) for each uncompiled model the tileset draws, in the
-    first of `packs` that holds it (the copy the game shows), read from `folder` (None: none) where a copy is already there."""
+    """(name, file name, text, other tilesets using it, source file) for each uncompiled model the tileset draws, in the
+    first of `packs` that holds it (the copy the game shows), read from `folder` (None: none) where a copy is already there.
+    A compiled pack model is read from its ASCII source (`compiled.source`), which is the file named."""
+    from .compiled import source
     tiles, others, seen = drawn_models(repo, tileset), _other_sets(repo, tileset, edges=True), set()
     for pack in packs:
         for path in sorted((Path(repo) / pack.format(tileset=tileset)).glob('*.mdl')):
             name = path.stem.lower()
             if name not in tiles or name in seen:
                 continue
-            seen.add(name); data = (Path(folder) / path.name if folder is not None and (Path(folder) / path.name).is_file() else path).read_bytes()
+            seen.add(name); path = source(repo, path); data = (Path(folder) / path.name if folder is not None and (Path(folder) / path.name).is_file() else path).read_bytes()
             if not compiled(data):
                 yield name, path.name, data.decode('cp1252'), sorted(others.get(name, ())), path
 
@@ -211,13 +213,16 @@ def inventory(repo, tileset, *, walkmesh_only=False):
         terrains_of.setdefault(tile['model'], set()).update(set(tile['corners']) - {laid['default'], ''} or {laid['default']})
     scope = sorted(set(tiles_of) | set(edges))
 
-    held = {(pack.name, path.name.lower()): path for pack in homes if pack.is_dir() for path in pack.iterdir()}  # a file in any case, as the game finds it
+    from .compiled import source  # a compiled tile model is read from its ASCII source, so the baselines hold for both
+    held = {(pack.name, path.name.lower()): source(repo, path) for pack in homes if pack.is_dir() for path in pack.iterdir()}  # a file in any case, as the game finds it
     models, surface, users, terrains, walkmesh = {}, {}, {}, {}, {}
     for name in scope:
         home = next((pack for pack in homes if (pack.name, f'{name}.mdl') in held), None)
         entry = {'pack': home.name if home else None, 'form': 'absent', 'tiles': tiles_of.get(name, []), 'edge': name in edges}
         if home:
             data = held[(home.name, f'{name}.mdl')].read_bytes(); entry['form'] = 'compiled' if compiled(data) else 'uncompiled'
+            if held[(home.name, f'{name}.mdl')] != home / f'{name}.mdl' and held[(home.name, f'{name}.mdl')].parent.parent.name == 'sources':  # read from its source: the pack ships it compiled
+                entry['shipped'] = 'compiled'
             wok = held.get((home.name, f'{name}.wok'))
             marks = {'wok': hashlib.sha256(wok.read_bytes()).hexdigest() if wok else None, 'aabb': None}
             if entry['form'] == 'uncompiled':
@@ -247,7 +252,7 @@ def inventory(repo, tileset, *, walkmesh_only=False):
             model = path.stem.lower()
             if model in models or not wanted:
                 continue
-            for texture in {word.decode('ascii') for word in set(words.findall(path.read_bytes().lower())) & wanted}:
+            for texture in {word.decode('ascii') for word in set(words.findall(source(repo, path).read_bytes().lower())) & wanted}:
                 for other in other_sets.get(model, ()):
                     named_by_sets.setdefault(texture, set()).add(other)
                 if model not in other_sets:

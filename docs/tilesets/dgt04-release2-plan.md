@@ -358,6 +358,60 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 - The list comes to you with pictures and you pick.
 - Remeshed under the silhouette rule, in the same batches, or as one batch after them.
 
+#### Candidates (2026-11-20)
+
+- **Ranking:** every building tile's own geometry (kit pieces left out) by faces per m² above head height, the share of
+  that area on box planes, and the number of roof levels.
+- **Result:** the corporate towers are by far the plainest, at 0.16–0.28 faces/m² against 0.6–0.8 for the Slums. In
+  order:
+  1. Highrise_07
+  2. Highrise_02 (and its copy 09)
+  3. Highrise_01
+  4. Highrise_05 (and its copy 08)
+  5. Highrise_06
+  6. Highrise_03
+- **Sheet:** `output/tilekit/remesh-candidates/towers.jpg`. The ranking data and script are in the same folder.
+- **User's pick:** a trial on Highrise_07, made as a new terrain so the original stays, with a crown and parapet: no
+  setbacks.
+
+#### Highrise_07 trial: a crowned copy
+
+- **The copy:** `Highrise_10`, "Walled Compound, Glass, Crowned".
+  - Tiles 568–574 (`srt04_c01_01`–`c07_01`), plus the edge tile `srt04_c08_01`.
+  - Spec: `docs/tilesets/dgt04/terrains-crowned.json`.
+- **The crown** (`tilekit crown`) is drawn from the set file's corners alone, so every tile of the terrain draws it
+  alike:
+  - a parapet, coping and cornice on each facade (a side whose two corners are the street's);
+  - a 6 m screen 1 m back from the facade, with posts and a lit band along its top;
+  - the parapet's and the screen's turn at an inner corner.
+- **`remesh --add --joins <terrain>`:**
+  - `--add` keeps the tile's own meshes and draws the crown as well. Replacing them lost the lit windows: they hang
+    from the animated `<tile>a` dummy, and merging them changed how the glass and the wall draw.
+  - With `--joins`, a facade may rise only where it already reaches its top.
+  - Any other side may change only where every side of the terrain that can meet it draws the same.
+  - A side's samples past its ends no longer count as on it: a cornice wrapped round a corner meets the diagonal
+    neighbour.
+- **Edge tile:** the edge tile (`c08`) is not crowned, since it is laid outside the area.
+- **Approved and applied** (user, 2026-11-20): `Highrise_10` is in `srn_t_dgt04`.
+- **On hold** (user, 2026-11-20): crowned copies of the other towers.
+  - Batch 2's look is to be decided on the crowned towers in one client check, once that work resumes.
+
+**Other decisions** (user interview, 2026-11-20):
+- Concrete tiles are left to envkit and placeables.
+- Invented-brand shop signs are on hold.
+- Release order: what is done goes out first. That is the crown trial and the door set.
+- **Floating windows: explained (2026-11-20).** The windows of distant Highrise_06/07 towers seemed to float. The
+  first guess, self-lit panes escaping the fog, was wrong.
+  - **What happens:** past the area's fog clip distance (`FogClipDist`, 90 m in the review areas), the client stops
+    drawing a tile's static meshes. It goes on drawing the facade meshes hung under the animated `<tile>a` dummy, so
+    only those remain against the sky.
+  - **The tests:**
+    - two original Highrise_07 towers do it as well (`output/tilekit/twin-probe`), so the crown is not the cause;
+    - zeroed specular maps change nothing (`spec-probe`);
+    - with `FogClipDist` 200 the far tower is drawn whole by day and night (`twin-fog200`).
+  - **Outcome:** no tile change. It is an area setting, written down for builders in
+    `docs/tilesets/dgt04/builder-notes.md`.
+
 ### 5 — Doors
 
 - Inventory of the 113 door models, taken during stage 1: type (exterior entrance, interior, gate, curtain), the tilesets and placeables that
@@ -414,20 +468,144 @@ Sizes, matching the existing doors (approved by the user, 2026-11-19):
 
 The unclear hooks are checked against pictures.
 
+**Unclear hooks, checked against client pictures** (2026-11-20, `output/tilekit/door-hooks/unclear.jpg`; user's
+answers):
+
+- **`dgt04_e01_05` (Highrise_01):** its four hooks stand side by side in one black 8 × 3 m opening. Each takes a
+  2 × 3 m roller shutter.
+- **`dgt04_i02_01`–`03` and `i05_02`/`03`:** these hooks stand in open walled yards, with no doorway. Nothing new is
+  made for them.
+- **`dgt04_e09_17` and `e09_37`:** these hooks stand on roofs among the clutter. Nothing new is made for them either.
+- **`dgt05_h41_01`, `h51_01` and `srt04_r05_01`:** each hook stands at the jamb of a black 2 × 3 m opening. They are
+  sized as 2 × 3 m singles, and the client test shows whether a door stands off-centre.
+- **`dgt05_s15_32` and `s15_52`:** clear 2 × 3 m doorways. The measurement hit a low step.
+
+**Built and approved** (user, 2026-11-20). `tools/tilekit/doorset.py` builds ten doors in `srn_door`. They share
+their own atlas, `srn_doors`, and take rows 1094–1103 of `genericdoors.2da`:
+
+| Row | Door | Size |
+|---|---|---|
+| 1094 | `srn_dr_street` street door | 2 × 3 m |
+| 1095 | `srn_dr_shop` shop door | 2 × 3 m |
+| 1096 | `srn_dr_double` double door | 4 × 3 m |
+| 1097 | `srn_dr_steel` steel security door | 2 × 3 m |
+| 1098 | `srn_dr_shut2` roller shutter | 2 × 3 m |
+| 1099 | `srn_dr_shut4` roller shutter | 4 × 3 m |
+| 1100 | `srn_dr_load` loading shutter | 6 × 4 m |
+| 1101 | `srn_dr_gate` gate | 6 × 3 m |
+| 1102 | `srn_dr_inner` interior door | 2 × 3 m |
+| 1103 | `srn_dr_strip` strip curtain | 2 × 3 m |
+
+The client review stood each door at a dgt04 hook of its size, shut and opened (`output/tilekit/doorset-review2`).
+It also tried Highrise_01's four shutters. The jamb hooks above were not tried: whether a door stands off-centre
+there is still open.
+
 ### 6 — Cohesion and release
 
 - Performance against the baseline on the same views.
+
+**Whole-block look pass: passed by the user (2026-11-20).** These are the review block's close views, by day and by
+night (`output/tilekit/final-look2`).
+
+#### Performance at the end of release 2 (2026-11-20)
+
+- **Setup:** the same method, views and machine as the stage 0 baseline: a 200 fps cap, vsync off, 1600×900.
+- **Packs:** built from this branch, with every batch applied, the crowned Highrise_10 and the door set, and no
+  overlay.
+- **Runs:** two (`output/tilekit/perf/final1` and `final2`).
+
+**Frame rate**: 6-second average, three views each, run 1 / run 2.
+
+| Area | Day | Night |
+|---|---|---|
+| Review block, 15×15 | 181 177 177 / 182 177 176 | 184 177 176 / 185 178 176 |
+| Slums, 32×32 | 182 179 177 / 182 179 177 | 183 179 176 / 182 178 176 |
+
+Every view still holds the cap, as in the baseline. The detail kit, the effects and the crowned tower cost no frame
+rate that this test can see.
+
+**Area load**:
+
+| Load | Baseline (s) | Now (s), run 1 / run 2 |
+|---|---|---|
+| Review block, night | 0.9–1.2 | 3.83 / 3.78 |
+| Slums 32×32, day | 1.25–1.45 | 6.58 / 6.45 |
+| Slums 32×32, night | 1.5–2.1 | 6.77 / 6.83 |
+
+- **Loads are three to five times the baseline,** in packed form. The pilot measured 1.7–5.3 s from loose
+  files, and the user accepted that cost expecting packed, compiled models to recover it. They are packed now, but
+  still ASCII.
+- **Pack sizes:**
+
+  | Pack | Baseline | Now |
+  |---|---|---|
+  | `srn_t_dgt04` | 43 MB | 84 MB |
+  | `srn_t_common` | 841 MB | 886 MB |
+  | `srn_door` | 29 MB | 36 MB |
+- **Likely causes:**
+  - the client parses the larger ASCII tile models, with the kit merged into them;
+  - each restyled material loads four DDS maps.
+- **Compiling** the tile models for the packs was tried next (below). Adopting it changes what the packs hold, so it
+  is the user's decision.
+
+#### Compile trial with NeverBlender (user, 2026-11-20)
+
+- **Compile:** every drawn dgt04 tile model in the packs (489 ASCII models) through NeverBlender's bulk compile
+  (`tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py`), in 59 s. The binaries went into an overlay
+  (`output/tilekit/compiled-trial/converted/binary`); the packs were not changed.
+- **Audit** of each binary against its source:
+  - 437 match exactly;
+  - 33 differ by at most 3.7e-6 m and 0.0002° in static positions and rotations;
+  - 15 report clip differences that are not real: decompiled back, two of them (`dgt04_e09_06`, `dgt04_e09_17`) have
+    the same keys, under lowercased node names;
+  - 4 cannot be read by the audit's decoder, which refuses duplicate emitter names (`dgt04_e09_21`, `dgt04_z09_01`,
+    `dgt05_a00_01`, `dgt05_a01_01`).
+  The strict `compile_folder` publishes nothing when any audit differs, so the trial used its plan and run steps.
+- **Look:** 16 near views by day and night (`output/tilekit/compiled-look`) against the packed ASCII
+  (`final-look2`). 14 are pixel-identical; the other two differ in under 0.1% of pixels, in animated smoke.
+- **Frame rate:** unchanged, 174–185 at 6 s (`output/tilekit/perf/comp1`, `comp2`).
+- **Area load**, run 1 / run 2:
+
+  | Load | Baseline (s) | Packed ASCII (s) | Compiled (s) |
+  |---|---|---|---|
+  | Review block, night | 0.9–1.2 | 3.83 / 3.78 | 1.06 / 1.12 |
+  | Slums 32×32, day | 1.25–1.45 | 6.58 / 6.45 | 1.70 / 1.75 |
+  | Slums 32×32, night | 1.5–2.1 | 6.77 / 6.83 | 1.95 / 2.02 |
+
+  Compiled models bring the loads back to the baseline, within 20%. The ASCII parse was the cost, not the textures.
+- **Adopted (user, 2026-11-20):** "compiled models should be shipped in the haks and ascii stored in github repo".
+  - The 500 ASCII tile models of `srn_t_common` and `srn_t_dgt04` moved to `sources/<pack>/`, and the packs hold
+    their NeverBlender binaries. `sources/compiled.json` pins each pair, and `tools/tilekit/test_compiled.py` checks
+    it.
+  - The tile tools read and write the sources. `tilekit apply --blender --addon` compiles what it writes, and
+    `tilekit compile` compiles whatever is out of date.
+  - The audit is stricter than the trial's: a round trip through the decompiler for what the decoder cannot compare.
+    It found three sources with broken emitter animations, whose compiled smoke was thinner in the client. They were
+    repaired, and they now match the ASCII (`sources/README.md`).
+  - The compile is reproducible: 486 of the trial's binaries came out byte-identical, and the other 3 are the
+    repaired ones.
+  - **Built packs, no overlay** (`output/tilekit/perf/packed1`): loads 1.01 s (review block, night), 1.64 s (Slums,
+    day) and 2.04 s (Slums, night), within the baseline. Pack sizes: `srn_t_common` 841 MB and `srn_t_dgt04` 79 MB.
 - One look pass over the whole block, then `PROVENANCE.md`.
 - One merge to `main`.
 
 ## Carried over from release 1
 
-- `hr08_trim`, `hr09_build_g` and `hr09_win08_g` are not reproducible from their specs: they are redrawn with
-  records when the Codex quota allows.
-- The new edge tiles `srt04_r07_01` and `srt04_x07_01` have not been seen in the client. Look again with a view from
-  outside the border once the detail kit makes edges matter.
-- envkit's check area now stages the maps of restyled materials, which affects `pavement`. It has not been seen in
-  a client check yet.
+- **Done 2026-11-20:** `hr08_trim`, `hr09_build_g` and `hr09_win08_g` are redrawn with records into
+  `output/tilekit/redrawn-terrains`. They have entries in `redraw-terrains.json` now.
+  - The user chose local Qwen for this (seed 2).
+  - The trim is redrawn by Qwen.
+  - The two derelict lit variants are composed with the new `keep` option: a share of whole windows, lit warm only
+    where the day picture is dark. The tower shows two squatters' windows, and the boarded window glows through its
+    gaps, not the office light of its source.
+  - Seen in the client: `output/tilekit/redraw3-review`.
+  - Applied to `srn_t_dgt04`.
+- **Done 2026-11-20:** the edge tiles `srt04_r07_01` and `srt04_x07_01` were seen in the client
+  (`output/tilekit/edges-review5`, by day and night). Past the border they show their copies' own facades, not their
+  sources'.
+- **Checked 2026-11-20:** envkit's check area stages `pavement.mtr` with all four maps (`checks._ground`).
+  - No envkit group is built in this worktree, so it was not run in the client.
+  - The restyled pavement itself shows in every tilekit review.
 
 ## Open after the pilot
 

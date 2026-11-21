@@ -2332,3 +2332,55 @@ peaks views as edits of that start view. Denver's land was then redrawn at about
 searchlights and rain are procedural, written for this project (SRN project operator with Claude); the approach of a
 material-driven animated sky in a skybox model follows the community Dynamic Skies example by Bhaal in its general
 method only: no code, models or pictures of it are included.
+
+## Universal door set (`srn_door`, `srn_2da`; 2026-11-20)
+
+Ten generic doors are original work built in code by `tools/tilekit/doorset.py` (SRN project operator with Claude):
+`srn_dr_street`, `srn_dr_shop`, `srn_dr_double`, `srn_dr_steel`, `srn_dr_shut2`, `srn_dr_shut4`, `srn_dr_load`,
+`srn_dr_gate`, `srn_dr_inner` and `srn_dr_strip`, each with its walkmesh (`.dwk`), and their shared material
+`srn_doors` (`.mtr` and four maps). Node layout and animation names follow the pack's own doors' structure; no
+geometry or picture of another door is used. The atlas is flat colours made in code, except the `iron` cell, which
+takes the CC0 ambientCG scan MetalPlates013 listed under release 1. `srn_2da/genericdoors.2da` rows 1094-1103,
+empty until now, name them. The SRN project operator passed the look in the game client on 2026-11-20 (review
+captures in ignored `output/tilekit/doorset-review` and `doorset-review2`).
+
+## Modern Exterior restyle, release 2, stage 4 (remeshing) (`srn_t_dgt04`, `srn_2da`; 2026-11-20)
+
+`Highrise_10`, "Walled Compound, Glass, Crowned", is a crowned copy of `Highrise_07` added to D20 Modern Exterior
+(`dgt04`) by `tools/tilekit` (`terrain.py`, `crown.py`, `remesh.py --add --joins`; spec
+`docs/tilesets/dgt04/terrains-crowned.json`; SRN project operator with Claude). Its seven tiles 568-574
+(`srt04_c01_01` to `srt04_c07_01`) and its edge tile `srt04_c08_01` copy `Highrise_07`'s tiles, as the copies of
+strata 4 and 5 do, and the D20 Modern Haks 2.2 terms above apply to them. Each tile keeps its source's meshes, door
+hooks, lamps and walkmesh, and gains a crown made in code: a parapet, coping and cornice on each facade, and a
+grating screen with steel posts and a lit band 1 m behind it. The crown draws the release 2 kit atlas
+(`dgt04_kit`); no picture is new. `dgt04.set` gains terrain 24, tiles 568-574 and their rules after every earlier
+entry, so existing areas do not move; `srn_2da/dgt04_edge.2da` and `dgt04palstd.itp` gain their entries. The SRN
+project operator passed the look in the game client on 2026-11-20 (review captures in ignored
+`output/tilekit/crown-review3` and `crown-review4`).
+
+## Modern Exterior restyle, release 2 finish (`srn_t_dgt04`; 2026-11-20)
+
+- `hr08_trim`, `hr09_build_g` and `hr09_win08_g` are redrawn with records. Their release 1 pictures had been placed
+  by hand with none.
+  - `hr08_trim` is drawn by the local Qwen image edit model on the operator's shared ComfyUI (seed 2), from release
+    1's `hrise_05_trim`. The prompt is in `docs/tilesets/dgt04/redraw-terrains.json`.
+  - The two derelict lit variants are composed in code by `tools/tilekit/redraw.py` from their redrawn day pictures:
+    a share of whole windows lit warm where the day picture is dark (`keep`).
+  - Records: ignored `output/tilekit/redrawn-terrains`. Client check: `output/tilekit/redraw3-review`.
+- The jamb door hooks of tiles 359, 361 and 560 in `dgt04.set` are turned 90°. Each hook stood in its doorway's
+  frame but laid the door beside the opening; turned, the door fills it (client check
+  `output/tilekit/jamb-review2`).
+
+## Compiled tile models with ASCII sources (`srn_t_common`, `srn_t_dgt04`, `sources/`; 2026-11-20)
+
+- The 500 ASCII tile models of `srn_t_common` and `srn_t_dgt04` moved, byte for byte, to `sources/<pack>/`. The packs
+  now hold binaries that NeverBlender (cleanmodels port, run headless in Blender) compiled from them, through
+  `tools/tilekit/compiled.py`. The SRN project operator asked for compiled models in the packs and ASCII kept in the
+  repository.
+- `sources/compiled.json` pins each pair by SHA-256, with its audit. The provenance and terms of each model are those
+  recorded above for it; compiling changes its form, not its content.
+- Three sources were repaired, as `sources/README.md` records: `dgt04_e09_21`, `dgt05_a00_01` and `dgt05_a01_01`.
+  Their emitter animations had unclosed nodes and a spaced-out `endlist`.
+- Client checks on 2026-11-20:
+  - the review block, by day and night, matched the packed ASCII (`output/tilekit/compiled-look`);
+  - the three repaired tiles matched (`output/tilekit/emit121-fix`, `emit-fix`).
