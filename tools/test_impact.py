@@ -235,7 +235,7 @@ class Result(unittest.TextTestResult):
 result=unittest.TextTestRunner(verbosity=2,durations=0,resultclass=Result).run(unittest.defaultTestLoader.loadTestsFromNames(names))
 if out:
     with open(out,'w',encoding='utf-8') as f:json.dump([[n,round(t,3)] for n,t in result.collectedDurations],f)
-for test,path in sorted(touched):print('Absent pack accessed by '+(test or 'module import/fixture')+': '+path,file=sys.stderr)
+for test,path in sorted(touched):print('Absent pack or sources folder accessed by '+(test or 'module import/fixture')+': '+path,file=sys.stderr)
 sys.exit(0 if result.wasSuccessful() and result.testsRun and not touched else 1)
 '''
 
