@@ -103,8 +103,8 @@ and a `review.json`. The census of all three sets is `docs/tilesets/srx01/census
 - `murs` is not yet seen: the block has no run of it. It is looked at in stage 1.
 
 **Open findings:**
-- **`holes` has no Shadowrun reading yet.** Open sky under a city does not fit a 2070s street level. This needs a
-  user decision before the names review: see the questions below.
+- **`holes` becomes the arcology void (user, 2026-11-21).** The geometry and every tower group are kept. Release C
+  restyles the cloud layer as a dark atrium drop between raised decks. The names review gives it a name to match.
 - **Black ground in the udp1 review rows is the layout, not a defect.** Many udp1 groups keep all their geometry in
   one tile's model and leave the group's other tiles empty (`udp1_c01_14`, `udp1_c02_14` and others name no
   texture). Laid apart in a row, the empty tiles show nothing. The stage 2 merge must keep such groups whole, and
@@ -112,11 +112,6 @@ and a `review.json`. The census of all three sets is `docs/tilesets/srx01/census
 - **udp1's ground is very dark by day** under the review lighting, darker than dgt04's Concrete beside it would be.
   This is a look item for release B, and for the release A side-by-side area.
 - **fcx01 at night is nearly unlit** apart from its blue windows. Release C's lit signage and lamps address it.
-
-**Questions for the user:**
-1. `holes`: keep it as an arcology void (an atrium or a drop between raised decks), redraw it as water or a sunken
-   plaza, or leave the `holes` tiles out of `srx01`? 310 of fcx01's 956 corners are `holes`, and every tower group
-   stands in it.
 
 ## Proposed name
 
