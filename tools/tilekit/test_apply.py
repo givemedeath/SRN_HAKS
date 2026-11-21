@@ -15,7 +15,7 @@ def compiled_copy(repo, keys):
 
 
 def _apply(*args, **kwargs):
-    return apply.apply(*args, compile=lambda keys: compiled_copy(args[0], keys), **kwargs)
+    return apply.apply(*args, compiler=lambda keys: compiled_copy(args[0], keys), **kwargs)
 
 MATERIAL = 'renderhint NormalAndSpecMapped\n\ntexture0 {0}\ntexture1 {0}_n\ntexture2 null\n'
 
@@ -54,7 +54,7 @@ class ApplyTests(unittest.TestCase):
         self.assertEqual([(entry['Resource'], entry['Packs']) for entry in overrides],
                          [('other.dds', ['srn_t_common', 'srn_placeable']), ('bin.dds', ['srn_placeable', 'srn_t_common']),
                           ('bin.mtr', ['srn_placeable', 'srn_t_common']), ('bin_n.dds', ['srn_placeable', 'srn_t_common'])])
-        self.assertEqual(told, {'put': 12, 'compiled': 1, 'deleted': 1, 'overrides': 3, 'new overrides': 2, 'dropped overrides': 0, 'not applied': ['stray.dds']})  # of no texture of the spec
+        self.assertEqual(told, {'put': 12, 'compiled': 0, 'deleted': 1, 'overrides': 3, 'new overrides': 2, 'dropped overrides': 0, 'not applied': ['stray.dds']})  # of no texture of the spec
         _apply(self.repo, self.spec, self.overlay)  # again: every entry where it stood
         self.assertEqual(json.loads((self.repo / 'hakbuilder.json').read_text(encoding='utf-8'))['ExpectedOverrides'], overrides)
 
@@ -64,7 +64,7 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Blender that runs NeverBlender'):
             apply.apply(self.repo, None, self.overlay)  # without a compiler nothing is written
         self.assertEqual((self.repo / 'sources' / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'old')
-        asked = []; apply.apply(self.repo, None, self.overlay, compile=asked.append)
+        asked = []; apply.apply(self.repo, None, self.overlay, compiler=asked.append)
         self.assertEqual(asked, [['srn_t_common/t_a01.mdl']]); self.assertEqual((self.repo / 'sources' / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'model')
         self.assertEqual((self.repo / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'\0\0\0\0binary')  # the compile writes the pack, not apply
 

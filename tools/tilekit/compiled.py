@@ -43,9 +43,10 @@ def source(repo, path):
 
 
 def source_target(repo, pack_path):
-    """Where a tile model written for the pack file `pack_path` goes: its source, for every tile pack (`tile_pack`)."""
-    pack_path = Path(pack_path)
-    return Path(repo) / SOURCES / pack_path.parent.name / pack_path.name if pack_path.suffix.lower() == '.mdl' and tile_pack(pack_path.parent.name) else pack_path
+    """Where a tile model written for the pack file `pack_path` goes: its source, in a tile pack whose models ship
+    compiled (one with a `sources/<pack>/` folder, `adopt`); else the pack file itself."""
+    pack_path = Path(pack_path); kept = Path(repo) / SOURCES / pack_path.parent.name
+    return kept / pack_path.name if pack_path.suffix.lower() == '.mdl' and tile_pack(pack_path.parent.name) and kept.is_dir() else pack_path
 
 
 def tile_pack(pack):
@@ -107,9 +108,10 @@ def _numbers(words):
 
 
 def read_ascii(text):
-    """{'nodes': [(type, name, parent)], 'animations': {name: {'length', 'transtime', 'events', 'nodes': {node: {controller: rows}}}}}
-    of an ASCII model, names in lower case. A node name used twice in one block gets '#2', '#3'."""
-    nodes, animations, block, node, key, rows = [], {}, None, None, None, None
+    """{'nodes': [(type, name, parent)], 'bind': {name: {position, orientation}}, 'animations': {name: {'length',
+    'transtime', 'events', 'nodes': {node: {controller: rows}}}}} of an ASCII model, names in lower case. A node name
+    used twice in one block gets '#2', '#3'."""
+    nodes, bind, animations, block, node, key, rows = [], {}, {}, None, None, None, None
     names = {}
     for raw in text.replace('\r', '').split('\n'):
         words = raw.split('#', 1)[0].split()
@@ -130,13 +132,15 @@ def read_ascii(text):
         elif word == 'node':
             name = words[2].lower(); count = names[name] = names.get(name, 0) + 1; name = name if count == 1 else f'{name}#{count}'
             if block is None:
-                nodes.append([words[1].lower(), name, None]); node = {}
+                nodes.append([words[1].lower(), name, None]); node = bind[name] = {'position': [0.0, 0.0, 0.0], 'orientation': [0.0, 0.0, 0.0, 0.0]}
             else:
                 node = block['nodes'].setdefault(name, {})
         elif word == 'endnode':
             node = None
         elif word == 'parent' and block is None and nodes and node is not None:
             nodes[-1][2] = words[1].lower()
+        elif word in ('position', 'orientation') and block is None and node is not None and _numbers(words[1:]):
+            node[word] = _numbers(words[1:])
         elif block is not None and node is None and word in ('length', 'transtime'):
             block[word] = float(words[1])
         elif block is not None and node is None and word == 'event':
@@ -150,7 +154,7 @@ def read_ascii(text):
             names = {}
     if key is not None:
         node[key[0]] = rows
-    return {'nodes': [tuple(entry) for entry in nodes], 'animations': animations}
+    return {'nodes': [tuple(entry) for entry in nodes], 'bind': bind, 'animations': animations}
 
 
 def _quaternion(row):
@@ -181,12 +185,17 @@ def _controller(name, a, b):
 
 
 def round_trip(source_text, back_text, dropped=()):
-    """The differences of a decompiled binary from its source: geometry nodes (type, name, parent), and each
-    animation's length, events, keyed nodes and keys. `dropped`: {(animation, node)} the compiler warned it left out."""
+    """The differences of a decompiled binary from its source: geometry nodes (type, name, parent, bind position and
+    orientation), and each animation's length, events, keyed nodes and keys. `dropped`: {(animation, node)} the
+    compiler warned it left out."""
     a, b = read_ascii(source_text), read_ascii(back_text); out = []
     if sorted(a['nodes']) != sorted(b['nodes']):
         only = sorted(set(a['nodes']) ^ set(b['nodes']))[:3]
         out.append('geometry nodes differ: ' + ', '.join(f'{name} ({kind}, under {parent})' for kind, name, parent in only))
+    for name in sorted(set(a['bind']) & set(b['bind'])):  # the bind transforms, as the rig audit checks a model it can decode
+        told = _controller('positionkey', [[0.0] + a['bind'][name]['position'][:3]], [[0.0] + b['bind'][name]['position'][:3]])             or _controller('orientationkey', [[0.0] + a['bind'][name]['orientation'][:4]], [[0.0] + b['bind'][name]['orientation'][:4]])
+        if told:
+            out.append(f'{name}: bind ' + told.split(': ', 1)[-1])
     for name in sorted(set(a['animations']) | set(b['animations'])):
         x, y = a['animations'].get(name), b['animations'].get(name)
         if x is None or y is None:
@@ -302,8 +311,8 @@ def compile_models(repo, blender, addon, keys=None, timeout=3600):
 
 
 def adopt(repo, packs):
-    """Move every ASCII model of the tile packs `packs` to its source; the caller compiles them (`compile_models`).
-    Returns the keys moved. A compiled pack model with no source is left as it is (envkit's own, compiled at build)."""
+    """Copy every ASCII model of the tile packs `packs` to its source; the caller compiles them (`compile_models`).
+    Returns the keys copied. A compiled pack model with no source is left as it is (envkit's own, compiled at build)."""
     from .inventory import compiled
     repo = Path(repo); moved = []
     for pack in packs:
@@ -312,5 +321,6 @@ def adopt(repo, packs):
             if compiled(path.read_bytes()):
                 continue
             target = repo / SOURCES / pack / path.name; require(not target.exists(), f'{target} exists already')
-            target.parent.mkdir(parents=True, exist_ok=True); shutil.move(path, target); moved.append(f'{pack}/{path.name}')
+            # copied: the pack keeps its ASCII copy until the compile, once every binary passed, writes over it
+            target.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(path, target); moved.append(f'{pack}/{path.name}')
     return moved

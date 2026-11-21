@@ -204,12 +204,12 @@ def plan(repo, spec, overlay):
             'catalog': _catalogued(repo, record.get('catalog', {})), 'cut': cut}  # merged before anything is written, so a refusal changes nothing
 
 
-def apply(repo, spec, overlay, compile=None):
+def apply(repo, spec, overlay, compiler=None):
     """Carry out `plan`, rewrite hakbuilder.json's expected overrides for the names touched, compile the tile models
-    written with `compile(keys)` (`compiled.compile_models` with the user's Blender), and tell the counts."""
+    written with `compiler(keys)` (`compiled.compile_models` with the user's Blender), last, and tell the counts."""
     repo = Path(repo); moves = plan(repo, spec, overlay)
     models = [f'{target.parent.name}/{target.name}' for _, target in moves['put'] if target.parent.parent == repo / SOURCES]
-    require(not models or compile, f'The overlay changes {len(models)} tile model(s), compiled into the packs: give the Blender that runs NeverBlender (--blender)')
+    require(not models or compiler, f'The overlay changes {len(models)} tile model(s), compiled into the packs: give the Blender that runs NeverBlender (--blender)')
     for path, target in moves['put']:  # written first: a write that fails leaves the old copies in place
         target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(path.read_bytes())
     for path in moves['delete']:
@@ -231,11 +231,11 @@ def apply(repo, spec, overlay, compile=None):
         for model, entry in moves['cut']['models'].items():
             baseline['models'][model] = {**baseline['models'].get(model, {}), 'wok': entry['wokTo'], 'aabb': entry['aabbTo'], 'cut': len(entry.get('footprints', []))}
         path.write_text(json.dumps(baseline, indent=2) + '\n', encoding='utf-8', newline='\n')
-    if models:  # the sources are in; their binaries replace the pack copies (one audit failure compiles none: run `tilekit compile` once fixed)
-        compile(models)
     told = {'put': len(moves['put']), 'compiled': len(models), 'deleted': len(moves['delete']), 'overrides': len(moves['overrides']), 'new overrides': len(waiting), 'dropped overrides': dropped,
             'not applied': moves['left']}
     if moves['catalog'] is not None:  # a copied terrain's numbers, recorded as envkit's install records its own
         from tools.envkit import catalog
         catalog.save(repo / catalog.PATH, moves['catalog']); told['catalogued'] = True
+    if models:  # last, once all else is written: one audit failure compiles none, and `tilekit compile` finishes it once fixed
+        compiler(models)
     return told

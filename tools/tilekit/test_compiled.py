@@ -96,6 +96,13 @@ class RoundTripTests(unittest.TestCase):
         self.assertEqual(compiled.dropped_nodes([warning, 'something else']), {('animloop01', 'smoke')})
         self.assertEqual(compiled.round_trip(MODEL, gone, compiled.dropped_nodes([warning])), [])
 
+    def test_a_bind_transform_moved_by_the_compile_is_a_difference(self):
+        plain = 'node emitter smoke\n    parent t_a01\nendnode'
+        moved = BACK.replace(plain, 'node emitter smoke\n    parent t_a01\n    position 0.0 0.5 0.0\nendnode')
+        self.assertEqual(compiled.round_trip(MODEL, moved), ['smoke: bind position differs'])
+        turned = BACK.replace(plain, 'node emitter smoke\n    parent t_a01\n    orientation 0.0 0.0 1.0 0.5\nendnode')
+        self.assertEqual(compiled.round_trip(MODEL, turned), ['smoke: bind rotation differs'])
+
     def test_a_node_name_used_twice_is_told_apart(self):
         twice = MODEL.replace('node emitter Smoke\n  parent t_a01\n  birthrate 0\nendnode\n', 'node emitter Smoke\n  parent t_a01\nendnode\n' * 2, 1)
         self.assertEqual([name for _, name, _ in compiled.read_ascii(twice)['nodes']], ['t_a01', 'smoke', 'smoke#2'])
@@ -128,6 +135,7 @@ class PairTests(unittest.TestCase):
         self.assertEqual(compiled.source(self.repo, self.binary), self.source)
         self.assertEqual(compiled.source(self.repo, self.repo / 'srn_t_x' / 't_b01.mdl'), self.repo / 'srn_t_x' / 't_b01.mdl')  # no source kept
         self.assertEqual(compiled.source_target(self.repo, self.repo / 'srn_t_x' / 'new.mdl'), self.repo / 'sources' / 'srn_t_x' / 'new.mdl')
+        self.assertEqual(compiled.source_target(self.repo, self.repo / 'srn_t_y' / 'new.mdl'), self.repo / 'srn_t_y' / 'new.mdl')  # a pack never adopted keeps ASCII
         self.assertEqual(compiled.source_target(self.repo, self.repo / 'srn_door' / 'd.mdl'), self.repo / 'srn_door' / 'd.mdl')  # no tile pack
         self.assertEqual(compiled.source_target(self.repo, self.repo / 'srn_t_x' / 't_a01.wok'), self.repo / 'srn_t_x' / 't_a01.wok')
 
@@ -136,6 +144,7 @@ class PairTests(unittest.TestCase):
         self.binary.unlink(); self.source.unlink()
         self.assertEqual(compiled.adopt(self.repo, ['srn_t_x']), ['srn_t_x/t_c01.mdl'])
         self.assertTrue((self.repo / 'sources' / 'srn_t_x' / 't_c01.mdl').is_file()); self.assertTrue((self.repo / 'srn_t_x' / 'ek_a.mdl').is_file())
+        self.assertTrue((self.repo / 'srn_t_x' / 't_c01.mdl').is_file())  # the pack keeps its copy until the compile replaces it
 
 
 class RepositoryTests(unittest.TestCase):

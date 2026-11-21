@@ -15,7 +15,7 @@ def compiled_copy(repo, keys):
 
 
 def _apply(*args, **kwargs):
-    return apply.apply(*args, compile=lambda keys: compiled_copy(args[0], keys), **kwargs)
+    return apply.apply(*args, compiler=lambda keys: compiled_copy(args[0], keys), **kwargs)
 
 WALK = """node aabb walk
   parent t_a01

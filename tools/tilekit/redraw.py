@@ -198,7 +198,7 @@ def kept_lights(mask, dark, share, seed=0):
     labels, count = _blobs(near)
     if not count:
         return mask
-    chosen = np.random.default_rng(seed).choice(np.arange(1, count + 1), size=max(1, round(share * count)), replace=False)
+    chosen = np.random.default_rng(seed).choice(np.arange(1, count + 1), size=min(count, max(1, round(share * count))), replace=False)
     lit = np.zeros((height, width))
     for label in chosen:
         rows, columns = np.nonzero(labels == label)
@@ -266,7 +266,7 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
             require(not how.get('glazed') or was.get('glazed') or 'source' not in was, f'{target} was drawn with its openings black: take it and its record away and draw it again glazed')
             require(day is None or 'day' not in was or (day.is_file() and was['day'] == _file_sha(day)),
                     f'{target} was made from another {how.get("of")} day picture: take it and its record away and draw it again')
-            require(not how.get('compose') or 'source' not in was or was.get('keep') == how.get('keep'),
+            require(not how.get('compose') or 'source' not in was or (was.get('keep') or None) == (how.get('keep') or None),
                     f'{target} was composed with other lights kept: take it and its record away and compose it again')
             return 'kept'
         whole = original(); old = whole[..., :3]; height, width = old.shape[:2]
