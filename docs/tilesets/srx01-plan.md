@@ -157,6 +157,46 @@ blueprints and the door labels. Nothing in the packs has changed.
 **Client test rule (user, 2026-11-21):** every client test area sets its fog clip distance to 9999. All eight
 fixtures that write an area now do.
 
+## Stage 2 results (2026-11-21)
+
+`python -m tools.tilekit merge --spec docs/tilesets/srx01/merge.json` writes `srn_t_srx01/srx01.set`,
+`srx01palstd.itp` and `srn_2da/srx01_edge.2da`; `--check` holds them against the three sources and the lock
+`docs/tilesets/srx01/merged.json`.
+
+- **The set:** 1,612 tiles (dgt04 from 0, udp1 from 575, fcx01 from 1373), 224 groups, 604 primary rules. The
+  general block is dgt04's, the grass is udp1's. The pack `srn_t_srx01` holds only the set and its palette: the
+  models stay in the three source packs.
+- **Names:** the approved keys and palette names of `names.json` are in the set and the palette, each palette name
+  led by its district.
+- **Edge table:** twelve edge models that the source tables name are in no pack (they were missing before the
+  merge). They are listed in `merge.json` under `absent` and left out.
+- **Envkit:** `envkit install` re-merges and names a new group "<district or Unsorted>: <label> (<family>)".
+- **Guards:** `tools/tilekit/test_merge.py`; the pack is in `hakbuilder.json` and `PROVENANCE.md`.
+
+Toolset check (computer use, areas filled with Concrete, Grass and Plaza_Light, read back from the saved module):
+
+| Painted | In | Result |
+| --- | --- | --- |
+| Tenement, Residential Block (city terrain) | Concrete area | laid, dgt04 tiles |
+| Asphalt, Mall Red Block (suburb terrain) | Grass area | laid, udp1 tiles 595 and 921 |
+| Void, Road (arcology terrain) | Plaza_Light area | laid, fcx01 tiles 1374 and 1584 |
+| Asphalt, Mall Red Block | Concrete area | refused: no join tiles until stage 3 |
+| Stuffer Shack 2x2 (city) and (suburb) | Concrete area | both lay the city copy, tiles 434 to 437 |
+| Stuffer Shack 2x2 (suburb) | Grass area | refused |
+
+Findings:
+
+- **The Toolset cannot tell the two envkit copies apart.** A group is found by its first tile's model, so the
+  "(suburb)" entry lays the city copy. Keeping both copies paintable needs the suburb copy's tile models under
+  names of their own. Open for the user: rename-copy the models, or keep one copy (on Concrete, reached from the
+  suburbs through the stage 3 joins).
+- **A new area starts on Concrete**, so suburb and arcology terrain cannot be painted in a new area until the join
+  tiles exist. Expected, and the reason stage 3 comes before release A.
+- **Two palette entries show raw names** ("Barrens: Bridge_Collapsed", "Bridge_Collapsed_C"): to be named in
+  `names.json`.
+- The palette panel cuts long names off, which hides "(city)" and "(suburb)" at the default width.
+- Not checked yet: the Shadowrun City placeable categories and the door names in the Toolset (stage 3 check).
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.

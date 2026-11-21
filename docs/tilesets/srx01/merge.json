@@ -1,0 +1,49 @@
+{
+  "set": "srx01",
+  "display": "SRN City Exterior",
+  "names": "docs/tilesets/srx01/names.json",
+  "families": [
+    {
+      "set": "dgt04",
+      "label": "City"
+    },
+    {
+      "set": "udp1",
+      "label": "Suburb"
+    },
+    {
+      "set": "fcx01",
+      "label": "Arcology"
+    }
+  ],
+  "general": "dgt04",
+  "grass": "udp1",
+  "joins": [
+    [
+      "Concrete",
+      "Asphalt"
+    ],
+    [
+      "Concrete",
+      "Plaza_Light"
+    ]
+  ],
+  "raised": [
+    "Concrete"
+  ],
+  "absent": [
+    "dgt04_z00_03",
+    "dgt04_z00_04",
+    "dgt04_z12_01",
+    "dgt04_z14_01",
+    "dgw02_z01_01",
+    "rdt02_a14_01",
+    "tcn01_z03_01",
+    "tcn01_z15_01",
+    "tcn01_z17_01",
+    "udp1_z01_33",
+    "udp1_z01_34",
+    "udp1_z01_35"
+  ],
+  "absentNote": "Edge models the source edge tables name and no pack holds: nine of dgt04's (its inventory records them; the tcn01 ones are the base game's) and udp1's three Forest_Clearing ones. The merge carries the rows as they are."
+}

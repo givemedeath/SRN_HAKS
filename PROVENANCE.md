@@ -2384,3 +2384,17 @@ project operator passed the look in the game client on 2026-11-20 (review captur
 - Client checks on 2026-11-20:
   - the review block, by day and night, matched the packed ASCII (`output/tilekit/compiled-look`);
   - the three repaired tiles matched (`output/tilekit/emit121-fix`, `emit-fix`).
+
+## Unified city tileset `srx01` (`srn_t_srx01`, `srn_2da`, `srn_placeable`; 2026-11-21)
+
+- `srn_t_srx01/srx01.set`, `srx01palstd.itp` and `srn_2da/srx01_edge.2da` are written by `tools/tilekit/merge.py` from
+  the set files and edge tables of `srn_t_dgt04` (D20 Modern Exterior), `srn_t_udp1` (D20 Suburbs UDP) and
+  `srn_t_fcx01` (D20 Futuristic City SW), under the names in `docs/tilesets/srx01/names.json`. They hold no model,
+  texture or picture: every tile draws the source packs' own files, whose provenance and terms are recorded above.
+  The names, the palette layout and the generated rules between the three sets are original work of the SRN project
+  operator with Claude; the operator approved the names on 2026-11-21. `docs/tilesets/srx01/merged.json` pins what
+  each merge read and wrote.
+- `srn_placeable/placeablepal.itp` gains the category Shadowrun City and eleven kinds under it; the 149 envkit
+  blueprints (`ek_*.utp`) move there and `placeablepalstd.itp` is rebuilt by `envkit blueprints`. Only their palette
+  category changes.
+- `srn_2da/genericdoors.2da` rows 1094-1103 take a name each from the talk table (rows 156-165).

@@ -1,7 +1,10 @@
+import sys
 import tempfile
 import tomllib
 import unittest
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # its own folder, as its neighbours do: it ran only when one of them shared its shard
 from trials import inspection_settings
 
 

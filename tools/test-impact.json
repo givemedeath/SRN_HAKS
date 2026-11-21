@@ -453,7 +453,9 @@
       "tools/envkit/convert.py",
       "tools/envkit/placeables.py",
       "tools/envkit/tile.py",
-      "tools/phenotypes/tool_runtime.py"
+      "tools/phenotypes/tool_runtime.py",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/merge.py"
     ],
     "tools/envkit/blueprints.py": [
       "tools/envkit/placeables.py"
@@ -5731,6 +5733,7 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py",
       "tools/tilekit/material.py",
+      "tools/tilekit/merge.py",
       "tools/tilekit/redraw.py",
       "tools/tilekit/remesh.py",
       "tools/tilekit/review.py",
@@ -5814,6 +5817,10 @@
       "tools/envkit/reference.py",
       "tools/tilekit/enlarge.py",
       "tools/tilekit/pictures.py"
+    ],
+    "tools/tilekit/merge.py": [
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/terrain.py"
     ],
     "tools/tilekit/pictures.py": [],
     "tools/tilekit/placer.py": [
@@ -5931,6 +5938,11 @@
     "tools/tilekit/test_material.py": [
       "tools/tilekit/material.py",
       "tools/tilekit/pictures.py"
+    ],
+    "tools/tilekit/test_merge.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/merge.py"
     ],
     "tools/tilekit/test_names.py": [
       "tools/tilekit/__init__.py",
@@ -6225,6 +6237,9 @@
       "srn_t_common",
       "srn_t_dgt04"
     ],
+    "tools/tilekit/merge.py": [
+      "srn_2da"
+    ],
     "tools/tilekit/review.py": [
       "srn_2da",
       "srn_door",
@@ -6278,6 +6293,14 @@
     ],
     "tools/tilekit/test_material.py": [
       "srn_t_common"
+    ],
+    "tools/tilekit/test_merge.py": [
+      "srn_2da",
+      "srn_t_common",
+      "srn_t_dgt04",
+      "srn_t_fcx01",
+      "srn_t_srx01",
+      "srn_t_udp1"
     ],
     "tools/tilekit/test_names.py": [
       "srn_2da",
@@ -6637,6 +6660,7 @@
     "tools/tilekit/test_kit.py",
     "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",
+    "tools/tilekit/test_merge.py",
     "tools/tilekit/test_names.py",
     "tools/tilekit/test_redraw.py",
     "tools/tilekit/test_remesh.py",

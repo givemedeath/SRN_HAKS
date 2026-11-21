@@ -110,7 +110,9 @@ def command_install(args):
     removed += _dropped_parts(shared, args.model, set(made.get('parts', {}).values()), models)
     placed = {name: tile.commit(one) for name, one in prepared.items()}
     catalog.save(record, data)
-    print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed}), flush=True)
+    from tools.tilekit import merge  # a set that is part of a merged set: that set is made again, the new group in it (docs/tilesets/<set>/merge.json)
+    merged = merge.refresh(repo, {name: (tiles['group'], tiles['label']) for name in tiles['sets']}, district=tiles.get('district'))
+    print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed, 'merged': merged}), flush=True)
 
 
 def command_placeables(args):

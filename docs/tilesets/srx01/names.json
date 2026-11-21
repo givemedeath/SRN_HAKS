@@ -13,7 +13,8 @@
   "Industrial",
   "Civic",
   "Arcology",
-  "Joins"
+  "Joins",
+  "Unsorted"
  ],
  "terrains": [
   {
@@ -238,7 +239,8 @@
    "key": "Forest_Clearing",
    "category": "Ground",
    "display": "Ground: Forest Clearing",
-   "reason": "used by 46 corners and never declared; declared here"
+   "reason": "used by 46 corners and never declared; declared here; left off the palette until its three missing edge models exist (docs/imports/mdrnee_tile-deferred-work.md)",
+   "palette": false
   },
   {
    "set": "udp1",
@@ -3125,5 +3127,19 @@
     "srx01": "as above"
    }
   ]
- }
+ },
+ "edgeNames": [
+  {
+   "set": "udp1",
+   "name": "Strip_Mall",
+   "into": "Strip_Mall",
+   "reason": "udp1's edge table spells Stripmall this way, so its five strip mall border rows never matched the set; in the merged set they do"
+  },
+  {
+   "set": "udp1",
+   "name": "Strip_Mall_Canopy",
+   "into": "Mall_Canopy",
+   "reason": "the same for the canopy crosser's border row"
+  }
+ ]
 }
