@@ -400,10 +400,17 @@ Each batch ends with a day-and-night contact sheet and a look gate. Each lands a
 - Concrete tiles are left to envkit and placeables.
 - Invented-brand shop signs are on hold.
 - Release order: what is done goes out first. That is the crown trial and the door set.
-- **Open, left for later by the user (2026-11-20):** the lit windows of Highrise_06 and Highrise_07 seem to float when
-  their tower is seen from far off.
-  - The fog fades the tower's walls into the sky, but not the self-lit `window_lit` panes (`selfillumcolor 0.8`).
-  - This is an assumed cause, not yet confirmed by a capture of the original alone.
+- **Floating windows: explained (2026-11-20).** The windows of distant Highrise_06/07 towers seemed to float. The
+  first guess, self-lit panes escaping the fog, was wrong.
+  - **What happens:** past the area's fog clip distance (`FogClipDist`, 90 m in the review areas), the client stops
+    drawing a tile's static meshes. It goes on drawing the facade meshes hung under the animated `<tile>a` dummy, so
+    only those remain against the sky.
+  - **The tests:**
+    - two original Highrise_07 towers do it as well (`output/tilekit/twin-probe`), so the crown is not the cause;
+    - zeroed specular maps change nothing (`spec-probe`);
+    - with `FogClipDist` 200 the far tower is drawn whole by day and night (`twin-fog200`).
+  - **Outcome:** no tile change. It is an area setting, written down for builders in
+    `docs/tilesets/dgt04/builder-notes.md`.
 
 ### 5 — Doors
 
@@ -510,10 +517,12 @@ there is still open.
     gaps, not the office light of its source.
   - Seen in the client: `output/tilekit/redraw3-review`.
   - Applied to `srn_t_dgt04`.
-- The new edge tiles `srt04_r07_01` and `srt04_x07_01` have not been seen in the client. Look again with a view from
-  outside the border once the detail kit makes edges matter.
-- envkit's check area now stages the maps of restyled materials, which affects `pavement`. It has not been seen in
-  a client check yet.
+- **Done 2026-11-20:** the edge tiles `srt04_r07_01` and `srt04_x07_01` were seen in the client
+  (`output/tilekit/edges-review5`, by day and night). Past the border they show their copies' own facades, not their
+  sources'.
+- **Checked 2026-11-20:** envkit's check area stages `pavement.mtr` with all four maps (`checks._ground`).
+  - No envkit group is built in this worktree, so it was not run in the client.
+  - The restyled pavement itself shows in every tilekit review.
 
 ## Open after the pilot
 
