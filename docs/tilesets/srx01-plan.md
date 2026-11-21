@@ -113,6 +113,36 @@ and a `review.json`. The census of all three sets is `docs/tilesets/srx01/census
   This is a look item for release B, and for the release A side-by-side area.
 - **fcx01 at night is nearly unlit** apart from its blue windows. Release C's lit signage and lamps address it.
 
+## Stage 1 proposal (2026-11-21, awaiting the user's picture review)
+
+The proposal is `docs/tilesets/srx01/names.json`: 35 terrains, 23 crossers, 224 groups, the 149 envkit placeable
+blueprints and the door labels. Nothing in the packs has changed.
+
+**How names work, found in the palettes:**
+- A terrain or crosser has two names. The set file holds a key (16 characters at most); the palette (`.itp`) holds
+  the name the Toolset shows. `names.json` gives both: `key` and `display`.
+- The tile palettes are three flat lists: Features, Groups, Terrain. No palette in the repository nests further.
+  So the district sits at the front of each display name ("Barrens: Tenement, Brick"), and the lists sort by it.
+  Whether the Toolset shows nested tile categories is tried in the stage 3 Toolset check; until it is shown to work,
+  the prefix is the categorization.
+- Categories: Streets, Ground, Water, Barrens, Residential, Commercial, Corporate, Industrial, Civic, Arcology, Joins.
+
+**Pictures** (ignored `output/tilekit/`; every group laid assembled, one view each, day):
+- `s1-udp1g/sheets/groups-1.jpg` to `groups-9.jpg`: the 106 udp1 groups;
+- `s1-fcx01g/sheets/groups-1.jpg` to `groups-4.jpg`: the 38 fcx01 groups;
+- `s1-fcx01r/sheets/`: the fcx01 wall (`murs`, a pale stone perimeter wall) and road (`Routes`, a paved strip).
+
+**Left for the user at the review:**
+- `Wall01`, `Wall02` and `Chain_Fence2` keep numbered names: no picture of them was taken in this stage.
+- The udp1 shop names (Zip, Hillman, Chicken King and the others) are kept. They are baked signs; release B decides
+  whether the signs are redrawn, and the group names follow.
+- `Slums` (one tile) folds into `Tenement_Brick`, subject to a Toolset paint test.
+- Placeables: one new top-level category, Shadowrun City, with eleven kinds under it, in place of the split across
+  Modern Exterior and Modern Interior.
+
+**Client test rule (user, 2026-11-21):** every client test area sets its fog clip distance to 9999. All eight
+fixtures that write an area now do.
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.

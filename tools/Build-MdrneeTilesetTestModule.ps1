@@ -153,7 +153,7 @@ foreach ($area in $fixture.areas) {
         DayNightCycle = New-GffField 'byte' 0
         Expansion_List = New-GffField 'list' @()
         Flags = New-GffField 'dword' 4
-        FogClipDist = New-GffField 'float' 45.0
+        FogClipDist = New-GffField 'float' 9999.0
         Height = New-GffField 'int' $areaHeight
         ID = New-GffField 'int' -1
         IsNight = New-GffField 'byte' 0

@@ -278,7 +278,7 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
             cells.append(cell)
     are.update({'Tileset': field('resref', tileset), 'Width': field('int', width), 'Height': field('int', height), 'Tile_List': field('list', cells),
                 'Name': field('cexolocstring', {'0': title}), 'Tag': field('cexostring', tag), 'ResRef': field('resref', tag),
-                'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 90.0)})
+                'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 9999.0)})
     are.update({key: field(KINDS.get(key, 'dword'), value) for key, value in LIGHTS[light].items()})
     if props:
         git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', SOUTH))

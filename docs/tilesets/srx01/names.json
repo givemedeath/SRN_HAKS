@@ -1,0 +1,3129 @@
+{
+ "set": "srx01",
+ "status": "proposed, awaiting the user's picture review",
+ "rule": "key: the name in the set file, 16 characters at most, frozen at release A. display: what the Toolset palette shows, \"<category>: <name>\", so the palette lists sort by district.",
+ "categories": [
+  "Streets",
+  "Ground",
+  "Water",
+  "Barrens",
+  "Residential",
+  "Commercial",
+  "Corporate",
+  "Industrial",
+  "Civic",
+  "Arcology",
+  "Joins"
+ ],
+ "terrains": [
+  {
+   "set": "dgt04",
+   "name": "Concrete",
+   "key": "Concrete",
+   "category": "Streets",
+   "display": "Streets: Concrete",
+   "reason": "the city ground; kept"
+  },
+  {
+   "set": "dgt04",
+   "name": "Water",
+   "key": "Harbor",
+   "category": "Water",
+   "display": "Water: Harbour",
+   "reason": "clashes with the suburb water; this one has docks and railings"
+  },
+  {
+   "set": "dgt04",
+   "name": "Aqueduct",
+   "key": "Aqueduct",
+   "category": "Streets",
+   "display": "Streets: Aqueduct",
+   "reason": "kept"
+  },
+  {
+   "set": "dgt04",
+   "name": "Green_Bridge",
+   "key": "Bridge",
+   "category": "Streets",
+   "display": "Streets: Bridge",
+   "reason": "the palette already calls it Bridge"
+  },
+  {
+   "set": "dgt04",
+   "name": "Freeway",
+   "key": "Overpass",
+   "category": "Streets",
+   "display": "Streets: Overpass",
+   "reason": "the palette already calls it Overpass"
+  },
+  {
+   "set": "dgt04",
+   "name": "Apartments",
+   "key": "Apartments",
+   "category": "Residential",
+   "display": "Residential: Apartments",
+   "reason": "kept"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_08",
+   "key": "Residential_Blk",
+   "category": "Residential",
+   "display": "Residential: Residential Block",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Slums1",
+   "key": "Tenement_Brick",
+   "category": "Barrens",
+   "display": "Barrens: Tenement, Brick",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Slums2",
+   "key": "Tenement_Shops",
+   "category": "Barrens",
+   "display": "Barrens: Tenement, Shopfronts",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Slums3",
+   "key": "Tenement_Timber",
+   "category": "Barrens",
+   "display": "Barrens: Tenement, Timber",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_04",
+   "key": "Ruined_Highrise",
+   "category": "Barrens",
+   "display": "Barrens: Ruined High-rise",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_09",
+   "key": "Derelict_Tower",
+   "category": "Barrens",
+   "display": "Barrens: Derelict Tower",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_01",
+   "key": "Office_Block",
+   "category": "Corporate",
+   "display": "Corporate: Office Block, Concrete",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_02",
+   "key": "Tower_Stone",
+   "category": "Corporate",
+   "display": "Corporate: Corporate Tower, Stone",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_03",
+   "key": "Tower_Colonnade",
+   "category": "Corporate",
+   "display": "Corporate: Glass Tower, Colonnade",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_05",
+   "key": "Block_Grey_Stone",
+   "category": "Corporate",
+   "display": "Corporate: Corporate Block, Grey Stone",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_06",
+   "key": "Tower_Stone_Base",
+   "category": "Corporate",
+   "display": "Corporate: Glass Tower, Stone Base",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_07",
+   "key": "Compound_Glass",
+   "category": "Corporate",
+   "display": "Corporate: Walled Compound, Glass",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise_10",
+   "key": "Compound_Crowned",
+   "category": "Corporate",
+   "display": "Corporate: Walled Compound, Glass, Crowned",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Lab",
+   "key": "Laboratory",
+   "category": "Corporate",
+   "display": "Corporate: Laboratory",
+   "reason": "the palette already calls it Laboratory"
+  },
+  {
+   "set": "dgt04",
+   "name": "Police_Station",
+   "key": "Police_Station",
+   "category": "Civic",
+   "display": "Civic: Police Station",
+   "reason": "kept"
+  },
+  {
+   "set": "dgt04",
+   "name": "Hospital",
+   "key": "Hospital",
+   "category": "Civic",
+   "display": "Civic: Hospital",
+   "reason": "kept"
+  },
+  {
+   "set": "dgt04",
+   "name": "Warehouse_01",
+   "key": "Warehouse_Metal",
+   "category": "Industrial",
+   "display": "Industrial: Warehouse, Metal Siding",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "dgt04",
+   "name": "Warehouse_02",
+   "key": "Warehouse_Brick",
+   "category": "Industrial",
+   "display": "Industrial: Warehouse, Brick",
+   "reason": "approved palette name (dgt04 stratum 4)"
+  },
+  {
+   "set": "udp1",
+   "name": "Grass",
+   "key": "Grass",
+   "category": "Ground",
+   "display": "Ground: Grass",
+   "reason": "the suburb ground; kept"
+  },
+  {
+   "set": "udp1",
+   "name": "Asphalt",
+   "key": "Asphalt",
+   "category": "Streets",
+   "display": "Streets: Asphalt",
+   "reason": "kept; the only ground that joins Concrete"
+  },
+  {
+   "set": "udp1",
+   "name": "Forest",
+   "key": "Forest",
+   "category": "Ground",
+   "display": "Ground: Forest",
+   "reason": "kept"
+  },
+  {
+   "set": "udp1",
+   "name": "Forest_Clearing",
+   "key": "Forest_Clearing",
+   "category": "Ground",
+   "display": "Ground: Forest Clearing",
+   "reason": "used by 46 corners and never declared; declared here"
+  },
+  {
+   "set": "udp1",
+   "name": "Water",
+   "key": "Pond",
+   "category": "Water",
+   "display": "Water: Pond",
+   "reason": "clashes with the city water; this one lies in grass"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall",
+   "key": "Strip_Mall",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall",
+   "reason": "spelled out"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall_Type_1",
+   "key": "Mall_Tan",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan Block",
+   "reason": "named by its wall: beige block"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall_Type_2",
+   "key": "Mall_Red",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red Block",
+   "reason": "named by its wall: red block (udp1-blck-rd)"
+  },
+  {
+   "set": "fcx01",
+   "name": "Cobble",
+   "key": "Plaza_Light",
+   "category": "Arcology",
+   "display": "Arcology: Plaza, Light",
+   "reason": "a pale tiled plaza, not cobbles; its palette name was Light City"
+  },
+  {
+   "set": "fcx01",
+   "name": "Cobble2",
+   "key": "Deck_Dark",
+   "category": "Arcology",
+   "display": "Arcology: Deck, Dark",
+   "reason": "a dark tiled deck reached across the void; its palette name was Dark City"
+  },
+  {
+   "set": "fcx01",
+   "name": "holes",
+   "key": "Arcology_Void",
+   "category": "Arcology",
+   "display": "Arcology: Void",
+   "reason": "open drop between decks (user, 2026-11-21)"
+  }
+ ],
+ "folds": [
+  {
+   "set": "dgt04",
+   "name": "concrte",
+   "into": "Concrete",
+   "reason": "a misspelling on two Overpass tile corners"
+  },
+  {
+   "set": "dgt04",
+   "name": "freeway",
+   "into": "Overpass",
+   "reason": "the same terrain in another case"
+  },
+  {
+   "set": "dgt04",
+   "name": "Slums",
+   "into": "Tenement_Brick",
+   "reason": "one tile with all four corners Slums, declared nowhere",
+   "check": "paint it in the Toolset before the merge"
+  },
+  {
+   "set": "dgt04",
+   "name": "Cliff",
+   "into": null,
+   "reason": "declared, used by no tile: left out"
+  }
+ ],
+ "crossers": [
+  {
+   "set": "dgt04",
+   "name": "Street",
+   "key": "Street",
+   "category": "Streets",
+   "display": "Streets: Street",
+   "reason": "kept"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Edge_L",
+   "key": "Street_Edge_L",
+   "category": "Streets",
+   "display": "Streets: Street Edge, Left",
+   "reason": "kept"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Edge_R",
+   "key": "Street_Edge_R",
+   "category": "Streets",
+   "display": "Streets: Street Edge, Right",
+   "reason": "kept"
+  },
+  {
+   "set": "dgt04",
+   "name": "Alley_01",
+   "key": "Alley_Brick",
+   "category": "Barrens",
+   "display": "Barrens: Alley, Brick Tenement",
+   "reason": "it runs only in Tenement, Brick"
+  },
+  {
+   "set": "dgt04",
+   "name": "Alley_02",
+   "key": "Alley_Shops",
+   "category": "Barrens",
+   "display": "Barrens: Alley, Shopfront Tenement",
+   "reason": "it runs only in Tenement, Shopfronts"
+  },
+  {
+   "set": "dgt04",
+   "name": "Alley_03",
+   "key": "Alley_Timber",
+   "category": "Barrens",
+   "display": "Barrens: Alley, Timber Tenement",
+   "reason": "it runs only in Tenement, Timber"
+  },
+  {
+   "set": "dgt04",
+   "name": "Passageway",
+   "key": "Apt_Passageway",
+   "category": "Residential",
+   "display": "Residential: Apartments, Passageway",
+   "reason": "it runs only in Apartments"
+  },
+  {
+   "set": "dgt04",
+   "name": "Wood_Fence",
+   "key": "Fence_Board",
+   "category": "Streets",
+   "display": "Streets: Fence, Board",
+   "reason": "udp1 has a wooden fence too: each says its kind"
+  },
+  {
+   "set": "dgt04",
+   "name": "Chain_Fence",
+   "key": "Fence_Chain_1",
+   "category": "Streets",
+   "display": "Streets: Fence, Chain-link 1",
+   "reason": "kind first, like the other fences"
+  },
+  {
+   "set": "dgt04",
+   "name": "Chain_Fence2",
+   "key": "Fence_Chain_2",
+   "category": "Streets",
+   "display": "Streets: Fence, Chain-link 2",
+   "reason": "kind first; a descriptive name waits on a picture"
+  },
+  {
+   "set": "dgt04",
+   "name": "Wall01",
+   "key": "Wall_1",
+   "category": "Streets",
+   "display": "Streets: Wall 1",
+   "reason": "a descriptive name waits on a picture"
+  },
+  {
+   "set": "dgt04",
+   "name": "Wall02",
+   "key": "Wall_2",
+   "category": "Streets",
+   "display": "Streets: Wall 2",
+   "reason": "a descriptive name waits on a picture"
+  },
+  {
+   "set": "dgt04",
+   "name": "Railing",
+   "key": "Harbor_Railing",
+   "category": "Water",
+   "display": "Water: Harbour, Railing",
+   "reason": "it runs only at the water"
+  },
+  {
+   "set": "dgt04",
+   "name": "Docks",
+   "key": "Harbor_Docks",
+   "category": "Water",
+   "display": "Water: Harbour, Docks",
+   "reason": "it runs only at the water"
+  },
+  {
+   "set": "udp1",
+   "name": "Road",
+   "key": "Suburb_Road",
+   "category": "Streets",
+   "display": "Streets: Suburb Road",
+   "reason": "a road on Asphalt; told apart from the city Street"
+  },
+  {
+   "set": "udp1",
+   "name": "Sidewalk",
+   "key": "Sidewalk",
+   "category": "Streets",
+   "display": "Streets: Sidewalk",
+   "reason": "kept"
+  },
+  {
+   "set": "udp1",
+   "name": "Driveway",
+   "key": "Driveway",
+   "category": "Residential",
+   "display": "Residential: Driveway",
+   "reason": "kept"
+  },
+  {
+   "set": "udp1",
+   "name": "Parking",
+   "key": "Parking",
+   "category": "Commercial",
+   "display": "Commercial: Parking",
+   "reason": "kept"
+  },
+  {
+   "set": "udp1",
+   "name": "Fence_Wood",
+   "key": "Fence_Yard",
+   "category": "Residential",
+   "display": "Residential: Fence, Yard",
+   "reason": "a garden fence between Asphalt and Grass"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall_Canopy",
+   "key": "Mall_Canopy",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Canopy",
+   "reason": "shortened to fit 16 characters"
+  },
+  {
+   "set": "fcx01",
+   "name": "pont",
+   "key": "Void_Bridge",
+   "category": "Arcology",
+   "display": "Arcology: Bridge over the Void",
+   "reason": "French for bridge: a glass tube walkway across the void"
+  },
+  {
+   "set": "fcx01",
+   "name": "Routes",
+   "key": "Arcology_Road",
+   "category": "Arcology",
+   "display": "Arcology: Road",
+   "reason": "French for roads"
+  },
+  {
+   "set": "fcx01",
+   "name": "murs",
+   "key": "Arcology_Wall",
+   "category": "Arcology",
+   "display": "Arcology: Wall",
+   "reason": "French for walls"
+  }
+ ],
+ "groups": [
+  {
+   "set": "dgt04",
+   "name": "Stairway",
+   "was": "Stairway",
+   "category": "Streets",
+   "display": "Streets: Stairway"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Corner",
+   "was": "Road, Corner",
+   "category": "Streets",
+   "display": "Streets: Road, Corner"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Tee",
+   "was": "Road, 3-Way",
+   "category": "Streets",
+   "display": "Streets: Road, 3-Way"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Fourway",
+   "was": "Road, 4-Way",
+   "category": "Streets",
+   "display": "Streets: Road, 4-Way"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Driveway",
+   "was": "Road, Driveway",
+   "category": "Streets",
+   "display": "Streets: Road, Driveway"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Straight1",
+   "was": "Road, Straight 1",
+   "category": "Streets",
+   "display": "Streets: Road, Straight 1"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Straight2",
+   "was": "Road, Straight 2",
+   "category": "Streets",
+   "display": "Streets: Road, Straight 2"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Raise",
+   "was": "Road to Raise/Lower",
+   "category": "Streets",
+   "display": "Streets: Road to Raise/Lower"
+  },
+  {
+   "set": "dgt04",
+   "name": "Sidewalk_01",
+   "was": "Sidewalk 1",
+   "category": "Streets",
+   "display": "Streets: Sidewalk 1"
+  },
+  {
+   "set": "dgt04",
+   "name": "Sidewalk_02",
+   "was": "Sidewalk 2",
+   "category": "Streets",
+   "display": "Streets: Sidewalk 2"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Deadend",
+   "was": "Road, Deadend",
+   "category": "Streets",
+   "display": "Streets: Road, Deadend"
+  },
+  {
+   "set": "dgt04",
+   "name": "Grass",
+   "was": "Grass",
+   "category": "Streets",
+   "display": "Streets: Grass"
+  },
+  {
+   "set": "dgt04",
+   "name": "Green_Bridge_Ramp",
+   "was": "Bridge, Ramp",
+   "category": "Streets",
+   "display": "Streets: Bridge, Ramp"
+  },
+  {
+   "set": "dgt04",
+   "name": "Freeway_Ramp",
+   "was": "Road to Overpass",
+   "category": "Streets",
+   "display": "Streets: Road to Overpass"
+  },
+  {
+   "set": "dgt04",
+   "name": "Wall02_Tunnel",
+   "was": "Wall 2, Tunnel",
+   "category": "Streets",
+   "display": "Streets: Wall 2, Tunnel"
+  },
+  {
+   "set": "dgt04",
+   "name": "Sidewalk_03",
+   "was": "Sidewalk 3",
+   "category": "Streets",
+   "display": "Streets: Sidewalk 3"
+  },
+  {
+   "set": "dgt04",
+   "name": "Street_Sinkhole",
+   "was": "Road, Medium Hole",
+   "category": "Barrens",
+   "display": "Barrens: Road, Medium Hole"
+  },
+  {
+   "set": "dgt04",
+   "name": "Freeway_Underpass",
+   "was": "Road, Underpass",
+   "category": "Streets",
+   "display": "Streets: Road, Underpass"
+  },
+  {
+   "set": "dgt04",
+   "name": "Transit_Tunnel_Entrance",
+   "was": "Transit Tunnel, Entrance",
+   "category": "Industrial",
+   "display": "Industrial: Transit Tunnel, Entrance"
+  },
+  {
+   "set": "dgt04",
+   "name": "Transit_Straight",
+   "was": "Transit Tunnel, Straight",
+   "category": "Industrial",
+   "display": "Industrial: Transit Tunnel, Straight"
+  },
+  {
+   "set": "dgt04",
+   "name": "Transit_Tunnel_Hill",
+   "was": "Transit Tunnel, Hill",
+   "category": "Industrial",
+   "display": "Industrial: Transit Tunnel, Hill"
+  },
+  {
+   "set": "dgt04",
+   "name": "Aqueducts_Footbridge",
+   "was": "Aqueducts, Footbridge",
+   "category": "Industrial",
+   "display": "Industrial: Aqueducts, Footbridge"
+  },
+  {
+   "set": "dgt04",
+   "name": "Aqueducts_Maintainence",
+   "was": "Aqueducts, Maintainence Door",
+   "category": "Industrial",
+   "display": "Industrial: Aqueducts, Maintenance Door"
+  },
+  {
+   "set": "dgt04",
+   "name": "Bridge_Collapsed",
+   "was": "Bridge_Collapsed",
+   "category": "Barrens",
+   "display": "Barrens: Bridge_Collapsed"
+  },
+  {
+   "set": "dgt04",
+   "name": "Bridge_Collapsed_C",
+   "was": "Bridge_Collapsed_C",
+   "category": "Barrens",
+   "display": "Barrens: Bridge_Collapsed_C"
+  },
+  {
+   "set": "dgt04",
+   "name": "Fence_CLink01_Broken",
+   "was": "Fence, Chain-link 1, Broken",
+   "category": "Barrens",
+   "display": "Barrens: Fence, Chain-link 1, Broken"
+  },
+  {
+   "set": "dgt04",
+   "name": "Fence_CLink02_Broken",
+   "was": "Fence, Chain-link 2, Broken",
+   "category": "Barrens",
+   "display": "Barrens: Fence, Chain-link 2, Broken"
+  },
+  {
+   "set": "dgt04",
+   "name": "Fence_Wood_Broken",
+   "was": "Fence, Wood, Broken",
+   "category": "Barrens",
+   "display": "Barrens: Fence, Wood, Broken"
+  },
+  {
+   "set": "dgt04",
+   "name": "Road_3_Way_SAG",
+   "was": "Road, 3-Way, Stop and Go",
+   "category": "Streets",
+   "display": "Streets: Road, 3-Way, Stop and Go"
+  },
+  {
+   "set": "dgt04",
+   "name": "Road_4_Way_SAG",
+   "was": "Road, 4-Way, Stop and Go",
+   "category": "Streets",
+   "display": "Streets: Road, 4-Way, Stop and Go"
+  },
+  {
+   "set": "dgt04",
+   "name": "Road_Small_Hole",
+   "was": "Road, Small Hole",
+   "category": "Barrens",
+   "display": "Barrens: Road, Small Hole"
+  },
+  {
+   "set": "dgt04",
+   "name": "Road_Huge_Hole",
+   "was": "Road, Huge Hole",
+   "category": "Barrens",
+   "display": "Barrens: Road, Huge Hole"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise3_RoofAccess",
+   "was": "Glass Tower, Colonnade, Roof Access",
+   "category": "Corporate",
+   "display": "Corporate: Glass Tower, Colonnade, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise6_Window",
+   "was": "Glass Tower, Stone Base, Open Window",
+   "category": "Corporate",
+   "display": "Corporate: Glass Tower, Stone Base, Open Window"
+  },
+  {
+   "set": "dgt04",
+   "name": "Hospital_Helipad",
+   "was": "Hospital, Helipad",
+   "category": "Civic",
+   "display": "Civic: Hospital, Helipad"
+  },
+  {
+   "set": "dgt04",
+   "name": "Hospital_Entrance",
+   "was": "Hospital, Entrance",
+   "category": "Civic",
+   "display": "Civic: Hospital, Entrance"
+  },
+  {
+   "set": "dgt04",
+   "name": "Hospital_RoofAccess",
+   "was": "Hospital, Roof Access",
+   "category": "Civic",
+   "display": "Civic: Hospital, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Slums1_RoofAccess",
+   "was": "Tenement, Brick, Roof Access",
+   "category": "Barrens",
+   "display": "Barrens: Tenement, Brick, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Slums1_FencedOff",
+   "was": "Tenement, Brick, Fenced Off",
+   "category": "Barrens",
+   "display": "Barrens: Tenement, Brick, Fenced Off"
+  },
+  {
+   "set": "dgt04",
+   "name": "Slums2_RoofAccess",
+   "was": "Tenement, Shopfronts, Roof Access",
+   "category": "Barrens",
+   "display": "Barrens: Tenement, Shopfronts, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Slums3_RoofAccess",
+   "was": "Tenement, Timber, Roof Access",
+   "category": "Barrens",
+   "display": "Barrens: Tenement, Timber, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Transit_Doorway",
+   "was": "Transit, Doorway",
+   "category": "Industrial",
+   "display": "Industrial: Transit, Doorway"
+  },
+  {
+   "set": "dgt04",
+   "name": "Wall1_Passage",
+   "was": "Wall 1, Passage",
+   "category": "Streets",
+   "display": "Streets: Wall 1, Passage"
+  },
+  {
+   "set": "dgt04",
+   "name": "Warehouse1_RoofAccess",
+   "was": "Warehouse, Metal Siding, Roof Access",
+   "category": "Industrial",
+   "display": "Industrial: Warehouse, Metal Siding, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Warehouse2_RoofAccess",
+   "was": "Warehouse, Brick, Roof Access",
+   "category": "Industrial",
+   "display": "Industrial: Warehouse, Brick, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "ConcreteToDocks",
+   "was": "Concrete to Docks",
+   "category": "Industrial",
+   "display": "Industrial: Concrete to Docks"
+  },
+  {
+   "set": "dgt04",
+   "name": "SubwayEntrance",
+   "was": "Concrete, Subway Entrance",
+   "category": "Industrial",
+   "display": "Industrial: Concrete, Subway Entrance"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise1_RoofAccess",
+   "was": "Office Block, Concrete, Roof Access",
+   "category": "Corporate",
+   "display": "Corporate: Office Block, Concrete, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise5_RoofAccess",
+   "was": "Corporate Block, Grey Stone, Roof Access",
+   "category": "Corporate",
+   "display": "Corporate: Corporate Block, Grey Stone, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise6_RoofAccess",
+   "was": "Glass Tower, Stone Base, Roof Access",
+   "category": "Corporate",
+   "display": "Corporate: Glass Tower, Stone Base, Roof Access"
+  },
+  {
+   "set": "dgt04",
+   "name": "Warehouse1_WindowRoof",
+   "was": "Warehouse, Metal Siding, Window Roof",
+   "category": "Industrial",
+   "display": "Industrial: Warehouse, Metal Siding, Window Roof"
+  },
+  {
+   "set": "dgt04",
+   "name": "Warehouse2_WindowRoof",
+   "was": "Warehouse, Brick, Window Roof",
+   "category": "Industrial",
+   "display": "Industrial: Warehouse, Brick, Window Roof"
+  },
+  {
+   "set": "dgt04",
+   "name": "Arcology_Edge_01",
+   "was": "Arcology, Edge 1",
+   "category": "Corporate",
+   "display": "Corporate: Arcology, Edge 1"
+  },
+  {
+   "set": "dgt04",
+   "name": "Arcology_Edge_02_Window",
+   "was": "Arcology, Edge 2, Window",
+   "category": "Corporate",
+   "display": "Corporate: Arcology, Edge 2, Window"
+  },
+  {
+   "set": "dgt04",
+   "name": "Arcology_Corner",
+   "was": "Arcology, Corner",
+   "category": "Corporate",
+   "display": "Corporate: Arcology, Corner"
+  },
+  {
+   "set": "dgt04",
+   "name": "Arcology_Gate_01",
+   "was": "Arcology, Gate 1",
+   "category": "Corporate",
+   "display": "Corporate: Arcology, Gate 1"
+  },
+  {
+   "set": "dgt04",
+   "name": "Arcology_Gate_02",
+   "was": "Arcology, Gate 2",
+   "category": "Corporate",
+   "display": "Corporate: Arcology, Gate 2"
+  },
+  {
+   "set": "dgt04",
+   "name": "Stuffer_Shack",
+   "was": "Stuffer Shack 2x2",
+   "category": "Commercial",
+   "display": "Commercial: Stuffer Shack 2x2 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "Ares_Depot",
+   "was": "Ares Depot 3x3",
+   "category": "Corporate",
+   "display": "Corporate: Ares Depot 3x3 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "SK_Yard",
+   "was": "Saeder-Krupp Yard 3x3",
+   "category": "Corporate",
+   "display": "Corporate: Saeder-Krupp Yard 3x3 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "RF_Depot",
+   "was": "Rail Freight Depot 8x8",
+   "category": "Industrial",
+   "display": "Industrial: Rail Freight Depot 8x8 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "Iron_Sight_Arms",
+   "was": "Iron Sight Arms 2x3",
+   "category": "Commercial",
+   "display": "Commercial: Iron Sight Arms 2x3 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "Chop_Shop_Clinic",
+   "was": "Chop Shop Clinic 2x2",
+   "category": "Barrens",
+   "display": "Barrens: Chop Shop Clinic 2x2 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "Pulse_Tech",
+   "was": "Pulse Tech 2x2",
+   "category": "Commercial",
+   "display": "Commercial: Pulse Tech 2x2 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "Motorpool",
+   "was": "Motorpool Garage 3x2",
+   "category": "Barrens",
+   "display": "Barrens: Motorpool Garage 3x2 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "Aurora_Warrens",
+   "was": "Aurora Warrens 3x2",
+   "category": "Barrens",
+   "display": "Barrens: Aurora Warrens 3x2 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "Night_Bazaar",
+   "was": "Night Bazaar Gatehouse 3x2",
+   "category": "Barrens",
+   "display": "Barrens: Night Bazaar Gatehouse 3x2 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "SB_Station",
+   "was": "Shiawase Barrens Power Station 2x2",
+   "category": "Industrial",
+   "display": "Industrial: Shiawase Barrens Power Station 2x2 (city)",
+   "envkit": true
+  },
+  {
+   "set": "dgt04",
+   "name": "Highrise8_RoofAccess",
+   "was": "Residential Block, Roof Access",
+   "category": "Residential",
+   "display": "Residential: Residential Block, Roof Access"
+  },
+  {
+   "set": "udp1",
+   "name": "Parking, HC",
+   "was": "Parking, HC",
+   "category": "Commercial",
+   "display": "Commercial: Parking, HC"
+  },
+  {
+   "set": "udp1",
+   "name": "Parking, HC, Sidwalk",
+   "was": "Parking, HC, Sidwalk",
+   "category": "Commercial",
+   "display": "Commercial: Parking, HC, Sidewalk"
+  },
+  {
+   "set": "udp1",
+   "name": "Road Intersection, 1 Way Stop",
+   "was": "Road Intersection, 1 Way Stop",
+   "category": "Streets",
+   "display": "Streets: Road Intersection, 1 Way Stop"
+  },
+  {
+   "set": "udp1",
+   "name": "Road Streetlights",
+   "was": "Road Streetlights",
+   "category": "Streets",
+   "display": "Streets: Road Streetlights"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1 Roof Entrance",
+   "was": "Mall1 Roof Entrance",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan Roof Entrance"
+  },
+  {
+   "set": "udp1",
+   "name": "Fence with Gate",
+   "was": "Fence with Gate",
+   "category": "Residential",
+   "display": "Residential: Fence with Gate"
+  },
+  {
+   "set": "udp1",
+   "name": "Road Intersection, 3way lights",
+   "was": "Road Intersection, 3way lights",
+   "category": "Streets",
+   "display": "Streets: Road Intersection, 3way lights"
+  },
+  {
+   "set": "udp1",
+   "name": "Road Intersection, 4way lights",
+   "was": "Road Intersection, 4way lights",
+   "category": "Streets",
+   "display": "Streets: Road Intersection, 4way lights"
+  },
+  {
+   "set": "udp1",
+   "name": "Bridge 3x5",
+   "was": "Bridge 3x5",
+   "category": "Streets",
+   "display": "Streets: Bridge 3x5"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2 Roof Entrance",
+   "was": "Mall2 Roof Entrance",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red Roof Entrance"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, Entry1 2x2",
+   "was": "Mall1, Entry1 2x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, Entry1 2x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, Entry1 2x2",
+   "was": "Mall2, Entry1 2x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, Entry1 2x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, Zip Entrance 1x2",
+   "was": "Mall1, Zip Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, Zip Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, Zip Entrance 1x2",
+   "was": "Mall2, Zip Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, Zip Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, FutureComm Entrance 1x2",
+   "was": "Mall1, FutureComm Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, FutureComm Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, FutureComm Entrance 1x2",
+   "was": "Mall2, FutureComm Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, FutureComm Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, WernerStr Entrance 1x2",
+   "was": "Mall1, WernerStr Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, WernerStr Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, WernerStr Entrance 1x2",
+   "was": "Mall2, WernerStr Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, WernerStr Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, Hillman Entrance 1x2",
+   "was": "Mall1, Hillman Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, Hillman Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, Hillman Entrance 1x2",
+   "was": "Mall2, Hillman Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, Hillman Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Restaurant, Chicken King 3x3",
+   "was": "Restaurant, Chicken King 3x3",
+   "category": "Commercial",
+   "display": "Commercial: Restaurant, Chicken King 3x3"
+  },
+  {
+   "set": "udp1",
+   "name": "Restaurant, Kebab Hut 3x3",
+   "was": "Restaurant, Kebab Hut 3x3",
+   "category": "Commercial",
+   "display": "Commercial: Restaurant, Kebab Hut 3x3"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, On Target Entrance 1x2",
+   "was": "Mall1, On Target Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, On Target Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, On Target Entrance 1x2",
+   "was": "Mall2, On Target Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, On Target Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, Securemart Entrance 1x2",
+   "was": "Mall1, Securemart Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, Securemart Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, Securemart Entrance 1x2",
+   "was": "Mall2, Securemart Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, Securemart Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, Tooltown Entrance 1x2",
+   "was": "Mall1, Tooltown Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, Tooltown Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, Tooltown Entrance 1x2",
+   "was": "Mall2, Tooltown Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, Tooltown Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, Construx Entrance 1x2",
+   "was": "Mall1, Construx Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, Construx Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, Construx Entrance 1x2",
+   "was": "Mall2, Construx Entrance 1x2",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, Construx Entrance 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall1, Loading Dock",
+   "was": "Mall1, Loading Dock",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Tan, Loading Dock"
+  },
+  {
+   "set": "udp1",
+   "name": "Mall2, Loading Dock",
+   "was": "Mall2, Loading Dock",
+   "category": "Commercial",
+   "display": "Commercial: Mall, Red, Loading Dock"
+  },
+  {
+   "set": "udp1",
+   "name": "Gas Station 1x4",
+   "was": "Gas Station 1x4",
+   "category": "Commercial",
+   "display": "Commercial: Gas Station 1x4"
+  },
+  {
+   "set": "udp1",
+   "name": "School 1 4x4",
+   "was": "School 1 4x4",
+   "category": "Civic",
+   "display": "Civic: School 1 4x4"
+  },
+  {
+   "set": "udp1",
+   "name": "School 3 5x5",
+   "was": "School 3 5x5",
+   "category": "Civic",
+   "display": "Civic: School 3 5x5"
+  },
+  {
+   "set": "udp1",
+   "name": "School 2 4x4",
+   "was": "School 2 4x4",
+   "category": "Civic",
+   "display": "Civic: School 2 4x4"
+  },
+  {
+   "set": "udp1",
+   "name": "House 1, Blue 1x2",
+   "was": "House 1, Blue 1x2",
+   "category": "Residential",
+   "display": "Residential: House 1, Blue 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 2, Blue 1x2",
+   "was": "House 2, Blue 1x2",
+   "category": "Residential",
+   "display": "Residential: House 2, Blue 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 3, Blue",
+   "was": "House 3, Blue",
+   "category": "Residential",
+   "display": "Residential: House 3, Blue"
+  },
+  {
+   "set": "udp1",
+   "name": "House 4, Blue 1x2",
+   "was": "House 4, Blue 1x2",
+   "category": "Residential",
+   "display": "Residential: House 4, Blue 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 5, Blue 1x2",
+   "was": "House 5, Blue 1x2",
+   "category": "Residential",
+   "display": "Residential: House 5, Blue 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 1, Blue",
+   "was": "Garage 1, Blue",
+   "category": "Residential",
+   "display": "Residential: Garage 1, Blue"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 2, Blue",
+   "was": "Garage 2, Blue",
+   "category": "Residential",
+   "display": "Residential: Garage 2, Blue"
+  },
+  {
+   "set": "udp1",
+   "name": "House 1, Grey 1x2",
+   "was": "House 1, Grey 1x2",
+   "category": "Residential",
+   "display": "Residential: House 1, Grey 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 2, Grey 1x2",
+   "was": "House 2, Grey 1x2",
+   "category": "Residential",
+   "display": "Residential: House 2, Grey 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 3, Grey",
+   "was": "House 3, Grey",
+   "category": "Residential",
+   "display": "Residential: House 3, Grey"
+  },
+  {
+   "set": "udp1",
+   "name": "House 4, Grey 1x2",
+   "was": "House 4, Grey 1x2",
+   "category": "Residential",
+   "display": "Residential: House 4, Grey 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 5, Grey 1x2",
+   "was": "House 5, Grey 1x2",
+   "category": "Residential",
+   "display": "Residential: House 5, Grey 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 1, Grey",
+   "was": "Garage 1, Grey",
+   "category": "Residential",
+   "display": "Residential: Garage 1, Grey"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 2, Grey",
+   "was": "Garage 2, Grey",
+   "category": "Residential",
+   "display": "Residential: Garage 2, Grey"
+  },
+  {
+   "set": "udp1",
+   "name": "House 1, Yellow 1x2",
+   "was": "House 1, Yellow 1x2",
+   "category": "Residential",
+   "display": "Residential: House 1, Yellow 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 2, Yellow 1x2",
+   "was": "House 2, Yellow 1x2",
+   "category": "Residential",
+   "display": "Residential: House 2, Yellow 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 3, Yellow",
+   "was": "House 3, Yellow",
+   "category": "Residential",
+   "display": "Residential: House 3, Yellow"
+  },
+  {
+   "set": "udp1",
+   "name": "House 4, Yellow 1x2",
+   "was": "House 4, Yellow 1x2",
+   "category": "Residential",
+   "display": "Residential: House 4, Yellow 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 5, Yellow 1x2",
+   "was": "House 5, Yellow 1x2",
+   "category": "Residential",
+   "display": "Residential: House 5, Yellow 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 1, Yellow",
+   "was": "Garage 1, Yellow",
+   "category": "Residential",
+   "display": "Residential: Garage 1, Yellow"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 2, Yellow",
+   "was": "Garage 2, Yellow",
+   "category": "Residential",
+   "display": "Residential: Garage 2, Yellow"
+  },
+  {
+   "set": "udp1",
+   "name": "House 1, Red Brick 1x2",
+   "was": "House 1, Red Brick 1x2",
+   "category": "Residential",
+   "display": "Residential: House 1, Red Brick 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 2, Red Brick 1x2",
+   "was": "House 2, Red Brick 1x2",
+   "category": "Residential",
+   "display": "Residential: House 2, Red Brick 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 3, Red Brick",
+   "was": "House 3, Red Brick",
+   "category": "Residential",
+   "display": "Residential: House 3, Red Brick"
+  },
+  {
+   "set": "udp1",
+   "name": "House 4, Red Brick 1x2",
+   "was": "House 4, Red Brick 1x2",
+   "category": "Residential",
+   "display": "Residential: House 4, Red Brick 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 5, Red Brick 1x2",
+   "was": "House 5, Red Brick 1x2",
+   "category": "Residential",
+   "display": "Residential: House 5, Red Brick 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 2, Red Brick",
+   "was": "Garage 2, Red Brick",
+   "category": "Residential",
+   "display": "Residential: Garage 2, Red Brick"
+  },
+  {
+   "set": "udp1",
+   "name": "House 1, Grey Brick 1x2",
+   "was": "House 1, Grey Brick 1x2",
+   "category": "Residential",
+   "display": "Residential: House 1, Grey Brick 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 2, Grey Brick 1x2",
+   "was": "House 2, Grey Brick 1x2",
+   "category": "Residential",
+   "display": "Residential: House 2, Grey Brick 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 3, Grey Brick",
+   "was": "House 3, Grey Brick",
+   "category": "Residential",
+   "display": "Residential: House 3, Grey Brick"
+  },
+  {
+   "set": "udp1",
+   "name": "House 4, Grey Brick 1x2",
+   "was": "House 4, Grey Brick 1x2",
+   "category": "Residential",
+   "display": "Residential: House 4, Grey Brick 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 5, Grey Brick 1x2",
+   "was": "House 5, Grey Brick 1x2",
+   "category": "Residential",
+   "display": "Residential: House 5, Grey Brick 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 2, Grey Brick",
+   "was": "Garage 2, Grey Brick",
+   "category": "Residential",
+   "display": "Residential: Garage 2, Grey Brick"
+  },
+  {
+   "set": "udp1",
+   "name": "House 1, Old 1x2",
+   "was": "House 1, Old 1x2",
+   "category": "Residential",
+   "display": "Residential: House 1, Old 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 2, Old 1x2",
+   "was": "House 2, Old 1x2",
+   "category": "Residential",
+   "display": "Residential: House 2, Old 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 3, Old",
+   "was": "House 3, Old",
+   "category": "Residential",
+   "display": "Residential: House 3, Old"
+  },
+  {
+   "set": "udp1",
+   "name": "House 4, Old 1x2",
+   "was": "House 4, Old 1x2",
+   "category": "Residential",
+   "display": "Residential: House 4, Old 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "House 5, Old 1x2",
+   "was": "House 5, Old 1x2",
+   "category": "Residential",
+   "display": "Residential: House 5, Old 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 1, Old",
+   "was": "Garage 1, Old",
+   "category": "Residential",
+   "display": "Residential: Garage 1, Old"
+  },
+  {
+   "set": "udp1",
+   "name": "Garage 2, Old",
+   "was": "Garage 2, Old",
+   "category": "Residential",
+   "display": "Residential: Garage 2, Old"
+  },
+  {
+   "set": "udp1",
+   "name": "Pool, Above Ground",
+   "was": "Pool, Above Ground",
+   "category": "Residential",
+   "display": "Residential: Pool, Above Ground"
+  },
+  {
+   "set": "udp1",
+   "name": "Pool, In Ground",
+   "was": "Pool, In Ground",
+   "category": "Residential",
+   "display": "Residential: Pool, In Ground"
+  },
+  {
+   "set": "udp1",
+   "name": "Swing Set",
+   "was": "Swing Set",
+   "category": "Residential",
+   "display": "Residential: Swing Set"
+  },
+  {
+   "set": "udp1",
+   "name": "Jungle Gym",
+   "was": "Jungle Gym",
+   "category": "Residential",
+   "display": "Residential: Jungle Gym"
+  },
+  {
+   "set": "udp1",
+   "name": "Manhole, Asphalt",
+   "was": "Manhole, Asphalt",
+   "category": "Streets",
+   "display": "Streets: Manhole, Asphalt"
+  },
+  {
+   "set": "udp1",
+   "name": "Manhole, Road",
+   "was": "Manhole, Road",
+   "category": "Streets",
+   "display": "Streets: Manhole, Road"
+  },
+  {
+   "set": "udp1",
+   "name": "Road Intersection, 2x2",
+   "was": "Road Intersection, 2x2",
+   "category": "Streets",
+   "display": "Streets: Road Intersection, 2x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Bridge Pedestrian 1x2",
+   "was": "Bridge Pedestrian 1x2",
+   "category": "Streets",
+   "display": "Streets: Bridge Pedestrian 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Fence Extended End",
+   "was": "Fence Extended End",
+   "category": "Residential",
+   "display": "Residential: Fence Extended End"
+  },
+  {
+   "set": "udp1",
+   "name": "Fence Extended End with Gate",
+   "was": "Fence Extended End with Gate",
+   "category": "Residential",
+   "display": "Residential: Fence Extended End with Gate"
+  },
+  {
+   "set": "udp1",
+   "name": "Sidewalk Extended End",
+   "was": "Sidewalk Extended End",
+   "category": "Streets",
+   "display": "Streets: Sidewalk Extended End"
+  },
+  {
+   "set": "udp1",
+   "name": "Tennis Court 3x2",
+   "was": "Tennis Court 3x2",
+   "category": "Civic",
+   "display": "Civic: Tennis Court 3x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Bleacher, Plain",
+   "was": "Bleacher, Plain",
+   "category": "Civic",
+   "display": "Civic: Bleacher, Plain"
+  },
+  {
+   "set": "udp1",
+   "name": "Transmission Tower",
+   "was": "Transmission Tower",
+   "category": "Industrial",
+   "display": "Industrial: Transmission Tower"
+  },
+  {
+   "set": "udp1",
+   "name": "Water Tower Older",
+   "was": "Water Tower Older",
+   "category": "Industrial",
+   "display": "Industrial: Water Tower Older"
+  },
+  {
+   "set": "udp1",
+   "name": "Water Tower Newer 1x2",
+   "was": "Water Tower Newer 1x2",
+   "category": "Industrial",
+   "display": "Industrial: Water Tower Newer 1x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Fire Station 2x4",
+   "was": "Fire Station 2x4",
+   "category": "Civic",
+   "display": "Civic: Fire Station 2x4"
+  },
+  {
+   "set": "udp1",
+   "name": "Police Station 2x3",
+   "was": "Police Station 2x3",
+   "category": "Civic",
+   "display": "Civic: Police Station 2x3"
+  },
+  {
+   "set": "udp1",
+   "name": "Church 3x2",
+   "was": "Church 3x2",
+   "category": "Civic",
+   "display": "Civic: Church 3x2"
+  },
+  {
+   "set": "udp1",
+   "name": "Baseball Diamond 4x4",
+   "was": "Baseball Diamond 4x4",
+   "category": "Civic",
+   "display": "Civic: Baseball Diamond 4x4"
+  },
+  {
+   "set": "udp1",
+   "name": "Hospital 3x4",
+   "was": "Hospital 3x4",
+   "category": "Civic",
+   "display": "Civic: Hospital 3x4"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Java Pit",
+   "was": "Stripmall, Java Pit",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Java Pit"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Coffee Oasis",
+   "was": "Stripmall, Coffee Oasis",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Coffee Oasis"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Food Saver",
+   "was": "Stripmall, Food Saver",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Food Saver"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Prime National",
+   "was": "Stripmall, Prime National",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Prime National"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Grocer COOP",
+   "was": "Stripmall, Grocer COOP",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Grocer COOP"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Titan Bank",
+   "was": "Stripmall, Titan Bank",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Titan Bank"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Morning Mart",
+   "was": "Stripmall, Morning Mart",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Morning Mart"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Convenience Plus",
+   "was": "Stripmall, Convenience Plus",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Convenience Plus"
+  },
+  {
+   "set": "udp1",
+   "name": "Stripmall, Rear Entrance",
+   "was": "Stripmall, Rear Entrance",
+   "category": "Commercial",
+   "display": "Commercial: Strip Mall, Rear Entrance"
+  },
+  {
+   "set": "udp1",
+   "name": "Stuffer_Shack",
+   "was": "Stuffer Shack 2x2",
+   "category": "Commercial",
+   "display": "Commercial: Stuffer Shack 2x2 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "Ares_Depot",
+   "was": "Ares Depot 3x3",
+   "category": "Corporate",
+   "display": "Corporate: Ares Depot 3x3 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "SK_Yard",
+   "was": "Saeder-Krupp Yard 3x3",
+   "category": "Corporate",
+   "display": "Corporate: Saeder-Krupp Yard 3x3 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "RF_Depot",
+   "was": "Rail Freight Depot 8x8",
+   "category": "Industrial",
+   "display": "Industrial: Rail Freight Depot 8x8 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "Iron_Sight_Arms",
+   "was": "Iron Sight Arms 2x3",
+   "category": "Commercial",
+   "display": "Commercial: Iron Sight Arms 2x3 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "Chop_Shop_Clinic",
+   "was": "Chop Shop Clinic 2x2",
+   "category": "Barrens",
+   "display": "Barrens: Chop Shop Clinic 2x2 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "Pulse_Tech",
+   "was": "Pulse Tech 2x2",
+   "category": "Commercial",
+   "display": "Commercial: Pulse Tech 2x2 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "Motorpool",
+   "was": "Motorpool Garage 3x2",
+   "category": "Barrens",
+   "display": "Barrens: Motorpool Garage 3x2 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "Aurora_Warrens",
+   "was": "Aurora Warrens 3x2",
+   "category": "Barrens",
+   "display": "Barrens: Aurora Warrens 3x2 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "Night_Bazaar",
+   "was": "Night Bazaar Gatehouse 3x2",
+   "category": "Barrens",
+   "display": "Barrens: Night Bazaar Gatehouse 3x2 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "udp1",
+   "name": "SB_Station",
+   "was": "Shiawase Barrens Power Station 2x2",
+   "category": "Industrial",
+   "display": "Industrial: Shiawase Barrens Power Station 2x2 (suburb)",
+   "envkit": true
+  },
+  {
+   "set": "fcx01",
+   "name": "Tower00",
+   "was": "[Bright city] Large Construction",
+   "category": "Arcology",
+   "display": "Arcology: Rotunda, Blue Ring 2x2"
+  },
+  {
+   "set": "fcx01",
+   "name": "Tower01",
+   "was": "[Bright city] Large Tower",
+   "category": "Arcology",
+   "display": "Arcology: Spire, Pale"
+  },
+  {
+   "set": "fcx01",
+   "name": "Tower02",
+   "was": "Tower02",
+   "category": "Arcology",
+   "display": "Arcology: Saucer Tower 3x3"
+  },
+  {
+   "set": "fcx01",
+   "name": "Tower03",
+   "was": "Tower03",
+   "category": "Arcology",
+   "display": "Arcology: Control Tower 3x3"
+  },
+  {
+   "set": "fcx01",
+   "name": "Tower04",
+   "was": "[Dark city] Building",
+   "category": "Arcology",
+   "display": "Arcology: Dark Block 2x2"
+  },
+  {
+   "set": "fcx01",
+   "name": "Tower05",
+   "was": "Tower05",
+   "category": "Arcology",
+   "display": "Arcology: Stone Office 4x3"
+  },
+  {
+   "set": "fcx01",
+   "name": "Tower06",
+   "was": "[Dark city] Tall Building",
+   "category": "Arcology",
+   "display": "Arcology: Black High-rise 3x4"
+  },
+  {
+   "set": "fcx01",
+   "name": "Tower07",
+   "was": "[Bright city] Round Building",
+   "category": "Arcology",
+   "display": "Arcology: Dome Hall 6x6"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_build",
+   "was": "[Dark city] Military Building",
+   "category": "Arcology",
+   "display": "Arcology: Bunker Hall 4x3"
+  },
+  {
+   "set": "fcx01",
+   "name": "platform1",
+   "was": "[Dark city] Platform",
+   "category": "Arcology",
+   "display": "Arcology: Landing Pad 2x2"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_tower",
+   "was": "[Dark city] Large Tower",
+   "category": "Arcology",
+   "display": "Arcology: Column Tower, Dark"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_tower",
+   "was": "[Bright city] Futuristic Element",
+   "category": "Arcology",
+   "display": "Arcology: Column Tower, Light"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_tower02",
+   "was": "[Dark city] Tall Tower",
+   "category": "Arcology",
+   "display": "Arcology: Tall Column Tower, Dark"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_monum",
+   "was": "[Dark city] Monument",
+   "category": "Arcology",
+   "display": "Arcology: Pylon, Red Light"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_platform2",
+   "was": "[Dark city] Landing Platform",
+   "category": "Arcology",
+   "display": "Arcology: Landing Platform, Dark 5x6"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_platform",
+   "was": "[Bright city] Landing Platform",
+   "category": "Arcology",
+   "display": "Arcology: Landing Platform, Light 5x6"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_tower02",
+   "was": "[Bright city] Tall Tower",
+   "category": "Arcology",
+   "display": "Arcology: Tall Column Tower, Light"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_house01",
+   "was": "[Dark city] House",
+   "category": "Arcology",
+   "display": "Arcology: Pod, Dark"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_house02",
+   "was": "[Bright city] House",
+   "category": "Arcology",
+   "display": "Arcology: Pod, Light"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_build02",
+   "was": "[Dark city] Guard Tower",
+   "category": "Arcology",
+   "display": "Arcology: Guard Tower 2x2"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_temple",
+   "was": "[Dark city] Glass Building",
+   "category": "Arcology",
+   "display": "Arcology: Glass Pyramid 2x3"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_arbre",
+   "was": "[Bright city] Tree",
+   "category": "Arcology",
+   "display": "Arcology: Tree Planter 1"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_arbre2",
+   "was": "[Bright city] Tree 2",
+   "category": "Arcology",
+   "display": "Arcology: Tree Planter 2"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_herbe",
+   "was": "[Bright city] Grass",
+   "category": "Arcology",
+   "display": "Arcology: Grass Bed, Light Plaza"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_fountain",
+   "was": "[Bright city] Fountain",
+   "category": "Arcology",
+   "display": "Arcology: Fountain"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_water",
+   "was": "[Bright city] Water",
+   "category": "Arcology",
+   "display": "Arcology: Pool, Light Plaza"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_trans",
+   "was": "[Bright city] Transition",
+   "category": "Arcology",
+   "display": "Arcology: Paving Change, Light Plaza"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_trans",
+   "was": "[Dark city] Transition",
+   "category": "Arcology",
+   "display": "Arcology: Paving Change, Dark Deck"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_herbe",
+   "was": "[Dark city] Grass",
+   "category": "Arcology",
+   "display": "Arcology: Grass Bed, Dark Deck"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_eau",
+   "was": "[Dark city] Water",
+   "category": "Arcology",
+   "display": "Arcology: Pool, Dark Deck"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_escalier",
+   "was": "[Bright city] Stairs",
+   "category": "Arcology",
+   "display": "Arcology: Stairs, Light Plaza"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_escalier",
+   "was": "[Dark city] Stairs",
+   "category": "Arcology",
+   "display": "Arcology: Stairs, Dark Deck"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_wall_door",
+   "was": "[Bright city] Large Door",
+   "category": "Arcology",
+   "display": "Arcology: Wall Gate, Light Plaza"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_wall_door",
+   "was": "[Dark city] Large Door",
+   "category": "Arcology",
+   "display": "Arcology: Wall Gate, Dark Deck"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_road_door",
+   "was": "[Bright city] Large Door on Road",
+   "category": "Arcology",
+   "display": "Arcology: Road Gate, Light Plaza"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_road_door",
+   "was": "[Dark city] Large Door on Road",
+   "category": "Arcology",
+   "display": "Arcology: Road Gate, Dark Deck"
+  },
+  {
+   "set": "fcx01",
+   "name": "b_rampe",
+   "was": "[Bright city] Ramp",
+   "category": "Arcology",
+   "display": "Arcology: Ramp, Light Plaza"
+  },
+  {
+   "set": "fcx01",
+   "name": "d_rampe",
+   "was": "[Dark city] Ramp",
+   "category": "Arcology",
+   "display": "Arcology: Ramp, Dark Deck"
+  }
+ ],
+ "placeables": {
+  "parent": "Shadowrun City",
+  "note": "one new top-level palette category with these children; each needs a custom TLK row. Names stay \"<site>, <thing>\", so a builder still finds a site's pieces together within a category.",
+  "categories": [
+   {
+    "name": "Signs and Screens",
+    "blueprints": 18
+   },
+   {
+    "name": "Lights",
+    "blueprints": 4
+   },
+   {
+    "name": "Security",
+    "blueprints": 11
+   },
+   {
+    "name": "Barriers, Fences and Gates",
+    "blueprints": 14
+   },
+   {
+    "name": "Vehicles and Rail",
+    "blueprints": 9
+   },
+   {
+    "name": "Rubble and Trash",
+    "blueprints": 8
+   },
+   {
+    "name": "Machines and Vending",
+    "blueprints": 13
+   },
+   {
+    "name": "Utilities and Power",
+    "blueprints": 11
+   },
+   {
+    "name": "Storage and Cargo",
+    "blueprints": 25
+   },
+   {
+    "name": "Building Parts",
+    "blueprints": 15
+   },
+   {
+    "name": "Shop and Workshop Fittings",
+    "blueprints": 21
+   }
+  ],
+  "blueprints": [
+   {
+    "resref": "ek_ad_pylon",
+    "name": "Ares Depot, Pylon Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_ad_sign",
+    "name": "Ares Depot, Wall Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_aw_namewall",
+    "name": "Aurora Warrens, Name Wall",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_csc_banner",
+    "name": "Chop Shop Clinic, Hanging Banner",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_csc_cross",
+    "name": "Chop Shop Clinic, Neon Cross Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_gr_banner",
+    "name": "Ghost Riders, Gear Banner",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_gr_sign",
+    "name": "Ghost Riders, Motorpool Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_gr_mural",
+    "name": "Ghost Riders, Mural Wall",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_nb_neon",
+    "name": "Night Bazaar, Cyberware Neon Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_nb_gatesign",
+    "name": "Night Bazaar, Gateway Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_nb_panel",
+    "name": "Night Bazaar, Neon Panel",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_nb_pylon",
+    "name": "Night Bazaar, Pylon Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_pt_banner",
+    "name": "Pulse Tech, Hanging Banner",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_pt_sign",
+    "name": "Pulse Tech, Neon Chip Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_sk_pylon",
+    "name": "Saeder-Krupp Yard, Pylon Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_sk_sign",
+    "name": "Saeder-Krupp Yard, Wall Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_sb_sign",
+    "name": "Shiawase Barrens, Station Wall Sign",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_ss_board",
+    "name": "Stuffer Shack, Sandwich Board",
+    "from": "Modern Exterior > Signs",
+    "to": "Shadowrun City > Signs and Screens"
+   },
+   {
+    "resref": "ek_ad_barrier",
+    "name": "Ares Depot, Concrete Barrier",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_aw_graffiti",
+    "name": "Aurora Warrens, Graffiti Wall",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_aw_barrier",
+    "name": "Aurora Warrens, Scrap Barrier",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_aw_trash",
+    "name": "Aurora Warrens, Trash Pile",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Rubble and Trash"
+   },
+   {
+    "resref": "ek_csc_bin",
+    "name": "Chop Shop Clinic, Biohazard Bin",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_csc_dumpstr",
+    "name": "Chop Shop Clinic, Dumpster",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Rubble and Trash"
+   },
+   {
+    "resref": "ek_gr_barrier",
+    "name": "Ghost Riders, Tagged Barrier",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_pt_bin",
+    "name": "Pulse Tech, Trash Can",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Rubble and Trash"
+   },
+   {
+    "resref": "ek_rf_dumpster",
+    "name": "Rail Freight Yard, Dumpster",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Rubble and Trash"
+   },
+   {
+    "resref": "ek_sk_barrier",
+    "name": "Saeder-Krupp Yard, Utility Barrier",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_sb_sandbag",
+    "name": "Shiawase Barrens, Sandbag Barrier",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_ss_recycle",
+    "name": "Stuffer Shack, Recycling Bin",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_ss_trash",
+    "name": "Stuffer Shack, Trash Can",
+    "from": "Modern Exterior > Streets",
+    "to": "Shadowrun City > Rubble and Trash"
+   },
+   {
+    "resref": "ek_ad_fence",
+    "name": "Ares Depot, Fence Section",
+    "from": "Modern Exterior > Walls & Fences",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_ad_gate",
+    "name": "Ares Depot, Vehicle Gate",
+    "from": "Modern Exterior > Walls & Fences",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_gr_fence",
+    "name": "Ghost Riders, Fence Section",
+    "from": "Modern Exterior > Walls & Fences",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_gr_door",
+    "name": "Ghost Riders, Skull Garage Door",
+    "from": "Modern Exterior > Walls & Fences",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_nb_fence",
+    "name": "Night Bazaar, Fence Segment",
+    "from": "Modern Exterior > Walls & Fences",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_sk_fence",
+    "name": "Saeder-Krupp Yard, Fence Section",
+    "from": "Modern Exterior > Walls & Fences",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_sk_gate",
+    "name": "Saeder-Krupp Yard, Vehicle Gate",
+    "from": "Modern Exterior > Walls & Fences",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_sb_bulkhead",
+    "name": "Shiawase Barrens, Bulkhead Door",
+    "from": "Modern Exterior > Walls & Fences",
+    "to": "Shadowrun City > Barriers, Fences and Gates"
+   },
+   {
+    "resref": "ek_ad_dronedk",
+    "name": "Ares Depot, Drone Dock",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_ad_rooftop",
+    "name": "Ares Depot, Rooftop Unit",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_ad_booth",
+    "name": "Ares Depot, Watch Booth",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_aw_balcony",
+    "name": "Aurora Warrens, Balcony Segment",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_aw_stairs",
+    "name": "Aurora Warrens, Caged Stairwell",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_aw_kiosk",
+    "name": "Aurora Warrens, Entry Shack",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_aw_laundry",
+    "name": "Aurora Warrens, Laundry Line",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_aw_shack",
+    "name": "Aurora Warrens, Rooftop Shack",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_aw_gen",
+    "name": "Aurora Warrens, Utility Generator",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_aw_tank",
+    "name": "Aurora Warrens, Water Tank",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_csc_gurney",
+    "name": "Chop Shop Clinic, Gurney",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_csc_vending",
+    "name": "Chop Shop Clinic, Medicine Vending Machine",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_csc_lamp",
+    "name": "Chop Shop Clinic, Surgical Light",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Lights"
+   },
+   {
+    "resref": "ek_gr_fire",
+    "name": "Ghost Riders, Burn Barrel",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Rubble and Trash"
+   },
+   {
+    "resref": "ek_gr_embers",
+    "name": "Ghost Riders, Ember Barrel",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Rubble and Trash"
+   },
+   {
+    "resref": "ek_gr_pad",
+    "name": "Ghost Riders, Parking Pad",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_gr_table",
+    "name": "Ghost Riders, Planning Table",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_isa_vending",
+    "name": "Iron Sight Arms, Ammo Vending Machine",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_isa_bench",
+    "name": "Iron Sight Arms, Gunsmith Bench",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_isa_target",
+    "name": "Iron Sight Arms, Paper Target",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_isa_booths",
+    "name": "Iron Sight Arms, Shooting Booths",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_isa_gong",
+    "name": "Iron Sight Arms, Steel Target",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_nb_bench",
+    "name": "Night Bazaar, Bench",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_nb_lights",
+    "name": "Night Bazaar, Light String",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Lights"
+   },
+   {
+    "resref": "ek_nb_gen",
+    "name": "Night Bazaar, Portable Generator",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_nb_booth",
+    "name": "Night Bazaar, Shutter Booth",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_pt_seats",
+    "name": "Pulse Tech, Bench",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_pt_reel",
+    "name": "Pulse Tech, Cable Reel",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_pt_cases",
+    "name": "Pulse Tech, Case Stack",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_pt_vending",
+    "name": "Pulse Tech, Commlink Vending Machine",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_pt_drone",
+    "name": "Pulse Tech, Drone Service Pad",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_pt_power",
+    "name": "Pulse Tech, Power Pack",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_pt_rack",
+    "name": "Pulse Tech, Server Rack",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_rf_boxcar",
+    "name": "Rail Freight Yard, Boxcar",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_rf_runway",
+    "name": "Rail Freight Yard, Crane Rail",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_rf_flatcar",
+    "name": "Rail Freight Yard, Flatcar",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_rd_crane",
+    "name": "Rail Freight Yard, Gantry Crane",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_rf_light",
+    "name": "Rail Freight Yard, Light Tower",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Lights"
+   },
+   {
+    "resref": "ek_rf_dock",
+    "name": "Rail Freight Yard, Loading Dock",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_rd_platform",
+    "name": "Rail Freight Yard, Loading Platform",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_rf_office",
+    "name": "Rail Freight Yard, Office Module",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_rf_jack",
+    "name": "Rail Freight Yard, Pallet Jack",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_rf_stairs",
+    "name": "Rail Freight Yard, Stair Tower",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_rf_switcher",
+    "name": "Rail Freight Yard, Switcher Locomotive",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_rf_tankcar",
+    "name": "Rail Freight Yard, Tank Car",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_rf_shed",
+    "name": "Rail Freight Yard, Transfer Shed",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_rf_walkway",
+    "name": "Rail Freight Yard, Walkway",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Building Parts"
+   },
+   {
+    "resref": "ek_sk_forklift",
+    "name": "Saeder-Krupp Yard, Forklift",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_sk_fuel",
+    "name": "Saeder-Krupp Yard, Fuel Dispenser",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_sk_booth",
+    "name": "Saeder-Krupp Yard, Security Booth",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_sb_trench",
+    "name": "Shiawase Barrens, Cable Trench Cover",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_sb_insul",
+    "name": "Shiawase Barrens, Insulator Stack",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_sb_pipes",
+    "name": "Shiawase Barrens, Pipe Run",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_sb_tap",
+    "name": "Shiawase Barrens, Power Tap Pole",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Lights"
+   },
+   {
+    "resref": "ek_sb_trafo",
+    "name": "Shiawase Barrens, Power Transformer",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_sb_switch",
+    "name": "Shiawase Barrens, Switchgear Cabinet",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_sb_hatch",
+    "name": "Shiawase Barrens, Tunnel Hatch",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_sb_vent",
+    "name": "Shiawase Barrens, Tunnel Vent Stack",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_ss_atm",
+    "name": "Stuffer Shack, ATM",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_ss_hvac",
+    "name": "Stuffer Shack, Rooftop Unit",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_ss_vending",
+    "name": "Stuffer Shack, Vending Machine",
+    "from": "Modern Exterior > Structures",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_ss_clutter",
+    "name": "Stuffer Shack, Street Clutter",
+    "from": "Modern Exterior > Misc.",
+    "to": "Shadowrun City > Rubble and Trash"
+   },
+   {
+    "resref": "ek_ad_turret",
+    "name": "Ares Depot, Turret",
+    "from": "Modern Exterior > Weapons & Ammunition",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_ss_camera",
+    "name": "Stuffer Shack, Security Camera",
+    "from": "Modern Exterior > Wall Fixtures & Features",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_ad_lockers",
+    "name": "Ares Depot, Equipment Lockers",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_ad_crate",
+    "name": "Ares Depot, Gear Crate",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_aw_crates",
+    "name": "Aurora Warrens, Crates on Pallets",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_csc_cart",
+    "name": "Chop Shop Clinic, Instrument Cart",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_gr_drums",
+    "name": "Ghost Riders, Fuel Drums",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_gr_rack",
+    "name": "Ghost Riders, Parts Rack",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_gr_bench",
+    "name": "Ghost Riders, Repair Bench",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_gr_locker",
+    "name": "Ghost Riders, Service Locker",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_gr_cases",
+    "name": "Ghost Riders, Stash Cases",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_isa_shelf",
+    "name": "Iron Sight Arms, Ammo Shelf",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_isa_cart",
+    "name": "Iron Sight Arms, Cleaning Cart",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_isa_ppe",
+    "name": "Iron Sight Arms, Hearing and Eye Protection Rack",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_nb_cases",
+    "name": "Night Bazaar, Case Stack",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_pt_cart",
+    "name": "Pulse Tech, Parts Cart",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_pt_workbnch",
+    "name": "Pulse Tech, Repair Bench",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_rf_reel",
+    "name": "Rail Freight Yard, Cable Reel",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_rf_cont20",
+    "name": "Rail Freight Yard, Container, 20 ft",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_rf_cont40",
+    "name": "Rail Freight Yard, Container, 40 ft",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_rf_crates",
+    "name": "Rail Freight Yard, Crates on Pallets",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_rf_drums",
+    "name": "Rail Freight Yard, Hazmat Drums",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_rf_pipes",
+    "name": "Rail Freight Yard, Pipe Stack",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_sk_crates",
+    "name": "Saeder-Krupp Yard, Crate Set",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_sk_pallets",
+    "name": "Saeder-Krupp Yard, Pallet Stack",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_sk_cont",
+    "name": "Saeder-Krupp Yard, Shipping Container",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_sk_lockers",
+    "name": "Saeder-Krupp Yard, Tool Lockers",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_sb_battery",
+    "name": "Shiawase Barrens, Battery Bank",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Utilities and Power"
+   },
+   {
+    "resref": "ek_sb_drum",
+    "name": "Shiawase Barrens, Cable Drum",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_sb_cart",
+    "name": "Shiawase Barrens, Tool Cart",
+    "from": "Modern Interior > Containers",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_ad_terminal",
+    "name": "Ares Depot, Checkpoint Terminal",
+    "from": "Modern Interior > Controls",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_ad_console",
+    "name": "Ares Depot, Surveillance Console",
+    "from": "Modern Interior > Controls",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_sk_console",
+    "name": "Saeder-Krupp Yard, Loading Console",
+    "from": "Modern Interior > Controls",
+    "to": "Shadowrun City > Machines and Vending"
+   },
+   {
+    "resref": "ek_ss_drinks",
+    "name": "Stuffer Shack, Drink Case",
+    "from": "Modern Interior > Equipment",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_ad_desk",
+    "name": "Ares Depot, Reception Desk",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_aw_bodega",
+    "name": "Aurora Warrens, Bodega Kiosk",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_csc_case",
+    "name": "Chop Shop Clinic, Cyberware Case",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_isa_counter",
+    "name": "Iron Sight Arms, Pistol Counter",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_nb_table",
+    "name": "Night Bazaar, Folding Table",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_nb_cart",
+    "name": "Night Bazaar, Food Cart",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Vehicles and Rail"
+   },
+   {
+    "resref": "ek_nb_kiosk",
+    "name": "Night Bazaar, Tarped Kiosk",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_nb_stall",
+    "name": "Night Bazaar, Vendor Stall",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_pt_counter",
+    "name": "Pulse Tech, Display Counter",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_sk_desk",
+    "name": "Saeder-Krupp Yard, Office Desk",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Shop and Workshop Fittings"
+   },
+   {
+    "resref": "ek_ss_snacks",
+    "name": "Stuffer Shack, Snack Rack",
+    "from": "Modern Interior > Furniture",
+    "to": "Shadowrun City > Storage and Cargo"
+   },
+   {
+    "resref": "ek_ad_armory",
+    "name": "Ares Depot, Armory Rack",
+    "from": "Modern Interior > Weapons & Ammunition",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_isa_cabinet",
+    "name": "Iron Sight Arms, Rifle Cabinet",
+    "from": "Modern Interior > Weapons & Ammunition",
+    "to": "Shadowrun City > Security"
+   },
+   {
+    "resref": "ek_isa_gunwall",
+    "name": "Iron Sight Arms, Rifle Wall",
+    "from": "Modern Interior > Weapons & Ammunition",
+    "to": "Shadowrun City > Security"
+   }
+  ]
+ },
+ "doors": {
+  "note": "genericdoors.2da Name is strref 63750 (\"Door\") for all ten: the Toolset lists them alike. Each gets a custom TLK row.",
+  "generic": [
+   {
+    "row": 1094,
+    "label": "srn_StreetDoor",
+    "name": "Street Door, Single"
+   },
+   {
+    "row": 1095,
+    "label": "srn_ShopDoor",
+    "name": "Shop Door, Glass"
+   },
+   {
+    "row": 1096,
+    "label": "srn_DoubleDoor",
+    "name": "Double Door"
+   },
+   {
+    "row": 1097,
+    "label": "srn_SteelDoor",
+    "name": "Security Door, Steel"
+   },
+   {
+    "row": 1098,
+    "label": "srn_Shutter2",
+    "name": "Roller Shutter, 2 m"
+   },
+   {
+    "row": 1099,
+    "label": "srn_Shutter4",
+    "name": "Roller Shutter, 4 m"
+   },
+   {
+    "row": 1100,
+    "label": "srn_LoadingShutter",
+    "name": "Loading Shutter, 6 m"
+   },
+   {
+    "row": 1101,
+    "label": "srn_Gate",
+    "name": "Vehicle Gate, Mesh"
+   },
+   {
+    "row": 1102,
+    "label": "srn_InteriorDoor",
+    "name": "Interior Door"
+   },
+   {
+    "row": 1103,
+    "label": "srn_StripCurtain",
+    "name": "Strip Curtain"
+   }
+  ],
+  "tileset": [
+   {
+    "row": 117,
+    "set": "DGT04",
+    "label": "GlassWindow",
+    "name": "Glass Window (breakable)",
+    "srx01": "needs an SRX01 row if the Toolset test shows the hook empty"
+   },
+   {
+    "row": 260,
+    "set": "FCX01",
+    "label": "Astroport_door",
+    "name": "Arcology Gate, Large",
+    "srx01": "as above"
+   },
+   {
+    "row": 261,
+    "set": "FCX01",
+    "label": "fcx01_door",
+    "name": "Arcology Door",
+    "srx01": "as above"
+   }
+  ]
+ }
+}
