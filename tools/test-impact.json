@@ -6236,7 +6236,9 @@
       "srn_t_dgt04"
     ],
     "tools/tilekit/test_compiled.py": [
-      "srn_door"
+      "srn_door",
+      "srn_t_common",
+      "srn_t_dgt04"
     ],
     "tools/tilekit/test_crown.py": [
       "srn_t_common"

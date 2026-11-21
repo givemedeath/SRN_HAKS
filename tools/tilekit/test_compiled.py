@@ -8,6 +8,7 @@ from pathlib import Path
 from tools.tilekit import compiled, inventory
 
 REPO = Path(__file__).resolve().parents[2]
+PACKS = ('srn_t_common', 'srn_t_dgt04')  # the packs with sources: named so the test selector checks them out and runs this when one changes
 
 MODEL = '''newmodel t_a01
 beginmodelgeom t_a01
@@ -139,6 +140,7 @@ class PairTests(unittest.TestCase):
 
 class RepositoryTests(unittest.TestCase):
     def test_every_kept_source_has_the_binary_the_manifest_pins(self):
+        self.assertEqual(sorted({key.split('/')[0] for key in compiled.sources(REPO)}), sorted(PACKS))  # a new pack with sources is named above
         self.assertEqual(compiled.check(REPO), [])
 
     def test_a_tile_pack_with_sources_ships_no_ascii_model(self):
