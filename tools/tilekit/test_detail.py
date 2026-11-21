@@ -7,6 +7,16 @@ from pathlib import Path
 
 from tools.tilekit import apply, cuts, detail, geometry, inventory
 
+
+def compiled_copy(repo, keys):
+    """A stand-in for the NeverBlender compile: each source copied to its pack as it is."""
+    for key in keys:
+        pack, name = key.split('/'); (Path(repo) / pack / name).write_bytes((Path(repo) / 'sources' / pack / name).read_bytes())
+
+
+def _apply(*args, **kwargs):
+    return apply.apply(*args, compile=lambda keys: compiled_copy(args[0], keys), **kwargs)
+
 WALK = """node aabb walk
   parent t_a01
   position 0.0 0.0 0.0
@@ -255,9 +265,9 @@ class ApplyCuts(unittest.TestCase):
             tampered = dict(record); tampered['models'] = {'t_a01': {**record['models']['t_a01'], 'wokTo': '0' * 64}}
             (root / 'out' / cuts.WALK_CUTS).write_text(json.dumps(tampered), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'replaced only as walk-cuts.json records'):
-                apply.apply(root, None, root / 'out')
+                _apply(root, None, root / 'out')
             (root / 'out' / cuts.WALK_CUTS).write_text(json.dumps(record), encoding='utf-8')
-            told = apply.apply(root, None, root / 'out')
+            told = _apply(root, None, root / 'out')
             self.assertEqual(told['put'], 2); self.assertEqual(told['not applied'], [])
             self.assertEqual((own / 't_a01.wok').read_bytes(), (root / 'out' / 't_a01.wok').read_bytes())
             entry = json.loads((baseline / 'walkmesh.json').read_text(encoding='utf-8'))['models']['t_a01']
@@ -270,7 +280,7 @@ class ApplyCuts(unittest.TestCase):
             detail.detail(root, {'tileset': 't', 'tiles': {'t_a01': [{'piece': 'box', 'at': [1.0, 1.0, 10.0], 'blocks': True}]}}, kit, root / 'out')
             (root / 'out' / cuts.WALK_CUTS).unlink()
             with self.assertRaisesRegex(ValueError, 'walkmesh differs from the pack copy'):
-                apply.apply(root, None, root / 'out')
+                _apply(root, None, root / 'out')
 
 
 class TurnedTest(unittest.TestCase):

@@ -573,6 +573,17 @@ rate that this test can see.
   | Slums 32×32, night | 1.5–2.1 | 6.77 / 6.83 | 1.95 / 2.02 |
 
   Compiled models bring the loads back to the baseline, within 20%. The ASCII parse was the cost, not the textures.
+- **Adopted (user, 2026-11-20):** "compiled models should be shipped in the haks and ascii stored in github repo".
+  - The 500 ASCII tile models of `srn_t_common` and `srn_t_dgt04` moved to `sources/<pack>/`, and the packs hold
+    their NeverBlender binaries. `sources/compiled.json` pins each pair, and `tools/tilekit/test_compiled.py` checks
+    it.
+  - The tile tools read and write the sources. `tilekit apply --blender --addon` compiles what it writes, and
+    `tilekit compile` compiles whatever is out of date.
+  - The audit is stricter than the trial's: a round trip through the decompiler for what the decoder cannot compare.
+    It found three sources with broken emitter animations, whose compiled smoke was thinner in the client. They were
+    repaired, and they now match the ASCII (`sources/README.md`).
+  - The compile is reproducible: 486 of the trial's binaries came out byte-identical, and the other 3 are the
+    repaired ones.
 - One look pass over the whole block, then `PROVENANCE.md`.
 - One merge to `main`.
 

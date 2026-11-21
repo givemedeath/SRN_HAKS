@@ -5,7 +5,8 @@ game client each time, with an overlay folder shown instead of the packs' own fi
 textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps` and `shadows` write changed tile
 models into it, `detail` adds kit pieces to tiles there and `remesh` replaces a tile's visible meshes there; `count`
 says what each tile costs to draw (faces, mesh nodes, materials) against a budget; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
-`apply` moves an overlay whose look the user passed into the packs."""
+`apply` moves an overlay whose look the user passed into the packs; `compile` makes the packs' tile models from their
+ASCII sources (`sources/<pack>/`) with NeverBlender."""
 import argparse
 import json
 import sys
@@ -141,7 +142,20 @@ def doors_command(chosen):
 def apply_command(chosen):
     from . import apply
     spec = _json(chosen.spec) if chosen.spec else None  # none: the overlay's changed models alone
-    print(json.dumps(apply.apply(chosen.repo, spec, chosen.overlay)))
+    from .compiled import compile_models
+    compile = (lambda keys: compile_models(chosen.repo, chosen.blender, chosen.addon, keys)) if chosen.blender or chosen.addon else None
+    print(json.dumps(apply.apply(chosen.repo, spec, chosen.overlay, compile)))
+    return 0
+
+
+def compile_command(chosen):
+    from . import compiled
+    if chosen.check:
+        problems = compiled.check(chosen.repo); print(json.dumps({'problems': problems}, indent=1)); return 1 if problems else 0
+    compiled.toolchain(chosen.blender, chosen.addon)  # before anything moves
+    moved = compiled.adopt(chosen.repo, chosen.adopt) if chosen.adopt else []
+    told = compiled.compile_models(chosen.repo, chosen.blender, chosen.addon, chosen.model or None)
+    print(json.dumps({'adopted': len(moved), **told}, indent=1))
     return 0
 
 
@@ -210,6 +224,13 @@ def main(arguments=None):
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
     nine.add_argument('--spec', type=Path, help='the tileset\'s material spec: the textures moved (without it, only the overlay\'s changed models)')
     nine.add_argument('--overlay', required=True, type=Path, help='the review overlay the look was passed on'); nine.add_argument('--repo', type=Path, default=REPO)
+    nine.add_argument('--blender', type=Path, help='the Blender that runs NeverBlender: needed when the overlay changes tile models (compiled into the packs)')
+    nine.add_argument('--addon', type=Path, help='the NeverBlender add-on folder, with its bundled cleanmodels')
+    sixteen = commands.add_parser('compile', help='compile tile models from their ASCII sources (sources/<pack>/) into the packs, or --check the pairs')
+    sixteen.add_argument('--blender', type=Path, help='the Blender that runs NeverBlender'); sixteen.add_argument('--addon', type=Path, help='the NeverBlender add-on folder, with its bundled cleanmodels')
+    sixteen.add_argument('--model', action='append', help='<pack>/<name>.mdl to compile (default: every source whose binary is missing or out of date)')
+    sixteen.add_argument('--adopt', action='append', help='a tile pack whose ASCII models move to sources/ first (once per pack)')
+    sixteen.add_argument('--check', action='store_true', help='only check that every source has the binary the manifest pins'); sixteen.add_argument('--repo', type=Path, default=REPO)
     ten = commands.add_parser('terrain', help='copy building terrains under names of their own and make the palette names descriptive, into a folder')
     ten.add_argument('--spec', required=True, type=Path, help='the tileset\'s terrain spec (docs/tilesets/<tileset>/terrains.json)')
     ten.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay'); ten.add_argument('--repo', type=Path, default=REPO)
@@ -249,6 +270,8 @@ def main(arguments=None):
             return terrain_command(chosen)
         if chosen.command == 'apply':
             return apply_command(chosen)
+        if chosen.command == 'compile':
+            return compile_command(chosen)
         if chosen.command == 'shadows':
             return shadows_command(chosen)
         if chosen.command == 'lamps':

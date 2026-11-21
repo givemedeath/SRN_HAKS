@@ -2370,3 +2370,17 @@ project operator passed the look in the game client on 2026-11-20 (review captur
 - The jamb door hooks of tiles 359, 361 and 560 in `dgt04.set` are turned 90°. Each hook stood in its doorway's
   frame but laid the door beside the opening; turned, the door fills it (client check
   `output/tilekit/jamb-review2`).
+
+## Compiled tile models with ASCII sources (`srn_t_common`, `srn_t_dgt04`, `sources/`; 2026-11-20)
+
+- The 500 ASCII tile models of `srn_t_common` and `srn_t_dgt04` moved, byte for byte, to `sources/<pack>/`. The packs
+  now hold binaries that NeverBlender (cleanmodels port, run headless in Blender) compiled from them, through
+  `tools/tilekit/compiled.py`. The SRN project operator asked for compiled models in the packs and ASCII kept in the
+  repository.
+- `sources/compiled.json` pins each pair by SHA-256, with its audit. The provenance and terms of each model are those
+  recorded above for it; compiling changes its form, not its content.
+- Three sources were repaired, as `sources/README.md` records: `dgt04_e09_21`, `dgt05_a00_01` and `dgt05_a01_01`.
+  Their emitter animations had unclosed nodes and a spaced-out `endlist`.
+- Client checks on 2026-11-20:
+  - the review block, by day and night, matched the packed ASCII (`output/tilekit/compiled-look`);
+  - the three repaired tiles matched (`output/tilekit/emit121-fix`, `emit-fix`).

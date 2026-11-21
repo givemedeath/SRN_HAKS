@@ -15,6 +15,7 @@ turn there. The crown is written as `<tile>.mdl`, alone, into a folder that
 from pathlib import Path
 
 from . import geometry, inventory, kit, require
+from .compiled import source
 
 HALF = geometry.HALF
 PARAPET = (0.35, 1.5)  # metres: its depth into the roof and its height over it
@@ -110,7 +111,7 @@ def write(repo, tileset, terrain, models, out, overlay=None):
     for model in models:
         require(model.lower() in laid, f'{model} is no tile of {set_path.name}')
         path = next((folder / f'{model}.mdl' for folder in where + [repo / f'srn_t_{tileset}', repo / 'srn_t_common'] if (folder / f'{model}.mdl').is_file()), None)
-        require(path, f'No {model}.mdl'); data = path.read_bytes(); require(not inventory.compiled(data), f'{model} is compiled')
+        require(path, f'No {model}.mdl'); path = source(repo, path); data = path.read_bytes(); require(not inventory.compiled(data), f'{model} is compiled')
         corners = laid[model.lower()]; made = rebuilt(data.decode('cp1252'), model.lower(), corners, terrain)
         fronts = facades(corners, terrain)
         told[model] = {'facades': sorted(fronts), 'inner': sorted(CORNERS[corner] for corner in inner(corners, terrain, fronts))}
