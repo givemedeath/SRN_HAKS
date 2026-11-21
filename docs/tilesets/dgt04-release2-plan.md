@@ -584,6 +584,8 @@ rate that this test can see.
     repaired, and they now match the ASCII (`sources/README.md`).
   - The compile is reproducible: 486 of the trial's binaries came out byte-identical, and the other 3 are the
     repaired ones.
+  - **Built packs, no overlay** (`output/tilekit/perf/packed1`): loads 1.01 s (review block, night), 1.64 s (Slums,
+    day) and 2.04 s (Slums, night), within the baseline. Pack sizes: `srn_t_common` 841 MB and `srn_t_dgt04` 79 MB.
 - One look pass over the whole block, then `PROVENANCE.md`.
 - One merge to `main`.
 
