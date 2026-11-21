@@ -105,6 +105,12 @@ class PackCheckoutTests(unittest.TestCase):
         full=ci_scope.plan(None,data,config)['helperMatrix']
         self.assertEqual({r['group']:r['packs'] for r in full},{'packs':['srn_alpha','srn_beta'],'phenotypes-1':[],'phenotypes-2':[],'core':[]})
         self.assertEqual(next(r['checkout'] for r in full if r['group']=='core'),'.github\ndocs\ntools')
+    def test_only_a_leg_reaching_a_pack_with_sources_checks_its_sources_out(self):
+        config={**CONFIG,'groups':[{'name':'packs','packTests':True,'shards':1},*CONFIG['groups']]}
+        data={**DATA,'packReferences':{'tools/phenotypes/test_a.py':['srn_alpha','srn_beta']}}
+        rows={r['group']:r['checkout'].split('\n') for r in ci_scope.plan(None,data,config,sources={'srn_alpha','srn_gamma'})['helperMatrix']}
+        self.assertEqual(rows['packs'],['.github','docs','tools','srn_alpha','srn_beta','sources/srn_alpha'])
+        self.assertFalse([p for group,checkout in rows.items() if group!='packs' for p in checkout if p.startswith('sources')])
     def test_without_a_pack_group_the_pattern_leg_checks_out_the_pack(self):
         data={**DATA,'packReferences':{'tools/phenotypes/a.py':['srn_alpha']}}
         plan=ci_scope.plan(None,data,CONFIG);self.assert_covered(plan,data,CONFIG)
@@ -229,6 +235,8 @@ class WorkflowWiringTests(unittest.TestCase):
     def test_scope_checks_out_every_folder_the_catalog_reads(self):
         scope=self.checkout('scope',self.ci);base=load_config()['testCheckout']
         self.assertIn('fetch-depth: 0\n',scope);self.assertIn('filter: blob:none\n',scope)
+        # The scope also catalogs sources/compiled.json; the test legs check out only the sources/<pack> folders they reach.
+        base=sorted(base+[ci_scope.test_impact.SOURCES]);self.assertNotIn('sources',load_config()['testCheckout'])
         self.assertIn('sparse-checkout: |\n'+''.join(' '*12+p+'\n' for p in base),scope)
         # The catalog walks every non-pack folder for tools and Markdown, so a new top-level folder must join the set.
         top=subprocess.run(['git','-C',str(REPO),'ls-tree','-d','--name-only','HEAD'],capture_output=True,text=True,check=True).stdout.split()

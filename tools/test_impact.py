@@ -50,9 +50,18 @@ def packs(repo):
     """Pack folders on disk or in HEAD, so a sparse checkout catalogs the same pack names as a full one."""
     return sorted({p.name for p in repo.iterdir() if p.is_dir() and re.fullmatch(r'srn_[a-z0-9_]+',p.name)}|committed_packs(repo))
 
+SOURCES='sources'  # ASCII sources of compiled pack models: sources/<pack>/ (tools/tilekit/compiled.py)
+
+def committed_sources(repo):
+    """Packs with a sources/<pack>/ folder in HEAD; empty outside a Git checkout."""
+    if not (repo/'.git').exists():return set()
+    result=subprocess.run(['git','-C',str(repo),'ls-tree','-d','--name-only','HEAD',SOURCES+'/'],capture_output=True,text=True)
+    return {n.split('/')[-1] for n in result.stdout.splitlines() if re.fullmatch(r'srn_[a-z0-9_]+',n.split('/')[-1])} if not result.returncode else set()
+
 def absent_packs(repo=REPO):
-    """Committed pack folders that this (sparse) checkout did not materialise."""
-    return sorted(repo/name for name in committed_packs(repo) if not (repo/name).is_dir())
+    """Committed pack folders, and their sources/<pack>/ folders, that this (sparse) checkout did not materialise."""
+    folders=[repo/name for name in committed_packs(repo)]+[repo/SOURCES/name for name in committed_sources(repo)]
+    return sorted(p for p in folders if not p.is_dir())
 
 def pack_needs(data,test):
     """Packs named by a file in the test's transitive dependency closure, including the test itself."""

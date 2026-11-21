@@ -170,14 +170,16 @@ class SparseCheckoutTests(unittest.TestCase):
             self.assertEqual(run_tests(['tools/flat/test_other.py'],sys.executable,root,absent=[root/'srn_gone']),0)
     def test_sparse_checkout_catalogs_committed_packs_and_reports_them_absent(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);write(root,{'srn_kept/a.2da':'x','srn_gone/b.mdl':'x','srn_gone/notes.md':'x','tools/test_x.py':"PACK='srn_gone'"})
+            root=Path(tmp);write(root,{'srn_kept/a.2da':'x','srn_gone/b.mdl':'x','srn_gone/notes.md':'x','sources/srn_kept/a.mdl':'x','sources/srn_gone/b.mdl':'x',
+                            'tools/test_x.py':"PACK='srn_gone'"})
             git=lambda *a:subprocess.run(['git','-C',str(root),*a],check=True,capture_output=True)
             git('init','-q');git('add','.');git('-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture')
             full=catalog(root);self.assertEqual(absent_packs(root),[])
             # init --cone then set: Git before 2.35 reads `set --cone` as a pattern.
-            git('sparse-checkout','init','--cone');git('sparse-checkout','set','tools','srn_kept')
+            git('sparse-checkout','init','--cone');git('sparse-checkout','set','tools','srn_kept','sources/srn_kept')
             self.assertFalse((root/'srn_gone').exists());self.assertTrue((root/'srn_kept/a.2da').is_file())
-            self.assertEqual(packs(root),['srn_gone','srn_kept']);self.assertEqual(absent_packs(root),[root/'srn_gone'])
+            # A pack's ASCII sources folder the checkout omitted is absent too.
+            self.assertEqual(packs(root),['srn_gone','srn_kept']);self.assertEqual(absent_packs(root),[root/'sources'/'srn_gone',root/'srn_gone'])
             self.assertEqual(catalog(root),full);self.assertEqual(full['packReferences'],{'tools/test_x.py':['srn_gone']})
             # Sparse-omitted files are not deletions; a path missing from both disk and index is.
             self.assertEqual(deleted_paths(['srn_gone/notes.md','srn_gone/b.mdl','docs/gone.md','tools/test_x.py'],root),{'docs/gone.md'})
