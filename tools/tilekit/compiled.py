@@ -74,11 +74,32 @@ def adopted(repo):
     return sorted(path.name for path in root.iterdir() if path.is_dir() and tile_pack(path.name)) if root.is_dir() else []
 
 
+NAMED = re.compile(rb'(?im)^[ \t]*(?:bitmap|texture0|materialname)[ \t]+(\S+)')  # what a mesh's material is looked up by (cleanmodels materials.py)
+
+
+def borrowed(repo):
+    """{file name: path} of the materials the sources name that no adopted pack holds, from the other packs of
+    hakbuilder.json, the first in its order: the game loads them with the tileset (manhole_tex2 is srn_placeable's)."""
+    repo = Path(repo); named = set()
+    for path in sources(repo).values():
+        named |= {match.decode('latin-1').lower() for match in NAMED.findall(path.read_bytes())}
+    own = {path.name.lower() for pack in adopted(repo) for path in (repo / pack).glob('*.mtr')}; found = {}
+    listed = json.loads((repo / 'hakbuilder.json').read_text(encoding='utf-8-sig')).get('HakList', []) if (repo / 'hakbuilder.json').is_file() else []
+    for pack in [entry['Name'] for entry in listed if entry['Name'] not in adopted(repo)]:
+        for path in sorted((repo / pack).glob('*.mtr')) if (repo / pack).is_dir() else ():
+            name = path.name.lower()
+            if path.stem.lower() in named and name not in own:
+                found.setdefault(name, path)
+    return found
+
+
 def materials(repo):
-    """A digest of the materials (.mtr) of the adopted packs. cleanmodels gives a mesh tangents only where its material
-    says it is normal-mapped, so a binary is current only while they are as it was compiled with."""
+    """A digest of the materials (.mtr) of the adopted packs and of those the sources borrow from other packs.
+    cleanmodels gives a mesh tangents only where its material says it is normal-mapped, so a binary is current only
+    while they are as it was compiled with."""
     repo = Path(repo)
     rows = sorted((f'{pack}/{path.name.lower()}', _sha(path.read_bytes())) for pack in adopted(repo) for path in (repo / pack).glob('*.mtr'))
+    rows += sorted((f'{path.parent.name}/{name}', _sha(path.read_bytes())) for name, path in borrowed(repo).items())
     return _sha(json.dumps(rows).encode())
 
 
@@ -289,6 +310,10 @@ def compile_models(repo, blender, addon, keys=None, timeout=3600):
     snapshot = {key: _sha(kept[key].read_bytes()) for key in keys}
     work = Path(tempfile.mkdtemp(prefix='tilekit-compile-', dir=repo / 'output' if (repo / 'output').is_dir() else None))
     try:
+        lent = work / 'materials'; lent.mkdir()  # the other packs' materials the sources name, alone: not a whole placeable pack to index
+        for name, path in borrowed(repo).items():
+            shutil.copyfile(path, lent / name)
+        lookups.append(lent)
         jobs = []
         for key in keys:
             pack, name = key.split('/'); out = work / 'binary' / pack; out.mkdir(parents=True, exist_ok=True)

@@ -221,6 +221,8 @@ def inventory(repo, tileset, *, walkmesh_only=False):
         entry = {'pack': home.name if home else None, 'form': 'absent', 'tiles': tiles_of.get(name, []), 'edge': name in edges}
         if home:
             data = held[(home.name, f'{name}.mdl')].read_bytes(); entry['form'] = 'compiled' if compiled(data) else 'uncompiled'
+            if held[(home.name, f'{name}.mdl')] != home / f'{name}.mdl' and held[(home.name, f'{name}.mdl')].parent.parent.name == 'sources':  # read from its source: the pack ships it compiled
+                entry['shipped'] = 'compiled'
             wok = held.get((home.name, f'{name}.wok'))
             marks = {'wok': hashlib.sha256(wok.read_bytes()).hexdigest() if wok else None, 'aabb': None}
             if entry['form'] == 'uncompiled':

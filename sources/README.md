@@ -12,8 +12,9 @@ The packs ship compiled tile models. Their ASCII sources are kept here (user, 20
   - a tile pack with sources ships an ASCII model;
   - a material (`.mtr`) of an adopted pack changes after the compile.
 - **Materials:** cleanmodels gives a mesh tangents only where its material says it is normal-mapped. So
-  `compiled.json` also records a digest of the adopted packs' materials, and a compile always looks in every
-  adopted pack. When a material changes, every binary is out of date: `tilekit apply` of a material spec recompiles
+  `compiled.json` also records a digest of the adopted packs' materials, and of the other packs' materials the sources
+  name (`manhole_tex2` is srn_placeable's and srn_door's). A compile always looks in every adopted pack and in those
+  borrowed materials. When a material changes, every binary is out of date: `tilekit apply` of a material spec recompiles
   them all, and `tilekit compile` without `--model` does too.
 
 ## Why

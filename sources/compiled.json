@@ -67,10 +67,10 @@
   },
   "srn_t_common/dgt04_d06_01.mdl": {
    "source": "48036a7e220e3993a8825f7b0c1791bc9035dd5ad9040a26ebbf6e5f4959f696",
-   "binary": "6348fb7e9f55290a06c739a7fc193108bc0e3c043043d7ed653ae4dfdeeb28f1",
-   "bytes": 124796,
+   "binary": "8acd2601bb9f3e5e12020152705f3fcaedcf168657a324255fed68def237f182",
+   "bytes": 126380,
    "audit": "rig",
-   "compiled": "2026-11-20"
+   "compiled": "2026-11-21"
   },
   "srn_t_common/dgt04_d06_02.mdl": {
    "source": "18628a9f945644565269447f1a4b114b137d0b08dec5e1f672426ab6362c8108",
@@ -3509,5 +3509,5 @@
   "blender": "5.2.1 LTS",
   "compilerSha256": "d2c6aaf4620db0415417ee88fb251e18b0b4204b06190a228267e9e115665214"
  },
- "materials": "dbef539bd02b298c20da22fbd2dc17ea38aaa75cca7f456d306e57ac10664938"
+ "materials": "c20babfb4725233c5abaaa1fd586936f7aeaabd0a072c862d3bdc7154dafd02a"
 }

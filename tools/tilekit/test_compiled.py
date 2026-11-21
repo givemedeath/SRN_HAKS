@@ -129,6 +129,16 @@ class PairTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'compile every source'):  # one of two sources compiled would leave the other stale
             compiled.compile_models(self.repo, 'blender', 'addon', ['srn_t_x/t_a01.mdl'])
 
+    def test_a_material_borrowed_from_another_pack_is_looked_up_and_digested(self):
+        (self.repo / 'hakbuilder.json').write_text(json.dumps({'HakList': [{'Name': 'srn_t_x'}, {'Name': 'srn_door'}, {'Name': 'srn_placeable'}]}), encoding='utf-8')
+        self.source.write_text(MODEL.replace('birthrate 0', 'birthrate 0\n  bitmap Manhole'), encoding='ascii')
+        for pack in ('srn_door', 'srn_placeable'):
+            (self.repo / pack).mkdir(); (self.repo / pack / 'manhole.mtr').write_text('renderhint NormalAndSpecMapped\n', encoding='ascii')
+        (self.repo / 'srn_placeable' / 'unnamed.mtr').write_text('renderhint NormalAndSpecMapped\n', encoding='ascii')
+        self.assertEqual(compiled.borrowed(self.repo), {'manhole.mtr': self.repo / 'srn_door' / 'manhole.mtr'})  # the first pack in hak order; one no source names is not
+        digest = compiled.materials(self.repo); (self.repo / 'srn_door' / 'manhole.mtr').write_text('texture0 manhole\n', encoding='ascii')
+        self.assertNotEqual(compiled.materials(self.repo), digest)
+
     def test_a_pair_the_manifest_pins_holds(self):
         self.assertEqual(compiled.check(self.repo), []); self.assertEqual(compiled.stale(self.repo), [])
 
