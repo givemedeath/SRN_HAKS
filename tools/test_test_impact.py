@@ -207,6 +207,11 @@ class SelectionPolicyTests(unittest.TestCase):
     def test_pack_assets_select_only_tests_that_reference_the_pack(self):
         self.assertEqual(select(['srn_body/x.mdl'],self.fixture)['tests'],['tools/b/test_pack.py'])
         self.assertEqual(select(['srn_item/x.uti'],self.fixture)['tests'],[])
+    def test_an_ascii_source_selects_the_tests_of_its_pack(self):
+        picked=select(['sources/srn_body/x.mdl'],self.fixture)
+        self.assertEqual((picked['fullSuite'],picked['tests'],picked['packs']),(False,['tools/b/test_pack.py'],['srn_body']))
+        for odd in (['sources/notes.cfg'],['sources/other/x.mdl']):  # not under a pack's folder: unknown
+            self.assertTrue(select(odd,self.fixture)['fullSuite'],odd)
     def test_unknown_and_uncovered_changes_select_everything(self):
         for changed in (['hakbuilder.json'],['tools/a/unknown.ps1'],['README.md','other/thing.cfg'],[]):
             self.assertTrue(select(changed,self.fixture)['fullSuite'],changed)

@@ -309,7 +309,7 @@ unresolved dependencies, shared infrastructure listed in `tools/ci-scope.json`
 and shared helpers trigger the full Python suite. A helper or configuration is
 shared when its dependent tests span more than one suite folder (phenotypes,
 heads, robes, the PhenoMorpher package or root tools). Markdown that no test reads selects no helper tests;
-`srn_*` asset changes select tests that name that pack. Dynamic dependencies still
+`srn_*` asset changes, and ASCII sources in `sources/<pack>/`, select tests that name that pack. Dynamic dependencies still
 require full-suite review; focused selection is a convenience, not a release gate.
 Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers
 change; CI rejects a stale catalog.

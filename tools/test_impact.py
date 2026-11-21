@@ -194,6 +194,8 @@ def select(changed,data,config=None,deleted=()):
         elif path.lower().endswith('.md') and path in deleted:return full(data,'Deleted document; its former readers are unknown: '+path)
         elif path.lower().endswith('.md'):documentation.append(path)
         elif re.fullmatch(r'srn_[a-z0-9_]+',first) and len(path.split('/'))>1:changed_packs.add(first)
+        # An ASCII source in sources/<pack>/ is that pack's asset: the tests that reach the pack read it.
+        elif first==SOURCES and len(path.split('/'))>2 and re.fullmatch(r'srn_[a-z0-9_]+',path.split('/')[1]):changed_packs.add(path.split('/')[1])
         else:return full(data,'Unknown/configuration dependency; full suite required: '+path)
     impacted.update(p for p,rows in data.get('packReferences',{}).items() if changed_packs&set(rows))
     impacted=dependents(impacted,data)
