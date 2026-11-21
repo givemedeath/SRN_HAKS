@@ -1,0 +1,278 @@
+# Unified Shadowrun exterior tileset: Modern Exterior + Suburbs + Futuristic City
+
+Revision 2 (2026-11-21): the first plan, with the review corrections and the three picks the user accepted.
+
+## Context
+
+The Modern Exterior (`dgt04`) upfit is done: release 2 merged in PR 188, and the CI follow-up in PR 189. The user now
+wants one Shadowrun city tileset that combines three sets:
+
+- the upfitted Modern Exterior (`srn_t_dgt04/dgt04.set`);
+- D20 Suburbs UDP (`srn_t_udp1/udp1.set`);
+- D20 Futuristic City SW (`srn_t_fcx01/fcx01.set`).
+
+A builder can then paint Barrens, suburbs and a corporate core side by side in one area.
+
+**User decisions (2026-11-21):**
+- **Set form:** a new set with its own resref. The three source sets stay, so existing areas keep working.
+- **Order:** merge first, with join tiles; then give Suburbs and Futuristic City the dgt04 upfit treatment.
+- **Joins:** built join tiles, for the ground transitions and the road junctions.
+- **Futuristic City's role:** the corporate arcology zone. It is restyled clean, lit, glass and steel, with the Star
+  Wars details redrawn as generic ones.
+
+**Accepted at the plan review (2026-11-21):**
+- **Suburbs meet the city through Asphalt only.** Concrete never touches Grass, so no three-terrain join tiles are
+  built. Every suburb border is a paved strip.
+- **Joins follow the restyle.** A join tile draws each family's ground with that family's own texture name, so it
+  takes the new look when releases B and C restyle the ground. B and C each re-check the joins.
+- **Both envkit copies are kept.** The Concrete copies and the Asphalt copies both go into the new set, with palette
+  names that say which ground each sits on.
+
+## What the three sets are (measured on main, f5a9c5e8)
+
+| | Modern Exterior `dgt04` | Suburbs `udp1` | Futuristic City `fcx01` |
+|---|---|---|---|
+| Tiles / groups | 575 / 69 | 798 / 117 | 239 / 38 |
+| Tile models | `dgt04_`, `dgt05_`, `srt04_`, `rdt0x_`, `dgw01_` | `udp1_` | `fcx01_`, `cor01_`, `nar01_` |
+| Envkit tiles (`ek_`) | 122, on Concrete | the same 122, on Asphalt | none |
+| Terrains declared | 25 | 7 | 3: Cobble, Cobble2, holes |
+| Terrains used but not declared | `Slums` (4 corners), `concrte` (2), `freeway` (6, beside `Freeway`) | `Forest_Clearing` (46) | none |
+| Crossers | 14, incl. Street, Street_Edge_L/R, Alley 01–03 | 6, incl. Road, Driveway, Sidewalk, Parking | 3: pont, Routes, murs |
+| Raised corners | 53 (Transition 15) | 0 (Transition 10) | 0 (Transition 3) |
+| Primary rules | 4 | 15 | 9 |
+| Ground / default | Concrete | Grass | Cobble |
+| `[GRASS]` section | none | yes | yes, different values |
+| EnvMap | `ttr01__ref01` | `tdc01_ref01` | `tnc01__ref01` |
+| Door types keyed to the set | 117 (`DGT04`) | none | 260, 261 (`FCX01`) |
+| Pack size / compiled | 82 MB, compiled | 82 MB, ASCII | 24 MB, ASCII |
+
+**What follows from this:**
+- **Raise height:** only dgt04 has raised corners, so dgt04's Transition (15) serves the whole set.
+- **Model names:** every family's models have their own prefixes, so the models stay in their own packs. The new pack
+  holds the set, the palette, the join tiles and nothing else. A module loads it together with the three source packs.
+- **Name clash:** `Water` is in both dgt04 and udp1.
+- **Undeclared terrains:** four names, in two sets (table above). `Forest_Clearing` also has three missing edge models
+  (`docs/imports/mdrnee_tile-deferred-work.md`).
+- **Where roads run:** dgt04's `Street` runs on all-Concrete tiles, udp1's `Road` on all-Asphalt tiles, fcx01's
+  `Routes` on all-Cobble or all-Cobble2 tiles. So a road junction is the straight ground join with a road on each side.
+- **fcx01's two grounds:** its own rules route Cobble↔Cobble2 through `holes`. The joins meet `Cobble` only.
+- **One `[GRASS]` and one EnvMap per set:** the new set can keep only one of each.
+- **Textures already shared:** `glass`, `stone`, `lab_win1`, `dgt04_chrome` and three stock textures are drawn by
+  both dgt04 and fcx01. The Futuristic City already takes dgt04's restyled look on those (a release 1 decision).
+- **Envkit tiles:** each envkit sheet adds its tiles to both source sets
+  (`tools/envkit/sets/*.json`: `"sets": {"dgt04": "Concrete", "udp1": "Asphalt"}`; 11 sheets).
+- **Who uses the sets:** SR_NWN has no production areas on these sets, only test and spike areas. This is checked
+  again before release A.
+
+## Proposed name
+
+`srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.
+Display name "SRN City Exterior". The user confirms the name at the names review (stage 1).
+
+## Work order
+
+Each stage is one pull request into a `restyle/srx01` branch. `main` gets one merge per release (A, B, C), as the
+dgt04 upfit did.
+
+### 0. Inventory and baselines
+
+Run the existing tools on the two newcomers:
+- `python -B -m tools.tilekit inventory --set udp1` and `--set fcx01` write their `inventory.json`,
+  `textures.csv` and `walkmesh.json` baselines into `docs/tilesets/udp1/` and `docs/tilesets/fcx01/`;
+- `tilekit count` says what each tile costs to draw.
+
+**Census and look:**
+- **Census:** terrains (declared and used), crossers, rules, groups, door hooks, door types and edge-table rows of all
+  three sets. It also lists every cross-family terrain pair, for the rules in stage 2.
+- **Odd names:** what `holes`, `pont` and `murs` are, from in-game pictures.
+- **Review modules:** a `tilekit review` module of udp1 and one of fcx01, with a handful of targeted day and night
+  views each. They follow the client rules: frame-rate cap, keyholing off, camera allowed to look up.
+
+This document records the census results and the proposed terrain renames as they come in.
+
+### 1. Names and Toolset categories (user, 2026-11-21)
+
+This stage comes before the merge tool's final output, because the merge reads its name map.
+
+The new set has no areas yet. So unlike dgt04's stratum 4, where descriptive names went into the palette alone, the
+new names go into the set file itself as well as the palette. **Terrain and crosser names are frozen at release A:**
+once areas exist on `srx01`, a rename breaks them. The names review is a gate for release A.
+
+**What gets renamed, from in-game pictures:**
+- **Terrains:** the numbered and inherited names: `Highrise_01`–`10`, `Slums1`–`3`, `Mall_Type_1/2`, `Cobble`,
+  `Cobble2`, `holes`, and so on. Names follow district and role (Barrens, Residential, Commercial, Corporate,
+  Industrial, Civic, Arcology). They fit the set's 16-character resref limit (`tools/tilekit/terrain.py` checks it).
+- **Undeclared terrains:** each gets an explicit entry. `concrte` and `freeway` fold into `Concrete` and `Freeway`.
+  `Slums` and `Forest_Clearing` are either declared or folded into a neighbour, decided from the pictures and a
+  Toolset paint test.
+- **The `Water` clash:** udp1's `Water` becomes `Pond`, unless the pictures show the two waters match.
+- **Crossers:** `Wall01`/`Wall02`, `Alley_01`–`03`, `Chain_Fence2`, `pont`, `Routes`, `murs`, `Fence_Wood`.
+- **Tile groups:** every palette group of the three sets, each with a descriptive display name. Duplicate or
+  misleading names are reconciled, such as the many "Highrise" groups and the French fcx01 names. The two copies of
+  each envkit group say their ground: "(city)" on Concrete, "(suburb)" on Asphalt.
+- **Edge table:** the merged edge table names follow the new terrain names.
+
+**How the tile palette is recategorized:**
+- the tile palette (`srx01palstd.itp`) is laid out as a category tree by district, then by kind: Ground and roads,
+  Buildings, Joins, Water, Landmarks;
+- the envkit buildings sit under their districts, not in one flat list.
+
+**Placeable blueprints:**
+- the 149 envkit blueprints in `srn_placeable` are re-sorted on the `placeablepal.itp` category tree, where a city
+  category fits better than the current one: Street furniture, Signs and screens, Lights, Barriers and fences,
+  Vehicles, Rubble and debris, Corporate, Barrens;
+- `tools/envkit/blueprints.py` (`palette`, `blueprint(... category)`) rebuilds `placeablepalstd.itp`;
+- new category names take custom TLK rows in `srn_tlk`.
+
+**Door types:**
+- the Toolset door-type labels of the universal door set and the tiles' door hooks get names that say what each is:
+  gate, roller shutter, glass entrance and so on;
+- `doortypes.2da` rows 117, 260 and 261 are keyed to `DGT04` and `FCX01`. A Toolset test on `srx01` shows whether
+  the five tiles that use them still offer those doors. If not, `srx01` rows are added.
+
+**Spec and guards:**
+- **Spec:** `docs/tilesets/srx01/names.json` holds an old→new map for terrains, crossers, groups and categories, with
+  a reason for each rename. The user approves it at a picture review.
+- **Guards** (`tools/tilekit/test_merge.py` and `tools/envkit/test_blueprints`):
+  - every name is unique within its kind and fits its length limit;
+  - every source name, declared or only used, maps to exactly one new name;
+  - no blueprint is lost or doubled across categories;
+  - every category a blueprint names exists in the palette tree;
+  - the source sets keep their own names, so existing areas are untouched.
+
+### 2. The merge tool: `tilekit merge` (new `tools/tilekit/merge.py`)
+
+`srx01.set`, its palette and its edge table are merge output only. Nothing else writes them.
+
+**Spec:** `docs/tilesets/srx01/merge.json` names, for each family:
+- its source set and group prefix;
+- terrain and crosser names, taken from `names.json` (stage 1);
+- the envkit tiles: dgt04's Concrete copies and udp1's Asphalt copies, both kept.
+
+**What it writes:**
+- the `[TILE]` sections of all three sets, in a fixed family order, then the join tiles;
+- `[GROUPS]` with their tile numbers remapped, and palette groups under the stage 1 category tree;
+- `GENERAL` from dgt04: Transition 15, EnvMap `ttr01__ref01`, border, default and floor `Concrete`;
+- `[GRASS]` from udp1, so the lawns keep their grass. fcx01's values are dropped; stage 0 checks whether any fcx01
+  tile shows grass at all;
+- the merged palette (`.itp`) and the merged edge table, including border rows for the join pairs.
+
+**Rules:**
+- every set's own primary rules, with the names mapped;
+- the rules for the join pairs: Concrete↔Asphalt and Concrete↔Cobble;
+- a rule for every other cross-family terrain pair, generated from the census, that routes through the grounds. For
+  example a suburb building beside a city building changes to Grass, then Asphalt, then Concrete;
+- rules that keep raised Concrete away from the joins, which are built at height 0 only.
+
+**Reuse:**
+- `tools/tilekit/inventory.py`: `read_set`, `sections`, `edge_models`, `_other_sets`;
+- `tools/tilekit/terrain.py`: `renamed`, `_sections`, `_counted`, for writing sets;
+- `tools/envkit/tile.py`: `prepare`, how a group goes into a set and its `.itp`.
+
+**Guards** (a new `tools/tilekit/test_merge.py`):
+- every source tile appears exactly once, with its model, walkmesh, lights, doors and path node unchanged and its
+  corners renamed only as the spec says;
+- every terrain and crosser a tile names is declared;
+- every cross-family terrain pair has a rule, and every corner pair that can reach the border has an edge row;
+- group tile numbers point at tiles of the right model;
+- every model the set and the edge table name exists in `srn_t_srx01` or one of the three source packs;
+- the merge is deterministic, so a rerun is byte-identical;
+- a source set changed after the merge makes `srx01.set` stale. It is pinned by hash, like
+  `sources/compiled.json`.
+
+**Registration and envkit:**
+- the new test module goes into `tools/ci-test-durations.json`, then the catalog is refreshed
+  (`python -B tools/test_impact.py --write-catalog tools/test-impact.json`);
+- `hakbuilder.json` gets the `srn_t_srx01` pack;
+- envkit keeps adding tiles to the two source sets only. `tools/envkit/additions.py` then reruns the merge, which
+  carries the new tiles into `srx01` and renews the pin. Envkit sheets do not name `srx01`.
+
+### 3. Join tiles, built in code (new `tools/tilekit/joins.py`, like `doorset.py`)
+
+**Ground transitions:** Concrete↔Asphalt and Concrete↔Cobble. There is no Concrete↔Grass join.
+- Each pair needs the four corner shapes: one corner, two corners along an edge, two diagonal corners, three corners.
+  That is 8 models plus a second variant where they repeat.
+- **Look:** a kerb or step line with the dgt04 master materials on the Concrete side. The other side draws the
+  family's own ground texture by its texture name, so it follows that family's restyle.
+- **Walkmesh:** flat, with each half's surface material.
+- **Minimaps:** drawn by `tools/envkit/tile.py` `minimaps`.
+- **Border rows:** one edge-table row and border model for each join corner pair.
+
+**Road junctions:** variants of the two-corners-along-an-edge shape.
+- `Street` on the Concrete edge and `Road` on the Asphalt edge;
+- `Street` on the Concrete edge and `Routes` on the Cobble edge;
+- a T-junction for each, if the census shows the Toolset needs one.
+
+**Shipping and checks:**
+- **Compiled:** the joins ship compiled from the start, ASCII in `sources/srn_t_srx01/`, through
+  `tools/tilekit/compiled.py` and `tilekit compile`. That pack joins `compiled.PACKS`/`PACKS` in `test_compiled.py`.
+- **Toolset check:** by computer use, following `nwn-toolset-by-computer-use`. Paint each boundary, rotate, undo and
+  redo, then reopen the area. Every pair must paint without a missing-tile hole. This also covers a suburb building
+  painted beside a city building, raised Concrete beside a join, a join at the area border, and the keyed doors.
+- **Client check:** a short review of each join type by day and night, with the user's look approval.
+
+### 4. Release A
+
+The unified set ships with the source looks, plus the joins:
+- `srn_t_srx01` is built;
+- `Test-Repository` and the affected pack validation pass;
+- the names review is closed;
+- a review area paints all three districts side by side, and the user approves it. This look check includes the
+  reflective surfaces of udp1 and fcx01 under dgt04's EnvMap, compared with their stage 0 pictures;
+- loads and frame rate are checked against the dgt04 baseline method (`docs/tilesets/dgt04-release2-plan.md`,
+  stage 0), in an area that loads all three packs.
+
+### 5. Release B: Suburbs upfit (udp1), batch by batch
+
+This follows the dgt04 process (`docs/tilesets/dgt04-upfit-plan.md`):
+- the material standard reuses dgt04's master materials, with a pilot block approved first;
+- `lamps` and `shadows` fixes;
+- `detail` kit pieces;
+- `compile --adopt srn_t_udp1`;
+- one day and night contact sheet per family batch: houses, malls, strip malls, roads and ground, forest.
+
+**Constraints:**
+- walkmeshes are held against the stage 0 baseline;
+- restyles go in place in `srn_t_udp1`, so the old Suburbs set takes the new look too;
+- redraws use local Qwen;
+- no helper edits between a job and its collect.
+
+**Join re-check:** after the roads and ground batch, the Concrete↔Asphalt joins and junctions are viewed again by day
+and night. If the kerb line no longer fits the new Asphalt, `joins.py` is adjusted and the joins rebuilt.
+
+### 6. Release C: Futuristic City as the corporate arcology (fcx01)
+
+The same process on fcx01:
+- clean corporate materials: glass, brushed steel, lit signage that glows at night;
+- the Star Wars-specific textures redrawn with local Qwen as generic 2070s ones, with no brand names: monuments,
+  `bespin_*`, `imp_modules_*`, `ctown_*` signs;
+- lamps moved to main lights;
+- `compile --adopt srn_t_fcx01`.
+
+The four textures it shares with dgt04 keep dgt04's look.
+
+**Join re-check:** the Concrete↔Cobble joins and junctions, as in release B.
+
+### 7. Cohesion
+
+- **Look pass:** the user's whole-city look pass across the three districts and the joins, by day and night.
+- **Performance:** against the baseline.
+- **Old sets:** whether to retire them is the user's call later. This plan keeps them.
+
+## Verification (each stage)
+
+- **Tests:** the focused tests chosen by `python -B tools/test_impact.py --changed <files> --run`. The full helper
+  suite when shared helpers change.
+- **Walkmeshes:** `tilekit walkmesh` against the baselines, after every model change.
+- **Packs:** `tools/Test-Repository.ps1 -ChangedSince main` and a rebuild of the affected packs.
+- **Toolset:** painting checks for the merge and the joins.
+- **Client:** review modules in the client, driven by computer use. Check for a running nwmain first, cap the frame
+  rate at 200, turn keyholing off, and take a handful of targeted views. Screenshots go to the user for look gates.
+
+## Out of scope / on hold
+
+- Suburbs office interiors (`udp2`).
+- More dgt04 crowns and the invented-brand shop signs, which stay on hold.
+- Retiring the source sets.
+- Three-terrain join tiles (Concrete, Asphalt and Grass on one tile). They come back only if the paved suburb
+  border proves too limiting.
