@@ -504,6 +504,9 @@ there is still open.
 
 - Performance against the baseline on the same views.
 
+**Whole-block look pass: passed by the user (2026-11-20).** These are the review block's close views, by day and by
+night (`output/tilekit/final-look2`).
+
 #### Performance at the end of release 2 (2026-11-20)
 
 - **Setup:** the same method, views and machine as the stage 0 baseline: a 200 fps cap, vsync off, 1600×900.
