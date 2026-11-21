@@ -46,6 +46,13 @@ def ignored_prefixes(repo):
                           capture_output=True,text=True,encoding='utf-8')
     return tuple(p for p in result.stdout.split('\0') if p) if not result.returncode else ()
 
+def omitted_files(repo):
+    """Tracked files a sparse checkout left out (skip-worktree), such as sources/compiled.json in a leg without
+    sources: still literals the catalog resolves, so every checkout catalogs the same edges."""
+    if not (repo/'.git').exists():return frozenset()
+    result=subprocess.run(['git','-C',str(repo),'ls-files','-z','-t'],capture_output=True,text=True,encoding='utf-8')
+    return frozenset(row[2:] for row in result.stdout.split('\0') if row.startswith('S ')) if not result.returncode else frozenset()
+
 def packs(repo):
     """Pack folders on disk or in HEAD, so a sparse checkout catalogs the same pack names as a full one."""
     return sorted({p.name for p in repo.iterdir() if p.is_dir() and re.fullmatch(r'srn_[a-z0-9_]+',p.name)}|committed_packs(repo))
@@ -60,7 +67,10 @@ def committed_sources(repo):
 
 def absent_packs(repo=REPO):
     """Committed pack folders, and their sources/<pack>/ folders, that this (sparse) checkout did not materialise."""
-    folders=[repo/name for name in committed_packs(repo)]+[repo/SOURCES/name for name in committed_sources(repo)]
+    kept=committed_sources(repo)
+    folders=[repo/name for name in committed_packs(repo)]+[repo/SOURCES/name for name in kept]
+    # A leg reaching no pack with sources has no sources/ at all; its compiled.json and listing are then absent too.
+    if kept and not (repo/SOURCES).is_dir():folders=[p for p in folders if p.parent!=repo/SOURCES]+[repo/SOURCES]
     return sorted(p for p in folders if not p.is_dir())
 
 def pack_needs(data,test):
@@ -90,7 +100,14 @@ def catalog(repo=REPO):
     literal_index={}
     for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files) and not local_only(m)]:literal_index.setdefault(p.name,[]).append(p)
     pack_names=set(packs(repo))
-    present=lambda p:p.is_file() and not local_only(p)
+    omitted=omitted_files(repo)
+    # An omitted file is looked up in the index before the disk, so the runner's absent-folder guard never sees the stat.
+    def present(p):
+        # Textual: resolve() would stat the path (realpath on Windows), which the guard counts as a read.
+        try:
+            if os.path.relpath(os.path.normpath(p),os.path.normpath(repo)).replace(os.sep,'/') in omitted:return True
+        except ValueError:pass  # another drive (Windows): not in this checkout
+        return p.is_file() and not local_only(p)
     config=repo/CONFIG
     # The selector's own tests name helper paths as data; those strings are not reads of the helpers.
     data_only=set(json.loads(config.read_text(encoding='utf-8')).get('literalsAreData',[])) if config.is_file() else set()
