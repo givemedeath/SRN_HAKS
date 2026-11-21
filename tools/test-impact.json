@@ -5747,7 +5747,6 @@
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/compiled.py": [
-      "hakbuilder.json",
       "sources/compiled.json",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
       "tools/phenomorpher/phenomorpher/engine/neverblender_mdl.py",
@@ -5868,7 +5867,6 @@
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/test_compiled.py": [
-      "hakbuilder.json",
       "tools/tilekit/__init__.py",
       "tools/tilekit/compiled.py",
       "tools/tilekit/inventory.py"
@@ -6194,6 +6192,7 @@
       "srn_2da"
     ],
     "tools/tilekit/compiled.py": [
+      "srn_door",
       "srn_placeable"
     ],
     "tools/tilekit/crown.py": [

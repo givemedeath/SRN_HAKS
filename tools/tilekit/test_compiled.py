@@ -9,6 +9,7 @@ from tools.tilekit import compiled, inventory
 
 REPO = Path(__file__).resolve().parents[2]
 PACKS = ('srn_t_common', 'srn_t_dgt04')  # the packs with sources: named so the test selector checks them out and runs this when one changes
+BORROWED = ('srn_door', 'srn_placeable')  # the packs whose materials the sources may borrow (compiled.BORROW), named for the same reason
 
 MODEL = '''newmodel t_a01
 beginmodelgeom t_a01
@@ -130,7 +131,6 @@ class PairTests(unittest.TestCase):
             compiled.compile_models(self.repo, 'blender', 'addon', ['srn_t_x/t_a01.mdl'])
 
     def test_a_material_borrowed_from_another_pack_is_looked_up_and_digested(self):
-        (self.repo / 'hakbuilder.json').write_text(json.dumps({'HakList': [{'Name': 'srn_t_x'}, {'Name': 'srn_door'}, {'Name': 'srn_placeable'}]}), encoding='utf-8')
         self.source.write_text(MODEL.replace('birthrate 0', 'birthrate 0\n  bitmap Manhole'), encoding='ascii')
         for pack in ('srn_door', 'srn_placeable'):
             (self.repo / pack).mkdir(); (self.repo / pack / 'manhole.mtr').write_text('renderhint NormalAndSpecMapped\n', encoding='ascii')
@@ -176,6 +176,7 @@ class PairTests(unittest.TestCase):
 class RepositoryTests(unittest.TestCase):
     def test_every_kept_source_has_the_binary_the_manifest_pins(self):
         self.assertEqual(sorted({key.split('/')[0] for key in compiled.sources(REPO)}), sorted(PACKS))  # a new pack with sources is named above
+        self.assertEqual(compiled.BORROW, BORROWED)
         self.assertEqual(compiled.check(REPO), [])
 
     def test_a_tile_pack_with_sources_ships_no_ascii_model(self):

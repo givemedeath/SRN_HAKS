@@ -77,15 +77,18 @@ def adopted(repo):
 NAMED = re.compile(rb'(?im)^[ \t]*(?:bitmap|texture0|materialname)[ \t]+(\S+)')  # what a mesh's material is looked up by (cleanmodels materials.py)
 
 
+BORROW = ('srn_door', 'srn_placeable')  # packs a module loads with the tilesets (review.HAKS), whose materials tiles may name
+
+
 def borrowed(repo):
-    """{file name: path} of the materials the sources name that no adopted pack holds, from the other packs of
-    hakbuilder.json, the first in its order: the game loads them with the tileset (manhole_tex2 is srn_placeable's)."""
+    """{file name: path} of the materials the sources name that no adopted pack holds, from the packs of `BORROW`, the
+    first in its order: the game loads them with the tileset (manhole_tex2 is srn_door's and srn_placeable's). Only
+    these are read: a test run reads no pack it does not name."""
     repo = Path(repo); named = set()
     for path in sources(repo).values():
         named |= {match.decode('latin-1').lower() for match in NAMED.findall(path.read_bytes())}
     own = {path.name.lower() for pack in adopted(repo) for path in (repo / pack).glob('*.mtr')}; found = {}
-    listed = json.loads((repo / 'hakbuilder.json').read_text(encoding='utf-8-sig')).get('HakList', []) if (repo / 'hakbuilder.json').is_file() else []
-    for pack in [entry['Name'] for entry in listed if entry['Name'] not in adopted(repo)]:
+    for pack in BORROW:
         for path in sorted((repo / pack).glob('*.mtr')) if (repo / pack).is_dir() else ():
             name = path.name.lower()
             if path.stem.lower() in named and name not in own:
