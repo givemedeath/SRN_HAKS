@@ -4,7 +4,7 @@ import subprocess
 import unittest
 from pathlib import Path
 import ci_scope
-from test_impact import REPO,catalog,load_config
+from test_impact import REPO,SOURCES,catalog,committed_sources,load_config
 
 CONFIG={'sharedInfrastructure':[r'^tools/shared_tools\.py$'],'itemImport':[r'^srn_item/'],'wheel':[r'^tools/kit/'],
     'groups':[{'name':'phenotypes','pattern':'^tools/phenotypes/','shards':2},{'name':'core','pattern':'^tools/','shards':1}],
@@ -87,11 +87,13 @@ def reached_packs(data,test):
 
 class PackCheckoutTests(unittest.TestCase):
     """Every test that reaches a pack, directly or transitively, runs in a leg whose sparse checkout includes it."""
-    def assert_covered(self,plan,data,config):
+    def assert_covered(self,plan,data,config,sources=frozenset()):
         for row in plan['helperMatrix']:
             checkout=row['checkout'].split('\n')
             self.assertEqual(checkout[:len(config['testCheckout'])],config['testCheckout'])
             self.assertEqual(sorted(p for p in checkout if p.startswith('srn_')),row['packs'])
+            # Each checked-out pack with ASCII sources brings its sources/<pack> folder, and only those do.
+            self.assertEqual(sorted(p for p in checkout if p.startswith(SOURCES+'/')),[SOURCES+'/'+p for p in row['packs'] if p in sources])
             for test in row['tests']:
                 self.assertLessEqual(reached_packs(data,test),set(checkout),(row['os'],row['group'],test))
     def test_transitive_pack_reference_selects_a_pack_leg_and_other_legs_stay_pack_free(self):
@@ -105,21 +107,27 @@ class PackCheckoutTests(unittest.TestCase):
         full=ci_scope.plan(None,data,config)['helperMatrix']
         self.assertEqual({r['group']:r['packs'] for r in full},{'packs':['srn_alpha','srn_beta'],'phenotypes-1':[],'phenotypes-2':[],'core':[]})
         self.assertEqual(next(r['checkout'] for r in full if r['group']=='core'),'.github\ndocs\ntools')
+    def test_only_a_leg_reaching_a_pack_with_sources_checks_its_sources_out(self):
+        config={**CONFIG,'groups':[{'name':'packs','packTests':True,'shards':1},*CONFIG['groups']]}
+        data={**DATA,'packReferences':{'tools/phenotypes/test_a.py':['srn_alpha','srn_beta']}}
+        rows={r['group']:r['checkout'].split('\n') for r in ci_scope.plan(None,data,config,sources={'srn_alpha','srn_gamma'})['helperMatrix']}
+        self.assertEqual(rows['packs'],['.github','docs','tools','srn_alpha','srn_beta','sources/srn_alpha'])
+        self.assertFalse([p for group,checkout in rows.items() if group!='packs' for p in checkout if p.startswith('sources')])
     def test_without_a_pack_group_the_pattern_leg_checks_out_the_pack(self):
         data={**DATA,'packReferences':{'tools/phenotypes/a.py':['srn_alpha']}}
         plan=ci_scope.plan(None,data,CONFIG);self.assert_covered(plan,data,CONFIG)
         self.assertIn('srn_alpha',next(r['packs'] for r in plan['helperMatrix'] if 'tools/phenotypes/test_a.py' in r['tests']))
     def test_live_catalog_every_pack_test_is_checked_out_with_its_packs_in_full_and_scoped_plans(self):
-        data=catalog();config=load_config()
+        data=catalog();config=load_config();sources=committed_sources(REPO);self.assertTrue(sources)
         needing={t for t in data['tests'] if reached_packs(data,t)}
         # Guard against a vacuous pass: some tests name a pack themselves, others reach one only through helpers.
         direct={t for t in needing if data['packReferences'].get(t)}
         self.assertTrue(direct);self.assertTrue(needing-direct)
-        plans=[ci_scope.plan(None,data,config)]
-        plans+=[ci_scope.plan([test],data,config) for test in sorted(needing)]
-        plans+=[ci_scope.plan([pack+'/changed.bin'],data,config) for pack in sorted({p for t in needing for p in reached_packs(data,t)})]
+        plans=[ci_scope.plan(None,data,config,sources=sources)]
+        plans+=[ci_scope.plan([test],data,config,sources=sources) for test in sorted(needing)]
+        plans+=[ci_scope.plan([pack+'/changed.bin'],data,config,sources=sources) for pack in sorted({p for t in needing for p in reached_packs(data,t)})]
         for plan in plans:
-            self.assert_covered(plan,data,config)
+            self.assert_covered(plan,data,config,sources)
             for row in plan['helperMatrix']:
                 if row['group']!='packs':self.assertEqual(row['packs'],[],row['group'])
         ran={t for row in plans[0]['helperMatrix'] if row['group']=='packs' for t in row['tests']}
@@ -229,7 +237,12 @@ class WorkflowWiringTests(unittest.TestCase):
     def test_scope_checks_out_every_folder_the_catalog_reads(self):
         scope=self.checkout('scope',self.ci);base=load_config()['testCheckout']
         self.assertIn('fetch-depth: 0\n',scope);self.assertIn('filter: blob:none\n',scope)
-        self.assertIn('sparse-checkout: |\n'+''.join(' '*12+p+'\n' for p in base),scope)
+        # The scope also catalogs sources/compiled.json; the test legs check out only the sources/<pack> folders they reach.
+        # Non-cone patterns, so the 500 ASCII models under sources/<pack>/ stay out.
+        source=ci_scope.test_impact.SOURCES;self.assertNotIn(source,base);self.assertIn('sparse-checkout-cone-mode: false\n',scope)
+        patterns=['/*','!/*/',*('/'+p+'/' for p in base),'/'+source+'/*','!/'+source+'/*/']
+        self.assertIn('sparse-checkout: |\n'+''.join(' '*12+p+'\n' for p in patterns),scope)
+        base=sorted(base+[source])
         # The catalog walks every non-pack folder for tools and Markdown, so a new top-level folder must join the set.
         top=subprocess.run(['git','-C',str(REPO),'ls-tree','-d','--name-only','HEAD'],capture_output=True,text=True,check=True).stdout.split()
         self.assertEqual(sorted(base),sorted(d for d in top if not re.fullmatch(r'srn_[a-z0-9_]+',d)))

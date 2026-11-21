@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from tools import test_impact
 from tools.tilekit import compiled, inventory
 
 REPO = Path(__file__).resolve().parents[2]
@@ -177,6 +178,7 @@ class RepositoryTests(unittest.TestCase):
     def test_every_kept_source_has_the_binary_the_manifest_pins(self):
         self.assertEqual(sorted({key.split('/')[0] for key in compiled.sources(REPO)}), sorted(PACKS))  # a new pack with sources is named above
         self.assertEqual(compiled.BORROW, BORROWED)
+        self.assertEqual(test_impact.SOURCES, compiled.SOURCES)  # CI checks out and guards the same folder
         self.assertEqual(compiled.check(REPO), [])
 
     def test_a_tile_pack_with_sources_ships_no_ascii_model(self):

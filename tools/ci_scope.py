@@ -22,7 +22,8 @@ def changed_files(base,head='HEAD',repo=REPO):
 
 shards=test_impact.balance
 
-def plan(changed,data,config,durations=None,full_reason=None,base='',deleted=()):
+def plan(changed,data,config,durations=None,full_reason=None,base='',deleted=(),sources=()):
+    """sources: the packs whose compiled models keep ASCII sources in sources/<pack>/; a leg reaching one checks it out."""
     durations=durations or {}
     if full_reason:selection=test_impact.full(data,full_reason)
     elif changed is None:selection=test_impact.full(data,'Missing or undiffable comparison base; full suite required')
@@ -44,8 +45,10 @@ def plan(changed,data,config,durations=None,full_reason=None,base='',deleted=())
             name=g['name'] if g['shards']==1 else f"{g['name']}-{index+1}"
             packs=sorted({p for t in part for p in needs[t]})
             for os_name in config['operatingSystems']:
-                # checkout is the cone-mode sparse set; root files are always included.
-                matrix.append({'os':os_name,'group':name,'tests':part,'packs':packs,'checkout':'\n'.join(config['testCheckout']+packs)})
+                # checkout is the cone-mode sparse set; root files are always included, and so are the files directly
+                # in sources/ (compiled.json) whenever a sources/<pack> folder is.
+                kept=[test_impact.SOURCES+'/'+p for p in packs if p in sources]
+                matrix.append({'os':os_name,'group':name,'tests':part,'packs':packs,'checkout':'\n'.join(config['testCheckout']+packs+kept)})
                 jobs.append(f'Helpers / {os_name} {name}')
     # Case-insensitive, matching PowerShell -match in Test-ItemImportScope.ps1.
     item=everything or any(re.search(r,p,re.I) for p in paths for r in config['itemImport'])
@@ -90,7 +93,7 @@ def main():
     durations=json.loads((REPO/DURATIONS).read_text(encoding='utf-8'))['seconds'] if (REPO/DURATIONS).is_file() else {}
     changed=None if a.full_reason else changed_files(a.base,a.head)
     # The checkout is the head revision, so a changed path missing here was deleted.
-    result=plan(changed,data,config,durations,a.full_reason or None,a.base,test_impact.deleted_paths(changed or []))
+    result=plan(changed,data,config,durations,a.full_reason or None,a.base,test_impact.deleted_paths(changed or []),test_impact.committed_sources(REPO))
     a.output.write_text(json.dumps(result,indent=1)+'\n',encoding='utf-8')
     if a.github_output:
         with a.github_output.open('a',encoding='utf-8') as f:f.write('plan='+job_output(result)+'\n')

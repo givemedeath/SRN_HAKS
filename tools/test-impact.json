@@ -5867,6 +5867,7 @@
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/test_compiled.py": [
+      "tools/test_impact.py",
       "tools/tilekit/__init__.py",
       "tools/tilekit/compiled.py",
       "tools/tilekit/inventory.py"
