@@ -503,6 +503,47 @@ there is still open.
 ### 6 — Cohesion and release
 
 - Performance against the baseline on the same views.
+
+#### Performance at the end of release 2 (2026-11-20)
+
+- **Setup:** the same method, views and machine as the stage 0 baseline: a 200 fps cap, vsync off, 1600×900.
+- **Packs:** built from this branch, with every batch applied, the crowned Highrise_10 and the door set, and no
+  overlay.
+- **Runs:** two (`output/tilekit/perf/final1` and `final2`).
+
+**Frame rate**: 6-second average, three views each, run 1 / run 2.
+
+| Area | Day | Night |
+|---|---|---|
+| Review block, 15×15 | 181 177 177 / 182 177 176 | 184 177 176 / 185 178 176 |
+| Slums, 32×32 | 182 179 177 / 182 179 177 | 183 179 176 / 182 178 176 |
+
+Every view still holds the cap, as in the baseline. The detail kit, the effects and the crowned tower cost no frame
+rate that this test can see.
+
+**Area load**:
+
+| Load | Baseline (s) | Now (s), run 1 / run 2 |
+|---|---|---|
+| Review block, night | 0.9–1.2 | 3.83 / 3.78 |
+| Slums 32×32, day | 1.25–1.45 | 6.58 / 6.45 |
+| Slums 32×32, night | 1.5–2.1 | 6.77 / 6.83 |
+
+- **Loads are three to five times the baseline,** in packed form. The pilot measured 1.7–5.3 s from loose
+  files, and the user accepted that cost expecting packed, compiled models to recover it. They are packed now, but
+  still ASCII.
+- **Pack sizes:**
+
+  | Pack | Baseline | Now |
+  |---|---|---|
+  | `srn_t_dgt04` | 43 MB | 84 MB |
+  | `srn_t_common` | 841 MB | 886 MB |
+  | `srn_door` | 29 MB | 36 MB |
+- **Likely causes:**
+  - the client parses the larger ASCII tile models, with the kit merged into them;
+  - each restyled material loads four DDS maps.
+- **Not tried:** compiling the tile models for the packs. That changes what the packs hold, so it is the user's
+  decision.
 - One look pass over the whole block, then `PROVENANCE.md`.
 - One merge to `main`.
 
