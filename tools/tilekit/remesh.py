@@ -105,19 +105,21 @@ def rebuilt(text, name, source_text, facades=None, add=False):
 
 
 def _laid(repo, tileset, folder):
-    """{model: corners} of the tileset's set file, the overlay's copy (a copied terrain's) before the pack's."""
+    """{model: corners, or None where tiles of it are laid with other corners} of the tileset's set file, the overlay's
+    copy (a copied terrain's) before the pack's."""
     path = next((one for one in (Path(folder) / f'{tileset}.set', Path(repo) / f'srn_t_{tileset}' / f'{tileset}.set') if one.is_file()), None)
     require(path, f'No set file of {tileset}')
     laid = {}
     for tile in inventory.read_set(path.read_bytes().decode('cp1252'))['tiles']:
-        laid.setdefault(tile['model'].lower(), [corner.lower() for corner in tile['corners']])
+        corners = [corner.lower() for corner in tile['corners']]
+        laid[tile['model'].lower()] = corners if laid.get(tile['model'].lower(), corners) == corners else None  # None: tiles of it laid with other corners
     return laid
 
 
 def _joined(joins, laid, texts, rebuilds, added):
     """Refuse a side a rebuild changed where a side of the terrain `joins` that can meet it does not draw the same.
     `rebuilds` {model: what it draws rebuilt}, `added` {model: {side: added profile}}."""
-    ours = {model: corners for model, corners in laid.items() if joins in corners}
+    ours = {model: corners for model, corners in laid.items() if corners is not None and joins in corners}
     strays = sorted(set(rebuilds) - set(ours)); require(not strays, f'{", ".join(strays)}: no tile of {joins}, which only its own tiles join')
     profiles = {}
     for model in ours:
@@ -159,9 +161,10 @@ def remesh(repo, tileset, tiles, source, folder, joins=None, add=False):
         if name not in wanted:
             continue
         require(not others, f'{name} is drawn by other tilesets too ({", ".join(others)}): its rebuild would show there')
+        require(not joins or name in laid, f'{name} is no tile of the set file, so `joins` cannot say which of its sides meet')
+        require(not joins or laid[name] is not None, f'{name} is laid by tiles with other corners, so `joins` cannot say which of its sides meet')
         path = Path(source) / file; require(path.is_file(), f'No rebuild of {name} in {source}')
         data = path.read_bytes(); require(not inventory.compiled(data), f'The rebuild of {name} is an uncompiled model')
-        require(not joins or name in laid, f'{name} is no tile of the set file, so `joins` cannot say which of its sides meet')
         fronts = {side for side, (one, other) in SIDES.items() if joins not in (laid[name][one], laid[name][other])} if joins else None
         new, said, added[name], rebuilds[name] = rebuilt(text, name, data.decode('cp1252'), fronts, add); made[name] = (file, pack, new, said)
     missing = sorted(wanted - set(made)); require(not missing, 'No uncompiled model of the tileset is ' + ', '.join(missing))

@@ -320,7 +320,10 @@ def adopt(repo, packs):
         for path in sorted((repo / pack).glob('*.mdl')):
             if compiled(path.read_bytes()):
                 continue
-            target = repo / SOURCES / pack / path.name; require(not target.exists(), f'{target} exists already')
+            target = repo / SOURCES / pack / path.name
+            if target.is_file() and target.read_bytes() == path.read_bytes():
+                continue  # copied by an earlier adopt whose compile failed
+            require(not target.exists(), f'{target} exists already, and differs from {pack}/{path.name}')
             # copied: the pack keeps its ASCII copy until the compile, once every binary passed, writes over it
             target.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(path, target); moved.append(f'{pack}/{path.name}')
     return moved

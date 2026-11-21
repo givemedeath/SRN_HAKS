@@ -57,6 +57,17 @@ class Crown(unittest.TestCase):
             _, _, nodes = geometry.parse(text)
             self.assertAlmostEqual(max(point[2] for triangle in geometry.triangles(nodes) for point in triangle), 12.0 + crown.SCREEN[1] + crown.POST[1], places=3)  # the screen's posts
 
+    def test_a_model_laid_with_other_corners_by_another_tile_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); own = _repo(root); path = own / 't.set'
+            extra = '[TILE9]\nModel=t_edge\n' + ''.join(f'{key}={value}\n' for key, value in zip(crown.CORNERS, CORNERS['t_corner']))
+            path.write_text(path.read_text(encoding='cp1252').replace('Count=4', 'Count=5') + extra, encoding='cp1252')
+            with self.assertRaisesRegex(ValueError, 'laid by tiles with other corners'):
+                crown.write(root, 't', 'Tower', ['t_edge'], root / 'rebuilt')
+            crown.write(root, 't', 'Tower', ['t_corner'], root / 'rebuilt')
+            with self.assertRaisesRegex(ValueError, 'laid by tiles with other corners'):
+                remesh.remesh(root, 't', ['t_edge'], root / 'rebuilt', root / 'out', joins='Tower', add=True)
+
     def test_without_joins_a_crown_crossing_the_cell_s_sides_is_refused(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); _repo(root); crown.write(root, 't', 'Tower', ['t_edge'], root / 'rebuilt')

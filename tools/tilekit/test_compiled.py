@@ -145,6 +145,10 @@ class PairTests(unittest.TestCase):
         self.assertEqual(compiled.adopt(self.repo, ['srn_t_x']), ['srn_t_x/t_c01.mdl'])
         self.assertTrue((self.repo / 'sources' / 'srn_t_x' / 't_c01.mdl').is_file()); self.assertTrue((self.repo / 'srn_t_x' / 'ek_a.mdl').is_file())
         self.assertTrue((self.repo / 'srn_t_x' / 't_c01.mdl').is_file())  # the pack keeps its copy until the compile replaces it
+        self.assertEqual(compiled.adopt(self.repo, ['srn_t_x']), [])  # again, after a failed compile: nothing new to copy
+        (self.repo / 'sources' / 'srn_t_x' / 't_c01.mdl').write_text(MODEL + '\n', encoding='ascii')
+        with self.assertRaisesRegex(ValueError, 'differs from srn_t_x/t_c01.mdl'):
+            compiled.adopt(self.repo, ['srn_t_x'])
 
 
 class RepositoryTests(unittest.TestCase):

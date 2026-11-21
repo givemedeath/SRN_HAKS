@@ -107,12 +107,16 @@ def write(repo, tileset, terrain, models, out, overlay=None):
     where = [Path(overlay)] if overlay else []
     set_path = next((folder / f'{tileset}.set' for folder in where + [repo / f'srn_t_{tileset}'] if (folder / f'{tileset}.set').is_file()), None)
     require(set_path, f'No set file of {tileset}')
-    laid = {tile['model'].lower(): tile['corners'] for tile in inventory.read_set(set_path.read_bytes().decode('cp1252'))['tiles']}
+    laid = {}
+    for tile in inventory.read_set(set_path.read_bytes().decode('cp1252'))['tiles']:
+        laid.setdefault(tile['model'].lower(), []).append(tile['corners'])
     for model in models:
         require(model.lower() in laid, f'{model} is no tile of {set_path.name}')
+        require(all([c.lower() for c in one] == [c.lower() for c in laid[model.lower()][0]] for one in laid[model.lower()]),
+                f'{model} is laid by tiles with other corners: its crown would fit one of them only')
         path = next((folder / f'{model}.mdl' for folder in where + [repo / f'srn_t_{tileset}', repo / 'srn_t_common'] if (folder / f'{model}.mdl').is_file()), None)
         require(path, f'No {model}.mdl'); path = source(repo, path); data = path.read_bytes(); require(not inventory.compiled(data), f'{model} is compiled')
-        corners = laid[model.lower()]; made = rebuilt(data.decode('cp1252'), model.lower(), corners, terrain)
+        corners = laid[model.lower()][0]; made = rebuilt(data.decode('cp1252'), model.lower(), corners, terrain)
         fronts = facades(corners, terrain)
         told[model] = {'facades': sorted(fronts), 'inner': sorted(CORNERS[corner] for corner in inner(corners, terrain, fronts))}
         if made is not None:

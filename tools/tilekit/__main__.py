@@ -142,7 +142,9 @@ def doors_command(chosen):
 def apply_command(chosen):
     from . import apply
     spec = _json(chosen.spec) if chosen.spec else None  # none: the overlay's changed models alone
-    from .compiled import compile_models
+    from .compiled import compile_models, toolchain
+    if chosen.blender or chosen.addon:
+        toolchain(chosen.blender, chosen.addon)  # both, checked before anything is written
     compiler = (lambda keys: compile_models(chosen.repo, chosen.blender, chosen.addon, keys)) if chosen.blender or chosen.addon else None
     print(json.dumps(apply.apply(chosen.repo, spec, chosen.overlay, compiler)))
     return 0

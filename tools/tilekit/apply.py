@@ -209,7 +209,7 @@ def apply(repo, spec, overlay, compiler=None):
     written with `compiler(keys)` (`compiled.compile_models` with the user's Blender), last, and tell the counts."""
     repo = Path(repo); moves = plan(repo, spec, overlay)
     models = [f'{target.parent.name}/{target.name}' for _, target in moves['put'] if target.parent.parent == repo / SOURCES]
-    require(not models or compiler, f'The overlay changes {len(models)} tile model(s), compiled into the packs: give the Blender that runs NeverBlender (--blender)')
+    require(not models or compiler, f'The overlay changes {len(models)} tile model(s), compiled into the packs: give the Blender and the NeverBlender add-on that compile them (--blender, --addon)')
     for path, target in moves['put']:  # written first: a write that fails leaves the old copies in place
         target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(path.read_bytes())
     for path in moves['delete']:

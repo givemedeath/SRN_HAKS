@@ -61,7 +61,7 @@ class ApplyTests(unittest.TestCase):
     def test_a_tile_model_goes_to_its_source_and_is_compiled_into_its_pack(self):
         (self.repo / 'sources' / 'srn_t_common').mkdir(parents=True); (self.repo / 'sources' / 'srn_t_common' / 't_a01.mdl').write_bytes(b'old')
         (self.repo / 'srn_t_common' / 't_a01.mdl').write_bytes(b'\0\0\0\0binary')  # the pack holds the compiled copy
-        with self.assertRaisesRegex(ValueError, 'Blender that runs NeverBlender'):
+        with self.assertRaisesRegex(ValueError, 'NeverBlender add-on that compile them'):
             apply.apply(self.repo, None, self.overlay)  # without a compiler nothing is written
         self.assertEqual((self.repo / 'sources' / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'old')
         asked = []; apply.apply(self.repo, None, self.overlay, compiler=asked.append)
