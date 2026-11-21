@@ -10709,7 +10709,7 @@ Type=0
 X=-2.34
 Y=0.0
 Z=0.2
-Orientation=0.0
+Orientation=90.0
 
 [TILE360]
 Model=dgt05_h46_01
@@ -10779,7 +10779,7 @@ Type=0
 X=-2.33
 Y=0.0
 Z=0.2
-Orientation=0.0
+Orientation=90.0
 
 [TILE362]
 Model=dgt05_h56_01
@@ -16810,7 +16810,7 @@ Type=0
 X=-2.34
 Y=0.0
 Z=0.2
-Orientation=0.0
+Orientation=90.0
 
 [TILE561]
 Model=srt04_r06_01
