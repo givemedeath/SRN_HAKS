@@ -68,6 +68,14 @@ class ApplyTests(unittest.TestCase):
         self.assertEqual(asked, [['srn_t_common/t_a01.mdl']]); self.assertEqual((self.repo / 'sources' / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'model')
         self.assertEqual((self.repo / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'\0\0\0\0binary')  # the compile writes the pack, not apply
 
+    def test_a_material_restyled_in_a_compiled_pack_recompiles_its_models(self):
+        (self.repo / 'sources' / 'srn_t_common').mkdir(parents=True); (self.repo / 'sources' / 'srn_t_common' / 't_b01.mdl').write_bytes(b'kept')
+        (self.overlay / 't_a01.mdl').unlink()  # textures alone: no model changes
+        with self.assertRaisesRegex(ValueError, 'the materials of compiled packs'):
+            apply.apply(self.repo, self.spec, self.overlay)
+        asked = []; apply.apply(self.repo, self.spec, self.overlay, compiler=asked.append)
+        self.assertEqual(asked, [['srn_t_common/t_b01.mdl']])  # every source: wall.mtr and bin.mtr give its meshes tangents now
+
     def test_the_kit_s_files_go_to_the_tileset_s_pack_as_detail_recorded_them(self):
         for name in ('tst_kit.mtr', 'tst_kit.dds', 'tst_fx.tga'):
             (self.overlay / name).write_bytes(name.encode())

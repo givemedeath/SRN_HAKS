@@ -115,7 +115,19 @@ class PairTests(unittest.TestCase):
         self.source = self.repo / 'sources' / 'srn_t_x' / 't_a01.mdl'; self.source.write_text(MODEL, encoding='ascii')
         self.binary = self.repo / 'srn_t_x' / 't_a01.mdl'; self.binary.write_bytes(b'\0\0\0\0binary')
         rows = {'srn_t_x/t_a01.mdl': {'source': sha(self.source.read_bytes()), 'binary': sha(self.binary.read_bytes())}}
-        (self.repo / compiled.MANIFEST).write_text(json.dumps({'schemaVersion': 1, 'kind': compiled.KIND, 'models': rows}), encoding='utf-8')
+        (self.repo / compiled.MANIFEST).write_text(json.dumps({'schemaVersion': 1, 'kind': compiled.KIND, 'materials': compiled.materials(self.repo), 'models': rows}),
+                                                   encoding='utf-8')
+
+    def test_a_material_changed_in_an_adopted_pack_makes_every_binary_stale(self):
+        (self.repo / 'srn_t_x' / 'wall.mtr').write_text('renderhint NormalAndSpecMapped\ntexture0 wall\n', encoding='ascii')
+        self.assertEqual(compiled.stale(self.repo), ['srn_t_x/t_a01.mdl'])
+        self.assertIn('materials of srn_t_x changed', compiled.check(self.repo)[0])
+        digest = compiled.materials(self.repo)
+        (self.repo / 'srn_t_y').mkdir(); (self.repo / 'srn_t_y' / 'wall.mtr').write_text('other', encoding='ascii')  # a pack never adopted: no binary depends on it
+        self.assertEqual(compiled.materials(self.repo), digest)
+        (self.repo / 'sources' / 'srn_t_x' / 't_b01.mdl').write_text(MODEL, encoding='ascii')
+        with self.assertRaisesRegex(ValueError, 'compile every source'):  # one of two sources compiled would leave the other stale
+            compiled.compile_models(self.repo, 'blender', 'addon', ['srn_t_x/t_a01.mdl'])
 
     def test_a_pair_the_manifest_pins_holds(self):
         self.assertEqual(compiled.check(self.repo), []); self.assertEqual(compiled.stale(self.repo), [])

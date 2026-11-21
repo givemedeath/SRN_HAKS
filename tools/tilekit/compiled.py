@@ -68,10 +68,26 @@ def sources(repo):
     return {f'{path.parent.name}/{path.name}': path for path in sorted(root.glob('*/*.mdl'))} if root.is_dir() else {}
 
 
+def adopted(repo):
+    """The tile packs whose models ship compiled: each with a `sources/<pack>/` folder."""
+    root = Path(repo) / SOURCES
+    return sorted(path.name for path in root.iterdir() if path.is_dir() and tile_pack(path.name)) if root.is_dir() else []
+
+
+def materials(repo):
+    """A digest of the materials (.mtr) of the adopted packs. cleanmodels gives a mesh tangents only where its material
+    says it is normal-mapped, so a binary is current only while they are as it was compiled with."""
+    repo = Path(repo)
+    rows = sorted((f'{pack}/{path.name.lower()}', _sha(path.read_bytes())) for pack in adopted(repo) for path in (repo / pack).glob('*.mtr'))
+    return _sha(json.dumps(rows).encode())
+
+
 def check(repo):
     """What does not hold: a source without its binary, a source or binary that is not the pair the manifest pins, a
     manifest row without a source. [] when all hold."""
-    repo = Path(repo); rows = manifest(repo)['models']; kept = sources(repo); problems = []
+    repo = Path(repo); told = manifest(repo); rows = told['models']; kept = sources(repo); problems = []
+    if kept and told.get('materials') != materials(repo):
+        problems.append(f'the materials of {", ".join(adopted(repo))} changed since the models were compiled: their tangents may differ (tilekit compile)')
     for key, path in kept.items():
         pack, name = key.split('/'); binary = repo / pack / name; row = rows.get(key)
         if not tile_pack(pack):
@@ -90,7 +106,9 @@ def check(repo):
 
 def stale(repo):
     """The sources whose pack binary is missing or not the one the manifest pins to the source as it is now."""
-    repo = Path(repo); rows = manifest(repo)['models']; out = []
+    repo = Path(repo); told = manifest(repo); rows = told['models']; out = []
+    if told.get('materials') != materials(repo):  # every binary was made with other materials
+        return list(sources(repo))
     for key, path in sources(repo).items():
         pack, name = key.split('/'); row = rows.get(key); binary = repo / pack / name
         if not (row and binary.is_file() and _sha(path.read_bytes()) == row['source'] and _sha(binary.read_bytes()) == row['binary']):
@@ -262,8 +280,11 @@ def compile_models(repo, blender, addon, keys=None, timeout=3600):
     unknown = sorted(set(keys) - set(kept)); require(not unknown, 'No source for ' + ', '.join(unknown[:5]))
     if not keys:
         return {'compiled': 0, 'roundTrip': 0, 'dropped': {}}
+    digest = materials(repo)
+    require(manifest(repo).get('materials') == digest or set(keys) >= set(kept),
+            'The materials changed since the last compile, so every binary may differ: compile every source (tilekit compile, without --model)')
     tools = toolchain(blender, addon)
-    packs = sorted({key.split('/')[0] for key in keys})
+    packs = adopted(repo)  # every adopted pack, whichever are compiled: a material in one gives tangents to a model of another
     lookups = [repo / SOURCES / pack for pack in packs] + [repo / pack for pack in packs]
     snapshot = {key: _sha(kept[key].read_bytes()) for key in keys}
     work = Path(tempfile.mkdtemp(prefix='tilekit-compile-', dir=repo / 'output' if (repo / 'output').is_dir() else None))
@@ -296,13 +317,17 @@ def compile_models(repo, blender, addon, keys=None, timeout=3600):
         require(not failed, f'{len(failed)} compiled model(s) differ from their sources, nothing was written: ' + ' | '.join(failed[:6]))
         for key in keys:
             require(_sha(kept[key].read_bytes()) == snapshot[key], f'{key}: the source changed before the binaries were written')
+        require(materials(repo) == digest, 'A material changed while the models were compiled: compile again')
         for key, job in zip(keys, jobs):  # every binary checked: now written
             pack, name = key.split('/'); shutil.copyfile(job['output'], repo / pack / name)
-        told = manifest(repo); told['compiler'] = {'neverblender': tools['neverblender']['version'], 'cleanmodels': tools['cleanmodels'],
+        told = manifest(repo)
+        told['materials'] = digest  # current: every source was compiled with these, or the materials are unchanged
+        told['compiler'] = {'neverblender': tools['neverblender']['version'], 'cleanmodels': tools['cleanmodels'],
                                                    'blender': report.get('blenderVersion'), 'compilerSha256': tools['sha256']}
         for key in keys:
+            was = told['models'].get(key, {}); same = (was.get('source'), was.get('binary')) == (rows[key]['source'], rows[key]['binary'])
             told['models'][key] = {k: v for k, v in rows[key].items() if k != 'warnings'}
-            told['models'][key]['compiled'] = datetime.date.today().isoformat()
+            told['models'][key]['compiled'] = was.get('compiled') if same and was.get('compiled') else datetime.date.today().isoformat()  # the day this binary was first made
         told['models'] = dict(sorted(told['models'].items()))
         (repo / MANIFEST).write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')
     finally:

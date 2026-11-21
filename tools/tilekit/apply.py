@@ -19,7 +19,7 @@ import re
 from pathlib import Path
 
 from . import inventory, require
-from .compiled import SOURCES, source as source_of, source_target
+from .compiled import SOURCES, adopted, source as source_of, source_target, stale
 from .cuts import WALK_CUTS
 
 OLD = ('.tga', '.dds')  # an original's copies, deleted once its restyle is in
@@ -209,7 +209,10 @@ def apply(repo, spec, overlay, compiler=None):
     written with `compiler(keys)` (`compiled.compile_models` with the user's Blender), last, and tell the counts."""
     repo = Path(repo); moves = plan(repo, spec, overlay)
     models = [f'{target.parent.name}/{target.name}' for _, target in moves['put'] if target.parent.parent == repo / SOURCES]
-    require(not models or compiler, f'The overlay changes {len(models)} tile model(s), compiled into the packs: give the Blender and the NeverBlender add-on that compile them (--blender, --addon)')
+    shipped = set(adopted(repo))  # a material there decides which compiled meshes have tangents: a change recompiles them all
+    restyled = any(path.suffix.lower() == '.mtr' and path.parent.name in shipped for path in [target for _, target in moves['put']] + moves['delete'])
+    require(not (models or restyled) or compiler, f'The overlay changes {len(models)} tile model(s)' + (' and the materials of compiled packs' if restyled else '')
+            + ', compiled into the packs: give the Blender and the NeverBlender add-on that compile them (--blender, --addon)')
     for path, target in moves['put']:  # written first: a write that fails leaves the old copies in place
         target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(path.read_bytes())
     for path in moves['delete']:
@@ -236,6 +239,6 @@ def apply(repo, spec, overlay, compiler=None):
     if moves['catalog'] is not None:  # a copied terrain's numbers, recorded as envkit's install records its own
         from tools.envkit import catalog
         catalog.save(repo / catalog.PATH, moves['catalog']); told['catalogued'] = True
-    if models:  # last, once all else is written: one audit failure compiles none, and `tilekit compile` finishes it once fixed
-        compiler(models)
+    if models or restyled:  # last, once all else is written: one audit failure compiles none, and `tilekit compile` finishes it once fixed
+        compiler(sorted(set(models) | set(stale(repo))))
     return told

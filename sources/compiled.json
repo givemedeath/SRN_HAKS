@@ -3508,5 +3508,6 @@
   "cleanmodels": "v4.10.0",
   "blender": "5.2.1 LTS",
   "compilerSha256": "d2c6aaf4620db0415417ee88fb251e18b0b4204b06190a228267e9e115665214"
- }
+ },
+ "materials": "dbef539bd02b298c20da22fbd2dc17ea38aaa75cca7f456d306e57ac10664938"
 }

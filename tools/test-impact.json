@@ -469,7 +469,8 @@
       "tools/envkit/convert.py",
       "tools/envkit/prop_fixture.py",
       "tools/envkit/tile.py",
-      "tools/phenotypes/tool_runtime.py"
+      "tools/phenotypes/tool_runtime.py",
+      "tools/tilekit/compiled.py"
     ],
     "tools/envkit/convert.py": [
       "tools/armorkit/__init__.py",

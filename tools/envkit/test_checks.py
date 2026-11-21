@@ -308,6 +308,11 @@ class CheckTests(unittest.TestCase):
             checks._ground(repo, 'dgt04', resources)
             self.assertEqual(sorted(path.name for path in resources.iterdir()), ['dgt04.set', 'dgt04palstd.itp', 'kerb.dds', 'kerb.mtr', 'kerb_n.dds', 'mi_plain.tga',
                                                                                'pavement.dds', 'pavement.mtr', 'pavement_n.dds', 'pv_r.dds', 't_plain.mdl'])
+            # Compiled into the pack, its ASCII kept in sources/ (2026-11-20): its bitmaps are read from the source.
+            (repo / 'sources' / 'srn_t_dgt04').mkdir(parents=True); (pack / 't_plain.mdl').replace(repo / 'sources' / 'srn_t_dgt04' / 't_plain.mdl')
+            (pack / 't_plain.mdl').write_bytes(b'\0\0\0\0binary bitmap kerb'); again = repo / 'again'; again.mkdir()
+            checks._ground(repo, 'dgt04', again)
+            self.assertIn('kerb_n.dds', [path.name for path in again.iterdir()]); self.assertEqual((again / 't_plain.mdl').read_bytes()[:4], b'\0\0\0\0')
 
     def test_a_check_is_built_into_fresh_folders_and_reads_a_set_file_whatever_its_line_endings(self):
         import tempfile

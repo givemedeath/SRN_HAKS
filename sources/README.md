@@ -9,7 +9,12 @@ The packs ship compiled tile models. Their ASCII sources are kept here (user, 20
 - **`compiled.json`** pins each source to the binary compiled from it, by SHA-256. The tests fail when:
   - a source changes without a compile;
   - a pack binary changes by hand;
-  - a tile pack with sources ships an ASCII model.
+  - a tile pack with sources ships an ASCII model;
+  - a material (`.mtr`) of an adopted pack changes after the compile.
+- **Materials:** cleanmodels gives a mesh tangents only where its material says it is normal-mapped. So
+  `compiled.json` also records a digest of the adopted packs' materials, and a compile always looks in every
+  adopted pack. When a material changes, every binary is out of date: `tilekit apply` of a material spec recompiles
+  them all, and `tilekit compile` without `--model` does too.
 
 ## Why
 

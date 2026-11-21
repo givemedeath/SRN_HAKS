@@ -347,7 +347,9 @@ def _ground(repo, tileset, resources):
     found = [folder / f'{plain}.mdl' for folder in (pack, common) if plain and (folder / f'{plain}.mdl').is_file()]
     require(found and picture, f'{tileset} has no plain tile {fill} with a model in its pack to lay the check area with')
     source, picture = found[0], picture.lower()
-    bitmaps = {line.split()[1].lower() for line in source.read_text(encoding='cp1252').splitlines() if line.strip().startswith('bitmap') and line.split()[1].lower() != 'null'}
+    from tools.tilekit.compiled import source as ascii_source  # a compiled tile's bitmaps are read from its ASCII source
+    bitmaps = {line.split()[1].lower() for line in ascii_source(repo, source).read_text(encoding='cp1252').splitlines()
+               if line.strip().startswith('bitmap') and len(line.split()) > 1 and line.split()[1].lower() != 'null'}
     for folder in (pack, common):
         for one in (plain, picture, 'pavement', *bitmaps):
             for path in folder.glob(one + '.*'):
