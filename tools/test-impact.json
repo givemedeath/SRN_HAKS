@@ -5932,6 +5932,11 @@
       "tools/tilekit/material.py",
       "tools/tilekit/pictures.py"
     ],
+    "tools/tilekit/test_names.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/doorset.py",
+      "tools/tilekit/inventory.py"
+    ],
     "tools/tilekit/test_redraw.py": [
       "tools/tilekit/material.py",
       "tools/tilekit/redraw.py",
@@ -6273,6 +6278,13 @@
     ],
     "tools/tilekit/test_material.py": [
       "srn_t_common"
+    ],
+    "tools/tilekit/test_names.py": [
+      "srn_2da",
+      "srn_t_dgt04",
+      "srn_t_fcx01",
+      "srn_t_udp1",
+      "srn_tlk"
     ],
     "tools/tilekit/test_redraw.py": [
       "srn_t_common"
@@ -6625,6 +6637,7 @@
     "tools/tilekit/test_kit.py",
     "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",
+    "tools/tilekit/test_names.py",
     "tools/tilekit/test_redraw.py",
     "tools/tilekit/test_remesh.py",
     "tools/tilekit/test_review.py",

@@ -1,6 +1,6 @@
 {
  "set": "srx01",
- "status": "proposed, awaiting the user's picture review",
+ "status": "approved by the user at the picture review, 2026-11-21",
  "rule": "key: the name in the set file, 16 characters at most, frozen at release A. display: what the Toolset palette shows, \"<category>: <name>\", so the palette lists sort by district.",
  "categories": [
   "Streets",

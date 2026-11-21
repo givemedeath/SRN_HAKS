@@ -113,7 +113,7 @@ and a `review.json`. The census of all three sets is `docs/tilesets/srx01/census
   This is a look item for release B, and for the release A side-by-side area.
 - **fcx01 at night is nearly unlit** apart from its blue windows. Release C's lit signage and lamps address it.
 
-## Stage 1 proposal (2026-11-21, awaiting the user's picture review)
+## Stage 1 names (approved by the user, 2026-11-21)
 
 The proposal is `docs/tilesets/srx01/names.json`: 35 terrains, 23 crossers, 224 groups, the 149 envkit placeable
 blueprints and the door labels. Nothing in the packs has changed.
@@ -139,6 +139,20 @@ blueprints and the door labels. Nothing in the packs has changed.
 - `Slums` (one tile) folds into `Tenement_Brick`, subject to a Toolset paint test.
 - Placeables: one new top-level category, Shadowrun City, with eleven kinds under it, in place of the split across
   Modern Exterior and Modern Interior.
+
+**Applied after the approval (2026-11-21):**
+- **Placeables:** `placeablepal.itp` has a new top-level category, Shadowrun City, with eleven kinds under it
+  (palette categories 208–218, talk table rows 144–155). The 149 envkit blueprints carry their new category in the
+  envkit game sets, the additions catalog and their `.utp` files, and `placeablepalstd.itp` is rebuilt with
+  `envkit blueprints`. The Modern Exterior and Modern Interior categories they left are empty of envkit pieces.
+- **Doors:** the ten universal doors each have a name (talk table rows 156–165); `tilekit/doorset.py` writes it into
+  `genericdoors.2da`.
+- **Guard:** `tools/tilekit/test_names.py` holds `names.json` against the three set files, the catalog, the talk
+  table and the door table.
+- **Not applied yet:** the terrain, crosser and group names. They go into `srx01.set` and its palette through the
+  stage 2 merge.
+- **Not checked in the Toolset yet:** that the new placeable categories and door names show. This joins the stage 3
+  Toolset check.
 
 **Client test rule (user, 2026-11-21):** every client test area sets its fog clip distance to 9999. All eight
 fixtures that write an area now do.
