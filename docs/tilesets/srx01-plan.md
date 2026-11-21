@@ -64,6 +64,60 @@ A builder can then paint Barrens, suburbs and a corporate core side by side in o
 - **Who uses the sets:** SR_NWN has no production areas on these sets, only test and spike areas. This is checked
   again before release A.
 
+## Stage 0 results (2026-11-21)
+
+Baselines: `docs/tilesets/udp1/` and `docs/tilesets/fcx01/` each hold `inventory.json`, `textures.csv`, `walkmesh.json`
+and a `review.json`. The census of all three sets is `docs/tilesets/srx01/census.json`.
+
+**Cost to draw** (`tilekit count`, no tile over budget):
+
+| | Tile models | Faces: median / p90 / max | Mesh nodes: median / p90 / max | Materials: median / p90 / max |
+|---|---|---|---|---|
+| udp1 | 677 ASCII, 122 compiled (envkit), 3 absent | 99 / 634 / 5,534 | 6 / 36 / 209 | 4 / 12 / 21 |
+| fcx01 | 243 ASCII | 96 / 486 / 1,856 | 6 / 12 / 37 | 4 / 6 / 11 |
+
+**Census findings:**
+- **Terrain pairs that have tiles.** udp1: Asphalt–Grass (183 tiles), Grass–Stripmall (49), Grass–Mall_Type_1 (27),
+  Grass–Mall_Type_2 (27), Forest–Grass (20), Forest–Forest_Clearing (20), Grass–Water (18). So Grass is udp1's hub:
+  nothing but Grass touches Asphalt. fcx01: Cobble–holes (9) and Cobble2–holes (9) only; Cobble never touches
+  Cobble2.
+- **dgt04:** `Cliff` is declared and no tile uses it. `Slums` is one all-`Slums` tile. `concrte` and `freeway` are on
+  the Freeway tiles.
+- **Edge tables:** dgt04 144 rows, udp1 31, fcx01 14.
+- **Packs the tiles draw from.** udp1 tiles draw nine textures that are only in `srn_door` and `srn_placeable`,
+  among them `udp1-asph` (9.7% of the set's surface). fcx01 tiles draw five textures only in `srn_door` and three
+  only in `srn_t_dgt04`. So `srx01` loads with `srn_door` and `srn_placeable` as well as the three tile packs,
+  `srn_t_common` and `srn_2da`. Stage 2's model guard also covers textures.
+- **fcx01 stock textures:** seven textures have no copy in the repository and come from the base game
+  (`tcn01_watrstn02`, `ttr01_splotch01`, `mmc01_black`, `tcn01_marbl01`, `tcn01_marbl05`, `ttr01_leaf01`,
+  `tcn01_stone20`), together under 0.3% of the surface.
+- **udp1 is too large for one review grid:** 676 tiles need 22 rows and an area holds 15. Its review lays 41 chosen
+  group tiles through the spec's `shared` part instead.
+
+**Odd names, from the client** (18 views of each set, day and night, in the ignored `output/tilekit/s0-udp1` and
+`output/tilekit/s0-fcx01`; made again with `tilekit review --spec docs/tilesets/<set>/review.json`):
+- `holes` is open sky: a pit with clouds below the plaza level, the cloud-city void. Buildings and towers stand in
+  it as columns rising out of the cloud.
+- `Cobble` is the pale tiled plaza. `Cobble2` is a dark tiled deck, reached only across `holes`.
+- `pont` is a bridge: a glass tube walkway across `holes`.
+- `murs` is not yet seen: the block has no run of it. It is looked at in stage 1.
+
+**Open findings:**
+- **`holes` has no Shadowrun reading yet.** Open sky under a city does not fit a 2070s street level. This needs a
+  user decision before the names review: see the questions below.
+- **Black ground in the udp1 review rows is the layout, not a defect.** Many udp1 groups keep all their geometry in
+  one tile's model and leave the group's other tiles empty (`udp1_c01_14`, `udp1_c02_14` and others name no
+  texture). Laid apart in a row, the empty tiles show nothing. The stage 2 merge must keep such groups whole, and
+  a review of udp1 buildings should lay whole groups.
+- **udp1's ground is very dark by day** under the review lighting, darker than dgt04's Concrete beside it would be.
+  This is a look item for release B, and for the release A side-by-side area.
+- **fcx01 at night is nearly unlit** apart from its blue windows. Release C's lit signage and lamps address it.
+
+**Questions for the user:**
+1. `holes`: keep it as an arcology void (an atrium or a drop between raised decks), redraw it as water or a sunken
+   plaza, or leave the `holes` tiles out of `srx01`? 310 of fcx01's 956 corners are `holes`, and every tower group
+   stands in it.
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.

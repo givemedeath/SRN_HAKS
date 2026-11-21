@@ -6239,7 +6239,9 @@
     "tools/tilekit/test_baselines.py": [
       "srn_2da",
       "srn_t_common",
-      "srn_t_dgt04"
+      "srn_t_dgt04",
+      "srn_t_fcx01",
+      "srn_t_udp1"
     ],
     "tools/tilekit/test_compiled.py": [
       "srn_door",

@@ -1,0 +1,175 @@
+{
+ "dgt04": {
+  "declared": [
+   "Concrete",
+   "Water",
+   "Cliff",
+   "Aqueduct",
+   "Green_Bridge",
+   "Apartments",
+   "Highrise_01",
+   "Highrise_02",
+   "Slums1",
+   "Slums2",
+   "Slums3",
+   "Highrise_03",
+   "Police_Station",
+   "Hospital",
+   "Lab",
+   "Highrise_04",
+   "Freeway",
+   "Highrise_05",
+   "Highrise_06",
+   "Highrise_07",
+   "Warehouse_01",
+   "Warehouse_02",
+   "Highrise_08",
+   "Highrise_09",
+   "Highrise_10"
+  ],
+  "undeclared": {
+   "Slums": 4,
+   "freeway": 6,
+   "concrte": 2
+  },
+  "crossers": [
+   "Wood_Fence",
+   "Chain_Fence",
+   "Wall01",
+   "Alley_01",
+   "Alley_02",
+   "Alley_03",
+   "Street",
+   "Wall02",
+   "Street_Edge_L",
+   "Street_Edge_R",
+   "Chain_Fence2",
+   "Passageway",
+   "Railing",
+   "Docks"
+  ],
+  "crosserUse": {
+   "Wood_Fence": 18,
+   "Chain_Fence": 18,
+   "Wall01": 18,
+   "Alley_01": 31,
+   "Alley_02": 30,
+   "Alley_03": 33,
+   "Street": 14,
+   "Wall02": 16,
+   "Street_Edge_L": 3,
+   "Street_Edge_R": 3,
+   "Chain_Fence2": 18,
+   "Passageway": 6,
+   "Railing": 8,
+   "Docks": 14
+  },
+  "pairs": {
+   "Apartments|Concrete": 12,
+   "Aqueduct|Concrete": 10,
+   "Concrete|Freeway": 5,
+   "Concrete|Green_Bridge": 5,
+   "Concrete|Highrise_01": 8,
+   "Concrete|Highrise_02": 5,
+   "Concrete|Highrise_03": 4,
+   "Concrete|Highrise_04": 6,
+   "Concrete|Highrise_05": 4,
+   "Concrete|Highrise_06": 5,
+   "Concrete|Highrise_07": 6,
+   "Concrete|Highrise_08": 4,
+   "Concrete|Highrise_09": 5,
+   "Concrete|Highrise_10": 6,
+   "Concrete|Hospital": 9,
+   "Concrete|Lab": 6,
+   "Concrete|Police_Station": 6,
+   "Concrete|Slums1": 29,
+   "Concrete|Slums2": 15,
+   "Concrete|Slums3": 15,
+   "Concrete|Warehouse_01": 6,
+   "Concrete|Warehouse_02": 7,
+   "Concrete|Water": 18,
+   "Concrete|concrte": 2,
+   "Concrete|freeway": 6,
+   "Green_Bridge|Water": 18,
+   "concrte|freeway": 1
+  },
+  "groups": 69,
+  "edgeRows": 144,
+  "tiles": 575,
+  "default": "Concrete",
+  "unused": [
+   "Cliff"
+  ]
+ },
+ "udp1": {
+  "declared": [
+   "Grass",
+   "Asphalt",
+   "Mall_Type_1",
+   "Forest",
+   "Water",
+   "Stripmall",
+   "Mall_Type_2"
+  ],
+  "undeclared": {
+   "Forest_Clearing": 46
+  },
+  "crossers": [
+   "Road",
+   "Driveway",
+   "Fence_Wood",
+   "Sidewalk",
+   "Parking",
+   "Stripmall_Canopy"
+  ],
+  "crosserUse": {
+   "Sidewalk": 484,
+   "Road": 48,
+   "Driveway": 90,
+   "Parking": 9,
+   "Fence_Wood": 270,
+   "Stripmall_Canopy": 62
+  },
+  "pairs": {
+   "Asphalt|Grass": 183,
+   "Forest|Forest_Clearing": 20,
+   "Forest|Grass": 20,
+   "Grass|Mall_Type_1": 27,
+   "Grass|Mall_Type_2": 27,
+   "Grass|Stripmall": 49,
+   "Grass|Water": 18
+  },
+  "groups": 117,
+  "edgeRows": 31,
+  "tiles": 798,
+  "default": "Grass",
+  "unused": []
+ },
+ "fcx01": {
+  "declared": [
+   "Cobble",
+   "Cobble2",
+   "holes"
+  ],
+  "undeclared": {},
+  "crossers": [
+   "pont",
+   "Routes",
+   "murs"
+  ],
+  "crosserUse": {
+   "pont": 26,
+   "Routes": 28,
+   "murs": 32
+  },
+  "pairs": {
+   "Cobble|holes": 9,
+   "Cobble2|holes": 9
+  },
+  "groups": 38,
+  "edgeRows": 14,
+  "tiles": 239,
+  "default": "Cobble",
+  "unused": []
+ }
+}
