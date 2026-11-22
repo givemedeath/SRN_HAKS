@@ -917,7 +917,7 @@
    "name": "Stuffer_Shack",
    "was": "Stuffer Shack 2x2",
    "category": "Commercial",
-   "display": "Commercial: Stuffer Shack 2x2 (city)",
+   "display": "Commercial: Stuffer Shack 2x2",
    "envkit": true
   },
   {
@@ -925,7 +925,7 @@
    "name": "Ares_Depot",
    "was": "Ares Depot 3x3",
    "category": "Corporate",
-   "display": "Corporate: Ares Depot 3x3 (city)",
+   "display": "Corporate: Ares Depot 3x3",
    "envkit": true
   },
   {
@@ -933,7 +933,7 @@
    "name": "SK_Yard",
    "was": "Saeder-Krupp Yard 3x3",
    "category": "Corporate",
-   "display": "Corporate: Saeder-Krupp Yard 3x3 (city)",
+   "display": "Corporate: Saeder-Krupp Yard 3x3",
    "envkit": true
   },
   {
@@ -941,7 +941,7 @@
    "name": "RF_Depot",
    "was": "Rail Freight Depot 8x8",
    "category": "Industrial",
-   "display": "Industrial: Rail Freight Depot 8x8 (city)",
+   "display": "Industrial: Rail Freight Depot 8x8",
    "envkit": true
   },
   {
@@ -949,7 +949,7 @@
    "name": "Iron_Sight_Arms",
    "was": "Iron Sight Arms 2x3",
    "category": "Commercial",
-   "display": "Commercial: Iron Sight Arms 2x3 (city)",
+   "display": "Commercial: Iron Sight Arms 2x3",
    "envkit": true
   },
   {
@@ -957,7 +957,7 @@
    "name": "Chop_Shop_Clinic",
    "was": "Chop Shop Clinic 2x2",
    "category": "Barrens",
-   "display": "Barrens: Chop Shop Clinic 2x2 (city)",
+   "display": "Barrens: Chop Shop Clinic 2x2",
    "envkit": true
   },
   {
@@ -965,7 +965,7 @@
    "name": "Pulse_Tech",
    "was": "Pulse Tech 2x2",
    "category": "Commercial",
-   "display": "Commercial: Pulse Tech 2x2 (city)",
+   "display": "Commercial: Pulse Tech 2x2",
    "envkit": true
   },
   {
@@ -973,7 +973,7 @@
    "name": "Motorpool",
    "was": "Motorpool Garage 3x2",
    "category": "Barrens",
-   "display": "Barrens: Motorpool Garage 3x2 (city)",
+   "display": "Barrens: Motorpool Garage 3x2",
    "envkit": true
   },
   {
@@ -981,7 +981,7 @@
    "name": "Aurora_Warrens",
    "was": "Aurora Warrens 3x2",
    "category": "Barrens",
-   "display": "Barrens: Aurora Warrens 3x2 (city)",
+   "display": "Barrens: Aurora Warrens 3x2",
    "envkit": true
   },
   {
@@ -989,7 +989,7 @@
    "name": "Night_Bazaar",
    "was": "Night Bazaar Gatehouse 3x2",
    "category": "Barrens",
-   "display": "Barrens: Night Bazaar Gatehouse 3x2 (city)",
+   "display": "Barrens: Night Bazaar Gatehouse 3x2",
    "envkit": true
   },
   {
@@ -997,7 +997,7 @@
    "name": "SB_Station",
    "was": "Shiawase Barrens Power Station 2x2",
    "category": "Industrial",
-   "display": "Industrial: Shiawase Barrens Power Station 2x2 (city)",
+   "display": "Industrial: Shiawase Barrens Power Station 2x2",
    "envkit": true
   },
   {

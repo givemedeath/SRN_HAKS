@@ -54215,7 +54215,7 @@ Orientation=0
 ImageMap2D=mi_cor01_b01_13
 
 [GROUPS]
-Count=224
+Count=213
 
 [GROUP0]
 Name=Stairway
@@ -55653,183 +55653,6 @@ Columns=1
 Tile0=1250
 
 [GROUP175]
-Name=Stuffer_Shack_Suburb
-Rows=2
-Columns=2
-Tile0=1251
-Tile1=1252
-Tile2=1253
-Tile3=1254
-
-[GROUP176]
-Name=Ares_Depot_Suburb
-Rows=3
-Columns=3
-Tile0=1255
-Tile1=1256
-Tile2=1257
-Tile3=1258
-Tile4=1259
-Tile5=1260
-Tile6=1261
-Tile7=1262
-Tile8=1263
-
-[GROUP177]
-Name=SK_Yard_Suburb
-Rows=3
-Columns=3
-Tile0=1264
-Tile1=1265
-Tile2=1266
-Tile3=1267
-Tile4=1268
-Tile5=1269
-Tile6=1270
-Tile7=1271
-Tile8=1272
-
-[GROUP178]
-Name=RF_Depot_Suburb
-Rows=8
-Columns=8
-Tile0=1273
-Tile1=1274
-Tile2=1275
-Tile3=1276
-Tile4=1277
-Tile5=1278
-Tile6=1279
-Tile7=1280
-Tile8=1281
-Tile9=1282
-Tile10=1283
-Tile11=1284
-Tile12=1285
-Tile13=1286
-Tile14=1287
-Tile15=1288
-Tile16=1289
-Tile17=1290
-Tile18=1291
-Tile19=1292
-Tile20=1293
-Tile21=1294
-Tile22=1295
-Tile23=1296
-Tile24=1297
-Tile25=1298
-Tile26=1299
-Tile27=1300
-Tile28=1301
-Tile29=1302
-Tile30=1303
-Tile31=1304
-Tile32=1305
-Tile33=1306
-Tile34=1307
-Tile35=1308
-Tile36=1309
-Tile37=1310
-Tile38=1311
-Tile39=1312
-Tile40=1313
-Tile41=1314
-Tile42=1315
-Tile43=1316
-Tile44=1317
-Tile45=1318
-Tile46=1319
-Tile47=1320
-Tile48=1321
-Tile49=1322
-Tile50=1323
-Tile51=1324
-Tile52=1325
-Tile53=1326
-Tile54=1327
-Tile55=1328
-Tile56=1329
-Tile57=1330
-Tile58=1331
-Tile59=1332
-Tile60=1333
-Tile61=1334
-Tile62=1335
-Tile63=1336
-
-[GROUP179]
-Name=Iron_Sight_Arms_Suburb
-Rows=3
-Columns=2
-Tile0=1337
-Tile1=1338
-Tile2=1339
-Tile3=1340
-Tile4=1341
-Tile5=1342
-
-[GROUP180]
-Name=Chop_Shop_Clinic_Suburb
-Rows=2
-Columns=2
-Tile0=1343
-Tile1=1344
-Tile2=1345
-Tile3=1346
-
-[GROUP181]
-Name=Pulse_Tech_Suburb
-Rows=2
-Columns=2
-Tile0=1347
-Tile1=1348
-Tile2=1349
-Tile3=1350
-
-[GROUP182]
-Name=Motorpool_Suburb
-Rows=2
-Columns=3
-Tile0=1351
-Tile1=1352
-Tile2=1353
-Tile3=1354
-Tile4=1355
-Tile5=1356
-
-[GROUP183]
-Name=Aurora_Warrens_Suburb
-Rows=2
-Columns=3
-Tile0=1357
-Tile1=1358
-Tile2=1359
-Tile3=1360
-Tile4=1361
-Tile5=1362
-
-[GROUP184]
-Name=Night_Bazaar_Suburb
-Rows=2
-Columns=3
-Tile0=1363
-Tile1=1364
-Tile2=1365
-Tile3=1366
-Tile4=1367
-Tile5=1368
-
-[GROUP185]
-Name=SB_Station_Suburb
-Rows=2
-Columns=2
-Tile0=1369
-Tile1=1370
-Tile2=1371
-Tile3=1372
-
-[GROUP186]
 Name=Tower00
 Rows=2
 Columns=2
@@ -55838,13 +55661,13 @@ Tile1=1382
 Tile2=1383
 Tile3=1384
 
-[GROUP187]
+[GROUP176]
 Name=Tower01
 Rows=1
 Columns=1
 Tile0=1385
 
-[GROUP188]
+[GROUP177]
 Name=Tower02
 Rows=3
 Columns=3
@@ -55858,7 +55681,7 @@ Tile6=1386
 Tile7=1389
 Tile8=1392
 
-[GROUP189]
+[GROUP178]
 Name=Tower03
 Rows=3
 Columns=3
@@ -55872,7 +55695,7 @@ Tile6=1395
 Tile7=1398
 Tile8=1401
 
-[GROUP190]
+[GROUP179]
 Name=Tower04
 Rows=2
 Columns=2
@@ -55881,7 +55704,7 @@ Tile1=1405
 Tile2=1406
 Tile3=1407
 
-[GROUP191]
+[GROUP180]
 Name=Tower05
 Rows=4
 Columns=3
@@ -55898,7 +55721,7 @@ Tile9=1419
 Tile10=1418
 Tile11=1417
 
-[GROUP192]
+[GROUP181]
 Name=Tower06
 Rows=3
 Columns=4
@@ -55915,7 +55738,7 @@ Tile9=1429
 Tile10=1430
 Tile11=1431
 
-[GROUP193]
+[GROUP182]
 Name=Tower07
 Rows=6
 Columns=6
@@ -55956,7 +55779,7 @@ Tile33=1465
 Tile34=1466
 Tile35=1467
 
-[GROUP194]
+[GROUP183]
 Name=d_build
 Rows=4
 Columns=3
@@ -55973,7 +55796,7 @@ Tile9=1481
 Tile10=1482
 Tile11=1483
 
-[GROUP195]
+[GROUP184]
 Name=platform1
 Rows=2
 Columns=2
@@ -55982,31 +55805,31 @@ Tile1=1485
 Tile2=1486
 Tile3=1487
 
-[GROUP196]
+[GROUP185]
 Name=d_tower
 Rows=1
 Columns=1
 Tile0=1498
 
-[GROUP197]
+[GROUP186]
 Name=b_tower
 Rows=1
 Columns=1
 Tile0=1499
 
-[GROUP198]
+[GROUP187]
 Name=d_tower02
 Rows=1
 Columns=1
 Tile0=1500
 
-[GROUP199]
+[GROUP188]
 Name=d_monum
 Rows=1
 Columns=1
 Tile0=1501
 
-[GROUP200]
+[GROUP189]
 Name=d_platform2
 Rows=5
 Columns=6
@@ -56041,7 +55864,7 @@ Tile27=1529
 Tile28=1530
 Tile29=1531
 
-[GROUP201]
+[GROUP190]
 Name=b_platform
 Rows=5
 Columns=6
@@ -56076,25 +55899,25 @@ Tile27=1559
 Tile28=1560
 Tile29=1561
 
-[GROUP202]
+[GROUP191]
 Name=b_tower02
 Rows=1
 Columns=1
 Tile0=1562
 
-[GROUP203]
+[GROUP192]
 Name=d_house01
 Rows=1
 Columns=1
 Tile0=1563
 
-[GROUP204]
+[GROUP193]
 Name=d_house02
 Rows=1
 Columns=1
 Tile0=1564
 
-[GROUP205]
+[GROUP194]
 Name=d_build02
 Rows=2
 Columns=2
@@ -56103,7 +55926,7 @@ Tile1=1566
 Tile2=1567
 Tile3=1568
 
-[GROUP206]
+[GROUP195]
 Name=d_temple
 Rows=2
 Columns=3
@@ -56114,103 +55937,103 @@ Tile3=1572
 Tile4=1573
 Tile5=1574
 
-[GROUP207]
+[GROUP196]
 Name=b_arbre
 Rows=1
 Columns=1
 Tile0=1575
 
-[GROUP208]
+[GROUP197]
 Name=b_arbre2
 Rows=1
 Columns=1
 Tile0=1576
 
-[GROUP209]
+[GROUP198]
 Name=b_herbe
 Rows=1
 Columns=1
 Tile0=1577
 
-[GROUP210]
+[GROUP199]
 Name=b_fountain
 Rows=1
 Columns=1
 Tile0=1578
 
-[GROUP211]
+[GROUP200]
 Name=b_water
 Rows=1
 Columns=1
 Tile0=1579
 
-[GROUP212]
+[GROUP201]
 Name=b_trans
 Rows=1
 Columns=1
 Tile0=1590
 
-[GROUP213]
+[GROUP202]
 Name=d_trans
 Rows=1
 Columns=1
 Tile0=1591
 
-[GROUP214]
+[GROUP203]
 Name=d_herbe
 Rows=1
 Columns=1
 Tile0=1592
 
-[GROUP215]
+[GROUP204]
 Name=d_eau
 Rows=1
 Columns=1
 Tile0=1593
 
-[GROUP216]
+[GROUP205]
 Name=b_escalier
 Rows=1
 Columns=1
 Tile0=1594
 
-[GROUP217]
+[GROUP206]
 Name=d_escalier
 Rows=1
 Columns=1
 Tile0=1595
 
-[GROUP218]
+[GROUP207]
 Name=b_wall_door
 Rows=1
 Columns=1
 Tile0=1606
 
-[GROUP219]
+[GROUP208]
 Name=d_wall_door
 Rows=1
 Columns=1
 Tile0=1607
 
-[GROUP220]
+[GROUP209]
 Name=b_road_door
 Rows=1
 Columns=1
 Tile0=1608
 
-[GROUP221]
+[GROUP210]
 Name=d_road_door
 Rows=1
 Columns=1
 Tile0=1609
 
-[GROUP222]
+[GROUP211]
 Name=b_rampe
 Rows=1
 Columns=1
 Tile0=1610
 
-[GROUP223]
+[GROUP212]
 Name=d_rampe
 Rows=1
 Columns=1

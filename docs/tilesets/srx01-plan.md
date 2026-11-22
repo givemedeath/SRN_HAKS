@@ -163,7 +163,7 @@ fixtures that write an area now do.
 `srx01palstd.itp` and `srn_2da/srx01_edge.2da`; `--check` holds them against the three sources and the lock
 `docs/tilesets/srx01/merged.json`.
 
-- **The set:** 1,612 tiles (dgt04 from 0, udp1 from 575, fcx01 from 1373), 224 groups, 604 primary rules. The
+- **The set:** 1,612 tiles (dgt04 from 0, udp1 from 575, fcx01 from 1373), 213 groups (224 before the suburb copies of the envkit buildings were left out), 604 primary rules. The
   general block is dgt04's, the grass is udp1's. The pack `srn_t_srx01` holds only the set and its palette: the
   models stay in the three source packs.
 - **Names:** the approved keys and palette names of `names.json` are in the set and the palette, each palette name
@@ -188,13 +188,16 @@ Findings:
 
 - **The Toolset cannot tell the two envkit copies apart.** A group is found by its first tile's model, so the
   "(suburb)" entry lays the city copy. Keeping both copies paintable needs the suburb copy's tile models under
-  names of their own. Open for the user: rename-copy the models, or keep one copy (on Concrete, reached from the
-  suburbs through the stage 3 joins).
+  names of their own.
+  **Decided (user, 2026-11-21): keep one copy.** `merged_set` leaves out a group whose first tile's model an
+  earlier family's group begins with; its tiles stay in the set, so tile numbers do not move. The eleven envkit
+  buildings stand on Concrete, without "(city)" in their names, and reach the suburbs through the stage 3 joins.
+  The set now has 213 groups. This replaces the earlier pick to keep both copies.
 - **A new area starts on Concrete**, so suburb and arcology terrain cannot be painted in a new area until the join
   tiles exist. Expected, and the reason stage 3 comes before release A.
 - **Two palette entries show raw names** ("Barrens: Bridge_Collapsed", "Bridge_Collapsed_C"): to be named in
   `names.json`.
-- The palette panel cuts long names off, which hides "(city)" and "(suburb)" at the default width.
+- The palette panel cuts long names off at the default width.
 - Not checked yet: the Shadowrun City placeable categories and the door names in the Toolset (stage 3 check).
 
 ## Proposed name
@@ -241,8 +244,8 @@ once areas exist on `srx01`, a rename breaks them. The names review is a gate fo
 - **The `Water` clash:** udp1's `Water` becomes `Pond`, unless the pictures show the two waters match.
 - **Crossers:** `Wall01`/`Wall02`, `Alley_01`–`03`, `Chain_Fence2`, `pont`, `Routes`, `murs`, `Fence_Wood`.
 - **Tile groups:** every palette group of the three sets, each with a descriptive display name. Duplicate or
-  misleading names are reconciled, such as the many "Highrise" groups and the French fcx01 names. The two copies of
-  each envkit group say their ground: "(city)" on Concrete, "(suburb)" on Asphalt.
+  misleading names are reconciled, such as the many "Highrise" groups and the French fcx01 names. Each envkit
+  building is in the palette once, on Concrete (user, 2026-11-21; see the stage 2 results).
 - **Edge table:** the merged edge table names follow the new terrain names.
 
 **How the tile palette is recategorized:**

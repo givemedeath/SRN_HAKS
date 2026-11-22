@@ -151,7 +151,7 @@ def merged_set(sets, names, spec):
             if found:
                 tiles.append(_crlf(_tile(raw, first[name] + int(found.group(1)), terrains.get(name, {}), crossers.get(name, {}), f'{name} tile {found.group(1)}')).rstrip(END) + END)
     # groups
-    shown = {(entry['set'], entry['name']): entry['display'] for entry in names['groups']}; groups, taken = [], set()
+    shown = {(entry['set'], entry['name']): entry['display'] for entry in names['groups']}; groups, taken, begun = [], set(), set()
     for name in order:
         label = next(family['label'] for family in spec['families'] if family['set'] == name); models = {tile['number']: tile['model'] for tile in laid[name]['tiles']}
         for section, raw in _sections(sets[name]):
@@ -159,10 +159,13 @@ def merged_set(sets, names, spec):
                 continue
             keys = dict(line.split('=', 1) for line in _lines(raw) if '=' in line); was = keys['Name']
             require((name, was) in shown, f'{name}: no display name for group {was}')
-            called = was if was.lower() not in taken else f'{was}_{label}'  # an envkit building stands in two families under one name
-            require(called.lower() not in taken, f'Two groups are named {called}'); taken.add(called.lower())
             members = [int(keys[f'Tile{index}']) for index in range(int(keys['Rows']) * int(keys['Columns']))]
             require(all(member in models for member in members), f'{name} group {was} names a tile the set lacks')
+            if models[members[0]].lower() in begun:  # the Toolset finds a group by its first tile's model, so a second one with that model lays the first
+                continue  # (seen 2026-11-21: an envkit building's suburb copy laid its city copy); its tiles stay, its group is left out
+            begun.add(models[members[0]].lower())
+            called = was if was.lower() not in taken else f'{was}_{label}'  # an envkit building stands in two families under one name
+            require(called.lower() not in taken, f'Two groups are named {called}'); taken.add(called.lower())
             raw = re.sub(r'^\[GROUP\d+', f'[GROUP{len(groups)}', raw, count=1)
             raw = re.sub(r'(?m)^Name=[^\r\n]*', lambda _: f'Name={called}', raw, count=1)
             raw = MEMBER.sub(lambda found: f'{found.group(1)}={first[name] + int(found.group(2))}', raw)
@@ -308,7 +311,9 @@ UNSORTED = 'Unsorted'
 def refresh(repo, added, *, district=None, gff=None):
     """Merge again every merged set a changed source set belongs to, first giving each new group a display name.
     added: {source set: (the group's name in it, its palette label)}, the group an envkit sheet just put there. The
-    name is "<district>: <label> (<family>)"; without a district it is filed under Unsorted, for a person to sort.
+    name is "<district>: <label>" in the first family and "<district>: <label> (<family>)" in a later one, whose copy
+    of a building the first family has is named and not laid out (`merged_set`); without a district it is filed under
+    Unsorted, for a person to sort.
     Returns {merged set: what `merge` returned}."""
     repo = Path(repo); told = {}
     for spec_path in sorted((repo / 'docs' / 'tilesets').glob('*/merge.json')):
@@ -320,7 +325,7 @@ def refresh(repo, added, *, district=None, gff=None):
             if name in labels and (name, group) not in known:
                 category = district or UNSORTED
                 require(category in names['categories'], f'{category} is no category of {names_path.name}')
-                names['groups'].append({'set': name, 'name': group, 'was': label, 'category': category, 'display': f'{category}: {label} ({labels[name].lower()})', 'envkit': True})
+                names['groups'].append({'set': name, 'name': group, 'was': label, 'category': category, 'display': f'{category}: {label}' + ('' if name == spec['families'][0]['set'] else f' ({labels[name].lower()})'), 'envkit': True})
         names_path.write_text(json.dumps(names, indent=1, ensure_ascii=False), encoding='utf-8', newline='\n')
         told[spec['set']] = merge(repo, spec_path, spec_path.with_name('merged.json'), gff=gff)
     return told

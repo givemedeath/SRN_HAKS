@@ -90,7 +90,7 @@ class Refresh(unittest.TestCase):
             self.assertEqual(merge.refresh(repo, {'other': ('Hut', 'A Hut')}, gff=gff), {})  # no merged set holds that source set
             told = merge.refresh(repo, {'a': ('Hut', 'A Hut')}, gff=gff)
             self.assertEqual(told['m']['tiles'], 2)
-            self.assertEqual(json.loads((home / 'names.json').read_text(encoding='utf-8'))['groups'][0]['display'], 'Unsorted: A Hut (city)')
+            self.assertEqual(json.loads((home / 'names.json').read_text(encoding='utf-8'))['groups'][0]['display'], 'Unsorted: A Hut')
             made = (repo / 'srn_t_m' / 'm.set').read_bytes().decode()
             self.assertIn('TopRight=New\r\n', made); self.assertIn('Name=M\r\n', made); self.assertIn('Tile0=1\r\n', made)
             self.assertEqual(merge.stale(repo, spec, home / 'merge.json', home / 'merged.json'), [])
@@ -113,6 +113,11 @@ class Merged(unittest.TestCase):
         self.assertEqual(self.text, self.made['set'])
         self.assertEqual(OUTPUTS['edge'].read_bytes().decode('cp1252'), self.made['edge'])
         self.assertEqual(self.made['set'], merge.work(REPO, SPEC)['set'])  # the same bytes each time
+
+    def test_no_two_groups_begin_with_one_model(self):
+        models = [group['model'].lower() for group in self.made['groups']]  # the Toolset would lay the first for both
+        self.assertEqual(len(models), len(set(models)))
+        self.assertEqual([group['display'] for group in self.made['groups'] if group['display'].endswith(')')], [])  # no copy is left to tell apart
 
     def test_every_source_tile_is_there_once_and_only_its_names_changed(self):
         count = 0
@@ -157,13 +162,16 @@ class Merged(unittest.TestCase):
     def test_every_group_holds_its_source_tiles_under_one_name(self):
         groups = [keys for section, keys in self.merged.items() if re.fullmatch(r'GROUP\d+', section)]; index = 0
         self.assertEqual(len(groups), int(self.merged['GROUPS']['Count'])); self.assertEqual(len({group['Name'].lower() for group in groups}), len(groups))
-        models = {tile['number']: tile['model'] for tile in self.laid['tiles']}
+        models = {tile['number']: tile['model'] for tile in self.laid['tiles']}; begun = set()
         for name in ORDER:
             theirs = inventory.read_set(self.sources[name]); source = {tile['number']: tile['model'] for tile in theirs['tiles']}
             for section, keys in keyed(self.sources[name]).items():
                 if not re.fullmatch(r'GROUP\d+', section):
                     continue
-                now = groups[index]; index += 1; size = int(keys['Rows']) * int(keys['Columns'])
+                size = int(keys['Rows']) * int(keys['Columns'])
+                if source[int(keys['Tile0'])].lower() in begun:  # a later family's copy of a building: left out, the Toolset would lay the first
+                    continue
+                begun.add(source[int(keys['Tile0'])].lower()); now = groups[index]; index += 1
                 self.assertEqual((now['Rows'], now['Columns']), (keys['Rows'], keys['Columns']))
                 self.assertEqual([models[int(now[f'Tile{at}'])] for at in range(size)], [source[int(keys[f'Tile{at}'])] for at in range(size)], f'{name} {keys["Name"]}')
         self.assertEqual(index, len(groups))
