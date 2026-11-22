@@ -190,3 +190,7 @@
 186  Deck_Dark         Arcology_Road   Deck_Dark         0       fcx01_x04_02
 187  Plaza_Light       Arcology_Wall   Plaza_Light       0       fcx01_y06_01
 188  Deck_Dark         Arcology_Wall   Deck_Dark         0       fcx01_y06_02
+189  Concrete          ****            Asphalt           0       srx01_ja2_01
+190  Asphalt           ****            Concrete          0       srx01_jaz_01
+191  Concrete          ****            Plaza_Light       0       srx01_jp2_01
+192  Plaza_Light       ****            Concrete          0       srx01_jpz_01

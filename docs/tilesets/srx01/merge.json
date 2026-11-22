@@ -28,6 +28,7 @@
       "Plaza_Light"
     ]
   ],
+  "joinTiles": "docs/tilesets/srx01/joins.json",
   "raised": [
     "Concrete"
   ],

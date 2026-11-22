@@ -5,7 +5,7 @@ import re
 import unittest
 from pathlib import Path
 
-from tools.tilekit import inventory, merge
+from tools.tilekit import joins, inventory, merge
 
 REPO = Path(__file__).resolve().parents[2]
 PACKS = ('srn_t_srx01', 'srn_t_dgt04', 'srn_t_udp1', 'srn_t_fcx01', 'srn_t_common', 'srn_2da')  # what this reads: named so the test selector runs it when one changes
@@ -135,6 +135,8 @@ class Merged(unittest.TestCase):
                     for key in ('Top', 'Right', 'Bottom', 'Left'):
                         want[key] = self.crossers[name][keys[key].lower()] if keys.get(key) else keys.get(key, '')
                 self.assertEqual(now, want, f'{name} {section}')
+        joined = joins.tiles(json.loads((REPO / SPEC['joinTiles']).read_text(encoding='utf-8')))  # the join tiles come after every family's own
+        self.assertEqual([tile['model'] for tile in self.laid['tiles'][count:]], [record['model'] for record in joined]); count += len(joined)
         self.assertEqual(count, len(self.laid['tiles'])); self.assertEqual(int(self.merged['TILES']['Count']), count)
         self.assertEqual(len([section for section in self.merged if re.fullmatch(r'TILE\d+', section)]), count)
 

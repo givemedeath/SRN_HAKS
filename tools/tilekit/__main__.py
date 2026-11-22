@@ -188,6 +188,17 @@ def merge_command(chosen):
     return 0
 
 
+def joins_command(chosen):
+    from . import joins
+    lock = chosen.lock or chosen.spec.with_name('joins-built.json')
+    if chosen.check:
+        changed = joins.stale(chosen.repo, chosen.spec, lock)
+        print(json.dumps({'stale': changed}, indent=1))
+        return 1 if changed else 0
+    print(json.dumps(joins.build(chosen.repo, chosen.spec, lock), indent=1))
+    return 0
+
+
 def main(arguments=None):
     parser = argparse.ArgumentParser(prog='tilekit', description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -249,6 +260,11 @@ def main(arguments=None):
     merged.add_argument('--lock', type=Path, help='the record of what a merge read and wrote (merged.json beside the spec without it)')
     merged.add_argument('--check', action='store_true', help='write nothing: say what has changed since the last merge (exit 1 when anything has)')
     merged.add_argument('--repo', type=Path, default=REPO)
+    cut = commands.add_parser('joins', help='write the join tiles of a merged tileset: the tiles where one family meets another (then: compile)')
+    cut.add_argument('--spec', required=True, type=Path, help='the joins spec (docs/tilesets/<set>/joins.json)')
+    cut.add_argument('--lock', type=Path, help='the record of what a build read and wrote (joins-built.json beside the spec without it)')
+    cut.add_argument('--check', action='store_true', help='write nothing: say what has changed since the last build (exit 1 when anything has)')
+    cut.add_argument('--repo', type=Path, default=REPO)
     ten = commands.add_parser('terrain', help='copy building terrains under names of their own and make the palette names descriptive, into a folder')
     ten.add_argument('--spec', required=True, type=Path, help='the tileset\'s terrain spec (docs/tilesets/<tileset>/terrains.json)')
     ten.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay'); ten.add_argument('--repo', type=Path, default=REPO)
@@ -286,6 +302,8 @@ def main(arguments=None):
             return count_command(chosen)
         if chosen.command == 'merge':
             return merge_command(chosen)
+        if chosen.command == 'joins':
+            return joins_command(chosen)
         if chosen.command == 'terrain':
             return terrain_command(chosen)
         if chosen.command == 'apply':

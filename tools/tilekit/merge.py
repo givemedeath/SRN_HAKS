@@ -21,7 +21,7 @@ import re
 from collections import deque
 from pathlib import Path
 
-from . import inventory, require
+from . import inventory, joins, require
 from .terrain import _sections
 
 END = '\r\n'
@@ -133,9 +133,10 @@ def rules(own, family, beside, raised=(), joins=()):
     return made
 
 
-def merged_set(sets, names, spec):
+def merged_set(sets, names, spec, joined=()):
     """(the merged set file's text, {family: the number its first tile takes}, [{set, name (in the merged set), was,
-    display, tiles, model (its first tile's)}] of its groups) from the source set files' texts ({set: text})."""
+    display, tiles, model (its first tile's)}] of its groups) from the source set files' texts ({set: text}).
+    joined: the join tiles (`joins.tiles`), numbered after the families' own."""
     terrains, crossers = maps(names); order = [family['set'] for family in spec['families']]
     require(set(order) <= set(sets), 'The spec names a set that was not given'); require(spec['general'] in order and spec['grass'] in order, 'general and grass name a family')
     read = {name: inventory.sections(sets[name]) for name in order}; laid = {name: inventory.read_set(sets[name]) for name in order}
@@ -150,6 +151,14 @@ def merged_set(sets, names, spec):
             found = re.fullmatch(r'TILE(\d+)(DOOR\d+)?', section)
             if found:
                 tiles.append(_crlf(_tile(raw, first[name] + int(found.group(1)), terrains.get(name, {}), crossers.get(name, {}), f'{name} tile {found.group(1)}')).rstrip(END) + END)
+    for record in joined:  # flat, open ground with no light, door or sound of its own
+        keys = {'Model': record['model'], 'WalkMesh': 'msb01'}
+        for corner in ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'):
+            keys[corner] = record['corners'][corner]; keys[corner + 'Height'] = 0
+        keys.update({side: record['crossers'][side] for side in ('Top', 'Right', 'Bottom', 'Left')})
+        keys.update(dict.fromkeys(('MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1', 'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds'), 0))
+        keys.update({'PathNode': 'A', 'Orientation': 0, 'ImageMap2D': record['minimap']})
+        tiles.append(f'[TILE{count}]{END}' + ''.join(f'{key}={value}{END}' for key, value in keys.items())); count += 1
     # groups
     shown = {(entry['set'], entry['name']): entry['display'] for entry in names['groups']}; groups, taken, begun = [], set(), set()
     for name in order:
@@ -183,6 +192,9 @@ def merged_set(sets, names, spec):
                 own.append(rule)
     family = {entry['key']: entry['set'] for entry in names['terrains']}
     corners = [[terrains[name][corner.lower()] for corner in tile['corners']] for name in order for tile in laid[name]['tiles']]
+    known = {entry['key'] for entry in names['terrains']}; lines = {entry['key'] for entry in names['crossers']} | {''}
+    require(all(set(record['corners'].values()) <= known and set(record['crossers'].values()) <= lines for record in joined), 'A join tile names a terrain or crosser the set lacks')
+    corners += [list(record['corners'].values()) for record in joined]
     joins = [tuple(pair) for pair in spec.get('joins', ())]
     require(all(key in family for pair in joins for key in pair) and all(key in family for key in spec.get('raised', ())), 'A join or a raised ground names no terrain')
     primary = rules(own, family, reach(corners, joins), spec.get('raised', ()), joins)
@@ -210,9 +222,9 @@ def merged_set(sets, names, spec):
     return ''.join(out), first, groups
 
 
-def merged_edge(edges, names, spec):
+def merged_edge(edges, names, spec, joined=()):
     """The merged edge table's text from the source sets' ({set: text}): every row of each, in the families' order,
-    under the new names."""
+    under the new names; then the border rows of the join pairs (`joins.edges`)."""
     terrains, crossers = maps(names); rows = []
     terrains = {name: dict(found) for name, found in terrains.items()}; crossers = {name: dict(found) for name, found in crossers.items()}
     for other in names.get('edgeNames', ()):  # a name only an edge table spells: its rows never matched the source set, and do here
@@ -234,6 +246,7 @@ def merged_edge(edges, names, spec):
             between = crossers.get(name, {}).get(edge.lower()) or (corner(edge) if edge == '****' or edge.rstrip('+').lower() in terrains.get(name, {}) else None)
             require(between, f'{name}: an edge row has {edge!r} between its corners, which is no crosser or terrain with a name')  # a terrain stands there too (a bridge's deck)
             rows.append((corner(one), between, corner(other), height, model))
+    rows += [(one, '****', other, '0', model) for one, other, model in joined]
     wide = [max(len(row[index]) for row in rows) + 2 for index in range(5)]; head = ('Corner1', 'Edge', 'Corner2', 'Height', 'Model'); number = len(str(len(rows))) + 2
     lines = ['2DA V2.0', '', ' ' * number + ''.join(cell.ljust(max(width, len(cell) + 2)) for cell, width in zip(head, wide)).rstrip()]
     lines += [str(index).ljust(number) + ''.join(cell.ljust(max(width, len(head[at]) + 2)) for at, (cell, width) in enumerate(zip(row, wide))).rstrip() for index, row in enumerate(rows)]
@@ -261,15 +274,17 @@ def paths(repo, spec):
     for family in spec['families']:
         inputs[f'set:{family["set"]}'] = repo / f'srn_t_{family["set"]}' / f'{family["set"]}.set'
         inputs[f'edge:{family["set"]}'] = repo / 'srn_2da' / f'{family["set"]}_edge.2da'
+    if spec.get('joinTiles'):
+        inputs['joins'] = repo / spec['joinTiles']
     return inputs, {'set': pack / f'{name}.set', 'palette': pack / f'{name}palstd.itp', 'edge': repo / 'srn_2da' / f'{name}_edge.2da'}
 
 
 def work(repo, spec):
     """What a merge writes, worked out and not written: {set, edge: text, palette: JSON, first, groups}."""
     inputs, _ = paths(repo, spec); names = json.loads(inputs['names'].read_text(encoding='utf-8'))
-    order = [family['set'] for family in spec['families']]
-    text, first, groups = merged_set({name: inputs[f'set:{name}'].read_bytes().decode('cp1252') for name in order}, names, spec)
-    edge = merged_edge({name: inputs[f'edge:{name}'].read_bytes().decode('cp1252') for name in order}, names, spec)
+    order = [family['set'] for family in spec['families']]; cut = json.loads(inputs['joins'].read_text(encoding='utf-8')) if 'joins' in inputs else None
+    text, first, groups = merged_set({name: inputs[f'set:{name}'].read_bytes().decode('cp1252') for name in order}, names, spec, joins.tiles(cut) if cut else ())
+    edge = merged_edge({name: inputs[f'edge:{name}'].read_bytes().decode('cp1252') for name in order}, names, spec, joins.edges(cut) if cut else ())
     return {'set': text, 'edge': edge, 'palette': palette(names, groups), 'first': first, 'groups': groups}
 
 
