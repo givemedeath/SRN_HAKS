@@ -20,6 +20,8 @@ def keyed(text):
     """{section name: {key: value}} of a set file."""
     return dict(inventory.sections(text))
 
+DOORS = {str(old): new for old, new in SPEC.get('doors', {}).items()}
+
 
 class Rules(unittest.TestCase):
     BESIDE = merge.reach([['A', 'A', 'G', 'G'], ['G', 'M', 'G', 'G'], ['C', 'C', 'T', 'C'], ['P', 'H', 'P', 'P']], [('C', 'A'), ('C', 'P')])
@@ -114,6 +116,16 @@ class Merged(unittest.TestCase):
         self.assertEqual(OUTPUTS['edge'].read_bytes().decode('cp1252'), self.made['edge'])
         self.assertEqual(self.made['set'], merge.work(REPO, SPEC)['set'])  # the same bytes each time
 
+    def test_every_door_hook_names_a_type_the_toolset_knows_in_this_set(self):
+        """A door's types are listed by its area's tileset: a hook of a type keyed to a source set gave a door whose
+        properties would not open (seen 2026-11-21). Envkit's type 58 is left as the source sets have it."""
+        rows = {cells[0]: cells for cells in (inventory.words(line) for line in (REPO / 'srn_2da' / 'doortypes.2da').read_text(encoding='cp1252').splitlines()[3:]) if cells}
+        for old, new in DOORS.items():
+            self.assertEqual(rows[str(new)][3], SPEC['set'].upper()); self.assertEqual(rows[str(new)][2:3] + rows[str(new)][4:], rows[old][2:3] + rows[old][4:])
+            self.assertIn(rows[old][3].lower(), ORDER)
+        used = {keys['Type'] for section, keys in self.merged.items() if re.fullmatch(r'TILE\d+DOOR\d+', section)}
+        self.assertEqual(sorted(kind for kind in used if rows[kind][3] not in ('****', SPEC['set'].upper()) and kind != '58'), [])
+
     def test_no_two_groups_begin_with_one_model(self):
         models = [group['model'].lower() for group in self.made['groups']]  # the Toolset would lay the first for both
         self.assertEqual(len(models), len(set(models)))
@@ -134,6 +146,8 @@ class Merged(unittest.TestCase):
                         want[key] = self.terrains[name][keys[key].lower()]
                     for key in ('Top', 'Right', 'Bottom', 'Left'):
                         want[key] = self.crossers[name][keys[key].lower()] if keys.get(key) else keys.get(key, '')
+                if found.group(2) and want['Type'] in DOORS:  # a keyed door type is its copy keyed to this set
+                    want['Type'] = str(DOORS[want['Type']])
                 self.assertEqual(now, want, f'{name} {section}')
         joined = joins.tiles(json.loads((REPO / SPEC['joinTiles']).read_text(encoding='utf-8')))  # the join tiles come after every family's own
         self.assertEqual([tile['model'] for tile in self.laid['tiles'][count:]], [record['model'] for record in joined]); count += len(joined)

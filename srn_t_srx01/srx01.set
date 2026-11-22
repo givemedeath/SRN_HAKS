@@ -17673,7 +17673,7 @@ Orientation=0
 ImageMap2D=
 
 [TILE430DOOR0]
-Type=117
+Type=266
 X=-0.82723
 Y=0.0
 Z=2.00
@@ -50240,14 +50240,14 @@ VisibilityOrientation=0
 ImageMap2D=mi_fcx01_m01_02
 
 [TILE1473DOOR0]
-Type=261
+Type=268
 X=-0.17
 Y=4.20
 Z=2.19
 Orientation=0.0
 
 [TILE1473DOOR1]
-Type=261
+Type=268
 X=-0.17
 Y=-2.74
 Z=2.19
@@ -50524,14 +50524,14 @@ VisibilityOrientation=0
 ImageMap2D=mi_fcx01_m01_11
 
 [TILE1482DOOR0]
-Type=261
+Type=268
 X=-0.17
 Y=-4.10
 Z=2.19
 Orientation=0.0
 
 [TILE1482DOOR1]
-Type=261
+Type=268
 X=-0.17
 Y=2.77
 Z=2.19
@@ -54047,7 +54047,7 @@ Orientation=0
 ImageMap2D=mi_fcx01_z01_01
 
 [TILE1606DOOR0]
-Type=260
+Type=267
 X=0.0
 Y=0.0
 Z=0.0
@@ -54082,7 +54082,7 @@ Orientation=0
 ImageMap2D=mi_fcx01_z01_02
 
 [TILE1607DOOR0]
-Type=260
+Type=267
 X=0.0
 Y=0.0
 Z=0.0
@@ -54117,7 +54117,7 @@ Orientation=0
 ImageMap2D=mi_fcx01_z02_01
 
 [TILE1608DOOR0]
-Type=260
+Type=267
 X=0.0
 Y=0.0
 Z=0.0
@@ -54152,7 +54152,7 @@ Orientation=0
 ImageMap2D=mi_fcx01_z02_02
 
 [TILE1609DOOR0]
-Type=260
+Type=267
 X=0.0
 Y=0.0
 Z=0.0

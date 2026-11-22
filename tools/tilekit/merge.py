@@ -145,11 +145,13 @@ def merged_set(sets, names, spec, joined=()):
         first[name] = count; count += len(laid[name]['tiles'])
         require([tile['number'] for tile in laid[name]['tiles']] == list(range(len(laid[name]['tiles']))), f'{name}: its tiles are not numbered from 0 in order')
     # tiles, each family's after the one before
-    tiles = []
+    tiles = []; doors = {str(key): value for key, value in spec.get('doors', {}).items()}
     for name in order:
         for section, raw in _sections(sets[name]):
             found = re.fullmatch(r'TILE(\d+)(DOOR\d+)?', section)
             if found:
+                if found.group(2):  # a door type keyed to a source set is one the Toolset does not know in the merged set: its copy, keyed to this set
+                    raw = re.sub(r'(?m)^Type=(\d+)', lambda said: f'Type={doors.get(said.group(1), said.group(1))}', raw)
                 tiles.append(_crlf(_tile(raw, first[name] + int(found.group(1)), terrains.get(name, {}), crossers.get(name, {}), f'{name} tile {found.group(1)}')).rstrip(END) + END)
     for record in joined:  # flat, open ground with no light, door or sound of its own
         keys = {'Model': record['model'], 'WalkMesh': 'msb01'}

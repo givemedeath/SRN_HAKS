@@ -243,9 +243,31 @@ Findings:
 - **Painting Plaza_Light near Asphalt** turns the Asphalt between them to Concrete: there is no join of those two.
 - **The families still look apart:** suburb asphalt is lighter than the city's street, and the arcology plaza far
   lighter. Releases B and C are for that.
-- **Not checked:** undo and redo, a reopened area in the Toolset (the saved file was read instead), the keyed doors,
-  and the Shadowrun City placeable categories and door names in the Toolset. Walking across a join in the client
-  was not tried; the walkmesh is held by the tests.
+
+
+Further checks (2026-11-21, on the user's go):
+
+| Check | Where | Result |
+| --- | --- | --- |
+| Undo and redo of a paint across joins, several levels | Toolset | each restores the area as it was |
+| Walk across a straight, a rounded and a diagonal join and both road junctions | client, six walks of 40 to 50 m | each arrived at its target |
+| Door hook of a keyed door type (glass window 117, arcology gate 260) | Toolset | the door is made, but **its properties would not open** ("The selected model does not exist") |
+| The same after the fix below | Toolset | properties open, with the door's picture and type; the door palette's Tileset Specific list holds the three |
+| Shadowrun City placeable category and its eleven kinds | Toolset | shown, blueprints under each |
+
+- **Fix: door types keyed to this set.** The Toolset lists a door's types by its area's tileset, and rows 117, 260
+  and 261 of `doortypes.2da` are keyed to DGT04 and FCX01. Rows 266 to 268 are their copies keyed to SRX01, and the
+  merge writes those into the merged set's nine door hooks (`merge.json`, `doors`). The source sets are unchanged.
+  `test_merge.py` refuses a hook of a type keyed to another set.
+- **Left as it is:** envkit's hook type 58, the invisible transition door, is keyed to TDS01 in every set that uses
+  it (user, 2026-11-11: type 58 until further notice). Its properties were not opened here.
+- **Two arcology door types share the name "Castle Door"** in the door palette (their source rows' name). To be
+  named with the arcology release.
+- **Bunker Hall 4x3 would not lay on Plaza_Light** in a 12-tile area: its Deck_Dark ground meets Plaza_Light only
+  through the Void (the source set's own rule). Its door type (261) is remapped like the others but was not seen.
+- **Still not checked:** a reopened area in the Toolset (the saved files were read instead), and the new door names
+  in a placed door's Generic Appearance list: a door blueprint could not be placed by the palette helper. The names
+  are held to the table and the talk table by `test_names.py`.
 
 ## Proposed name
 

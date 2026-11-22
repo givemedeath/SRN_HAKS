@@ -2404,4 +2404,6 @@ project operator passed the look in the game client on 2026-11-20 (review captur
 - `srn_placeable/placeablepal.itp` gains the category Shadowrun City and eleven kinds under it; the 149 envkit
   blueprints (`ek_*.utp`) move there and `placeablepalstd.itp` is rebuilt by `envkit blueprints`. Only their palette
   category changes.
+- `srn_2da/doortypes.2da` rows 266-268 are copies of rows 117, 260 and 261 keyed to SRX01 (same models and names), so
+  the Toolset knows those door types in the merged set.
 - `srn_2da/genericdoors.2da` rows 1094-1103 take a name each from the talk table (rows 156-165).
