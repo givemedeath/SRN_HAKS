@@ -2394,6 +2394,13 @@ project operator passed the look in the game client on 2026-11-20 (review captur
   The names, the palette layout and the generated rules between the three sets are original work of the SRN project
   operator with Claude; the operator approved the names on 2026-11-21. `docs/tilesets/srx01/merged.json` pins what
   each merge read and wrote.
+- The join tiles `srn_t_srx01/srx01_j*.mdl` (sources in `sources/srn_t_srx01/`), their walkmeshes and `mi_srx01_j*.tga`
+  minimaps are written by `tools/tilekit/joins.py` (`docs/tilesets/srx01/joins.json`): each is cut from the plain
+  ground and straight road tiles of the three source packs above (their geometry, texture coordinates and minimap
+  pictures, clipped to each side of the boundary), with a boundary strip drawn from the `dgt04_kit` atlas. They hold
+  no new texture. The cutting, the boundary shapes and the strip are original work of the SRN project operator with
+  Claude. `docs/tilesets/srx01/joins-built.json` pins what a build read and wrote; the models are compiled as the
+  other tile packs' are (`sources/compiled.json`).
 - `srn_placeable/placeablepal.itp` gains the category Shadowrun City and eleven kinds under it; the 149 envkit
   blueprints (`ek_*.utp`) move there and `placeablepalstd.itp` is rebuilt by `envkit blueprints`. Only their palette
   category changes.

@@ -200,6 +200,53 @@ Findings:
 - The palette panel cuts long names off at the default width.
 - Not checked yet: the Shadowrun City placeable categories and the door names in the Toolset (stage 3 check).
 
+## Stage 3 results (2026-11-21)
+
+`python -m tools.tilekit joins --spec docs/tilesets/srx01/joins.json` writes the join tiles; `tilekit compile`
+compiles them; `tilekit merge` numbers them after the three families (1612 to 1625) and adds their border rows.
+`joins --check` holds them against the tiles they are cut from (`docs/tilesets/srx01/joins-built.json`).
+
+- **How a join is made:** each side of the boundary is its family's own plain ground tile, clipped to its side, so
+  it draws that family's texture by name. A join built again after a restyle follows it. A flush concrete strip
+  from the city kit's atlas lies on the boundary. No new texture.
+- **Boundary shape:** it crosses a tile edge at its middle, at a right angle; a corner's ground is the quarter disc
+  round it. So a painted patch has round corners.
+- **Pairs:** Concrete with Asphalt (`srx01_ja...`) and Concrete with Plaza_Light (`srx01_jp...`).
+- **Tiles for each pair (7):** one corner, two along an edge, two diagonal, three corners; and three road tiles on
+  the edge shape: the city Street meeting the other family's road, the Street alone ending at the boundary, and the
+  other road alone. The Toolset lays a road one tile edge at a time and needs the last two.
+- **Roads:** the north half is the city's straight Street tile, the south half the other family's straight road
+  tile. The other road's heights (the suburb kerb, 15 cm; the arcology road, sunk 25 cm) fall to the flat seam over
+  2 m. The walkmesh is cut the same way, every corner shared along the cut.
+- **Border:** an edge-table row for each pair, each way about (`..2_01` and `..z_01`).
+- **Not built:** a T-junction, and any other crosser (fence, wall, sidewalk) across a boundary. A road cannot run
+  along a boundary.
+- **Guards:** `tools/tilekit/test_joins.py`, and `test_merge.py` holds the join tiles to the set.
+
+Checks:
+
+| Check | Where | Result |
+| --- | --- | --- |
+| Asphalt and Plaza_Light painted on Concrete | Toolset | laid, shapes meet |
+| Mall Red Block painted on Concrete | Toolset | laid: the rules route Grass, Asphalt, join, Concrete in one click |
+| Stuffer Shack 2x2 on Grass | Toolset | laid, with a ring of Concrete joins and a ring of Asphalt |
+| Street, then Suburb Road, across a boundary | Toolset | laid: road end, then the through junction |
+| Raise beside a join | Toolset | refused, nothing changed; a raise elsewhere works |
+| Saved areas read back | `review.disagreements` | 0 in all three areas |
+| Joins, road ends and both junctions | client, `docs/tilesets/srx01/review.json` | drawn, lanes meet |
+| Join at the area's west, south, east and north border | client | each ground continues past the border |
+
+Findings:
+
+- **An envkit building takes more room in a suburb:** its Concrete pad needs a ring of joins and then a ring of
+  Asphalt before Grass. A 2 by 2 building changes 6 by 6 tiles.
+- **Painting Plaza_Light near Asphalt** turns the Asphalt between them to Concrete: there is no join of those two.
+- **The families still look apart:** suburb asphalt is lighter than the city's street, and the arcology plaza far
+  lighter. Releases B and C are for that.
+- **Not checked:** undo and redo, a reopened area in the Toolset (the saved file was read instead), the keyed doors,
+  and the Shadowrun City placeable categories and door names in the Toolset. Walking across a join in the client
+  was not tried; the walkmesh is held by the tests.
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.
