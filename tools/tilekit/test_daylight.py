@@ -11,6 +11,7 @@ from tools.tilekit import daylight
 REPO = Path(__file__).resolve().parents[2]
 PACKS = ('srn_t_udp1', 'srn_door', 'srn_placeable')  # the packs that hold the list's textures: named so the test selector checks them out
 CITY = ('srn_t_common', 'srn_t_dgt04')  # the same for the Modern Exterior list
+SIGNALS = ('udp1-allsigns', 'udp1-msc-red')  # the suburb's traffic-light lenses, emergency lights and hospital crosses: lit at every hour
 ARCOLOGY = ('srn_t_fcx01', 'srn_t_common', 'srn_door')  # and for the Futuristic City's
 MODEL = """newmodel t_a01
 beginmodelgeom t_a01
@@ -149,6 +150,28 @@ class Daylight(unittest.TestCase):
                if re.fullmatch(r'TILE\d+', name) and keys.get(f'AnimLoop{loop}') != '1' and (REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').is_file()
                and daylight.switched((REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').read_text(encoding='cp1252'), lit, f'animloop0{loop}')]
         self.assertEqual(off, [])  # the suburb set itself
+
+    def test_a_signal_s_states_are_not_switched_on_together(self):
+        # A suburb traffic light has a one-second red (animloop02) and its twenty-second cycle (animloop03), and a builder
+        # chooses one. Listed as lit signs, `lights_on` turned both on, and the lenses went clear by day (review of PR 198,
+        # 2026-11-24): the signals' textures are not in the list, and no tile has two loops on that move one lens.
+        from tools.tilekit import inventory
+        lit = json.loads((REPO / 'docs' / 'tilesets' / 'udp1' / 'daylight.json').read_text(encoding='utf-8'))['lit']
+        self.assertEqual([name for name in SIGNALS if name in lit], [])
+        seen = 0
+        for tileset in ('udp1', 'srx01'):
+            both = []
+            for name, keys in inventory.sections((REPO / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252')):
+                source = REPO / 'sources' / 'srn_t_udp1' / f'{keys.get("Model", "").lower()}.mdl'
+                if not re.fullmatch(r'TILE\d+', name) or not source.is_file():
+                    continue
+                text = source.read_text(encoding='cp1252')
+                moved = [set(daylight._switched(text, SIGNALS, f'animloop0{loop}')) for loop in daylight.LOOPS if keys.get(f'AnimLoop{loop}') == '1']
+                seen += any(daylight._switched(text, SIGNALS, f'animloop0{loop}') for loop in daylight.LOOPS)
+                if any(one & other for index, one in enumerate(moved) for other in moved[index + 1:]):
+                    both.append(keys['Model'])
+            self.assertEqual(both, [], tileset)
+        self.assertGreaterEqual(seen, 20)  # the signal tiles were read, in both sets
 
     def test_line_ends_are_kept(self):
         made = daylight.with_daylight(MODEL.replace('\n', '\r\n'), LIT)[0]
