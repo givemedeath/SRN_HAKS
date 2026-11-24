@@ -1,0 +1,100 @@
+{
+ "tileset": "fcx01",
+ "before": "a3e15d27c2b4",
+ "packs": [
+  "srn_t_fcx01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable"
+ ],
+ "note": "Release C: the Star Wars-specific textures of the Futuristic City drawn again as generic 2070s corporate ones, with no brand names. Drawn by the local Qwen edit model.",
+ "textures": {
+  "imp_modules_id5": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A wall-mounted building control console of a 2070s corporate arcology: a dark screen at the left, and at the right a panel of small flat status displays, touch keys and indicator lights in a clean graphite and brushed-steel housing with a thin cyan accent line. No film or franchise styling, no red plastic."
+  },
+  "bespin_monument2": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A tall plaza light pylon on black; the black stays black. Each coloured shape keeps exactly the outline, size and position it has in the reference: the thin vertical light tube, the tall panel beside it and the pale square at the lower right, which stays just as large as it is. The tall panel becomes frosted glass lit cool cyan-white with two brushed-steel bands across it; the square becomes a pale cool-white lit lens."
+  },
+  "kuhmu": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A long narrow lit status strip with no lettering at all: an even row of small lit rectangular segments of a few different widths, cool white and pale cyan with a few amber ones, on a dark graphite panel, running evenly from end to end with the same rhythm everywhere, so that any part of the strip looks like any other. No letters, numbers, glyphs or symbols."
+  },
+  "ctown_build_id4": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A bank of illuminated office windows at night, seen straight on: every pane in the same place and size as in the reference and every pane brightly lit from inside, cool white with a faint cyan tint, a few with the faint shapes of blinds or desks behind frosted glass. Slim dark graphite mullions between the panes. No dark or unlit panes."
+  },
+  "bb3bottom": {
+   "kind": "facade",
+   "district": "corporate",
+   "note": "Replace the old classical stone styling completely with a modern corporate facade: large smooth pale grey composite panels with fine joints, the small windows in the same places as dark tinted glass in slim graphite frames, the central vertical feature as brushed-steel fins, and a thin dark band along the top. No cornices, no carved stone, no ornaments.",
+   "tiles": true
+  },
+  "ventilo01": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "Two round extractor fans above a louvred vent in a dark graphite steel housing."
+  },
+  "ctown_build14": {
+   "kind": "trim",
+   "district": "corporate",
+   "note": "A pale concrete panel with a vertical ribbed brushed-steel strip down the middle."
+  },
+  "black_window": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "The lit windows of a tower at night on black; the black stays pure black. Every white rectangle stays in the same place and size and becomes one lit window pane: most cool white or pale cyan, a few warm amber, some with the faint lines of blinds. No other light, no glow spilling onto the black."
+  },
+  "lights3": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A row of small lit marker lamps on black; the black stays pure black. Every white mark stays in the same place and size and becomes a small cool-white lit lens with a thin steel bezel."
+  },
+  "windows2": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A band of lit ribbon windows seen straight on: frosted panes lit cool white with a faint cyan tint, in the same places, divided by slim dark graphite mullions."
+  },
+  "tower_top": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A round glass skylight roof seen from straight above: slim brushed-steel glazing bars radiating from the centre exactly where the dark lines are, pale cyan frosted glass between them."
+  },
+  "d_wall02": {
+   "kind": "wall",
+   "district": "corporate",
+   "note": "A dark graphite steel wall panel: a ribbed vent band along the top edge, plain brushed dark metal in the middle, and along the bottom edge a thin recessed strip with two small round white lamps where the old ones are.",
+   "tiles": true
+  },
+  "d_wall": {
+   "kind": "wall",
+   "district": "corporate",
+   "note": "A dark graphite steel wall panel: a ribbed vent band along the top edge, plain brushed dark metal in the middle, and along the bottom edge a thin recessed strip with two small round white lamps where the old ones are.",
+   "tiles": true
+  },
+  "lma_light06": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A wall light fitting: three frosted glass panes lit cool white, one above another, in a slim steel frame."
+  },
+  "fcx_window1": {
+   "kind": "fixture",
+   "district": "corporate",
+   "copy": "window1",
+   "note": "Nothing but glass: one sheet of a tower's tinted curtain-wall glass at dusk, lit softly from inside, filling the whole picture from edge to edge. Even, luminous cyan-blue, slightly brighter towards the middle, with only the faintest soft vertical reflections. No frame, no border, no mullion, no bezel, no dark edge anywhere; the glass runs off all four sides. No lens flare, no star, no sun.",
+   "placed": "The picture in use is the redraw cropped to its clean middle by hand (the model drew two vertical lines and darker sides); it has no record, so a redraw run keeps it."
+  },
+  "fcx_pub": {
+   "kind": "sign",
+   "district": "corporate",
+   "copy": "pub",
+   "note": "A tall backlit advertising panel: a night view down a canyon between arcology towers with rows of glowing windows, in teal and amber, with a dark caption bar along the bottom.",
+   "words": "ARCOLOGY LIVING in the caption bar, in plain pale capital letters"
+  }
+ }
+}

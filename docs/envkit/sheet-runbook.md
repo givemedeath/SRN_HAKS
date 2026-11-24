@@ -334,7 +334,8 @@ envkit toolset retire  --user <root>/toolset<n>/user
 ```
 
 `prepare` needs the packs built into `output/`. It makes a user folder of its own with a module of one plain
-area for each tileset (8 tiles square; `--size` makes them larger, and a group as wide as the area leaves no
+area for each tileset the groups are in (the city and the suburb; `--tileset fcx01` lays a Futuristic City area
+instead, for a check of that set; 8 tiles square; `--size` makes them larger, and a group as wide as the area leaves no
 corner for the start point: the Rail Freight Depot's 8 by 8 was painted in 12-tile areas), and prints how the
 Toolset is started on it (working directory: the Toolset's own folder). The folder's `hak` is a junction to `output/`: run `retire` before deleting the folder, or the built
 packs go with it.

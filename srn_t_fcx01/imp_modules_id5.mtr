@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 impmodulesid5
+texture1 impmodulesid5_n
+texture2 impmodulesid5_s
+texture3 impmodulesid5_r
+texture4 null
+texture5 null

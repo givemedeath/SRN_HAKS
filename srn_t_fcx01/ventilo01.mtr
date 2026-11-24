@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ventilo01
+texture1 ventilo01_n
+texture2 ventilo01_s
+texture3 ventilo01_r
+texture4 null
+texture5 null

@@ -5740,6 +5740,7 @@
       "tools/tilekit/merge.py",
       "tools/tilekit/redraw.py",
       "tools/tilekit/remesh.py",
+      "tools/tilekit/retexture.py",
       "tools/tilekit/review.py",
       "tools/tilekit/shadows.py",
       "tools/tilekit/terrain.py",
@@ -5921,6 +5922,11 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/merged.py"
     ],
+    "tools/tilekit/retexture.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
     "tools/tilekit/review.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/client.py",
@@ -6097,6 +6103,10 @@
       "tools/tilekit/__init__.py",
       "tools/tilekit/repair.py"
     ],
+    "tools/tilekit/test_retexture.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/retexture.py"
+    ],
     "tools/tilekit/test_review.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/review.py"
@@ -6199,6 +6209,7 @@
       "srn_placeable",
       "srn_t_common",
       "srn_t_dgt04",
+      "srn_t_fcx01",
       "srn_t_udp1"
     ],
     "tools/headbatch/publish_library.py": [
@@ -6425,6 +6436,7 @@
       "srn_placeable",
       "srn_t_common",
       "srn_t_dgt04",
+      "srn_t_fcx01",
       "srn_t_srx01",
       "srn_t_udp1"
     ],
@@ -6498,6 +6510,10 @@
     ],
     "tools/tilekit/test_repair.py": [
       "srn_2da"
+    ],
+    "tools/tilekit/test_retexture.py": [
+      "srn_t_common",
+      "srn_t_fcx01"
     ],
     "tools/tilekit/test_review.py": [
       "srn_2da"
@@ -6856,6 +6872,7 @@
     "tools/tilekit/test_redraw.py",
     "tools/tilekit/test_remesh.py",
     "tools/tilekit/test_repair.py",
+    "tools/tilekit/test_retexture.py",
     "tools/tilekit/test_review.py",
     "tools/tilekit/test_shadows.py",
     "tools/tilekit/test_sketch.py",

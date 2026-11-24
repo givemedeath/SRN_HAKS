@@ -1,0 +1,13 @@
+{
+ "tileset": "fcx01",
+ "note": "The arcology's own copies of textures other tilesets keep as they were, and the meshes whose own colours tinted a redrawn texture (user, 2026-11-24): the starship interior keeps the slab floor d_ground03; window1 and pub are drawn by the suburb and the city too; the monument was red and the sign yellow by their meshes' colours.",
+ "copies": {
+  "d_ground03": "fcx_ground03",
+  "window1": "fcx_window1",
+  "pub": "fcx_pub"
+ },
+ "white": [
+  "bespin_monument2",
+  "kuhmu"
+ ]
+}

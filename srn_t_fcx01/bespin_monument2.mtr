@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 bespinmonum2
+texture1 bespinmonum2_n
+texture2 bespinmonum2_s
+texture3 bespinmonum2_r
+texture4 null
+texture5 bespinmonum2_i

@@ -597,7 +597,55 @@ The same process on fcx01:
 
 The four textures it shares with dgt04 keep dgt04's look.
 
+**Started (2026-11-24), nothing applied yet:**
+- **Pilot:** `docs/tilesets/fcx01/materials.json` (16 textures, about 80% of the surface, as a review overlay) and the
+  pilot block `docs/tilesets/fcx01/pilot.json`: the pale plaza and the dark one with their towers on either side of the
+  void. The user asked for the dark plaza lighter (its grade's gain 0.7 to 1.05).
+- **Shared with the starship interior (user, 2026-11-24): restyled in place.** About 22 of the set's textures are in
+  `srn_t_common` and are drawn by `shp02` too; they take the arcology's look there as well, with no copies under new
+  names. The pilot block's `shared` part lays the `shp02` tiles that draw them; its grid views stand inside roofs, so
+  the interior was viewed tile by tile from close above instead (14 tiles, before and restyled).
+- **One exception: the slab floor `d_ground03` (user, 2026-11-24).** Restyled, the starship's warm beige floor beside
+  its sand walls turned blue-grey. The arcology draws its own copy, `fcx_ground03` (86 tiles,
+  `docs/tilesets/fcx01/retexture-ground.json`), and the starship keeps the floor it had. The other shared textures
+  barely change the interior (pale trims and pillars take a light concrete grain).
+- **Lamps:** the set's lamps are main lights already (196 tiles). 45 tiles carry their lamps under another tile's name
+  (`tme01_z01_01ml1`, `fcx01_v01_01ml1`), where the game never switches them on: `tilekit lamps` now gives such a lamp
+  its tile's own name (`lamps.named`). No tile has a day or night animation; the glowing meshes are lit at every hour.
+- **Own copies and tints: `tilekit retexture`** (`docs/tilesets/fcx01/retexture.json`). The arcology's tiles draw
+  their own copies of three textures other tilesets keep (`fcx_ground03`, `fcx_window1`, `fcx_pub`; 115 tiles), and
+  the monument's and the sign's meshes take white colours: the models tinted them red and yellow whatever was drawn.
+  The walkmesh is never touched.
+- **The dark plaza's towers stay dark graphite (user, 2026-11-24):** the redrawn dark wall turned them from pale
+  steel with rust streaks to dark graphite, seen on the second block (`docs/tilesets/fcx01/pilot2.json`).
+- **Materials:** 46 textures in `docs/tilesets/fcx01/materials.json`; the window pane is frameless cyan-blue glass.
+- **Redraws** (`docs/tilesets/fcx01/redraw.json`, local Qwen): 16 textures so far, among them the control console,
+  the monument, the lit window block, the tower's lit windows, the skylight, the dark wall and the blue window pane.
+  The sign strip (`kuhmu`) still shows as broken blocks in game and the advertising panel's caption is garbled: both
+  are left for the adoption of their tiles.
+
 **Join re-check:** the Concrete↔Cobble joins and junctions, as in release B.
+
+**Applied (user passed the look, 2026-11-24):**
+- **Adoption:** `compile --adopt srn_t_fcx01` took all 243 tiles with no refusal; no `unique` pass was needed.
+- **Apply:** the model changes were made again from the adopted sources (`lamps`: 45 tiles, `retexture`: 115) and
+  applied with the 46 textures: 373 files put, 134 tiles recompiled, 44 old pictures removed.
+- **Checks:** `compile --check`, `merge --check` and `joins --check` clean; the repository test passes and the packs
+  are rebuilt. Seen from the built packs: the pilot block by day and at night with lamps on, the starship interior
+  (its slab floor as before), and the unified set's joins, where the new plaza paving meets the city's concrete at
+  the kerb with no change to `joins.py`. Eight join tiles (`srx01_jp*`) were recompiled for the paving's new
+  material; their sources are as they were.
+- **Also restyled (found in review, 2026-11-24):** five placeables and one door draw textures restyled in place.
+  The Snow Speeder (`plc_ghtroc`: `cable`, `gris3`, `imp_modules_id3`), the four VoS counters (`vos_gundisplay5`
+  to `8`: `imp_modules_id3`) and the door `fci_door_01` (`lsf_grate01`). Seen in game from the built packs; they
+  keep the new look (user, 2026-11-24).
+- **Left as they are:** the sign strip (broken blocks in game), the advertising panel's garbled caption, the dim
+  marker lamp strip; the windows are lit at every hour (no day and night animations).
+- **Toolset (2026-11-24, by computer use on the built packs, `envkit toolset --tileset fcx01`):** the area opens on
+  the restyled paving; Dark City painted from the Terrain palette lays the void and its cyan rim glass around it;
+  the Control Tower group places and draws with the new materials. The saved area holds the 3x3 tower
+  (`fcx01_d01_01` to `_09`), 20 void edge tiles and the plain plaza, with nothing missing or black. The palette shows
+  the groups' display names. Not tried: every group, doors, tile light settings.
 
 ### 7. Cohesion
 
