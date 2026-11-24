@@ -309,6 +309,21 @@ udp1's textures are in `srn_t_udp1`, `srn_t_common`, `srn_door` and `srn_placeab
 - **Seen, not yet addressed:** house windows are lit by day (the lit window texture is the only one the houses
   have); the grass is dark by day, though lighter than dgt04's own; siding changes little at play distance.
 
+## Release B pilot fixes: windows, lawn, shadow wedges (user, 2026-11-23)
+
+- **Lit windows by day.** The suburb tiles drew their lit panes at every hour (their own unlit panes are parked some
+  20 m off the tile). `tilekit daylight --tileset udp1 --shared srx01 --spec docs/tilesets/udp1/daylight.json`
+  writes day and night animations: lit panes and lamp lenses clear by day, full by night, and a plain-glass day
+  pane for each lit window. 111 models, 690 lit meshes, 456 day panes. An animation must name each faded node's
+  whole line of parents: without them the client fell over as the area loaded. Two strip mall tiles
+  (`udp1_b12_04`, `udp1_b13_09`) are refused (their lit mesh shares its name) and still to do by hand.
+- **Lawn.** Grade `lawn` raised (gain 0.85 to 1.2, saturation 0.7 to 0.8).
+- **Triangles on the grass from a distance** are the game's shadow wedges from open one-plane meshes, as on dgt04.
+  `tilekit shadows --tileset udp1 --shared srx01` quiets them (479 models, 6,706 trims); seen gone in the pilot block.
+- `--shared`: a merged set draws every suburb tile too, so `daylight` and `shadows` skipped them all until the
+  merged set could be named as taking the change along. `lamps` still needs the same.
+- All of this is in review overlays only (`output/tilekit/b-shadow-overlay`); nothing is applied to the packs yet.
+
 ## City ground made concrete (user, 2026-11-23)
 
 Seen on the release B pilot: the Concrete terrain's ground was an asphalt scan (Road012A), as dark as the roads.
