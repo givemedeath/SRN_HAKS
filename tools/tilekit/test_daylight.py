@@ -176,13 +176,18 @@ class Daylight(unittest.TestCase):
             for (kind, lit_pane, body), (_, pane, _) in zip(nodes, nodes[1:]):
                 if daylight.PANE.match(pane) and not daylight.PANE.match(lit_pane):
                     for part in re.split(r'(?mi)^[ \t]*newanim[ \t]+', text)[1:]:
-                        keyed = {one.split()[0].lower(): re.findall(r'(?mi)^[ \t]*positionkey[^\n]*\n([^\n]*)', block) for _, one, block in daylight.NODE.findall(part)}
+                        keyed = {one.split()[0].lower(): re.findall(r'(?mi)^[ \t]*positionkey[^\n]*\n([^\n]*)|^[ \t]*position[ \t]+([^\r\n]*)', block)  # keyed, or a plain place
+                                 for _, one, block in daylight.NODE.findall(part)}
                         if keyed.get(lit_pane.split()[0].lower()) != keyed.get(pane.lower()):
                             behind.append((name, pane, part.split()[0]))
         self.assertEqual(behind, [])
         from tools.tilekit import inventory as sets
+        spec = json.loads((REPO / 'docs' / 'tilesets' / 'dgt04' / 'daylight.json').read_text(encoding='utf-8')); lit = daylight.switches(spec)
+        self.assertEqual(sorted(name for name in spec['switched'] if name not in held), [])  # the signs a loop raises, lit at every hour
+        with tempfile.TemporaryDirectory() as temporary:
+            signs = [(name, text) for name, file, text, others, source in inventory.drawn_copies(REPO, 'dgt04', Path(temporary), lamps.PACKS) if daylight.lit_nodes(text, lit)]
         for tileset in ('dgt04', 'srx01'):  # and the lights are on unless turned off, as the suburb's
-            models = {name: text for name, text in read}
+            models = {name: text for name, text in signs}
             off = [keys['Model'] for section, keys in sets.sections((REPO / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252'))
                    for loop in daylight.LOOPS  # the shops switch their shop window by the second loop
                    if re.fullmatch(r'TILE\d+', section) and keys.get(f'AnimLoop{loop}') != '1' and daylight.switched(models.get(keys['Model'].lower(), ''), lit, f'animloop0{loop}')]

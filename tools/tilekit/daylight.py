@@ -6,7 +6,8 @@ texture has a day texture in the list gets a day pane: a copy that draws it with
 by night (the tiles' own unlit panes are parked some 20 m off; none is in place under a lit one). Compiled models and models another tileset uses (but a merged set named as sharing them) are left as they are; a copy already in the folder is
 the one changed.
 
-The list (`docs/tilesets/<set>/daylight.json`): {"lit": {lit texture: its day texture, or null for none}}."""
+The list (`docs/tilesets/<set>/daylight.json`): {"lit": {lit texture: its day texture, or null for none}, "switched":
+[textures of signs a tile loop raises, lit at every hour: `lights_on` turns their loops on too]}."""
 import re
 from pathlib import Path
 
@@ -174,6 +175,13 @@ def _switched(text, textures, loop):
     return told
 
 
+def switches(spec):
+    """The textures of a list whose lit meshes a tile loop may raise: its lit panes and its `switched` signs. A sign
+    is lit at every hour, but only where its loop is on: the motel and cheque signs of the Modern Exterior rest parked
+    under the tile (2026-11-24). The loops of a traffic light or a beacon are the builder's, and are not listed."""
+    return {**spec['lit'], **dict.fromkeys(spec.get('switched', ()))}
+
+
 def lights_on(repo, tileset, lit, pack=None):
     """Turn each of AnimLoop1 to 3 on in a tileset's set file for every tile whose model's lit meshes are switched by
     it, and tell the models turned on. The standard (user, 2026-11-24): the hour drives the lights, through the day and
@@ -205,15 +213,18 @@ def lights_on(repo, tileset, lit, pack=None):
 def write(repo, tileset, folder, lit, shared=(), again=False):
     """Write the models of a tileset that have lit meshes, with their day and night, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {'models': {model: lit meshes}, 'panes': day panes
-    made, 'refused': {model: why}, 'done': how many had their day and night already (a second run, or the pack's own)}.
+    made, 'refused': {model: why}, 'done': how many had their day and night already (a second run, or the pack's own),
+    'parked': {model: its lit meshes no loop raises where a loop raises others (`never`)}}.
     again: a model that has its day and night is made anew from the list, and written where that changes it (a lit
     texture given a day texture since: the windows of eleven suburb tiles were blank by day, 2026-11-24). shared: the tilesets that draw these tiles too and take the change with them (a merged
     set); a model any other tileset draws is left."""
-    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}, 'done': 0}
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}, 'done': 0, 'parked': {}}
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):
         if set(others) - {one.lower() for one in shared}:  # another tileset draws it too
             continue
+        if never(text, lit):
+            told['parked'][name] = never(text, lit)
         if lit_nodes(text, lit) and {one.lower() for one in re.findall(r'(?mi)^[ \t]*newanim[ \t]+(\S+)', text)} >= set(ANIMS):
             told['done'] += 1
             if not again:

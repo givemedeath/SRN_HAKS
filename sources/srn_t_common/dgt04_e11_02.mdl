@@ -341,6 +341,39 @@ node trimesh e11_02_winlrg02.001
      0.999  0.999  0
      0.999  0.000  0
 endnode
+node trimesh day00_0
+  parent dgt04_e11_02a
+  position  4.90001  0.00653 -3.00000
+  orientation  1.00000  0.00000  0.00000  0.00000
+  wirecolor  0.03  0.03  0.53
+  ambient  1.00  1.00  1.00
+  diffuse  0.80  0.80  0.80
+  specular  0.00  0.00  0.00
+  bitmap window_store003
+  alpha 1.0
+  shininess 11
+  selfillumcolor  0 0 0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  transparencyhint 0
+  rotatetexture 0
+  tilefade 0
+  verts 4
+     0.00000 -4.14496 -1.23043
+     0.00000  4.14496 -1.23043
+     0.00000 -4.14496  1.23043
+     0.00000  4.14496  1.23043
+  faces 2
+    2 0 3  0  0 1 2   0
+    3 0 1  0  2 1 3   0
+  tverts 4
+     0.000  1.000  0
+     0.000  0.000  0
+     0.999  0.999  0
+     0.999  0.000  0
+endnode
 node trimesh window_lit.007
   parent dgt04_e11_02a
   position  2.50500 -2.50500 -7.00000
@@ -393,7 +426,7 @@ node trimesh window_lit.007
      0.000  0.000  0
      0.999  0.000  0
 endnode
-node trimesh day00_0
+node trimesh day01_0
   parent dgt04_e11_02a
   position  2.50500 -2.50500 -7.00000
   orientation  1.00000  0.00000  0.00000  0.00000
@@ -30120,13 +30153,19 @@ newanim tiledefault dgt04_e11_02
       0.00000  4.90000  0.00653 -3.00000
       0.03333  4.90000  0.00653 -3.00000
   endnode
+  node trimesh day00_0
+    parent dgt04_e11_02a
+    positionkey 2
+      0.00000  4.90000  0.00653 -3.00000
+      0.03333  4.90000  0.00653 -3.00000
+  endnode
   node trimesh window_lit.007
     parent dgt04_e11_02a
     positionkey 2
       0.00000  2.50500 -2.50500 -7.00000
       0.03333  2.50500 -2.50500 -7.00000
   endnode
-  node trimesh day00_0
+  node trimesh day01_0
     parent dgt04_e11_02a
     positionkey 2
       0.00000  2.50500 -2.50500 -7.00000
@@ -30261,13 +30300,16 @@ newanim animloop01 dgt04_e11_02
   node trimesh e11_02_winlrg02.001
     parent dgt04_e11_02a
   endnode
+  node trimesh day00_0
+    parent dgt04_e11_02a
+  endnode
   node trimesh window_lit.007
     parent dgt04_e11_02a
     positionkey 2
       0.00000  2.50500 -2.50500  12.00000
       0.03333  2.50500 -2.50500  12.00000
   endnode
-  node trimesh day00_0
+  node trimesh day01_0
     parent dgt04_e11_02a
     positionkey 2
       0.00000  2.50500 -2.50500  12.00000
@@ -30408,10 +30450,16 @@ newanim animloop02 dgt04_e11_02
       0.00000  4.90000  0.00653  2.07546
       0.03333  4.90000  0.00653  2.07546
   endnode
+  node trimesh day00_0
+    parent dgt04_e11_02a
+    positionkey 2
+      0.00000  4.90000  0.00653  2.07546
+      0.03333  4.90000  0.00653  2.07546
+  endnode
   node trimesh window_lit.007
     parent dgt04_e11_02a
   endnode
-  node trimesh day00_0
+  node trimesh day01_0
     parent dgt04_e11_02a
   endnode
   node trimesh window_unlit.001
@@ -30525,7 +30573,7 @@ newanim day dgt04_e11_02
   node dummy dgt04_e11_02a
     parent dgt04_e11_02
   endnode
-  node trimesh window_lit.007
+  node trimesh e11_02_winlrg02.001
     parent dgt04_e11_02a
     alphakey 2
       0.00000 0
@@ -30533,6 +30581,20 @@ newanim day dgt04_e11_02
     endlist
   endnode
   node trimesh day00_0
+    parent dgt04_e11_02a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh window_lit.007
+    parent dgt04_e11_02a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day01_0
     parent dgt04_e11_02a
     alphakey 2
       0.00000 1
@@ -30550,7 +30612,7 @@ newanim day2night dgt04_e11_02
   node dummy dgt04_e11_02a
     parent dgt04_e11_02
   endnode
-  node trimesh window_lit.007
+  node trimesh e11_02_winlrg02.001
     parent dgt04_e11_02a
     alphakey 2
       0.00000 0
@@ -30558,6 +30620,20 @@ newanim day2night dgt04_e11_02
     endlist
   endnode
   node trimesh day00_0
+    parent dgt04_e11_02a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh window_lit.007
+    parent dgt04_e11_02a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day01_0
     parent dgt04_e11_02a
     alphakey 2
       0.00000 1
@@ -30575,7 +30651,7 @@ newanim night dgt04_e11_02
   node dummy dgt04_e11_02a
     parent dgt04_e11_02
   endnode
-  node trimesh window_lit.007
+  node trimesh e11_02_winlrg02.001
     parent dgt04_e11_02a
     alphakey 2
       0.00000 1
@@ -30583,6 +30659,20 @@ newanim night dgt04_e11_02
     endlist
   endnode
   node trimesh day00_0
+    parent dgt04_e11_02a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh window_lit.007
+    parent dgt04_e11_02a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day01_0
     parent dgt04_e11_02a
     alphakey 2
       0.00000 0
@@ -30600,7 +30690,7 @@ newanim night2day dgt04_e11_02
   node dummy dgt04_e11_02a
     parent dgt04_e11_02
   endnode
-  node trimesh window_lit.007
+  node trimesh e11_02_winlrg02.001
     parent dgt04_e11_02a
     alphakey 2
       0.00000 1
@@ -30608,6 +30698,20 @@ newanim night2day dgt04_e11_02
     endlist
   endnode
   node trimesh day00_0
+    parent dgt04_e11_02a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh window_lit.007
+    parent dgt04_e11_02a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day01_0
     parent dgt04_e11_02a
     alphakey 2
       0.00000 0

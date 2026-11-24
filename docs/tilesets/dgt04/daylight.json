@@ -1,7 +1,8 @@
 {
  "schemaVersion": 1,
  "kind": "tilekit-daylight",
- "note": "Lit window textures and the day texture each lit pane shows by day. Left lit at every hour: the signs (checks, motel2, hosp_wings, hosp_emergency), the crossing signal (walk) and the shop window (window_store003, which has no day picture).",
+ "note": "Lit window textures and the day texture each lit pane shows by day. Left lit at every hour: the signs (checks, motel2, hosp_wings, hosp_emergency) and the crossing signal (walk). `switched` names the signs a tile loop raises from under the tile: lights-on turns their loops on, and they are not faded. The shop window window_store003 draws one texture lit and unlit, so it is its own day texture.",
+ "switched": ["checks", "motel2"],
  "lit": {
   "win001_unbrknn": "win001_unbrknd",
   "win002_unbrknn": "win_unbrkn_002a",
@@ -21,6 +22,7 @@
   "build_01_g": "build_01",
   "win_pawn_g": "win_pawn",
   "pharmwin1_g": "pharmwin1",
-  "win2_g": "win2"
+  "win2_g": "win2",
+  "window_store003": "window_store003"
  }
 }

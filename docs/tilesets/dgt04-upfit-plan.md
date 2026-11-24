@@ -422,3 +422,13 @@ a listed lit pane (five tiles here), and the merged set was rebuilt. No model ch
 built packs, each tile stood alone and looked at from the west: the pawn window, both shop windows and the pharmacy
 sign lit at night and unlit by day, an upper window of `e09_21` lit. A test holds every loop of both sets to it, and
 tells a lit pane left parked where a loop raises the others of its tile.
+
+**Signs on a switch, and the store window (review of PR 194, 2026-11-24).** The signs said to be lit at every hour
+were lit only where a builder turned their loop on: the cheque sign of `dgt04_e09_06` and the motel signs of
+`e09_13` and `e09_19` rest parked under the tile, and so did the store window (`window_store003`) of `e11_02`,
+`e11_03` and `e11_04`. The list now names the sign textures as `switched`, and `--lights-on` turns their loops on
+(six tiles). The store window draws one texture lit and unlit, so it is listed as its own day texture and follows
+the hour; three models remade and compiled. Seen in the client from the overlay: store window, pawn window and
+signs lit at night. The suburb's traffic lights and beacons also ride on loops two and three; those are states a
+builder chooses, and are left off. `tilekit daylight` now tells the lit panes no loop raises (`parked`): none in
+either set.

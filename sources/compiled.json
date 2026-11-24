@@ -948,23 +948,23 @@
    "compiled": "2026-11-24"
   },
   "srn_t_common/dgt04_e11_02.mdl": {
-   "source": "1aba8498a536f638cba841b75ab4cdc332ff8eaf0ff784eb32776d2fe9328927",
-   "binary": "3179e4784930eecb3b29c2334522af350b0b8d7920a967207e3443f598dc3505",
-   "bytes": 732704,
+   "source": "664b98f83f82de2efc969ac67979da67ac4b3fd94b28c50a005d1296b6d0558e",
+   "binary": "b5e5a489f7de3302b6340894b655056c64570f55976994ee3ff6ae89cbf9c4a7",
+   "bytes": 739400,
    "audit": "round trip",
    "compiled": "2026-11-24"
   },
   "srn_t_common/dgt04_e11_03.mdl": {
-   "source": "3d210a5f0bbafbaf46985b1a35f1d05c42c7b92822a9542b1a0b689201111563",
-   "binary": "089b54b400cf360e0a85955cf3e9bce0ac830efa4847424fab386118784c4786",
-   "bytes": 389938,
+   "source": "86dcc3b53a1d5fa7bfc91913f2008a1ed6bccfb527ba339cf3964f68dfe251d6",
+   "binary": "87d49eeffc820c7611c7a5c6ec77d67ab96d4b11d04dc4c5f27e3f4de3d3110d",
+   "bytes": 396634,
    "audit": "round trip",
    "compiled": "2026-11-24"
   },
   "srn_t_common/dgt04_e11_04.mdl": {
-   "source": "a356ff8d2cbbec7fe53c4f1c40e3dc8eab969813927306f52c8eaf804008e221",
-   "binary": "87bee60a439924853b9ff8c26e02cf207f6e07931b6634c44da7ebb1deced803",
-   "bytes": 888462,
+   "source": "7d9d30fb881c5efe53fcedb5ce43854bfe16a9a84a5b6d49fa5f8099c284d696",
+   "binary": "a634cbb8bdeb6e387b793a2c8ce3c24c83ebb68cfba63479d79be486057b5893",
+   "bytes": 895158,
    "audit": "round trip",
    "compiled": "2026-11-24"
   },
