@@ -1,0 +1,174 @@
+{
+ "tileset": "fcx01",
+ "haks": [
+  "srn_t_fcx01",
+  "srn_t_dgt04",
+  "srn_t_shp02",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 24,
+  "height": 14,
+  "lights": [
+   "day",
+   "night"
+  ],
+  "patches": [
+   {
+    "terrain": "holes",
+    "at": [
+     12,
+     1
+    ],
+    "size": [
+     11,
+     12
+    ]
+   },
+   {
+    "terrain": "Cobble2",
+    "over": true,
+    "at": [
+     14,
+     3
+    ],
+    "size": [
+     7,
+     8
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "Tower05",
+    "at": [
+     1,
+     1
+    ]
+   },
+   {
+    "name": "Tower03",
+    "at": [
+     5,
+     1
+    ]
+   },
+   {
+    "name": "Tower01",
+    "at": [
+     9,
+     1
+    ]
+   },
+   {
+    "name": "b_fountain",
+    "at": [
+     9,
+     3
+    ]
+   },
+   {
+    "name": "b_arbre2",
+    "at": [
+     5,
+     5
+    ]
+   },
+   {
+    "name": "b_herbe",
+    "at": [
+     7,
+     5
+    ]
+   },
+   {
+    "name": "b_water",
+    "at": [
+     9,
+     5
+    ]
+   },
+   {
+    "name": "b_escalier",
+    "at": [
+     1,
+     7
+    ]
+   },
+   {
+    "name": "b_trans",
+    "at": [
+     5,
+     7
+    ]
+   },
+   {
+    "name": "Tower06",
+    "at": [
+     14,
+     3
+    ]
+   },
+   {
+    "name": "d_temple",
+    "at": [
+     14,
+     7
+    ]
+   },
+   {
+    "name": "d_house01",
+    "at": [
+     18,
+     7
+    ]
+   },
+   {
+    "name": "d_herbe",
+    "at": [
+     19,
+     3
+    ]
+   },
+   {
+    "name": "d_eau",
+    "at": [
+     19,
+     5
+    ]
+   }
+  ],
+  "crossings": [
+   [
+    4,
+    6
+   ],
+   [
+    8,
+    6
+   ],
+   [
+    18,
+    6
+   ]
+  ],
+  "near": {
+   "distance": 18.0,
+   "pitch": 74.0
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 2,
+    "source": 0,
+    "lights": [
+     "night"
+    ]
+   }
+  ]
+ },
+ "note": "Release C second block: the towers, gardens, water and temple the pilot block lacks, for the remaining textures."
+}

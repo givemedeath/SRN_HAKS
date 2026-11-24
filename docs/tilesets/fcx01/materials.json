@@ -8,7 +8,7 @@
   "srn_door",
   "srn_placeable"
  ],
- "note": "Left as they are: glass, lab_win1, dgt04_chrome and the arcology_* textures (dgt04's look), and floor01, which five other tilesets draw. The arcology's own copies (fcx_ground03, fcx_window1, fcx_pub) stand in for textures other tilesets keep: docs/tilesets/fcx01/retexture.json points its tiles at them.",
+ "note": "Left as they are: glass, lab_win1, dgt04_chrome and the arcology_* textures (dgt04's look), and floor01, which five other tilesets draw. The arcology's own copies (fcx_ground03, fcx_window1, fcx_pub) stand in for textures other tilesets keep: docs/tilesets/fcx01/retexture.json points its tiles at them. Also left: noir (plain black), mc_ring (a 64-pixel trim colour) and seven base-game textures the repository holds no copy of (tcn01_watrstn02, ttr01_splotch01, mmc01_black, tcn01_marbl01, tcn01_marbl05, ttr01_leaf01, tcn01_stone20; 0.3% of the surface together).",
  "grades": {
   "arcology": {
    "saturation": 0.25,
@@ -58,6 +58,16 @@
     0.85,
     1.0,
     1.1
+   ]
+  },
+  "garden": {
+   "saturation": 0.9,
+   "contrast": 1.05,
+   "gain": 1.0,
+   "tint": [
+    0.97,
+    1.0,
+    0.97
    ]
   }
  },
@@ -415,6 +425,182 @@
     512,
     512
    ]
+  },
+  "bb3_top": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "arcology"
+  },
+  "bb4top2": {
+   "route": "upscale",
+   "size": [
+    512,
+    256
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "arcology"
+  },
+  "imp_modules_id3": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "steel",
+   "size": [
+    512,
+    512
+   ],
+   "grain": 2.0,
+   "stem": "impmodulesid3"
+  },
+  "balcon": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "steel",
+   "size": [
+    512,
+    512
+   ],
+   "grain": 2.0
+  },
+  "lsf_grate01": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "steel",
+   "crisp": 3
+  },
+  "cable": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "steel"
+  },
+  "d_ground04": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "arcology_dark",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "ctown_build11": {
+   "route": "layout",
+   "master": "Concrete046",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "arcology",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "ctown_build_id12": {
+   "route": "layout",
+   "master": "Concrete046",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "arcology",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "ctownbuildid12"
+  },
+  "ctown_build7": {
+   "route": "layout",
+   "master": "Concrete046",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "arcology",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "rebord1": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "arcology",
+   "size": [
+    256,
+    256
+   ]
+  },
+  "rebord2": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "arcology",
+   "size": [
+    256,
+    256
+   ]
+  },
+  "rebord3": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "arcology",
+   "size": [
+    256,
+    256
+   ]
+  },
+  "mmc01_treefol02": {
+   "route": "upscale",
+   "size": [
+    256,
+    256
+   ],
+   "relief": 0.5,
+   "roughness": 0.8,
+   "grade": "garden",
+   "crisp": 3,
+   "stem": "mmc01treefol02"
+  },
+  "mmc01_bark02": {
+   "route": "upscale",
+   "size": [
+    256,
+    256
+   ],
+   "relief": 1.0,
+   "roughness": 0.8,
+   "grade": "garden"
+  },
+  "mmc01_dir01t": {
+   "route": "upscale",
+   "size": [
+    256,
+    256
+   ],
+   "relief": 1.0,
+   "roughness": 0.8,
+   "grade": "garden"
   }
  }
 }
