@@ -52,6 +52,7 @@ class FamilyReviewTest(unittest.TestCase):
         self.assertEqual([shot['label'] for shot in shots], ['day-0tower-s', 'day-0tower-up', 'day-1tower-s', 'day-1tower-up'])
         self.assertEqual(areas[0]['laid'][4, 4], (3, 0)); self.assertEqual(review.disagreements(areas[0]['width'], [areas[0]['laid'][column, row] for row in range(areas[0]['height'])
                          for column in range(areas[0]['width'])], family_review.Set(self.repo, 'x', None, None, '.').tiles), [])
+        self.assertEqual(len(self.plan({'kind': 'towers', 'name': 'tow', 'terrains': ['Tower', 'Tower', 'Tower']}, most=None)[1]), 30)  # the default values make a layout
         with self.assertRaisesRegex(ValueError, 'outside'):
             self.plan({'kind': 'towers', 'name': 'tow', 'terrains': ['Tower'], 'size': 2, 'room': 1, 'views': [{'kind': 'far'}]})
 
@@ -131,13 +132,18 @@ class FamilyReviewTest(unittest.TestCase):
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'every': 0}]}, 'at least 1'),
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'lights': ['overcast']}]}, 'not laid in'),
                             ({'kind': 'tiles', 'name': 'a', 'models': ['x_full', 'x_full']}, 'Two views'),
-                            ({'kind': 'towers', 'name': 'a', 'terrains': []}, 'no terrain'), ({'kind': 'tiles', 'name': 'a', 'models': ['x_full'], 'glass': ['none'], 'views': [{'kind': 'facade'}, {'kind': 'glass'}]}, 'no tile has a view glass'), ({'kind': 'towers', 'name': 'a', 'terrains': ['Tower'], 'across': 0}, 'at least 1'),
+                            ({'kind': 'towers', 'name': 'a', 'terrains': []}, 'no terrain'),
+                            ({'kind': 'tiles', 'name': 'a', 'models': ['x_full'], 'light': ['day']}, 'has no light'), ({'kind': 'tiles', 'name': 'a', 'models': ['x_full'], 'views': [{'kind': 'facade', 'light': 'day'}]}, 'has no light'),
+                            ({'kind': 'tiles', 'name': 'a', 'models': ['x_full'], 'views': ['facade']}, 'objects'), ({'kind': 'block', 'name': 'a', 'width': 8, 'height': 8, 'patches': [], 'crossings': [], 'views': [{'kind': 'x'}]}, 'are names'),
+                            ({'kind': 'street', 'name': 'a', 'terrains': ['Ground'], 'close': [{'piece': 'x', 'light': 'day', 'at': 1}]}, 'has no at'), ({'kind': 'tiles', 'name': 'a', 'models': ['x_full'], 'glass': ['none'], 'views': [{'kind': 'facade'}, {'kind': 'glass'}]}, 'no tile has a view glass'), ({'kind': 'towers', 'name': 'a', 'terrains': ['Tower'], 'across': 0}, 'at least 1'),
                             ({'kind': 'tiles', 'name': '\u00e9', 'terrains': ['Tower']}, 'lowercase'),
                             ({'kind': 'street', 'name': 'a', 'terrains': ['Ground'], 'close': [{'piece': 'x', 'light': 'dusk'}]}, 'lit by')):
             with self.assertRaisesRegex(ValueError, why):
                 self.plan(layout)
         with self.assertRaisesRegex(ValueError, 'srn_t_x'):
             family_review.haks({'tileset': 'x'})
+        with self.assertRaisesRegex(ValueError, 'has no hak'):
+            family_review.plan(self.repo, {'tileset': 'x', 'hak': [], 'layouts': [{'kind': 'tiles', 'name': 'a', 'models': ['x_full']}]})
 
     def test_a_run(self):
         layout = {'kind': 'tiles', 'name': 'fam', 'models': ['x_full']}; spec = {'tileset': 'x', 'haks': ['srn_t_x', 'srn_door'], 'layouts': [layout]}; done = {'captures': ['a', 'b'], 'late': [], 'elsewhere': []}
@@ -154,6 +160,8 @@ class FamilyReviewTest(unittest.TestCase):
         for command in (commands.propose_command, commands.openings_command, commands.rank_command):
             with self.assertRaisesRegex(ValueError, 'does not exist'):
                 command(SimpleNamespace(out=self.repo / 'none' / 'a.json'))
+            with self.assertRaisesRegex(ValueError, 'is a folder'):
+                command(SimpleNamespace(out=self.repo))
 
     def test_every_run_states_the_client_settings(self):
         text = client_settings.settings()

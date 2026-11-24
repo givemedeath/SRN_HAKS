@@ -3,7 +3,6 @@ builder paints it; here a spec names the tiles and the views, so a run stays a h
 {tileset, fill, haks, layouts: [{kind, name, lights, ...}]}
 
 Each layout is an area for each of its `lights` (default: day and night), `name` (letters, unique) naming its areas:
-Views of one name in two layouts are told apart by the later layout's name at the end.
 - `tiles`: tiles apart on plain ground. {models or terrains (patterns), placements (a placement spec, for what is on
   them), space, across, room, glass (material patterns), views: [{kind, lights, every, also, only}]}. View kinds:
   `facade` (the wall with the most windows, or the glass), `wall` (the wall with street pieces), `roof` (from its
@@ -17,7 +16,9 @@ Views of one name in two layouts are told apart by the later layout's name at th
   ground, views: [{kind: side, sides, lights} | {kind: up, lights, back, pitch} | {kind: far, lights}]}.
 - `doors`: door hooks (`openings` wrote them): {hooks (its file), models, clear ([[width, height]] left out), doors:
   {model: row of genericdoors.2da}, opened, turns: {model: degrees}}. Each hook is seen from its walkable side, with
-  its door shut and opened where it has one."""
+  its door shut and opened where it has one.
+
+Views of one name in two layouts are told apart by the later layout's name at the end."""
 import fnmatch
 import json
 import math
@@ -220,7 +221,7 @@ def block(of, layout):
 
 
 def towers(of, layout):
-    terrains, size, apart, room = layout['terrains'], layout.get('size', 4), layout.get('apart', 8), layout.get('room', 3)  # corners a side, corners between, empty tiles round the edge
+    terrains, size, apart, room = layout['terrains'], layout.get('size', 4), layout.get('apart', 8), layout.get('room', 4)  # corners a side, corners between, empty tiles round the edge
     across = min(layout.get('across', 3), len(terrains)); rows = -(-len(terrains) // across); width, height = room * 2 + apart * (across - 1) + size, room * 2 + apart * (rows - 1) + size
     patches = [{'terrain': terrain, 'at': [room + apart * (index % across), room + apart * (index // across)], 'size': [size, size]} for index, terrain in enumerate(terrains)]
     require(max(width, height) <= LARGEST, f'{layout["name"]}: {width} x {height} tiles is more than an area holds ({LARGEST})')
@@ -285,7 +286,20 @@ def doors(of, layout):
     return areas, shots
 
 
+SPEC = {'tileset', 'fill', 'haks', 'layouts'}
+KEYS = {'tiles': {'models', 'terrains', 'placements', 'space', 'across', 'room', 'glass', 'views'}, 'block': {'width', 'height', 'patches', 'runs', 'ground', 'crossings', 'views', 'distance', 'pitch'},
+        'street': {'models', 'terrains', 'placements', 'across', 'down', 'close'}, 'towers': {'terrains', 'size', 'apart', 'room', 'across', 'ground', 'views'},
+        'doors': {'hooks', 'models', 'clear', 'doors', 'opened', 'turns'}}
+VIEW = {'tiles': {'kind', 'lights', 'every', 'also', 'only'}, 'towers': {'kind', 'lights', 'sides', 'back', 'pitch'}}
 KINDS = {'tiles': tiles, 'block': block, 'street': street, 'towers': towers, 'doors': doors}
+
+
+def _known(layout):
+    """A layout and its views have the form and the keys their kind takes."""
+    unknown = sorted(set(layout) - KEYS[layout['kind']] - {'kind', 'name', 'lights'}); views = layout.get('views', ()); takes = VIEW.get(layout['kind'])
+    require(isinstance(views, (list, tuple)) and all(isinstance(view, dict if takes else str) for view in views), f'{layout["name"]}: the views of a {layout["kind"]} layout are ' + ('objects with a kind' if takes else 'names'))
+    unknown += sorted({key for view in views if takes for key in view} - (takes or set())); unknown += sorted({key for close in layout.get('close', ()) for key in close} - {'piece', 'light'})
+    require(not unknown, f'{layout["name"]}: a {layout["kind"]} layout has no ' + ', '.join(unknown))
 
 
 def _numbers(layout):
@@ -300,10 +314,11 @@ def plan(repo, spec, *, overlay=None, base='.', views=None, most=MOST):
     """(areas, shots, views left out) of a family review spec, whose files are named relative to `base`. At most `most`
     views (None: all) are taken, evenly through those asked for; `views`: only those whose label begins so."""
     require(isinstance(spec, dict) and spec.get('tileset') and spec.get('layouts'), 'A family review names its tileset and its layouts')
+    unknown = sorted(set(spec) - SPEC); require(not unknown, 'A family review has no ' + ', '.join(unknown))
     of = Set(repo, spec['tileset'].lower(), overlay, spec.get('fill'), base); areas, shots = [], []
     for layout in spec['layouts']:
         require(layout.get('kind') in KINDS, 'A layout is ' + ', '.join(KINDS)); require(re.fullmatch('[a-z]{1,8}', str(layout.get('name', ''))), 'A layout\'s name is 1 to 8 lowercase letters')
-        _numbers(layout); require(layout.get('terrains', True), f'{layout["name"]} names no terrain')
+        _known(layout); _numbers(layout); require(layout.get('terrains', True), f'{layout["name"]} names no terrain')
         unlit = sorted({*layout.get('lights', LIGHTS), *(light for view in layout.get('views', ()) if isinstance(view, dict) for light in view.get('lights', ())),
                         *(close['light'] for close in layout.get('close', ()))} - set(review.LIGHTS)); require(not unlit, 'A layout is lit by ' + ', '.join(review.LIGHTS))
         for view in layout.get('views', ()):

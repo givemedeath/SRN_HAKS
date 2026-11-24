@@ -66,6 +66,12 @@ class FamilyTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 family._checked({'tileset': 'x', 'families': [{'terrains': ['A'], **wrong}]})
 
+    def test_unknown_keys_are_refused(self):
+        one = SPEC['families'][0]
+        for wrong in ({'taked': []}, {'budget': {'face': 1}}, {'families': [{**one, 'option': {}}]}, {'families': [{**one, 'add': [{'placer': 'propose', 'piece': []}]}]}):
+            with self.assertRaisesRegex(ValueError, 'A family spec has no (taked|face|option|piece)$'):
+                family._checked({**SPEC, **wrong})
+
     def test_terrains_are_the_sets(self):
         family._checked(SPEC, ['slums1', 'Street'])
         for spec in ({**SPEC, 'building': ['Slum?']}, SPEC):

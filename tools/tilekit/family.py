@@ -30,6 +30,8 @@ SKIP = ('ek_*',)
 PLANTS = {'roof': placer.ROOF, 'corporate': placer.CORPORATE_ROOF, None: None}
 OPTIONS = {'propose': {'look', 'grids', 'above', 'plant'}, 'propose_corporate': {'plant', 'ledges', 'watch', 'sign', 'eye', 'beside'}, 'propose_street': set()}
 
+SPEC, FAMILY, STEP = {'tileset', 'families', 'building', 'taken', 'skip', 'budget'}, {'terrains', 'match', 'placer', 'options', 'pieces', 'add'}, {'placer', 'options', 'pieces'}
+
 
 def _is(name, patterns):
     return any(fnmatch.fnmatchcase(name.lower(), pattern.lower()) for pattern in patterns)
@@ -46,6 +48,8 @@ def read(path):
 def _checked(spec, terrains=None):
     """terrains: the set's, which every pattern of the spec is held against (None: not)."""
     require(isinstance(spec, dict) and spec.get('tileset') and spec.get('families'), 'A family spec names its tileset and its families')
+    unknown = sorted({*(set(spec) - SPEC), *(key for one in spec['families'] for key in set(one) - FAMILY), *(key for one in spec['families'] for step in one.get('add', ()) for key in set(step) - STEP),
+                      *(set(spec.get('budget', {})) - set(BUDGET))}); require(not unknown, 'A family spec has no ' + ', '.join(unknown))
     for one in spec['families']:
         require(one.get('terrains') and one.get('match', 'any') in ('any', 'all'), 'A family names its terrains; its match is any or all')
         for step in (one, *one.get('add', ())):

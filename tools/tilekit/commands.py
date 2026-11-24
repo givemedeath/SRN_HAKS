@@ -24,7 +24,7 @@ def _json(path):
 def _out(path):
     """`path`, refused before the work where its folder is not there to be written into."""
     from . import require
-    require(path.parent.is_dir(), f'The folder of {path} does not exist'); return path
+    require(path.parent.is_dir(), f'The folder of {path} does not exist'); require(not path.is_dir(), f'{path} is a folder'); return path
 
 
 def _told(told):
