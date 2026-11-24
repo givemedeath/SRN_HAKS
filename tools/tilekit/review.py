@@ -93,7 +93,7 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
     """{(column, row): (tile number, turn)} for an area of `default` terrain with `patches` of other terrains and `runs`
     of crossers, each cell laid with a tile that agrees with it. patches: [{terrain, at: [column, row], size: [columns,
     rows]}] in corners of the area (a patch of 2 by 2 corners is the smallest building: four corner tiles, four sides and
-    a middle). runs: [{crosser, cells: [[column, row], [column, row]]}] straight from cell to cell, crossing every edge
+    a middle), a later one lying over an earlier only where it says `over`. runs: [{crosser, cells: [[column, row], [column, row]]}] straight from cell to cell, crossing every edge
     between and the area's edge where they reach it. avoid: tile numbers never laid (those of groups, which the Toolset
     lays only as groups). Tiles with a raised corner are not laid. Where several tiles fit, cells take them in turn."""
     corner, edge = {}, {}
@@ -102,7 +102,7 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
         require(low <= x0 and x0 + columns <= width + 1 - low and low <= y0 and y0 + rows <= height + 1 - low, f'{patch["terrain"]} at {x0},{y0} reaches the area\'s edge')
         for x in range(x0, x0 + columns):
             for y in range(y0, y0 + rows):
-                require((x, y) not in corner, f'{patch["terrain"]} at {x0},{y0} lies over another patch')
+                require(patch.get('over') or (x, y) not in corner, f'{patch["terrain"]} at {x0},{y0} lies over another patch')  # `over`: a building on a district's ground
                 corner[(x, y)] = patch['terrain'].lower()  # names in any case, as the game reads them (`_folded`)
     for run in runs:
         (c0, r0), (c1, r1) = run['cells']; require(c0 == c1 or r0 == r1, 'A run of a crosser is straight')
@@ -135,6 +135,27 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
                 missing.append(f'{column},{row} needs corners {"/".join(want[0])}' + (f' with {"/".join(name or "-" for name in want[1])}' if any(want[1]) else ''))
     require(not missing, 'No tile of the set fits: ' + '; '.join(missing[:6]) + (f' and {len(missing) - 6} more' if len(missing) > 6 else ''))
     return laid
+
+
+def stamped(cells, tiles, set_text, groups, width, height):
+    """`cells` (`solve`) with whole groups laid over them: groups [{name, at: [column, row]}], the group's south-west
+    tile at `at`, unturned, as the Toolset lays one. The ground under a group is the spec's to give (a patch of the
+    group's terrain): a group whose tiles disagree with a neighbour is refused, where the Toolset would repaint round it."""
+    from . import inventory
+    shapes = {keys['Name'].lower(): (int(keys['Rows']), int(keys['Columns']), keys) for name, keys in inventory.sections(set_text) if name.startswith('GROUP') and 'Rows' in keys}
+    cells = dict(cells)
+    for group in groups:
+        require(group['name'].lower() in shapes, f'The set has no group {group["name"]}')
+        rows, columns, keys = shapes[group['name'].lower()]; column0, row0 = group['at']
+        require(0 <= column0 and column0 + columns <= width and 0 <= row0 and row0 + rows <= height, f'{group["name"]} at {column0},{row0} leaves the area')
+        for row in range(rows):
+            for column in range(columns):
+                number = int(keys[f'Tile{row * columns + column}'])
+                if number >= 0:
+                    cells[(column0 + column, row0 + row)] = (number, 0)
+    wrong = disagreements(width, [cells[(column, row)] for row in range(height) for column in range(width)], tiles)
+    require(not wrong, 'A group does not fit the ground it is laid on: ' + '; '.join(wrong[:4]) + (f' and {len(wrong) - 4} more' if len(wrong) > 4 else ''))
+    return cells
 
 
 def grid(numbers, fill, across=32):
@@ -376,7 +397,7 @@ def elsewhere(lines):
 
 def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
-    patches, runs, crossings, lights, views (which of a crossing's views are taken, as 'x03y03-ne'; all without it),
+    patches, runs, groups (`stamped`), crossings, lights, views (which of a crossing's views are taken, as 'x03y03-ne'; all without it),
     near: {distance, pitch, views}, lamps: [{name, main, source, lights}] (the block again with
     every tile's own lights on, `area_documents`; views `lamp-<name>-<light>`)}, grid: {across, lights}, area: {step, lights},
     shared: {lights, tilesets: {tileset: {models, fill, lights}}, placeables: {lights, groups: [{name, models, lights, and
@@ -406,6 +427,8 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
         # A view is the label's last two parts (x03y03-ne), however many parts its prefix has (lamp-main-night).
         chosen = lambda made, views: [shot for shot in made if not views or '-'.join(shot['label'].rsplit('-', 2)[-2:]) in views]
         cells = solve(tiles, laid['default'], block['width'], block['height'], block['patches'], block.get('runs', ()), avoid=grouped | envkit)
+        if block.get('groups'):  # whole buildings, as a builder lays them
+            cells = stamped(cells, tiles, set_text, block['groups'], block['width'], block['height'])
         for light in block['lights']:
             tag = 'tkb' + light[0]; add(tag, f'Block, {light}', block['width'], block['height'], cells, light)
             shots += chosen(corner_shots(tag, f'block-{light}', [tuple(cell) for cell in block['crossings']]), block.get('views'))

@@ -269,6 +269,31 @@ Further checks (2026-11-21, on the user's go):
   in a placed door's Generic Appearance list: a door blueprint could not be placed by the palette helper. The names
   are held to the table and the talk table by `test_names.py`.
 
+## Release A results (2026-11-21)
+
+The district review area is `docs/tilesets/srx01/districts.json`: 24×14 tiles, suburb west, city in the middle, arcology
+east, with the joins between them, by day and by night. It lays whole buildings (`groups` in a review block, new) and
+buildings' terrains over a district's ground (a patch's `over`, new). Awaiting the user's look approval.
+
+- **Reflective surfaces.** No change from the source sets. Compared in the client under the same settings:
+  - the arcology void in `fcx01` alone and in `srx01`: the same picture;
+  - a suburb house, the tennis court and the transmission tower in `udp1` alone and in `srx01`: the same picture.
+  - The stage 0 pictures of the void look bluer only because they were taken before the fog rule (fog clip 9999,
+    user 2026-11-21): the haze tinted the void. Nothing needed a TXI.
+- **Frame rate**, dgt04 baseline method (this machine, 1600×900, 200 cap, vsync off, views held 14 s, the 6-second
+  average read 10 s in). Views: suburb, city street, arcology void. Run 1 / run 2.
+
+  | Area | Day | Night |
+  |---|---|---|
+  | Districts, 24×14, three packs | 180 179 179 / 184 181 181 | 184 – 177 / 186 181 181 |
+
+  Every view holds the cap (the test is 175). The night city view of run 1 was captured late and is left out.
+- **Area load**, the load screen's length in window grabs taken every 0.2–0.35 s: night area from the day area
+  1.4–1.8 s in both runs. The dgt04 baseline's 32×32 Slums area took 1.25–2.1 s.
+- **Packs** (built): `srn_t_srx01` 1.2 MB on top of `srn_t_dgt04` 80 MB, `srn_t_udp1` 76 MB, `srn_t_fcx01` 22 MB and
+  `srn_t_common` 841 MB.
+- **Names review:** closed at stage 1 (approved by the user); terrain and crosser names are frozen from here.
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.
