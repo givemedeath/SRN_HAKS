@@ -5995,6 +5995,7 @@
     "tools/tilekit/test_family_review.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/client_settings.py",
+      "tools/tilekit/commands.py",
       "tools/tilekit/family_review.py",
       "tools/tilekit/review.py",
       "tools/tilekit/test_openings.py"

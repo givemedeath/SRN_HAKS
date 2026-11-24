@@ -69,6 +69,17 @@ class FamilyReviewTest(unittest.TestCase):
         areas, shots, _ = self.plan({**layout, 'doors': {'x_side': 1094}})
         self.assertEqual([(one['row'], one['opened']) for one in areas[0]['doors']], [(1094, 0), (1094, 1)]); self.assertEqual([shot['label'][-4:] for shot in shots], ['shut', 'open'])
 
+    def test_doors_at_the_ends_of_a_row_and_wide_ones(self):
+        hook = {'tile': 2, 'model': 'x_side', 'door': 0, 'at': [-4.9, 0.0, 0.0], 'turn': 90.0, 'width': 9.0, 'height': 3.0}
+        (self.repo / 'op.json').write_text(json.dumps({'hooks': [hook, {**hook, 'at': [4.9, 0.0, 0.0], 'turn': -90.0, 'door': 1}]})); layout = {'kind': 'doors', 'name': 'dr', 'hooks': 'op.json'}
+        self.assertEqual(len(self.plan(layout)[1]), 2)
+        with self.assertRaisesRegex(ValueError, 'typo'):
+            self.plan({**layout, 'doors': {'typo': 1}})
+
+    def test_models_only_the_overlay_has(self):
+        overlay = self.repo / 'ov'; overlay.mkdir(); (overlay / 'x.set').write_text(set_text() + tile(4, 'x_new', ['New'] * 4)); (overlay / 'x_new.mdl').write_text(model(WALK))
+        self.assertEqual([shot['label'] for shot in self.plan({'kind': 'tiles', 'name': 'n', 'terrains': ['New'], 'lights': ['day']}, overlay=overlay)[1]], ['day-new-facade'])
+
     def test_views_are_few_unless_asked(self):
         layout = {'kind': 'tiles', 'name': 'fam', 'terrains': ['Ground', 'Tower']}
         self.assertEqual(len(self.plan(layout, most=None)[1]), 8)
@@ -76,6 +87,11 @@ class FamilyReviewTest(unittest.TestCase):
         self.assertEqual([shot['label'] for shot in self.plan(layout, views=['night-full'])[1]], ['night-full-facade'])
 
     def test_wrong_specs_are_refused(self):
+        from types import SimpleNamespace
+        from tools.tilekit import commands
+        for chosen, why in (({'views': ',', 'most': 3}, 'No view'), ({'views': None, 'most': 0}, 'at least one')):
+            with self.assertRaisesRegex(ValueError, why):
+                commands._most(SimpleNamespace(all=False, **chosen))
         for layout, why in (({'kind': 'x', 'name': 'a'}, 'A layout is'), ({'kind': 'tiles', 'name': 'A1'}, 'lowercase'), ({'kind': 'tiles', 'name': 'a', 'terrains': ['none']}, 'No tile'),
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'lights': ['dusk']}, 'lit by')):
             with self.assertRaisesRegex(ValueError, why):

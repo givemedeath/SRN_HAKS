@@ -48,6 +48,10 @@ class FamilyTest(unittest.TestCase):
             (Path(folder) / 'box.mdl').write_text(PIECE)
             with self.assertRaises(detail.Refused) as caught:
                 detail.place(MODEL.format(z=8), 't_a01', [{'piece': 'box', 'at': [0, 0, 8], 'blocks': True}, {'piece': 'box', 'at': [40, 0, 4]}], folder, wok=WOK.format(z=8))
+            (Path(folder) / 'box.mdl').write_bytes(bytes(4))
+            with self.assertRaises(ValueError) as kits:  # the kit's own fault
+                detail.place(MODEL.format(z=8), 't_a01', [{'piece': 'box', 'at': [0, 0, 8], 'blocks': True}], folder, wok=WOK.format(z=8))
+            self.assertNotIsInstance(kits.exception, detail.Refused)
         self.assertEqual(caught.exception.number, 1); self.assertIn('#1 (box)', str(caught.exception))
 
     def test_a_spec_is_checked(self):

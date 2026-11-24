@@ -50,6 +50,8 @@ def openings_command(chosen):
 
 
 def _most(chosen):
+    from . import require
+    require(chosen.views is None or _names(chosen.views), 'No view named in --views'); require(chosen.all or chosen.most > 0, '--most is at least one view')
     return None if chosen.all else chosen.most
 
 
@@ -81,7 +83,7 @@ def shared_command(chosen):
 
 def placements_command(chosen):
     from . import audit
-    told = {path.name: audit.placements(chosen.repo, _json(path), chosen.kit) for path in chosen.spec}; _told(told); return 1 if any(told.values()) else 0
+    told = {path.as_posix(): audit.placements(chosen.repo, _json(path), chosen.kit) for path in chosen.spec}; _told(told); return 1 if any(told.values()) else 0
 
 
 def sketch_command(chosen):

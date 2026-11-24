@@ -20,6 +20,7 @@ from .client_settings import MOST as CAP, settings
 
 ARRIVE, HOLD, SETTLE = 25.0, 14.0, 9.0  # seconds: for an area to load, each view is held, and its counter settles before the capture
 EVERY, POLL, LOOK = 0.1, 0.02, 1.0  # seconds between grabs, between looks at the log, and between looks for the client
+GAP = 8.0  # seconds without a frame that are a pause in the grabbing (a stalled grab is shorter)
 LEAD = 2.0  # seconds before a view ends that grabbing begins
 DARK = 12  # the brightest a load screen's margins are, of 255
 COUNTER = (1340, 0, 1600, 90)  # the counter's corner of a 1600 x 900 capture
@@ -74,23 +75,25 @@ def loading(image):
 
 
 def loads(frames):
-    """[{from, to, seconds}] of the load screens in [(time, is a load screen)], the first (the client starting) left out."""
+    """[{from, to, seconds, ended}] of the load screens in [(time, is a load screen)], the first (the client starting) left
+    out. A stretch ends where grabbing paused (`GAP`); `ended` is false where no frame after it was seen lit: the load
+    took longer than the grabbing, or the view itself is that dark."""
     found, start, last = [], None, None
     for at, dark in sorted(frames):
-        if dark:
-            start = at if start is None else start
-        elif start is not None:
-            found.append((start, last)); start = None
+        if start is not None and (not dark or at - last > GAP):
+            found.append((start, last, at - last <= GAP)); start = None
+        if dark and start is None:
+            start = at
         last = at
     if start is not None:
-        found.append((start, last))
-    return [{'from': begin, 'to': end, 'seconds': round(end - begin, 2)} for begin, end in found[1:]]
+        found.append((start, last, False))
+    return [{'from': begin, 'to': end, 'seconds': round(end - begin, 2), 'ended': ended} for begin, end, ended in found[1:]]
 
 
 def counters(captures, output):
     """One sheet of the captures' counters, each under its view's name."""
     from PIL import Image, ImageDraw
-    captures = sorted(Path(one) for one in captures); require(captures, 'No captures to read a counter from'); wide, high = COUNTER[2] - COUNTER[0], COUNTER[3] - COUNTER[1]
+    captures = [Path(one) for one in captures]; require(captures, 'No captures to read a counter from'); wide, high = COUNTER[2] - COUNTER[0], COUNTER[3] - COUNTER[1]
     page = Image.new('RGB', (2 * wide, -(-len(captures) // 2) * (high + 14)), 'white'); draw = ImageDraw.Draw(page)
     for index, path in enumerate(captures):
         x, y = index % 2 * wide, index // 2 * (high + 14); draw.text((x + 2, y + 1), path.stem, fill='black')

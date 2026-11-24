@@ -233,7 +233,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     try:
         return _place(text, name, placements, kit, cache, pack_text, wok, at)
     except ValueError as error:
-        if at[0] is None:
+        if at[0] is None or not str(error).startswith(f'{name} #{at[0]}'):  # a fault of the kit's is no refusal of a placement
             raise
         raise Refused(at[0], str(error)) from error
 
