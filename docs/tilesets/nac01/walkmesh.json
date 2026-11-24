@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "tileset": "nac01",
+  "models": {
+    "nac01_d01_01": {
+      "wok": "2a6cc15c71da3ed9d88522a69459e09100f067c61144ec406417de841564f0f8",
+      "aabb": "92e984f6e01edc79e67995e484e76b4d0d06f9d9136407e13407910b9271f998"
+    },
+    "nac01_d01_02": {
+      "wok": "70f9810444c3955bc9cf837b6a0a191713f72037c842e20b08d2b11a5bc5df02",
+      "aabb": "cbc0521a7e9438e3358cfee4357a939f5ce520a77696e70c35fd51296ac240d3"
+    },
+    "nac01_d01_03": {
+      "wok": "ab61a003f9979f2c79573d8914fbbe1632a93f55dc5514fb5c75cb61a87688d5",
+      "aabb": "1b1dd443b033552bc515391cb853d6346be81f3166c38c98b57e277b6da31e03"
+    },
+    "nac01_d01_04": {
+      "wok": "b56383d32fe92d6765389e4f78c07642d920ba64e99f357aa74f3af33e786d8d",
+      "aabb": "e95510fcf7f1525f02019545b91953d8a9a07346422b7ea9f42343b2b0a8d774"
+    },
+    "nac01_d01_05": {
+      "wok": "1287fdda33ca4706ea206e1c0e64b874b05e5a97b999645fb67cab9ee704aa56",
+      "aabb": "da7a90b9cc5e0977ad5e3fb4479b82be3fd4e6fa971432be4a14284f874ab2f3"
+    },
+    "nac01_s01_01": {
+      "wok": "3ea5fca3f0579b273c965756ccbfdd645a3dcd60e2956a73ea72843e4e364f0f",
+      "aabb": "2db0ff54d1fc4d7b5e79ee34e7bf935e651d0a8a81780c4b967c7bac731ec5fc"
+    },
+    "nac01_s01_02": {
+      "wok": "0f5b12e92a53955a48d59e03607547de61f3f16fe7020d6ac4bf7f43859f4940",
+      "aabb": "9a178fbf948d70ac3a3612e42cfae4bbeef7e4c46624fe11af498a9aa510612e"
+    },
+    "nac01_s01_03": {
+      "wok": "28a830a3f543647825a172eca73ffa910ec33d066ddc18fed847621542910339",
+      "aabb": "a485986d9b03e5dc372862190f21814fb00ec91fba3f6ddaa74257e6f06cfe6a"
+    },
+    "nac01_s01_04": {
+      "wok": "6ac08e0a43156c2663f29bd97cab7a52e5adc2a0ca00bbef324ebcc9475f7bdd",
+      "aabb": "3f817de4f3443fc699d1f2dcf0ddf8f2fa9ddf65becfcf8e7932705cdcac84fd"
+    },
+    "nac01_s01_05": {
+      "wok": "a3f1da96a409c2f330e8097fd3cd51fddaf02ecc634532465c934ea0c51f3182",
+      "aabb": "5e175ef26bb52c124a7cce77d935a038da5b40a10de9f5bbaf9d69def3a1f7ed"
+    },
+    "nac01_s01_06": {
+      "wok": "4a02600ceacf03e71714b17940b0a97c0095bf98bcc230bf5df8aca72cd573c3",
+      "aabb": "fb3cb8dc9328b2084cc2f7d2afd2d02c285c7efe40d0c652b82a2e0786f82e5d"
+    },
+    "nac01_s01_07": {
+      "wok": "e64edb582ca0793e98922e8c7360d386125488becc14f26ee8eef0772d1ee347",
+      "aabb": "01863f20be33dc2441daa9316447e0185735e92e10ba6178d83ebebc29598150"
+    },
+    "nac01_s01_08": {
+      "wok": "9d3eebc522e8963bc06f429fbdf75146a4e0aac841873f666f75f872e088718a",
+      "aabb": "2ee878ccf691c1434ecd440312d4ca0d934dda069a8f58fdb4d90bd44c1edd06"
+    },
+    "nac01_s01_09": {
+      "wok": "c44c456308b734488d35b1315434d9d857ebce06444ce3b0e35d213bd2f1695d",
+      "aabb": "359396d056ae0df9ad61336243318d521c1ea438284b8cb647735a7d24824b93"
+    },
+    "nac01_s01_10": {
+      "wok": "1cb3bf146d643dd7e84796625703d94ce8a534311e5f48938e538d633adb3021",
+      "aabb": "f55d496dcdd936ee7c6c5209e791e1cba8bd20c93eab1714f11f8c449aa66d1a"
+    },
+    "nac01_s01_11": {
+      "wok": "8eec96670bb4f0de619a423c657e86e0e876536fb585437dcdc2e5cdd8ebe5aa",
+      "aabb": "c641d542bcab3133ef44bb480298b7a57a1640a3ef5bbe9a600703ce01a9875a"
+    },
+    "nac01_x01_01": {
+      "wok": null,
+      "aabb": "65db113bc5ff10304f48cf757f65dc10fe48616673d0f13c2c8f2c066445babd"
+    }
+  }
+}
