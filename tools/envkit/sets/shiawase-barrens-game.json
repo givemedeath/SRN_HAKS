@@ -436,7 +436,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Power Transformer",
     "sound": 28,
-    "category": 161
+    "category": 215
    }
   },
   "ek_sb_switch": {
@@ -502,7 +502,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Switchgear Cabinet",
     "sound": 28,
-    "category": 161,
+    "category": 215,
     "light": null
    }
   },
@@ -513,7 +513,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Tunnel Hatch",
     "sound": 26,
-    "category": 161
+    "category": 215
    }
   },
   "ek_sb_drum": {
@@ -523,7 +523,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Cable Drum",
     "sound": 27,
-    "category": 164
+    "category": 216
    }
   },
   "ek_sb_tap": {
@@ -533,7 +533,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Power Tap Pole",
     "sound": 28,
-    "category": 161
+    "category": 209
    }
   },
   "ek_sb_vent": {
@@ -543,7 +543,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Tunnel Vent Stack",
     "sound": 28,
-    "category": 161
+    "category": 215
    }
   },
   "ek_sb_trench": {
@@ -553,7 +553,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Cable Trench Cover",
     "sound": 26,
-    "category": 161
+    "category": 215
    }
   },
   "ek_sb_sign": {
@@ -568,7 +568,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Station Wall Sign",
     "sound": 27,
-    "category": 156
+    "category": 208
    },
    "paint": [
     {
@@ -678,7 +678,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Battery Bank",
     "sound": 28,
-    "category": 164,
+    "category": 215,
     "light": null
    }
   },
@@ -689,7 +689,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Tool Cart",
     "sound": 28,
-    "category": 164
+    "category": 218
    }
   },
   "ek_sb_bulkhead": {
@@ -721,7 +721,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Bulkhead Door",
     "sound": 28,
-    "category": 159,
+    "category": 211,
     "light": {
      "colour": 5,
      "at": [
@@ -739,7 +739,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Pipe Run",
     "sound": 28,
-    "category": 161
+    "category": 215
    }
   },
   "ek_sb_insul": {
@@ -749,7 +749,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Insulator Stack",
     "sound": 28,
-    "category": 161
+    "category": 215
    }
   },
   "ek_sb_sandbag": {
@@ -759,7 +759,7 @@
    "placeable": {
     "label": "Shiawase Barrens, Sandbag Barrier",
     "sound": 26,
-    "category": 158
+    "category": 211
    }
   }
  }

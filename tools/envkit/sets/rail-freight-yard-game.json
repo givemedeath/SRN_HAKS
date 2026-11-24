@@ -46,7 +46,7 @@
     "ek_rf_adminx": {"source": "meshy/models/rf-building-office-a2-remesh", "height": 4.0, "colour": 4096},
     "ek_rf_bayx": {"source": "meshy/models/rf-building-bay-a1-remesh", "height": 7.5, "colour": 4096},
     "ek_rd_rearx": {"source": "meshy/models/rfd-building-rear-a1-remesh", "height": 7.2, "colour": 4096},
-    "ek_rd_platform": {"source": "meshy/models/rfd-loading-platform-a1", "height": 5.0, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Loading Platform", "sound": 26, "category": 161}},
+    "ek_rd_platform": {"source": "meshy/models/rfd-loading-platform-a1", "height": 5.0, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Loading Platform", "sound": 26, "category": 217}},
     "ek_rd_crane": {"source": "meshy/models/rfd-gantry-crane-a1", "height": 12.0, "measuredAt": 12.0, "colour": 2048, "clear": [
       {"part": "west leg's stub rails, carried on by the crane runway", "box": [[-8.9, -6.4, -0.05], [-7.0, 6.4, 0.24]]},
       {"part": "east leg's stub rails, carried on by the crane runway", "box": [[6.6, -6.4, -0.05], [8.6, 6.4, 0.24]]}
@@ -56,16 +56,16 @@
     ], "inside": [
       {"part": "west leg's sill, its faces wound inward", "box": [[-9.4, -4.7, 0.9], [-6.5, 4.7, 2.3]]},
       {"part": "east leg's sill, its faces wound inward", "box": [[6.5, -4.7, 0.9], [9.4, 4.7, 2.3]]}
-    ], "walkUnder": true, "placeable": {"label": "Rail Freight Yard, Gantry Crane", "sound": 28, "category": 161}},
+    ], "walkUnder": true, "placeable": {"label": "Rail Freight Yard, Gantry Crane", "sound": 28, "category": 212}},
     "ek_rf_track": {"source": "track/straight-s0", "height": 0.312, "colour": 2048, "underfoot": true},
     "ek_rf_merge": {"source": "track/merge-s0", "height": 0.312, "colour": 2048, "underfoot": true},
-    "ek_rf_runway": {"source": "track/crane-s1", "height": 0.23, "colour": 2048, "underfoot": true, "placeable": {"label": "Rail Freight Yard, Crane Rail", "sound": 28, "category": 161}},
-    "ek_rf_switcher": {"source": "meshy/models/rf-switcher-a1", "height": 4.6, "lift": 0.312, "wheels": {"spans": [[-6.7, -2.7], [2.2, 6.9]], "top": 1.412, "back": 0.75}, "measuredAt": {"height": 4.6, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Switcher Locomotive", "sound": 28, "category": 161}},
-    "ek_rf_boxcar": {"source": "meshy/models/rf-boxcar-a2", "height": 4.6, "lift": 0.312, "wheels": {"spans": [[-5.7, -2.9], [2.6, 5.6]], "top": 1.312, "back": 0.85}, "measuredAt": {"height": 4.6, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Boxcar", "sound": 28, "category": 161}},
-    "ek_rf_tankcar": {"source": "meshy/models/rf-tank-car-a1", "height": 4.4, "lift": 0.312, "wheels": {"spans": [[-6.6, -3.4], [3.3, 6.4]], "top": 1.362, "back": 0.9}, "measuredAt": {"height": 4.4, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Tank Car", "sound": 28, "category": 161}},
-    "ek_rf_flatcar": {"source": "meshy/models/rf-flatcar-a1", "height": 3.2, "lift": 0.312, "wheels": {"spans": [[-6.4, -3.6], [3.3, 6.4]], "top": 1.262, "back": 0.85}, "measuredAt": {"height": 3.2, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Flatcar", "sound": 28, "category": 161}},
-    "ek_rf_dock": {"source": "meshy/models/rf-loading-dock-a1", "height": 4.8, "colour": 2048, "inside": true, "placeable": {"label": "Rail Freight Yard, Loading Dock", "sound": 26, "category": 161}},
-    "ek_rf_shed": {"source": "meshy/models/rf-transfer-shed-a1", "height": 5.5, "colour": 2048, "walkUnder": true, "placeable": {"label": "Rail Freight Yard, Transfer Shed", "sound": 28, "category": 161}},
+    "ek_rf_runway": {"source": "track/crane-s1", "height": 0.23, "colour": 2048, "underfoot": true, "placeable": {"label": "Rail Freight Yard, Crane Rail", "sound": 28, "category": 212}},
+    "ek_rf_switcher": {"source": "meshy/models/rf-switcher-a1", "height": 4.6, "lift": 0.312, "wheels": {"spans": [[-6.7, -2.7], [2.2, 6.9]], "top": 1.412, "back": 0.75}, "measuredAt": {"height": 4.6, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Switcher Locomotive", "sound": 28, "category": 212}},
+    "ek_rf_boxcar": {"source": "meshy/models/rf-boxcar-a2", "height": 4.6, "lift": 0.312, "wheels": {"spans": [[-5.7, -2.9], [2.6, 5.6]], "top": 1.312, "back": 0.85}, "measuredAt": {"height": 4.6, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Boxcar", "sound": 28, "category": 212}},
+    "ek_rf_tankcar": {"source": "meshy/models/rf-tank-car-a1", "height": 4.4, "lift": 0.312, "wheels": {"spans": [[-6.6, -3.4], [3.3, 6.4]], "top": 1.362, "back": 0.9}, "measuredAt": {"height": 4.4, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Tank Car", "sound": 28, "category": 212}},
+    "ek_rf_flatcar": {"source": "meshy/models/rf-flatcar-a1", "height": 3.2, "lift": 0.312, "wheels": {"spans": [[-6.4, -3.6], [3.3, 6.4]], "top": 1.262, "back": 0.85}, "measuredAt": {"height": 3.2, "lift": 0.312}, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Flatcar", "sound": 28, "category": 212}},
+    "ek_rf_dock": {"source": "meshy/models/rf-loading-dock-a1", "height": 4.8, "colour": 2048, "inside": true, "placeable": {"label": "Rail Freight Yard, Loading Dock", "sound": 26, "category": 217}},
+    "ek_rf_shed": {"source": "meshy/models/rf-transfer-shed-a1", "height": 5.5, "colour": 2048, "walkUnder": true, "placeable": {"label": "Rail Freight Yard, Transfer Shed", "sound": 28, "category": 217}},
     "ek_rf_walkway": {"source": "meshy/models/rf-walkway-a1", "height": 3.2, "measuredAt": 3.2, "colour": 2048, "move": [
       {"part": "north-east leg, generated 1.7 m in from its corner", "box": [[0.15, 1.8, -0.05], [1.0, 2.5, 1.97]], "by": [1.66, 0, 0]}
     ], "clear": [
@@ -76,7 +76,7 @@
       {"part": "south railing, east of the stairs", "railing": [[1.65, -2.42, 2.13], [2.42, -2.42, 2.13]], "height": 1.07, "picture": [2.398, 0.719, 2.661]},
       {"part": "stairs up to the deck from the south", "stairs": {"foot": [1.1, -5.42, 0], "top": [1.1, -2.42, 2.13], "width": 0.9},
        "picture": [-0.027, -0.799, 1.995], "rails": [2.398, 0.719, 2.661]}
-    ], "placeable": {"label": "Rail Freight Yard, Walkway", "sound": 28, "category": 161}},
+    ], "placeable": {"label": "Rail Freight Yard, Walkway", "sound": 28, "category": 217}},
     "ek_rf_stairs": {"source": "meshy/models/rf-stair-tower-a1", "height": 4.5, "measuredAt": 4.5, "colour": 2048, "clear": [
       {"part": "lower flight's wavy outer handrail", "from": [-1.85, -1.02, 0.535], "to": [0.6, -1.02, 2.544], "radius": 0.42},
       {"part": "lower flight's wavy inner handrail", "from": [-1.85, -0.07, 0.535], "to": [0.1, -0.07, 2.134], "radius": 0.42},
@@ -99,7 +99,7 @@
       {"part": "upper flight's outer handrail", "railing": [[1.39, 0.93, 2.18], [-0.5, 0.93, 3.357]], "picture": [-1.031, 0.963, 3.401]},
       {"part": "upper flight's inner handrail", "railing": [[1.39, 0.18, 2.18], [-0.5, 0.18, 3.357]], "picture": [-1.031, 0.963, 3.401]},
       {"part": "top landing's rail", "railing": [[-0.5, 1.03, 3.357], [-2.13, 1.03, 3.357], [-2.13, -0.76, 3.357], [-0.5, -0.76, 3.357], [-0.5, -0.02, 3.357]], "picture": [-1.031, 0.963, 3.401]}
-    ], "placeable": {"label": "Rail Freight Yard, Stair Tower", "sound": 28, "category": 161}},
+    ], "placeable": {"label": "Rail Freight Yard, Stair Tower", "sound": 28, "category": 217}},
     "ek_rf_office": {"source": "meshy/models/rf-office-module-a1", "height": 3.9, "measuredAt": 3.9, "colour": 2048, "fill": [
       {"part": "notch in the roof ridge, west roof", "at": [0.559, 0.108, 3.737]},
       {"part": "notch in the roof ridge, east end", "at": [2.734, -0.46, 3.63]}
@@ -134,20 +134,20 @@
       {"part": "glass over the smeared panes, back wall's east window, east upper pane", "bar": [[1.47, -2.47, 1.62], [2.05, -2.47, 1.62]], "size": [0.01, 0.22], "picture": [-1.55, 2.505, 1.303]}
 ,
       {"part": "mullion of the front wall's west window, drawn light", "bar": [[-1.32, 2.545, 1.03], [-1.32, 2.545, 1.85]], "size": [0.12, 0.02], "picture": [-2.617, -1.623, 1.321]}
-    ], "placeable": {"label": "Rail Freight Yard, Office Module", "sound": 28, "category": 161}},
+    ], "placeable": {"label": "Rail Freight Yard, Office Module", "sound": 28, "category": 217}},
     "ek_rf_cont20": {"source": "meshy/models/rf-container-20ft-a1", "height": 2.6, "inside": true, "length": 6.06, "measuredAt": {"height": 2.6, "length": 6.06}, "colour": 2048, "close": [
       {"part": "door end, lower panel left", "corners": [[2.958, -0.991, 1.024], [2.94, 1.156, 0.162], [2.958, -0.112, 1.028]]},
-      {"part": "door end, lower panel middle", "corners": [[2.958, -0.112, 1.028], [2.94, 1.156, 0.162], [2.958, 0.102, 1.026]]}], "placeable": {"label": "Rail Freight Yard, Container, 20 ft", "sound": 28, "category": 164}},
-    "ek_rf_cont40": {"source": "meshy/models/rf-container-40ft-a1", "height": 2.6, "length": 12.19, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Container, 40 ft", "sound": 28, "category": 164}},
-    "ek_rf_crates": {"source": "meshy/models/rf-crates-pallets-a1", "height": 1.6, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Crates on Pallets", "sound": 27, "category": 164}},
-    "ek_rf_drums": {"source": "meshy/models/rf-drums-a1", "height": 0.9, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Hazmat Drums", "sound": 28, "category": 164}},
-    "ek_rf_reel": {"source": "meshy/models/rf-cable-reel-a1", "height": 1.6, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Cable Reel", "sound": 27, "category": 164}},
-    "ek_rf_pipes": {"source": "meshy/models/rf-pipe-stack-a1", "height": 1.1, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Pipe Stack", "sound": 28, "category": 164}},
-    "ek_rf_jack": {"source": "meshy/models/rf-pallet-jack-a1", "height": 1.25, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Pallet Jack", "sound": 28, "category": 161}},
+      {"part": "door end, lower panel middle", "corners": [[2.958, -0.112, 1.028], [2.94, 1.156, 0.162], [2.958, 0.102, 1.026]]}], "placeable": {"label": "Rail Freight Yard, Container, 20 ft", "sound": 28, "category": 216}},
+    "ek_rf_cont40": {"source": "meshy/models/rf-container-40ft-a1", "height": 2.6, "length": 12.19, "colour": 2048, "placeable": {"label": "Rail Freight Yard, Container, 40 ft", "sound": 28, "category": 216}},
+    "ek_rf_crates": {"source": "meshy/models/rf-crates-pallets-a1", "height": 1.6, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Crates on Pallets", "sound": 27, "category": 216}},
+    "ek_rf_drums": {"source": "meshy/models/rf-drums-a1", "height": 0.9, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Hazmat Drums", "sound": 28, "category": 216}},
+    "ek_rf_reel": {"source": "meshy/models/rf-cable-reel-a1", "height": 1.6, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Cable Reel", "sound": 27, "category": 216}},
+    "ek_rf_pipes": {"source": "meshy/models/rf-pipe-stack-a1", "height": 1.1, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Pipe Stack", "sound": 28, "category": 216}},
+    "ek_rf_jack": {"source": "meshy/models/rf-pallet-jack-a1", "height": 1.25, "colour": 1024, "placeable": {"label": "Rail Freight Yard, Pallet Jack", "sound": 28, "category": 212}},
     "ek_rf_light": {"source": "meshy/models/rf-light-tower-a1", "height": 5.0, "measuredAt": 5.0, "colour": 2048, "lit": [
       {"part": "west lamp heads, their fronts (+y)", "box": [[-1.6, -0.43, 3.33], [-0.33, -0.1, 5.0]], "value": 0.88},
       {"part": "east lamp heads, set back, their fronts (+y)", "box": [[0.33, 0.07, 3.33], [1.6, 0.2, 5.0]], "value": 0.88}
-    ], "halo": {"reach": 0.3, "strength": 0.5}, "placeable": {"label": "Rail Freight Yard, Light Tower", "sound": 28, "category": 161, "light": {"colour": 3, "at": [0.0, 0.5, 4.2]}}},
-    "ek_rf_dumpster": {"source": "meshy/models/rf-dumpster-a1", "height": 1.8, "colour": 1024, "inside": true, "placeable": {"label": "Rail Freight Yard, Dumpster", "sound": 28, "category": 158}}
+    ], "halo": {"reach": 0.3, "strength": 0.5}, "placeable": {"label": "Rail Freight Yard, Light Tower", "sound": 28, "category": 209, "light": {"colour": 3, "at": [0.0, 0.5, 4.2]}}},
+    "ek_rf_dumpster": {"source": "meshy/models/rf-dumpster-a1", "height": 1.8, "colour": 1024, "inside": true, "placeable": {"label": "Rail Freight Yard, Dumpster", "sound": 28, "category": 213}}
   }
 }

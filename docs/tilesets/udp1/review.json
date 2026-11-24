@@ -1,0 +1,169 @@
+{
+  "tileset": "udp1",
+  "haks": [
+    "srn_t_udp1",
+    "srn_t_common",
+    "srn_door",
+    "srn_placeable",
+    "srn_2da"
+  ],
+  "block": {
+    "width": 15,
+    "height": 15,
+    "lights": [
+      "day",
+      "night"
+    ],
+    "patches": [
+      {
+        "terrain": "Stripmall",
+        "at": [
+          1,
+          1
+        ]
+      },
+      {
+        "terrain": "Mall_Type_1",
+        "at": [
+          5,
+          1
+        ]
+      },
+      {
+        "terrain": "Mall_Type_2",
+        "at": [
+          9,
+          1
+        ]
+      },
+      {
+        "terrain": "Forest",
+        "at": [
+          13,
+          1
+        ]
+      },
+      {
+        "terrain": "Water",
+        "at": [
+          1,
+          5
+        ]
+      },
+      {
+        "terrain": "Asphalt",
+        "at": [
+          5,
+          5
+        ],
+        "size": [
+          6,
+          6
+        ]
+      },
+      {
+        "terrain": "Forest",
+        "at": [
+          13,
+          9
+        ]
+      },
+      {
+        "terrain": "Stripmall",
+        "at": [
+          1,
+          13
+        ]
+      },
+      {
+        "terrain": "Water",
+        "at": [
+          13,
+          13
+        ]
+      }
+    ],
+    "crossings": [
+      [
+        3,
+        3
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        7,
+        7
+      ]
+    ],
+    "views": [
+      "x03y03-ne",
+      "x07y03-ne",
+      "x11y03-nw",
+      "x03y07-se",
+      "x07y07-ne"
+    ]
+  },
+  "shared": {
+    "lights": [
+      "day",
+      "night"
+    ],
+    "tilesets": {
+      "udp1": {
+        "models": [
+          "udp1_a06_11",
+          "udp1_b03_02",
+          "udp1_b03_01",
+          "udp1_b04_02",
+          "udp1_b04_01",
+          "udp1_b04_06",
+          "udp1_b04_05",
+          "udp1_b03_15",
+          "udp1_b03_14",
+          "udp1_b03_13",
+          "udp1_b04_15",
+          "udp1_b04_14",
+          "udp1_b04_13",
+          "udp1_b05_15",
+          "udp1_b05_14",
+          "udp1_b05_13",
+          "udp1_b06_04",
+          "udp1_b06_03",
+          "udp1_b06_02",
+          "udp1_b06_01",
+          "udp1_c01_02",
+          "udp1_c01_01",
+          "udp1_c01_10",
+          "udp1_c02_04",
+          "udp1_c02_03",
+          "udp1_c03_05",
+          "udp1_c04_07",
+          "udp1_c04_06",
+          "udp1_c05_09",
+          "udp1_c05_08",
+          "udp1_c06_02",
+          "udp1_c06_01",
+          "udp1_c07_06",
+          "udp1_c01_15",
+          "udp1_c01_14",
+          "udp1_c02_15",
+          "udp1_c02_14",
+          "udp1_c03_15",
+          "udp1_c03_14",
+          "udp1_b15_01",
+          "udp1_b15_06"
+        ]
+      }
+    }
+  }
+}
