@@ -17,7 +17,7 @@
   "bespin_monument2": {
    "kind": "fixture",
    "district": "corporate",
-   "note": "A tall plaza light pylon on black; the black stays black. A slim vertical white light tube beside a panel of frosted glass lit cool cyan-white, with two brushed-steel bands across it, and a small pale square lens at the lower right."
+   "note": "A tall plaza light pylon on black; the black stays black. Each coloured shape keeps exactly the outline, size and position it has in the reference: the thin vertical light tube, the tall panel beside it and the pale square at the lower right, which stays just as large as it is. The tall panel becomes frosted glass lit cool cyan-white with two brushed-steel bands across it; the square becomes a pale cool-white lit lens."
   },
   "kuhmu": {
    "kind": "sign",
@@ -26,14 +26,14 @@
    "words": "CONCOURSE LEVEL in plain capital Latin letters, replacing every alien glyph"
   },
   "ctown_build_id4": {
-   "kind": "facade",
+   "kind": "fixture",
    "district": "corporate",
-   "note": "A block of lit office window panes of many sizes, cool white, in a dark graphite frame; the same panes in the same places."
+   "note": "A bank of illuminated office windows at night, seen straight on: every pane in the same place and size as in the reference and every pane brightly lit from inside, cool white with a faint cyan tint, a few with the faint shapes of blinds or desks behind frosted glass. Slim dark graphite mullions between the panes. No dark or unlit panes."
   },
   "bb3bottom": {
    "kind": "facade",
    "district": "corporate",
-   "note": "A pale corporate facade band: smooth light concrete panels with a row of small recessed windows and vertical brushed-steel fins.",
+   "note": "Replace the old classical stone styling completely with a modern corporate facade: large smooth pale grey composite panels with fine joints, the small windows in the same places as dark tinted glass in slim graphite frames, the central vertical feature as brushed-steel fins, and a thin dark band along the top. No cornices, no carved stone, no ornaments.",
    "tiles": true
   },
   "ventilo01": {

@@ -210,7 +210,8 @@
    ],
    "relief": 1.0,
    "roughness": 0.5,
-   "grade": "arcology"
+   "grade": "arcology",
+   "redrawn": true
   },
   "tile013gs": {
    "route": "upscale",
@@ -243,6 +244,78 @@
     1024
    ],
    "copy": "d_ground03"
+  },
+  "imp_modules_id5": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.5,
+   "redrawn": true,
+   "stem": "impmodulesid5"
+  },
+  "bespin_monument2": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 0.5,
+   "roughness": 0.5,
+   "redrawn": true,
+   "stem": "bespinmonum2",
+   "glow": {
+    "above": 150
+   }
+  },
+  "kuhmu": {
+   "route": "upscale",
+   "size": [
+    512,
+    128
+   ],
+   "relief": 0.5,
+   "roughness": 0.5,
+   "redrawn": true,
+   "glow": {
+    "above": 120
+   }
+  },
+  "ctown_build_id4": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 0.5,
+   "roughness": 0.3,
+   "redrawn": true,
+   "stem": "ctownbuildid4",
+   "glow": {
+    "above": 150
+   }
+  },
+  "ventilo01": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 1.0,
+   "roughness": 0.5,
+   "redrawn": true
+  },
+  "ctown_build14": {
+   "route": "upscale",
+   "size": [
+    512,
+    512
+   ],
+   "relief": 1.0,
+   "roughness": 0.5,
+   "redrawn": true
   }
  }
 }
