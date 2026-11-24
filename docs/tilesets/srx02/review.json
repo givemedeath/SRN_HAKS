@@ -1,0 +1,28 @@
+{
+ "tileset": "srx02",
+ "haks": ["srn_t_srx02", "srn_t_udp2", "srn_t_tfb01", "srn_t_tbx78", "srn_t_nac01", "srn_t_common", "srn_door", "srn_placeable", "srn_2da"],
+ "block": {
+  "width": 19,
+  "height": 22,
+  "lights": ["day"],
+  "patches": [
+   {"terrain": "Office_Vinyl", "at": [2, 2], "size": [3, 3]},
+   {"terrain": "Livingroom", "at": [8, 2], "size": [3, 3]},
+   {"terrain": "Facility", "at": [14, 2], "size": [3, 3]},
+   {"terrain": "Duct_Room", "at": [2, 8], "size": [3, 3]},
+   {"terrain": "Service", "at": [8, 8], "size": [3, 3]},
+   {"terrain": "Shop", "at": [14, 8], "size": [3, 3]}
+  ],
+  "runs": [
+   {"crosser": "Hallway1", "cells": [[0, 14], [18, 14]]},
+   {"crosser": "Corridor", "cells": [[0, 16], [18, 16]]},
+   {"crosser": "Fac_Corridor", "cells": [[0, 18], [18, 18]]},
+   {"crosser": "Duct", "cells": [[0, 20], [18, 20]]}
+  ],
+  "crossings": [[2, 2], [8, 2], [14, 2], [2, 8], [8, 8], [14, 8], [9, 14], [9, 16], [9, 18], [9, 20]],
+  "views": ["none"],
+  "near": {"distance": 32.0, "pitch": 52.0, "views": ["x02y02-ne", "x08y02-ne", "x14y02-ne", "x02y08-ne", "x08y08-ne", "x14y08-ne"]},
+  "eye": {"turns": [45, 225], "pitches": [100]},
+  "lamps": [{"name": "main", "main": 3, "source": 3, "lights": ["day"]}]
+ }
+}
