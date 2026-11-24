@@ -1630,12 +1630,12 @@ ground lit by the canopy and the two lamps. Placed in the Toolset the same day f
 ## Envkit props moved to their own pack (`srn_envprop`, `srn_placeable`; 2026-11-24)
 
 With the Happenstance props `srn_placeable` came to 2,103 MB, and a hak is not built past 2 GiB: the packer
-(`nwn_erf`) refuses it, the archive's offsets being 32-bit. Every envkit prop file, 1,763 files of 869 MB named
+(`nwn_erf`) refuses it, the archive's offsets being 32-bit. Every envkit prop file, 1,763 files of 865 MiB named
 `ek_*` (models, collision files, materials, maps, blueprints and the shared dark halo `ek_off`), moved unchanged
 from `srn_placeable` to the new pack `srn_envprop`, registered in `hakbuilder.json` (operator, 2026-11-24: "move
-all envkit props to their own hak"). `srn_placeable` is left at 1,271 MB as a folder (1,239 MB as a built hak) with the MDRNEE
-placeables and the two palette files; `placeablepalstd.itp` stays there, one file for every placeable of a module, and still lists the
-envkit blueprints. No file's content, name or `placeables.2da` row changed, and the catalog's `pack` of each of the
+all envkit props to their own hak"). `srn_placeable` is left at 1,251 MiB (1,252 MiB as a built hak, `srn_envprop`
+865 MiB) with the MDRNEE placeables and the two palette files; `placeablepalstd.itp` stays there, one file for every
+placeable of a module, and still lists the envkit blueprints. No file's content, name or `placeables.2da` row changed, and the catalog's `pack` of each of the
 178 envkit placeables now reads `srn_envprop`. The props' sections above name `srn_placeable` as the pack they
 joined at the time and are left as written.
 

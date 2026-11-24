@@ -156,6 +156,9 @@ def command_placeables(args):
         old = [entry for entry in data['placeables'] if entry['row'] == row]; label = placeables.PREFIX + chosen[name]['label']
         # Converting again leaves the table as it is, so the label it gave the row stands too.
         require(not old or old[0]['label'] == label, f'Row {row} is labelled otherwise in the catalog: a label is changed by hand, in the table and the catalog together')
+        # Converted again into another pack than its own, a model would have files in two and an entry naming the wrong one.
+        require(not old or old[0].get('pack', args.pack) == args.pack, f'{name} (row {row}) is in {old[0].get("pack") if old else None} in the catalog, not {args.pack}: '
+                'name its pack with --pack; a model changes pack by hand, its files and its entry together')
         core = _lit(old, {'row': row, 'model': name, 'label': label, 'pack': args.pack}, convert.lights(name, built / name / 'source'))
         catalog.put_placeable(data, _entry(old, core, origin, name))
     copied, removed = 0, []
@@ -201,6 +204,8 @@ def command_blueprints(args):
             placed = models.get(entry['model'], {}).get('placeable')
             if placed is None or 'category' not in placed:
                 continue
+            require(entry.get('pack', args.pack) == args.pack, f'{entry["model"]} is in {entry.get("pack")} in the catalog, not {args.pack}: name its pack with --pack '
+                    '(a blueprint goes beside its model)')
             static = placed.get('static', not convert.scripted(models[entry['model']]))
             made[entry['model']] = blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
                                                         comment='envkit: ' + entry['source'])
