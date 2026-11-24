@@ -20,10 +20,9 @@
    "note": "A tall plaza light pylon on black; the black stays black. Each coloured shape keeps exactly the outline, size and position it has in the reference: the thin vertical light tube, the tall panel beside it and the pale square at the lower right, which stays just as large as it is. The tall panel becomes frosted glass lit cool cyan-white with two brushed-steel bands across it; the square becomes a pale cool-white lit lens."
   },
   "kuhmu": {
-   "kind": "sign",
+   "kind": "fixture",
    "district": "corporate",
-   "note": "A long narrow illuminated sign strip: clean pale amber letters on a white lit panel, evenly spaced from end to end.",
-   "words": "CONCOURSE LEVEL in plain capital Latin letters, replacing every alien glyph"
+   "note": "A long narrow lit status strip with no lettering at all: an even row of small lit rectangular segments of a few different widths, cool white and pale cyan with a few amber ones, on a dark graphite panel, running evenly from end to end with the same rhythm everywhere, so that any part of the strip looks like any other. No letters, numbers, glyphs or symbols."
   },
   "ctown_build_id4": {
    "kind": "fixture",
