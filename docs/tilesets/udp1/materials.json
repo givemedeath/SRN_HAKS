@@ -89,6 +89,17 @@
     1.0,
     0.92
    ]
+  },
+  "suburb_road": {
+   "saturation": 0.4,
+   "contrast": 1.2,
+   "gain": 0.85,
+   "tint": [
+    0.95,
+    0.98,
+    1.05
+   ],
+   "paint": 0.8
   }
  },
  "textures": {
@@ -97,7 +108,7 @@
    "master": "Asphalt033",
    "repeat": 2,
    "tone": 0.5,
-   "grade": "road",
+   "grade": "suburb_road",
    "size": [
     1024,
     1024
@@ -109,7 +120,7 @@
    "master": "Asphalt033",
    "repeat": 2,
    "keep": 6,
-   "grade": "road",
+   "grade": "suburb_road",
    "size": [
     1024,
     1024
@@ -320,7 +331,7 @@
    "master": "Asphalt033",
    "repeat": 2,
    "keep": 6,
-   "grade": "road",
+   "grade": "suburb_road",
    "size": [
     1024,
     1024
@@ -332,7 +343,7 @@
    "master": "Asphalt033",
    "repeat": 2,
    "keep": 6,
-   "grade": "road",
+   "grade": "suburb_road",
    "size": [
     1024,
     1024
@@ -344,7 +355,7 @@
    "master": "Asphalt033",
    "repeat": 2,
    "keep": 6,
-   "grade": "road",
+   "grade": "suburb_road",
    "size": [
     1024,
     1024
@@ -356,7 +367,7 @@
    "master": "Asphalt033",
    "repeat": 2,
    "keep": 6,
-   "grade": "road",
+   "grade": "suburb_road",
    "size": [
     1024,
     1024
@@ -368,7 +379,7 @@
    "master": "Asphalt033",
    "repeat": 2,
    "keep": 6,
-   "grade": "road",
+   "grade": "suburb_road",
    "size": [
     1024,
     1024
@@ -380,7 +391,7 @@
    "master": "Asphalt033",
    "repeat": 2,
    "keep": 6,
-   "grade": "road",
+   "grade": "suburb_road",
    "size": [
     1024,
     1024
