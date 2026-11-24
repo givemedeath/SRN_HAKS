@@ -405,3 +405,11 @@ and lit by night.
 Left lit at every hour: the signs (`checks`, `motel2`, `hosp_wings`, `hosp_emergency`), the crossing signal
 (`walk`) and the shop window `window_store003`, which has no day picture. Not looked at closely: the highrise
 facades (`hrise_05_wall_g`, `hrise_06_wall2_g`), which the block's low views barely show.
+
+**Checked from the built packs (2026-11-24).** The review block by day and by night, with views looking up the
+highrise facades from the two northern crossings (camera 30 m back, pitch 120): every facade is whole by day and
+lit by night, none bare. In the Toolset (a user folder of its own, `envkit toolset`): Tenement, Brick and Glass
+Tower, Stone Base painted as terrain; the facades show whole and without flicker, the parked panes hang under the
+tile where only a camera below the ground sees them (as the set always had them), and the saved area gives every
+painted switched tile `Tile_AnimLoop1` 1. Not fixed: the six lit panes no loop raises (`dgt04_e09_21`, and the
+pawn, pharmacy and two shop windows of `e09_06`, `e09_19`, `e09_25`, `e09_26`), which never light.

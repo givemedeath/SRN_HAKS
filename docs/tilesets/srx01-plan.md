@@ -377,6 +377,17 @@ paired with `udp1-window3` (in `srn_door` and `srn_placeable`). `tilekit dayligh
 models that have them anew from the list and writes only those it changes: those eleven, the other 102 came out the
 same. Applied and compiled; House 4 seen in game by day and by night from the review overlay.
 
+**Why the police station, the fire station and School 3 stood dark at night (found 2026-11-24, PR 194).** With
+their lights switched on, the police and fire stations still showed unlit glass at night. Their lit windows hang
+from a lit lamp lens, and the day and night animations named that lens twice, with its keys and then bare as the
+windows' parent; the night then never came to the tile. 51 suburb models had a node named twice. `tilekit daylight`
+names each node once, a faded parent with its keys and before what hangs from it; 84 models were remade (those,
+and day panes that now cast no shadow). Seen in the client: both stations lit at night and unlit by day. A test
+holds the sources to it. School 3 is another matter: every window of it draws the unlit `udp1-window1` and it has no
+lit twin, so only its lamps light; its tile's AnimLoop1 was also off until the same day (18 lamp tiles whose lit
+lens is moved itself). In the Toolset the Police Station group, painted, saves `Tile_AnimLoop1` 1 on its building
+tile.
+
 **The standard (user, 2026-11-24): the hour drives the lights.** Windows, signs and lamp lenses glow by the tile's
 day and night animations; AnimLoop1 is the builder's switch for a building that stands dark, and is on unless turned
 off. The suburb set shipped it off for every lit building. `tilekit daylight --tileset udp1 --spec
