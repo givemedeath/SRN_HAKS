@@ -29,6 +29,7 @@
     ]
   ],
   "joinTiles": "docs/tilesets/srx01/joins.json",
+  "numbers": "docs/tilesets/srx01/numbers.json",
   "doors": {"117": 266, "260": 267, "261": 268},
   "doorsNote": "doortypes.2da rows keyed to DGT04 and FCX01, copied to rows keyed SRX01: the Toolset lists a door's types by its area's tileset (2026-11-21: Door Properties failed on a gate laid in srx01).",
   "raised": [

@@ -61,7 +61,7 @@ class Rules(unittest.TestCase):
         names = {'terrains': [{'set': 'a', 'name': 'Old', 'key': 'New'}, {'set': 'a', 'name': 'Deck', 'key': 'Bridge'}], 'crossers': [{'set': 'a', 'name': 'Rd', 'key': 'Road'}],
                  'edgeNames': [{'set': 'a', 'name': 'Raod', 'into': 'Road'}]}
         table = '2DA V2.0\r\n\r\n  Corner1 Edge Corner2 Height Model\r\n0 Old **** **** 0 m0\r\n\r\n1 old+ rd Old 1 m1\r\n2 Old Deck Old 0 m2\r\n3 Old Raod Old 0 m3\r\n'
-        rows = [line.split() for line in merge.merged_edge({'a': table}, names, {'families': [{'set': 'a'}]}).split('\r\n')[3:] if line]
+        rows = [line.split() for line in merge.merged_edge({'a': table}, names, {'families': [{'set': 'a'}]}).split('\n')[3:] if line]  # plain line ends, as git keeps a 2DA: CI checks out what a merge wrote
         self.assertEqual(rows, [['0', 'New', '****', '****', '0', 'm0'], ['1', 'New+', 'Road', 'New', '1', 'm1'], ['2', 'New', 'Bridge', 'New', '0', 'm2'],
                                 ['3', 'New', 'Road', 'New', '0', 'm3']])
         with self.assertRaisesRegex(ValueError, 'no name'):
@@ -104,6 +104,35 @@ class Refresh(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'no category'):  # what an install asks before it changes a source set: nothing is written
                 merge.named(repo, {'a': ('Other', 'Other')}, district='Nowhere')
             self.assertEqual(len(merge.named(repo, {'a': ('Other', 'Other')})), 1); self.assertEqual((home / 'names.json').read_bytes(), before)
+
+    def test_a_tile_keeps_its_number_when_a_family_before_it_grows(self):
+        number, record = merge.numbered({'a': 2, 'b': 2}, ['j1'])
+        self.assertEqual(record, [['a', 0, 2], ['b', 0, 2], ['join', 'j1']]); self.assertEqual(number[('b', 0)], 2); self.assertEqual(number[('join', 'j1')], 4)
+        grown, again = merge.numbered({'a': 4, 'b': 3}, ['j1', 'j2'], record)  # an envkit building in a, a tile in b, a new join
+        self.assertEqual({key: grown[key] for key in number}, number)  # every number given before is kept
+        self.assertEqual(again, [['a', 0, 2], ['b', 0, 2], ['join', 'j1'], ['a', 2, 2], ['b', 2, 1], ['join', 'j2']])
+        self.assertEqual((grown[('a', 2)], grown[('a', 3)], grown[('b', 2)], grown[('join', 'j2')]), (5, 6, 7, 8))
+        self.assertEqual(merge.numbered({'a': 4, 'b': 3}, ['j1', 'j2'], again), (grown, again))  # a merge again writes the same record
+        self.assertEqual(record, [['a', 0, 2], ['b', 0, 2], ['join', 'j1']])  # the record given is not changed
+        with self.assertRaisesRegex(ValueError, 'tiles 0 to 1 of b, which the set no longer has'):
+            merge.numbered({'a': 4, 'b': 1}, ['j1'], record)
+        with self.assertRaisesRegex(ValueError, 'join tile j1, which is no longer built'):
+            merge.numbered({'a': 2, 'b': 2}, [], record)
+        with self.assertRaisesRegex(ValueError, 'names a tile twice'):
+            merge.numbered({'a': 2}, [], [['a', 0, 2], ['a', 1, 1]])
+        names = {'terrains': [{'set': name, 'name': 'Old', 'key': key, 'display': key} for name, key in (('a', 'New'), ('b', 'Newer'))], 'crossers': [],
+                 'groups': [{'set': name, 'name': 'Hut', 'display': 'Hut'} for name in 'ab']}
+        spec = {'set': 'm', 'display': 'M', 'families': [{'set': 'a', 'label': 'City'}, {'set': 'b', 'label': 'Town'}], 'general': 'a', 'grass': 'a'}
+        more = small().decode().replace('Count=2', 'Count=3').replace('[GROUPS]', '[TILE2]\r\nModel=m2\r\nTopLeft=Old\r\nTopRight=Old\r\nBottomLeft=Old\r\nBottomRight=Old\r\nTop=\r\nRight=\r\nBottom=\r\nLeft=\r\nDoors=0\r\n\r\n[GROUPS]')
+        other = small().decode().replace('Model=m', 'Model=n')
+        text, first, groups = merge.merged_set({'a': more, 'b': other}, names, spec, numbers=[['a', 0, 2], ['b', 0, 2]])
+        self.assertEqual(first, {'a': 0, 'b': 2}); self.assertEqual(groups[1]['tiles'], [3])  # b's tiles where they were
+        self.assertEqual(re.findall(r'\[TILE(\d+)\]\r\nModel=(\w+)', text), [('0', 'm0'), ('1', 'm1'), ('2', 'n0'), ('3', 'n1'), ('4', 'm2')])
+
+    def test_the_numbers_record_of_the_set_is_what_the_set_holds(self):
+        record = json.loads((REPO / SPEC['numbers']).read_text(encoding='utf-8'))['tiles']
+        self.assertEqual(record[:3], [['dgt04', 0, 575], ['udp1', 0, 798], ['fcx01', 0, 239]])  # the numbers of release A: these runs never change
+        self.assertEqual([run[1] for run in record[3:17]], [f'srx01_j{pair}{shape}_01' for pair in 'ap' for shape in '1234rst'])
 
     def test_a_group_s_empty_slot_stays_empty_and_its_model_is_its_first_tile_s(self):
         source = small().decode().replace('Rows=1\r\nColumns=1\r\nTile0=1', 'Rows=1\r\nColumns=3\r\nTile0=-1\r\nTile1=1\r\nTile2=0')

@@ -486,7 +486,7 @@ Each item closure (blueprint, part models, icons, diffuse maps) matches the publ
 
 ## TLK
 
-`srn_tlk/srn.tlk.json` SHA-256 `98d28a587b093a7cb827c0b27b29194ebdb123c2be470ae276f623734d7dd669`, nextId 166. Weapon entries: none. `combat.*` keys: 0. All base-row StrRefs resolve to the base-game dialog.tlk.
+`srn_tlk/srn.tlk.json` SHA-256 `bd1a100bf200963a20dc2f83229f456977517ccf0f1ab5bbe80539ed6a7f2ba9`, nextId 166. Weapon entries: none. `combat.*` keys: 0. All base-row StrRefs resolve to the base-game dialog.tlk.
 
 ## Pinned commit vs HEAD
 

@@ -381,6 +381,9 @@ once areas exist on `srx01`, a rename breaks them. The names review is a gate fo
 
 **What it writes:**
 - the `[TILE]` sections of all three sets, in a fixed family order, then the join tiles;
+  - **Tile numbers never move** (review of PR 191, user 2026-11-23). `docs/tilesets/srx01/numbers.json` records what has
+    each number. A tile new to a source set (an envkit building) or a new join tile takes the next number after the
+    last, so an area built on `srx01` keeps its tiles. A recorded tile that is gone is refused.
 - `[GROUPS]` with their tile numbers remapped, and palette groups under the stage 1 category tree;
 - `GENERAL` from dgt04: Transition 15, EnvMap `ttr01__ref01`, border, default and floor `Concrete`;
 - `[GRASS]` from udp1, so the lawns keep their grass. fcx01's values are dropped; stage 0 checks whether any fcx01

@@ -17,6 +17,12 @@ FIRST_CATEGORY, PARENT = 208, 144  # the first palette category of Shadowrun Cit
 
 
 class Names(unittest.TestCase):
+    def test_the_talk_table_and_edge_table_have_the_line_ends_git_keeps(self):
+        # Written with CR LF here, they are checked out with LF on CI, and every hash taken of them was wrong there
+        # (the combat manifest's of the talk table, the merge lock's of the edge table: PR 191, 2026-11-23).
+        for path in ('srn_tlk/srn.tlk.json', 'srn_tlk/allocations.json', 'srn_2da/srx01_edge.2da', 'srn_2da/doortypes.2da', 'srn_2da/genericdoors.2da'):
+            self.assertNotIn(b'\r', (REPO / path).read_bytes(), path)
+
     def test_keys_are_unique_and_fit_the_set_file(self):
         keys = [entry['key'] for entry in NAMES['terrains'] + NAMES['crossers']]
         self.assertEqual(len(keys), len({key.lower() for key in keys}))  # the game reads names in any case
