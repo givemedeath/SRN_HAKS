@@ -21,6 +21,6 @@
     "checkpoint-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: ground-mounted CAS Sector Entry direction board on two posts.", "subject": "ground-mounted direction sign reading CAS Sector Entry", "box": [779, 894, 930, 988]},
     "lane-sign": {"kind": "prop", "type": "lane-gantry", "variant": "Small frame of three lane signals.", "subject": "frame of three lane signal signs", "box": [974, 907, 1180, 987]},
     "security-camera": {"kind": "prop", "type": "security-camera", "same": "stuffer-shack/security-camera", "subject": "wall-mounted security camera", "box": [1231, 889, 1337, 988]},
-    "floodlight": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin floodlight on a pole", "box": [1397, 885, 1489, 988]}
+    "floodlight": {"kind": "prop", "type": "floodlight", "same": "parking-garage/light-pole", "subject": "twin floodlight on a pole", "box": [1397, 885, 1489, 988]}
   }
 }
