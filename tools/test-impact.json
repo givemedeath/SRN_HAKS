@@ -5950,6 +5950,7 @@
     "tools/tilekit/test_audit.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/audit.py",
+      "tools/tilekit/commands.py",
       "tools/tilekit/test_detail.py",
       "tools/tilekit/test_family_review.py",
       "tools/tilekit/test_openings.py"

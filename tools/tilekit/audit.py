@@ -3,7 +3,8 @@ pieces run into what their tile draws.
 
 `rank` scores each building tile by its own geometry (kit pieces apart): few faces for its surface above a player's
 head, much of that surface on box planes, few roof levels; bigger tiles first among the plain. `shared` lists the models
-outside the tileset that name one of a material spec's textures, by the tileset or pack that draws them. `placements`
+outside the tileset that name one of a material spec's textures, by the tileset or pack that draws them (a set merged of this one only where no
+other tileset does). `placements`
 holds a placement spec's wall pieces against their tiles' own geometry, as `detail` does when it places them: a spec
 applied before a guard was made is checked against it afterwards."""
 import math
@@ -62,7 +63,7 @@ def rank(repo, tileset, ground=()):
 
 def shared(repo, tileset, textures):
     """{tileset or pack: {model: [textures]}} of the models outside the tileset's own that name one of `textures`."""
-    repo, tileset = Path(repo), tileset.lower(); wanted = {name.lower().encode() for name in textures}; drawn = inventory.drawn_models(repo, tileset); others = inventory._other_sets(repo, tileset, edges=True)
+    repo, tileset = Path(repo), tileset.lower(); wanted = {name.lower().encode() for name in textures}; drawn = inventory.drawn_models(repo, tileset); others = inventory._other_sets(repo, tileset, edges=True); shown = merged.over(repo, tileset)
     found = defaultdict(dict)
     for pack in inventory._packs(repo):
         for path in sorted(pack.glob('*.mdl')):
@@ -70,7 +71,7 @@ def shared(repo, tileset, textures):
             if name not in drawn:
                 names = sorted(word.decode() for word in set(WORDS.findall(source(repo, path).read_bytes().lower())) & wanted)
                 if names:
-                    found[','.join(sorted(others[name])) if name in others else pack.name][name] = names
+                    owners = set(others.get(name, ())); found[','.join(sorted(owners - shown or owners)) or pack.name][name] = names
     return {owner: found[owner] for owner in sorted(found)}
 
 

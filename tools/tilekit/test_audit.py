@@ -1,8 +1,10 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
-from tools.tilekit import audit
+from tools.tilekit import audit, commands
 from tools.tilekit.test_detail import PIECE
 from tools.tilekit.test_family_review import tile
 from tools.tilekit.test_openings import model, wall
@@ -29,6 +31,22 @@ class AuditTest(unittest.TestCase):
         other = self.repo / 'srn_t_y'; other.mkdir(); (other / 'y.set').write_text(tile(0, 'y_a', ['G'] * 4)); (other / 'y_a.mdl').write_text('bitmap BRICK\n'); (other / 'loose.mdl').write_text('bitmap brick\n')
         (other / 'none.mdl').write_text('bitmap bricks\n'); kept = self.repo / 'sources' / 'srn_t_y'; kept.mkdir(parents=True); (kept / 'loose.mdl').write_text('bitmap stone\n')
         self.assertEqual(audit.shared(self.repo, 'x', ['Brick', 'stone']), {'srn_t_y': {'loose': ['stone']}, 'y': {'y_a': ['brick']}})
+
+    def test_a_merged_set_is_an_owner_only_of_its_own(self):
+        for set_, models in (('y', ['y_a']), ('m', ['x_box', 'y_a', 'm_join'])):
+            pack = self.repo / f'srn_t_{set_}'; pack.mkdir(); (pack / f'{set_}.set').write_text(''.join(tile(number, name, ['G'] * 4) for number, name in enumerate(models)))
+        (self.repo / 'srn_t_y' / 'y_a.mdl').write_text('bitmap brick\n'); (self.repo / 'srn_t_m' / 'm_join.mdl').write_text('bitmap brick\n')
+        self.assertEqual(set(audit.shared(self.repo, 'x', ['brick'])), {'m', 'm,y'})
+        merge = self.repo / 'docs' / 'tilesets' / 'm'; merge.mkdir(parents=True); (merge / 'merge.json').write_text(json.dumps({'families': [{'set': 'x'}, {'set': 'y'}]}))
+        self.assertEqual(audit.shared(self.repo, 'x', ['brick']), {'m': {'m_join': ['brick']}, 'y': {'y_a': ['brick']}})
+
+    def test_a_file_that_is_no_spec(self):
+        path = self.repo / 's.json'
+        for text, why in (('[]', 'no object'), ('{"tileset": "x", "textures": [{}], "tiles": []}', 'are no object')):
+            path.write_text(text)
+            for command, spec in ((commands.shared_command, path), (commands.placements_command, [path])):
+                with self.assertRaisesRegex(ValueError, why):
+                    command(SimpleNamespace(spec=spec, repo=self.repo, tileset='x', kit=self.repo))
 
     def test_a_piece_set_into_the_tiles_own(self):
         kit = self.repo / 'kit'; kit.mkdir(); (kit / 'box.mdl').write_text(PIECE)

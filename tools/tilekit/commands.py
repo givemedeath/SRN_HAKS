@@ -17,8 +17,13 @@ def _names(text, option=None):
     return found
 
 
-def _json(path):
-    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
+def _json(path, *objects):
+    """The spec in a file: an object, and so is what it holds under `objects`."""
+    from . import require
+    spec = json.loads(Path(path).read_text(encoding='utf-8-sig')); require(isinstance(spec, dict), f'{path} is no spec: it holds no object')
+    for key in objects:
+        require(isinstance(spec[key], dict), f'{path}: its {key} are no object')
+    return spec
 
 
 def _out(path):
@@ -85,12 +90,12 @@ def rank_command(chosen):
 
 def shared_command(chosen):
     from . import audit
-    _told(audit.shared(chosen.repo, chosen.tileset, _json(chosen.spec)['textures'])); return 0
+    _told(audit.shared(chosen.repo, chosen.tileset, _json(chosen.spec, 'textures')['textures'])); return 0
 
 
 def placements_command(chosen):
     from . import audit
-    told = {path.as_posix(): audit.placements(chosen.repo, _json(path), chosen.kit) for path in chosen.spec}; _told(told); return 1 if any(told.values()) else 0
+    told = {path.as_posix(): audit.placements(chosen.repo, _json(path, 'tiles'), chosen.kit) for path in chosen.spec}; _told(told); return 1 if any(told.values()) else 0
 
 
 def sketch_command(chosen):

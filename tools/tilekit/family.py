@@ -39,7 +39,7 @@ def _is(name, patterns):
 
 def read(path):
     """The family spec in the file `path`, its `taken` specs read relative to it: {..., taken: the tiles they hold}."""
-    path = Path(path); spec = json.loads(path.read_text(encoding='utf-8-sig')); taken = set()
+    path = Path(path); spec = json.loads(path.read_text(encoding='utf-8-sig')); taken = set(); require(isinstance(spec, dict), f'{path} is no family spec: it holds no object')
     for one in spec.get('taken', ()):
         taken |= {name.lower() for name in json.loads((path.parent / one).read_text(encoding='utf-8-sig'))['tiles']}
     return {**spec, 'taken': taken}
@@ -93,13 +93,14 @@ def proposed(spec, family, base, name, *tiles):
 def settled(place, placements):
     """(placements, what `place` told, [what was dropped and why]) once `place` passes them, dropping what it refuses."""
     dropped = []
-    for _ in range(TRIES):
+    while True:
         try:
             return placements, place(placements), dropped
         except detail.Refused as error:
+            if len(dropped) == TRIES:
+                raise ValueError(f'{TRIES} pieces refused, and no end: ' + dropped[-1]) from error
             gone = placements[error.number]; dropped.append(f"{gone['piece']} at {gone['at']}: {str(error)[:160]}")
             placements = [one for number, one in enumerate(placements) if number != error.number and not (gone['piece'] == 'junction_box' and one['piece'] == 'sparks')]
-    raise ValueError(f'{TRIES} pieces refused, and no end: ' + dropped[-1])
 
 
 def propose(repo, spec, kit):

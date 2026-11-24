@@ -50,6 +50,13 @@ class FamilyTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '12 pieces refused'):
             family.settled(never, [{'piece': 'vent', 'at': 0}] * 30)
 
+        def twelve(them):
+            if len(them) > 3:
+                raise detail.Refused(0, 'no')
+        self.assertEqual(len(family.settled(twelve, [{'piece': 'vent', 'at': 0}] * 15)[0]), 3)
+        with self.assertRaisesRegex(ValueError, '12 pieces refused'):
+            family.settled(twelve, [{'piece': 'vent', 'at': 0}] * 16)
+
     def test_detail_names_the_placement_it_refuses(self):
         with tempfile.TemporaryDirectory() as folder:
             (Path(folder) / 'box.mdl').write_text(PIECE)
