@@ -28,7 +28,7 @@ class ToolsetTests(unittest.TestCase):
         made = toolset.documents(); ifo = made['module.ifo']
         for name in ('ektdg_a', 'ektud_a'):
             self.assertTrue({name + '.are', name + '.git', name + '.gic'} <= set(made))  # the Toolset opens no area without all three
-        self.assertEqual([row['Area_Name']['value'] for row in ifo['Mod_Area_list']['value']], ['ektdg_a', 'ektud_a']); self.assertEqual(ifo['Mod_Entry_Area']['value'], 'ektdg_a')
+        self.assertEqual([row['Area_Name']['value'] for row in ifo['Mod_Area_list']['value']], ['ektdg_a', 'ektud_a', 'ektfc_a']); self.assertEqual(ifo['Mod_Entry_Area']['value'], 'ektdg_a')
         self.assertEqual([row['Mod_Hak']['value'] for row in ifo['Mod_HakList']['value']], list(toolset.HAKS)); self.assertEqual(ifo['Mod_CustomTlk']['value'], 'srn')
         self.assertEqual((ifo['Mod_Entry_X']['value'], ifo['Mod_Entry_Y']['value']), toolset.START)  # a corner tile: the Toolset refuses to save with the start on a painted-over tile
         suburbs = made['ektud_a.are']

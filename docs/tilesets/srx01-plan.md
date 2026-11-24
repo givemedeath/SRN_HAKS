@@ -635,7 +635,12 @@ The four textures it shares with dgt04 keep dgt04's look.
   (its slab floor as before), and the unified set's joins, where the new plaza paving meets the city's concrete at
   the kerb with no change to `joins.py`.
 - **Left as they are:** the sign strip (broken blocks in game), the advertising panel's garbled caption, the dim
-  marker lamp strip; the windows are lit at every hour (no day and night animations). Not done: a Toolset check.
+  marker lamp strip; the windows are lit at every hour (no day and night animations).
+- **Toolset (2026-11-24, by computer use on the built packs, `envkit toolset --tileset fcx01`):** the area opens on
+  the restyled paving; Dark City painted from the Terrain palette lays the void and its cyan rim glass around it;
+  the Control Tower group places and draws with the new materials. The saved area holds the 3x3 tower
+  (`fcx01_d01_01` to `_09`), 20 void edge tiles and the plain plaza, with nothing missing or black. The palette shows
+  the groups' display names. Not tried: every group, doors, tile light settings.
 
 ### 7. Cohesion
 
