@@ -24,6 +24,7 @@ from tools.armorkit.client_fixture import field
 from tools.envkit import checks, prop_fixture
 
 from . import PARTS, require
+from .client_settings import settings
 
 TILE = 10.0
 HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_2da')  # as a module lists them, first wins
@@ -335,7 +336,7 @@ def read_area(path, run=None):
     return are['Width']['value'], are['Height']['value'], [(one['Tile_ID']['value'], one['Tile_Orientation']['value']) for one in are['Tile_List']['value']]
 
 
-def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, tlk=TLK, start=START, hold=HOLD):
+def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, tlk=TLK, start=START, hold=HOLD, arrive=ARRIVE):
     """Build the review module into the fresh folder `output`: a user folder of its own holding the module, the talk
     table and the built packs (as hard links to those in `built`, copies where the file system has none), with a pack
     of the module's own first in its list holding the files of `overlay`. areas: [{tag, title, tileset, width, height,
@@ -364,7 +365,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     for path in laid_over:
         shutil.copyfile(path, staged / path.name); held.append(path.name)
     run('nwn_erf', ['-c', '-f', user / 'hak' / f'{name}.hak', '-e', 'HAK', staged])
-    script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold), encoding='ascii', newline='\n')
+    script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold, arrive), encoding='ascii', newline='\n')
     run('nwn_script_comp', ['--root', root, '--userdirectory', user, '--no-ovr', script])
     require(script.with_suffix('.ncs').is_file(), 'The entry script did not compile')
     made = client_fixture.module_documents(name, list(haks), tlk, tuple(shots[0]['stand'])); ifo = made['module.ifo']
@@ -380,7 +381,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     record = {'name': name, 'userDirectory': str(user), 'module': module.name, 'hak': f'{name}.hak', 'haks': list(haks), 'overlay': held,
               'areas': [{key: area[key] for key in ('tag', 'title', 'tileset', 'width', 'height', 'light')} for area in areas],
               # `hold` is what a capture is timed against; what the views wait before it counts toward the run's start.
-              'shots': [shot['label'] for shot in shots], 'start': start + sum(waits(shots)), 'hold': hold,
+              'shots': [shot['label'] for shot in shots], 'start': start + sum(waits(shots, arrive)), 'hold': hold,
               'clientValidated': False}
     (output / 'fixture.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
     return record
@@ -391,7 +392,7 @@ def capture(game, record, folder):
     client runs. Returns {captures, late, elsewhere}: `late` names the views captured after they had passed, kept as
     -late.png; `elsewhere` those whose area the player had not reached when the view was taken. Neither shows its view."""
     checks.wait_for_clients(); captures = Path(folder) / 'captures'
-    result = prop_fixture.run(game, record, captures, late_ok=True)
+    result = prop_fixture.run(game, record, captures, extra_settings=settings(), late_ok=True)
     (captures / 'run.json').write_text(json.dumps(result, indent=1), encoding='utf-8')
     return {'captures': result['captures'], 'late': result['late'], 'elsewhere': elsewhere(result['lines'])}
 

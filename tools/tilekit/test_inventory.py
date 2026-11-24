@@ -205,6 +205,17 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(main([*baseline[:4], str(out / 'none.json'), *baseline[5:]]), 2)  # as is one that is not there
         self.assertEqual(main(['walkmesh', '--tileset', 'nope', '--baseline', str(out / 'walkmesh.json'), '--repo', str(self.repo)]), 2)
 
+    def test_a_set_merged_of_this_one_is_no_other(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = Path(folder); (repo / 'srn_2da').mkdir(); rows = '[TILE0]\nModel=a\n'
+            for name in ('x', 'm', 'y'):
+                (repo / f'srn_t_{name}').mkdir(); (repo / f'srn_t_{name}' / f'{name}.set').write_text(rows)
+            (repo / 'srn_t_x' / 'a.mdl').write_text('newmodel a\n'); merge = repo / 'docs' / 'tilesets' / 'm'; merge.mkdir(parents=True)
+            others = lambda tileset: [row[3] for row in inventory.drawn_copies(repo, tileset, None, ('srn_t_x',))]
+            self.assertEqual(others('x'), [['m', 'y']])
+            (merge / 'merge.json').write_text(json.dumps({'families': [{'set': 'x'}]}))
+            self.assertEqual(others('x'), [['y']]); self.assertEqual(others('m'), [['x', 'y']])  # a true other is still one; from the merged set, its families are
+
 
 if __name__ == '__main__':
     unittest.main()

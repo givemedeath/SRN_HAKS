@@ -1,0 +1,511 @@
+{
+ "tileset": "dgt04",
+ "layouts": [
+  {
+   "kind": "block",
+   "name": "block",
+   "width": 15,
+   "height": 15,
+   "patches": [
+    {
+     "terrain": "Highrise_01",
+     "at": [
+      1,
+      1
+     ]
+    },
+    {
+     "terrain": "Highrise_02",
+     "at": [
+      5,
+      1
+     ]
+    },
+    {
+     "terrain": "Highrise_03",
+     "at": [
+      9,
+      1
+     ]
+    },
+    {
+     "terrain": "Highrise_04",
+     "at": [
+      13,
+      1
+     ]
+    },
+    {
+     "terrain": "Highrise_05",
+     "at": [
+      1,
+      5
+     ]
+    },
+    {
+     "terrain": "Highrise_06",
+     "at": [
+      5,
+      5
+     ]
+    },
+    {
+     "terrain": "Highrise_07",
+     "at": [
+      9,
+      5
+     ]
+    },
+    {
+     "terrain": "Apartments",
+     "at": [
+      13,
+      5
+     ]
+    },
+    {
+     "terrain": "Slums1",
+     "at": [
+      1,
+      9
+     ]
+    },
+    {
+     "terrain": "Slums2",
+     "at": [
+      5,
+      9
+     ]
+    },
+    {
+     "terrain": "Slums3",
+     "at": [
+      9,
+      9
+     ]
+    },
+    {
+     "terrain": "Warehouse_01",
+     "at": [
+      13,
+      9
+     ]
+    },
+    {
+     "terrain": "Warehouse_02",
+     "at": [
+      1,
+      13
+     ]
+    },
+    {
+     "terrain": "Police_Station",
+     "at": [
+      5,
+      13
+     ]
+    },
+    {
+     "terrain": "Hospital",
+     "at": [
+      9,
+      13
+     ]
+    },
+    {
+     "terrain": "Lab",
+     "at": [
+      13,
+      13
+     ]
+    }
+   ],
+   "runs": [
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       3,
+       0
+      ],
+      [
+       3,
+       14
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       7,
+       0
+      ],
+      [
+       7,
+       14
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       11,
+       0
+      ],
+      [
+       11,
+       14
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       0,
+       3
+      ],
+      [
+       14,
+       3
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       0,
+       7
+      ],
+      [
+       14,
+       7
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       0,
+       11
+      ],
+      [
+       14,
+       11
+      ]
+     ]
+    }
+   ],
+   "crossings": [
+    [
+     3,
+     3
+    ],
+    [
+     11,
+     3
+    ],
+    [
+     3,
+     11
+    ],
+    [
+     11,
+     11
+    ]
+   ],
+   "views": [
+    "x03y11-ne",
+    "x11y03-ne",
+    "x11y11-nw"
+   ]
+  },
+  {
+   "kind": "block",
+   "name": "slums",
+   "width": 32,
+   "height": 32,
+   "patches": [
+    {
+     "terrain": "Slums1",
+     "at": [
+      1,
+      1
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums2",
+     "at": [
+      9,
+      1
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums3",
+     "at": [
+      17,
+      1
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums1",
+     "at": [
+      25,
+      1
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums2",
+     "at": [
+      1,
+      9
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums3",
+     "at": [
+      9,
+      9
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums1",
+     "at": [
+      17,
+      9
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums2",
+     "at": [
+      25,
+      9
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums3",
+     "at": [
+      1,
+      17
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums1",
+     "at": [
+      9,
+      17
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums2",
+     "at": [
+      17,
+      17
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums3",
+     "at": [
+      25,
+      17
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums1",
+     "at": [
+      1,
+      25
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums2",
+     "at": [
+      9,
+      25
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums3",
+     "at": [
+      17,
+      25
+     ],
+     "size": [
+      6,
+      6
+     ]
+    },
+    {
+     "terrain": "Slums1",
+     "at": [
+      25,
+      25
+     ],
+     "size": [
+      6,
+      6
+     ]
+    }
+   ],
+   "runs": [
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       7,
+       0
+      ],
+      [
+       7,
+       31
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       15,
+       0
+      ],
+      [
+       15,
+       31
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       23,
+       0
+      ],
+      [
+       23,
+       31
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       0,
+       7
+      ],
+      [
+       31,
+       7
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       0,
+       15
+      ],
+      [
+       31,
+       15
+      ]
+     ]
+    },
+    {
+     "crosser": "Street",
+     "cells": [
+      [
+       0,
+       23
+      ],
+      [
+       31,
+       23
+      ]
+     ]
+    }
+   ],
+   "crossings": [
+    [
+     7,
+     7
+    ],
+    [
+     15,
+     15
+    ],
+    [
+     23,
+     7
+    ]
+   ],
+   "views": [
+    "x07y07-ne",
+    "x15y15-ne",
+    "x23y07-ne"
+   ]
+  }
+ ]
+}
