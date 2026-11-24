@@ -2,7 +2,10 @@
 
 Status: revision 3, 2026-11-18. Release 1 (materials, lamps, shadows) passed the user's look gate and is in the
 packs, 2026-11-19; see "Release 1 in the packs". Strata 4 and 5 passed the user's look gate and are in the
-packs, 2026-11-19; see "Strata 4 and 5 in the packs". Release 2 is not started.
+packs, 2026-11-19; see "Strata 4 and 5 in the packs". Release 2 work is now recorded through the applied batch
+work, universal door set, crowned remesh terrain, finish fixes and compiled tile publication completed in
+2026-11-20. The deferred corporate Highrise batch decision/application and the final merge-to-main step remain
+open.
 
 Source: `SR_NWN_Modern_Exterior_Upfit_Plan_Complete.zip` (revision 1.1, 2026-11-18), reviewed against this
 repository. The package's art direction and its insistence on in-game proof stand. Its inventory, packaging and

@@ -1,8 +1,10 @@
 # Armorkit plan
 
-Written 2026-11-09; every decision raised with the draft was settled by the user the same day. Nothing is built
-yet. This records the user's decisions from the planning session, what was proven in the client, and the work
-in order. Evidence for every "proven" statement is in
+Written 2026-11-09; every decision raised with the draft was settled by the user the same day. The published
+Armorkit outputs now include the Facility Security outfit 6020 (2026-11-15) and its duty belt 6020 and logo
+brassard 1000 (2026-11-17); outfit recipes and the civilian baseline remain planned rather than published.
+This records the user's decisions from the planning session, what was proven in the client, and the work in
+order. Evidence for every "proven" statement is in
 [spikes.md](spikes.md). Revisions are appended as dated sections; this text stays as approved.
 
 ## Goal and scope
