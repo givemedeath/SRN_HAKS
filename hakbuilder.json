@@ -124,6 +124,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_envprop",
+      "Path": "./srn_envprop/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_body",
       "Path": "./srn_body/",
       "CompileModels": false

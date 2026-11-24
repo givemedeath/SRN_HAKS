@@ -5,6 +5,7 @@ import io
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from . import additions, catalog, convert, placeables
@@ -101,6 +102,9 @@ class CommandTests(unittest.TestCase):
                 run()
             given('Shop \u2192 Bin')  # an arrow the game's code page lacks
             with self.assertRaisesRegex(ValueError, 'code page lacks'):
+                run('Shop props')
+            given('Shop, Bin')
+            with mock.patch.object(additions, 'PACK_ROOM', 10), self.assertRaisesRegex(ValueError, 'not built past 2 GiB'):  # a pack with no room left: srn_placeable, 2026-11-24
                 run('Shop props')
             self.assertEqual(list(pack.iterdir()), [])  # each refused before anything was copied
             given('Shop, Bin'); self.assertEqual(run('Shop props')['rows'], {'ek_a': 8})

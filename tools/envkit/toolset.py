@@ -27,7 +27,7 @@ from . import require
 
 MODULE = 'ektool'
 AREAS = {'dgt04': ('ektdg', 'Modern Exterior', 0), 'udp1': ('ektud', 'Suburbs', 52)}  # tileset: area, its name, the tile it is laid with
-HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_2da')  # as a module lists them, first wins
+HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_envprop', 'srn_2da')  # as a module lists them, first wins
 TLK = 'srn'
 START = (5.0, 5.0)  # the south-west corner tile
 SIZE = 8

@@ -34,9 +34,10 @@ A row or tile added without its entry fails verification, and so does an entry l
    blueprint, a palette `category`.
 2. `python -B -m tools.envkit game ...` converts the model.
 3. `python -B -m tools.envkit placeables ... --provenance "<PROVENANCE.md section>"` copies its files into
-   `srn_placeable`, appends its row after the table's last row and writes its catalog entry.
+   `srn_envprop`, appends its row after the table's last row and writes its catalog entry.
 4. `python -B -m tools.envkit blueprints ... --game <game folder>` writes a blueprint for each catalogued model that
-   has a category and rebuilds `srn_placeable/placeablepalstd.itp`.
+   has a category and rebuilds `srn_placeable/placeablepalstd.itp` (the palette is one file for all of a module's
+   placeables and stays in that pack: `--palette-pack`).
 
 Running step 3 again for models that already have rows replaces their files and leaves the table alone. A model
 built again without lit parts has its old glow map, lights-out material and halo removed from the pack.
@@ -50,7 +51,7 @@ Rules the commands follow, and that a row added by hand must follow too:
 
 ## Blueprints and the palette
 
-A blueprint is named as its model (`ek_ss_trash.utp`) and lives in `srn_placeable`. Blueprints in a hak are not on
+A blueprint is named as its model (`ek_ss_trash.utp`) and lives in `srn_envprop`. Blueprints in a hak are not on
 the Toolset's Custom tab, which lists only the module's own. They are offered on the Standard tab because
 `placeablepalstd.itp` lists them: that file is the game's own palette with ours added, laid out on the category
 tree in `placeablepal.itp`. It is rebuilt whole by `envkit blueprints`, so it needs the game installed; do not edit
@@ -74,7 +75,7 @@ so a script can put its lights out; the others are static.
 ## Lights
 
 A model with lit parts ships with a lights-out material and dark textures, and its catalog entry names them under
-`lights`. The dark halo they all share, `ek_off`, is kept in one pack (`srn_placeable`, the commands' `--dark-pack`),
+`lights`. The dark halo they all share, `ek_off`, is kept in one pack (`srn_envprop`, the commands' `--dark-pack`),
 so installing a lit tile group can write those three files there. The commands write both for placeables and tile groups alike. [docs/envkit/lights.md](../envkit/lights.md)
 is the standard for those files and shows how a script uses them.
 

@@ -20,6 +20,9 @@ def _catalogued(args):
     return catalog.load(path), path, {'madeBy': 'envkit', 'source': source, 'provenance': args.provenance, 'added': datetime.date.today().isoformat()}
 
 
+PACK_ROOM = 1900 * 2 ** 20  # bytes a pack is filled to: nwn_erf refuses a hak past 2 GiB, and srn_placeable reached it on 2026-11-24
+
+
 def _home(args, path):
     """Where a built file goes: into its model's pack, but the dark halo every lit model shares into the one pack that
     holds it (`--dark-pack`): the same file in two packs fails repository verification."""
@@ -138,6 +141,11 @@ def command_placeables(args):
     else:
         text, rows = placeables.register(text, [{'model': name, **placed} for name, placed in chosen.items()])
     written = game_bytes(text, table.name)  # refused here, not after the copying, if a label has a character the game lacks
+    coming = {_home(args, path): path.stat().st_size for name in chosen for path in [built / name / 'compiled' / f'{name}.mdl', *(built / name / 'source').iterdir()]
+              if path.suffix in ('.mdl', '.pwk', '.mtr', '.dds', '.txi') and (path.suffix != '.mdl' or path.parent.name == 'compiled')}
+    size = sum(path.stat().st_size for path in pack.iterdir() if path.is_file() and path not in coming) + sum(size for path, size in coming.items() if path.parent == pack)
+    require(size <= PACK_ROOM, f'{args.pack} would hold {size / 2 ** 20:,.0f} MiB with these models and a hak is not built past 2 GiB (nwn_erf): '
+            f'put them into another pack (--pack) or make room, {PACK_ROOM / 2 ** 20:,.0f} MiB being the most a pack is filled to')
     from . import catalog
     data, record, origin = _catalogued(args)
     for name, row in rows.items():  # refused here, before anything is copied, if the catalog says otherwise
@@ -158,14 +166,15 @@ def command_placeables(args):
 
 
 def command_blueprints(args):
-    """Give every envkit placeable of a game set a blueprint in its pack and rebuild the pack's standard palette, so
+    """Give every envkit placeable of a game set a blueprint in its pack and rebuild the standard palette (in `--palette-pack`), so
     the Toolset offers them on the Standard tab. Needs the game: the palette is the game's own with these added."""
     import subprocess
     import tempfile
     from tools.phenotypes import tool_runtime
     from . import blueprints, catalog, convert, placeables
     models = convert.load_models(args.models); repo = Path(args.repo); pack = repo / args.pack; record = repo / args.catalog
-    require(pack.is_dir() and record.is_file(), 'The pack or the additions catalog is missing: ' + str(pack) + ', ' + str(record))
+    shelf = repo / (getattr(args, 'palette_pack', None) or args.pack)  # the palette is one file for every placeable of the module, so it stays in one pack
+    require(pack.is_dir() and shelf.is_dir() and record.is_file(), 'The pack, the palette\'s pack or the additions catalog is missing: ' + ', '.join(map(str, (pack, shelf, record))))
     data = catalog.load(record); gff = str(tool_runtime.tool('nwn_gff'))
     run = lambda arguments: subprocess.run([str(value) for value in arguments], capture_output=True, timeout=300, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     with tempfile.TemporaryDirectory() as scratch:
@@ -194,9 +203,9 @@ def command_blueprints(args):
             catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']})
         listed = [{'resref': entry['blueprint'], 'name': entry['label'].removeprefix(placeables.PREFIX), 'category': entry['category']}
                   for entry in data['placeables'] if entry.get('blueprint')]
-        palette = blueprints.palette(read(pack / blueprints.SKELETON), read(scratch / 'stock.itp'), listed)
+        palette = blueprints.palette(read(shelf / blueprints.SKELETON), read(scratch / 'stock.itp'), listed)
         for model, document in made.items():  # every blueprint and the palette are worked out before the first is written
             write(document, pack / f'{model}.utp')
-        write(palette, pack / blueprints.PALETTE)
+        write(palette, shelf / blueprints.PALETTE)
     catalog.save(record, data)
     print(json.dumps({'blueprints': list(made), 'palette': len(listed)}), flush=True)

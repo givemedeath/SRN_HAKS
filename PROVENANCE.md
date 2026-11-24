@@ -1567,9 +1567,10 @@ Checked in the game client on 2026-11-18: by day from front, back and side with 
 files; and by night from the pack's files, where the lights of the three lit props were put out by script and brought
 back, the ground before the bulkhead door lit by its lamp.
 
-## Happenstance props (`srn_placeable`, `srn_2da`; 2026-11-24)
+## Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)
 
-Twenty-nine envkit props from the Happenstance nightclub concept sheet's exterior join `srn_placeable`, each with a
+Twenty-nine envkit props from the Happenstance nightclub concept sheet's exterior join `srn_envprop` (the envkit
+prop pack, as the section below records), each with a
 row appended to `srn_2da/placeables.2da` (22889-22917, labelled `[envkit]Happenstance, ...`): neon sign `ek_hs_sign`,
 martini neon sign `ek_hs_martini`, Casquilho Familia sign `ek_hs_familia`, entrance canopy `ek_hs_canopy`, entrance
 doors `ek_hs_doors`, large and small storefront windows `ek_hs_shopwin` and `ek_hs_shopwin2`, large and small upper
@@ -1580,7 +1581,7 @@ electrical box `ek_hs_elecbox`, conduit bundle `ek_hs_conduit`, drainpipe `ek_hs
 `ek_hs_pipes`, wall AC unit `ek_hs_acunit`, large and small rooftop HVAC units `ek_hs_hvac` and `ek_hs_hvac2`,
 turbine roof vent `ek_hs_turbine`, roof vent stack `ek_hs_ventcap` and antenna mast `ek_hs_antenna`. No existing row
 changes. Each prop is a compiled model, a collision file, a material file and its maps (colour 1024 or 2048, the
-other maps at half that or less), and a blueprint named as its model, offered through the pack's
+other maps at half that or less), and a blueprint named as its model, offered through `srn_placeable`'s
 `placeablepalstd.itp`. The sheet's building is not made: these are its props only (operator, 2026-11-24). Four more
 exterior props (satellite dish, graffiti panel, curb section, sidewalk section) wait for Meshy funds, and the
 sheet's interior props are not begun.
@@ -1625,6 +1626,23 @@ Checked in the game client on 2026-11-24: by day and by night from front, back a
 the converted files (the four props hung at 3 metres and more were judged from copies lowered into the frame); and
 by night from the pack's files, where the lights of the ten lit props were put out by script and brought back, the
 ground lit by the canopy and the two lamps. Not yet placed in the Toolset.
+
+## Envkit props moved to their own pack (`srn_envprop`, `srn_placeable`; 2026-11-24)
+
+With the Happenstance props `srn_placeable` came to 2,103 MB, and a hak is not built past 2 GiB: the packer
+(`nwn_erf`) refuses it, the archive's offsets being 32-bit. Every envkit prop file, 1,763 files of 869 MB named
+`ek_*` (models, collision files, materials, maps, blueprints and the shared dark halo `ek_off`), moved unchanged
+from `srn_placeable` to the new pack `srn_envprop`, registered in `hakbuilder.json` (operator, 2026-11-24: "move
+all envkit props to their own hak"). `srn_placeable` is left at 1,271 MB with the MDRNEE placeables and the two
+palette files; `placeablepalstd.itp` stays there, one file for every placeable of a module, and still lists the
+envkit blueprints. No file's content, name or `placeables.2da` row changed, and the catalog's `pack` of each of the
+178 envkit placeables now reads `srn_envprop`. The props' sections above name `srn_placeable` as the pack they
+joined at the time and are left as written.
+
+A module that uses envkit props, or an envkit tile group with lit parts (their lights-out materials name
+`ek_off`), lists `srn_envprop` beside `srn_placeable`. `envkit placeables` and `blueprints` now write to
+`srn_envprop` (`--pack`, `--dark-pack`), the palette to `srn_placeable` (`--palette-pack`), and `placeables`
+refuses a pack it would fill past 1,900 MiB.
 
 ## MDRNEE placeable import (2026-09-11)
 

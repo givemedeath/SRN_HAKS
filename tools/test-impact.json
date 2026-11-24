@@ -6000,19 +6000,20 @@
     ],
     "tools/envkit/__main__.py": [
       "srn_2da",
+      "srn_envprop",
       "srn_placeable",
       "srn_t_common"
     ],
     "tools/envkit/checks.py": [
       "srn_2da",
-      "srn_placeable",
+      "srn_envprop",
       "srn_t_common"
     ],
     "tools/envkit/study.py": [
       "srn_t_common"
     ],
     "tools/envkit/test_checks.py": [
-      "srn_placeable",
+      "srn_envprop",
       "srn_t_common",
       "srn_t_dgt04"
     ],
@@ -6026,6 +6027,7 @@
     "tools/envkit/toolset.py": [
       "srn_2da",
       "srn_door",
+      "srn_envprop",
       "srn_placeable",
       "srn_t_common",
       "srn_t_dgt04",
@@ -6223,6 +6225,7 @@
     "tools/tilekit/review.py": [
       "srn_2da",
       "srn_door",
+      "srn_envprop",
       "srn_placeable",
       "srn_t_common",
       "srn_t_dgt04",

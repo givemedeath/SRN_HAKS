@@ -692,6 +692,11 @@ spacing alone: `envkit onboard layout --set <set file>` writes it again as the k
   building at `colour` 4096 keeps its relief at 4096 too, and that map is over the 15 MiB the repository takes a
   file at. `envkit tiles` says so in the report's notes: state a `srn-size-exception` for the file's path in the
   pack in PROVENANCE.md, with the reason, in the commit that adds it.
+- **A pack will not build: "ERF will exceed 2GB limit"** (`srn_placeable` with the Happenstance props, 2,103 MB,
+  2026-11-24). A hak is not built past 2 GiB. Envkit props have their own pack since, `srn_envprop`, and `envkit
+  placeables` refuses a pack it would fill past 1,900 MiB (`additions.PACK_ROOM`) before it copies anything: when it
+  does, the next sheets need another pack (`--pack`, registered in `hakbuilder.json`, with `ek_off` and the palette
+  left where they are), which is the operator's decision.
 - **A lamp glows but lights nothing round it** (a light tower, a street lamp). A glow map lights only the model's
   own faces. Give its `placeable` a `light` (`{"colour": <lightcolor.2da row>, "at": [x, y, z]}`, at the lamp) so
   its row casts light as the stock lamp post's does (user, of the rail yard's light tower: "Yes, try it",
