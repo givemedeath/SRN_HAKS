@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 kuhmu
+texture1 kuhmu_n
+texture2 kuhmu_s
+texture3 kuhmu_r
+texture4 null
+texture5 kuhmu_i

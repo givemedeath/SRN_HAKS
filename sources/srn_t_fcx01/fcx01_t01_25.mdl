@@ -164,7 +164,7 @@ node trimesh Window10_25
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 9
     0.0 -0.01 0.75
     0.0 -0.01 -0.75
@@ -219,7 +219,7 @@ node trimesh wind_06_25
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.500015 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 9
     0.0 0.0 0.75
     0.0 0.0 -0.75

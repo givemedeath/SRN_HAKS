@@ -13,7 +13,7 @@ beginmodelgeom fcx01_d01_07
 node dummy fcx01_d01_07
   parent NULL
 endnode
-node light MMC01_Y12_01ml1
+node light fcx01_d01_07ml1
   parent fcx01_d01_07
   position 0.0 0.0 5.0
   orientation 1.0 0.0 0.0 0.0
@@ -28,7 +28,7 @@ node light MMC01_Y12_01ml1
   lightpriority 5
   fadingLight 1
 endnode
-node light MMC01_Y12_01ml2
+node light fcx01_d01_07ml2
   parent fcx01_d01_07
   position -2.0 -2.0 4.0
   orientation 1.0 0.0 0.0 0.0
@@ -140,7 +140,7 @@ node trimesh Cylinder03_09
   Specular 0.0 0.733333 0.972549 
   shininess 5
   center -0.5 0.5 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 22
     1.7 0.01 -0.34
     -2.04 3.2 -0.34

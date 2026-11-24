@@ -13,7 +13,7 @@ beginmodelgeom fcx01_e01_01
 node dummy fcx01_e01_01
   parent NULL
 endnode
-node light TME01_Y03_01ml1
+node light fcx01_e01_01ml1
   parent fcx01_e01_01
   position 3.30317 2.89657 25.0
   orientation 1.0 0.0 0.0 0.0
@@ -28,7 +28,7 @@ node light TME01_Y03_01ml1
   lightpriority 5
   fadingLight 1
 endnode
-node light TME01_Y03_01ml2
+node light fcx01_e01_01ml2
   parent fcx01_e01_01
   position 0.0 0.0 24.0
   orientation 1.0 0.0 0.0 0.0
@@ -131,7 +131,7 @@ node trimesh Plane02_01
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap d_ground03
+  bitmap fcx_ground03
   verts 9
     -5.0 -5.0 0.0
     0.0 -5.0 0.0
@@ -449,7 +449,7 @@ node trimesh floor_top_01
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap d_ground03
+  bitmap fcx_ground03
   verts 9
     -3.75 -3.75 0.0
     0.0 -3.75 0.0
@@ -559,7 +559,7 @@ node trimesh window01_01
   Specular 0.0 0.760784 0.94902 
   shininess 5
   center 0.0 0.5 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 19
     0.0 -3.16 6.93
     0.0 0.01 6.93
@@ -1379,7 +1379,7 @@ node trimesh Pub_01
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap Pub
+  bitmap fcx_pub
   verts 15
     -1.28 0.0 -2.56
     0.0 0.0 -2.56
@@ -1910,7 +1910,7 @@ newanim animloop01 fcx01_e01_01
             0.5 0.0 0.0 0.0 0.0
         endlist
     endnode
-    node light TME01_Y03_01ml1
+    node light fcx01_e01_01ml1
         parent fcx01_e01_01
         positionkey
             0.0 3.30317 2.89657 25.0
@@ -1919,7 +1919,7 @@ newanim animloop01 fcx01_e01_01
             0.0 0.0 0.0 0.0 0.0
         endlist
     endnode
-    node light TME01_Y03_01ml2
+    node light fcx01_e01_01ml2
         parent fcx01_e01_01
         positionkey
             0.0 0.0 0.0 24.0

@@ -13,7 +13,7 @@ beginmodelgeom fcx01_f01_11
 node dummy fcx01_f01_11
   parent NULL
 endnode
-node light TME01_Z03_11ml1
+node light fcx01_f01_11ml1
   parent fcx01_f01_11
   position 3.79069 3.30546 5.0
   orientation 1.0 0.0 0.0 0.0
@@ -28,7 +28,7 @@ node light TME01_Z03_11ml1
   lightpriority 5
   fadingLight 1
 endnode
-node light TME01_Z03_11ml2
+node light fcx01_f01_11ml2
   parent fcx01_f01_11
   position -2.93668 3.34545 4.0
   orientation 1.0 0.0 0.0 0.0

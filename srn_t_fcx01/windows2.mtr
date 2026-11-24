@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 windows2
+texture1 windows2_n
+texture2 windows2_s
+texture3 windows2_r
+texture4 null
+texture5 windows2_i

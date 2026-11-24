@@ -1737,7 +1737,7 @@ node trimesh Cylinder02
   Specular 0.0 0.733333 0.972549 
   shininess 5
   center -0.5 0.5 40.0 
-  bitmap WINDOW1
+  bitmap fcx_window1
   verts 56
     0.0 0.0 0.0
     2.18 0.0 0.0
@@ -1991,7 +1991,7 @@ node trimesh Cylinder03
   Specular 0.0 0.733333 0.972549 
   shininess 5
   center -0.5 0.5 34.0 
-  bitmap WINDOW1
+  bitmap fcx_window1
   verts 56
     0.0 0.0 0.0
     1.82 0.0 0.0

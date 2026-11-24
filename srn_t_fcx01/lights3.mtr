@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 lights3
+texture1 lights3_n
+texture2 lights3_s
+texture3 lights3_r
+texture4 null
+texture5 lights3_i

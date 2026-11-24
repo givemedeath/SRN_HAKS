@@ -372,7 +372,7 @@ node trimesh Ground03_19
   Specular 0.0 0.0 0.0 
   shininess 1
   center 0.0 0.0 0.0 
-  bitmap d_ground03
+  bitmap fcx_ground03
   verts 18
     2.5 -4.99 0.0
     -2.5 -4.99 0.0
@@ -534,7 +534,7 @@ node trimesh wind_06_19
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 14
     0.0 4.99 0.75
     0.0 4.99 -0.75
@@ -606,7 +606,7 @@ node trimesh Window10_19
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 14
     0.0 5.0 0.75
     0.0 5.0 -0.75

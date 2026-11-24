@@ -34,7 +34,7 @@ node trimesh concrete2
   Specular 0.0 0.0 0.0 
   shininess 10
   center 1000.0 0.0 0.0 
-  bitmap d_ground03
+  bitmap fcx_ground03
   verts 27
     12.5 5.0 0.0
     7.5 5.0 0.0

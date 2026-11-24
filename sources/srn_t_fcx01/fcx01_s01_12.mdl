@@ -249,7 +249,7 @@ node trimesh platform_12
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap d_ground03
+  bitmap fcx_ground03
   verts 15
     2.26 -1.35 0.0
     4.53 4.12 0.0

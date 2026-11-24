@@ -34,7 +34,7 @@ node trimesh Box01
   Specular 0.0 0.0 0.0 
   shininess 10
   center -559.0 346.0 0.0 
-  bitmap d_ground03
+  bitmap fcx_ground03
   verts 40
     -3.09 8.46 0.0
     -8.09 8.46 0.0

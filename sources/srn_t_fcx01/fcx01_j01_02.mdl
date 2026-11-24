@@ -632,7 +632,7 @@ node trimesh L_Window05
   Specular 0.0 0.733333 0.972549 
   shininess 5
   center 0.0 0.0 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 4
     0.0 2.5 0.75
     0.0 2.5 -0.75
@@ -672,7 +672,7 @@ node trimesh L_Window01
   Specular 0.0 0.733333 0.972549 
   shininess 5
   center 0.0 0.0 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 4
     0.0 2.5 0.75
     0.0 2.5 -0.75
@@ -712,7 +712,7 @@ node trimesh L_Window02
   Specular 0.0 0.733333 0.972549 
   shininess 5
   center 0.0 -250.0 0.0 
-  bitmap window1
+  bitmap fcx_window1
   verts 8
     0.0 2.5 0.75
     0.0 2.5 -0.75
@@ -766,7 +766,7 @@ node trimesh L_Ground
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap d_ground03
+  bitmap fcx_ground03
   verts 4
     -2.35 -5.0 0.0
     2.35 -5.0 0.0

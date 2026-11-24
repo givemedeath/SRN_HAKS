@@ -13,7 +13,7 @@ beginmodelgeom FCX01_U01_01
 node dummy FCX01_U01_01
   parent NULL
 endnode
-node light FCX01_Q01_01ml1
+node light fcx01_u01_01ml1
   parent FCX01_U01_01
   position 4.15525 3.91008 5.90707
   orientation 1.0 0.0 0.0 0.0
@@ -28,7 +28,7 @@ node light FCX01_Q01_01ml1
   lightpriority 5
   fadingLight 0
 endnode
-node light FCX01_Q01_01ml2
+node light fcx01_u01_01ml2
   parent FCX01_U01_01
   position -4.01252 -3.83868 4.0
   orientation 1.0 0.0 0.0 0.0
