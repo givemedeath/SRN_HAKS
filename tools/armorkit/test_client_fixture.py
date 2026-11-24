@@ -234,6 +234,17 @@ class ClientTests(unittest.TestCase):
         self.assertIn('on-focus-loss', client.SETTINGS.format(width=1, height=1))
         self.assertIn('[graphics.keyholing]\nenabled = false\n', client.SETTINGS.format(width=1, height=1))  # no capture has the camera's keyhole cut into it
 
+    def test_settings_name_each_table_once_and_an_old_file_loses_its_keyhole(self):
+        # tilekit's own settings name keyholing too: a table twice in the file is not valid TOML (review of PR 193)
+        text = client.settings_text(1600, 900, '[graphics.keyholing]\nenabled = false\n[graphics.framelimiter]\nenabled = true\n')
+        self.assertEqual(text.count('[graphics.keyholing]'), 1); self.assertIn('[graphics.framelimiter]\nenabled = true\n', text)
+        self.assertIn('width = 1600\nheight = 900\n', text); self.assertEqual(client.settings_text(1, 1), client.SETTINGS.format(width=1, height=1))
+        self.assertIn('[ui]\nmouseover-feedback = true\n', client.settings_text(1, 1, '[ui]\nmouseover-feedback = true\n'))  # the caller's value is the one kept
+        game = '[graphics]\n\t[graphics.keyholing]\n\t\tdisables-camera-collisions = true\n\t\tenabled = true\n\t[graphics.window]\n\t\tenabled = true\n'
+        self.assertEqual(client.keyhole_off(game), game.replace('\t\tenabled = true\n\t[graphics.window]', '\t\tenabled = false\n\t[graphics.window]'))
+        self.assertEqual(client.keyhole_off('[ui]\nx = 1'), '[ui]\nx = 1\n[graphics.keyholing]\nenabled = false\n')
+        self.assertEqual(client.keyhole_off('[graphics.keyholing]\n[ui]\nx = 1\n'), '[graphics.keyholing]\nenabled = false\n[ui]\nx = 1\n')
+
     def test_a_failed_process_listing_is_not_read_as_no_client_running(self):
         def listing(code, output):
             return mock.patch.object(client.subprocess, 'run', return_value=subprocess.CompletedProcess([], code, output, b''))

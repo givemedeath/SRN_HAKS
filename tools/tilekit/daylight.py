@@ -49,28 +49,35 @@ def with_daylight(text, lit):
     ending = '\r\n' if '\r\n' in text else '\n'
     every = [one[1] for one in NODE.findall(_geometry(text))]; taken = {one.lower() for one in every}
 
+    def word(one):  # the name as the game reads it: to the first space, in any case
+        return one.split()[0].lower()
+    words = [word(one) for one in every]
+
     def fresh(stem, index):
         made = next(f'{stem}{index:02d}_{count}' for count in range(999) if f'{stem}{index:02d}_{count}' not in taken)
         taken.add(made); return made
     faded = []  # (node, parent, alpha by day, alpha by night)
     for index, (node, parent, texture) in enumerate(found):
-        if ' ' in node or every.count(node) != 1:  # the game reads a name to its first space, and the first node of a name: the lit mesh takes a name of its own
-            line = re.compile(r'(?m)^([ \t]*node[ \t]+trimesh[ \t]+)' + re.escape(node) + r'([ \t]*\r?)$')
-            require(every.count(node) == sum(1 for one in found if one[0] == node) and not re.search(r'(?mi)^[ \t]*parent[ \t]+' + re.escape(node) + r'[ \t]*\r?$', text),
+        if len(node.split()) > 1 or words.count(word(node)) != 1:  # the game reads a name to its first space, and the first node of a name: the lit mesh takes a name of its own
+            line = re.compile(r'(?mi)^([ \t]*node[ \t]+trimesh[ \t]+)' + re.escape(node) + r'([ \t]*\r?)$')
+            require(words.count(word(node)) == sum(1 for one in found if word(one[0]) == word(node))
+                    and not re.search(r'(?mi)^[ \t]*parent[ \t]+' + re.escape(word(node)) + r'(?:[ \t][^\r\n]*)?\r?$', text),
                     f'{name}: the lit mesh {node!r} shares its name with a mesh that is not lit, or has children')
             # meshes of one name are taken in their order: the first still under the old name, in the geometry and in each animation
             new = fresh('lit', index); parts = re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)
             text = ''.join(line.sub(lambda at: at.group(1) + new + at.group(2), part, count=1) for part in parts); node = new
+        parent = parent.split()[0]  # a parent is read to its first space, as a name is
         faded.append((node, parent, 0, 1))
         day = lit[texture]
         if day:
-            block = next(at for at in NODE.finditer(_geometry(text)) if at.group(2) == node)
-            if True:  # the tiles' own unlit panes are parked far off the tile, none in place: the wall would be blank by day
-                new = fresh('day', index); pane = block.group(0)
-                pane = re.sub(r'(?m)^([ \t]*node[ \t]+trimesh[ \t]+)[^\r\n]+?([ \t]*\r?)$', lambda at: at.group(1) + new + at.group(2), pane, count=1)
-                pane = re.sub(r'(?mi)^([ \t]*bitmap[ \t]+)\S+', lambda at: at.group(1) + day, pane)
-                pane = re.sub(r'(?mi)^([ \t]*selfillumcolor[ \t]+)[^\r\n]*?(\r?)$', lambda at: at.group(1) + '0 0 0' + at.group(2), pane)
-                text = text[:block.end()] + pane + text[block.end():]; faded.append((new, parent, 1, 0))
+            block = next((at for at in NODE.finditer(_geometry(text)) if at.group(2) == node), None)
+            require(block, f'{name}: the lit mesh {node!r} was not found again')
+            # the tiles' own unlit panes are parked far off the tile, none in place: the wall would be blank by day
+            new = fresh('day', index); pane = block.group(0)
+            pane = re.sub(r'(?mi)^([ \t]*node[ \t]+trimesh[ \t]+)[^\r\n]+?([ \t]*\r?)$', lambda at: at.group(1) + new + at.group(2), pane, count=1)
+            pane = re.sub(r'(?mi)^([ \t]*bitmap[ \t]+)\S+', lambda at: at.group(1) + day, pane)
+            pane = re.sub(r'(?mi)^([ \t]*selfillumcolor[ \t]+)[^\r\n]*?(\r?)$', lambda at: at.group(1) + '0 0 0' + at.group(2), pane)
+            text = text[:block.end()] + pane + text[block.end():]; faded.append((new, parent, 1, 0))
     tree = {}  # by the name the game reads: to the first space, the first node of it, in any case
     for kind, node, body in NODE.findall(_geometry(text)):
         tree.setdefault(node.split()[0].lower(), (kind, node.split()[0], (_field(body, 'parent') or 'NULL').split()[0]))

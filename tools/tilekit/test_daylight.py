@@ -93,6 +93,17 @@ class Daylight(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'shares its name'):
             daylight.with_daylight(shared, LIT)
 
+    def test_names_are_taken_as_the_game_reads_them(self):
+        # review of PR 193: a parent written with its second word, a kind in capitals, a name that differs only in case
+        spaced = MODEL.replace('  parent lights\n', '  parent lights on\n'); day = anim(daylight.with_daylight(spaced, LIT)[0], 'day')
+        self.assertLess(day.index('node dummy lights\n    parent t_a01'), day.index('node trimesh pane\n    parent lights\n'))
+        capital = MODEL.replace('node trimesh lens lit01', 'node Trimesh lens lit01'); made = daylight.with_daylight(capital, LIT)[0]
+        self.assertNotIn('lens lit01', made); self.assertIn('node Trimesh lit01_0\n', made)
+        with self.assertRaisesRegex(ValueError, 'shares its name'):
+            daylight.with_daylight(MODEL.replace('node trimesh dull', 'node trimesh Pane'), LIT)
+        with self.assertRaisesRegex(ValueError, 'has children'):
+            daylight.with_daylight(MODEL.replace('  parent t_a01\n  selfillumcolor 0 0 0', '  parent lens\n  selfillumcolor 0 0 0'), LIT)
+
     def test_line_ends_are_kept(self):
         made = daylight.with_daylight(MODEL.replace('\n', '\r\n'), LIT)[0]
         self.assertNotIn('\n', made.replace('\r\n', ''))

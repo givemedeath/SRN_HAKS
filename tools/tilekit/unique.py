@@ -54,10 +54,16 @@ def unique(text):
 
 def write(repo, pack):
     """Give the nodes of every ASCII source of an adopted tile pack unique names, in place, and tell {model: renamed}."""
-    folder = Path(repo) / SOURCES / pack; require(folder.is_dir(), f'{pack} has no sources: adopt it first (tilekit compile --adopt)'); told = {}
-    for path in sorted(folder.glob('*.mdl')):
-        text = path.read_bytes().decode('cp1252'); new, count = unique(text)
+    folder = Path(repo) / SOURCES / pack; require(folder.is_dir(), f'{pack} has no sources: adopt it first (tilekit compile --adopt)'); made = []
+    for path in sorted(folder.glob('*.mdl')):  # every model first: a refusal leaves the pack as it was, not half renamed
+        text = path.read_bytes().decode('cp1252')
+        try:
+            new, count = unique(text)
+        except ValueError as error:
+            raise ValueError(f'{path.stem}: {error}') from None
         if count:
             require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{path.stem}: the walkmesh would change')
-            path.write_bytes(new.encode('cp1252')); told[path.stem.lower()] = count
-    return told
+            made.append((path, new, count))
+    for path, new, count in made:
+        path.write_bytes(new.encode('cp1252'))
+    return {path.stem.lower(): count for path, new, count in made}

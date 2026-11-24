@@ -88,7 +88,7 @@ def redraw_command(chosen):
 def lamps_command(chosen):
     from . import lamps
     radius = lamps.RADIUS if chosen.radius is None else chosen.radius
-    told = lamps.move(chosen.repo, chosen.tileset, chosen.out, radius=radius)
+    told = lamps.move(chosen.repo, chosen.tileset, chosen.out, radius=radius, shared=chosen.shared)
     states = sorted(set(told.values()))
     print(json.dumps({'radius': radius, **{state: sorted(name for name, one in told.items() if one == state) if state != 'moved' else sum(one == state for one in told.values()) for state in states}}, indent=1))
     return 0
@@ -257,6 +257,7 @@ def main(arguments=None):
     seven = commands.add_parser('lamps', help='move the lamps of a tileset\'s tiles from source lights (drawn as fire) to main lights, in model copies')
     seven.add_argument('--tileset', required=True); seven.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     seven.add_argument('--radius', type=float, help='the radius the moved lights are given (default: lamps.RADIUS, 7)'); seven.add_argument('--repo', type=Path, default=REPO)
+    seven.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
     eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     eight.add_argument('--repo', type=Path, default=REPO); eight.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
