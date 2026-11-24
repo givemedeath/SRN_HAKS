@@ -1,0 +1,50 @@
+{
+ "tileset": "fcx01",
+ "before": "8fac7e59b9c6",
+ "packs": [
+  "srn_t_fcx01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable"
+ ],
+ "note": "Release C: the Star Wars-specific textures of the Futuristic City drawn again as generic 2070s corporate ones, with no brand names. Drawn by the local Qwen edit model.",
+ "textures": {
+  "imp_modules_id5": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A wall-mounted building control console of a 2070s corporate arcology: a dark screen at the left, and at the right a panel of small flat status displays, touch keys and indicator lights in a clean graphite and brushed-steel housing with a thin cyan accent line. No film or franchise styling, no red plastic."
+  },
+  "bespin_monument2": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A tall plaza light pylon on black; the black stays black. A slim vertical white light tube beside a panel of frosted glass lit cool cyan-white, with two brushed-steel bands across it, and a small pale square lens at the lower right."
+  },
+  "kuhmu": {
+   "kind": "sign",
+   "district": "corporate",
+   "note": "A long narrow illuminated sign strip: clean pale amber letters on a white lit panel, evenly spaced from end to end.",
+   "words": "CONCOURSE LEVEL in plain capital Latin letters, replacing every alien glyph"
+  },
+  "ctown_build_id4": {
+   "kind": "facade",
+   "district": "corporate",
+   "note": "A block of lit office window panes of many sizes, cool white, in a dark graphite frame; the same panes in the same places."
+  },
+  "bb3bottom": {
+   "kind": "facade",
+   "district": "corporate",
+   "note": "A pale corporate facade band: smooth light concrete panels with a row of small recessed windows and vertical brushed-steel fins.",
+   "tiles": true
+  },
+  "ventilo01": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "Two round extractor fans above a louvred vent in a dark graphite steel housing."
+  },
+  "ctown_build14": {
+   "kind": "trim",
+   "district": "corporate",
+   "note": "A pale concrete panel with a vertical ribbed brushed-steel strip down the middle."
+  }
+ }
+}
