@@ -8,7 +8,7 @@
   "srn_door",
   "srn_placeable"
  ],
- "note": "Left as they are: glass, lab_win1, dgt04_chrome and the arcology_* textures (dgt04's look), and the textures other tilesets than shp02 draw (window1, floor01, pub).",
+ "note": "Left as they are: glass, lab_win1, dgt04_chrome and the arcology_* textures (dgt04's look), and the textures other tilesets than shp02 draw (window1, floor01, pub). fcx_ground03 is the arcology's own copy of the slab floor d_ground03, which the starship interior keeps (user, 2026-11-24): docs/tilesets/fcx01/retexture-ground.json names the tiles that take it.",
  "grades": {
   "arcology": {
    "saturation": 0.25,
@@ -121,17 +121,6 @@
     512
    ]
   },
-  "d_ground03": {
-   "route": "layout",
-   "master": "Concrete034",
-   "repeat": 1,
-   "keep": 6,
-   "grade": "arcology_dark",
-   "size": [
-    1024,
-    1024
-   ]
-  },
   "ctown_build1": {
    "route": "layout",
    "master": "Concrete046",
@@ -242,6 +231,18 @@
    "relief": 1.0,
    "roughness": 0.6,
    "grade": "arcology_dark"
+  },
+  "fcx_ground03": {
+   "route": "layout",
+   "master": "Concrete034",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "arcology_dark",
+   "size": [
+    1024,
+    1024
+   ],
+   "copy": "d_ground03"
   }
  }
 }

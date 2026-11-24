@@ -604,7 +604,11 @@ The four textures it shares with dgt04 keep dgt04's look.
 - **Shared with the starship interior (user, 2026-11-24): restyled in place.** About 22 of the set's textures are in
   `srn_t_common` and are drawn by `shp02` too; they take the arcology's look there as well, with no copies under new
   names. The pilot block's `shared` part lays the `shp02` tiles that draw them; its grid views stand inside roofs, so
-  the interior still needs views of its own before the restyle is applied.
+  the interior was viewed tile by tile from close above instead (14 tiles, before and restyled).
+- **One exception: the slab floor `d_ground03` (user, 2026-11-24).** Restyled, the starship's warm beige floor beside
+  its sand walls turned blue-grey. The arcology draws its own copy, `fcx_ground03` (86 tiles,
+  `docs/tilesets/fcx01/retexture-ground.json`), and the starship keeps the floor it had. The other shared textures
+  barely change the interior (pale trims and pillars take a light concrete grain).
 - **Lamps:** the set's lamps are main lights already (196 tiles). 45 tiles carry their lamps under another tile's name
   (`tme01_z01_01ml1`, `fcx01_v01_01ml1`), where the game never switches them on: `tilekit lamps` now gives such a lamp
   its tile's own name (`lamps.named`). No tile has a day or night animation; the glowing meshes are lit at every hour.
