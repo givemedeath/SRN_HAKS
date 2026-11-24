@@ -66,10 +66,16 @@ class FamilyTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 family._checked({'tileset': 'x', 'families': [{'terrains': ['A'], **wrong}]})
 
+    def test_terrains_are_the_sets(self):
+        family._checked(SPEC, ['slums1', 'Street'])
+        for spec in ({**SPEC, 'building': ['Slum?']}, SPEC):
+            with self.assertRaisesRegex(ValueError, 'No terrain of x is S'):
+                family._checked(spec, ['Slums1'])
+
     def test_a_proposal_of_a_set(self):
         with tempfile.TemporaryDirectory() as folder:
             repo = Path(folder); pack = repo / 'srn_t_x'; pack.mkdir(); (repo / 'srn_2da').mkdir(); kit = repo / 'kit'; kit.mkdir(); (kit / 'box.mdl').write_text(PIECE)
-            rows = ''.join(f'[TILE{number}]\nModel={model}\nTopLeft=Slums1\nTopRight=Slums1\nBottomLeft=Slums1\nBottomRight=Slums1\n' for number, model in enumerate(('t_a01', 't_a02', 'ek_a')))
+            rows = '[TERRAIN0]\nName=Street\n' + ''.join(f'[TILE{number}]\nModel={model}\nTopLeft=Slums1\nTopRight=Slums1\nBottomLeft=Slums1\nBottomRight=Slums1\n' for number, model in enumerate(('t_a01', 't_a02', 'ek_a')))
             (pack / 'x.set').write_text(rows)
             for model in ('t_a01', 't_a02', 'ek_a'):
                 (pack / f'{model}.mdl').write_text(MODEL.format(z=8).replace('t_a01', model)); (pack / f'{model}.wok').write_text(WOK.format(z=8).replace('t_a01', model))
@@ -83,6 +89,7 @@ class FamilyTest(unittest.TestCase):
                 self.assertEqual(list(family.propose(repo, SPEC, kit)[1]['refused']), ['t_a01', 't_a02'])
                 merge = repo / 'docs' / 'tilesets' / 'm'; merge.mkdir(parents=True); (merge / 'merge.json').write_text(json.dumps({'families': [{'set': 'x'}]}))
                 self.assertEqual(family.propose(repo, SPEC, kit)[1]['passed'], 2)  # a set merged of this one is no other
+                self.assertEqual(list(family.propose(repo, {**SPEC, 'tileset': 'm'}, kit)[1]['refused']), ['t_a01', 't_a02'])  # its families' models are read, and are theirs
                 (kit / 'box.mdl').unlink()
                 with self.assertRaisesRegex(ValueError, 'No kit piece box'):
                     family.propose(repo, SPEC, kit)

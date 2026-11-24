@@ -12,7 +12,7 @@ def _tileset(parser, repo):
 def _names(text, option=None):
     """The names of a comma separated list; a list of `option` that was given and names nothing is refused, not read as all."""
     from . import require
-    found = [name for name in (text or '').split(',') if name]
+    found = [name.strip() for name in (text or '').split(',') if name.strip()]
     require(option is None or text is None or found, f'Nothing named in {option}')
     return found
 

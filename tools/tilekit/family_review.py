@@ -20,6 +20,8 @@ Each layout is an area for each of its `lights` (default: day and night), `name`
 import fnmatch
 import json
 import math
+import re
+from collections import Counter
 from pathlib import Path
 
 from tools.envkit import prop_fixture
@@ -119,6 +121,8 @@ def largest_glass(nodes, materials):
     moves, best = geometry.placed(nodes), None
     for node in nodes:
         for face in node.faces if node.rendered and _is(node.material, materials) else ():
+            if max(face[:3]) >= len(node.verts):
+                continue
             points = [moves[id(node)](node.verts[corner]) for corner in face[:3]]; facing = placer._facing(points)
             if facing and abs(facing[0]) + abs(facing[1]) == 1:
                 span = sum(max(point[axis] for point in points) - min(point[axis] for point in points) for axis in (0, 1))
@@ -151,7 +155,6 @@ def _tile_view(of, kind, name, placements, layout):
 def tiles(of, layout):
     names = of.chosen(layout); space, across, room = layout.get('space', 5), layout.get('across', 5), layout.get('room', 4)
     placements = {name.lower(): them for name, them in of.json(layout['placements'])['tiles'].items()} if 'placements' in layout else {}
-    require(space > 0 and across > 0 and room >= 0, 'Space and across are at least 1, and room is not negative')
     views = layout.get('views', [{'kind': 'facade'}]); across = min(across, (LARGEST - 1 - 2 * room) // space + 1); down = (LARGEST - 1 - 2 * room) // space + 1
     require(across > 0, 'These tiles do not fit an area: less space or room'); pages = [names[start:start + across * down] for start in range(0, len(names), across * down)]
     require(len(pages) <= 9, 'More tiles than nine areas hold: name fewer'); areas, shots, made = [], [], {}
@@ -263,13 +266,15 @@ def doors(of, layout):
         require(cells, f'{len(numbers)} tiles do not stand apart in a row: name fewer models'); tag = f'{layout["name"]}{light[0]}'; leaves = []
         for which, state in enumerate(opened):
             for one in hooks:
+                if one['model'] not in stood and which:
+                    continue  # a doorway without a door is seen once
                 x0, y0 = laid.index(one['tile']) * review.TILE + 5, (which * 2 + 1) * review.TILE + 5; (x, y, z), turn = one['at'], turns.get(one['model'], one['turn'])
                 normal = (-math.sin(math.radians(turn)), math.cos(math.radians(turn))); side = door_side(of.nodes(one['model']), (x, y, z), normal)
                 if one['model'] in stood:
                     leaves.append({'row': stood[one['model']], 'position': (x0 + x, y0 + y, z), 'bearing': turn, 'opened': state})
                 off = side * min(9.5, max(7.0, 5.0 + (one['width'] or 0) * 0.6))  # on the plain tile beside it
                 look = math.degrees(math.atan2(-side * normal[1], -side * normal[0])) % 360
-                label = f'{light}-t{one["tile"]}-d{one["door"]}' + ('' if state is None else '-open' if state else '-shut')
+                label = f'{light}-t{one["tile"]}-d{one["door"]}' + ('' if one['model'] not in stood else f'-open{state if state > 1 else ""}' if state else '-shut')
                 shots.append({**review._shot(tag, label, x0 + x + normal[0] * off, y0 + y + normal[1] * off, round(look, 1), 4.0, 84.0), 'height': round(z + 1.6, 2)})
         areas.append(_area(of, tag, f'{layout["name"]}, {light}', width, height, cells, light, **({'doors': leaves} if leaves else {})))
     return areas, shots
@@ -278,23 +283,38 @@ def doors(of, layout):
 KINDS = {'tiles': tiles, 'block': block, 'street': street, 'towers': towers, 'doors': doors}
 
 
+def _numbers(layout):
+    """The sizes and counts of a layout, and of its views, are whole numbers of 1 or more, its room of 0 or more."""
+    for of in (layout, *(view for view in layout.get('views', ()) if isinstance(view, dict))):
+        for key in ('space', 'across', 'down', 'size', 'apart', 'width', 'height', 'every', 'room'):
+            least = 0 if key == 'room' else 1
+            require(key not in of or type(of[key]) is int and of[key] >= least, f'{layout["name"]}: {key} is a whole number of at least {least}')
+
+
 def plan(repo, spec, *, overlay=None, base='.', views=None, most=MOST):
     """(areas, shots, views left out) of a family review spec, whose files are named relative to `base`. At most `most`
     views (None: all) are taken, evenly through those asked for; `views`: only those whose label begins so."""
     require(isinstance(spec, dict) and spec.get('tileset') and spec.get('layouts'), 'A family review names its tileset and its layouts')
     of = Set(repo, spec['tileset'].lower(), overlay, spec.get('fill'), base); areas, shots = [], []
     for layout in spec['layouts']:
-        require(layout.get('kind') in KINDS, 'A layout is ' + ', '.join(KINDS)); require(str(layout.get('name', '')).isalpha() and layout['name'].islower() and len(layout['name']) <= 8, 'A layout\'s name is 1 to 8 lowercase letters')
+        require(layout.get('kind') in KINDS, 'A layout is ' + ', '.join(KINDS)); require(re.fullmatch('[a-z]{1,8}', str(layout.get('name', ''))), 'A layout\'s name is 1 to 8 lowercase letters')
+        _numbers(layout); require(layout.get('terrains', True), f'{layout["name"]} names no terrain')
         unlit = sorted({*layout.get('lights', LIGHTS), *(light for view in layout.get('views', ()) if isinstance(view, dict) for light in view.get('lights', ())),
                         *(close['light'] for close in layout.get('close', ()))} - set(review.LIGHTS)); require(not unlit, 'A layout is lit by ' + ', '.join(review.LIGHTS))
+        for view in layout.get('views', ()):
+            unlaid = sorted(set(view.get('lights', ())) - set(layout.get('lights', LIGHTS))) if isinstance(view, dict) else []
+            require(not unlaid, f'{layout["name"]}: a view is asked for by a light the layout is not laid in: ' + ', '.join(unlaid))
         for area in (made := KINDS[layout['kind']](of, layout))[0]:
             require(area['tag'] not in {one['tag'] for one in areas}, f'Two areas would be named {area["tag"]}: another name for a layout'); areas.append(area)
-        shots += made[1]
+        taken = {shot['label'] for shot in shots}  # the same view of another layout: told apart by this one's name
+        shots += [{**shot, 'label': f'{shot["label"]}-{layout["name"]}'} if shot['label'] in taken else shot for shot in made[1]]
     sizes = {area['tag']: (area['width'] * review.TILE, area['height'] * review.TILE) for area in areas}
     outside = [shot['label'] for shot in shots if not all(0 < at < size for at, size in zip(shot['stand'], sizes[shot['area']]))]
     require(not outside, 'These views stand outside their area (give the layout more room): ' + ', '.join(outside[:4]))
     unsaid = [shot['label'] for shot in shots if not prop_fixture.LABEL.fullmatch(shot['label'])]; require(not unsaid, 'A view\'s label is letters, digits, - and _: ' + ', '.join(unsaid[:4]))
+    twice = sorted(label for label, count in Counter(shot['label'] for shot in shots).items() if count > 1); require(not twice, 'Two views would be named ' + ', '.join(twice[:4]))
     if views:
+        unmet = [one for one in views if not any(shot['label'].startswith(one) for shot in shots)]; require(not unmet, 'No view begins with ' + ', '.join(unmet))
         shots = [shot for shot in shots if shot['label'].startswith(tuple(views))]
     require(shots, 'No view to take'); kept = shots if most is None or len(shots) <= most else [shots[index * len(shots) // most] for index in range(most)]
     tags = {shot['area'] for shot in kept}

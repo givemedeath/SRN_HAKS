@@ -54,6 +54,16 @@ def sketches(texts, output):
     return len(pictures)
 
 
+def _glows(mesh, glow):
+    """Whether a face of a piece lies on a glowing cell of the atlas."""
+    high, wide = glow.shape[:2]
+    for face in mesh.faces:
+        u, v = (sum(mesh.tverts[corner][axis] for corner in face[4:7]) / 3 for axis in (0, 1))
+        if glow[min(high - 1, max(0, int((1 - v) * high))), min(wide - 1, max(0, int(u * wide)))].any():
+            return True
+    return False
+
+
 def export(folder, masters):
     """Write every kit piece's mesh (pieces.json) and the atlas's maps as PNG into `folder`. Returns the pieces' names."""
     import numpy as np
@@ -65,7 +75,7 @@ def export(folder, masters):
     for name, build in kit.PIECES.items():
         if name not in SKIPPED:
             mesh, roof = kit.camera_whole() if name == 'camera' else build()
-            pieces[name] = {'verts': [list(vertex) for vertex in mesh.verts], 'uvs': [list(uv[:2]) for uv in mesh.tverts], 'faces': [list(face[:3]) + list(face[4:7]) for face in mesh.faces], 'roof': bool(roof)}
+            pieces[name] = {'verts': [list(vertex) for vertex in mesh.verts], 'uvs': [list(uv[:2]) for uv in mesh.tverts], 'faces': [list(face[:3]) + list(face[4:7]) for face in mesh.faces], 'roof': bool(roof), 'glows': _glows(mesh, maps['glow'])}
     (folder / 'pieces.json').write_text(json.dumps(pieces), encoding='utf-8')
     return list(pieces)
 

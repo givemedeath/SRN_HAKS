@@ -22,7 +22,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from . import detail, effects, inventory, lamps, placer, require
+from . import detail, effects, inventory, merged, placer, require
 
 TRIES = 12
 BUDGET = {'faces': 2700, 'effects': 4}
@@ -43,7 +43,8 @@ def read(path):
     return {**spec, 'taken': taken}
 
 
-def _checked(spec):
+def _checked(spec, terrains=None):
+    """terrains: the set's, which every pattern of the spec is held against (None: not)."""
     require(isinstance(spec, dict) and spec.get('tileset') and spec.get('families'), 'A family spec names its tileset and its families')
     for one in spec['families']:
         require(one.get('terrains') and one.get('match', 'any') in ('any', 'all'), 'A family names its terrains; its match is any or all')
@@ -52,6 +53,11 @@ def _checked(spec):
             unknown = sorted(set(step.get('options', {})) - OPTIONS[step['placer']])
             require(not unknown, f'{step["placer"]} has no option ' + ', '.join(unknown))
             require(step.get('options', {}).get('plant') in PLANTS, 'A plant is ' + ', '.join(key for key in PLANTS if key) + ' or null')
+
+    if terrains is not None:
+        named = [*spec.get('building', ()), *(terrain for one in spec['families'] for terrain in one['terrains'])]
+        unknown = sorted({pattern for pattern in named if not any(_is(terrain, [pattern]) for terrain in terrains)})
+        require(not unknown, f'No terrain of {spec["tileset"]} is ' + ', '.join(unknown))
 
 
 def family_of(spec, *tiles):
@@ -95,14 +101,14 @@ def settled(place, placements):
 def propose(repo, spec, kit):
     """(placement spec, {tiles, passed, refused, dropped, over, pieces, mostFaces, effects}) of a family spec (`read`)."""
     from .kit import SWEEPS
-    _checked(spec); repo = Path(repo); tileset = spec['tileset'].lower(); budget = {**BUDGET, **spec.get('budget', {})}; cache = {}
+    repo = Path(repo); tileset = spec['tileset'].lower(); budget = {**BUDGET, **spec.get('budget', {})}; cache = {}
     laid = inventory.read_set((repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'))
-    corners = {}
+    _checked(spec, {*laid['terrains'], *(corner for tile in laid['tiles'] for corner in tile['corners'])}); corners = {}  # a set may draw a terrain it does not declare
     for tile in laid['tiles']:  # a model may be drawn by several tiles, of different terrains
         corners.setdefault(tile['model'], []).append(tile['corners'])
     taken = set(spec.get('taken', ()))
     tiles, said, refused, dropped, seen = {}, {}, {}, {}, 0
-    for name, _, text, others, source in inventory.drawn_copies(repo, tileset, None, lamps.PACKS):
+    for name, _, text, others, source in inventory.drawn_copies(repo, tileset, None, merged.packs(repo, tileset)):
         family = family_of(spec, *corners[name]) if name in corners and name not in taken and not _is(name, spec.get('skip', SKIP)) else None
         if family is None:
             continue

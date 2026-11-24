@@ -32,6 +32,15 @@ class SketchTest(unittest.TestCase):
         page = sketch.sketch(model(near, far), 't'); top = sketch.PAD + 2 * sketch.HALF * sketch.SCALE + sketch.PAD
         self.assertEqual(page.getpixel((top + int((sketch.HALF - 1.98) * sketch.SCALE), 30 + 60)) == (40, 40, 40), False)  # the far wall's edge, behind the near wall
 
+    def test_the_pieces_that_glow(self):
+        import numpy as np
+        from tools.tilekit import kit
+        glow = np.zeros((kit.SIZE, kit.SIZE, 3), np.uint8); side = kit.SIZE // kit.CELLS
+        for look in kit.GLOWS:
+            column, row = kit.cell_of(look, list(kit.LOOKS)); glow[row * side:(row + 1) * side, column * side:(column + 1) * side] = kit.GLOWS[look]
+        found = {name for name, build in kit.PIECES.items() if name not in (*sketch.SKIPPED, 'camera') and sketch._glows(build()[0], glow)}
+        self.assertEqual(found, {'mast', 'cross_sign', 'barrel', 'canopy'}); self.assertTrue(sketch._glows(kit.camera_whole()[0], glow))
+
     def test_props_are_exported_rendered_and_sheeted(self):
         with tempfile.TemporaryDirectory() as folder:
             def run(command, **_):

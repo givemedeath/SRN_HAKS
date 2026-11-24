@@ -13,8 +13,6 @@ from pathlib import Path
 import bpy
 from mathutils import Vector
 
-GLOWING = {'camera', 'mast', 'cross_sign', 'barrel'}
-
 
 def material(folder):
     mat = bpy.data.materials.new('kit'); mat.use_nodes = True; nodes, links = mat.node_tree.nodes, mat.node_tree.links
@@ -81,7 +79,7 @@ def main(folder):
         camera = bpy.data.objects.new('camera', bpy.data.cameras.new('camera')); scene.collection.objects.link(camera); scene.camera = camera
         camera.data.lens = 50; distance = size * 2.1
         views = {'front': (30, 12, 'day'), 'side': (78, 8, 'day')} if not roof else {'front': (30, 25, 'day'), 'side': (120, 35, 'day')}
-        if name in GLOWING:
+        if data['glows']:
             views['night'] = (views['front'][0], views['front'][1], 'night')
         for view, (azimuth, elevation, light) in views.items():
             a, e = math.radians(azimuth), math.radians(elevation)

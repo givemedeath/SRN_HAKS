@@ -5827,7 +5827,7 @@
       "tools/tilekit/effects.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/kit.py",
-      "tools/tilekit/lamps.py",
+      "tools/tilekit/merged.py",
       "tools/tilekit/placer.py"
     ],
     "tools/tilekit/family_review.py": [
@@ -6092,6 +6092,7 @@
     ],
     "tools/tilekit/test_sketch.py": [
       "tools/tilekit/__init__.py",
+      "tools/tilekit/kit.py",
       "tools/tilekit/sketch.py",
       "tools/tilekit/test_openings.py"
     ],

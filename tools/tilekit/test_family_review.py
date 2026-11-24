@@ -41,6 +41,10 @@ class FamilyReviewTest(unittest.TestCase):
 
     def test_glass_is_looked_at_where_it_is(self):
         _, shots, _ = self.plan({'kind': 'tiles', 'name': 'g', 'models': ['X_full'], 'glass': ['win*'], 'lights': ['day'], 'views': [{'kind': 'glass'}]})
+        faulty = model(wall('pane', 'win_01', 'y', 2, -1, 1, 3, 5)); faulty = family_review.geometry.parse(faulty)[2]
+        for node in faulty:
+            node.faces = [[0, 1, 99, *face[3:]] for face in node.faces]
+        self.assertIsNone(family_review.largest_glass(faulty, ['win*']))
         self.assertIn(shots[0]['facing'], (90, 270)); self.assertEqual(shots[0]['height'], 2.0)
 
     def test_towers_are_painted_by_the_sets_rules(self):
@@ -68,6 +72,8 @@ class FamilyReviewTest(unittest.TestCase):
         self.assertEqual([shot['label'] for shot in shots], ['day-t2-d0']); self.assertNotIn('doors', areas[0]); self.assertEqual(shots[0]['facing'], 270.0)  # from the street past the cell's side
         areas, shots, _ = self.plan({**layout, 'doors': {'x_side': 1094}})
         self.assertEqual([(one['row'], one['opened']) for one in areas[0]['doors']], [(1094, 0), (1094, 1)]); self.assertEqual([shot['label'][-4:] for shot in shots], ['shut', 'open'])
+        areas, shots, _ = self.plan({**layout, 'clear': [], 'doors': {'x_side': 1094}, 'opened': [0, 1, 2]})
+        self.assertEqual([shot['label'] for shot in shots], ['day-t2-d0-shut', 'day-t3-d0', 'day-t2-d0-open', 'day-t2-d0-open2'])
 
     def test_doors_at_the_ends_of_a_row_and_wide_ones(self):
         hook = {'tile': 2, 'model': 'x_side', 'door': 0, 'at': [-4.9, 0.0, 0.0], 'turn': 90.0, 'width': 9.0, 'height': 3.0}
@@ -100,6 +106,9 @@ class FamilyReviewTest(unittest.TestCase):
         self.assertEqual(len(self.plan(layout, most=None)[1]), 8)
         _, shots, left = self.plan(layout, most=3); self.assertEqual((len(shots), len(left)), (3, 5))
         self.assertEqual([shot['label'] for shot in self.plan(layout, views=['night-full'])[1]], ['night-full-facade'])
+        with self.assertRaisesRegex(ValueError, 'begins with typo'):
+            self.plan(layout, views=['night-full', 'typo'])
+        labels = [shot['label'] for shot in self.plan(layout, {**layout, 'name': 'near', 'space': 4}, most=None)[1]]; self.assertEqual(len(set(labels)), 16); self.assertIn('day-full-facade-near', labels)
 
     def test_wrong_specs_are_refused(self):
         from types import SimpleNamespace
@@ -109,11 +118,16 @@ class FamilyReviewTest(unittest.TestCase):
         for empty in ('', ','):
             with self.assertRaisesRegex(ValueError, '--models'):
                 commands._names(empty, '--models')
-        self.assertEqual(commands._names(None, '--models'), [])
+        self.assertEqual(commands._names(None, '--models'), []); self.assertEqual(commands._names('a, b ,'), ['a', 'b'])
         for layout, why in (({'kind': 'x', 'name': 'a'}, 'A layout is'), ({'kind': 'tiles', 'name': 'A1'}, 'lowercase'), ({'kind': 'tiles', 'name': 'a', 'terrains': ['none']}, 'No tile'),
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'lights': ['dusk']}, 'lit by'),
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'lights': ['dusk']}]}, 'lit by'),
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'space': 0}, 'at least 1'),
+                            ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'every': 0}]}, 'at least 1'),
+                            ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'lights': ['overcast']}]}, 'not laid in'),
+                            ({'kind': 'tiles', 'name': 'a', 'models': ['x_full', 'x_full']}, 'Two views'),
+                            ({'kind': 'towers', 'name': 'a', 'terrains': []}, 'no terrain'), ({'kind': 'towers', 'name': 'a', 'terrains': ['Tower'], 'across': 0}, 'at least 1'),
+                            ({'kind': 'tiles', 'name': '\u00e9', 'terrains': ['Tower']}, 'lowercase'),
                             ({'kind': 'street', 'name': 'a', 'terrains': ['Ground'], 'close': [{'piece': 'x', 'light': 'dusk'}]}, 'lit by')):
             with self.assertRaisesRegex(ValueError, why):
                 self.plan(layout)
