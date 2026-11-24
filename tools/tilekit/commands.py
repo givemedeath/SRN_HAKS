@@ -60,6 +60,14 @@ def family_review_command(chosen):
     return 0
 
 
+def perf_command(chosen):
+    from . import perf
+    told = perf.run(chosen.repo, _json(chosen.spec), chosen.out, chosen.name, chosen.game, chosen.built, overlay=chosen.overlay, base=chosen.spec.parent,
+                    views=_names(chosen.views), most=_most(chosen), cap=chosen.cap)
+    _told({**told, 'captures': len(told['captures']), 'stamps': len(told['stamps'])})
+    return 0
+
+
 def _client(parser, repo):
     parser.add_argument('--spec', required=True, type=Path, help='the family review spec (docs/tilesets/tilekit-tools.md)')
     parser.add_argument('--game', required=True, type=Path, help='the game install folder'); parser.add_argument('--built', required=True, type=Path, help='the folder the packs were built into')
@@ -82,4 +90,7 @@ def add(commands, repo):
     three.add_argument('--types', default='0', help='the hook types measured, comma separated (default: 0, generic doors)')
     four = _client(commands.add_parser('family-review', help='capture a family of tiles in the client: tiles apart, streets, whole towers, door hooks'), repo)
     four.add_argument('--no-run', action='store_true', help='build the module and stop')
-    return {'repair': repair_command, 'propose': propose_command, 'openings': openings_command, 'family-review': family_review_command}
+    five = _client(commands.add_parser('perf', help='measure frame rates and load times of the areas of a family review spec'), repo)
+    five.add_argument('--cap', type=int, default=200, help='the frame limit, 1 to 200')
+    return {'repair': repair_command, 'propose': propose_command, 'openings': openings_command, 'family-review': family_review_command,
+            'perf': perf_command}
