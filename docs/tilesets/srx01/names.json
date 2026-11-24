@@ -3051,7 +3051,7 @@
   ]
  },
  "doors": {
-  "note": "genericdoors.2da Name is strref 63750 (\"Door\") for all ten: the Toolset lists them alike. Each gets a custom TLK row.",
+  "note": "genericdoors.2da Name was strref 63750 (\"Door\") for all ten, so the Toolset listed them alike. Each has its own custom TLK row now (156 to 165, doorset.NAMES).",
   "generic": [
    {
     "row": 1094,
@@ -3110,21 +3110,21 @@
     "set": "DGT04",
     "label": "GlassWindow",
     "name": "Glass Window (breakable)",
-    "srx01": "needs an SRX01 row if the Toolset test shows the hook empty"
+    "srx01": "doortypes.2da row 266, its copy keyed to SRX01 (merge.json, doors)"
    },
    {
     "row": 260,
     "set": "FCX01",
     "label": "Astroport_door",
     "name": "Arcology Gate, Large",
-    "srx01": "as above"
+    "srx01": "doortypes.2da row 267, its copy keyed to SRX01 (merge.json, doors)"
    },
    {
     "row": 261,
     "set": "FCX01",
     "label": "fcx01_door",
     "name": "Arcology Door",
-    "srx01": "as above"
+    "srx01": "doortypes.2da row 268, its copy keyed to SRX01 (merge.json, doors)"
    }
   ]
  },

@@ -53,14 +53,15 @@ class Names(unittest.TestCase):
         placeables = NAMES['placeables']; categories = [category['name'] for category in placeables['categories']]
         resrefs = [blueprint['resref'] for blueprint in placeables['blueprints']]
         self.assertEqual(len(resrefs), len(set(resrefs)))
-        self.assertEqual(sum(category['blueprints'] for category in placeables['categories']), len(resrefs))
+        sort = 'docs/tilesets/srx01/names.json, placeables: list each catalogued blueprint under `blueprints` with its `to` category, and keep each category\'s `blueprints` count'
+        self.assertEqual(sum(category['blueprints'] for category in placeables['categories']), len(resrefs), sort)
         self.assertEqual(TALK[PARENT], placeables['parent'])
         self.assertEqual([TALK[PARENT + 1 + index] for index in range(len(categories))], categories)  # the palette names them by these rows
         wanted = {blueprint['resref']: FIRST_CATEGORY + categories.index(blueprint['to'].split(' > ')[1]) for blueprint in placeables['blueprints']}
         catalog = json.loads((REPO / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8-sig'))
         listed = {entry['blueprint']: entry['category'] for entry in catalog['placeables'] if entry.get('blueprint')}
-        self.assertEqual({resref: listed.get(resref) for resref in wanted}, wanted)
-        self.assertEqual(sorted(set(listed) - set(wanted)), [])  # a blueprint catalogued since the review is sorted here too
+        self.assertEqual({resref: listed.get(resref) for resref in wanted}, wanted, sort)
+        self.assertEqual(sorted(set(listed) - set(wanted)), [], sort)  # a blueprint catalogued since the review is sorted here too
 
     def test_each_door_of_the_set_has_its_own_name(self):
         doors = NAMES['doors']['generic']

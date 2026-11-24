@@ -388,9 +388,9 @@ UNSORTED = 'Unsorted'
 def refresh(repo, added, *, district=None, gff=None):
     """Merge again every merged set a changed source set belongs to, first giving each new group a display name.
     added: {source set: (the group's name in it, its palette label)}, the group an envkit sheet just put there. The
-    name is "<district>: <label>" in the first family and "<district>: <label> (<family>)" in a later one, whose copy
-    of a building the first family has is named and not laid out (`merged_set`); without a district it is filed under
-    Unsorted, for a person to sort.
+    name is "<district>: <label>", and "<district>: <label> (<family>)" for the copy of a building an earlier family
+    has, which is named and not laid out (`merged_set`); without a district it is filed under Unsorted, for a person
+    to sort.
     Returns {merged set: what `merge` returned}."""
     told = {}
     for spec_path, spec, names_path, names in named(repo, added, district=district):
@@ -409,10 +409,17 @@ def named(repo, added, *, district=None):
         if not set(added) & set(labels):
             continue
         names_path = repo / spec['names']; names = json.loads(names_path.read_text(encoding='utf-8')); known = {(entry['set'], entry['name']) for entry in names['groups']}
-        for name, (group, label) in sorted(added.items()):
-            if name in labels and (name, group) not in known:
-                category = district or UNSORTED
-                require(category in names['categories'], f'{category} is no category of {names_path.name}')
-                names['groups'].append({'set': name, 'name': group, 'was': label, 'category': category, 'display': f'{category}: {label}' + ('' if name == spec['families'][0]['set'] else f' ({labels[name].lower()})'), 'envkit': True})
+        order = list(labels); copy = lambda name: f' ({labels[name].lower()})'
+        for at, name in enumerate(order):  # in the families' order: a family's copy is told from one an earlier family has
+            if name not in added or (name, added[name][0]) in known:
+                continue
+            group, label = added[name]; category = district or UNSORTED
+            require(category in names['categories'], f'{category} is no category of {names_path.name}')
+            earlier = any((other, group) in known for other in order[:at])
+            names['groups'].append({'set': name, 'name': group, 'was': label, 'category': category, 'display': f'{category}: {label}' + (copy(name) if earlier else ''), 'envkit': True})
+            known.add((name, group))
+            for entry in names['groups']:  # a later family had the building alone until now: its group gives way to this one, and its name says so
+                if entry['name'] == group and entry['set'] in order[at + 1:] and entry.get('envkit') and not entry['display'].endswith(copy(entry['set'])):
+                    entry['display'] += copy(entry['set'])
         found.append((spec_path, spec, names_path, names))
     return found
