@@ -85,6 +85,15 @@ def redraw_command(chosen):
     return 1 if failed else 0
 
 
+def retexture_command(chosen):
+    from . import retexture
+    told = retexture.write(chosen.repo, chosen.tileset, _json(chosen.spec), chosen.out, shared=chosen.shared)
+    print(json.dumps({'models': sum(isinstance(one, dict) for one in told.values()), 'copies': sum(bool(one.get('copies')) for one in told.values() if isinstance(one, dict)),
+                      'white': {name: one['white'] for name, one in sorted(told.items()) if isinstance(one, dict) and one.get('white')},
+                      'left': {name: one for name, one in sorted(told.items()) if not isinstance(one, dict)}}, indent=1))
+    return 0
+
+
 def lamps_command(chosen):
     from . import lamps
     radius = lamps.RADIUS if chosen.radius is None else chosen.radius
@@ -259,6 +268,10 @@ def main(arguments=None):
     six.add_argument('--workers', type=int, default=3, help='how many are drawn at a time'); six.add_argument('--only', help='only these textures, comma separated')
     six.add_argument('--stock', type=Path, help='a folder of base-game pictures read out of the install, for base-game textures')
     six.add_argument('--repo', type=Path, default=REPO)
+    again = commands.add_parser('retexture', help='point a tileset\'s tiles at their own copies of shared textures and make listed meshes white, in model copies')
+    again.add_argument('--tileset', required=True); again.add_argument('--spec', required=True, type=Path, help='the list (docs/tilesets/<tileset>/retexture.json)')
+    again.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); again.add_argument('--repo', type=Path, default=REPO)
+    again.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
     seven = commands.add_parser('lamps', help='move the lamps of a tileset\'s tiles from source lights (drawn as fire) to main lights, in model copies')
     seven.add_argument('--tileset', required=True); seven.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     seven.add_argument('--radius', type=float, help='the radius the moved lights are given (default: lamps.RADIUS, 7)'); seven.add_argument('--repo', type=Path, default=REPO)
@@ -348,6 +361,8 @@ def main(arguments=None):
             return unique_command(chosen)
         if chosen.command == 'shadows':
             return shadows_command(chosen)
+        if chosen.command == 'retexture':
+            return retexture_command(chosen)
         if chosen.command == 'lamps':
             return lamps_command(chosen)
         if chosen.command == 'enlarge':

@@ -44,6 +44,56 @@
    "kind": "trim",
    "district": "corporate",
    "note": "A pale concrete panel with a vertical ribbed brushed-steel strip down the middle."
+  },
+  "black_window": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "The lit windows of a tower at night on black; the black stays pure black. Every white rectangle stays in the same place and size and becomes one lit window pane: most cool white or pale cyan, a few warm amber, some with the faint lines of blinds. No other light, no glow spilling onto the black."
+  },
+  "lights3": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A row of small lit marker lamps on black; the black stays pure black. Every white mark stays in the same place and size and becomes a small cool-white lit lens with a thin steel bezel."
+  },
+  "windows2": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A band of lit ribbon windows seen straight on: frosted panes lit cool white with a faint cyan tint, in the same places, divided by slim dark graphite mullions."
+  },
+  "tower_top": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A round glass skylight roof seen from straight above: slim brushed-steel glazing bars radiating from the centre exactly where the dark lines are, pale cyan frosted glass between them."
+  },
+  "d_wall02": {
+   "kind": "wall",
+   "district": "corporate",
+   "note": "A dark graphite steel wall panel: a ribbed vent band along the top edge, plain brushed dark metal in the middle, and along the bottom edge a thin recessed strip with two small round white lamps where the old ones are.",
+   "tiles": true
+  },
+  "d_wall": {
+   "kind": "wall",
+   "district": "corporate",
+   "note": "A dark graphite steel wall panel: a ribbed vent band along the top edge, plain brushed dark metal in the middle, and along the bottom edge a thin recessed strip with two small round white lamps where the old ones are.",
+   "tiles": true
+  },
+  "lma_light06": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "A wall light fitting: three frosted glass panes lit cool white, one above another, in a slim steel frame."
+  },
+  "fcx_window1": {
+   "kind": "fixture",
+   "district": "corporate",
+   "copy": "window1",
+   "note": "One pane of a tower's tinted glass curtain wall at dusk, lit softly from inside: even deep cyan-blue glass, a little brighter towards the middle, with a thin dark graphite frame around the edge. No lens flare, no star, no sun, no reflection of a light."
+  },
+  "fcx_pub": {
+   "kind": "sign",
+   "district": "corporate",
+   "copy": "pub",
+   "note": "A tall backlit advertising panel: a night view down a canyon between arcology towers with rows of glowing windows, in teal and amber, with a dark caption bar along the bottom.",
+   "words": "ARCOLOGY LIVING in the caption bar, in plain pale capital letters"
   }
  }
 }

@@ -612,6 +612,14 @@ The four textures it shares with dgt04 keep dgt04's look.
 - **Lamps:** the set's lamps are main lights already (196 tiles). 45 tiles carry their lamps under another tile's name
   (`tme01_z01_01ml1`, `fcx01_v01_01ml1`), where the game never switches them on: `tilekit lamps` now gives such a lamp
   its tile's own name (`lamps.named`). No tile has a day or night animation; the glowing meshes are lit at every hour.
+- **Own copies and tints: `tilekit retexture`** (`docs/tilesets/fcx01/retexture.json`). The arcology's tiles draw
+  their own copies of three textures other tilesets keep (`fcx_ground03`, `fcx_window1`, `fcx_pub`; 115 tiles), and
+  the monument's and the sign's meshes take white colours: the models tinted them red and yellow whatever was drawn.
+  The walkmesh is never touched.
+- **Redraws** (`docs/tilesets/fcx01/redraw.json`, local Qwen): 16 textures so far, among them the control console,
+  the monument, the lit window block, the tower's lit windows, the skylight, the dark wall and the blue window pane.
+  The sign strip (`kuhmu`) still shows as broken blocks in game and the advertising panel's caption is garbled: both
+  are left for the adoption of their tiles.
 
 **Join re-check:** the Concrete↔Cobble joins and junctions, as in release B.
 
