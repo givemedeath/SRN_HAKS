@@ -12,8 +12,8 @@
   "srn_2da"
  ],
  "block": {
-  "width": 24,
-  "height": 20,
+  "width": 22,
+  "height": 16,
   "lights": [
    "day",
    "night"
@@ -26,8 +26,8 @@
      0
     ],
     "size": [
-     25,
-     21
+     23,
+     17
     ],
     "border": true
    },
@@ -36,7 +36,7 @@
     "over": true,
     "at": [
      1,
-     15
+     11
     ],
     "size": [
      4,
@@ -48,7 +48,7 @@
     "over": true,
     "at": [
      7,
-     16
+     12
     ],
     "size": [
      3,
@@ -92,111 +92,110 @@
     ]
    }
   ],
-  "runs": [
-   {
-    "crosser": "Suburb_Road",
-    "cells": [
-     [
-      0,
-      10
-     ],
-     [
-      23,
-      10
-     ]
-    ]
-   }
-  ],
   "groups": [
    {
-    "name": "House 1, Grey 1x2",
+    "name": "House 3, Grey",
     "at": [
-     1,
-     11
+     12,
+     1
     ]
    },
    {
-    "name": "House 2, Yellow 1x2",
+    "name": "House 4, Yellow 1x2",
     "at": [
-     4,
-     11
+     14,
+     1
     ]
    },
    {
     "name": "House 3, Old",
     "at": [
-     7,
-     11
+     17,
+     1
     ]
    },
    {
-    "name": "House 5, Grey Brick 1x2",
+    "name": "House 4, Old 1x2",
     "at": [
-     10,
-     11
+     19,
+     1
     ]
    },
    {
-    "name": "Garage 1, Yellow",
+    "name": "House 4, Grey Brick 1x2",
     "at": [
-     13,
-     11
+     12,
+     5
+    ]
+   },
+   {
+    "name": "House 3, Yellow",
+    "at": [
+     15,
+     5
+    ]
+   },
+   {
+    "name": "Pool, Above Ground",
+    "at": [
+     17,
+     5
     ]
    },
    {
     "name": "Pool, In Ground",
     "at": [
-     13,
-     14
+     19,
+     5
     ]
    },
    {
     "name": "Swing Set",
     "at": [
+     12,
+     9
+    ]
+   },
+   {
+    "name": "Jungle Gym",
+    "at": [
+     14,
+     9
+    ]
+   },
+   {
+    "name": "Bleacher, Plain",
+    "at": [
      16,
-     14
-    ]
-   },
-   {
-    "name": "Gas Station 1x4",
-    "at": [
-     13,
-     1
-    ]
-   },
-   {
-    "name": "Restaurant, Chicken King 3x3",
-    "at": [
-     13,
-     5
-    ]
-   },
-   {
-    "name": "Fire Station 2x4",
-    "at": [
-     18,
-     1
-    ]
-   },
-   {
-    "name": "School 1 4x4",
-    "at": [
-     18,
-     13
-    ]
-   },
-   {
-    "name": "Church 3x2",
-    "at": [
-     18,
-     6
+     9
     ]
    },
    {
     "name": "Water Tower Older",
     "at": [
-     11,
-     16
+     18,
+     9
+    ]
+   },
+   {
+    "name": "Transmission Tower",
+    "at": [
+     20,
+     9
+    ]
+   },
+   {
+    "name": "Baseball Diamond 4x4",
+    "at": [
+     12,
+     11
+    ]
+   },
+   {
+    "name": "Water Tower Newer 1x2",
+    "at": [
+     18,
+     12
     ]
    }
   ],
@@ -211,64 +210,54 @@
    ],
    [
     3,
-    8
+    9
    ],
    [
     6,
-    13
+    11
    ],
    [
-    12,
-    13
-   ],
-   [
-    15,
+    14,
     4
    ],
    [
-    15,
+    18,
+    4
+   ],
+   [
+    14,
     8
    ],
    [
-    20,
-    5
+    18,
+    8
    ],
    [
-    20,
-    9
+    11,
+    13
+   ],
+   [
+    17,
+    12
    ],
    [
     20,
     12
-   ],
-   [
-    3,
-    14
-   ],
-   [
-    8,
-    15
-   ],
-   [
-    15,
-    13
    ]
   ],
   "views": [
    "x03y05-ne",
    "x09y04-ne",
-   "x03y08-sw",
-   "x06y13-nw",
-   "x12y13-nw",
-   "x15y04-nw",
-   "x15y08-nw",
-   "x20y05-nw",
-   "x20y09-nw",
-   "x20y12-sw",
-   "x03y14-sw",
-   "x08y15-sw",
-   "x15y13-ne"
+   "x03y09-sw",
+   "x06y11-sw",
+   "x14y04-nw",
+   "x18y04-nw",
+   "x14y08-nw",
+   "x18y08-nw",
+   "x11y13-se",
+   "x17y12-ne",
+   "x20y12-nw"
   ]
  },
- "note": "Release B family block: malls, strip mall, parking, houses, civic buildings, forest and pond on one street."
+ "note": "Release B family block: malls, strip mall, parking, houses of each kind, yard pieces, towers, forest and pond."
 }

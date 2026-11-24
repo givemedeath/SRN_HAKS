@@ -341,6 +341,7 @@
   "tools/tilekit/test_remesh.py": 0.6,
   "tools/tilekit/test_review.py": 0.1,
   "tools/tilekit/test_shadows.py": 0.1,
-  "tools/tilekit/test_terrain.py": 0.1
+  "tools/tilekit/test_terrain.py": 0.1,
+  "tools/tilekit/test_unique.py": 0.1
  }
 }

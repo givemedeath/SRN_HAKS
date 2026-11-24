@@ -5740,7 +5740,8 @@
       "tools/tilekit/remesh.py",
       "tools/tilekit/review.py",
       "tools/tilekit/shadows.py",
-      "tools/tilekit/terrain.py"
+      "tools/tilekit/terrain.py",
+      "tools/tilekit/unique.py"
     ],
     "tools/tilekit/apply.py": [
       "hakbuilder.json",
@@ -6000,6 +6001,14 @@
       "tools/tilekit/__main__.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/terrain.py"
+    ],
+    "tools/tilekit/test_unique.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/unique.py"
+    ],
+    "tools/tilekit/unique.py": [
+      "tools/tilekit/compiled.py",
+      "tools/tilekit/inventory.py"
     ]
   },
   "unresolved": [],
@@ -6707,6 +6716,7 @@
     "tools/tilekit/test_remesh.py",
     "tools/tilekit/test_review.py",
     "tools/tilekit/test_shadows.py",
-    "tools/tilekit/test_terrain.py"
+    "tools/tilekit/test_terrain.py",
+    "tools/tilekit/test_unique.py"
   ]
 }
