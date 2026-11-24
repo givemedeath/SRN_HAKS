@@ -22,7 +22,8 @@
   "kuhmu": {
    "kind": "fixture",
    "district": "corporate",
-   "note": "A long narrow lit status strip with no lettering at all: an even row of small lit rectangular segments of a few different widths, cool white and pale cyan with a few amber ones, on a dark graphite panel, running evenly from end to end with the same rhythm everywhere, so that any part of the strip looks like any other. No letters, numbers, glyphs or symbols."
+   "note": "A long narrow lit status strip with no lettering at all: an even row of small lit rectangular segments of a few different widths, cool white and pale cyan with a few amber ones, on a dark graphite panel, running evenly from end to end with the same rhythm everywhere, so that any part of the strip looks like any other. No letters, numbers, glyphs or symbols.",
+   "placed": "Finished by hand over the redraw (2026-11-24, no record): the glyph band painted over with graphite and an even row of white, cyan and amber lit segments."
   },
   "ctown_build_id4": {
    "kind": "fixture",
@@ -53,7 +54,8 @@
   "lights3": {
    "kind": "fixture",
    "district": "corporate",
-   "note": "A row of small lit marker lamps on black; the black stays pure black. Every white mark stays in the same place and size and becomes a small cool-white lit lens with a thin steel bezel."
+   "note": "A row of small lit marker lamps on black; the black stays pure black. Every white mark stays in the same place and size and becomes a small cool-white lit lens with a thin steel bezel.",
+   "placed": "Finished by hand over the redraw (2026-11-24, no record): every lit mark lifted to a bright cool white, the black left black."
   },
   "windows2": {
    "kind": "fixture",
@@ -94,7 +96,8 @@
    "district": "corporate",
    "copy": "pub",
    "note": "A tall backlit advertising panel: a night view down a canyon between arcology towers with rows of glowing windows, in teal and amber, with a dark caption bar along the bottom.",
-   "words": "ARCOLOGY LIVING in the caption bar, in plain pale capital letters"
+   "words": "ARCOLOGY LIVING in the caption bar, in plain pale capital letters",
+   "placed": "Finished by hand over the redraw (2026-11-24, no record): the garbled caption bar painted over and lettered ARCOLOGY LIVING."
   }
  }
 }

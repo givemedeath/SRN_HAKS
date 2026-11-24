@@ -655,9 +655,9 @@ The four textures it shares with dgt04 keep dgt04's look.
   Left lit at every hour in the arcology: the signs and the monument, the water, and the glowing metal trims
   (`c_metall`, `bb1bottom`, `dgt04_chrome`, `lsf_grate01`). Checks clean, a test holds the arcology's list; seen
   from the built packs by day and at night.
-- **Made, not applied:** hand finishes of three redrawn pictures in `output/tilekit/c-redrawn` (the Qwen pictures
-  kept aside): the sign strip as an even row of lit segments, a clean "ARCOLOGY LIVING" caption, brighter marker
-  lamps. The strip still reads as small blocks at its size in game; the other two were not seen in game.
+- **Applied (user, from the before and after pictures):** hand finishes of three redrawn pictures, noted in
+  `redraw.json` (`placed`): the sign strip as an even row of lit segments, a clean "ARCOLOGY LIVING" caption,
+  brighter marker lamps. The caption and the marker lamps were not seen in game; the strip still reads small there.
 - **School 3, not solved:** 28 of the 47 windows of `udp1_b07_29` were given lit panes (`udp1-window1b`) and day
   panes through `daylight`. In game they stay unlit at night, and one stays lit by day: the fade does not take on
   that tile though its animations are written like a working house's. Left as it was.
