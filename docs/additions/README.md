@@ -34,9 +34,10 @@ A row or tile added without its entry fails verification, and so does an entry l
    blueprint, a palette `category`.
 2. `python -B -m tools.envkit game ...` converts the model.
 3. `python -B -m tools.envkit placeables ... --provenance "<PROVENANCE.md section>"` copies its files into
-   `srn_placeable`, appends its row after the table's last row and writes its catalog entry.
+   `srn_envprop`, appends its row after the table's last row and writes its catalog entry.
 4. `python -B -m tools.envkit blueprints ... --game <game folder>` writes a blueprint for each catalogued model that
-   has a category and rebuilds `srn_placeable/placeablepalstd.itp`.
+   has a category and rebuilds `srn_placeable/placeablepalstd.itp` (the palette is one file for all of a module's
+   placeables and stays in that pack: `--palette-pack`).
 
 Running step 3 again for models that already have rows replaces their files and leaves the table alone. A model
 built again without lit parts has its old glow map, lights-out material and halo removed from the pack.
@@ -50,23 +51,28 @@ Rules the commands follow, and that a row added by hand must follow too:
 
 ## Blueprints and the palette
 
-A blueprint is named as its model (`ek_ss_trash.utp`) and lives in `srn_placeable`. Blueprints in a hak are not on
+A blueprint is named as its model (`ek_ss_trash.utp`) and lives in `srn_envprop`. Blueprints in a hak are not on
 the Toolset's Custom tab, which lists only the module's own. They are offered on the Standard tab because
 `placeablepalstd.itp` lists them: that file is the game's own palette with ours added, laid out on the category
 tree in `placeablepal.itp`. It is rebuilt whole by `envkit blueprints`, so it needs the game installed; do not edit
 it by hand.
 
-Categories are the IDs of `placeablepal.itp`. Those in use:
+Categories are the IDs of `placeablepal.itp`. Envkit blueprints sit under Shadowrun City (208 to 218), and each is
+listed with its category in `docs/tilesets/srx01/names.json` (`placeables`), which `tilekit merge` locks:
 
 | ID | Category | Used for |
 | --- | --- | --- |
-| 156 | Modern Exterior > Signs | standing signs |
-| 158 | Modern Exterior > Streets | bins and street furniture |
-| 161 | Modern Exterior > Structures | machines and units that stand outside |
-| 162 | Modern Exterior > Misc. | clutter |
-| 166 | Modern Interior > Equipment | shop equipment |
-| 174 | Modern Interior > Furniture | racks and shelves |
-| 200 | Modern Exterior > Wall Fixtures & Features | things hung on a wall |
+| 208 | Shadowrun City > Signs and Screens | signs, neon and screens |
+| 209 | Shadowrun City > Lights | lamps and floodlights |
+| 210 | Shadowrun City > Security | cameras, scanners and guard posts |
+| 211 | Shadowrun City > Barriers, Fences and Gates | fences, bollards, chains and stanchions |
+| 212 | Shadowrun City > Vehicles and Rail | vehicles and rail stock |
+| 213 | Shadowrun City > Rubble and Trash | bins, dumpsters and litter |
+| 214 | Shadowrun City > Machines and Vending | machines that stand outside |
+| 215 | Shadowrun City > Utilities and Power | cabinets, pipes, vents and rooftop units |
+| 216 | Shadowrun City > Storage and Cargo | crates, racks and containers |
+| 217 | Shadowrun City > Building Parts | doors, windows, canopies and planters |
+| 218 | Shadowrun City > Shop and Workshop Fittings | shop and workshop equipment |
 
 A blueprint is scenery: it cannot be destroyed or used. A model with lit parts gets a blueprint that is not static,
 so a script can put its lights out; the others are static.
@@ -74,7 +80,7 @@ so a script can put its lights out; the others are static.
 ## Lights
 
 A model with lit parts ships with a lights-out material and dark textures, and its catalog entry names them under
-`lights`. The dark halo they all share, `ek_off`, is kept in one pack (`srn_placeable`, the commands' `--dark-pack`),
+`lights`. The dark halo they all share, `ek_off`, is kept in one pack (`srn_envprop`, the commands' `--dark-pack`),
 so installing a lit tile group can write those three files there. The commands write both for placeables and tile groups alike. [docs/envkit/lights.md](../envkit/lights.md)
 is the standard for those files and shows how a script uses them.
 

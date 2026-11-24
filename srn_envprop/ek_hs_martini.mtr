@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_hs_martini
+texture1 ek_hs_martini_n
+texture2 ek_hs_martini_s
+texture3 ek_hs_martini_r
+texture4 null
+texture5 ek_hs_martini_i

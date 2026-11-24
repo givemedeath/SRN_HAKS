@@ -15,14 +15,14 @@ For a model whose material is `<name>`:
 | `<name>_o.mtr` | the lights-out material: the same maps without the glow map |
 | `<name>_o.dds` | a 16-pixel black texture; it gives `<name>_o` a texture of its own name, and stands in for the glow map |
 | `<name>_h.mtr`, `.dds`, `.txi` | the halo, where the model has one: the light drawn round a sign, added to what is behind it |
-| `ek_off.mtr`, `.dds`, `.txi` | the dark halo: one black additive sheet shared by every model, in `srn_placeable` only |
+| `ek_off.mtr`, `.dds`, `.txi` | the dark halo: one black additive sheet shared by every model, in `srn_envprop` only |
 
 `<name>` is the model's own name for a placeable (`ek_ss_vending`). For a tile group it is the name the tiles
 share, without the `_t00` that numbers them (`ek_ss_shack`). A group made of several models (a building in
 pieces, a yard's fence and booth placed with it) has a material for each: its own, and `<group>p1`, `<group>p2`
 and so on for the models placed in it, each with its own set of these files where it is lit.
 
-The files are in the model's pack: `srn_placeable` for placeables, `srn_t_common` for tile groups. A model with
+The files are in the model's pack: `srn_envprop` for placeables, `srn_t_common` for tile groups. A model with
 no lit parts has none of them.
 
 ## Which models have lights
@@ -148,5 +148,5 @@ In the game client on 2026-11-11, from the files in the packs, at night:
 
 Nothing is done by hand. `tools/envkit` writes the whole set for any model whose game set names `lit` parts
 (`convert.skin`), `envkit placeables` and `envkit install` copy it into the packs and write `lights` into the
-catalog, and `ek_off` goes into `srn_placeable` whichever command meets it first. `convert.lights_script` and
+catalog, and `ek_off` goes into `srn_envprop` whichever command meets it first. `convert.lights_script` and
 `convert.blackout_script` write the same calls as the functions above, for test fixtures.
