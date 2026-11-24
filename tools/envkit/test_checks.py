@@ -296,7 +296,7 @@ class CheckTests(unittest.TestCase):
         from pathlib import Path
         with tempfile.TemporaryDirectory() as scratch:
             repo = Path(scratch); pack, common, resources = repo / 'srn_t_dgt04', repo / 'srn_t_common', repo / 'resources'
-            for folder in (pack, common, repo / 'srn_placeable', resources):
+            for folder in (pack, common, repo / 'srn_envprop', resources):
                 folder.mkdir()
             fill = checks.FILL['dgt04']
             (pack / 'dgt04.set').write_bytes(f'[TILE{fill}]\r\nModel=t_plain\r\nImageMap2D=MI_plain\r\n'.encode('cp1252')); (pack / 'dgt04palstd.itp').write_bytes(b'ITP ')

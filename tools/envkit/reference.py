@@ -22,6 +22,11 @@ RETIRED = {'atm': 'pay-kiosk', 'crate-stack': 'pallet-stack', 'cyberware-cabinet
            'drink-case': 'fridge', 'floor-cache': 'floor-hatch', 'folding-table': 'table-and-chairs', 'freezer': 'fridge',
            'goods-rack': 'shelf-unit', 'junction-box': 'power-cabinet', 'ladder-hatch': 'floor-hatch', 'recycle-bin': 'trash-can',
            'secure-door': 'door', 'service-door': 'door', 'stash-cabinet': 'storage-cabinet', 'waiting-seats': 'bench'}
+# Types that have designs enough: only the props named here are made, and one drawn on a later sheet says which of them
+# it is the `same` as (user, 2026-11-24, of the Happenstance nightclub's: "I'm pretty sure we have enough dumpsters now,
+# make sure we don't do anymore after this one").
+CLOSED = {'dumpster': ('water-reclamation/sludge-container', 'chop-shop/scrap-bin', 'chop-shop-clinic/dumpster', 'rail-freight-yard/dumpster',
+                       'happenstance/dumpster')}
 # The props drawn against the walls and the pavement slab under them stay on the building (user, 2026-11-10: the props
 # make dressing areas faster; "we should keep the slab").
 SLAB = ('Keep the pavement slab the building stands on, and the fixtures and street furniture on it, such as bollards, bins '
@@ -169,6 +174,8 @@ def register(folder):
         role = 'same' if 'same' in asset else 'variant' if 'variant' in asset else 'original'
         types.setdefault(asset['type'], {'original': [], 'variant': [], 'same': []})[role].append(key)
     for kind, rows in types.items():
+        extra = sorted(set(rows['original'] + rows['variant']) - set(CLOSED.get(kind, rows['original'] + rows['variant'])))
+        require(not extra, f'Type {kind} takes no more made props: state {", ".join(extra)} the same as one of ' + ', '.join(CLOSED.get(kind, ())))
         require(len(rows['original']) == 1, f'Type {kind} needs one original; the others say same or variant: '
                 + ', '.join(rows['original'] or rows['variant'] + rows['same']))
         for key in rows['same']:

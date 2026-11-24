@@ -5,6 +5,7 @@ import io
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 from . import additions, catalog, convert, placeables
@@ -92,9 +93,9 @@ class CommandTests(unittest.TestCase):
             catalog.save(listed, {'schemaVersion': 1, 'kind': catalog.KIND, 'placeables': [], 'tileGroups': [],
                                   'baseline': {'placeables': {'table': 'tables/placeables.2da', 'lastImportedRow': 7}, 'tilesets': {}}})
 
-            def run(provenance=None):
+            def run(provenance=None, into='props'):
                 with contextlib.redirect_stdout(io.StringIO()) as said:
-                    additions.command_placeables(argparse.Namespace(models=str(repo / 'sets' / 'shop.json'), built=str(repo / 'built'), repo=str(repo), pack='props', dark_pack='shared',
+                    additions.command_placeables(argparse.Namespace(models=str(repo / 'sets' / 'shop.json'), built=str(repo / 'built'), repo=str(repo), pack=into, dark_pack='shared',
                                                                     table='tables/placeables.2da', catalog='docs/catalog.json', provenance=provenance, model=[]))
                 return json.loads(said.getvalue())
             with self.assertRaisesRegex(ValueError, 'name its PROVENANCE.md section'):
@@ -102,9 +103,15 @@ class CommandTests(unittest.TestCase):
             given('Shop \u2192 Bin')  # an arrow the game's code page lacks
             with self.assertRaisesRegex(ValueError, 'code page lacks'):
                 run('Shop props')
+            given('Shop, Bin')
+            with mock.patch.object(additions, 'PACK_ROOM', 10), self.assertRaisesRegex(ValueError, 'not built past 2 GiB'):  # a pack with no room left: srn_placeable, 2026-11-24
+                run('Shop props')
             self.assertEqual(list(pack.iterdir()), [])  # each refused before anything was copied
             given('Shop, Bin'); self.assertEqual(run('Shop props')['rows'], {'ek_a': 8})
             self.assertEqual(run()['rows'], {'ek_a': 8})  # converted again: the row stands
+            with self.assertRaisesRegex(ValueError, 'ek_a \\(row 8\\) is in props in the catalog, not shared'):  # into another pack: it would be in two
+                run(into='shared')
+            self.assertFalse((dark / 'ek_a.mdl').exists()); self.assertEqual(catalog.load(listed)['placeables'][0]['pack'], 'props')
             entry, = catalog.load(listed)['placeables']
             self.assertEqual((entry['row'], entry['model'], entry['label'], entry['provenance']), (8, 'ek_a', '[envkit]Shop, Bin', 'Shop props'))
             self.assertEqual(entry['lights'], {'lit': 'ek_a', 'out': 'ek_a_o', 'glow': 'ek_a_i', 'halo': 'ek_a_h', 'dark': convert.HALO_OUT})

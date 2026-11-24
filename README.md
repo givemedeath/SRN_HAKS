@@ -172,6 +172,7 @@ For production workflows, pipelines, and manifests, see:
 - `srn_weapon`: Native weapon models, ammunition packages, firearm FX, and sound-linked visual props.
 - `srn_armor`: Fitted armor variants, robe donor models, and accessory attachments.
 - `srn_placeable`, `srn_door`, `srn_sound`, `srn_music`, `srn_skybox`: Game environment audio, architectural props, and ambient resources.
+- `srn_envprop`: Envkit props (`ek_*` models, maps and blueprints). A module that uses them, or any envkit tile group with lit parts, lists it beside `srn_placeable`, which keeps the placeable palette.
 - `srn_t_*`: Tileset packs (e.g. `srn_t_common`, `srn_t_dgt04`, `srn_t_fcx01`, `srn_t_fifi`, `srn_t_nac01`, `srn_t_shp02`, etc.) implementing dungeon, urban, and wilderness environments.
 - `srn_tlk`: Canonical talk table (`srn.tlk.json`) managing global, monotonically increasing string references (`0x01000000 + n`).
 - `test-modules`: Standalone test modules (`.mod`) and demo areas for in-engine validation and inspection.

@@ -20,7 +20,7 @@
     "pylon-sign": {"kind": "prop", "type": "pylon-sign", "variant": "Branding: RTG Light-Rail wayfinding pylon.", "subject": "freestanding wayfinding pylon sign reading RTG Light-Rail", "box": [432, 848, 557, 1032]},
     "track-barrier": {"kind": "prop", "type": "crowd-barrier", "variant": "Glazed platform-edge safety rail with a lit top and hazard stripes.", "subject": "glazed platform-edge safety rail", "box": [573, 902, 853, 1030]},
     "maintenance-cart": {"kind": "prop", "type": "service-tug", "variant": "Yellow flatbed service cart with tool cases and a beacon.", "unbranded": true, "subject": "yellow flatbed service cart with tool cases", "box": [869, 881, 1094, 1030]},
-    "light-pole": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin-arm light pole", "box": [1091, 848, 1245, 1032]},
+    "light-pole": {"kind": "prop", "type": "floodlight", "same": "parking-garage/light-pole", "subject": "twin-arm light pole", "box": [1091, 848, 1245, 1032]},
     "recycle-bins": {"kind": "prop", "type": "trash-can", "same": "stuffer-shack/recycle-bin", "subject": "pair of trash and recycling bins", "box": [1250, 902, 1419, 1032]}
   }
 }

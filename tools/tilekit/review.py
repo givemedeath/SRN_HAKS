@@ -27,7 +27,7 @@ from . import PARTS, require
 from .client_settings import settings
 
 TILE = 10.0
-HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_2da')  # as a module lists them, first wins
+HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_envprop', 'srn_2da')  # as a module lists them, first wins
 TLK = 'srn'
 START, HOLD = 8.0, 6.0  # seconds before the first view, and each view is held
 ARRIVE = 8.0  # seconds given to a view in another area than the last, for the area to load
