@@ -69,6 +69,7 @@ class Lamps(unittest.TestCase):
             (common / 't_z01.mdl').write_text(MODEL.format(first='sl1').replace('t_a01', 't_z01'), encoding='cp1252')  # no tile of the set
             told = lamps.move(repo, 't', repo / 'out')
             self.assertEqual(told, {'t_a01': 'moved', 't_b01': 'has a main light', 't_c01': 'shared with u'})
+            self.assertEqual(lamps.move(repo, 't', repo / 'merged', shared=['U'])['t_c01'], 'moved')  # a merged set takes the change with the tile
             self.assertEqual(sorted(path.name for path in (repo / 'out').iterdir()), ['models-from.json', 't_a01.mdl'])
             made_from = json.loads((repo / 'out' / 'models-from.json').read_text(encoding='utf-8'))  # the pack copy it was made from, for apply
             self.assertEqual(made_from, {'t_a01.mdl': hashlib.sha256((own / 't_a01.mdl').read_bytes()).hexdigest()})

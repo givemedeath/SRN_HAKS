@@ -16,7 +16,37 @@ PROCESS = 'nwmain.exe'
 # A fresh user directory opens a 1024x768 window and pauses in the background; the fixture pins its own
 # window size so captures are comparable and keeps the game running while another window is in front.
 SETTINGS = ('[game.auto-pause.on-focus-loss]\nenabled = false\n[graphics.window]\nmode = "windowed"\n'
-            '[graphics.window.windowed]\nwidth = {width}\nheight = {height}\n[ui]\nmouseover-feedback = false\n')
+            '[graphics.window.windowed]\nwidth = {width}\nheight = {height}\n[ui]\nmouseover-feedback = false\n'
+            # Keyholing off: the hole the game cuts round the camera's line of sight shows in a capture as black ragged
+            # patches on roofs and at doors, which were taken for the tiles' own (user, 2026-11-19 and 2026-11-24).
+            '[graphics.keyholing]\nenabled = false\n')
+KEYHOLE = re.compile(r'(?m)^([ \t]*\[graphics\.keyholing\][ \t]*\r?\n)((?:(?![ \t]*\[)[^\n]*\n?)*)')
+
+
+def settings_text(width, height, extra=''):
+    """SETTINGS and a caller's own settings as one file, each table written once and a key said twice at its last
+    value. A table named twice is not valid TOML: tilekit's settings name keyholing as SETTINGS does, and a file the
+    game refuses leaves it at its defaults, with no frame limit (review of PR 193, 2026-11-24)."""
+    tables, table = {}, None
+    for line in (SETTINGS.format(width=width, height=height) + '\n' + extra).splitlines():
+        line = line.strip()
+        if line.startswith('['):
+            table = tables.setdefault(line, {})
+        elif line and not line.startswith('#'):
+            require(table is not None and '=' in line, f'A setting stands under no table: {line}')
+            table[line.split('=')[0].strip()] = line
+    return ''.join(header + '\n' + ''.join(one + '\n' for one in keys.values()) for header, keys in tables.items())
+
+
+def keyhole_off(text):
+    """A settings file the game or an earlier run wrote, with keyholing off."""
+    at = KEYHOLE.search(text)
+    if not at:
+        return text + ('' if text.endswith('\n') or not text else '\n') + '[graphics.keyholing]\nenabled = false\n'
+    body, count = re.subn(r'(?m)^([ \t]*enabled[ \t]*=[ \t]*)\w+', r'\g<1>false', at.group(2))
+    return text[:at.start(2)] + (body if count else 'enabled = false\n' + body) + text[at.end(2):]
+
+
 STAMP = re.compile(r'^\[[^\]]*\]\s*')
 POLL = 0.5
 MARGIN = 0.5  # seconds a capture must finish ahead of the next shot
@@ -105,7 +135,11 @@ def start(nwn_root, user_directory, module, *, width=1600, height=900):
     user = Path(user_directory).resolve()  # the client runs from its own folder, so a relative path would name another one
     settings = user / 'settings.tml'
     if not settings.exists():
-        settings.write_text(SETTINGS.format(width=width, height=height), encoding='utf-8')
+        settings.write_text(settings_text(width, height), encoding='utf-8')
+    else:  # one left by an earlier run, or rewritten by the game with its own defaults
+        # read and written byte for byte but for the keyholing lines: a character it cannot decode stops no run
+        old = settings.read_bytes().decode('utf-8', errors='surrogateescape')
+        settings.write_bytes(keyhole_off(old).encode('utf-8', errors='surrogateescape'))
     log = user / 'logs' / 'nwclientLog1.txt'
     if log.exists():
         log.unlink()

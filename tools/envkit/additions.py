@@ -92,6 +92,9 @@ def command_install(args):
     prepared = {name: tile.prepare(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
                                    group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
     from . import catalog
+    from tools.tilekit import merge  # a set that is part of a merged set: that set is made again, the new group in it (docs/tilesets/<set>/merge.json)
+    joined = {name: (tiles['group'], tiles['label']) for name in tiles['sets']}
+    merge.named(repo, joined, district=tiles.get('district'))  # refused here, before anything is copied, if a merged set has no such district
     data, record, origin = _catalogued(args)
     numbers = {name: (one['firstTile'], one['group']) for name, one in prepared.items()}
     for name, (first, number) in numbers.items():  # refused here too, before anything is copied, if the catalog says otherwise
@@ -113,7 +116,8 @@ def command_install(args):
     removed += _dropped_parts(shared, args.model, set(made.get('parts', {}).values()), models)
     placed = {name: tile.commit(one) for name, one in prepared.items()}
     catalog.save(record, data)
-    print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed}), flush=True)
+    merged = merge.refresh(repo, joined, district=tiles.get('district'))
+    print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed, 'merged': merged}), flush=True)
 
 
 def command_placeables(args):

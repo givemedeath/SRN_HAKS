@@ -220,7 +220,7 @@ def documents(template, target, profile, palette, alternate_palette):
             Flags=field('dword',4),DayNightCycle=field('byte',0),IsNight=field('byte',0),
             SunAmbientColor=field('dword',0xb0b0b0),SunDiffuseColor=field('dword',0xeeeeee),
             MoonAmbientColor=field('dword',0xb0b0b0),MoonDiffuseColor=field('dword',0xeeeeee),
-            FogClipDist=field('float',80),SunShadows=field('byte',1),ShadowOpacity=field('byte',20),SkyBox=field('byte',0))
+            FogClipDist=field('float',9999),SunShadows=field('byte',1),ShadowOpacity=field('byte',20),SkyBox=field('byte',0))
     git = structure('GIT ',**{'Creature List':field('list',specimens),'Door List':field('list',[]),
             'Placeable List':field('list',[]),'TriggerList':field('list',[]),'WaypointList':field('list',[]),'StoreList':field('list',[])})
     ifo = structure('IFO ',Mod_Name=field('cexolocstring',{'0':'SRN Troll '+profile}),

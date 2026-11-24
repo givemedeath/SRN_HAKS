@@ -635,7 +635,7 @@ def main():
                     DayNightCycle=field("byte", 0), IsNight=field("byte", 0),
                     SunAmbientColor=field("dword", 11579568), SunDiffuseColor=field("dword", 15658734),
                     MoonAmbientColor=field("dword", 11579568), MoonDiffuseColor=field("dword", 15658734),
-                    FogClipDist=field("float", 80), SunShadows=field("byte", 1),
+                    FogClipDist=field("float", 9999), SunShadows=field("byte", 1),
                     ShadowOpacity=field("byte", 20), SkyBox=field("byte", 0))
     if args.lighting_profile!='original':
         ambient,diffuse=(0xc0c0c0,0) if args.lighting_profile=='ambient' else (0x505050,0xeeeeee)

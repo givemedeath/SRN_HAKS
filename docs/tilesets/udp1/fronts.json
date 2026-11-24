@@ -1,0 +1,498 @@
+{
+ "tileset": "srx01",
+ "fill": 0,
+ "haks": [
+  "srn_t_srx01",
+  "srn_t_dgt04",
+  "srn_t_udp1",
+  "srn_t_fcx01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 40,
+  "height": 23,
+  "lights": [
+   "day",
+   "night"
+  ],
+  "patches": [
+   {
+    "terrain": "Grass",
+    "at": [
+     0,
+     0
+    ],
+    "size": [
+     41,
+     24
+    ],
+    "border": true
+   }
+  ],
+  "groups": [
+   {
+    "name": "School 1 4x4",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "School 2 4x4",
+    "at": [
+     7,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "School 3 5x5",
+    "at": [
+     13,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Hospital 3x4",
+    "at": [
+     20,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Fire Station 2x4",
+    "at": [
+     1,
+     8
+    ],
+    "loose": true
+   },
+   {
+    "name": "Police Station 2x3",
+    "at": [
+     7,
+     8
+    ],
+    "loose": true
+   },
+   {
+    "name": "Church 3x2",
+    "at": [
+     12,
+     8
+    ],
+    "loose": true
+   },
+   {
+    "name": "Restaurant, Chicken King 3x3",
+    "at": [
+     16,
+     8
+    ],
+    "loose": true
+   },
+   {
+    "name": "Restaurant, Kebab Hut 3x3",
+    "at": [
+     21,
+     8
+    ],
+    "loose": true
+   },
+   {
+    "name": "Gas Station 1x4",
+    "at": [
+     26,
+     8
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall1, Entry1 2x2",
+    "at": [
+     1,
+     13
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall2, Entry1 2x2",
+    "at": [
+     5,
+     13
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall1, Zip Entrance 1x2",
+    "at": [
+     9,
+     13
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall1, FutureComm Entrance 1x2",
+    "at": [
+     13,
+     13
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall2, Hillman Entrance 1x2",
+    "at": [
+     17,
+     13
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall1, On Target Entrance 1x2",
+    "at": [
+     21,
+     13
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall2, Securemart Entrance 1x2",
+    "at": [
+     25,
+     13
+    ],
+    "loose": true
+   },
+   {
+    "name": "Stripmall, Java Pit",
+    "at": [
+     1,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Stripmall, Coffee Oasis",
+    "at": [
+     4,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Stripmall, Food Saver",
+    "at": [
+     7,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Stripmall, Prime National",
+    "at": [
+     10,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Stripmall, Grocer COOP",
+    "at": [
+     13,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Stripmall, Titan Bank",
+    "at": [
+     16,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Stripmall, Morning Mart",
+    "at": [
+     19,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Stripmall, Convenience Plus",
+    "at": [
+     22,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "House 1, Blue 1x2",
+    "at": [
+     25,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "House 2, Blue 1x2",
+    "at": [
+     29,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "House 5, Blue 1x2",
+    "at": [
+     33,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Garage 1, Blue",
+    "at": [
+     37,
+     17
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall1, Tooltown Entrance 1x2",
+    "at": [
+     1,
+     20
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall2, Construx Entrance 1x2",
+    "at": [
+     5,
+     20
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall1, WernerStr Entrance 1x2",
+    "at": [
+     9,
+     20
+    ],
+    "loose": true
+   },
+   {
+    "name": "Mall1, Loading Dock",
+    "at": [
+     13,
+     20
+    ],
+    "loose": true
+   },
+   {
+    "name": "Parking, HC",
+    "at": [
+     16,
+     20
+    ],
+    "loose": true
+   },
+   {
+    "name": "Parking, HC, Sidwalk",
+    "at": [
+     19,
+     20
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    3,
+    3
+   ],
+   [
+    9,
+    3
+   ],
+   [
+    16,
+    4
+   ],
+   [
+    22,
+    3
+   ],
+   [
+    3,
+    9
+   ],
+   [
+    9,
+    9
+   ],
+   [
+    13,
+    10
+   ],
+   [
+    18,
+    10
+   ],
+   [
+    23,
+    10
+   ],
+   [
+    28,
+    9
+   ],
+   [
+    2,
+    14
+   ],
+   [
+    6,
+    14
+   ],
+   [
+    10,
+    14
+   ],
+   [
+    14,
+    14
+   ],
+   [
+    18,
+    14
+   ],
+   [
+    22,
+    14
+   ],
+   [
+    26,
+    14
+   ],
+   [
+    2,
+    18
+   ],
+   [
+    5,
+    18
+   ],
+   [
+    8,
+    18
+   ],
+   [
+    11,
+    18
+   ],
+   [
+    14,
+    18
+   ],
+   [
+    17,
+    18
+   ],
+   [
+    20,
+    18
+   ],
+   [
+    23,
+    18
+   ],
+   [
+    26,
+    18
+   ],
+   [
+    30,
+    18
+   ],
+   [
+    34,
+    18
+   ],
+   [
+    38,
+    18
+   ],
+   [
+    2,
+    21
+   ],
+   [
+    6,
+    21
+   ],
+   [
+    10,
+    21
+   ],
+   [
+    14,
+    21
+   ],
+   [
+    17,
+    21
+   ],
+   [
+    20,
+    21
+   ]
+  ],
+  "views": [
+   "x03y03-sw",
+   "x09y03-sw",
+   "x16y04-sw",
+   "x22y03-sw",
+   "x03y09-sw",
+   "x09y09-sw",
+   "x13y10-sw",
+   "x18y10-sw",
+   "x23y10-sw",
+   "x28y09-sw",
+   "x02y14-sw",
+   "x06y14-sw",
+   "x10y14-sw",
+   "x14y14-sw",
+   "x18y14-sw",
+   "x22y14-sw",
+   "x26y14-sw",
+   "x02y18-sw",
+   "x05y18-sw",
+   "x08y18-sw",
+   "x11y18-sw",
+   "x14y18-sw",
+   "x17y18-sw",
+   "x20y18-sw",
+   "x23y18-sw",
+   "x26y18-sw",
+   "x30y18-sw",
+   "x34y18-sw",
+   "x38y18-sw",
+   "x02y21-sw",
+   "x06y21-sw",
+   "x10y21-sw",
+   "x14y21-sw",
+   "x17y21-sw",
+   "x20y21-sw"
+  ]
+ },
+ "note": "Release B look at the groups that want walks and driveways laid to fit: schools, hospital, civic buildings, restaurants, gas station, mall and strip mall fronts, houses with drives. Laid loose on grass, to be looked at only."
+}

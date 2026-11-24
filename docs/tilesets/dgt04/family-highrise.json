@@ -1,0 +1,19 @@
+{
+ "tileset": "dgt04",
+ "families": [
+  {
+   "terrains": [
+    "Highrise_01",
+    "Highrise_02",
+    "Highrise_03",
+    "Highrise_05",
+    "Highrise_06",
+    "Highrise_07"
+   ],
+   "placer": "propose_corporate"
+  }
+ ],
+ "building": [
+  "Highrise*"
+ ]
+}

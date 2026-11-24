@@ -183,6 +183,8 @@ DOORS = {
     'srn_dr_strip': ('srn_StripCurtain', 2.0, 'flap', 24, 1, None),
 }
 TALL = {'srn_dr_load': 4.0}  # a door taller than `HEIGHT`
+NAMES = dict(zip(DOORS, range(16777216 + 156, 16777216 + 166)))  # each door's name in the Toolset: custom talk table rows 156-165 (srx01.door.*), in DOORS' order
+require(len(NAMES) == len(DOORS), 'A door has no name row: give the talk table a row for each door of DOORS and widen NAMES')
 
 
 def _node(name, parent, part, position=(0.0, 0.0, 0.0)):
@@ -334,7 +336,7 @@ def table(text, first=FIRST):
             require(words[1:] == ['****'] * 7 or words[1] == wanted[int(words[0])][0],
                     f'genericdoors.2da row {words[0]} is in use: the door set takes empty rows')
             label, model, sound, sight = wanted.pop(int(words[0]))
-            lines[index] = f'{words[0]:<9}{label:<23}5349   {model:<16}{sight:<11}1            {sound:<13}63750'
+            lines[index] = f'{words[0]:<9}{label:<23}5349   {model:<16}{sight:<11}1            {sound:<13}{NAMES[model]}'
     require(not wanted, 'genericdoors.2da has no row ' + ', '.join(map(str, sorted(wanted))))
     return ending.join(lines)
 

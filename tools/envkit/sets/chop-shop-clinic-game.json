@@ -15,11 +15,11 @@
         "door": {"at": [-0.6, 4.45, 0.25], "facing": 90.0, "type": 58, "leaf": 2.1}}},
     "ek_csc_cross": {"source": "meshy/models/csc-cross-sign-a1", "height": 1.1, "measuredAt": {"height": 1.1, "lift": 2.4}, "lift": 2.4, "colour": 1024, "lit": [
       {"part": "neon cross and cyberarm", "box": [[-0.51, 0.3, 2.4], [0.51, 0.54, 3.5]], "saturation": 0.45, "value": 0.6}
-    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Chop Shop Clinic, Neon Cross Sign", "sound": 28, "category": 156, "light": null}},
+    ], "halo": {"reach": 0.15, "strength": 0.4}, "placeable": {"label": "Chop Shop Clinic, Neon Cross Sign", "sound": 28, "category": 208, "light": null}},
     "ek_csc_banner": {"source": "meshy/models/csc-hanging-banner-a1", "height": 1.7, "measuredAt": {"height": 1.7, "lift": 1.9}, "lift": 1.9, "colour": 1024, "copy": [
       {"part": "right half of the caduceus and the cloth under it, drawn smeared", "box": [[-0.71, -0.1, 2.51], [-0.16, 0.1, 3.36]], "from": [[-0.16, -0.1, 2.51], [0.39, 0.1, 3.36]], "mirror": true},
       {"part": "right end of the stripes, drawn smeared", "box": [[-0.71, -0.1, 2.26], [-0.28, 0.1, 2.51]], "from": [[-0.21, -0.1, 2.26], [0.22, 0.1, 2.525]], "rise": 0.015}
-    ], "placeable": {"label": "Chop Shop Clinic, Hanging Banner", "sound": 27, "category": 156}},
+    ], "placeable": {"label": "Chop Shop Clinic, Hanging Banner", "sound": 27, "category": 208}},
     "ek_csc_case": {"source": "meshy/models/csc-cyberware-case-a1", "height": 1.35, "measuredAt": 1.35, "colour": 2048, "lit": [
       {"part": "case strip lights", "box": [[-0.8, -0.22, 1.18], [0.8, 0.07, 1.3]], "value": 0.8},
       {"part": "cybereye", "box": [[0.02, -0.4, 0.76], [0.24, 0.4, 0.96]], "gain": 1.8, "saturation": 0.4, "value": 0.5},
@@ -29,14 +29,14 @@
       {"part": "front glass, lower pane", "corners": [[-0.91, 0.29, 0.77], [0.91, 0.29, 0.77], [0.91, 0.36, 0.46], [-0.91, 0.36, 0.46]]},
       {"part": "left end glass", "corners": [[0.91, 0.11, 1.26], [0.91, 0.29, 0.77], [0.91, 0.36, 0.46], [0.91, 0.22, 0.46], [0.91, 0.12, 0.55]]},
       {"part": "right end glass", "corners": [[-0.91, 0.11, 1.26], [-0.91, 0.29, 0.77], [-0.91, 0.36, 0.46], [-0.91, 0.22, 0.46], [-0.91, 0.12, 0.55]]}
-    ], "placeable": {"label": "Chop Shop Clinic, Cyberware Case", "sound": 28, "category": 174, "light": null}},
-    "ek_csc_gurney": {"source": "meshy/models/csc-gurney-a1", "height": 1.5, "colour": 2048, "placeable": {"label": "Chop Shop Clinic, Gurney", "sound": 28, "category": 161}},
+    ], "placeable": {"label": "Chop Shop Clinic, Cyberware Case", "sound": 28, "category": 216, "light": null}},
+    "ek_csc_gurney": {"source": "meshy/models/csc-gurney-a1", "height": 1.5, "colour": 2048, "placeable": {"label": "Chop Shop Clinic, Gurney", "sound": 28, "category": 218}},
     "ek_csc_lamp": {"source": "meshy/models/csc-surgical-light-a1", "height": 2.0, "measuredAt": 2.0, "colour": 1024, "lit": [
       {"part": "lamp lenses", "box": [[-0.4, 0.0, 1.3], [0.4, 0.89, 1.85]], "value": 0.85}
     ], "halo": {"reach": 0.12, "strength": 0.45}, "inside": [{"part": "lower pole, seen through from one side", "box": [[-0.14, -0.62, 0.2], [0.14, -0.32, 0.85]]}],
-      "placeable": {"label": "Chop Shop Clinic, Surgical Light", "sound": 28, "category": 161, "light": {"colour": 3, "at": [0.0, 0.7, 1.4]}}},
-    "ek_csc_cart": {"source": "meshy/models/csc-instrument-cart-a1", "height": 1.1, "colour": 2048, "placeable": {"label": "Chop Shop Clinic, Instrument Cart", "sound": 28, "category": 164}},
-    "ek_csc_bin": {"source": "meshy/models/csc-biohazard-bin-a1", "height": 1.0, "turn": 90, "colour": 1024, "inside": true, "placeable": {"label": "Chop Shop Clinic, Biohazard Bin", "sound": 28, "category": 158}},
+      "placeable": {"label": "Chop Shop Clinic, Surgical Light", "sound": 28, "category": 209, "light": {"colour": 3, "at": [0.0, 0.7, 1.4]}}},
+    "ek_csc_cart": {"source": "meshy/models/csc-instrument-cart-a1", "height": 1.1, "colour": 2048, "placeable": {"label": "Chop Shop Clinic, Instrument Cart", "sound": 28, "category": 218}},
+    "ek_csc_bin": {"source": "meshy/models/csc-biohazard-bin-a1", "height": 1.0, "turn": 90, "colour": 1024, "inside": true, "placeable": {"label": "Chop Shop Clinic, Biohazard Bin", "sound": 28, "category": 218}},
     "ek_csc_vending": {"source": "meshy/models/csc-vending-machine-a1", "height": 1.9, "measuredAt": 1.9, "colour": 2048, "copy": [
       {"part": "label the generator invented on the left side, rear half", "box": [[0.56, -0.24, 1.42], [0.65, -0.035, 1.65]], "from": [[0.56, -0.445, 1.42], [0.65, -0.24, 1.65]], "mirror": true},
       {"part": "label the generator invented on the left side, front half", "box": [[0.56, -0.035, 1.42], [0.65, 0.17, 1.65]], "from": [[0.56, 0.17, 1.42], [0.65, 0.375, 1.65]], "mirror": true},
@@ -48,7 +48,7 @@
       {"part": "neon cross", "box": [[-0.56, 0.1, 1.42], [-0.22, 0.46, 1.8]], "saturation": 0.4, "value": 0.5},
       {"part": "screen", "box": [[-0.55, 0.1, 1.12], [-0.35, 0.46, 1.33]], "saturation": 0.3, "value": 0.45},
       {"part": "product window", "box": [[-0.17, 0.0, 0.63], [0.48, 0.46, 1.71]], "gain": 0.4}
-    ], "placeable": {"label": "Chop Shop Clinic, Medicine Vending Machine", "sound": 28, "category": 161, "light": null}},
-    "ek_csc_dumpstr": {"source": "meshy/models/csc-dumpster-a1", "height": 1.5, "colour": 2048, "inside": true, "placeable": {"label": "Chop Shop Clinic, Dumpster", "sound": 28, "category": 158}}
+    ], "placeable": {"label": "Chop Shop Clinic, Medicine Vending Machine", "sound": 28, "category": 214, "light": null}},
+    "ek_csc_dumpstr": {"source": "meshy/models/csc-dumpster-a1", "height": 1.5, "colour": 2048, "inside": true, "placeable": {"label": "Chop Shop Clinic, Dumpster", "sound": 28, "category": 213}}
   }
 }

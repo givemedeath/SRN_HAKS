@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 gg_conc
+texture1 gg_conc_n
+texture2 gg_conc_s
+texture3 gg_conc_r
+texture4 null
+texture5 null

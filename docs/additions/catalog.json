@@ -30,7 +30,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_vending",
-   "category": 161,
+   "category": 214,
    "lights": {
     "lit": "ek_ss_vending",
     "out": "ek_ss_vending_o",
@@ -49,7 +49,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_atm",
-   "category": 161,
+   "category": 214,
    "lights": {
     "lit": "ek_ss_atm",
     "out": "ek_ss_atm_o",
@@ -68,7 +68,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_snacks",
-   "category": 174
+   "category": 216
   },
   {
    "row": 22743,
@@ -80,7 +80,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_drinks",
-   "category": 166,
+   "category": 216,
    "lights": {
     "lit": "ek_ss_drinks",
     "out": "ek_ss_drinks_o",
@@ -99,7 +99,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_camera",
-   "category": 200
+   "category": 210
   },
   {
    "row": 22745,
@@ -111,7 +111,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_hvac",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22746,
@@ -123,7 +123,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_clutter",
-   "category": 162
+   "category": 213
   },
   {
    "row": 22747,
@@ -135,7 +135,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_trash",
-   "category": 158
+   "category": 213
   },
   {
    "row": 22748,
@@ -147,7 +147,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_recycle",
-   "category": 158
+   "category": 217
   },
   {
    "row": 22749,
@@ -159,7 +159,7 @@
    "provenance": "Stuffer Shack props",
    "added": "2026-11-11",
    "blueprint": "ek_ss_board",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22750,
@@ -178,7 +178,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_desk",
-   "category": 174
+   "category": 218
   },
   {
    "row": 22751,
@@ -197,7 +197,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_console",
-   "category": 165
+   "category": 210
   },
   {
    "row": 22752,
@@ -209,7 +209,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_lockers",
-   "category": 164
+   "category": 210
   },
   {
    "row": 22753,
@@ -228,7 +228,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_armory",
-   "category": 204
+   "category": 210
   },
   {
    "row": 22754,
@@ -247,7 +247,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_booth",
-   "category": 161
+   "category": 210
   },
   {
    "row": 22755,
@@ -266,7 +266,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_gate",
-   "category": 159
+   "category": 211
   },
   {
    "row": 22756,
@@ -278,7 +278,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_barrier",
-   "category": 158
+   "category": 211
   },
   {
    "row": 22757,
@@ -297,7 +297,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_terminal",
-   "category": 165
+   "category": 210
   },
   {
    "row": 22758,
@@ -316,7 +316,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_dronedk",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22759,
@@ -328,7 +328,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_turret",
-   "category": 199,
+   "category": 210,
    "lights": {
     "lit": "ek_ad_turret",
     "out": "ek_ad_turret_o",
@@ -345,7 +345,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_crate",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22761,
@@ -364,7 +364,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_pylon",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22762,
@@ -376,7 +376,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_sign",
-   "category": 156,
+   "category": 208,
    "lights": {
     "lit": "ek_ad_sign",
     "out": "ek_ad_sign_o",
@@ -395,7 +395,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_rooftop",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22764,
@@ -407,7 +407,7 @@
    "provenance": "Ares Depot props",
    "added": "2026-11-11",
    "blueprint": "ek_ad_fence",
-   "category": 159
+   "category": 211
   },
   {
    "row": 22765,
@@ -426,7 +426,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_desk",
-   "category": 174
+   "category": 218
   },
   {
    "row": 22766,
@@ -445,7 +445,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_console",
-   "category": 165
+   "category": 214
   },
   {
    "row": 22767,
@@ -457,7 +457,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_lockers",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22768,
@@ -469,7 +469,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_crates",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22769,
@@ -481,7 +481,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_pallets",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22770,
@@ -493,7 +493,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_cont",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22771,
@@ -512,7 +512,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_gate",
-   "category": 159
+   "category": 211
   },
   {
    "row": 22772,
@@ -524,7 +524,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_forklift",
-   "category": 161
+   "category": 212
   },
   {
    "row": 22773,
@@ -543,7 +543,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_fuel",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22774,
@@ -555,7 +555,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_fence",
-   "category": 159
+   "category": 211
   },
   {
    "row": 22775,
@@ -574,7 +574,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_booth",
-   "category": 161
+   "category": 210
   },
   {
    "row": 22776,
@@ -593,7 +593,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_sign",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22777,
@@ -612,7 +612,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_pylon",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22778,
@@ -624,7 +624,7 @@
    "provenance": "Saeder-Krupp Yard props",
    "added": "2026-11-12",
    "blueprint": "ek_sk_barrier",
-   "category": 158
+   "category": 211
   },
   {
    "row": 22779,
@@ -636,7 +636,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rd_platform",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22780,
@@ -648,7 +648,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rd_crane",
-   "category": 161
+   "category": 212
   },
   {
    "row": 22781,
@@ -660,7 +660,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_runway",
-   "category": 161
+   "category": 212
   },
   {
    "row": 22782,
@@ -672,7 +672,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_switcher",
-   "category": 161
+   "category": 212
   },
   {
    "row": 22783,
@@ -684,7 +684,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_boxcar",
-   "category": 161
+   "category": 212
   },
   {
    "row": 22784,
@@ -696,7 +696,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_tankcar",
-   "category": 161
+   "category": 212
   },
   {
    "row": 22785,
@@ -708,7 +708,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_flatcar",
-   "category": 161
+   "category": 212
   },
   {
    "row": 22786,
@@ -720,7 +720,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_dock",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22787,
@@ -732,7 +732,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_shed",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22788,
@@ -744,7 +744,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_walkway",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22789,
@@ -756,7 +756,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_stairs",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22790,
@@ -768,7 +768,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_office",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22791,
@@ -780,7 +780,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_cont20",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22792,
@@ -792,7 +792,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_cont40",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22793,
@@ -804,7 +804,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_crates",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22794,
@@ -816,7 +816,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_drums",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22795,
@@ -828,7 +828,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_reel",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22796,
@@ -840,7 +840,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_pipes",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22797,
@@ -852,7 +852,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_jack",
-   "category": 161
+   "category": 212
   },
   {
    "row": 22798,
@@ -864,7 +864,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_light",
-   "category": 161,
+   "category": 209,
    "lights": {
     "lit": "ek_rf_light",
     "out": "ek_rf_light_o",
@@ -883,7 +883,7 @@
    "provenance": "Rail Freight Yard props",
    "added": "2026-11-13",
    "blueprint": "ek_rf_dumpster",
-   "category": 158
+   "category": 213
   },
   {
    "row": 22800,
@@ -900,7 +900,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_counter",
-   "category": 174
+   "category": 210
   },
   {
    "row": 22801,
@@ -912,7 +912,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_gunwall",
-   "category": 204
+   "category": 210
   },
   {
    "row": 22802,
@@ -924,7 +924,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_shelf",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22803,
@@ -941,7 +941,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_bench",
-   "category": 161
+   "category": 218
   },
   {
    "row": 22804,
@@ -953,7 +953,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_cabinet",
-   "category": 204,
+   "category": 210,
    "lights": {
     "lit": "ek_isa_cabinet",
     "out": "ek_isa_cabinet_o",
@@ -975,7 +975,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_vending",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22806,
@@ -992,7 +992,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_ppe",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22807,
@@ -1004,7 +1004,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_cart",
-   "category": 164
+   "category": 218
   },
   {
    "row": 22808,
@@ -1016,7 +1016,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_target",
-   "category": 161
+   "category": 218
   },
   {
    "row": 22809,
@@ -1028,7 +1028,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_gong",
-   "category": 161
+   "category": 218
   },
   {
    "row": 22810,
@@ -1040,7 +1040,7 @@
    "provenance": "Iron Sight Arms props",
    "added": "2026-11-14",
    "blueprint": "ek_isa_booths",
-   "category": 161,
+   "category": 217,
    "lights": {
     "lit": "ek_isa_booths",
     "out": "ek_isa_booths_o",
@@ -1064,7 +1064,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_cross",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22812,
@@ -1076,7 +1076,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_banner",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22813,
@@ -1095,7 +1095,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_case",
-   "category": 174
+   "category": 216
   },
   {
    "row": 22814,
@@ -1107,7 +1107,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_gurney",
-   "category": 161
+   "category": 218
   },
   {
    "row": 22815,
@@ -1126,7 +1126,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_lamp",
-   "category": 161
+   "category": 209
   },
   {
    "row": 22816,
@@ -1138,7 +1138,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_cart",
-   "category": 164
+   "category": 218
   },
   {
    "row": 22817,
@@ -1150,7 +1150,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_bin",
-   "category": 158
+   "category": 218
   },
   {
    "row": 22818,
@@ -1167,7 +1167,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_vending",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22819,
@@ -1179,7 +1179,7 @@
    "provenance": "Chop Shop Clinic props",
    "added": "2026-11-14",
    "blueprint": "ek_csc_dumpstr",
-   "category": 158
+   "category": 213
   },
   {
    "row": 22820,
@@ -1198,7 +1198,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_sign",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22821,
@@ -1210,7 +1210,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_banner",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22822,
@@ -1229,7 +1229,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_counter",
-   "category": 174
+   "category": 218
   },
   {
    "row": 22823,
@@ -1248,7 +1248,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_workbnch",
-   "category": 164
+   "category": 218
   },
   {
    "row": 22824,
@@ -1260,7 +1260,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_cart",
-   "category": 164
+   "category": 218
   },
   {
    "row": 22825,
@@ -1279,7 +1279,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_rack",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22826,
@@ -1291,7 +1291,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_cases",
-   "category": 161
+   "category": 216
   },
   {
    "row": 22827,
@@ -1303,7 +1303,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_seats",
-   "category": 161
+   "category": 218
   },
   {
    "row": 22828,
@@ -1322,7 +1322,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_vending",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22829,
@@ -1334,7 +1334,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_reel",
-   "category": 161
+   "category": 216
   },
   {
    "row": 22830,
@@ -1353,7 +1353,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_power",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22831,
@@ -1365,7 +1365,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_bin",
-   "category": 158
+   "category": 213
   },
   {
    "row": 22832,
@@ -1384,7 +1384,7 @@
    "provenance": "Pulse Tech props (`srn_placeable`, `srn_2da`; 2026-11-15)",
    "added": "2026-11-15",
    "blueprint": "ek_pt_drone",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22833,
@@ -1403,7 +1403,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_bench",
-   "category": 164
+   "category": 218
   },
   {
    "row": 22834,
@@ -1415,7 +1415,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_pad",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22835,
@@ -1427,7 +1427,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_rack",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22836,
@@ -1439,7 +1439,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_table",
-   "category": 161
+   "category": 218
   },
   {
    "row": 22837,
@@ -1451,7 +1451,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_fire",
-   "category": 161
+   "category": 213
   },
   {
    "row": 22838,
@@ -1463,7 +1463,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_embers",
-   "category": 161
+   "category": 213
   },
   {
    "row": 22839,
@@ -1475,7 +1475,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_sign",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22840,
@@ -1487,7 +1487,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_banner",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22841,
@@ -1499,7 +1499,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_barrier",
-   "category": 158
+   "category": 211
   },
   {
    "row": 22842,
@@ -1511,7 +1511,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_door",
-   "category": 159
+   "category": 211
   },
   {
    "row": 22843,
@@ -1528,7 +1528,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_mural",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22844,
@@ -1540,7 +1540,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_cases",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22845,
@@ -1552,7 +1552,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_drums",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22846,
@@ -1564,7 +1564,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_fence",
-   "category": 159
+   "category": 211
   },
   {
    "row": 22847,
@@ -1576,7 +1576,7 @@
    "provenance": "Ghost Riders props",
    "added": "2026-11-15",
    "blueprint": "ek_gr_locker",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22848,
@@ -1595,7 +1595,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_kiosk",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22849,
@@ -1607,7 +1607,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_stairs",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22850,
@@ -1619,7 +1619,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_balcony",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22851,
@@ -1631,7 +1631,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_gen",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22852,
@@ -1643,7 +1643,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_tank",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22853,
@@ -1655,7 +1655,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_shack",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22854,
@@ -1667,7 +1667,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_barrier",
-   "category": 158
+   "category": 211
   },
   {
    "row": 22855,
@@ -1686,7 +1686,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_bodega",
-   "category": 174
+   "category": 218
   },
   {
    "row": 22856,
@@ -1698,7 +1698,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_laundry",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22857,
@@ -1710,7 +1710,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_trash",
-   "category": 158
+   "category": 213
   },
   {
    "row": 22858,
@@ -1722,7 +1722,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_graffiti",
-   "category": 158
+   "category": 211
   },
   {
    "row": 22859,
@@ -1734,7 +1734,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_namewall",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22860,
@@ -1746,7 +1746,7 @@
    "provenance": "Aurora Warrens props",
    "added": "2026-11-17",
    "blueprint": "ek_aw_crates",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22861,
@@ -1765,7 +1765,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_stall",
-   "category": 174
+   "category": 218
   },
   {
    "row": 22862,
@@ -1784,7 +1784,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_kiosk",
-   "category": 174
+   "category": 218
   },
   {
    "row": 22863,
@@ -1803,7 +1803,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_neon",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22864,
@@ -1822,7 +1822,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_gatesign",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22865,
@@ -1841,7 +1841,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_panel",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22866,
@@ -1853,7 +1853,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_cart",
-   "category": 174
+   "category": 212
   },
   {
    "row": 22867,
@@ -1865,7 +1865,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_table",
-   "category": 174
+   "category": 218
   },
   {
    "row": 22868,
@@ -1877,7 +1877,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_cases",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22869,
@@ -1889,7 +1889,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_gen",
-   "category": 161
+   "category": 214
   },
   {
    "row": 22870,
@@ -1906,7 +1906,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_booth",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22871,
@@ -1918,7 +1918,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_bench",
-   "category": 161
+   "category": 218
   },
   {
    "row": 22872,
@@ -1937,7 +1937,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_lights",
-   "category": 161
+   "category": 209
   },
   {
    "row": 22873,
@@ -1956,7 +1956,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_pylon",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22874,
@@ -1968,7 +1968,7 @@
    "provenance": "Night Bazaar props",
    "added": "2026-11-17",
    "blueprint": "ek_nb_fence",
-   "category": 159
+   "category": 211
   },
   {
    "row": 22875,
@@ -1980,7 +1980,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_trafo",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22876,
@@ -1999,7 +1999,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_switch",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22877,
@@ -2011,7 +2011,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_hatch",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22878,
@@ -2023,7 +2023,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_drum",
-   "category": 164
+   "category": 216
   },
   {
    "row": 22879,
@@ -2035,7 +2035,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_tap",
-   "category": 161
+   "category": 209
   },
   {
    "row": 22880,
@@ -2047,7 +2047,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_vent",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22881,
@@ -2059,7 +2059,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_trench",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22882,
@@ -2071,7 +2071,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_sign",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22883,
@@ -2090,7 +2090,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_battery",
-   "category": 164
+   "category": 215
   },
   {
    "row": 22884,
@@ -2102,7 +2102,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_cart",
-   "category": 164
+   "category": 218
   },
   {
    "row": 22885,
@@ -2121,7 +2121,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_bulkhead",
-   "category": 159
+   "category": 211
   },
   {
    "row": 22886,
@@ -2133,7 +2133,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_pipes",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22887,
@@ -2145,7 +2145,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_insul",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22888,
@@ -2157,7 +2157,7 @@
    "provenance": "Shiawase Barrens props",
    "added": "2026-11-18",
    "blueprint": "ek_sb_sandbag",
-   "category": 158
+   "category": 211
   },
   {
    "row": 22889,
@@ -2176,7 +2176,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_sign",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22890,
@@ -2195,7 +2195,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_martini",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22891,
@@ -2207,7 +2207,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_familia",
-   "category": 156
+   "category": 208
   },
   {
    "row": 22892,
@@ -2226,7 +2226,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_canopy",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22893,
@@ -2243,7 +2243,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_doors",
-   "category": 159
+   "category": 217
   },
   {
    "row": 22894,
@@ -2260,7 +2260,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_shopwin",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22895,
@@ -2277,7 +2277,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_shopwin2",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22896,
@@ -2294,7 +2294,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_upwin",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22897,
@@ -2311,7 +2311,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_upwin2",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22898,
@@ -2323,7 +2323,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_svcdoor",
-   "category": 159
+   "category": 217
   },
   {
    "row": 22899,
@@ -2335,7 +2335,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_rolldoor",
-   "category": 159
+   "category": 217
   },
   {
    "row": 22900,
@@ -2352,7 +2352,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_walllamp",
-   "category": 161
+   "category": 209
   },
   {
    "row": 22901,
@@ -2371,7 +2371,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_alleylmp",
-   "category": 161
+   "category": 209
   },
   {
    "row": 22902,
@@ -2383,7 +2383,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_chain",
-   "category": 158
+   "category": 211
   },
   {
    "row": 22903,
@@ -2395,7 +2395,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_stanchn",
-   "category": 158
+   "category": 211
   },
   {
    "row": 22904,
@@ -2407,7 +2407,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_dumpster",
-   "category": 158
+   "category": 213
   },
   {
    "row": 22905,
@@ -2419,7 +2419,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_bags",
-   "category": 158
+   "category": 213
   },
   {
    "row": 22906,
@@ -2431,7 +2431,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_planter",
-   "category": 161
+   "category": 217
   },
   {
    "row": 22907,
@@ -2443,7 +2443,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_cabinet",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22908,
@@ -2455,7 +2455,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_elecbox",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22909,
@@ -2467,7 +2467,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_conduit",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22910,
@@ -2479,7 +2479,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_pipe",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22911,
@@ -2491,7 +2491,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_pipes",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22912,
@@ -2503,7 +2503,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_acunit",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22913,
@@ -2515,7 +2515,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_hvac",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22914,
@@ -2527,7 +2527,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_hvac2",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22915,
@@ -2539,7 +2539,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_turbine",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22916,
@@ -2551,7 +2551,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_ventcap",
-   "category": 161
+   "category": 215
   },
   {
    "row": 22917,
@@ -2563,7 +2563,7 @@
    "provenance": "Happenstance props (`srn_envprop`, `srn_2da`; 2026-11-24)",
    "added": "2026-11-24",
    "blueprint": "ek_hs_antenna",
-   "category": 161
+   "category": 215
   }
  ],
  "tileGroups": [

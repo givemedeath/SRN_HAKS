@@ -1,0 +1,23 @@
+{
+ "schemaVersion": 1,
+ "kind": "tilekit-merge-numbers",
+ "tiles": [
+  ["dgt04", 0, 575],
+  ["udp1", 0, 798],
+  ["fcx01", 0, 239],
+  ["join", "srx01_ja1_01"],
+  ["join", "srx01_ja2_01"],
+  ["join", "srx01_ja3_01"],
+  ["join", "srx01_ja4_01"],
+  ["join", "srx01_jar_01"],
+  ["join", "srx01_jas_01"],
+  ["join", "srx01_jat_01"],
+  ["join", "srx01_jp1_01"],
+  ["join", "srx01_jp2_01"],
+  ["join", "srx01_jp3_01"],
+  ["join", "srx01_jp4_01"],
+  ["join", "srx01_jpr_01"],
+  ["join", "srx01_jps_01"],
+  ["join", "srx01_jpt_01"]
+ ]
+}

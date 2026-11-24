@@ -35,7 +35,7 @@ def moved(text, radius=RADIUS):
     return text, made
 
 
-def move(repo, tileset, folder, *, radius=RADIUS):
+def move(repo, tileset, folder, *, radius=RADIUS, shared=()):
     """Write the moved models of a tileset into `folder` (a review's overlay; a model already there is changed in
     place) and tell {model: state}. A model whose walkmesh would differ afterwards is a refusal: nothing here touches one."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
@@ -46,7 +46,7 @@ def move(repo, tileset, folder, *, radius=RADIUS):
         if new is None:
             if said != 'no source light':
                 told[name] = said
-        elif others:
+        elif set(others) - {one.lower() for one in shared}:  # shared: a merged set that takes the change with the tiles
             told[name] = 'shared with ' + ', '.join(others)
         else:
             require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')

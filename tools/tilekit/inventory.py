@@ -186,8 +186,11 @@ def _other_sets(repo, tileset, *, edges=False):
 def drawn_copies(repo, tileset, folder, packs):
     """(name, file name, text, other tilesets using it, source file) for each uncompiled model the tileset draws, in the
     first of `packs` that holds it (the copy the game shows), read from `folder` (None: none) where a copy is already there.
-    A compiled pack model is read from its ASCII source (`compiled.source`), which is the file named."""
+    A compiled pack model is read from its ASCII source (`compiled.source`), which is the file named. A set merged of this
+    one (`merged.over`) is no other tileset: it is meant to show what is changed in its families."""
     from .compiled import source
+    from .merged import over
+    shown = over(repo, tileset)
     tiles, others, seen = drawn_models(repo, tileset), _other_sets(repo, tileset, edges=True), set()
     for pack in packs:
         for path in sorted((Path(repo) / pack.format(tileset=tileset)).glob('*.mdl')):
@@ -196,7 +199,7 @@ def drawn_copies(repo, tileset, folder, packs):
                 continue
             seen.add(name); path = source(repo, path); data = (Path(folder) / path.name if folder is not None and (Path(folder) / path.name).is_file() else path).read_bytes()
             if not compiled(data):
-                yield name, path.name, data.decode('cp1252'), sorted(others.get(name, ())), path
+                yield name, path.name, data.decode('cp1252'), sorted(set(others.get(name, ())) - shown), path
 
 
 def inventory(repo, tileset, *, walkmesh_only=False):

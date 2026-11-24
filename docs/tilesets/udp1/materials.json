@@ -1,0 +1,1225 @@
+{
+ "tileset": "udp1",
+ "status": "release B: applied to the packs (PR 193, 2026-11-24)",
+ "before": "f0112d5e5a5b",
+ "packs": [
+  "srn_t_udp1",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable"
+ ],
+ "grades": {
+  "road": {
+   "saturation": 0.4,
+   "contrast": 1.2,
+   "gain": 0.55,
+   "tint": [
+    0.92,
+    0.98,
+    1.1
+   ],
+   "paint": 0.8
+  },
+  "walkway": {
+   "saturation": 0.4,
+   "contrast": 1.15,
+   "gain": 0.68,
+   "tint": [
+    0.94,
+    0.98,
+    1.06
+   ]
+  },
+  "roof": {
+   "saturation": 0.5,
+   "contrast": 1.1,
+   "gain": 0.5,
+   "tint": [
+    1.0,
+    0.98,
+    0.95
+   ]
+  },
+  "lit_warm": {
+   "saturation": 1.15,
+   "contrast": 1.15,
+   "gain": 1.0,
+   "tint": [
+    1.08,
+    1.0,
+    0.85
+   ]
+  },
+  "industrial": {
+   "saturation": 0.6,
+   "contrast": 1.2,
+   "gain": 0.6,
+   "tint": [
+    1.0,
+    0.97,
+    0.92
+   ]
+  },
+  "plant": {
+   "saturation": 0.6,
+   "contrast": 1.1,
+   "gain": 0.65,
+   "tint": [
+    0.95,
+    1.0,
+    1.0
+   ]
+  },
+  "suburb": {
+   "saturation": 0.7,
+   "contrast": 1.2,
+   "gain": 0.72,
+   "tint": [
+    1.0,
+    0.98,
+    0.94
+   ]
+  },
+  "lawn": {
+   "saturation": 0.8,
+   "contrast": 1.1,
+   "gain": 1.2,
+   "tint": [
+    0.96,
+    1.0,
+    0.92
+   ]
+  },
+  "suburb_road": {
+   "saturation": 0.4,
+   "contrast": 1.2,
+   "gain": 0.85,
+   "tint": [
+    0.95,
+    0.98,
+    1.05
+   ],
+   "paint": 0.8
+  }
+ },
+ "textures": {
+  "udp1-asph": {
+   "route": "master",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "tone": 0.5,
+   "grade": "suburb_road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph"
+  },
+  "udp1-asph-str": {
+   "route": "layout",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "keep": 6,
+   "grade": "suburb_road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph_str"
+  },
+  "udp1-pave": {
+   "route": "master",
+   "master": "Concrete047A",
+   "repeat": 2,
+   "tone": 0.5,
+   "grade": "walkway",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_pave"
+  },
+  "udp1-pave-wlk": {
+   "route": "layout",
+   "master": "Concrete047A",
+   "repeat": 2,
+   "keep": 16,
+   "grade": "walkway",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_pave_wlk"
+  },
+  "az2-grass": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "stem": "az2_grass"
+  },
+  "udp1-blck-rd": {
+   "route": "master",
+   "master": "Bricks097",
+   "repeat": 2,
+   "tone": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stain": 0.4,
+   "stem": "udp1_blck_rd"
+  },
+  "udp1-blck-rd2": {
+   "route": "master",
+   "master": "Bricks097",
+   "repeat": 2,
+   "tone": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stain": 0.4,
+   "stem": "udp1_blck_rd2"
+  },
+  "udp1-blck-bg2": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stem": "udp1_blck_bg2"
+  },
+  "udp1-h6-sdg": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "stem": "udp1_h6_sdg"
+  },
+  "udp1-h3-sdg": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "stem": "udp1_h3_sdg"
+  },
+  "udp1-h1-sdg": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "stem": "udp1_h1_sdg"
+  },
+  "udp1-shing2": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "roof",
+   "stem": "udp1_shing2"
+  },
+  "udp1-shing3": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "roof",
+   "stem": "udp1_shing3"
+  },
+  "udp1-window2": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stem": "udp1_window2"
+  },
+  "udp1-window2b": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "lit_warm",
+   "stem": "udp1_window2b"
+  },
+  "udp1-wd-fnc": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "stem": "udp1_wd_fnc"
+  },
+  "udp1-mtl-gry": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "grade": "industrial",
+   "size": [
+    512,
+    512
+   ],
+   "keep": 8,
+   "grain": 2.5,
+   "stem": "udp1_mtl_gry"
+  },
+  "udp1-blck-bg": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stem": "udp1_blck_bg"
+  },
+  "udp1-blck-gr": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stem": "udp1_blck_gr"
+  },
+  "udp1-asph-trn": {
+   "route": "layout",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "keep": 6,
+   "grade": "suburb_road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph_trn"
+  },
+  "udp1-asph-4wy": {
+   "route": "layout",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "keep": 6,
+   "grade": "suburb_road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph_4wy"
+  },
+  "udp1-asph-nex": {
+   "route": "layout",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "keep": 6,
+   "grade": "suburb_road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph_nex"
+  },
+  "udp1-asph-pkg": {
+   "route": "layout",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "keep": 6,
+   "grade": "suburb_road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph_pkg"
+  },
+  "udp1-asph-pkg2": {
+   "route": "layout",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "keep": 6,
+   "grade": "suburb_road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph_pkg2"
+  },
+  "udp1-asph-xwk": {
+   "route": "layout",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "keep": 6,
+   "grade": "suburb_road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph_xwk"
+  },
+  "udp1-pave-sgl": {
+   "route": "layout",
+   "master": "Concrete047A",
+   "repeat": 2,
+   "keep": 16,
+   "grade": "walkway",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_pave_sgl"
+  },
+  "gg2-forbase1": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_forbase1"
+  },
+  "az2-gr2dirt": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "az2_gr2dirt"
+  },
+  "udp1-for-str": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_for_str"
+  },
+  "udp1-for-3gr": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_for_3gr"
+  },
+  "az2_dirt01": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "az2_dirt01"
+  },
+  "udp1-for-1gr": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_for_1gr"
+  },
+  "udp1-for-opp": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_for_opp"
+  },
+  "gg2-msc-leaf2a": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.7,
+   "grade": "plant",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_msc_leaf2a"
+  },
+  "gg2-msc-leaf2": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.7,
+   "grade": "plant",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_msc_leaf2"
+  },
+  "gg2-bark": {
+   "route": "upscale",
+   "relief": 0.5,
+   "roughness": 0.7,
+   "grade": "plant",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_bark"
+  },
+  "gg2-h2-3": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_h2_3"
+  },
+  "gg2-h2-7": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_h2_7"
+  },
+  "udp1-h6-ss": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_h6_ss"
+  },
+  "udp1-h4-sdg": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_h4_sdg"
+  },
+  "gg2-wd-pl": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_wd_pl"
+  },
+  "gg2-wd-sd": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_wd_sd"
+  },
+  "udp1-wd-pnl1": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_wd_pnl1"
+  },
+  "udp1-wd-grd1": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_wd_grd1"
+  },
+  "udp1-shing1": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "roof",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_shing1"
+  },
+  "udp1-shing4": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "roof",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_shing4"
+  },
+  "udp1-window1": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_window1"
+  },
+  "udp1-window3": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_window3"
+  },
+  "udp1-window4": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_window4"
+  },
+  "gg2-win1": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_win1"
+  },
+  "gg2-win1a": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_win1a"
+  },
+  "udp1-window1b": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "lit_warm",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_window1b"
+  },
+  "udp1-window3b": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "lit_warm",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_window3b"
+  },
+  "udp1-window4b": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "lit_warm",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_window4b"
+  },
+  "gg2-win1_a": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "lit_warm",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_win1_a"
+  },
+  "gg2-win1aa": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "lit_warm",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_win1aa"
+  },
+  "udp1-blck-gr2": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_blck_gr2"
+  },
+  "udp1-blck-bg-st": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "u_blck_bg_st"
+  },
+  "udp1-blck-bg-st2": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "u_blck_bg_st2"
+  },
+  "gg-conc": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg_conc"
+  },
+  "gg2-bur-rd": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "gg2_bur_rd"
+  },
+  "udp1-tile-wh": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_tile_wh"
+  },
+  "udp1-tile-rd": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_tile_rd"
+  },
+  "udp1-tile-rdst": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_tile_rdst"
+  },
+  "udp1-pnt-wh1": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_pnt_wh1"
+  },
+  "udp1-pnt-wh2": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_pnt_wh2"
+  },
+  "udp1-pnt-wh3": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_pnt_wh3"
+  },
+  "udp1-pnt-wh4": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_pnt_wh4"
+  },
+  "udp1-mtl-ss-dr": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_ss_dr"
+  },
+  "udp1-mtl-chrm": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    256,
+    256
+   ],
+   "stem": "udp1_mtl_chrm"
+  },
+  "udp1-mtl-grid": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_mtl_grid"
+  },
+  "udp1-mtl-vents": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_vents"
+  },
+  "udp1-mtl-grd-r": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_mtl_grd_r"
+  },
+  "udp1-mtl-ss-y": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_ss_y"
+  },
+  "udp1-mtl-alum": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_alum"
+  },
+  "udp1-mtl-plt": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_mtl_plt"
+  },
+  "udp1-mtl-grd-y": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_mtl_grd_y"
+  },
+  "udp1-mtl-grd-b": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_mtl_grd_b"
+  },
+  "udp1-mtl2-bl": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl2_bl"
+  },
+  "udp1-mtl-grd-lb": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "u_mtl_grd_lb"
+  },
+  "udp1-mtl-ss-dy": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_ss_dy"
+  },
+  "udp1-mtl-rvt": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_rvt"
+  },
+  "udp1-mtl-ss-g": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_ss_g"
+  },
+  "udp1-mtl-ss-b": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_ss_b"
+  },
+  "udp1-mtl-gry3": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_gry3"
+  },
+  "udp1-mtl-gry2": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_mtl_gry2"
+  },
+  "udp1-aircond": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_aircond"
+  },
+  "udp1-aircond2": {
+   "route": "upscale",
+   "relief": 1.0,
+   "roughness": 0.45,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_aircond2"
+  },
+  "udp1-logos-z": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_logos_z"
+  },
+  "udp1-logos": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_logos"
+  },
+  "udp1-logos2": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_logos2"
+  },
+  "udp1-logos3": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_logos3"
+  },
+  "udp1-allsigns": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_allsigns"
+  },
+  "udp1-menu": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_menu"
+  },
+  "udp1-gogas": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_gogas"
+  },
+  "udp1-gogas-z": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_gogas_z"
+  },
+  "udp1-gogas2": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_gogas2"
+  },
+  "udp1-msc-stngl": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "udp1_msc_stngl"
+  },
+  "udp1-msc-stngl2": {
+   "route": "upscale",
+   "relief": 0.3,
+   "roughness": 0.5,
+   "grade": "suburb",
+   "size": [
+    512,
+    512
+   ],
+   "stem": "u_msc_stngl2"
+  }
+ }
+}

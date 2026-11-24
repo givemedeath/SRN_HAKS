@@ -62,6 +62,26 @@ class ReviewTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'is straight'):
             review.solve(TILES, G, 3, 3, [], [{'crosser': 'Road', 'cells': [[0, 0], [1, 1]]}])
 
+    def test_a_patch_lies_over_another_only_where_it_says_so(self):
+        laid = review.solve(TILES, G, 5, 5, [{'terrain': T, 'at': [1, 1], 'size': [3, 3]}, {'terrain': G, 'at': [2, 2], 'size': [1, 1], 'over': True}])
+        self.assertEqual({laid[cell][0] for cell in ((1, 1), (2, 1), (1, 2), (2, 2))}, {3})  # a yard in the tower's middle: four three-corner tiles round it
+        self.assertEqual(review.disagreements(5, [laid[(index % 5, index // 5)] for index in range(25)], TILES), [])
+
+    def test_a_group_is_laid_whole_where_asked_and_refused_where_the_ground_is_not_its_own(self):
+        tiles = {**TILES, 12: tile(12, (T, T, T, T)), 13: tile(13, (T, T, T, T))}
+        text = SET + '[GROUP1]\nName=Keep\nRows=2\nColumns=2\nTile0=12\nTile1=13\nTile2=-1\nTile3=12\n'
+        cells = review.solve(tiles, G, 5, 5, [{'terrain': T, 'at': [1, 1], 'size': [3, 3]}], avoid={12, 13})
+        laid = review.stamped(cells, tiles, text, [{'name': 'keep', 'at': [1, 1]}], 5, 5)
+        self.assertEqual([laid[cell] for cell in ((1, 1), (2, 1), (2, 2))], [(12, 0), (13, 0), (12, 0)])  # Tile0 is the south-west one, rows going north
+        self.assertEqual(laid[(1, 2)], cells[(1, 2)]); self.assertEqual(cells[(1, 1)], (4, 0))  # a hole in a group leaves the ground; what was solved is not changed
+        with self.assertRaisesRegex(ValueError, 'does not fit the ground it is laid on: tile 12 at 3,3: Tower where a neighbour has Ground'):
+            review.stamped(cells, tiles, text, [{'name': 'Keep', 'at': [3, 3]}], 5, 5)
+        self.assertEqual(review.stamped(cells, tiles, text, [{'name': 'Keep', 'at': [3, 3], 'loose': True}], 5, 5)[(3, 3)], (12, 0))  # laid to be looked at
+        with self.assertRaisesRegex(ValueError, 'Keep at 4,1 leaves the area'):
+            review.stamped(cells, tiles, text, [{'name': 'Keep', 'at': [4, 1]}], 5, 5)
+        with self.assertRaisesRegex(ValueError, 'The set has no group Spare'):  # a group with no shape is one tile's name, not a building
+            review.stamped(cells, tiles, text, [{'name': 'Spare', 'at': [0, 0]}], 5, 5)
+
     def test_a_grid_keeps_plain_ground_on_both_sides_of_every_row(self):
         width, height, laid, rows = review.grid([1, 2, 3, 4, 5], 0, across=2)
         self.assertEqual((width, height, rows, len(laid)), (2, 7, 3, 14))

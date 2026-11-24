@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "nextId": 144,
+  "nextId": 166,
   "allocations": [
     {
       "id": 0,
@@ -894,6 +894,138 @@
       "id": 143,
       "key": "phenomorpher.race.orc.description",
       "owner": "SR_NWN",
+      "status": "active"
+    },
+    {
+      "id": 144,
+      "key": "srx01.placeable.category.city",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 145,
+      "key": "srx01.placeable.category.signs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 146,
+      "key": "srx01.placeable.category.lights",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 147,
+      "key": "srx01.placeable.category.security",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 148,
+      "key": "srx01.placeable.category.barriers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 149,
+      "key": "srx01.placeable.category.vehicles",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 150,
+      "key": "srx01.placeable.category.rubble",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 151,
+      "key": "srx01.placeable.category.machines",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 152,
+      "key": "srx01.placeable.category.utilities",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 153,
+      "key": "srx01.placeable.category.storage",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 154,
+      "key": "srx01.placeable.category.building",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 155,
+      "key": "srx01.placeable.category.fittings",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 156,
+      "key": "srx01.door.street",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 157,
+      "key": "srx01.door.shop",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 158,
+      "key": "srx01.door.double",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 159,
+      "key": "srx01.door.steel",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 160,
+      "key": "srx01.door.shutter2",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 161,
+      "key": "srx01.door.shutter4",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 162,
+      "key": "srx01.door.loading",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 163,
+      "key": "srx01.door.gate",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 164,
+      "key": "srx01.door.interior",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 165,
+      "key": "srx01.door.strip",
+      "owner": "shared",
       "status": "active"
     }
   ]
