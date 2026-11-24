@@ -13,6 +13,10 @@ def _names(text):
     return [name for name in (text or '').split(',') if name]
 
 
+def _json(path):
+    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
+
+
 def _told(told, out=None):
     text = json.dumps(told, indent=1)
     if out:
@@ -45,6 +49,27 @@ def openings_command(chosen):
     return 0
 
 
+def _most(chosen):
+    return None if chosen.all else chosen.most
+
+
+def family_review_command(chosen):
+    from . import family_review
+    _told(family_review.run(chosen.repo, _json(chosen.spec), chosen.out, chosen.name, chosen.game, chosen.built, overlay=chosen.overlay, base=chosen.spec.parent,
+                            views=_names(chosen.views), most=_most(chosen), start=not chosen.no_run))
+    return 0
+
+
+def _client(parser, repo):
+    parser.add_argument('--spec', required=True, type=Path, help='the family review spec (docs/tilesets/tilekit-tools.md)')
+    parser.add_argument('--game', required=True, type=Path, help='the game install folder'); parser.add_argument('--built', required=True, type=Path, help='the folder the packs were built into')
+    parser.add_argument('--out', required=True, type=Path, help='a fresh folder for the module and its captures'); parser.add_argument('--name', required=True, help='the module\'s name, a resref of at most 11 characters')
+    parser.add_argument('--overlay', type=Path, help='a folder of files shown instead of the packs\' own'); parser.add_argument('--views', help='only the views whose label begins with one of these, comma separated')
+    parser.add_argument('--most', type=int, default=24, help='views at most, taken evenly (default: 24)'); parser.add_argument('--all', action='store_true', help='every view, however many')
+    parser.add_argument('--repo', type=Path, default=repo)
+    return parser
+
+
 def add(commands, repo):
     """Register the commands; {name: function of the parsed arguments}."""
     one = _tileset(commands.add_parser('repair', help='report broken animation blocks of a tileset\'s ASCII models, or put them right with --write'), repo)
@@ -55,4 +80,6 @@ def add(commands, repo):
     three = _tileset(commands.add_parser('openings', help='measure the doorways of a tileset\'s door hooks, and list its black openings, into a JSON file'), repo)
     three.add_argument('--out', required=True, type=Path); three.add_argument('--black', help='materials that stand for an opening, comma separated patterns')
     three.add_argument('--types', default='0', help='the hook types measured, comma separated (default: 0, generic doors)')
-    return {'repair': repair_command, 'propose': propose_command, 'openings': openings_command}
+    four = _client(commands.add_parser('family-review', help='capture a family of tiles in the client: tiles apart, streets, whole towers, door hooks'), repo)
+    four.add_argument('--no-run', action='store_true', help='build the module and stop')
+    return {'repair': repair_command, 'propose': propose_command, 'openings': openings_command, 'family-review': family_review_command}
