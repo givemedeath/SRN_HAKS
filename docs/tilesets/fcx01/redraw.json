@@ -86,7 +86,8 @@
    "kind": "fixture",
    "district": "corporate",
    "copy": "window1",
-   "note": "One pane of a tower's tinted glass curtain wall at dusk, lit softly from inside: even deep cyan-blue glass, a little brighter towards the middle, with a thin dark graphite frame around the edge. No lens flare, no star, no sun, no reflection of a light."
+   "note": "Nothing but glass: one sheet of a tower's tinted curtain-wall glass at dusk, lit softly from inside, filling the whole picture from edge to edge. Even, luminous cyan-blue, slightly brighter towards the middle, with only the faintest soft vertical reflections. No frame, no border, no mullion, no bezel, no dark edge anywhere; the glass runs off all four sides. No lens flare, no star, no sun.",
+   "placed": "The picture in use is the redraw cropped to its clean middle by hand (the model drew two vertical lines and darker sides); it has no record, so a redraw run keeps it."
   },
   "fcx_pub": {
    "kind": "sign",
