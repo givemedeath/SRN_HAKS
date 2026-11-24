@@ -156,8 +156,12 @@ draft names is in the table.
   name (tbx78 names three groups `room2x1`; the entry lists a display for each under `repeats`).
 - **For the review:** what tells Hallway A from B; whether the tfb01 names (Home, Retail) stand before its restyle;
   the five crossers not pictured.
-- **Plan changes from the pictures:** tfb01's restyle (ceilings, modern walls) moves ahead of its furnished rooms;
-  the pilot rooms on tfb01 shells (R04, C01) should move to udp2 shells or wait for it. Decision for the user.
+- **Decided by the user (2026-11-24): restyle first.** tfb01's restyle (ceilings, full-height modern walls, period
+  furniture out of its floor tiles) comes before any furnished room on its shells. Order now: names review, merge
+  (stage 2), crosser joins (3), release A with source looks (4), **tfb01 restyle (new stage 4b, the dgt04 process)**,
+  room tooling (5), pilots (6). The pilots on udp2 and tbx78 shells (R02, O04, S01, S03) do not wait for 4b; R04 and
+  C01 do. Walkmeshes stay as the baseline records them; built-in furniture that blocks walking keeps its footprint
+  or the baseline is revised with the user's approval.
 
 ## Decisions for the user (defaults used unless changed)
 
