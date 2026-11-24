@@ -177,7 +177,7 @@ def command_blueprints(args):
     from tools.phenotypes import tool_runtime
     from . import blueprints, catalog, convert, placeables
     models = convert.load_models(args.models); repo = Path(args.repo); pack = repo / args.pack; record = repo / args.catalog
-    shelf = repo / (getattr(args, 'palette_pack', None) or args.pack)  # the palette is one file for every placeable of the module, so it stays in one pack
+    shelf = repo / args.palette_pack  # never the blueprints' pack by default: a second palette there would be one too many; the palette is one file for every placeable of the module, so it stays in one pack
     require(pack.is_dir() and shelf.is_dir() and record.is_file(), 'The pack, the palette\'s pack or the additions catalog is missing: ' + ', '.join(map(str, (pack, shelf, record))))
     data = catalog.load(record); gff = str(tool_runtime.tool('nwn_gff'))
     run = lambda arguments: subprocess.run([str(value) for value in arguments], capture_output=True, timeout=300, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))

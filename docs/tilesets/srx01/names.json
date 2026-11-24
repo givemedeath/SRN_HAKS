@@ -3051,175 +3051,146 @@
    {
     "resref": "ek_hs_sign",
     "name": "Happenstance, Neon Sign",
-    "from": "Modern Exterior > Signs",
     "to": "Shadowrun City > Signs and Screens"
    },
    {
     "resref": "ek_hs_martini",
     "name": "Happenstance, Martini Neon Sign",
-    "from": "Modern Exterior > Signs",
     "to": "Shadowrun City > Signs and Screens"
    },
    {
     "resref": "ek_hs_familia",
     "name": "Happenstance, Casquilho Familia Sign",
-    "from": "Modern Exterior > Signs",
     "to": "Shadowrun City > Signs and Screens"
    },
    {
     "resref": "ek_hs_canopy",
     "name": "Happenstance, Entrance Canopy",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_doors",
     "name": "Happenstance, Entrance Doors",
-    "from": "Modern Exterior > Walls & Fences",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_shopwin",
     "name": "Happenstance, Storefront Window, Large",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_shopwin2",
     "name": "Happenstance, Storefront Window, Small",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_upwin",
     "name": "Happenstance, Upper Window, Large",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_upwin2",
     "name": "Happenstance, Upper Window, Small",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_svcdoor",
     "name": "Happenstance, Service Door",
-    "from": "Modern Exterior > Walls & Fences",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_rolldoor",
     "name": "Happenstance, Roll-Up Door",
-    "from": "Modern Exterior > Walls & Fences",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_walllamp",
     "name": "Happenstance, Wall Light",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Lights"
    },
    {
     "resref": "ek_hs_alleylmp",
     "name": "Happenstance, Alley Lamp",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Lights"
    },
    {
     "resref": "ek_hs_chain",
     "name": "Happenstance, Chain Bollards",
-    "from": "Modern Exterior > Streets",
     "to": "Shadowrun City > Barriers, Fences and Gates"
    },
    {
     "resref": "ek_hs_stanchn",
     "name": "Happenstance, Queue Stanchion",
-    "from": "Modern Exterior > Streets",
     "to": "Shadowrun City > Barriers, Fences and Gates"
    },
    {
     "resref": "ek_hs_dumpster",
     "name": "Happenstance, Tagged Dumpster",
-    "from": "Modern Exterior > Streets",
     "to": "Shadowrun City > Rubble and Trash"
    },
    {
     "resref": "ek_hs_bags",
     "name": "Happenstance, Trash Bags",
-    "from": "Modern Exterior > Streets",
     "to": "Shadowrun City > Rubble and Trash"
    },
    {
     "resref": "ek_hs_planter",
     "name": "Happenstance, Steel Planter",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Building Parts"
    },
    {
     "resref": "ek_hs_cabinet",
     "name": "Happenstance, Utility Cabinet",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_elecbox",
     "name": "Happenstance, Electrical Box",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_conduit",
     "name": "Happenstance, Conduit Bundle",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_pipe",
     "name": "Happenstance, Drainpipe",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_pipes",
     "name": "Happenstance, Twin Drainpipes",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_acunit",
     "name": "Happenstance, Wall AC Unit",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_hvac",
     "name": "Happenstance, Rooftop HVAC, Large",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_hvac2",
     "name": "Happenstance, Rooftop HVAC, Small",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_turbine",
     "name": "Happenstance, Turbine Roof Vent",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_ventcap",
     "name": "Happenstance, Roof Vent Stack",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    },
    {
     "resref": "ek_hs_antenna",
     "name": "Happenstance, Antenna Mast",
-    "from": "Modern Exterior > Equipment",
     "to": "Shadowrun City > Utilities and Power"
    }
   ]

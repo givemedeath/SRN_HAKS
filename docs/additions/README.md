@@ -57,17 +57,22 @@ the Toolset's Custom tab, which lists only the module's own. They are offered on
 tree in `placeablepal.itp`. It is rebuilt whole by `envkit blueprints`, so it needs the game installed; do not edit
 it by hand.
 
-Categories are the IDs of `placeablepal.itp`. Those in use:
+Categories are the IDs of `placeablepal.itp`. Envkit blueprints sit under Shadowrun City (208 to 218), and each is
+listed with its category in `docs/tilesets/srx01/names.json` (`placeables`), which `tilekit merge` locks:
 
 | ID | Category | Used for |
 | --- | --- | --- |
-| 156 | Modern Exterior > Signs | standing signs |
-| 158 | Modern Exterior > Streets | bins and street furniture |
-| 161 | Modern Exterior > Structures | machines and units that stand outside |
-| 162 | Modern Exterior > Misc. | clutter |
-| 166 | Modern Interior > Equipment | shop equipment |
-| 174 | Modern Interior > Furniture | racks and shelves |
-| 200 | Modern Exterior > Wall Fixtures & Features | things hung on a wall |
+| 208 | Shadowrun City > Signs and Screens | signs, neon and screens |
+| 209 | Shadowrun City > Lights | lamps and floodlights |
+| 210 | Shadowrun City > Security | cameras, scanners and guard posts |
+| 211 | Shadowrun City > Barriers, Fences and Gates | fences, bollards, chains and stanchions |
+| 212 | Shadowrun City > Vehicles and Rail | vehicles and rail stock |
+| 213 | Shadowrun City > Rubble and Trash | bins, dumpsters and litter |
+| 214 | Shadowrun City > Machines and Vending | machines that stand outside |
+| 215 | Shadowrun City > Utilities and Power | cabinets, pipes, vents and rooftop units |
+| 216 | Shadowrun City > Storage and Cargo | crates, racks and containers |
+| 217 | Shadowrun City > Building Parts | doors, windows, canopies and planters |
+| 218 | Shadowrun City > Shop and Workshop Fittings | shop and workshop equipment |
 
 A blueprint is scenery: it cannot be destroyed or used. A model with lit parts gets a blueprint that is not static,
 so a script can put its lights out; the others are static.
