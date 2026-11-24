@@ -273,7 +273,7 @@ Further checks (2026-11-21, on the user's go):
 
 The district review area is `docs/tilesets/srx01/districts.json`: 24×14 tiles, suburb west, city in the middle, arcology
 east, with the joins between them, by day and by night. It lays whole buildings (`groups` in a review block, new) and
-buildings' terrains over a district's ground (a patch's `over`, new). Awaiting the user's look approval.
+buildings' terrains over a district's ground (a patch's `over`, new). **Look approved by the user, 2026-11-23.**
 
 - **Reflective surfaces.** No change from the source sets. Compared in the client under the same settings:
   - the arcology void in `fcx01` alone and in `srx01`: the same picture;
