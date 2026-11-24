@@ -230,7 +230,7 @@ def area_documents(name, creatures, size=8):
                         'Version': field('dword', 2), 'Flags': field('dword', 4), 'DayNightCycle': field('byte', 0),
                         'IsNight': field('byte', 0), 'SunAmbientColor': field('dword', 11579568),
                         'SunDiffuseColor': field('dword', 15658734), 'MoonAmbientColor': field('dword', 11579568),
-                        'MoonDiffuseColor': field('dword', 15658734), 'FogClipDist': field('float', 80.0),
+                        'MoonDiffuseColor': field('dword', 15658734), 'FogClipDist': field('float', 9999.0),
                         'SunShadows': field('byte', 1), 'ShadowOpacity': field('byte', 20), 'SkyBox': field('byte', 0)},
         area + '.git': {'__data_type': 'GIT ', 'Creature List': field('list', creatures), 'Door List': field('list', []),
                         'Placeable List': field('list', []), 'TriggerList': field('list', []), 'WaypointList': field('list', []),

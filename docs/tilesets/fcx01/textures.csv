@@ -1,0 +1,67 @@
+texture,surface_m2,share_pct,cumulative_pct,models,largest_px,copies,other_sets,other_packs,terrains
+bb1bottom,16569.09,13.106,13.106,50,512,srn_t_common:dds:512x256 srn_t_common:tga:512x256,shp02,,Cobble holes
+imp_modules_id2,12200.93,9.651,22.757,71,512,srn_t_common:tga:512x512,shp02,,Cobble Cobble2 holes
+cel04r2aol9,9647.68,7.631,30.388,108,256,srn_t_fcx01:tga:256x256,,,Cobble holes
+black_window,9343.75,7.391,37.779,8,512,srn_t_fcx01:tga:512x512,,,Cobble2
+gris3,8117.4,6.421,44.2,88,128,srn_t_common:dds:128x128 srn_t_common:tga:128x128,shp02,srn_placeable:1,Cobble2 holes
+d_ground03,7505.37,5.937,50.137,86,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,shp02,,Cobble2 holes
+ctown_build1,7460.43,5.901,56.038,34,1024,srn_t_common:dds:1024x1024 srn_t_common:tga:1024x1024,shp02,,Cobble Cobble2 holes
+d_wall02,6858.84,5.425,61.463,12,256,srn_t_fcx01:tga:256x256,,,Cobble2
+c_metall,6699.19,5.299,66.762,37,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02,,Cobble holes
+glass,4052.91,3.206,69.968,32,512,srn_door:dds:512x512 srn_door:tga:256x256 srn_placeable:dds:512x512,dgt04 shp02 udp1,srn_door:3 srn_placeable:40 srn_t_dgt04:1,Cobble Cobble2
+imp_modules_id4,4021.17,3.181,73.149,28,256,srn_t_fcx01:tga:256x256,,,Cobble Cobble2 holes
+ctown_wal_id8,3614.98,2.859,76.008,33,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02,,Cobble holes
+imp_modules_id1,3243.16,2.565,78.574,34,512,srn_t_fcx01:tga:512x512,,,Cobble2 holes
+window1,3215.21,2.543,81.117,43,128,srn_t_fcx01:tga:128x128,udp1 vmp01,srn_placeable:1,Cobble Cobble2 holes
+floor00,2854.45,2.258,83.375,36,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02,,Cobble holes
+bb3bottom,2437.72,1.928,85.303,12,512,srn_t_fcx01:tga:512x256,,,Cobble
+floor01,1993.39,1.577,86.88,16,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02 sjm01 tjsb0 udp1 udp2 vmp01,srn_placeable:29,Cobble
+lab_win1,1611.14,1.274,88.154,6,64,srn_door:dds:64x64 srn_door:tga:64x64,dgt04,srn_door:1 srn_t_dgt04:3,Cobble2
+dgt04_chrome,1602.85,1.268,89.422,6,128,srn_door:dds:128x128 srn_door:tga:128x128 srn_placeable:dds:128x128,dgt04,srn_door:1 srn_placeable:46 srn_t_dgt04:8,Cobble2
+arcology_win02,1598.05,1.264,90.686,6,64,srn_door:dds:64x64 srn_door:tga:64x64,dgt04,srn_door:1,Cobble2
+tile013gs,1270.08,1.005,91.691,13,256,srn_t_fcx01:tga:256x256,,,Cobble holes
+tower_top,1040.0,0.823,92.513,4,256,srn_t_fcx01:tga:256x256,,srn_placeable:1,Cobble2
+d_wall,987.69,0.781,93.295,4,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02,,holes
+bb3_top,790.9,0.626,93.92,12,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02,,Cobble
+bb6_fassade,754.35,0.597,94.517,20,256,srn_t_fcx01:tga:256x256,,,Cobble holes
+lights3,716.54,0.567,95.084,12,512,srn_t_fcx01:tga:512x64,,,Cobble
+imp_modules_id3,710.73,0.562,95.646,14,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02,srn_placeable:5,Cobble2 holes
+floor2_l1_1a,612.1,0.484,96.13,7,256,srn_t_fcx01:tga:256x256,,,Cobble2
+arcology_floor02,567.5,0.449,96.579,6,,srn_t_common:mtr,dgt04 shp02,,Cobble2
+lsf_grate01,565.0,0.447,97.026,4,256,srn_door:dds:256x256 srn_door:tga:256x256,shp02,srn_door:1,Cobble2
+arcology_wall01,487.0,0.385,97.411,10,,srn_t_common:mtr,dgt04 shp02,,Cobble Cobble2
+d_ground04,450.21,0.356,97.767,6,256,srn_t_fcx01:tga:256x256,,,Cobble2 holes
+tcn01_watrstn02,288.0,0.228,97.995,2,,,,,Cobble Cobble2
+bb4top2,273.92,0.217,98.212,7,256,srn_t_common:dds:256x128 srn_t_common:tga:256x128,shp02,,Cobble
+arcology_wall04,222.99,0.176,98.388,6,,srn_t_common:mtr,dgt04 shp02,,Cobble2
+tcn01_water01,221.68,0.175,98.563,3,512,srn_t_dgt04:dds:512x512,dgt04,srn_t_dgt04:4,Cobble Cobble2
+noir,210.0,0.166,98.729,4,128,srn_t_common:dds:128x128 srn_t_common:tga:128x128,shp02,,Cobble Cobble2
+ttr01_grass02,200.0,0.158,98.888,2,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:mtr,dgt04,srn_t_dgt04:2,Cobble Cobble2
+imp_modules_id5,187.01,0.148,99.036,4,1024,srn_t_fcx01:tga:1024x1024,,,Cobble2
+ctown_build14,186.86,0.148,99.183,2,512,srn_t_fcx01:tga:512x512,,,holes
+mc_ring,137.93,0.109,99.292,4,64,srn_t_fcx01:tga:64x64,,,holes
+ctown_build11,129.16,0.102,99.395,3,256,srn_t_fcx01:tga:256x256,,,Cobble Cobble2
+mmc01_treefol02,113.92,0.09,99.485,2,128,srn_t_fcx01:tga:128x128,,,Cobble
+balcon,105.02,0.083,99.568,2,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02,,Cobble2
+ctown_build_id4,97.23,0.077,99.645,6,256,srn_t_fcx01:tga:256x256,,,Cobble Cobble2 holes
+ctown_build7,83.18,0.066,99.711,1,512,srn_t_common:dds:512x512 srn_t_common:tga:512x512,shp02,,Cobble
+windows2,38.0,0.03,99.741,2,512,srn_t_fcx01:tga:512x64,,srn_placeable:1,Cobble2
+ventilo01,33.63,0.027,99.767,2,256,srn_t_fcx01:tga:256x256,,,Cobble2
+ttr01_splotch01,32.93,0.026,99.793,2,,,,,Cobble Cobble2
+bespin_monument2,31.28,0.025,99.818,1,512,srn_t_fcx01:tga:512x512,,,Cobble2
+rebord1,30.46,0.024,99.842,6,128,srn_t_common:dds:128x128 srn_t_common:tga:128x128,shp02,,Cobble2
+rebord2,30.46,0.024,99.866,6,128,srn_t_fcx01:tga:128x128,,,Cobble
+pub,26.21,0.021,99.887,2,512,srn_t_fcx01:tga:512x512,dgt04 udp1,srn_armor:2 srn_body:4 srn_head:14 srn_parts:1 srn_placeable:14 srn_weapon:5,Cobble2
+mmc01_bark02,21.28,0.017,99.904,2,128,srn_t_fcx01:tga:128x128,,,Cobble
+lma_light06,19.84,0.016,99.919,6,128,srn_t_common:dds:128x128 srn_t_common:tga:128x128,shp02,,Cobble2
+ctown_build_id12,17.59,0.014,99.933,1,256,srn_t_fcx01:tga:256x256,,,Cobble
+mmc01_black,16.97,0.013,99.947,1,,,,,Cobble
+rebord3,16.0,0.013,99.959,2,128,srn_t_fcx01:tga:128x128,,,Cobble
+cable,10.88,0.009,99.968,2,256,srn_t_common:dds:256x256 srn_t_common:tga:256x256,shp02,srn_placeable:1,Cobble2
+kuhmu,10.24,0.008,99.976,2,512,srn_t_fcx01:tga:512x128,,,Cobble2
+tcn01_marbl01,10.14,0.008,99.984,1,,,,srn_placeable:1,Cobble
+mmc01_dir01t,6.97,0.006,99.99,2,128,srn_t_fcx01:tga:128x128,,,Cobble
+tcn01_marbl05,6.34,0.005,99.995,1,,,,srn_placeable:1,Cobble
+tcn01_stone18,3.76,0.003,99.998,1,512,srn_t_dgt04:dds:512x512 srn_t_dgt04:mtr,dgt04,srn_placeable:7,Cobble
+ttr01_leaf01,1.68,0.001,99.999,2,,,,,Cobble Cobble2
+tcn01_stone20,1.32,0.001,100.0,1,,,,srn_placeable:1,Cobble

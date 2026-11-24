@@ -576,6 +576,94 @@
     {
       "id": 143,
       "text": "Orcs are sturdy metahumans with strong, muscular builds."
+    },
+    {
+      "id": 144,
+      "text": "Shadowrun City"
+    },
+    {
+      "id": 145,
+      "text": "Signs and Screens"
+    },
+    {
+      "id": 146,
+      "text": "Lights"
+    },
+    {
+      "id": 147,
+      "text": "Security"
+    },
+    {
+      "id": 148,
+      "text": "Barriers, Fences and Gates"
+    },
+    {
+      "id": 149,
+      "text": "Vehicles and Rail"
+    },
+    {
+      "id": 150,
+      "text": "Rubble and Trash"
+    },
+    {
+      "id": 151,
+      "text": "Machines and Vending"
+    },
+    {
+      "id": 152,
+      "text": "Utilities and Power"
+    },
+    {
+      "id": 153,
+      "text": "Storage and Cargo"
+    },
+    {
+      "id": 154,
+      "text": "Building Parts"
+    },
+    {
+      "id": 155,
+      "text": "Shop and Workshop Fittings"
+    },
+    {
+      "id": 156,
+      "text": "Street Door, Single"
+    },
+    {
+      "id": 157,
+      "text": "Shop Door, Glass"
+    },
+    {
+      "id": 158,
+      "text": "Double Door"
+    },
+    {
+      "id": 159,
+      "text": "Security Door, Steel"
+    },
+    {
+      "id": 160,
+      "text": "Roller Shutter, 2 m"
+    },
+    {
+      "id": 161,
+      "text": "Roller Shutter, 4 m"
+    },
+    {
+      "id": 162,
+      "text": "Loading Shutter, 6 m"
+    },
+    {
+      "id": 163,
+      "text": "Vehicle Gate, Mesh"
+    },
+    {
+      "id": 164,
+      "text": "Interior Door"
+    },
+    {
+      "id": 165,
+      "text": "Strip Curtain"
     }
   ]
 }

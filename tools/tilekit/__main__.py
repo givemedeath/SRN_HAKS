@@ -178,6 +178,28 @@ def terrain_command(chosen):
     return 0
 
 
+def merge_command(chosen):
+    from . import merge
+    lock = chosen.lock or chosen.spec.with_name('merged.json'); spec = _json(chosen.spec)
+    if chosen.check:
+        changed = merge.stale(chosen.repo, spec, chosen.spec, lock)
+        print(json.dumps({'stale': changed}, indent=1))
+        return 1 if changed else 0
+    print(json.dumps(merge.merge(chosen.repo, chosen.spec, lock), indent=1))
+    return 0
+
+
+def joins_command(chosen):
+    from . import joins
+    lock = chosen.lock or chosen.spec.with_name('joins-built.json')
+    if chosen.check:
+        changed = joins.stale(chosen.repo, chosen.spec, lock)
+        print(json.dumps({'stale': changed}, indent=1))
+        return 1 if changed else 0
+    print(json.dumps(joins.build(chosen.repo, chosen.spec, lock), indent=1))
+    return 0
+
+
 def main(arguments=None):
     parser = argparse.ArgumentParser(prog='tilekit', description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
@@ -234,6 +256,16 @@ def main(arguments=None):
     sixteen.add_argument('--model', action='append', help='<pack>/<name>.mdl to compile (default: every source whose binary is missing or out of date)')
     sixteen.add_argument('--adopt', action='append', help='a tile pack whose ASCII models move to sources/ first (once per pack)')
     sixteen.add_argument('--check', action='store_true', help='only check that every source has the binary the manifest pins'); sixteen.add_argument('--repo', type=Path, default=REPO)
+    merged = commands.add_parser('merge', help='write one set file, palette and edge table of several tilesets, under the names of a names file')
+    merged.add_argument('--spec', required=True, type=Path, help='the merge spec (docs/tilesets/<set>/merge.json)')
+    merged.add_argument('--lock', type=Path, help='the record of what a merge read and wrote (merged.json beside the spec without it)')
+    merged.add_argument('--check', action='store_true', help='write nothing: say what has changed since the last merge (exit 1 when anything has)')
+    merged.add_argument('--repo', type=Path, default=REPO)
+    cut = commands.add_parser('joins', help='write the join tiles of a merged tileset: the tiles where one family meets another (then: compile)')
+    cut.add_argument('--spec', required=True, type=Path, help='the joins spec (docs/tilesets/<set>/joins.json)')
+    cut.add_argument('--lock', type=Path, help='the record of what a build read and wrote (joins-built.json beside the spec without it)')
+    cut.add_argument('--check', action='store_true', help='write nothing: say what has changed since the last build (exit 1 when anything has)')
+    cut.add_argument('--repo', type=Path, default=REPO)
     ten = commands.add_parser('terrain', help='copy building terrains under names of their own and make the palette names descriptive, into a folder')
     ten.add_argument('--spec', required=True, type=Path, help='the tileset\'s terrain spec (docs/tilesets/<tileset>/terrains.json)')
     ten.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay'); ten.add_argument('--repo', type=Path, default=REPO)
@@ -272,6 +304,10 @@ def main(arguments=None):
             return remesh_command(chosen)
         if chosen.command == 'count':
             return count_command(chosen)
+        if chosen.command == 'merge':
+            return merge_command(chosen)
+        if chosen.command == 'joins':
+            return joins_command(chosen)
         if chosen.command == 'terrain':
             return terrain_command(chosen)
         if chosen.command == 'apply':

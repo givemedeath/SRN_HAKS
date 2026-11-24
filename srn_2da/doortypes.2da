@@ -267,9 +267,9 @@
 263  USER                   ****          ****    ****           ****          ****       ****         ****
 264  USER                   ****          ****    ****           ****          ****       ****         ****
 265        PlanetWallGte1         vmp_udoor_06  VMP01   nw_door_ttr_07 63491         0          1            10
-266  USER                   ****          ****    ****           ****          ****       ****         ****
-267  USER                   ****          ****    ****           ****          ****       ****         ****
-268  USER                   ****          ****    ****           ****          ****       ****         ****
+266  SRX_GlassWindow        t_door12      SRX01   nw_door_ttr_30 16777226 1 1 1
+267  SRX_Astroport_door     ttd_door_010  SRX01   nw_door_ttr_18 63526 1 1 7
+268  SRX_fcx01_door         fcx_door_01   SRX01   nw_door_ttr_18 63526 1 1 7
 269  USER                   ****          ****    ****           ****          ****       ****         ****
 270  USER                   ****          ****    ****           ****          ****       ****         ****
 271  USER                   ****          ****    ****           ****          ****       ****         ****

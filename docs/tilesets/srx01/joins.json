@@ -1,0 +1,16 @@
+{
+ "pack": "srn_t_srx01",
+ "prefix": "srx01_j",
+ "pairs": [
+  {"letter": "a",
+   "city": {"terrain": "Concrete", "ground": {"model": "dgt04_c01_01", "minimap": "midg04_c01_01"},
+            "road": {"crosser": "Street", "model": "dgt04_d32_01", "minimap": "midg04_d32_01"}},
+   "other": {"terrain": "Asphalt", "ground": {"model": "udp1_a06_01", "minimap": "mi_udp1_a06_01"},
+             "road": {"crosser": "Suburb_Road", "model": "udp1_a06_02", "minimap": "mi_udp1_a06_02"}}},
+  {"letter": "p",
+   "city": {"terrain": "Concrete", "ground": {"model": "dgt04_c01_01", "minimap": "midg04_c01_01"},
+            "road": {"crosser": "Street", "model": "dgt04_d32_01", "minimap": "midg04_d32_01"}},
+   "other": {"terrain": "Plaza_Light", "ground": {"model": "fcx01_i01_01", "minimap": "mi_fcx01_i01_01"},
+             "road": {"crosser": "Arcology_Road", "model": "fcx01_x04_01", "minimap": "mi_fcx01_x04_01", "turn": 1}}}
+ ]
+}

@@ -1,0 +1,108 @@
+texture,surface_m2,share_pct,cumulative_pct,models,largest_px,copies,other_sets,other_packs,terrains
+az2-grass,23603.43,10.45,10.45,292,512,srn_t_udp1:dds:512x512,,,Asphalt Grass Water
+gg2-msc-leaf2a,22933.34,10.153,20.603,64,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Forest Forest_Clearing
+udp1-asph,21959.73,9.722,30.326,360,1024,srn_door:dds:1024x1024 srn_placeable:dds:1024x1024,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall Water
+udp1-pave,19390.74,8.585,38.911,235,1024,srn_placeable:dds:1024x1024 srn_t_udp1:dds:1024x1024,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall Water
+gg2-msc-leaf2,14242.4,6.306,45.216,63,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Forest Forest_Clearing
+udp1-mtl-gry,10068.82,4.458,49.674,121,512,srn_placeable:dds:512x512 srn_t_common:dds:512x512,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall Water
+udp1-wd-fnc,6922.6,3.065,52.739,167,512,srn_door:dds:512x512 srn_placeable:dds:512x512,,,Asphalt Grass Water
+udp1-mtl-ss-dr,5280.07,2.338,55.077,42,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-pave-wlk,5181.4,2.294,57.371,245,1024,srn_t_udp1:dds:1024x1024,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Water
+gg2-forbase1,5046.2,2.234,59.605,86,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Asphalt Forest Forest_Clearing Grass
+gg2-bark,4845.39,2.145,61.75,64,512,srn_placeable:dds:512x512 srn_t_common:dds:512x512,,,Forest Forest_Clearing
+udp1-blck-gr,3797.61,1.681,63.431,25,1024,srn_t_common:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2
+az-msc-drtdr,3430.12,1.519,64.95,78,512,srn_t_common:dds:512x512,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-window2,3377.3,1.495,66.445,79,512,srn_t_udp1:dds:512x512,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-window2b,3375.3,1.494,67.939,79,512,srn_t_udp1:dds:512x512,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-mtl-grid,2929.77,1.297,69.237,12,1024,srn_placeable:dds:1024x1024 srn_t_common:dds:1024x1024,,,Asphalt Grass Mall_Type_1 Mall_Type_2
+udp1-h6-sdg,2900.25,1.284,70.521,15,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Grass
+udp1-pave-sgl,2871.68,1.271,71.792,35,512,srn_t_udp1:dds:512x512,,,Grass Stripmall
+tze01_water01,2625.87,1.163,72.955,18,256,srn_placeable:dds:256x256 srn_t_udp1:tga:256x256,,srn_placeable:4,Grass Water
+az2-gr2dirt,2589.33,1.146,74.101,16,1024,srn_t_udp1:dds:1024x1024,,,Grass Water
+gg2-h2-3,2563.76,1.135,75.236,59,512,srn_placeable:dds:512x512 srn_t_common:dds:512x512,,,Grass Mall_Type_2 Stripmall
+udp1-blck-rd2,2382.65,1.055,76.291,20,1024,srn_t_udp1:dds:1024x1024,,,Asphalt Grass Mall_Type_1 Mall_Type_2
+udp1-mtl-ss-y,2348.46,1.04,77.331,5,512,srn_t_udp1:dds:512x512,,,Grass Mall_Type_1 Mall_Type_2
+udp1-pnt-wh2,2298.88,1.018,78.348,2,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-shing2,2242.67,0.993,79.341,14,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-h3-sdg,2110.98,0.935,80.276,7,512,srn_t_udp1:dds:512x512,,,Grass
+gg2-h2-7,2049.11,0.907,81.183,48,512,srn_t_udp1:dds:512x512,,,Grass Mall_Type_2 Water
+udp1-mtl-gry3,2029.85,0.899,82.082,1,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-blck-bg2,2023.56,0.896,82.978,49,1024,srn_t_udp1:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-blck-rd,1996.4,0.884,83.862,18,1024,srn_t_udp1:dds:1024x1024,,,Asphalt Grass Mall_Type_2
+udp1-shing3,1842.86,0.816,84.678,13,512,srn_t_udp1:dds:512x512,,,Grass
+gg2-wd-sd,1839.95,0.815,85.492,7,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-blck-bg,1721.62,0.762,86.254,23,1024,srn_t_udp1:dds:1024x1024,,,Grass Stripmall
+udp1-h6-ss,1699.07,0.752,87.007,31,512,srn_t_udp1:dds:512x512,,,Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-h1-sdg,1538.77,0.681,87.688,6,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-for-str,1200.0,0.531,88.219,12,512,srn_t_udp1:dds:512x512,,,Forest
+udp1-mtl-ss-g,1183.33,0.524,88.743,1,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Grass
+udp1-asph-str,1134.35,0.502,89.245,9,1024,srn_t_udp1:dds:1024x1024,,,Asphalt Water
+udp1-window1,1115.11,0.494,89.739,27,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-net-chr,1092.12,0.484,90.222,2,64,srn_placeable:dds:64x64 srn_t_udp1:dds:64x64,,,Grass
+udp1-mtl-grd-y,1049.46,0.465,90.687,3,1024,srn_placeable:dds:1024x1024 srn_t_udp1:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2
+udp1-mtl-chrm,1013.97,0.449,91.136,41,256,srn_door:dds:256x256 srn_placeable:dds:256x256,,,Asphalt Grass Mall_Type_1 Mall_Type_2
+udp1-shing4,1011.57,0.448,91.584,8,512,srn_t_udp1:dds:512x512,,,Grass Water
+udp1-blck-bg-st2,1007.74,0.446,92.03,14,1024,srn_t_udp1:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2
+udp1-blck-gr2,986.22,0.437,92.467,29,1024,srn_t_common:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-mtl-grd-lb,959.69,0.425,92.892,2,1024,srn_t_udp1:dds:1024x1024,,,Mall_Type_1 Mall_Type_2
+udp1-shing1,954.99,0.423,93.314,7,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-mtl-grd-r,917.26,0.406,93.72,6,1024,srn_placeable:dds:1024x1024 srn_t_udp1:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2
+udp1-window1b,915.59,0.405,94.126,26,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-logos,828.27,0.367,94.493,20,1024,srn_t_udp1:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2
+udp1-window3,825.42,0.365,94.858,16,512,srn_door:dds:512x512 srn_placeable:dds:512x512,,,Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-logos-z,725.46,0.321,95.179,20,1024,srn_t_udp1:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2
+udp1-asph-4wy,612.69,0.271,95.45,9,1024,srn_t_udp1:dds:1024x1024,,,Asphalt
+az2_dirt01,600.0,0.266,95.716,4,1024,srn_t_udp1:dds:1024x1024,,,Water
+udp1-gogas,544.55,0.241,95.957,1,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Grass
+udp1-for-3gr,500.0,0.221,96.179,5,512,srn_t_udp1:dds:512x512,,,Forest
+udp1-pnt-wh1,463.11,0.205,96.384,2,512,srn_placeable:dds:512x512 srn_t_common:dds:512x512,,,Grass
+udp1-h4-sdg,439.83,0.195,96.578,3,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-mtl-plt,436.74,0.193,96.772,3,1024,srn_door:dds:1024x1024 srn_placeable:dds:1024x1024,,,Mall_Type_1 Mall_Type_2 Water
+udp1-mtl2-bl,433.35,0.192,96.964,2,512,srn_t_udp1:dds:512x512,,,Mall_Type_1 Mall_Type_2
+udp1-asph-trn,388.66,0.172,97.136,10,1024,srn_t_udp1:dds:1024x1024,,,Asphalt
+udp1-mtl-ss-b,384.0,0.17,97.306,1,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Grass
+udp1-pnt-wh3,373.49,0.165,97.471,2,512,srn_door:dds:512x512 srn_placeable:dds:512x512,,,Grass
+udp1-mtl-vents,368.04,0.163,97.634,10,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall
+udp1-blck-bg-st,303.25,0.134,97.768,1,1024,srn_t_udp1:dds:1024x1024,,,Grass
+udp1-for-1gr,300.0,0.133,97.901,3,512,srn_t_udp1:dds:512x512,,,Forest
+udp1-window4,295.26,0.131,98.032,10,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-window4b,295.26,0.131,98.162,10,512,srn_t_udp1:dds:512x512,,,Grass
+gg2-wd-pl,295.15,0.131,98.293,7,512,srn_placeable:dds:512x512 srn_t_common:dds:512x512 srn_t_common:tga:512x512,,,Grass
+udp1-mtl-gry2,263.16,0.117,98.41,1,512,srn_placeable:dds:512x512 srn_t_common:dds:512x512,,,Grass
+udp1-mtl-ss-dy,253.86,0.112,98.522,2,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Mall_Type_1 Mall_Type_2
+udp1-window3b,252.69,0.112,98.634,11,512,srn_t_udp1:dds:512x512,,,Grass Mall_Type_1 Mall_Type_2
+udp1-lght-pln,249.97,0.111,98.745,83,32,srn_placeable:dds:32x32 srn_t_udp1:dds:32x32,,,Asphalt Grass Mall_Type_1 Mall_Type_2 Stripmall Water
+gg-conc,202.85,0.09,98.834,18,512,srn_placeable:dds:512x512 srn_t_common:dds:512x512,,,Forest Forest_Clearing
+udp1-asph-pkg,191.08,0.085,98.919,3,1024,srn_t_udp1:dds:1024x1024,,,Grass
+udp1-wd-pnl1,181.95,0.081,98.999,1,1024,srn_t_udp1:dds:1024x1024,,,Mall_Type_2
+gg2-win1_a,174.08,0.077,99.077,5,512,srn_t_udp1:dds:512x512,,,Grass
+gg2-win1,174.08,0.077,99.154,5,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-asph-nex,164.95,0.073,99.227,3,1024,srn_t_udp1:dds:1024x1024,,,Asphalt Mall_Type_1 Mall_Type_2
+udp1-mtl-grd-b,160.2,0.071,99.298,3,1024,srn_placeable:dds:1024x1024 srn_t_udp1:dds:1024x1024,,,Grass Mall_Type_1 Mall_Type_2
+udp1-logos3,128.92,0.057,99.355,8,1024,srn_t_udp1:dds:1024x1024,,,Stripmall
+udp1-asph-pkg2,123.39,0.055,99.409,2,1024,srn_t_udp1:dds:1024x1024,,,Grass
+udp1-msc-red,118.44,0.052,99.462,4,16,srn_placeable:dds:16x16 srn_t_udp1:dds:16x16,,,Grass
+udp1-msc-stngl2,112.1,0.05,99.511,1,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Grass
+udp1-msc-stngl,112.1,0.05,99.561,1,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-asph-xwk,100.07,0.044,99.605,1,1024,srn_t_udp1:dds:1024x1024,,,Asphalt
+udp1-for-opp,100.0,0.044,99.65,1,512,srn_t_udp1:dds:512x512,,,Forest
+udp1-gogas-z,92.82,0.041,99.691,1,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-tile-rdst,92.08,0.041,99.731,1,1024,srn_placeable:dds:1024x1024 srn_t_udp1:dds:1024x1024,,,Grass
+udp1-logos2,83.58,0.037,99.768,4,1024,srn_t_udp1:dds:1024x1024,,,Asphalt Grass
+udp1-aircond,68.67,0.03,99.799,19,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Grass Stripmall
+udp1-mtl-rvt,60.04,0.027,99.825,1,512,srn_placeable:dds:512x512 srn_t_udp1:dds:512x512,,,Water
+gg2-win1aa,59.05,0.026,99.852,2,512,srn_t_udp1:dds:512x512,,,Grass
+gg2-win1a,59.05,0.026,99.878,2,512,srn_t_udp1:dds:512x512,,,Grass
+gg2-bur-rd,53.54,0.024,99.901,1,512,srn_t_udp1:dds:512x512,,,Grass
+udp1-clr-rd,39.89,0.018,99.919,1,128,srn_t_udp1:dds:128x128,,,Mall_Type_2
+udp1-aircond2,26.74,0.012,99.931,14,512,srn_t_udp1:dds:512x512,,,Grass Stripmall
+gg_black,25.55,0.011,99.942,1,4,srn_door:dds:4x4 srn_placeable:dds:4x4,udp2,srn_door:4 srn_placeable:83 srn_t_udp2:15,Grass
+udp1-net-wh,23.13,0.01,99.952,1,64,srn_placeable:dds:64x64 srn_t_udp1:dds:64x64,,,Grass
+udp1-menu,20.49,0.009,99.962,1,1024,srn_t_udp1:dds:1024x1024,,,Grass
+udp1-wd-grd1,20.4,0.009,99.971,1,1024,srn_placeable:dds:1024x1024 srn_t_common:dds:1024x1024,,,Grass
+udp1-gogas2,19.33,0.009,99.979,1,1024,srn_placeable:dds:1024x1024 srn_t_udp1:dds:1024x1024,,,Grass
+udp1-pnt-wh4,15.71,0.007,99.986,2,512,srn_door:dds:512x512 srn_placeable:dds:512x512,,,Grass
+udp1-tile-wh,14.75,0.007,99.993,1,1024,srn_t_udp1:dds:1024x1024,,,Grass
+udp1-tile-rd,7.49,0.003,99.996,1,1024,srn_t_udp1:dds:1024x1024,,,Grass
+udp1-allsigns,7.41,0.003,99.999,12,512,srn_t_udp1:dds:512x512,,,Asphalt Grass
+udp1-mtl-alum,1.81,0.001,100.0,4,512,srn_door:dds:512x512 srn_placeable:dds:512x512,,,Grass
