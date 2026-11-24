@@ -141,13 +141,14 @@
    "stem": "udp1_pave_wlk"
   },
   "az2-grass": {
-   "route": "upscale",
+   "route": "master",
+   "master": "Grass008",
+   "repeat": 2,
+   "tone": 0.7,
    "size": [
     1024,
     1024
    ],
-   "relief": 0.5,
-   "roughness": 0.6,
    "grade": "lawn",
    "stem": "az2_grass"
   },
