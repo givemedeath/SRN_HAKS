@@ -5041,6 +5041,81 @@ node trimesh stoplight21
     0.990217 0.0763274 0.000526994
     0.973105 0.0998804 0.000526249
 endnode
+node trimesh day02_0
+  parent red_anim06
+  position 1.52871 -3.33857 5.84299
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    -0.000664063 -0.00494141 -0.00299316
+    -0.000664062 0.00505859 0.107007
+    -0.0606641 0.0050586 0.0870068
+    -0.100664 0.0050586 0.0370068
+    -0.100664 0.0050586 -0.0329932
+    -0.0606641 0.0050586 -0.0829932
+    -0.000664062 0.00505859 -0.102993
+    0.0593359 0.00505859 -0.0829932
+    0.0993359 0.00505858 -0.0329932
+    0.0993359 0.00505858 0.0370068
+    0.0593359 0.00505859 0.0870068
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 33
+    0.945417 0.299975 0.999514
+    0.945417 0.347081 0.000525087
+    0.917729 0.338085 0.000523925
+    0.900616 0.314532 0.00052318
+    0.900616 0.285419 0.00052318
+    0.917729 0.261866 0.000523925
+    0.945417 0.252869 0.000525087
+    0.973105 0.261866 0.000526249
+    0.990217 0.285419 0.000526994
+    0.990217 0.314532 0.000526994
+    0.973105 0.338085 0.000526249
+    0.945417 0.177774 0.999514
+    0.945417 0.22488 0.000525087
+    0.917729 0.215883 0.000523925
+    0.900616 0.19233 0.00052318
+    0.900616 0.163217 0.00052318
+    0.917729 0.139664 0.000523925
+    0.945417 0.130668 0.000525087
+    0.973105 0.139664 0.000526249
+    0.990217 0.163217 0.000526994
+    0.990217 0.19233 0.000526994
+    0.973105 0.215883 0.000526249
+    0.945417 0.0617709 0.999514
+    0.945417 0.108877 0.000525087
+    0.917729 0.0998804 0.000523925
+    0.900616 0.0763274 0.00052318
+    0.900616 0.0472144 0.00052318
+    0.917729 0.0236614 0.000523925
+    0.945417 0.014665 0.000525087
+    0.973105 0.0236614 0.000526249
+    0.990217 0.0472144 0.000526994
+    0.990217 0.0763274 0.000526994
+    0.973105 0.0998804 0.000526249
+endnode
 node dummy yell_anim04
   parent udp1_a06_10a
   position -0.15418 -4.15648 0
@@ -5100,6 +5175,59 @@ node trimesh yellowlight_lit04
     0.990217 0.19233 0.000526994
     0.973105 0.215883 0.000526249
 endnode
+node trimesh day03_0
+  parent yell_anim04
+  position 2.55484 -3.33857 5.56804
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    -0.000664063 -0.00494141 0.00196045
+    -0.000664062 0.00505859 0.10196
+    -0.0606641 0.0050586 0.0819604
+    -0.100664 0.0050586 0.0319605
+    -0.100664 0.0050586 -0.0280396
+    -0.0606641 0.0050586 -0.0880395
+    -0.000664062 0.00505859 -0.10804
+    0.0593359 0.00505859 -0.0880395
+    0.0993359 0.00505858 -0.0280396
+    0.0993359 0.00505858 0.0319605
+    0.0593359 0.00505859 0.0819604
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 11
+    0.945417 0.177774 0.999514
+    0.945417 0.22488 0.000525087
+    0.917729 0.215883 0.000523925
+    0.900616 0.19233 0.00052318
+    0.900616 0.163217 0.00052318
+    0.917729 0.139664 0.000523925
+    0.945417 0.130668 0.000525087
+    0.973105 0.139664 0.000526249
+    0.990217 0.163217 0.000526994
+    0.990217 0.19233 0.000526994
+    0.973105 0.215883 0.000526249
+endnode
 node dummy green_anim06
   parent udp1_a06_10a
   position -1.18031 -4.15648 0
@@ -5116,6 +5244,59 @@ node trimesh greenlight_lit04
   specular 0 0 0
   shininess 10
   selfillumcolor 1 1 1
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    -0.000664063 -0.00494141 0.00296692
+    -0.000664062 0.00505859 0.102967
+    -0.0606641 0.0050586 0.0829669
+    -0.100664 0.0050586 0.0329669
+    -0.100664 0.0050586 -0.0370331
+    -0.0606641 0.0050586 -0.0870331
+    -0.000664062 0.00505859 -0.107033
+    0.0593359 0.00505859 -0.0870331
+    0.0993359 0.00505858 -0.0370331
+    0.0993359 0.00505858 0.0329669
+    0.0593359 0.00505859 0.0829669
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 11
+    0.945417 0.0617709 0.999514
+    0.945417 0.108877 0.000525087
+    0.917729 0.0998804 0.000523925
+    0.900616 0.0763274 0.00052318
+    0.900616 0.0472144 0.00052318
+    0.917729 0.0236614 0.000523925
+    0.945417 0.014665 0.000525087
+    0.973105 0.0236614 0.000526249
+    0.990217 0.0472144 0.000526994
+    0.990217 0.0763274 0.000526994
+    0.973105 0.0998804 0.000526249
+endnode
+node trimesh day04_0
+  parent green_anim06
+  position 3.58098 -3.33857 5.30703
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
   bitmap udp1-allsigns
   render 1
   Shadow 0
@@ -5240,6 +5421,81 @@ node trimesh stoplight18
     0.990217 0.0763274 0.000526994
     0.973105 0.0998804 0.000526249
 endnode
+node trimesh day05_0
+  parent red_anim05
+  position -6.48171 3.33089 5.84299
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    0.00535156 0.00470215 -0.00299316
+    -0.00464844 0.00470215 0.107007
+    -0.00464844 -0.0652978 0.0870068
+    -0.00464845 -0.105298 0.0370068
+    -0.00464845 -0.105298 -0.0329932
+    -0.00464844 -0.0652978 -0.0829932
+    -0.00464844 0.00470215 -0.102993
+    -0.00464843 0.0647021 -0.0829932
+    -0.00464843 0.104702 -0.0329932
+    -0.00464843 0.104702 0.0370068
+    -0.00464843 0.0647021 0.0870068
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 33
+    0.945417 0.299975 0.999514
+    0.945417 0.347081 0.000525087
+    0.917729 0.338085 0.000523925
+    0.900616 0.314532 0.00052318
+    0.900616 0.285419 0.00052318
+    0.917729 0.261866 0.000523925
+    0.945417 0.252869 0.000525087
+    0.973105 0.261866 0.000526249
+    0.990217 0.285419 0.000526994
+    0.990217 0.314532 0.000526994
+    0.973105 0.338085 0.000526249
+    0.945417 0.177774 0.999514
+    0.945417 0.22488 0.000525087
+    0.917729 0.215883 0.000523925
+    0.900616 0.19233 0.00052318
+    0.900616 0.163217 0.00052318
+    0.917729 0.139664 0.000523925
+    0.945417 0.130668 0.000525087
+    0.973105 0.139664 0.000526249
+    0.990217 0.163217 0.000526994
+    0.990217 0.19233 0.000526994
+    0.973105 0.215883 0.000526249
+    0.945417 0.0617709 0.999514
+    0.945417 0.108877 0.000525087
+    0.917729 0.0998804 0.000523925
+    0.900616 0.0763274 0.00052318
+    0.900616 0.0472144 0.00052318
+    0.917729 0.0236614 0.000523925
+    0.945417 0.014665 0.000525087
+    0.973105 0.0236614 0.000526249
+    0.990217 0.0472144 0.000526994
+    0.990217 0.0763274 0.000526994
+    0.973105 0.0998804 0.000526249
+endnode
 node dummy yellow_anim02
   parent udp1_a06_10a
   position -3.55363 0.0161282 0
@@ -5256,6 +5512,59 @@ node trimesh yellowlight_lit02
   specular 0 0 0
   shininess 10
   selfillumcolor 1 1 1
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    0.00535156 0.00470215 0.00196045
+    -0.00464844 0.00470215 0.10196
+    -0.00464844 -0.0652978 0.0819604
+    -0.00464845 -0.105298 0.0319605
+    -0.00464845 -0.105298 -0.0280396
+    -0.00464844 -0.0652978 -0.0880395
+    -0.00464844 0.00470215 -0.10804
+    -0.00464843 0.0647021 -0.0880395
+    -0.00464843 0.104702 -0.0280396
+    -0.00464843 0.104702 0.0319605
+    -0.00464843 0.0647021 0.0819604
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 11
+    0.945417 0.177774 0.999514
+    0.945417 0.22488 0.000525087
+    0.917729 0.215883 0.000523925
+    0.900616 0.19233 0.00052318
+    0.900616 0.163217 0.00052318
+    0.917729 0.139664 0.000523925
+    0.945417 0.130668 0.000525087
+    0.973105 0.139664 0.000526249
+    0.990217 0.163217 0.000526994
+    0.990217 0.19233 0.000526994
+    0.973105 0.215883 0.000526249
+endnode
+node trimesh day06_0
+  parent yellow_anim02
+  position -6.48171 2.28917 5.56804
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
   bitmap udp1-allsigns
   render 1
   Shadow 0
@@ -5358,6 +5667,59 @@ node trimesh greenlight_lit02
     0.990217 0.0763274 0.000526994
     0.973105 0.0998804 0.000526249
 endnode
+node trimesh day07_0
+  parent green_anim05
+  position -6.48171 1.24745 5.30703
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    0.00535156 0.00470215 0.00296692
+    -0.00464844 0.00470215 0.102967
+    -0.00464844 -0.0652978 0.0829669
+    -0.00464845 -0.105298 0.0329669
+    -0.00464845 -0.105298 -0.0370331
+    -0.00464844 -0.0652978 -0.0870331
+    -0.00464844 0.00470215 -0.107033
+    -0.00464843 0.0647021 -0.0870331
+    -0.00464843 0.104702 -0.0370331
+    -0.00464843 0.104702 0.0329669
+    -0.00464843 0.0647021 0.0829669
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 11
+    0.945417 0.0617709 0.999514
+    0.945417 0.108877 0.000525087
+    0.917729 0.0998804 0.000523925
+    0.900616 0.0763274 0.00052318
+    0.900616 0.0472144 0.00052318
+    0.917729 0.0236614 0.000523925
+    0.945417 0.014665 0.000525087
+    0.973105 0.0236614 0.000526249
+    0.990217 0.0472144 0.000526994
+    0.990217 0.0763274 0.000526994
+    0.973105 0.0998804 0.000526249
+endnode
 node dummy green_anim04
   parent udp1_a06_10a
   position 3.50727 0.931499 0
@@ -5374,6 +5736,59 @@ node trimesh greenlight_lit
   specular 0 0 0
   shininess 10
   selfillumcolor 1 1 1
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    -0.0053125 -0.00469727 0.00296692
+    0.0046875 -0.00469727 0.102967
+    0.00468751 0.0653027 0.0829669
+    0.00468751 0.105303 0.0329669
+    0.00468751 0.105303 -0.0370331
+    0.00468751 0.0653027 -0.0870331
+    0.0046875 -0.00469727 -0.107033
+    0.00468749 -0.0646973 -0.0870331
+    0.00468749 -0.104697 -0.0370331
+    0.00468749 -0.104697 0.0329669
+    0.00468749 -0.0646973 0.0829669
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 11
+    0.945417 0.0617709 0.999514
+    0.945417 0.108877 0.000525087
+    0.917729 0.0998804 0.000523925
+    0.900616 0.0763274 0.00052318
+    0.900616 0.0472144 0.00052318
+    0.917729 0.0236614 0.000523925
+    0.945417 0.014665 0.000525087
+    0.973105 0.0236614 0.000526249
+    0.990217 0.0472144 0.000526994
+    0.990217 0.0763274 0.000526994
+    0.973105 0.0998804 0.000526249
+endnode
+node trimesh day08_0
+  parent green_anim04
+  position 6.52805 -3.2368 5.30703
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
   bitmap udp1-allsigns
   render 1
   Shadow 0
@@ -5476,6 +5891,59 @@ node trimesh yellowlight_lit
     0.990217 0.19233 0.000526994
     0.973105 0.215883 0.000526249
 endnode
+node trimesh day09_0
+  parent yell_anim03
+  position 6.52805 -2.31493 5.56804
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    -0.0053125 -0.00469727 0.00196045
+    0.0046875 -0.00469727 0.10196
+    0.00468751 0.0653027 0.0819604
+    0.00468751 0.105303 0.0319605
+    0.00468751 0.105303 -0.0280396
+    0.00468751 0.0653027 -0.0880395
+    0.0046875 -0.00469727 -0.10804
+    0.00468749 -0.0646973 -0.0880395
+    0.00468749 -0.104697 -0.0280396
+    0.00468749 -0.104697 0.0319605
+    0.00468749 -0.0646973 0.0819604
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 11
+    0.945417 0.177774 0.999514
+    0.945417 0.22488 0.000525087
+    0.917729 0.215883 0.000523925
+    0.900616 0.19233 0.00052318
+    0.900616 0.163217 0.00052318
+    0.917729 0.139664 0.000523925
+    0.945417 0.130668 0.000525087
+    0.973105 0.139664 0.000526249
+    0.990217 0.163217 0.000526994
+    0.990217 0.19233 0.000526994
+    0.973105 0.215883 0.000526249
+endnode
 node dummy red_anim04
   parent udp1_a06_10a
   position 3.50727 -0.912329 0
@@ -5492,6 +5960,81 @@ node trimesh stoplight16
   specular 0 0 0
   shininess 10
   selfillumcolor 1 1 1
+  bitmap udp1-allsigns
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 11
+    -0.0053125 -0.00469727 -0.00299316
+    0.0046875 -0.00469727 0.107007
+    0.00468751 0.0653027 0.0870068
+    0.00468751 0.105303 0.0370068
+    0.00468751 0.105303 -0.0329932
+    0.00468751 0.0653027 -0.0829932
+    0.0046875 -0.00469727 -0.102993
+    0.00468749 -0.0646973 -0.0829932
+    0.00468749 -0.104697 -0.0329932
+    0.00468749 -0.104697 0.0370068
+    0.00468749 -0.0646973 0.0870068
+  faces 10
+    0 1 2  1  0 1 2  1
+    0 2 3  1  0 2 3  1
+    0 3 4  1  0 3 4  1
+    0 4 5  1  0 4 5  1
+    0 5 6  1  0 5 6  1
+    0 6 7  1  0 6 7  1
+    0 7 8  1  0 7 8  1
+    0 8 9  1  0 8 9  1
+    0 9 10  1  0 9 10  1
+    0 10 1  1  0 10 1  1
+  tverts 33
+    0.945417 0.299975 0.999514
+    0.945417 0.347081 0.000525087
+    0.917729 0.338085 0.000523925
+    0.900616 0.314532 0.00052318
+    0.900616 0.285419 0.00052318
+    0.917729 0.261866 0.000523925
+    0.945417 0.252869 0.000525087
+    0.973105 0.261866 0.000526249
+    0.990217 0.285419 0.000526994
+    0.990217 0.314532 0.000526994
+    0.973105 0.338085 0.000526249
+    0.945417 0.177774 0.999514
+    0.945417 0.22488 0.000525087
+    0.917729 0.215883 0.000523925
+    0.900616 0.19233 0.00052318
+    0.900616 0.163217 0.00052318
+    0.917729 0.139664 0.000523925
+    0.945417 0.130668 0.000525087
+    0.973105 0.139664 0.000526249
+    0.990217 0.163217 0.000526994
+    0.990217 0.19233 0.000526994
+    0.973105 0.215883 0.000526249
+    0.945417 0.0617709 0.999514
+    0.945417 0.108877 0.000525087
+    0.917729 0.0998804 0.000523925
+    0.900616 0.0763274 0.00052318
+    0.900616 0.0472144 0.00052318
+    0.917729 0.0236614 0.000523925
+    0.945417 0.014665 0.000525087
+    0.973105 0.0236614 0.000526249
+    0.990217 0.0472144 0.000526994
+    0.990217 0.0763274 0.000526994
+    0.973105 0.0998804 0.000526249
+endnode
+node trimesh day10_0
+  parent red_anim04
+  position 6.52805 -1.39297 5.84299
+  orientation 0 0 0 0
+  wirecolor 0.34375 0.34375 0.34375
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
   bitmap udp1-allsigns
   render 1
   Shadow 0
@@ -6179,10 +6722,16 @@ endnode
 node trimesh stoplight21
   parent red_anim06
 endnode
+node trimesh day02_0
+  parent red_anim06
+endnode
 node dummy yell_anim04
   parent udp1_a06_10a
 endnode
 node trimesh yellowlight_lit04
+  parent yell_anim04
+endnode
+node trimesh day03_0
   parent yell_anim04
 endnode
 node dummy green_anim06
@@ -6191,10 +6740,16 @@ endnode
 node trimesh greenlight_lit04
   parent green_anim06
 endnode
+node trimesh day04_0
+  parent green_anim06
+endnode
 node dummy red_anim05
   parent udp1_a06_10a
 endnode
 node trimesh stoplight18
+  parent red_anim05
+endnode
+node trimesh day05_0
   parent red_anim05
 endnode
 node dummy yellow_anim02
@@ -6203,10 +6758,16 @@ endnode
 node trimesh yellowlight_lit02
   parent yellow_anim02
 endnode
+node trimesh day06_0
+  parent yellow_anim02
+endnode
 node dummy green_anim05
   parent udp1_a06_10a
 endnode
 node trimesh greenlight_lit02
+  parent green_anim05
+endnode
+node trimesh day07_0
   parent green_anim05
 endnode
 node dummy green_anim04
@@ -6215,16 +6776,25 @@ endnode
 node trimesh greenlight_lit
   parent green_anim04
 endnode
+node trimesh day08_0
+  parent green_anim04
+endnode
 node dummy yell_anim03
   parent udp1_a06_10a
 endnode
 node trimesh yellowlight_lit
   parent yell_anim03
 endnode
+node trimesh day09_0
+  parent yell_anim03
+endnode
 node dummy red_anim04
   parent udp1_a06_10a
 endnode
 node trimesh stoplight16
+  parent red_anim04
+endnode
+node trimesh day10_0
   parent red_anim04
 endnode
 node light streetlight39
@@ -6417,10 +6987,16 @@ endnode
 node trimesh stoplight21
   parent red_anim06
 endnode
+node trimesh day02_0
+  parent red_anim06
+endnode
 node dummy yell_anim04
   parent udp1_a06_10a
 endnode
 node trimesh yellowlight_lit04
+  parent yell_anim04
+endnode
+node trimesh day03_0
   parent yell_anim04
 endnode
 node dummy green_anim06
@@ -6429,10 +7005,16 @@ endnode
 node trimesh greenlight_lit04
   parent green_anim06
 endnode
+node trimesh day04_0
+  parent green_anim06
+endnode
 node dummy red_anim05
   parent udp1_a06_10a
 endnode
 node trimesh stoplight18
+  parent red_anim05
+endnode
+node trimesh day05_0
   parent red_anim05
 endnode
 node dummy yellow_anim02
@@ -6441,10 +7023,16 @@ endnode
 node trimesh yellowlight_lit02
   parent yellow_anim02
 endnode
+node trimesh day06_0
+  parent yellow_anim02
+endnode
 node dummy green_anim05
   parent udp1_a06_10a
 endnode
 node trimesh greenlight_lit02
+  parent green_anim05
+endnode
+node trimesh day07_0
   parent green_anim05
 endnode
 node dummy green_anim04
@@ -6453,16 +7041,25 @@ endnode
 node trimesh greenlight_lit
   parent green_anim04
 endnode
+node trimesh day08_0
+  parent green_anim04
+endnode
 node dummy yell_anim03
   parent udp1_a06_10a
 endnode
 node trimesh yellowlight_lit
   parent yell_anim03
 endnode
+node trimesh day09_0
+  parent yell_anim03
+endnode
 node dummy red_anim04
   parent udp1_a06_10a
 endnode
 node trimesh stoplight16
+  parent red_anim04
+endnode
+node trimesh day10_0
   parent red_anim04
 endnode
 node light streetlight39
@@ -6651,6 +7248,9 @@ endnode
 node trimesh stoplight21
   parent red_anim06
 endnode
+node trimesh day02_0
+  parent red_anim06
+endnode
 node dummy yell_anim04
   parent udp1_a06_10a
     positionkey
@@ -6663,6 +7263,9 @@ endnode
 node trimesh yellowlight_lit04
   parent yell_anim04
 endnode
+node trimesh day03_0
+  parent yell_anim04
+endnode
 node dummy green_anim06
   parent udp1_a06_10a
     positionkey
@@ -6673,6 +7276,9 @@ node dummy green_anim06
     endlist
 endnode
 node trimesh greenlight_lit04
+  parent green_anim06
+endnode
+node trimesh day04_0
   parent green_anim06
 endnode
 node dummy red_anim05
@@ -6693,6 +7299,9 @@ endnode
 node trimesh stoplight18
   parent red_anim05
 endnode
+node trimesh day05_0
+  parent red_anim05
+endnode
 node dummy yellow_anim02
   parent udp1_a06_10a
     positionkey
@@ -6703,6 +7312,9 @@ node dummy yellow_anim02
     endlist
 endnode
 node trimesh yellowlight_lit02
+  parent yellow_anim02
+endnode
+node trimesh day06_0
   parent yellow_anim02
 endnode
 node dummy green_anim05
@@ -6717,6 +7329,9 @@ endnode
 node trimesh greenlight_lit02
   parent green_anim05
 endnode
+node trimesh day07_0
+  parent green_anim05
+endnode
 node dummy green_anim04
   parent udp1_a06_10a
     positionkey
@@ -6729,6 +7344,9 @@ endnode
 node trimesh greenlight_lit
   parent green_anim04
 endnode
+node trimesh day08_0
+  parent green_anim04
+endnode
 node dummy yell_anim03
   parent udp1_a06_10a
     positionkey
@@ -6739,6 +7357,9 @@ node dummy yell_anim03
     endlist
 endnode
 node trimesh yellowlight_lit
+  parent yell_anim03
+endnode
+node trimesh day09_0
   parent yell_anim03
 endnode
 node dummy red_anim04
@@ -6757,6 +7378,9 @@ node dummy red_anim04
     endlist
 endnode
 node trimesh stoplight16
+  parent red_anim04
+endnode
+node trimesh day10_0
   parent red_anim04
 endnode
 node light streetlight39
@@ -6937,6 +7561,9 @@ endnode
 node trimesh stoplight21
   parent red_anim06
 endnode
+node trimesh day02_0
+  parent red_anim06
+endnode
 node dummy yell_anim04
   parent udp1_a06_10a
     positionkey
@@ -6959,6 +7586,9 @@ endnode
 node trimesh yellowlight_lit04
   parent yell_anim04
 endnode
+node trimesh day03_0
+  parent yell_anim04
+endnode
 node dummy green_anim06
   parent udp1_a06_10a
     positionkey
@@ -6975,6 +7605,9 @@ node dummy green_anim06
     endlist
 endnode
 node trimesh greenlight_lit04
+  parent green_anim06
+endnode
+node trimesh day04_0
   parent green_anim06
 endnode
 node dummy red_anim05
@@ -6995,6 +7628,9 @@ endnode
 node trimesh stoplight18
   parent red_anim05
 endnode
+node trimesh day05_0
+  parent red_anim05
+endnode
 node dummy yellow_anim02
   parent udp1_a06_10a
     positionkey
@@ -7011,6 +7647,9 @@ node dummy yellow_anim02
     endlist
 endnode
 node trimesh yellowlight_lit02
+  parent yellow_anim02
+endnode
+node trimesh day06_0
   parent yellow_anim02
 endnode
 node dummy green_anim05
@@ -7035,6 +7674,9 @@ endnode
 node trimesh greenlight_lit02
   parent green_anim05
 endnode
+node trimesh day07_0
+  parent green_anim05
+endnode
 node dummy green_anim04
   parent udp1_a06_10a
     positionkey
@@ -7057,6 +7699,9 @@ endnode
 node trimesh greenlight_lit
   parent green_anim04
 endnode
+node trimesh day08_0
+  parent green_anim04
+endnode
 node dummy yell_anim03
   parent udp1_a06_10a
     positionkey
@@ -7075,6 +7720,9 @@ endnode
 node trimesh yellowlight_lit
   parent yell_anim03
 endnode
+node trimesh day09_0
+  parent yell_anim03
+endnode
 node dummy red_anim04
   parent udp1_a06_10a
     positionkey
@@ -7091,6 +7739,9 @@ node dummy red_anim04
     endlist
 endnode
 node trimesh stoplight16
+  parent red_anim04
+endnode
+node trimesh day10_0
   parent red_anim04
 endnode
 node light streetlight39
@@ -7133,6 +7784,159 @@ newanim day udp1_a06_10
       0.03333 0
     endlist
   endnode
+  node dummy red_anim06
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight21
+    parent red_anim06
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day02_0
+    parent red_anim06
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node dummy yell_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit04
+    parent yell_anim04
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent yell_anim04
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node dummy green_anim06
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit04
+    parent green_anim06
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day04_0
+    parent green_anim06
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node dummy red_anim05
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight18
+    parent red_anim05
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent red_anim05
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node dummy yellow_anim02
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit02
+    parent yellow_anim02
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day06_0
+    parent yellow_anim02
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node dummy green_anim05
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit02
+    parent green_anim05
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day07_0
+    parent green_anim05
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node dummy green_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit
+    parent green_anim04
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day08_0
+    parent green_anim04
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node dummy yell_anim03
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit
+    parent yell_anim03
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day09_0
+    parent yell_anim03
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node dummy red_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight16
+    parent red_anim04
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day10_0
+    parent red_anim04
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
 doneanim day udp1_a06_10
 newanim day2night udp1_a06_10
   length 0.56667
@@ -7159,6 +7963,159 @@ newanim day2night udp1_a06_10
     alphakey 2
       0.00000 0
       0.56667 1
+    endlist
+  endnode
+  node dummy red_anim06
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight21
+    parent red_anim06
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day02_0
+    parent red_anim06
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node dummy yell_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit04
+    parent yell_anim04
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent yell_anim04
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node dummy green_anim06
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit04
+    parent green_anim06
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day04_0
+    parent green_anim06
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node dummy red_anim05
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight18
+    parent red_anim05
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent red_anim05
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node dummy yellow_anim02
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit02
+    parent yellow_anim02
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day06_0
+    parent yellow_anim02
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node dummy green_anim05
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit02
+    parent green_anim05
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day07_0
+    parent green_anim05
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node dummy green_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit
+    parent green_anim04
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day08_0
+    parent green_anim04
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node dummy yell_anim03
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit
+    parent yell_anim03
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day09_0
+    parent yell_anim03
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node dummy red_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight16
+    parent red_anim04
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day10_0
+    parent red_anim04
+    alphakey 2
+      0.00000 1
+      0.56667 0
     endlist
   endnode
 doneanim day2night udp1_a06_10
@@ -7189,6 +8146,159 @@ newanim night udp1_a06_10
       0.03333 1
     endlist
   endnode
+  node dummy red_anim06
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight21
+    parent red_anim06
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day02_0
+    parent red_anim06
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node dummy yell_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit04
+    parent yell_anim04
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent yell_anim04
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node dummy green_anim06
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit04
+    parent green_anim06
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day04_0
+    parent green_anim06
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node dummy red_anim05
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight18
+    parent red_anim05
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent red_anim05
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node dummy yellow_anim02
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit02
+    parent yellow_anim02
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day06_0
+    parent yellow_anim02
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node dummy green_anim05
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit02
+    parent green_anim05
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day07_0
+    parent green_anim05
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node dummy green_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit
+    parent green_anim04
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day08_0
+    parent green_anim04
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node dummy yell_anim03
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit
+    parent yell_anim03
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day09_0
+    parent yell_anim03
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node dummy red_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight16
+    parent red_anim04
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day10_0
+    parent red_anim04
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
 doneanim night udp1_a06_10
 newanim night2day udp1_a06_10
   length 0.60000
@@ -7215,6 +8325,159 @@ newanim night2day udp1_a06_10
     alphakey 2
       0.00000 1
       0.60000 0
+    endlist
+  endnode
+  node dummy red_anim06
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight21
+    parent red_anim06
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day02_0
+    parent red_anim06
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node dummy yell_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit04
+    parent yell_anim04
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent yell_anim04
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node dummy green_anim06
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit04
+    parent green_anim06
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day04_0
+    parent green_anim06
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node dummy red_anim05
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight18
+    parent red_anim05
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent red_anim05
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node dummy yellow_anim02
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit02
+    parent yellow_anim02
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day06_0
+    parent yellow_anim02
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node dummy green_anim05
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit02
+    parent green_anim05
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day07_0
+    parent green_anim05
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node dummy green_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh greenlight_lit
+    parent green_anim04
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day08_0
+    parent green_anim04
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node dummy yell_anim03
+    parent udp1_a06_10a
+  endnode
+  node trimesh yellowlight_lit
+    parent yell_anim03
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day09_0
+    parent yell_anim03
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node dummy red_anim04
+    parent udp1_a06_10a
+  endnode
+  node trimesh stoplight16
+    parent red_anim04
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day10_0
+    parent red_anim04
+    alphakey 2
+      0.00000 0
+      0.60000 1
     endlist
   endnode
 doneanim night2day udp1_a06_10

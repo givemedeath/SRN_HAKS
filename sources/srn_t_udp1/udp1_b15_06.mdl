@@ -2863,6 +2863,50 @@ node trimesh singon07
     0.859943 0.424644 0.5
     0.980236 0.424644 0.5
 endnode
+node trimesh day05_0
+  shadow 0
+  parent udp1_b15_06a
+  position 0 3.92 4.1263
+  orientation 1 0 0 -1.5708
+  wirecolor 0.878906 0.878906 0.878906
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-logos3
+  verts 10
+    3.36818 0.697165 0
+    1.68409 0.697165 0
+    0 0.697165 0
+    -1.68409 0.697165 0
+    -3.36818 0.697165 0
+    3.36818 -0.697165 0
+    1.68409 -0.697165 0
+    0 -0.697165 0
+    -1.68409 -0.697165 0
+    -3.36818 -0.697165 0
+  faces 8
+    5 0 6  1  5 0 6  0
+    1 6 0  1  1 6 0  0
+    6 1 7  1  6 1 7  0
+    2 7 1  1  2 7 1  0
+    7 2 8  1  7 2 8  0
+    3 8 2  1  3 8 2  0
+    8 3 9  1  8 3 9  0
+    4 9 3  1  4 9 3  0
+  tverts 10
+    0.499067 0.325049 0.5
+    0.619359 0.325049 0.5
+    0.739651 0.325049 0.5
+    0.859943 0.325049 0.5
+    0.980236 0.325049 0.5
+    0.499067 0.424644 0.5
+    0.619359 0.424644 0.5
+    0.739651 0.424644 0.5
+    0.859943 0.424644 0.5
+    0.980236 0.424644 0.5
+endnode
 node trimesh sign_off05
   shadow 0
   parent udp1_b15_06
@@ -3101,6 +3145,17 @@ node trimesh singon07
       0.0333333  -1 0 0 1.5708
     endlist
 endnode
+node trimesh day05_0
+  parent udp1_b15_06a
+    positionkey
+      0  0 3.92 4.1263
+      0.0333333  0 3.92 4.1263
+    endlist
+    orientationkey
+      0  -1 0 0 1.5708
+      0.0333333  -1 0 0 1.5708
+    endlist
+endnode
 node trimesh sign_off05
   parent udp1_b15_06
 endnode
@@ -3299,6 +3354,17 @@ node trimesh singon07
       0.0333333  -1 0 0 1.5708
     endlist
 endnode
+node trimesh day05_0
+  parent udp1_b15_06a
+    positionkey
+      0  0 4.06 4.1263
+      0.0333333  0 4.06 4.1263
+    endlist
+    orientationkey
+      0  -1 0 0 1.5708
+      0.0333333  -1 0 0 1.5708
+    endlist
+endnode
 node trimesh sign_off05
   parent udp1_b15_06
 endnode
@@ -3355,6 +3421,20 @@ newanim day udp1_b15_06
       0.03333 0
     endlist
   endnode
+  node trimesh singon07
+    parent udp1_b15_06a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent udp1_b15_06a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
 doneanim day udp1_b15_06
 newanim day2night udp1_b15_06
   length 0.56667
@@ -3406,6 +3486,20 @@ newanim day2night udp1_b15_06
     alphakey 2
       0.00000 0
       0.56667 1
+    endlist
+  endnode
+  node trimesh singon07
+    parent udp1_b15_06a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent udp1_b15_06a
+    alphakey 2
+      0.00000 1
+      0.56667 0
     endlist
   endnode
 doneanim day2night udp1_b15_06
@@ -3461,6 +3555,20 @@ newanim night udp1_b15_06
       0.03333 1
     endlist
   endnode
+  node trimesh singon07
+    parent udp1_b15_06a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent udp1_b15_06a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
 doneanim night udp1_b15_06
 newanim night2day udp1_b15_06
   length 0.60000
@@ -3512,6 +3620,20 @@ newanim night2day udp1_b15_06
     alphakey 2
       0.00000 1
       0.60000 0
+    endlist
+  endnode
+  node trimesh singon07
+    parent udp1_b15_06a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent udp1_b15_06a
+    alphakey 2
+      0.00000 0
+      0.60000 1
     endlist
   endnode
 doneanim night2day udp1_b15_06

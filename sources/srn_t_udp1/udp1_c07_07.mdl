@@ -9340,6 +9340,112 @@ node trimesh emerg_light03
     0.4775 0.5275 0.51299
     0.5 0.4575 0.525981
 endnode
+node trimesh day00_0
+  parent emerg_on
+  position 0.75212 4.65129 -29.2238
+  orientation 0 0 0 0
+  wirecolor 0.652344 0.652344 0.652344
+  ambient 0.717647 0 0
+  diffuse 0.717647 0 0
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-msc-red
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 13
+    0.00341797 -0.00195313 0.35384
+    0.00341796 -0.131953 0.27384
+    0.113418 -0.0619531 0.27384
+    0.113418 0.0680469 0.27384
+    0.00341798 0.128047 0.27384
+    -0.116582 0.0680469 0.27384
+    -0.116582 -0.0619531 0.27384
+    0.00341796 -0.131953 -0.0761597
+    0.113418 -0.0619531 -0.0761597
+    0.113418 0.0680469 -0.0761597
+    0.00341798 0.128047 -0.0761597
+    -0.116582 0.0680469 -0.0761597
+    -0.116582 -0.0619531 -0.0761597
+  faces 18
+    0 1 2  1  13 14 15  1
+    0 2 3  1  16 17 18  1
+    0 3 4  1  19 20 21  1
+    0 4 5  1  22 23 24  1
+    0 5 6  1  25 26 27  1
+    0 6 1  1  0 28 29  1
+    1 7 8  1  30 31 32  1
+    1 8 2  1  33 34 35  1
+    2 8 9  1  36 8 37  1
+    2 9 3  1  2 38 39  1
+    3 9 10  1  40 9 41  1
+    3 10 4  1  3 42 43  1
+    4 10 11  1  44 10 45  1
+    4 11 5  1  4 46 47  1
+    5 11 12  1  48 11 49  1
+    5 12 6  1  5 50 51  1
+    6 12 7  1  52 12 53  1
+    6 7 1  1  6 7 1  1
+  tverts 54
+    0.5 0.5 0.5425
+    0.5 0.5275 0.525981
+    0.48701 0.5275 0.4775
+    0.4775 0.5275 0.48701
+    0.5 0.5275 0.474019
+    0.48701 0.5275 0.5225
+    0.4775 0.5275 0.51299
+    0.5 0.4575 0.525981
+    0.48701 0.4575 0.4775
+    0.4775 0.4575 0.48701
+    0.5 0.4575 0.474019
+    0.48701 0.4575 0.5225
+    0.4775 0.4575 0.51299
+    0.5 0.5 0.5425
+    0.5 0.525981 0.5275
+    0.4775 0.51299 0.5275
+    0.5 0.5 0.5425
+    0.4775 0.51299 0.5275
+    0.4775 0.48701 0.5275
+    0.5 0.5 0.5425
+    0.4775 0.48701 0.5275
+    0.5 0.474019 0.5275
+    0.5 0.5 0.5425
+    0.5 0.474019 0.5275
+    0.5225 0.48701 0.5275
+    0.5 0.5 0.5425
+    0.5225 0.48701 0.5275
+    0.5225 0.51299 0.5275
+    0.5225 0.51299 0.5275
+    0.5 0.525981 0.5275
+    0.5 0.5275 0.525981
+    0.5 0.4575 0.525981
+    0.5225 0.4575 0.51299
+    0.5 0.5275 0.525981
+    0.5225 0.4575 0.51299
+    0.5225 0.5275 0.51299
+    0.48701 0.5275 0.4775
+    0.51299 0.4575 0.4775
+    0.51299 0.4575 0.4775
+    0.51299 0.5275 0.4775
+    0.4775 0.5275 0.48701
+    0.5 0.4575 0.474019
+    0.5 0.4575 0.474019
+    0.5 0.5275 0.474019
+    0.5 0.5275 0.474019
+    0.5225 0.4575 0.48701
+    0.5225 0.4575 0.48701
+    0.5225 0.5275 0.48701
+    0.48701 0.5275 0.5225
+    0.51299 0.4575 0.5225
+    0.51299 0.4575 0.5225
+    0.51299 0.5275 0.5225
+    0.4775 0.5275 0.51299
+    0.5 0.4575 0.525981
+endnode
 node trimesh transmission_tower_body02
   parent udp1_c07_07a
   position 0.00510742 0 23
@@ -12068,6 +12174,9 @@ endnode
 node trimesh emerg_light03
   parent emerg_on
 endnode
+node trimesh day00_0
+  parent emerg_on
+endnode
 node trimesh transmission_tower_body02
   parent udp1_c07_07a
 endnode
@@ -12208,6 +12317,9 @@ node dummy emerg_on
   parent udp1_c07_07a
 endnode
 node trimesh emerg_light03
+  parent emerg_on
+endnode
+node trimesh day00_0
   parent emerg_on
 endnode
 node trimesh transmission_tower_body02
@@ -12352,6 +12464,9 @@ endnode
 node trimesh emerg_light03
   parent emerg_on
 endnode
+node trimesh day00_0
+  parent emerg_on
+endnode
 node trimesh transmission_tower_body02
   parent udp1_c07_07a
 endnode
@@ -12359,4 +12474,116 @@ node trimesh emerg_light_base01
   parent udp1_c07_07
 endnode
 doneanim animloop01 udp1_c07_07
+newanim day udp1_c07_07
+  length 0.03333
+  transtime 0.25
+  animroot udp1_c07_07
+  node dummy udp1_c07_07
+    parent NULL
+  endnode
+  node dummy udp1_c07_07a
+    parent udp1_c07_07
+  endnode
+  node dummy emerg_on
+    parent udp1_c07_07a
+  endnode
+  node trimesh emerg_light03
+    parent emerg_on
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent emerg_on
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day udp1_c07_07
+newanim day2night udp1_c07_07
+  length 0.56667
+  transtime 0.25
+  animroot udp1_c07_07
+  node dummy udp1_c07_07
+    parent NULL
+  endnode
+  node dummy udp1_c07_07a
+    parent udp1_c07_07
+  endnode
+  node dummy emerg_on
+    parent udp1_c07_07a
+  endnode
+  node trimesh emerg_light03
+    parent emerg_on
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent emerg_on
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night udp1_c07_07
+newanim night udp1_c07_07
+  length 0.03333
+  transtime 0.25
+  animroot udp1_c07_07
+  node dummy udp1_c07_07
+    parent NULL
+  endnode
+  node dummy udp1_c07_07a
+    parent udp1_c07_07
+  endnode
+  node dummy emerg_on
+    parent udp1_c07_07a
+  endnode
+  node trimesh emerg_light03
+    parent emerg_on
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent emerg_on
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night udp1_c07_07
+newanim night2day udp1_c07_07
+  length 0.60000
+  transtime 0.25
+  animroot udp1_c07_07
+  node dummy udp1_c07_07
+    parent NULL
+  endnode
+  node dummy udp1_c07_07a
+    parent udp1_c07_07
+  endnode
+  node dummy emerg_on
+    parent udp1_c07_07a
+  endnode
+  node trimesh emerg_light03
+    parent emerg_on
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent emerg_on
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day udp1_c07_07
 donemodel udp1_c07_07

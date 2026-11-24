@@ -5838,6 +5838,79 @@ node trimesh KEBAB_SIGN03
     0.609996 0.748932 0.5
     0.707911 1.00538 0.5
 endnode
+node trimesh day00_0
+  parent udp1_b05_18a
+  position 8.3448 4.40022 -13.5553
+  orientation 0 0 0 0
+  wirecolor 0.601563 0.601563 0.601563
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-logos-z
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 1
+  tilefade 0
+  rotatetexture 0
+  verts 18
+    2.5652 0.0197752 -0.334703
+    -0.00480469 0.0197754 -1.4447
+    -2.5648 0.0197756 -0.414703
+    2.5652 0.0197752 -0.00470337
+    -0.00480469 0.0197754 -0.00470337
+    -2.5648 0.0197756 -0.00470337
+    2.5652 0.0197752 0.345297
+    -0.00480469 0.0197754 1.4453
+    -2.5648 0.0197756 0.465297
+    3.44519 -6.53022 -0.334703
+    3.44519 -3.96022 -1.4447
+    3.44519 -1.40022 -0.414703
+    3.44519 -6.53022 -0.00470337
+    3.44519 -3.96022 -0.00470337
+    3.44519 -1.40022 -0.00470337
+    3.44519 -6.53022 0.345297
+    3.44519 -3.96022 1.4453
+    3.44519 -1.40022 0.465297
+  faces 16
+    3 0 4  1  3 0 4  0
+    1 4 0  1  1 4 0  0
+    4 1 5  1  4 1 5  0
+    2 5 1  1  2 5 1  0
+    6 3 7  1  6 3 7  0
+    4 7 3  1  4 7 3  0
+    7 4 8  1  7 4 8  0
+    5 8 4  1  5 8 4  0
+    12 9 13  1  12 9 13  0
+    10 13 9  1  10 13 9  0
+    13 10 14  1  13 10 14  0
+    11 14 10  1  11 14 10  0
+    15 12 16  1  15 12 16  0
+    13 16 12  1  13 16 12  0
+    16 13 17  1  16 13 17  0
+    14 17 13  1  14 17 13  0
+  tverts 18
+    0.787866 0.492479 0.5
+    0.899003 0.748932 0.5
+    0.795555 1.00538 0.5
+    0.7545 0.492479 0.5
+    0.7545 0.748932 0.5
+    0.7545 1.00538 0.5
+    0.719993 0.492479 0.5
+    0.609996 0.748932 0.5
+    0.707911 1.00538 0.5
+    0.787866 0.492479 0.5
+    0.899003 0.748932 0.5
+    0.795555 1.00538 0.5
+    0.7545 0.492479 0.5
+    0.7545 0.748932 0.5
+    0.7545 1.00538 0.5
+    0.719993 0.492479 0.5
+    0.609996 0.748932 0.5
+    0.707911 1.00538 0.5
+endnode
 node trimesh deco-lamp-lens-on22
   parent udp1_b05_18a
   position 9.55172 -9.74077 -14.5979
@@ -6250,7 +6323,7 @@ node trimesh window18
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day01_0
+node trimesh day02_0
   parent deco-lamp-lens-on22
   position 8.50759 6.09515 -3.1652
   orientation 1 0 0 -1.5708
@@ -6410,7 +6483,7 @@ node trimesh window122
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day02_0
+node trimesh day03_0
   parent deco-lamp-lens-on22
   position 4.63661 6.09515 -3.1652
   orientation 1 0 0 -1.5708
@@ -6570,7 +6643,7 @@ node trimesh window123
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day03_0
+node trimesh day04_0
   parent deco-lamp-lens-on22
   position 10.9956 3.56272 -3.1652
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -6730,7 +6803,7 @@ node trimesh window124
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day04_0
+node trimesh day05_0
   parent deco-lamp-lens-on22
   position 10.9956 -12.0666 -3.1652
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -6890,7 +6963,7 @@ node trimesh window125
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day05_0
+node trimesh day06_0
   parent deco-lamp-lens-on22
   position 10.9956 -4.25194 -3.1652
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -7050,7 +7123,7 @@ node trimesh window126
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day06_0
+node trimesh day07_0
   parent deco-lamp-lens-on22
   position 10.9956 -0.34462 -3.1652
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -7210,7 +7283,7 @@ node trimesh window127
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day07_0
+node trimesh day08_0
   parent deco-lamp-lens-on22
   position 10.9956 -8.15929 -3.1652
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -7370,7 +7443,7 @@ node trimesh window128
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day08_0
+node trimesh day09_0
   parent deco-lamp-lens-on22
   position -4.16339 14.121 -3.1652
   orientation 1 0 0 -1.5708
@@ -7530,7 +7603,7 @@ node trimesh window129
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day09_0
+node trimesh day10_0
   parent deco-lamp-lens-on22
   position -0.292412 14.121 -3.1652
   orientation 1 0 0 -1.5708
@@ -7690,7 +7763,7 @@ node trimesh window130
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day10_0
+node trimesh day11_0
   parent deco-lamp-lens-on22
   position -8.03437 14.121 -3.1652
   orientation 1 0 0 -1.5708
@@ -7850,7 +7923,7 @@ node trimesh window131
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day11_0
+node trimesh day12_0
   parent deco-lamp-lens-on22
   position -11.0044 10.8517 -3.1652
   orientation 0.57735 0.57735 -0.57735 -2.09439
@@ -8010,7 +8083,7 @@ node trimesh window132
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day12_0
+node trimesh day13_0
   parent deco-lamp-lens-on22
   position -11.0044 6.94433 -3.1652
   orientation 0.57735 0.57735 -0.57735 -2.09439
@@ -8170,7 +8243,7 @@ node trimesh window133
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day13_0
+node trimesh day14_0
   parent deco-lamp-lens-on22
   position -11.0044 3.037 -3.1652
   orientation 0.57735 0.57735 -0.57735 -2.09439
@@ -8330,7 +8403,7 @@ node trimesh window134
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day14_0
+node trimesh day15_0
   parent deco-lamp-lens-on22
   position -11.0044 -0.870321 -3.1652
   orientation 0.57735 0.57735 -0.57735 -2.09439
@@ -8490,7 +8563,7 @@ node trimesh window135
     0.5 0.9995 0.999501
     1 0.9995 0.999501
 endnode
-node trimesh day15_0
+node trimesh day16_0
   parent deco-lamp-lens-on22
   position -11.0044 -4.77765 -3.1652
   orientation 0.57735 0.57735 -0.57735 -2.09439
@@ -20236,6 +20309,17 @@ node trimesh KEBAB_SIGN03
       0.0333333  0 0 0 0
     endlist
 endnode
+node trimesh day00_0
+  parent udp1_b05_18a
+    positionkey
+      0  8.3448 4.40022 -13.5553
+      0.0333333  8.3448 4.40022 -13.5553
+    endlist
+    orientationkey
+      0  0 0 0 0
+      0.0333333  0 0 0 0
+    endlist
+endnode
 node trimesh deco-lamp-lens-on22
   parent udp1_b05_18a
     positionkey
@@ -20250,91 +20334,91 @@ endnode
 node trimesh window18
   parent deco-lamp-lens-on22
 endnode
-node trimesh day01_0
+node trimesh day02_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window122
   parent deco-lamp-lens-on22
 endnode
-node trimesh day02_0
+node trimesh day03_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window123
   parent deco-lamp-lens-on22
 endnode
-node trimesh day03_0
+node trimesh day04_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window124
   parent deco-lamp-lens-on22
 endnode
-node trimesh day04_0
+node trimesh day05_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window125
   parent deco-lamp-lens-on22
 endnode
-node trimesh day05_0
+node trimesh day06_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window126
   parent deco-lamp-lens-on22
 endnode
-node trimesh day06_0
+node trimesh day07_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window127
   parent deco-lamp-lens-on22
 endnode
-node trimesh day07_0
+node trimesh day08_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window128
   parent deco-lamp-lens-on22
 endnode
-node trimesh day08_0
+node trimesh day09_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window129
   parent deco-lamp-lens-on22
 endnode
-node trimesh day09_0
+node trimesh day10_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window130
   parent deco-lamp-lens-on22
 endnode
-node trimesh day10_0
+node trimesh day11_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window131
   parent deco-lamp-lens-on22
 endnode
-node trimesh day11_0
+node trimesh day12_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window132
   parent deco-lamp-lens-on22
 endnode
-node trimesh day12_0
+node trimesh day13_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window133
   parent deco-lamp-lens-on22
 endnode
-node trimesh day13_0
+node trimesh day14_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window134
   parent deco-lamp-lens-on22
 endnode
-node trimesh day14_0
+node trimesh day15_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window135
   parent deco-lamp-lens-on22
 endnode
-node trimesh day15_0
+node trimesh day16_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh deco-lamp-lens22
@@ -20763,6 +20847,17 @@ node trimesh KEBAB_SIGN03
       0.0333333  0 0 0 0
     endlist
 endnode
+node trimesh day00_0
+  parent udp1_b05_18a
+    positionkey
+      0  8.3448 4.40022 6.4447
+      0.0333333  8.3448 4.40022 6.4447
+    endlist
+    orientationkey
+      0  0 0 0 0
+      0.0333333  0 0 0 0
+    endlist
+endnode
 node trimesh deco-lamp-lens-on22
   parent udp1_b05_18a
     positionkey
@@ -20777,91 +20872,91 @@ endnode
 node trimesh window18
   parent deco-lamp-lens-on22
 endnode
-node trimesh day01_0
+node trimesh day02_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window122
   parent deco-lamp-lens-on22
 endnode
-node trimesh day02_0
+node trimesh day03_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window123
   parent deco-lamp-lens-on22
 endnode
-node trimesh day03_0
+node trimesh day04_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window124
   parent deco-lamp-lens-on22
 endnode
-node trimesh day04_0
+node trimesh day05_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window125
   parent deco-lamp-lens-on22
 endnode
-node trimesh day05_0
+node trimesh day06_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window126
   parent deco-lamp-lens-on22
 endnode
-node trimesh day06_0
+node trimesh day07_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window127
   parent deco-lamp-lens-on22
 endnode
-node trimesh day07_0
+node trimesh day08_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window128
   parent deco-lamp-lens-on22
 endnode
-node trimesh day08_0
+node trimesh day09_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window129
   parent deco-lamp-lens-on22
 endnode
-node trimesh day09_0
+node trimesh day10_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window130
   parent deco-lamp-lens-on22
 endnode
-node trimesh day10_0
+node trimesh day11_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window131
   parent deco-lamp-lens-on22
 endnode
-node trimesh day11_0
+node trimesh day12_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window132
   parent deco-lamp-lens-on22
 endnode
-node trimesh day12_0
+node trimesh day13_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window133
   parent deco-lamp-lens-on22
 endnode
-node trimesh day13_0
+node trimesh day14_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window134
   parent deco-lamp-lens-on22
 endnode
-node trimesh day14_0
+node trimesh day15_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh window135
   parent deco-lamp-lens-on22
 endnode
-node trimesh day15_0
+node trimesh day16_0
   parent deco-lamp-lens-on22
 endnode
 node trimesh deco-lamp-lens22
@@ -21154,6 +21249,20 @@ newanim day udp1_b05_18
   node dummy udp1_b05_18a
     parent udp1_b05_18
   endnode
+  node trimesh KEBAB_SIGN03
+    parent udp1_b05_18a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent udp1_b05_18a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
   node trimesh deco-lamp-lens-on22
     parent udp1_b05_18a
     alphakey 2
@@ -21168,7 +21277,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day01_0
+  node trimesh day02_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21182,7 +21291,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day02_0
+  node trimesh day03_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21196,7 +21305,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day03_0
+  node trimesh day04_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21210,7 +21319,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day04_0
+  node trimesh day05_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21224,7 +21333,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day05_0
+  node trimesh day06_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21238,7 +21347,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day06_0
+  node trimesh day07_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21252,7 +21361,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day07_0
+  node trimesh day08_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21266,7 +21375,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day08_0
+  node trimesh day09_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21280,7 +21389,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day09_0
+  node trimesh day10_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21294,7 +21403,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day10_0
+  node trimesh day11_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21308,7 +21417,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day11_0
+  node trimesh day12_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21322,7 +21431,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day12_0
+  node trimesh day13_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21336,7 +21445,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day13_0
+  node trimesh day14_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21350,7 +21459,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day14_0
+  node trimesh day15_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21364,7 +21473,7 @@ newanim day udp1_b05_18
       0.03333 0
     endlist
   endnode
-  node trimesh day15_0
+  node trimesh day16_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21382,6 +21491,20 @@ newanim day2night udp1_b05_18
   node dummy udp1_b05_18a
     parent udp1_b05_18
   endnode
+  node trimesh KEBAB_SIGN03
+    parent udp1_b05_18a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent udp1_b05_18a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
   node trimesh deco-lamp-lens-on22
     parent udp1_b05_18a
     alphakey 2
@@ -21396,7 +21519,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day01_0
+  node trimesh day02_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21410,7 +21533,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day02_0
+  node trimesh day03_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21424,7 +21547,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day03_0
+  node trimesh day04_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21438,7 +21561,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day04_0
+  node trimesh day05_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21452,7 +21575,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day05_0
+  node trimesh day06_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21466,7 +21589,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day06_0
+  node trimesh day07_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21480,7 +21603,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day07_0
+  node trimesh day08_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21494,7 +21617,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day08_0
+  node trimesh day09_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21508,7 +21631,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day09_0
+  node trimesh day10_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21522,7 +21645,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day10_0
+  node trimesh day11_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21536,7 +21659,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day11_0
+  node trimesh day12_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21550,7 +21673,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day12_0
+  node trimesh day13_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21564,7 +21687,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day13_0
+  node trimesh day14_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21578,7 +21701,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day14_0
+  node trimesh day15_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21592,7 +21715,7 @@ newanim day2night udp1_b05_18
       0.56667 1
     endlist
   endnode
-  node trimesh day15_0
+  node trimesh day16_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 1
@@ -21610,6 +21733,20 @@ newanim night udp1_b05_18
   node dummy udp1_b05_18a
     parent udp1_b05_18
   endnode
+  node trimesh KEBAB_SIGN03
+    parent udp1_b05_18a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent udp1_b05_18a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
   node trimesh deco-lamp-lens-on22
     parent udp1_b05_18a
     alphakey 2
@@ -21624,7 +21761,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day01_0
+  node trimesh day02_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21638,7 +21775,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day02_0
+  node trimesh day03_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21652,7 +21789,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day03_0
+  node trimesh day04_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21666,7 +21803,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day04_0
+  node trimesh day05_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21680,7 +21817,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day05_0
+  node trimesh day06_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21694,7 +21831,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day06_0
+  node trimesh day07_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21708,7 +21845,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day07_0
+  node trimesh day08_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21722,7 +21859,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day08_0
+  node trimesh day09_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21736,7 +21873,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day09_0
+  node trimesh day10_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21750,7 +21887,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day10_0
+  node trimesh day11_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21764,7 +21901,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day11_0
+  node trimesh day12_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21778,7 +21915,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day12_0
+  node trimesh day13_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21792,7 +21929,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day13_0
+  node trimesh day14_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21806,7 +21943,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day14_0
+  node trimesh day15_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21820,7 +21957,7 @@ newanim night udp1_b05_18
       0.03333 1
     endlist
   endnode
-  node trimesh day15_0
+  node trimesh day16_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21838,6 +21975,20 @@ newanim night2day udp1_b05_18
   node dummy udp1_b05_18a
     parent udp1_b05_18
   endnode
+  node trimesh KEBAB_SIGN03
+    parent udp1_b05_18a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent udp1_b05_18a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
   node trimesh deco-lamp-lens-on22
     parent udp1_b05_18a
     alphakey 2
@@ -21852,7 +22003,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day01_0
+  node trimesh day02_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21866,7 +22017,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day02_0
+  node trimesh day03_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21880,7 +22031,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day03_0
+  node trimesh day04_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21894,7 +22045,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day04_0
+  node trimesh day05_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21908,7 +22059,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day05_0
+  node trimesh day06_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21922,7 +22073,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day06_0
+  node trimesh day07_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21936,7 +22087,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day07_0
+  node trimesh day08_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21950,7 +22101,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day08_0
+  node trimesh day09_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21964,7 +22115,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day09_0
+  node trimesh day10_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21978,7 +22129,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day10_0
+  node trimesh day11_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -21992,7 +22143,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day11_0
+  node trimesh day12_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -22006,7 +22157,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day12_0
+  node trimesh day13_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -22020,7 +22171,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day13_0
+  node trimesh day14_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -22034,7 +22185,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day14_0
+  node trimesh day15_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0
@@ -22048,7 +22199,7 @@ newanim night2day udp1_b05_18
       0.60000 0
     endlist
   endnode
-  node trimesh day15_0
+  node trimesh day16_0
     parent deco-lamp-lens-on22
     alphakey 2
       0.00000 0

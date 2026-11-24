@@ -662,6 +662,96 @@ node trimesh GLASS_03
     0.5 0.5 0
     0.75 0.5 0
 endnode
+node trimesh day00_0
+  parent FCX01_H01_03a
+  position 0.0 1.32 6.47
+  orientation 1.0 0.0 0.0 0.0
+  wirecolor 0.0156863 0.521569 0.0156863 
+  tilefade 0
+  scale 1.0
+  render 1
+  Shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 0.5
+  transparencyhint 0
+  selfillumcolor 0 0 0
+  ambient 0.0 0.0 1.0 
+  Diffuse 0.0 0.0 1.0 
+  Specular 0.0 0.0 0.0 
+  shininess 10
+  center 0.0 0.5 0.5 
+  bitmap glass
+  verts 16
+    -3.51 0.31 -2.15
+    -3.51 0.31 2.16
+    -3.5 0.33 2.16
+    -3.5 0.33 -2.15
+    -5.0 1.17 -1.29
+    -5.0 1.17 -2.15
+    -5.0 1.17 2.16
+    -5.0 1.2 2.16
+    -5.0 1.18 2.16
+    -5.0 1.2 -2.15
+    -5.0 1.2 1.29
+    -5.0 1.19 -2.15
+    5.0 -1.19 -2.15
+    5.0 -1.19 2.16
+    5.0 -1.17 2.16
+    5.0 -1.17 -2.15
+  faces 16
+    13 2 1  4  30 6 5  1
+    13 14 2  4  30 31 6  1
+    15 0 3  4  32 8 7  2
+    15 12 0  4  32 29 8  2
+    0 4 5  2  4 20 21  3
+    1 6 4  2  5 23 20  3
+    4 0 1  2  20 4 5  3
+    8 1 2  4  25 5 6  1
+    2 7 8  4  6 24 25  1
+    10 2 3  2  27 6 7  4
+    3 9 10  2  7 26 27  4
+    3 0 5  4  7 8 22  2
+    5 11 3  4  22 28 7  2
+    6 1 8  4  23 5 25  1
+    7 2 10  2  24 6 27  4
+    9 3 11  4  26 7 28  2
+  tverts 33
+    0.25 0.444444 0
+    0.5 0.444444 0
+    0.75 0.444444 0
+    1.0 0.444444 0
+    0.0 0.555556 0
+    0.25 0.555556 0
+    0.5 0.555556 0
+    0.75 0.555556 0
+    1.0 0.555556 0
+    0.75 0.777778 0
+    1.0 0.777778 0
+    0.0 0.833333 0
+    0.25 0.833333 0
+    0.5 0.833333 0
+    0.75 0.833333 0
+    1.0 0.833333 0
+    0.0 0.888889 0
+    0.5 1.0 0
+    0.75 1.0 0
+    1.0 1.0 0
+    0.0497995 0.566622 0
+    0.0 0.566622 0
+    1.0 0.566622 0
+    0.25 0.566622 0
+    0.5 0.566712 0
+    0.299933 0.566652 0
+    0.75 0.566712 0
+    0.550201 0.566712 0
+    0.800067 0.566682 0
+    1.0 0.5 0
+    0.25 0.5 0
+    0.5 0.5 0
+    0.75 0.5 0
+endnode
 node aabb walk_03
   parent FCX01_H01_03
   position 0.000332031 0.0 2.16
@@ -851,4 +941,104 @@ node aabb walk_03
         5.0 0.23 2.16 5.0 5.0 2.16 14
 endnode
 endmodelgeom FCX01_H01_03
+newanim day FCX01_H01_03
+  length 0.03333
+  transtime 0.25
+  animroot FCX01_H01_03
+  node dummy FCX01_H01_03
+    parent NULL
+  endnode
+  node dummy FCX01_H01_03a
+    parent FCX01_H01_03
+  endnode
+  node trimesh GLASS_03
+    parent FCX01_H01_03a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent FCX01_H01_03a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day FCX01_H01_03
+newanim day2night FCX01_H01_03
+  length 0.56667
+  transtime 0.25
+  animroot FCX01_H01_03
+  node dummy FCX01_H01_03
+    parent NULL
+  endnode
+  node dummy FCX01_H01_03a
+    parent FCX01_H01_03
+  endnode
+  node trimesh GLASS_03
+    parent FCX01_H01_03a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent FCX01_H01_03a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night FCX01_H01_03
+newanim night FCX01_H01_03
+  length 0.03333
+  transtime 0.25
+  animroot FCX01_H01_03
+  node dummy FCX01_H01_03
+    parent NULL
+  endnode
+  node dummy FCX01_H01_03a
+    parent FCX01_H01_03
+  endnode
+  node trimesh GLASS_03
+    parent FCX01_H01_03a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent FCX01_H01_03a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night FCX01_H01_03
+newanim night2day FCX01_H01_03
+  length 0.60000
+  transtime 0.25
+  animroot FCX01_H01_03
+  node dummy FCX01_H01_03
+    parent NULL
+  endnode
+  node dummy FCX01_H01_03a
+    parent FCX01_H01_03
+  endnode
+  node trimesh GLASS_03
+    parent FCX01_H01_03a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent FCX01_H01_03a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day FCX01_H01_03
 donemodel FCX01_H01_03

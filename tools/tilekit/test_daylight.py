@@ -11,6 +11,7 @@ from tools.tilekit import daylight
 REPO = Path(__file__).resolve().parents[2]
 PACKS = ('srn_t_udp1', 'srn_door', 'srn_placeable')  # the packs that hold the list's textures: named so the test selector checks them out
 CITY = ('srn_t_common', 'srn_t_dgt04')  # the same for the Modern Exterior list
+ARCOLOGY = ('srn_t_fcx01', 'srn_t_common', 'srn_door')  # and for the Futuristic City's
 MODEL = """newmodel t_a01
 beginmodelgeom t_a01
 node dummy t_a01
@@ -157,6 +158,17 @@ class Daylight(unittest.TestCase):
         lit = json.loads((REPO / 'docs' / 'tilesets' / 'udp1' / 'daylight.json').read_text(encoding='utf-8'))['lit']
         held = {path.stem.lower() for pack in PACKS for path in (REPO / pack).iterdir()}
         self.assertEqual(sorted(name for pair in lit.items() for name in pair if name and name not in held), [])
+
+    def test_the_arcology_list_names_textures_the_packs_hold_and_no_tile_of_it_glows_at_every_hour(self):
+        # the Futuristic City's windows and lamp lenses glowed at noon until they were given the day and night (2026-11-24)
+        from tools.tilekit import inventory, lamps
+        lit = json.loads((REPO / 'docs' / 'tilesets' / 'fcx01' / 'daylight.json').read_text(encoding='utf-8'))['lit']
+        held = {path.stem.lower() for pack in ARCOLOGY for path in (REPO / pack).iterdir()}
+        self.assertEqual(sorted(name for pair in lit.items() for name in pair if name and name not in held), [])
+        with tempfile.TemporaryDirectory() as temporary:
+            read = [(name, text) for name, file, text, others, source in inventory.drawn_copies(REPO, 'fcx01', Path(temporary), lamps.PACKS) if daylight.lit_nodes(text, lit)]
+        self.assertGreater(len(read), 90)  # the sources were read
+        self.assertEqual([name for name, text in read if not re.search(r'(?mi)^[ \t]*newanim[ \t]+day[ \t]', text)], [])
 
     def test_the_city_list_names_textures_the_packs_hold_and_no_tile_of_it_glows_at_every_hour(self):
         # the Modern Exterior windows glowed at noon until its lit panes were given the day and night (2026-11-24)

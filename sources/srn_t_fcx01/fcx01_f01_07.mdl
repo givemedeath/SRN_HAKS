@@ -524,6 +524,89 @@ node trimesh Linie12_06
     2.3724 0.617754 0
     2.3726 0.617754 0
 endnode
+node trimesh day00_0
+  parent fcx01_f01_07
+  position -4.67 0.0 18.45
+  orientation  0.0 0.0 0.0  0.0
+  wirecolor 0.337255 0.556863 0.882353 
+  tilefade 1
+  scale 1.0
+  render 1
+  Shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 1.0
+  transparencyhint 0
+  selfillumcolor 0 0 0
+  ambient 0.164706 0.0 1.0 
+  Diffuse 0.117647 0.0 1.0 
+  Specular 0.0 0.0 0.0 
+  shininess 10
+  center 0.0 0.0 0.5 
+  bitmap lights3
+  verts 14
+    -0.33 -5.0 -0.24
+    -0.33 -5.0 0.25
+    0.31 -5.0 -0.16
+    0.32 -5.0 -0.24
+    0.26 -5.0 0.25
+    -0.33 4.45 0.25
+    -0.33 5.0 0.25
+    -0.33 5.0 -0.24
+    0.27 5.0 0.25
+    0.33 5.0 -0.24
+    0.32 5.0 -0.24
+    0.19 5.0 0.25
+    0.26 5.0 0.25
+    0.27 5.0 0.25
+  faces 12
+    8 13 4  4  24 31 10  1
+    4 2 8  4  10 7 24  1
+    6 5 11  16  22 12 28  1
+    2 3 9  4  7 8 26  1
+    9 8 2  4  26 24 7  1
+    10 0 7  16  27 5 23  1
+    9 3 0  16  25 9 5  1
+    0 10 9  16  5 27 25  1
+    5 1 12  16  13 6 30  1
+    12 11 5  16  30 29 13  1
+    12 1 4  16  30 6 10  1
+    4 13 12  16  10 31 30  1
+  tverts 32
+    -0.997685 0.452076 0
+    -0.997685 0.617754 0
+    -0.997685 0.617754 0
+    -0.997685 0.452076 0
+    -0.997685 0.452076 0
+    1.55793 0.452076 0
+    1.83613 0.617754 0
+    1.86692 0.478079 0
+    1.86692 0.452076 0
+    1.33728 0.452076 0
+    1.86132 0.617754 0
+    0.7195 0.452076 0
+    -0.875165 0.617754 0
+    2.31898 0.617754 0
+    0.456334 0.617754 0
+    0.934798 0.452076 0
+    2.37265 0.616606 0
+    2.37265 0.452076 0
+    -0.978498 0.452076 0
+    -0.976685 0.452076 0
+    -0.981632 0.617754 0
+    2.36926 0.617754 0
+    -0.847167 0.617754 0
+    -0.755005 0.452076 0
+    2.37265 0.616606 0
+    -0.978498 0.452076 0
+    2.37265 0.452076 0
+    -0.976685 0.452076 0
+    -0.981632 0.617754 0
+    2.36926 0.617754 0
+    2.3724 0.617754 0
+    2.3726 0.617754 0
+endnode
 #Tile trimesh node
 node trimesh Objekt01_06
   parent fcx01_f01_07
@@ -546,6 +629,53 @@ node trimesh Objekt01_06
   shininess 10
   center 0.5 0.0 0.0 
   bitmap LIGHTS3
+  verts 6
+    0.2 -5.0 0.24
+    0.17 -5.0 0.2
+    -0.19 -5.0 -0.24
+    0.2 5.0 0.24
+    0.04 5.0 0.0
+    -0.16 5.0 -0.24
+  faces 4
+    0 1 4  16  3 4 10  1
+    4 3 0  16  10 9 3  1
+    4 1 2  16  10 4 5  1
+    2 5 4  16  5 11 10  1
+  tverts 12
+    -1.07636 0.442314 0
+    -1.07507 0.61699 0
+    -1.07507 0.61699 0
+    1.2263 0.61699 0
+    1.22735 0.603265 0
+    1.23439 0.442314 0
+    1.77551 0.61699 0
+    1.78218 0.530148 0
+    1.78602 0.442314 0
+    1.77551 0.61699 0
+    1.78218 0.530148 0
+    1.78602 0.442314 0
+endnode
+node trimesh day01_0
+  parent fcx01_f01_07
+  position -4.24 0.0 17.06
+  orientation  0.0 0.0 0.0  0.0
+  wirecolor 0.337255 0.556863 0.882353 
+  tilefade 1
+  scale 1.0
+  render 1
+  Shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 1.0
+  transparencyhint 0
+  selfillumcolor 0 0 0
+  ambient 0.117647 0.0 1.0 
+  Diffuse 0.117647 0.0 1.0 
+  Specular 0.0 0.0 0.0 
+  shininess 10
+  center 0.5 0.0 0.0 
+  bitmap lights3
   verts 6
     0.2 -5.0 0.24
     0.17 -5.0 0.2
@@ -1281,4 +1411,148 @@ node trimesh back_door
     1.0 1.0 0
 endnode
 endmodelgeom fcx01_f01_07
+newanim day fcx01_f01_07
+  length 0.03333
+  transtime 0.25
+  animroot fcx01_f01_07
+  node dummy fcx01_f01_07
+    parent NULL
+  endnode
+  node trimesh Linie12_06
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh Objekt01_06
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day01_0
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day fcx01_f01_07
+newanim day2night fcx01_f01_07
+  length 0.56667
+  transtime 0.25
+  animroot fcx01_f01_07
+  node dummy fcx01_f01_07
+    parent NULL
+  endnode
+  node trimesh Linie12_06
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh Objekt01_06
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day01_0
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night fcx01_f01_07
+newanim night fcx01_f01_07
+  length 0.03333
+  transtime 0.25
+  animroot fcx01_f01_07
+  node dummy fcx01_f01_07
+    parent NULL
+  endnode
+  node trimesh Linie12_06
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh Objekt01_06
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day01_0
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night fcx01_f01_07
+newanim night2day fcx01_f01_07
+  length 0.60000
+  transtime 0.25
+  animroot fcx01_f01_07
+  node dummy fcx01_f01_07
+    parent NULL
+  endnode
+  node trimesh Linie12_06
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh Objekt01_06
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day01_0
+    parent fcx01_f01_07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day fcx01_f01_07
 donemodel fcx01_f01_07

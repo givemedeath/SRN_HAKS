@@ -647,6 +647,24 @@ The four textures it shares with dgt04 keep dgt04's look.
   (`fcx01_d01_01` to `_09`), 20 void edge tiles and the plain plaza, with nothing missing or black. The palette shows
   the groups' display names. Not tried: every group, doors, tile light settings.
 
+**Parked items taken up after Release C (2026-11-24):**
+- **Applied (user passed the look):** the arcology's lit panes and lamp lenses follow the hour
+  (`docs/tilesets/fcx01/daylight.json`, 98 tiles: each is its own day texture, drawn without its glow by day), and
+  so do the suburb's shop signs, logos and red lamp (`udp1/daylight.json`, 39 models). Ten suburb tiles whose signs
+  a tile loop switches have that loop on in `udp1.set` and `srx01.set` (`daylight --lights-on`, then `merge`).
+  Left lit at every hour in the arcology: the signs and the monument, the water, and the glowing metal trims
+  (`c_metall`, `bb1bottom`, `dgt04_chrome`, `lsf_grate01`). Checks clean, a test holds the arcology's list; seen
+  from the built packs by day and at night.
+- **Made, not applied:** hand finishes of three redrawn pictures in `output/tilekit/c-redrawn` (the Qwen pictures
+  kept aside): the sign strip as an even row of lit segments, a clean "ARCOLOGY LIVING" caption, brighter marker
+  lamps. The strip still reads as small blocks at its size in game; the other two were not seen in game.
+- **School 3, not solved:** 28 of the 47 windows of `udp1_b07_29` were given lit panes (`udp1-window1b`) and day
+  panes through `daylight`. In game they stay unlit at night, and one stays lit by day: the fade does not take on
+  that tile though its animations are written like a working house's. Left as it was.
+- **Suburb `detail` kit, not started:** `placer.propose` finds almost nothing on the houses and strip malls (thin
+  box windows, models wider than their cell); only mall roofs take pieces. The kit's atlas also lives in
+  `srn_t_dgt04`, which a suburb-only module does not load. Both need work before a pilot.
+
 ### 7. Cohesion
 
 - **Look pass:** the user's whole-city look pass across the three districts and the joins, by day and night.

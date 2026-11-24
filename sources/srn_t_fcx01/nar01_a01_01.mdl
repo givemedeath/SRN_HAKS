@@ -98,6 +98,55 @@ node trimesh window_green_01
     1.0 0.0 0
     0.0 0.0 0
 endnode
+node trimesh day00_0
+  parent NAR01_A01_01a
+  position -0.0599964 0.0600032 4.87
+  orientation 0.0 0.0 -1.0 0.0
+  wirecolor 0.0313726 0.0313726 0.529412 
+  tilefade 0
+  scale 1.0
+  render 1
+  Shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 0.8
+  transparencyhint 0
+  selfillumcolor 0 0 0
+  ambient 1.0 1.0 1.0 
+  Diffuse 1.0 1.0 1.0 
+  Specular 0.0 0.0 0.0 
+  shininess 11
+  center 0.0 0.0 0.5 
+  bitmap arcology_win02
+  verts 8
+    4.94 -4.94 -4.87
+    -4.94 -4.94 -4.87
+    4.94 4.94 -4.87
+    -4.94 4.94 4.88
+    4.94 -4.94 -4.87
+    -4.94 -4.94 -4.87
+    4.94 4.94 -4.87
+    -4.94 4.94 4.88
+  faces 4
+    2 0 3  1  0 1 2  1
+    1 3 0  1  3 4 5  1
+    4 6 7  1  6 7 8  1
+    7 5 4  1  9 10 11  1
+  tverts 12
+    0.0 1.0 0
+    0.0 0.0 0
+    1.0 1.0 0
+    1.0 0.0 0
+    1.0 1.0 0
+    0.0 0.0 0
+    0.0 0.0 0
+    0.0 1.0 0
+    1.0 1.0 0
+    1.0 1.0 0
+    1.0 0.0 0
+    0.0 0.0 0
+endnode
 node trimesh window_paine_01
   parent NAR01_A01_01a
   position 3.49619e-006 3.14657e-006 5.0
@@ -930,4 +979,104 @@ node aabb Plane01
         4.44058 4.48541 0.0 5.0 5.0 5.0 31
 endnode
 endmodelgeom NAR01_A01_01
+newanim day NAR01_A01_01
+  length 0.03333
+  transtime 0.25
+  animroot NAR01_A01_01
+  node dummy NAR01_A01_01
+    parent NULL
+  endnode
+  node dummy NAR01_A01_01a
+    parent NAR01_A01_01
+  endnode
+  node trimesh window_green_01
+    parent NAR01_A01_01a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent NAR01_A01_01a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day NAR01_A01_01
+newanim day2night NAR01_A01_01
+  length 0.56667
+  transtime 0.25
+  animroot NAR01_A01_01
+  node dummy NAR01_A01_01
+    parent NULL
+  endnode
+  node dummy NAR01_A01_01a
+    parent NAR01_A01_01
+  endnode
+  node trimesh window_green_01
+    parent NAR01_A01_01a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent NAR01_A01_01a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night NAR01_A01_01
+newanim night NAR01_A01_01
+  length 0.03333
+  transtime 0.25
+  animroot NAR01_A01_01
+  node dummy NAR01_A01_01
+    parent NULL
+  endnode
+  node dummy NAR01_A01_01a
+    parent NAR01_A01_01
+  endnode
+  node trimesh window_green_01
+    parent NAR01_A01_01a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent NAR01_A01_01a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night NAR01_A01_01
+newanim night2day NAR01_A01_01
+  length 0.60000
+  transtime 0.25
+  animroot NAR01_A01_01
+  node dummy NAR01_A01_01
+    parent NULL
+  endnode
+  node dummy NAR01_A01_01a
+    parent NAR01_A01_01
+  endnode
+  node trimesh window_green_01
+    parent NAR01_A01_01a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent NAR01_A01_01a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day NAR01_A01_01
 donemodel NAR01_A01_01

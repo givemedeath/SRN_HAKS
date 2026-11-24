@@ -3292,6 +3292,61 @@ node trimesh canopy05
     0.589272 0.307838 0.558787
     0.592115 0.1864 0.556998
 endnode
+node trimesh day03_0
+  parent udp1_b03_10a
+  position 4.87662 2.42998 -11.3849
+  orientation 0 0 0 0
+  wirecolor 1 1 1
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-logos-z
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 1
+  tilefade 0
+  rotatetexture 0
+  verts 12
+    6.1234 -0.105828 -1.51798
+    2.1234 0.469719 -1.51798
+    -1.8766 0.469719 -1.51798
+    -5.8766 -0.105827 -1.51798
+    6.1234 -0.105828 1.51798
+    2.1234 0.469719 1.51798
+    -1.8766 0.46972 1.51798
+    -5.8766 -0.105827 1.51798
+    7.28677 -0.398656 1.51798
+    7.32231 -0.407603 -1.51798
+    -7.25121 -0.451825 1.51798
+    -7.3223 -0.469719 -1.51798
+  faces 10
+    9 0 4  4  9 0 4  0
+    4 8 9  4  4 8 9  0
+    0 1 5  4  0 1 5  0
+    5 4 0  4  5 4 0  0
+    1 2 6  4  1 2 6  0
+    6 5 1  4  6 5 1  0
+    2 3 7  4  2 3 7  0
+    7 6 2  4  7 6 2  0
+    10 7 3  4  10 7 3  0
+    3 11 10  4  3 11 10  0
+  tverts 12
+    0.0542875 0.1864 0.593386
+    0.214287 0.1864 0.650941
+    0.374287 0.1864 0.650941
+    0.534288 0.1864 0.593387
+    0.0542875 0.307838 0.593386
+    0.214287 0.307838 0.650941
+    0.374287 0.307838 0.650941
+    0.534288 0.307838 0.593387
+    0.00775275 0.307838 0.564104
+    0.00633088 0.1864 0.563209
+    0.589272 0.307838 0.558787
+    0.592115 0.1864 0.556998
+endnode
 node trimesh light_base45
   parent udp1_b03_10
   position 6.99328 2.30387 5.09418
@@ -3748,6 +3803,17 @@ node trimesh canopy05
       0.0333333  0 0 0 0
     endlist
 endnode
+node trimesh day03_0
+  parent udp1_b03_10a
+    positionkey
+      0  4.87662 2.42998 -11.3849
+      0.0333333  4.87662 2.42998 -11.3849
+    endlist
+    orientationkey
+      0  0 0 0 0
+      0.0333333  0 0 0 0
+    endlist
+endnode
 node trimesh light_base45
   parent udp1_b03_10
 endnode
@@ -3916,6 +3982,17 @@ node trimesh canopy05
       0.0333333  0 0 0 0
     endlist
 endnode
+node trimesh day03_0
+  parent udp1_b03_10a
+    positionkey
+      0  4.87662 2.42998 8.61512
+      0.0333333  4.87662 2.42998 8.61512
+    endlist
+    orientationkey
+      0  0 0 0 0
+      0.0333333  0 0 0 0
+    endlist
+endnode
 node trimesh light_base45
   parent udp1_b03_10
 endnode
@@ -3961,6 +4038,20 @@ newanim day udp1_b03_10
       0.03333 1
     endlist
   endnode
+  node trimesh canopy05
+    parent udp1_b03_10a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent udp1_b03_10a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
 doneanim day udp1_b03_10
 newanim day2night udp1_b03_10
   length 0.56667
@@ -3995,6 +4086,20 @@ newanim day2night udp1_b03_10
   endnode
   node trimesh day02_0
     parent mall-light-on25
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh canopy05
+    parent udp1_b03_10a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent udp1_b03_10a
     alphakey 2
       0.00000 1
       0.56667 0
@@ -4039,6 +4144,20 @@ newanim night udp1_b03_10
       0.03333 0
     endlist
   endnode
+  node trimesh canopy05
+    parent udp1_b03_10a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent udp1_b03_10a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
 doneanim night udp1_b03_10
 newanim night2day udp1_b03_10
   length 0.60000
@@ -4073,6 +4192,20 @@ newanim night2day udp1_b03_10
   endnode
   node trimesh day02_0
     parent mall-light-on25
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh canopy05
+    parent udp1_b03_10a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent udp1_b03_10a
     alphakey 2
       0.00000 0
       0.60000 1
