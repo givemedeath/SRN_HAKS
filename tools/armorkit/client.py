@@ -16,7 +16,10 @@ PROCESS = 'nwmain.exe'
 # A fresh user directory opens a 1024x768 window and pauses in the background; the fixture pins its own
 # window size so captures are comparable and keeps the game running while another window is in front.
 SETTINGS = ('[game.auto-pause.on-focus-loss]\nenabled = false\n[graphics.window]\nmode = "windowed"\n'
-            '[graphics.window.windowed]\nwidth = {width}\nheight = {height}\n[ui]\nmouseover-feedback = false\n')
+            '[graphics.window.windowed]\nwidth = {width}\nheight = {height}\n[ui]\nmouseover-feedback = false\n'
+            # Keyholing off: the hole the game cuts round the camera's line of sight shows in a capture as black ragged
+            # patches on roofs and at doors, which were taken for the tiles' own (user, 2026-11-19 and 2026-11-24).
+            '[graphics.keyholing]\nenabled = false\n')
 STAMP = re.compile(r'^\[[^\]]*\]\s*')
 POLL = 0.5
 MARGIN = 0.5  # seconds a capture must finish ahead of the next shot

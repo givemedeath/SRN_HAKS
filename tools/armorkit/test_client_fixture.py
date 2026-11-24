@@ -232,6 +232,7 @@ class ClientTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Only a client started here'):
             client.stop(1234)
         self.assertIn('on-focus-loss', client.SETTINGS.format(width=1, height=1))
+        self.assertIn('[graphics.keyholing]\nenabled = false\n', client.SETTINGS.format(width=1, height=1))  # no capture has the camera's keyhole cut into it
 
     def test_a_failed_process_listing_is_not_read_as_no_client_running(self):
         def listing(code, output):
