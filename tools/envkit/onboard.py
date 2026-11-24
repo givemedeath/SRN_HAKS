@@ -24,7 +24,7 @@ ORDER = ('kind', 'type', 'same', 'variant', 'unbranded', 'drawn', 'subject', 'bo
 BRANDS = ('Ares|Mitsuhama|Renraku|Saeder|Shiawase|Evo|Wuxing|Horizon|NeoNET|DocWagon|Aztechnology|Lone Star|Knight Errant|PCC|ZDF|'
           'Council|UCAS|CAS|Sioux|Spiritech|Apex|Hargreaves|NABS|Ghostwalker|GridGuide|Denver Water|RTG|Chavez|Eagle|Mesametric|'
           'Warpdrive|Eclipse|Focused|Aurora Village|Ghost Riders|Koshari|Draco|The Hub|Penrose|UD|Centennial|2072|Chop Shop|'
-          'Coffin Hotel|Stuffer|Casquilho|Denver FRFZ|T-Bird|DW|GG|Pulse Tech|Iron Sight')
+          'Coffin Hotel|Stuffer|Casquilho|Denver FRFZ|T-Bird|DW|GG|Pulse Tech|Iron Sight|Happenstance')
 SIGNS = {'storefront-sign', 'pylon-sign', 'banner-set', 'neon-sign', 'billboard', 'schedule-board', 'graffiti-wall'}
 MADE, REUSED, BUILDING = (255, 0, 255), (0, 170, 0), (0, 200, 255)
 

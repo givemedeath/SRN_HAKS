@@ -370,11 +370,13 @@ player is; `stages` in what it prints is each place the player came to. Run it o
 
 ## A new sheet, and a review of the sets
 
-All 60 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
+All 61 FRFZ sheets have a set file: the first 55 came in one batch, and the Denver rail freight yard
 (`56_denver_rail_freight_yard.png`, 2026-11-12), three street shops (`57_pulse_tech_matrix_gear_shop.png`,
 `58_chop_shop_cyberware_clinic.png` and `59_iron_sight_arms_gun_shop.png`, 2026-11-14) and the Barrens power
 station (`60_shiawase_barrens_power_station.png`, 2026-11-17) were brought in later with `onboard`, as a sheet that
-comes later is. Sheet 60 is sheet 6's Shiawase substation drawn again for the Barrens (user, 2026-11-17): the same
+comes later is. The Happenstance nightclub (`61_happenstance_nightclub.png`, 2026-11-23) came in for its 78 props
+alone (user: "only the props, not the building"): its set has no building view, which `audit` tells as `no
+building-hero`, and its rows are packed too close for `boxes`, so its boxes were stated by hand. Sheet 60 is sheet 6's Shiawase substation drawn again for the Barrens (user, 2026-11-17): the same
 building worn down, on one fenced slab with an open yard, one door (the way down to the utility tunnels) and one
 roller door. It was drawn with the Codex CLI's image tool from sheet 6 and revised from its own drawing; where
 `boxes` joins a hero to the title block or a row of props to its heading, as it did there, state the boxes by hand
