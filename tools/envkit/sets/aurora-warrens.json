@@ -21,7 +21,7 @@
     "trash-pile": {"kind": "prop", "type": "street-clutter", "variant": "Rubbish bags with a dented bin, boxes and a pallet.", "subject": "pile of rubbish bags with a dented bin and a pallet", "box": [655, 899, 886, 1023]},
     "graffiti-wall": {"kind": "prop", "type": "graffiti-wall", "subject": "concrete wall slab covered in gang graffiti", "box": [892, 878, 1086, 1025]},
     "name-wall": {"kind": "prop", "type": "graffiti-wall", "variant": "Branding: concrete wall slab painted Aurora Warrens over a red slash, with the block number B-3.", "subject": "concrete wall slab painted with the name Aurora Warrens over a red slash and the block number B-3", "box": [60, 290, 262, 478]},
-    "light-pole": {"kind": "prop", "type": "floodlight", "same": "council-hall/floodlight", "subject": "twin floodlight on a pole", "box": [1116, 862, 1197, 1026]},
+    "light-pole": {"kind": "prop", "type": "floodlight", "same": "cas-checkpoint/floodlight", "subject": "twin floodlight on a pole", "box": [1116, 862, 1197, 1026]},
     "crate-stack": {"kind": "prop", "type": "pallet-stack", "variant": "Wooden crates, plastic crates and a tarp on pallets.", "subject": "pallets of wooden crates under a tarp", "box": [1215, 883, 1445, 1028]}
   }
 }
