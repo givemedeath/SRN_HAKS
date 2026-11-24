@@ -309,6 +309,15 @@ udp1's textures are in `srn_t_udp1`, `srn_t_common`, `srn_door` and `srn_placeab
 - **Seen, not yet addressed:** house windows are lit by day (the lit window texture is the only one the houses
   have); the grass is dark by day, though lighter than dgt04's own; siding changes little at play distance.
 
+## City ground made concrete (user, 2026-11-23)
+
+Seen on the release B pilot: the Concrete terrain's ground was an asphalt scan (Road012A), as dark as the roads.
+`pavement` is now the Poly Haven scan `cracked_concrete` at the sidewalk's brightness (dgt04 spec, grade `ground`),
+applied to `srn_t_common`; the old Modern Exterior set takes it too. Tried and dropped: Concrete034 (a trowelled
+wall concrete: the right colour, no slab pattern) and Poly Haven `concrete_floor_damaged_01` (blotchy, repeats).
+The joins were viewed again from the built packs: the kerb strip sits cleanly on the new ground. The Barrens
+grounds (`pavement_dirty` and its kin) keep the asphalt scan.
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.
