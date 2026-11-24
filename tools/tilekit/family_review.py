@@ -10,7 +10,7 @@ Each layout is an area for each of its `lights` (default: day and night), `name`
   tile is taken, and those with one of the pieces `also`; `only` the tiles with one of those pieces.
 - `block`: terrains painted by the set's rules: {width, height, patches, runs, ground} as a review's block, {crossings,
   views (of them, as 'x03y03-ne'), distance, pitch} its views.
-- `street`: kerbed tiles side by side, as a street shows them: {terrains, placements, across, down}, seen from two
+- `street`: kerbed tiles, all their corners of the terrains, side by side as a street shows them: {terrains, placements, across, down}, seen from two
   sides; `close`: [{piece, light}] a near view of the first tile with that piece.
 - `towers`: whole buildings painted by the set's rules: {terrains (one may be named twice), size, apart, room, across,
   ground, views: [{kind: side, sides, lights} | {kind: up, lights, back, pitch} | {kind: far, lights}]}.
@@ -78,7 +78,8 @@ class Set:
             names = [name.lower() for name in layout['models']]; missing = sorted(set(names) - set(self.numbers))
             require(not missing, f'No tile of {self.tileset} is ' + ', '.join(missing)); return names
         require(layout.get('terrains'), f'The layout {layout["name"]} names its models or its terrains')
-        names = sorted({tile['model'] for tile in self.laid['tiles'] if not tile['model'].startswith('ek_') and any(_is(corner, layout['terrains']) for corner in tile['corners'])})
+        every = all if layout['kind'] == 'street' else any
+        names = sorted({tile['model'] for tile in self.laid['tiles'] if not tile['model'].startswith('ek_') and every(_is(corner, layout['terrains']) for corner in tile['corners'])})
         require(names, 'No tile has the terrains ' + ', '.join(layout['terrains'])); return names
 
 

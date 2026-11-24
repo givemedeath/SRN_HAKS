@@ -55,6 +55,11 @@ class FamilyReviewTest(unittest.TestCase):
         _, shots, _ = self.plan({'kind': 'block', 'name': 'big', 'lights': ['day'], 'width': 8, 'height': 8, 'patches': [{'terrain': 'tower', 'at': [2, 2], 'size': [2, 2]}], 'crossings': [[0, 0], [5, 5]], 'views': ['x05y05-sw']})
         self.assertEqual([shot['label'] for shot in shots], ['day-big-x05y05-sw'])
 
+    def test_a_street_is_of_tiles_wholly_of_its_terrain(self):
+        with mock.patch.object(family_review.placer, '_kerbs', return_value=[1]):
+            areas, shots, _ = self.plan({'kind': 'street', 'name': 'st', 'terrains': ['Ground'], 'across': 2, 'down': 2})
+        self.assertEqual({number for number, _ in areas[0]['laid'].values()}, {0}); self.assertEqual([shot['label'] for shot in shots], ['day-st-south', 'day-st-north'])
+
     def test_doors_stand_at_their_hooks(self):
         hook = {'tile': 2, 'model': 'x_side', 'door': 0, 'at': [0.0, 4.9, 0.0], 'turn': 0.0, 'width': 4.0, 'height': 3.0}
         (self.repo / 'op.json').write_text(json.dumps({'hooks': [hook, {**hook, 'tile': 3, 'model': 'x_full', 'width': 2.0}, {'tile': 1, 'model': 'x_corner', 'note': 'no'}]}))
