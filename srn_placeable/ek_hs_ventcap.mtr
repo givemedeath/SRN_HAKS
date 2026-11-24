@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_hs_ventcap
+texture1 ek_hs_ventcap_n
+texture2 ek_hs_ventcap_s
+texture3 ek_hs_ventcap_r
+texture4 null
+texture5 null
