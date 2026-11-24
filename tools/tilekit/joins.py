@@ -237,13 +237,19 @@ def name_of(spec, pair, shape):
     return f'{spec["prefix"]}{pair["letter"]}{shape}_01'
 
 
+def _cut(pair, shape):
+    """Whether a pair has the join `shape`: the road joins only where both families have a road, since a road that
+    ends at the boundary is laid only as part of one that crosses it."""
+    return shape not in ROADS or ('road' in pair['city'] and 'road' in pair['other'])
+
+
 def tiles(spec):
     """[{model, corners {TopLeft...: terrain}, crossers {Top...: crosser or ''}, minimap}] of the join tiles, in the
     order the merged set numbers them after its families' tiles."""
     made = []
     for pair in spec['pairs']:
         for shape in ('1', '2', '3', '4', 'r', 's', 't'):
-            if shape in ROADS and not ('road' in pair['city'] and 'road' in pair['other']):
+            if not _cut(pair, shape):
                 continue
             name = name_of(spec, pair, shape)
             corners = {corner: pair['other' if corner in SHAPES[shape] else 'city']['terrain'] for corner in CORNERS}
@@ -293,7 +299,7 @@ def work(repo, spec):
     for pair in spec['pairs']:
         for shape in ('1', '2', '3', '4', 'r', 's', 't', 'z'):
             kinds = ROADS.get(shape, ('ground', 'ground'))
-            if kinds[0] not in pair['city'] or kinds[1] not in pair['other']:
+            if not _cut(pair, shape):
                 continue
             name = name_of(spec, pair, shape); (city, city_map), (other, other_map) = source(pair['city'], kinds[0]), source(pair['other'], kinds[1])
             text, walk = model(name, shape, city, other)

@@ -184,6 +184,7 @@ DOORS = {
 }
 TALL = {'srn_dr_load': 4.0}  # a door taller than `HEIGHT`
 NAMES = dict(zip(DOORS, range(16777216 + 156, 16777216 + 166)))  # each door's name in the Toolset: custom talk table rows 156-165 (srx01.door.*), in DOORS' order
+require(len(NAMES) == len(DOORS), 'A door has no name row: give the talk table a row for each door of DOORS and widen NAMES')
 
 
 def _node(name, parent, part, position=(0.0, 0.0, 0.0)):

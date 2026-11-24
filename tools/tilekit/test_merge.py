@@ -100,6 +100,21 @@ class Refresh(unittest.TestCase):
             self.assertEqual(merge.stale(repo, spec, home / 'merge.json', home / 'merged.json'), ['set:a'])
             with self.assertRaisesRegex(ValueError, 'no category'):
                 merge.refresh(repo, {'a': ('Other', 'Other')}, district='Nowhere', gff=gff)
+            before = (home / 'names.json').read_bytes()
+            with self.assertRaisesRegex(ValueError, 'no category'):  # what an install asks before it changes a source set: nothing is written
+                merge.named(repo, {'a': ('Other', 'Other')}, district='Nowhere')
+            self.assertEqual(len(merge.named(repo, {'a': ('Other', 'Other')})), 1); self.assertEqual((home / 'names.json').read_bytes(), before)
+
+    def test_a_group_s_empty_slot_stays_empty_and_its_model_is_its_first_tile_s(self):
+        source = small().decode().replace('Rows=1\r\nColumns=1\r\nTile0=1', 'Rows=1\r\nColumns=3\r\nTile0=-1\r\nTile1=1\r\nTile2=0')
+        names = {'terrains': [{'set': name, 'name': 'Old', 'key': key, 'display': key} for name, key in (('a', 'New'), ('b', 'Newer'))], 'crossers': [],
+                 'groups': [{'set': name, 'name': 'Hut', 'display': 'Hut'} for name in 'ab']}
+        spec = {'set': 'm', 'display': 'M', 'families': [{'set': 'a', 'label': 'City'}, {'set': 'b', 'label': 'Town'}], 'general': 'a', 'grass': 'a'}
+        text, first, groups = merge.merged_set({'a': small().decode(), 'b': source.replace('Model=m', 'Model=n')}, names, spec)
+        self.assertEqual(first, {'a': 0, 'b': 2}); self.assertEqual([(group['tiles'], group['model']) for group in groups], [([1], 'm1'), ([-1, 3, 2], 'n1')])
+        self.assertIn('Tile0=-1\r\nTile1=3\r\nTile2=2\r\n', text)
+        with self.assertRaisesRegex(ValueError, 'GENERAL has Floor=.Lost., which has no name'):
+            merge.merged_set({'a': small().decode().replace('Floor=Old', 'Floor=Lost'), 'b': source}, names, {**spec, 'families': spec['families'][:1]})
 
 
 class Merged(unittest.TestCase):

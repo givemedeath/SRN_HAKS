@@ -171,17 +171,18 @@ def merged_set(sets, names, spec, joined=()):
             keys = dict(line.split('=', 1) for line in _lines(raw) if '=' in line); was = keys['Name']
             require((name, was) in shown, f'{name}: no display name for group {was}')
             members = [int(keys[f'Tile{index}']) for index in range(int(keys['Rows']) * int(keys['Columns']))]
-            require(all(member in models for member in members), f'{name} group {was} names a tile the set lacks')
-            if models[members[0]].lower() in begun:  # the Toolset finds a group by its first tile's model, so a second one with that model lays the first
+            real = [member for member in members if member >= 0]  # -1 is a slot with no tile
+            require(real and all(member in models for member in real), f'{name} group {was} names a tile the set lacks')
+            if models[real[0]].lower() in begun:  # the Toolset finds a group by its first tile's model, so a second one with that model lays the first
                 continue  # (seen 2026-11-21: an envkit building's suburb copy laid its city copy); its tiles stay, its group is left out
-            begun.add(models[members[0]].lower())
+            begun.add(models[real[0]].lower())
             called = was if was.lower() not in taken else f'{was}_{label}'  # an envkit building stands in two families under one name
             require(called.lower() not in taken, f'Two groups are named {called}'); taken.add(called.lower())
             raw = re.sub(r'^\[GROUP\d+', f'[GROUP{len(groups)}', raw, count=1)
             raw = re.sub(r'(?m)^Name=[^\r\n]*', lambda _: f'Name={called}', raw, count=1)
-            raw = MEMBER.sub(lambda found: f'{found.group(1)}={first[name] + int(found.group(2))}', raw)
-            groups.append({'set': name, 'name': called, 'was': was, 'display': shown[(name, was)], 'tiles': [first[name] + member for member in members],
-                           'model': models[members[0]], 'raw': _crlf(raw).rstrip(END) + END})
+            raw = MEMBER.sub(lambda found: f'{found.group(1)}={first[name] + int(found.group(2)) if int(found.group(2)) >= 0 else -1}', raw)
+            groups.append({'set': name, 'name': called, 'was': was, 'display': shown[(name, was)], 'tiles': [first[name] + member if member >= 0 else -1 for member in members],
+                           'model': models[real[0]], 'raw': _crlf(raw).rstrip(END) + END})
     # rules
     own = []
     for name in order:
@@ -204,6 +205,7 @@ def merged_set(sets, names, spec, joined=()):
     general = dict(next(keys for section, keys in read[spec['general']] if section == 'GENERAL'))
     general.update({'Name': spec['set'].upper(), 'UnlocalizedName': spec['display'], 'DisplayName': '-1'})
     for key in ('Border', 'Default', 'Floor'):
+        require(general.get(key, '').lower() in terrains.get(spec['general'], {}), f'{spec["general"]}: GENERAL has {key}={general.get(key)!r}, which has no name')
         general[key] = terrains[spec['general']][general[key].lower()]
     grass = next((keys for section, keys in read[spec['grass']] if section == 'GRASS'), None)
 
@@ -332,7 +334,18 @@ def refresh(repo, added, *, district=None, gff=None):
     of a building the first family has is named and not laid out (`merged_set`); without a district it is filed under
     Unsorted, for a person to sort.
     Returns {merged set: what `merge` returned}."""
-    repo = Path(repo); told = {}
+    told = {}
+    for spec_path, spec, names_path, names in named(repo, added, district=district):
+        names_path.write_text(json.dumps(names, indent=1, ensure_ascii=False), encoding='utf-8', newline='\n')
+        told[spec['set']] = merge(repo, spec_path, spec_path.with_name('merged.json'), gff=gff)
+    return told
+
+
+def named(repo, added, *, district=None):
+    """[(spec path, spec, names path, the names with each new group's entry)] of every merged set a source set of
+    `added` belongs to (`refresh`), nothing written: what a caller checks before it changes a source set, since a
+    district that is no category of a names file is refused here."""
+    repo = Path(repo); found = []
     for spec_path in sorted((repo / 'docs' / 'tilesets').glob('*/merge.json')):
         spec = json.loads(spec_path.read_text(encoding='utf-8')); labels = {family['set']: family['label'] for family in spec['families']}
         if not set(added) & set(labels):
@@ -343,6 +356,5 @@ def refresh(repo, added, *, district=None, gff=None):
                 category = district or UNSORTED
                 require(category in names['categories'], f'{category} is no category of {names_path.name}')
                 names['groups'].append({'set': name, 'name': group, 'was': label, 'category': category, 'display': f'{category}: {label}' + ('' if name == spec['families'][0]['set'] else f' ({labels[name].lower()})'), 'envkit': True})
-        names_path.write_text(json.dumps(names, indent=1, ensure_ascii=False), encoding='utf-8', newline='\n')
-        told[spec['set']] = merge(repo, spec_path, spec_path.with_name('merged.json'), gff=gff)
-    return told
+        found.append((spec_path, spec, names_path, names))
+    return found
