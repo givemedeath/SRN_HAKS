@@ -5799,6 +5799,7 @@
     ],
     "tools/tilekit/daylight.py": [
       "tools/tilekit/apply.py",
+      "tools/tilekit/compiled.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py"
     ],
@@ -5980,7 +5981,8 @@
     ],
     "tools/tilekit/test_daylight.py": [
       "tools/tilekit/__init__.py",
-      "tools/tilekit/daylight.py"
+      "tools/tilekit/daylight.py",
+      "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/test_detail.py": [
       "hakbuilder.json",

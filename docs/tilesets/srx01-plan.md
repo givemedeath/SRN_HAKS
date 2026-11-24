@@ -377,6 +377,24 @@ paired with `udp1-window3` (in `srn_door` and `srn_placeable`). `tilekit dayligh
 models that have them anew from the list and writes only those it changes: those eleven, the other 102 came out the
 same. Applied and compiled; House 4 seen in game by day and by night from the review overlay.
 
+**The standard (user, 2026-11-24): the hour drives the lights.** Windows, signs and lamp lenses glow by the tile's
+day and night animations; AnimLoop1 is the builder's switch for a building that stands dark, and is on unless turned
+off. The suburb set shipped it off for every lit building. `tilekit daylight --tileset udp1 --spec
+docs/tilesets/udp1/daylight.json --lights-on` turns it on in `udp1.set` for the 104 tiles whose lit panes it
+switches, and `tilekit merge` carries that into `srx01.set`; a test holds the set to it. The review areas always had
+every loop on, so nothing they showed has changed: what changes is a newly painted tile in the Toolset. Areas already
+built keep the flags they were saved with.
+
+Still glowing at every hour, surveyed and not changed (no day or night animation in either set):
+- **dgt04** (with `srn_t_common`): about 195 glowing meshes in 178 models the set draws. The night windows are
+  separate glow layers (`win001_unbrknn` and its kin, `hrise_05_wall_g`, `hrise_06_wall2_g`, `window_tex20b_g`,
+  `hosp_win01_g`, `window_01_lit`); some 170 of the glowing models switch by AnimLoop1 as the suburb does, the rest
+  have no animation at all. 122 compiled models were not read.
+- **fcx01**: about 203 glowing meshes in 116 models (`window1`, `glass`, `c_metall`, `lights3`, `bb1bottom`,
+  `black_window`), nearly all with no animation.
+- **udp1**: 96 meshes in 40 models are not in the lit list: the shop signs and logos (`udp1-allsigns`,
+  `udp1-logos-z`, `udp1-logos3`, `udp1-gogas-z`) and a red lamp (`udp1-msc-red`).
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.

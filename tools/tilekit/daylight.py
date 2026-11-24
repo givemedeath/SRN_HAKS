@@ -108,6 +108,49 @@ def without(text):
     return NODE.sub(lambda at: '' if at.group(1).lower() == 'trimesh' and PANE.match(at.group(2)) else at.group(0), geometry) + text[len(geometry):]
 
 
+def switched(text, textures, loop='animloop01'):
+    """Whether a model's lit meshes are switched by a tile loop: one of their parents is moved in `loop`. The suburb
+    tiles keep their lit panes parked under the tile and their unlit ones in place, and `animloop01` changes them
+    over, so a tile whose AnimLoop1 is off is dark at every hour (found 2026-11-24)."""
+    at = re.search(rf'(?mis)^[ \t]*newanim[ \t]+{loop}[ \t].*?^[ \t]*doneanim[ \t]+{loop}[ \t]', text)
+    if not at:
+        return False
+    moved = {name.split()[0].lower() for kind, name, body in NODE.findall(at.group(0)) if re.search(r'(?mi)^[ \t]*positionkey', body)}
+    above = {name.split()[0].lower(): (_field(body, 'parent') or 'NULL').split()[0].lower() for kind, name, body in reversed(NODE.findall(_geometry(text)))}
+    for node, parent, texture in lit_nodes(text, textures):
+        seen, one = set(), parent.split()[0].lower()
+        while one in above and one not in seen:
+            if one in moved:
+                return True
+            seen.add(one); one = above[one]
+    return False
+
+
+def lights_on(repo, tileset, lit, pack=None):
+    """Turn AnimLoop1 on in a tileset's set file for every tile whose model's lit meshes are switched by it, and
+    tell the models turned on. The standard (user, 2026-11-24): the hour drives the lights, through the day and night
+    animations; AnimLoop1 is the builder's switch for a building that stands dark, and is on unless turned off."""
+    from .compiled import SOURCES
+    pack = pack or f'srn_t_{tileset.lower()}'; path = Path(repo) / pack / f'{tileset.lower()}.set'; text = path.read_bytes().decode('cp1252'); told = []
+
+    def model(name):
+        for folder in (Path(repo) / SOURCES / pack, Path(repo) / pack):
+            if (folder / f'{name}.mdl').is_file():
+                return (folder / f'{name}.mdl').read_bytes().decode('cp1252', errors='replace')
+        return ''
+
+    def one(at):
+        name = re.search(r'(?mi)^Model=(\S+)', at.group(0))
+        if not name or not re.search(r'(?m)^AnimLoop1=0[ \t]*\r?$', at.group(0)) or not switched(model(name.group(1).lower()), lit):
+            return at.group(0)
+        told.append(name.group(1).lower())
+        return re.sub(r'(?m)^AnimLoop1=0([ \t]*\r?)$', r'AnimLoop1=1\1', at.group(0))
+    new = re.sub(r'(?ms)^\[TILE\d+\][^\[]*', one, text)
+    if told:
+        path.write_bytes(new.encode('cp1252'))
+    return sorted(told)
+
+
 def write(repo, tileset, folder, lit, shared=(), again=False):
     """Write the models of a tileset that have lit meshes, with their day and night, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {'models': {model: lit meshes}, 'panes': day panes

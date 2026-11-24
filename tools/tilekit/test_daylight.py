@@ -125,6 +125,27 @@ class Daylight(unittest.TestCase):
             self.assertEqual((anew['models'], anew['panes']), ({'t_a01': 2}, 2)); made = (out / 't_a01.mdl').read_text(encoding='cp1252')
             self.assertEqual(len(re.findall(r'(?m)^node trimesh day\d+_\d+$', made)), 2); self.assertEqual(made.count('newanim day t_a01'), 1)
 
+    def test_a_tile_whose_lights_a_loop_switches_has_the_loop_on(self):
+        # the suburb set shipped every lit building dark: AnimLoop1 off, the lit panes parked under the tile (2026-11-24)
+        loop = 'newanim animloop01 t_a01\n  node dummy lights\n    parent t_a01\n    positionkey\n      0 0 0 10\n    endlist\n  endnode\ndoneanim animloop01 t_a01\n'
+        moving = MODEL.replace('donemodel', loop + 'donemodel')
+        self.assertTrue(daylight.switched(moving, LIT)); self.assertFalse(daylight.switched(MODEL, LIT))
+        self.assertFalse(daylight.switched(moving.replace('node dummy lights\n    parent t_a01\n    positionkey', 'node dummy other\n    parent t_a01\n    positionkey'), LIT))
+        import tempfile
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary); own = repo / 'srn_t_t'; own.mkdir()
+            (own / 't.set').write_text('[TILES]\nCount=2\n[TILE0]\nModel=t_a01\nAnimLoop1=0\nAnimLoop2=0\n\n[TILE1]\nModel=t_b01\nAnimLoop1=0\n', encoding='cp1252')
+            (own / 't_a01.mdl').write_text(moving, encoding='cp1252'); (own / 't_b01.mdl').write_text(MODEL.replace('t_a01', 't_b01'), encoding='cp1252')
+            self.assertEqual(daylight.lights_on(repo, 't', LIT), ['t_a01'])
+            self.assertEqual((own / 't.set').read_text(encoding='cp1252'), '[TILES]\nCount=2\n[TILE0]\nModel=t_a01\nAnimLoop1=1\nAnimLoop2=0\n\n[TILE1]\nModel=t_b01\nAnimLoop1=0\n')
+            self.assertEqual(daylight.lights_on(repo, 't', LIT), [])
+        lit = json.loads((REPO / 'docs' / 'tilesets' / 'udp1' / 'daylight.json').read_text(encoding='utf-8'))['lit']
+        from tools.tilekit import inventory
+        off = [keys['Model'] for name, keys in inventory.sections((REPO / 'srn_t_udp1' / 'udp1.set').read_text(encoding='cp1252'))
+               if re.fullmatch(r'TILE\d+', name) and keys.get('AnimLoop1') != '1' and (REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').is_file()
+               and daylight.switched((REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').read_text(encoding='cp1252'), lit)]
+        self.assertEqual(off, [])  # the suburb set itself
+
     def test_line_ends_are_kept(self):
         made = daylight.with_daylight(MODEL.replace('\n', '\r\n'), LIT)[0]
         self.assertNotIn('\n', made.replace('\r\n', ''))
