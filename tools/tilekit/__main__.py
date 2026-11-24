@@ -100,6 +100,13 @@ def daylight_command(chosen):
     return 0
 
 
+def unique_command(chosen):
+    from . import unique
+    told = unique.write(chosen.repo, chosen.pack)
+    print(json.dumps({'models': len(told), 'renamed': sum(told.values())}))
+    return 0
+
+
 def shadows_command(chosen):
     from . import shadows
     told = shadows.quiet(chosen.repo, chosen.tileset, chosen.out, shared=chosen.shared)
@@ -256,6 +263,8 @@ def main(arguments=None):
     lit.add_argument('--tileset', required=True); lit.add_argument('--spec', required=True, type=Path, help='the list of lit textures (docs/tilesets/<set>/daylight.json)')
     lit.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); lit.add_argument('--repo', type=Path, default=REPO)
     lit.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set); repeat for more')
+    named = commands.add_parser('unique', help='give the nodes of an adopted tile pack\'s ASCII sources names of one word that no other node has, in place (then: compile)')
+    named.add_argument('--pack', required=True); named.add_argument('--repo', type=Path, default=REPO)
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
     nine.add_argument('--spec', type=Path, help='the tileset\'s material spec: the textures moved (without it, only the overlay\'s changed models)')
     nine.add_argument('--overlay', required=True, type=Path, help='the review overlay the look was passed on'); nine.add_argument('--repo', type=Path, default=REPO)
@@ -323,6 +332,8 @@ def main(arguments=None):
             return compile_command(chosen)
         if chosen.command == 'daylight':
             return daylight_command(chosen)
+        if chosen.command == 'unique':
+            return unique_command(chosen)
         if chosen.command == 'shadows':
             return shadows_command(chosen)
         if chosen.command == 'lamps':
