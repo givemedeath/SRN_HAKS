@@ -616,6 +616,9 @@ The four textures it shares with dgt04 keep dgt04's look.
   their own copies of three textures other tilesets keep (`fcx_ground03`, `fcx_window1`, `fcx_pub`; 115 tiles), and
   the monument's and the sign's meshes take white colours: the models tinted them red and yellow whatever was drawn.
   The walkmesh is never touched.
+- **The dark plaza's towers stay dark graphite (user, 2026-11-24):** the redrawn dark wall turned them from pale
+  steel with rust streaks to dark graphite, seen on the second block (`docs/tilesets/fcx01/pilot2.json`).
+- **Materials:** 46 textures in `docs/tilesets/fcx01/materials.json`; the window pane is frameless cyan-blue glass.
 - **Redraws** (`docs/tilesets/fcx01/redraw.json`, local Qwen): 16 textures so far, among them the control console,
   the monument, the lit window block, the tower's lit windows, the skylight, the dark wall and the blue window pane.
   The sign strip (`kuhmu`) still shows as broken blocks in game and the advertising panel's caption is garbled: both
