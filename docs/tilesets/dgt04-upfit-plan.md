@@ -411,5 +411,14 @@ highrise facades from the two northern crossings (camera 30 m back, pitch 120): 
 lit by night, none bare. In the Toolset (a user folder of its own, `envkit toolset`): Tenement, Brick and Glass
 Tower, Stone Base painted as terrain; the facades show whole and without flicker, the parked panes hang under the
 tile where only a camera below the ground sees them (as the set always had them), and the saved area gives every
-painted switched tile `Tile_AnimLoop1` 1. Not fixed: the six lit panes no loop raises (`dgt04_e09_21`, and the
-pawn, pharmacy and two shop windows of `e09_06`, `e09_19`, `e09_25`, `e09_26`), which never light.
+painted switched tile `Tile_AnimLoop1` 1.
+
+**The shops' second and third switches (user, 2026-11-24).** Six lit panes looked as if no loop raised them. Each
+is raised, by a loop the set left off: the shop windows of `dgt04_e09_19`, `e09_25` (the pharmacy) and `e09_26` by
+`animloop02`; the pawn shop window of `e09_06` by `animloop03`, and the upper windows of `e09_21` by `animloop01`,
+both written as a plain `position` in the loop where the others have a `positionkey` (which the check had not
+read). `daylight.switched` reads both, `tilekit daylight --lights-on` turns on each of AnimLoop1 to 3 that switches
+a listed lit pane (five tiles here), and the merged set was rebuilt. No model changed. Seen in the client from the
+built packs, each tile stood alone and looked at from the west: the pawn window, both shop windows and the pharmacy
+sign lit at night and unlit by day, an upper window of `e09_21` lit. A test holds every loop of both sets to it, and
+tells a lit pane left parked where a loop raises the others of its tile.

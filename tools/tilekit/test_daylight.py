@@ -144,8 +144,9 @@ class Daylight(unittest.TestCase):
         lit = json.loads((REPO / 'docs' / 'tilesets' / 'udp1' / 'daylight.json').read_text(encoding='utf-8'))['lit']
         from tools.tilekit import inventory
         off = [keys['Model'] for name, keys in inventory.sections((REPO / 'srn_t_udp1' / 'udp1.set').read_text(encoding='cp1252'))
-               if re.fullmatch(r'TILE\d+', name) and keys.get('AnimLoop1') != '1' and (REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').is_file()
-               and daylight.switched((REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').read_text(encoding='cp1252'), lit)]
+               for loop in daylight.LOOPS
+               if re.fullmatch(r'TILE\d+', name) and keys.get(f'AnimLoop{loop}') != '1' and (REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').is_file()
+               and daylight.switched((REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').read_text(encoding='cp1252'), lit, f'animloop0{loop}')]
         self.assertEqual(off, [])  # the suburb set itself
 
     def test_line_ends_are_kept(self):
@@ -183,8 +184,11 @@ class Daylight(unittest.TestCase):
         for tileset in ('dgt04', 'srx01'):  # and the lights are on unless turned off, as the suburb's
             models = {name: text for name, text in read}
             off = [keys['Model'] for section, keys in sets.sections((REPO / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252'))
-                   if re.fullmatch(r'TILE\d+', section) and keys.get('AnimLoop1') != '1' and daylight.switched(models.get(keys['Model'].lower(), ''), lit)]
+                   for loop in daylight.LOOPS  # the shops switch their shop window by the second loop
+                   if re.fullmatch(r'TILE\d+', section) and keys.get(f'AnimLoop{loop}') != '1' and daylight.switched(models.get(keys['Model'].lower(), ''), lit, f'animloop0{loop}')]
             self.assertEqual(off, [], tileset)
+        # and no lit pane is left parked where the others of its tile are raised (the pawn shop window, 2026-11-24)
+        self.assertEqual([(name, daylight.never(text, lit)) for name, text in read if daylight.never(text, lit)], [])
 
     def test_an_animation_names_a_node_once(self):
         # a lit window hung from a lit lens: the lens was named twice and the night never came (police and fire stations, 2026-11-24)

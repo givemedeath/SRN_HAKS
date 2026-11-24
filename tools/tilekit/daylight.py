@@ -15,6 +15,7 @@ from . import inventory, lamps, require
 ANIMS = {'day': (0, 0, 1 / 30), 'day2night': (0, 1, 0.56667), 'night': (1, 1, 1 / 30), 'night2day': (1, 0, 0.6)}  # the stock city tiles' lengths
 NODE = re.compile(r'(?ms)^[ \t]*node[ \t]+(\w+)[ \t]+([^\r\n]+?)[ \t]*\r?\n(.*?)^[ \t]*endnode[ \t]*\r?\n')
 GLOW = 0.05  # a self-illumination under this is no light
+LOOPS = (1, 2, 3)  # a tile's loops: AnimLoop1 to 3 in a set file, animloop01 to 03 in a model
 PANE = re.compile(r'(?i)^day\d{2,}_\d+$')  # a day pane's name, as `with_daylight` gives it
 
 
@@ -138,31 +139,47 @@ def switched(text, textures, loop='animloop01'):
     `loop`. The suburb tiles keep their lit panes parked under the tile and their unlit ones in place, and `animloop01`
     changes them over, so a tile whose AnimLoop1 is off is dark at every hour (found 2026-11-24). The Modern Exterior
     tiles move the lit mesh itself (found the same day, in the review of PR 194)."""
+    return bool(_switched(text, textures, loop))
+
+
+def never(text, textures):
+    """The lit meshes of a model that no tile loop moves, where a loop moves any of them: parked and never raised,
+    such a pane never lights (the pawn shop window of dgt04_e09_06, 2026-11-24). A model no loop switches is not told:
+    its lit panes are in place."""
+    moved = {node for loop in LOOPS for node in _switched(text, textures, f'animloop0{loop}')}
+    return [node for node, parent, texture in lit_nodes(text, textures) if moved and node not in moved]
+
+
+def _switched(text, textures, loop):
     at = re.search(rf'(?mis)^[ \t]*newanim[ \t]+{loop}[ \t].*?^[ \t]*doneanim[ \t]+{loop}[ \t]', text)
     if not at:
-        return False
+        return []
     nodes = list(reversed(NODE.findall(_geometry(text))))  # the first node of a name is the one the game reads
     rest = {name.split()[0].lower(): _numbers(_field(body, 'position') or '0 0 0')[:3] for kind, name, body in nodes}
 
     def away(name, body):  # a key that puts the node somewhere else than it rests: a loop written out of a modeller keys every node where it is
         rows = re.search(r'(?mi)^[ \t]*positionkey[^\r\n]*\r?\n((?:[ \t]*[-+0-9.eE \t]+\r?\n)+)', body)
-        home = rest.get(name, [0.0, 0.0, 0.0])
-        return bool(rows) and any(len(row) >= 4 and max(abs(a - b) for a, b in zip(row[1:4], home)) > 0.01 for row in map(_numbers, rows.group(1).splitlines()))
+        home = rest.get(name, [0.0, 0.0, 0.0]); plain = _field(body, 'position')  # a plain place in an animation is its one key (dgt04_e09_21)
+        keys = [row[1:4] for row in map(_numbers, rows.group(1).splitlines()) if len(row) >= 4] if rows else [_numbers(plain)[:3]] if plain else []
+        return any(len(key) == 3 and max(abs(a - b) for a, b in zip(key, home)) > 0.01 for key in keys)
     moved = {name.split()[0].lower() for kind, name, body in NODE.findall(at.group(0)) if away(name.split()[0].lower(), body)}
     above = {name.split()[0].lower(): (_field(body, 'parent') or 'NULL').split()[0].lower() for kind, name, body in nodes}
+    told = []
     for node, parent, texture in lit_nodes(text, textures):
         seen, one = set(), node.split()[0].lower()
         while one in above and one not in seen:
             if one in moved:
-                return True
+                told.append(node); break
             seen.add(one); one = above[one]
-    return False
+    return told
 
 
 def lights_on(repo, tileset, lit, pack=None):
-    """Turn AnimLoop1 on in a tileset's set file for every tile whose model's lit meshes are switched by it, and
-    tell the models turned on. The standard (user, 2026-11-24): the hour drives the lights, through the day and night
-    animations; AnimLoop1 is the builder's switch for a building that stands dark, and is on unless turned off."""
+    """Turn each of AnimLoop1 to 3 on in a tileset's set file for every tile whose model's lit meshes are switched by
+    it, and tell the models turned on. The standard (user, 2026-11-24): the hour drives the lights, through the day and
+    night animations; a tile loop is the builder's switch for a building that stands dark, and is on unless turned off.
+    The Modern Exterior shops switch their upper windows by the first loop and the shop window by the second, which the
+    set left off (2026-11-24)."""
     from .compiled import SOURCES
     pack = pack or f'srn_t_{tileset.lower()}'; path = Path(repo) / pack / f'{tileset.lower()}.set'; text = path.read_bytes().decode('cp1252'); told = []
 
@@ -174,15 +191,15 @@ def lights_on(repo, tileset, lit, pack=None):
         return ''
 
     def one(at):
-        name = re.search(r'(?mi)^Model=(\S+)', at.group(0))
-        if not name or not re.search(r'(?m)^AnimLoop1=0[ \t]*\r?$', at.group(0)) or not switched(model(name.group(1).lower()), lit):
-            return at.group(0)
-        told.append(name.group(1).lower())
-        return re.sub(r'(?m)^AnimLoop1=0([ \t]*\r?)$', r'AnimLoop1=1\1', at.group(0))
+        name = re.search(r'(?mi)^Model=(\S+)', at.group(0)); tile = at.group(0)
+        for loop in LOOPS:
+            if name and re.search(rf'(?m)^AnimLoop{loop}=0[ \t]*\r?$', tile) and switched(model(name.group(1).lower()), lit, f'animloop0{loop}'):
+                told.append(name.group(1).lower()); tile = re.sub(rf'(?m)^AnimLoop{loop}=0([ \t]*\r?)$', rf'AnimLoop{loop}=1\1', tile)
+        return tile
     new = re.sub(r'(?ms)^\[TILE\d+\][^\[]*', one, text)
     if told:
         path.write_bytes(new.encode('cp1252'))
-    return sorted(told)
+    return sorted(set(told))
 
 
 def write(repo, tileset, folder, lit, shared=(), again=False):
