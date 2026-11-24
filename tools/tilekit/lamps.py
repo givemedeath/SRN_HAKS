@@ -43,7 +43,8 @@ LAMP = re.compile(r'(?i)^(.*)((?:ml|sl)[12])$')
 
 def named(text, model):
     """(the model's text with every lamp named after another model renamed to its own, the new names). A lamp whose own
-    name is taken already is left under the old one, where the game never finds it, as before."""
+    name is taken already is left under the old one, where the game never finds it, as before. So is a source light of
+    a tile with a main light: `moved` leaves that one a source light, and under the tile's name it would burn as fire."""
     spelled = {}
     for name in re.findall(r'(?im)^\s*node[ \t]+light[ \t]+(\S+)', text):
         spelled.setdefault(name.lower(), name)
@@ -52,8 +53,10 @@ def named(text, model):
         lamp = LAMP.match(name)
         if not lamp or lamp.group(1).lower() == model.lower() or (model + lamp.group(2)).lower() in taken:
             continue
+        if SOURCE.search(name) and any(MAIN.search(one) for one in taken):
+            continue
         new = model + lamp.group(2).lower(); taken.add(new.lower())
-        text =re.sub(r'(?i)(?<!\S)' + re.escape(name) + r'(?!\S)', new, text); made.append(new)
+        text = re.sub(r'(?i)(?<!\S)' + re.escape(name) + r'(?!\S)', new, text); made.append(new)
     return text, made
 
 

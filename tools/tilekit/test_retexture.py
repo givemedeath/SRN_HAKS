@@ -97,6 +97,10 @@ class Retexture(unittest.TestCase):
             self.assertEqual(told, {'t_a01': {'copies': {'d_ground03': 'fcx_ground03'}, 'white': ['lamp', 'post']}})
             self.assertIn(b'bitmap fcx_ground03\r', (repo / 'out' / 't_a01.mdl').read_bytes())
             self.assertEqual(retexture.write(repo, 't', spec, repo / 'out', shared=['u']), {})  # the copy in the folder is the one read
+            with self.assertRaisesRegex(ValueError, "u's, not t's"):  # another tileset's list
+                retexture.write(repo, 't', {**spec, 'tileset': 'u'}, repo / 'other', shared=['u'])
+            both = {'tileset': 'T', 'copies': {'sign': 'fcx_sign'}, 'white': ['sign']}  # copied and whitened: found under its copy's name
+            self.assertEqual(retexture.write(repo, 't', both, repo / 'both', shared=['u']), {'t_a01': {'copies': {'sign': 'fcx_sign'}, 'white': ['lamp', 'post']}})
 
     def test_the_futuristic_city_s_list_fits_its_materials_and_tiles(self):
         spec = json.loads((REPO / 'docs' / 'tilesets' / 'fcx01' / 'retexture.json').read_text(encoding='utf-8'))
@@ -112,8 +116,11 @@ class Retexture(unittest.TestCase):
                 if not data.startswith(b'\0'):
                     drawn |= {one.lower() for one in re.findall(r'(?im)^[ \t]*(?:bitmap|texture0)[ \t]+(\S+)', data.decode('cp1252'))}
         # before the list is applied the tiles draw the shared textures, afterwards their copies
+        self.assertEqual(spec['tileset'], 'fcx01')
         for old, new in copies.items():
             self.assertTrue(old.lower() in drawn or new.lower() in drawn, old)
+            if new.lower() in drawn:  # applied: no tile of the set is left on the shared texture, among the others on the copy
+                self.assertNotIn(old.lower(), drawn, f'a Futuristic City tile still draws {old}')
         self.assertEqual(sorted(one for one in white if one.lower() not in drawn), [])
 
 

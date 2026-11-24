@@ -82,6 +82,9 @@ def write(repo, tileset, spec, folder, *, shared=()):
     tile). A model whose walkmesh would differ afterwards is a refusal: nothing here touches one."""
     from .apply import noted
     copies, white = checked(spec); folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
+    require(str(spec.get('tileset', tileset)).lower() == tileset.lower(), f'The list is {spec.get("tileset")}\'s, not {tileset}\'s: its copies are that set\'s own')
+    low = {old.lower(): new for old, new in copies.items()}
+    white = list(white) + [low[one.lower()] for one in white if one.lower() in low]  # a copied texture is drawn under its copy's name by then
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, PACKS):
         new, used = renamed(text, copies); new, meshes = whitened(new, white)
         if new == text:

@@ -55,6 +55,10 @@ class Lamps(unittest.TestCase):
         twice = MODEL.format(first='ml1').replace('t_a01ml1', 'x_z01ml1').replace('t_a01sl2', 'y_z02ml1')  # two lamps of other tiles want one name
         text, made = lamps.named(twice, 't_a01')
         self.assertEqual(made, ['t_a01ml1']); self.assertIn('node light y_z02ml1', text); self.assertNotIn('x_z01', text)
+        fire = MODEL.format(first='ml1').replace('t_a01sl2', 'x_z01sl2')  # a source light of a tile with a main light would burn as fire: left
+        self.assertEqual(lamps.named(fire, 't_a01'), (fire, []))
+        alone = MODEL.format(first='sl1').replace('t_a01sl1', 'x_z01sl1')  # with no main light it is renamed, and `moved` makes it one
+        self.assertEqual(lamps.named(alone, 't_a01')[1], ['t_a01sl1'])
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary); (repo / 'srn_t_t').mkdir(); (repo / 'srn_t_t' / 't.set').write_text(SET, encoding='cp1252')
             (repo / 'srn_t_t' / 't_a01.mdl').write_text(other, encoding='cp1252')
