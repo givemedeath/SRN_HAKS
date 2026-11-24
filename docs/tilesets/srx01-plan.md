@@ -294,6 +294,21 @@ buildings' terrains over a district's ground (a patch's `over`, new). **Look app
   `srn_t_common` 841 MB.
 - **Names review:** closed at stage 1 (approved by the user); terrain and crosser names are frozen from here.
 
+## Release B pilot (2026-11-23, awaiting the user's gate)
+
+Shown through a review overlay; nothing is in the packs. Spec `docs/tilesets/udp1/materials.json` (19 textures, the
+top of the coverage list), block `docs/tilesets/udp1/pilot.json` (a suburb street, two houses, a mall, a strip mall
+and the tennis court beside the Stuffer Shack on Concrete). `tilekit material` takes a spec's own `packs`, since
+udp1's textures are in `srn_t_udp1`, `srn_t_common`, `srn_door` and `srn_placeable`.
+
+- Road and pavement from dgt04's masters and its `road` and `walkway` grades: the suburb road now has the tone of
+  the city's asphalt beside it.
+- Red brick from the Bricks097 master; block walls, siding, shingles, fence and windows upscaled, under a new
+  `suburb` grade (a little warm, less dark than `barrens`); grass under a new `lawn` grade.
+- A stain over a wall texture that covers a whole wall once shows as one hard band: the block walls take none.
+- **Seen, not yet addressed:** house windows are lit by day (the lit window texture is the only one the houses
+  have); the grass is dark by day, though lighter than dgt04's own; siding changes little at play distance.
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.

@@ -186,7 +186,6 @@
    "relief": 1.0,
    "roughness": 0.6,
    "grade": "suburb",
-   "stain": 0.4,
    "stem": "udp1_blck_bg2"
   },
   "udp1-h6-sdg": {
@@ -293,6 +292,28 @@
    "keep": 8,
    "grain": 2.5,
    "stem": "udp1_mtl_gry"
+  },
+  "udp1-blck-bg": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stem": "udp1_blck_bg"
+  },
+  "udp1-blck-gr": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stem": "udp1_blck_gr"
   }
  }
 }
