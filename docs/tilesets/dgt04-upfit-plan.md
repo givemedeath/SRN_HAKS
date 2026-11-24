@@ -380,3 +380,17 @@ surface in a further 17–24.
 ## Open items
 
 - Other sessions append envkit groups to `dgt04.set`; stratum 4 lands as one short-lived change to that file.
+
+## Windows lit by the hour (user, 2026-11-24)
+
+The standard for the unified set: the hour drives the lights, through a tile's day and night animations
+(`docs/tilesets/srx01-plan.md`). The Modern Exterior tiles had none: their 195 glowing meshes glowed at every hour,
+and none was switched by AnimLoop1. `docs/tilesets/dgt04/daylight.json` lists the 19 lit window textures, each with
+the day texture the packs already hold. `tilekit daylight --tileset dgt04 --shared srx01` gave 169 models (109 in
+`srn_t_common`, 60 in `srn_t_dgt04`) their day and night: 177 lit panes, clear by day and full by night, each with a
+day pane. Passed by the user on a day and a night sheet of the review block, then applied and compiled; walkmeshes,
+the join tiles and the merged set are unchanged. A test holds every tile of the set to it.
+
+Left lit at every hour: the signs (`checks`, `motel2`, `hosp_wings`, `hosp_emergency`), the crossing signal
+(`walk`) and the shop window `window_store003`, which has no day picture. Not looked at closely: the highrise
+facades (`hrise_05_wall_g`, `hrise_06_wall2_g`), which the block's low views barely show.

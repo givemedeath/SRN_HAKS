@@ -1460,6 +1460,45 @@ node trimesh windows_lit_a10_02
      1.000  1.000  0
      1.000  0.000  0
 endnode
+node trimesh day00_0
+  parent rdt02_a01_02a
+  position  2.57000  0.00000  7.70000
+  orientation  1.00000  0.00000  0.00000  0.00000
+  wirecolor  0.03  0.03  0.53
+  ambient  1.00  1.00  1.00
+  diffuse  0.88  0.88  0.88
+  specular  0.00  0.00  0.00
+  bitmap window_01
+  alpha 1.0
+  shininess 11
+  selfillumcolor  0 0 0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  transparencyhint 0
+  rotatetexture 0
+  tilefade 0
+  verts 8
+     1.50000 -1.50000  2.41667
+     1.50000 -3.50000  2.41667
+     1.50000 -1.50000  4.91667
+     1.50000 -3.50000  4.91667
+    -1.50000  3.50000 -4.91667
+    -1.50000  1.50000 -4.91667
+    -1.50000  3.50000 -2.41667
+    -1.50000  1.50000 -2.41667
+  faces 4
+    2 0 3  0  0 1 2   0
+    1 3 0  0  3 2 1   0
+    6 4 7  0  0 1 2   0
+    5 7 4  0  3 2 1   0
+  tverts 4
+     0.000  1.000  0
+    -0.000  0.000  0
+     1.000  1.000  0
+     1.000  0.000  0
+endnode
 node trimesh windows_unlit_a10_02
   parent rdt02_a01_02a
   position  2.49000  0.00000  7.70000
@@ -7278,4 +7317,104 @@ newanim animloop01 rdt02_a01_02
   endnode
 doneanim animloop01 rdt02_a01_02
 
+newanim day rdt02_a01_02
+  length 0.03333
+  transtime 0.25
+  animroot rdt02_a01_02
+  node dummy rdt02_a01_02
+    parent NULL
+  endnode
+  node dummy rdt02_a01_02a
+    parent rdt02_a01_02
+  endnode
+  node trimesh windows_lit_a10_02
+    parent rdt02_a01_02a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent rdt02_a01_02a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day rdt02_a01_02
+newanim day2night rdt02_a01_02
+  length 0.56667
+  transtime 0.25
+  animroot rdt02_a01_02
+  node dummy rdt02_a01_02
+    parent NULL
+  endnode
+  node dummy rdt02_a01_02a
+    parent rdt02_a01_02
+  endnode
+  node trimesh windows_lit_a10_02
+    parent rdt02_a01_02a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent rdt02_a01_02a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night rdt02_a01_02
+newanim night rdt02_a01_02
+  length 0.03333
+  transtime 0.25
+  animroot rdt02_a01_02
+  node dummy rdt02_a01_02
+    parent NULL
+  endnode
+  node dummy rdt02_a01_02a
+    parent rdt02_a01_02
+  endnode
+  node trimesh windows_lit_a10_02
+    parent rdt02_a01_02a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent rdt02_a01_02a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night rdt02_a01_02
+newanim night2day rdt02_a01_02
+  length 0.60000
+  transtime 0.25
+  animroot rdt02_a01_02
+  node dummy rdt02_a01_02
+    parent NULL
+  endnode
+  node dummy rdt02_a01_02a
+    parent rdt02_a01_02
+  endnode
+  node trimesh windows_lit_a10_02
+    parent rdt02_a01_02a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent rdt02_a01_02a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day rdt02_a01_02
 donemodel rdt02_a01_02

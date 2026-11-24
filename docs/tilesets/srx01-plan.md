@@ -388,8 +388,8 @@ built keep the flags they were saved with.
 Still glowing at every hour, surveyed and not changed (no day or night animation in either set):
 - **dgt04** (with `srn_t_common`): about 195 glowing meshes in 178 models the set draws. The night windows are
   separate glow layers (`win001_unbrknn` and its kin, `hrise_05_wall_g`, `hrise_06_wall2_g`, `window_tex20b_g`,
-  `hosp_win01_g`, `window_01_lit`); some 170 of the glowing models switch by AnimLoop1 as the suburb does, the rest
-  have no animation at all. 122 compiled models were not read.
+  `hosp_win01_g`, `window_01_lit`); none is switched by AnimLoop1. Done since: see "Windows lit by the hour" in
+  `dgt04-upfit-plan.md`.
 - **fcx01**: about 203 glowing meshes in 116 models (`window1`, `glass`, `c_metall`, `lights3`, `bb1bottom`,
   `black_window`), nearly all with no animation.
 - **udp1**: 96 meshes in 40 models are not in the lit list: the shop signs and logos (`udp1-allsigns`,

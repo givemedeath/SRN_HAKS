@@ -661,6 +661,111 @@ node trimesh windows_lit
      0.000  2.000  0
      1.000  0.000  0
 endnode
+node trimesh day00_0
+  parent dgt04_h20_01a
+  position -4.97000  0.00000  32.27501
+  orientation  1.00000  0.00000  0.00000  0.00000
+  wirecolor  0.03  0.03  0.53
+  ambient  1.00  1.00  1.00
+  diffuse  0.80  0.80  0.80
+  specular  0.00  0.00  0.00
+  bitmap hrise_06_wall2
+  alpha 1.0
+  shininess 10
+  selfillumcolor  0 0 0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  transparencyhint 0
+  rotatetexture 0
+  tilefade 0
+  verts 25
+     0.00003  5.00000 -26.92500
+    -0.00003 -5.00000  26.92500
+    -0.00003  5.00000  26.92500
+     0.00003 -5.00000 -26.92500
+     0.00001  2.50000 -13.46250
+    -0.00000  2.50000 -0.00000
+    -0.00001  2.50000  13.46250
+     0.00003  0.00000 -26.92500
+    -0.00003 -0.00000  26.92500
+     0.00001 -2.50000 -13.46250
+     0.00000 -2.50000 -0.00000
+    -0.00001 -2.50000  13.46250
+    -0.00001  5.00000  13.46250
+    -0.00000  5.00000  0.00000
+     0.00001  5.00000 -13.46250
+    -0.00001 -5.00000  13.46250
+     0.00000 -5.00000  0.00000
+     0.00003 -2.50000 -26.92500
+    -0.00003 -2.50000  26.92500
+     0.00001 -5.00000 -13.46250
+     0.00001  0.00000 -13.46250
+     0.00000  0.00000 -0.00000
+    -0.00001 -0.00000  13.46250
+    -0.00003  2.50000  26.92500
+     0.00003  2.50000 -26.92500
+  faces 32
+    10 22 21  0   0  1  2   0
+    10 15 11  0   0  3  4   0
+     5 22  6  0   5  1  6   0
+     6  2 12  0   6  7  8   0
+     6  8 23  0   6  9 10   0
+    17 20  7  0  11 12 13   0
+     4 21  5  0  14  2  5   0
+    11  8 22  0   4  9  1   0
+    11  1 18  0   4 15 16   0
+     9 16 10  0  17 18  0   0
+    24 14  0  0  19 20 21   0
+     9 21 20  0  17  2 12   0
+    17 19  9  0  11 22 17   0
+     4 13 14  0  14 23 20   0
+     5 12 13  0   5  8 23   0
+    24 20  4  0  19 12 14   0
+    10 11 22  0   0  4  1   0
+    10 16 15  0   0 18  3   0
+     5 21 22  0   5  2  1   0
+     6 23  2  0   6 10  7   0
+     6 22  8  0   6  1  9   0
+    17  9 20  0  11 17 12   0
+     4 20 21  0  14 12  2   0
+    11 18  8  0   4 16  9   0
+    11 15  1  0   4  3 15   0
+     9 19 16  0  17 22 18   0
+    24  4 14  0  19 14 20   0
+     9 10 21  0  17  0  2   0
+    17  3 19  0  11 24 22   0
+     4  5 13  0  14  5 23   0
+     5  6 12  0   5  6  8   0
+    24  7 20  0  19 13 12   0
+  tverts 25
+     0.750  2.000  0
+     0.500  3.000  0
+     0.500  2.000  0
+     1.000  3.000  0
+     0.750  3.000  0
+     0.250  2.000  0
+     0.250  3.000  0
+     0.000  4.000  0
+     0.000  3.000  0
+     0.500  4.000  0
+     0.250  4.000  0
+     0.750  0.000  0
+     0.500  1.000  0
+     0.500 -0.000  0
+     0.250  1.000  0
+     1.000  4.000  0
+     0.750  4.000  0
+     0.750  1.000  0
+     1.000  2.000  0
+     0.250  0.000  0
+     0.000  1.000  0
+    -0.000  0.000  0
+     1.000  1.000  0
+     0.000  2.000  0
+     1.000  0.000  0
+endnode
 node light dgt04_h20_01ml1
   parent dgt04_h20_01
   position -2.50000  0.00000  4.45341
@@ -1699,4 +1804,104 @@ newanim animloop01 dgt04_h20_01
   endnode
 doneanim animloop01 dgt04_h20_01
 
+newanim day dgt04_h20_01
+  length 0.03333
+  transtime 0.25
+  animroot dgt04_h20_01
+  node dummy dgt04_h20_01
+    parent NULL
+  endnode
+  node dummy dgt04_h20_01a
+    parent dgt04_h20_01
+  endnode
+  node trimesh windows_lit
+    parent dgt04_h20_01a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt04_h20_01a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day dgt04_h20_01
+newanim day2night dgt04_h20_01
+  length 0.56667
+  transtime 0.25
+  animroot dgt04_h20_01
+  node dummy dgt04_h20_01
+    parent NULL
+  endnode
+  node dummy dgt04_h20_01a
+    parent dgt04_h20_01
+  endnode
+  node trimesh windows_lit
+    parent dgt04_h20_01a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt04_h20_01a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night dgt04_h20_01
+newanim night dgt04_h20_01
+  length 0.03333
+  transtime 0.25
+  animroot dgt04_h20_01
+  node dummy dgt04_h20_01
+    parent NULL
+  endnode
+  node dummy dgt04_h20_01a
+    parent dgt04_h20_01
+  endnode
+  node trimesh windows_lit
+    parent dgt04_h20_01a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt04_h20_01a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night dgt04_h20_01
+newanim night2day dgt04_h20_01
+  length 0.60000
+  transtime 0.25
+  animroot dgt04_h20_01
+  node dummy dgt04_h20_01
+    parent NULL
+  endnode
+  node dummy dgt04_h20_01a
+    parent dgt04_h20_01
+  endnode
+  node trimesh windows_lit
+    parent dgt04_h20_01a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt04_h20_01a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day dgt04_h20_01
 donemodel dgt04_h20_01

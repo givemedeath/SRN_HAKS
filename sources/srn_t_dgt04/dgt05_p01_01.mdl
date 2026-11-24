@@ -84,6 +84,39 @@ node trimesh window_lit
      0.999  0.999  0
      0.999  0.000  0
 endnode
+node trimesh day00_0
+  parent dgt05_p01_01a
+  position -2.96000  0.00001  7.76747
+  orientation  1.00000  0.00000  0.00000  0.00000
+  wirecolor  0.03  0.03  0.53
+  ambient  1.00  1.00  1.00
+  diffuse  0.80  0.80  0.80
+  specular  0.00  0.00  0.00
+  bitmap window_tall
+  alpha 1.0
+  shininess 11
+  selfillumcolor  0 0 0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  transparencyhint 0
+  rotatetexture 0
+  tilefade 0
+  verts 4
+     0.00000 -1.50000 -1.25000
+     0.00000 -3.50000 -1.25000
+     0.00000 -1.50000  1.25000
+     0.00000 -3.50000  1.25000
+  faces 2
+    2 0 3  0  0 1 2   0
+    1 3 0  0  3 2 1   0
+  tverts 4
+     0.000  0.999  0
+     0.000  0.000  0
+     0.999  0.999  0
+     0.999  0.000  0
+endnode
 node light dgt05_p01_01ml1
   parent dgt05_p01_01
   position -3.61132  0.00001  3.53862
@@ -10175,4 +10208,104 @@ newanim animloop01 dgt05_p01_01
   endnode
 doneanim animloop01 dgt05_p01_01
 
+newanim day dgt05_p01_01
+  length 0.03333
+  transtime 0.25
+  animroot dgt05_p01_01
+  node dummy dgt05_p01_01
+    parent NULL
+  endnode
+  node dummy dgt05_p01_01a
+    parent dgt05_p01_01
+  endnode
+  node trimesh window_lit
+    parent dgt05_p01_01a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt05_p01_01a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day dgt05_p01_01
+newanim day2night dgt05_p01_01
+  length 0.56667
+  transtime 0.25
+  animroot dgt05_p01_01
+  node dummy dgt05_p01_01
+    parent NULL
+  endnode
+  node dummy dgt05_p01_01a
+    parent dgt05_p01_01
+  endnode
+  node trimesh window_lit
+    parent dgt05_p01_01a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt05_p01_01a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night dgt05_p01_01
+newanim night dgt05_p01_01
+  length 0.03333
+  transtime 0.25
+  animroot dgt05_p01_01
+  node dummy dgt05_p01_01
+    parent NULL
+  endnode
+  node dummy dgt05_p01_01a
+    parent dgt05_p01_01
+  endnode
+  node trimesh window_lit
+    parent dgt05_p01_01a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt05_p01_01a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night dgt05_p01_01
+newanim night2day dgt05_p01_01
+  length 0.60000
+  transtime 0.25
+  animroot dgt05_p01_01
+  node dummy dgt05_p01_01
+    parent NULL
+  endnode
+  node dummy dgt05_p01_01a
+    parent dgt05_p01_01
+  endnode
+  node trimesh window_lit
+    parent dgt05_p01_01a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt05_p01_01a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day dgt05_p01_01
 donemodel dgt05_p01_01
