@@ -6072,7 +6072,8 @@
       "srn_tlk/srn.tlk.json",
       "tools/tilekit/__init__.py",
       "tools/tilekit/doorset.py",
-      "tools/tilekit/inventory.py"
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/merge.py"
     ],
     "tools/tilekit/test_openings.py": [
       "tools/tilekit/__init__.py",

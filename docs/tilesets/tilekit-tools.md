@@ -33,6 +33,8 @@ lists its arguments. They read a tile's ASCII source where the pack ships a comp
   `FogClipDist` 9999. They wait for another client to close.
 - At most 24 views are taken, evenly through those asked for; `--views` names them, `--most` or `--all` takes more. The
   labels left out are told.
+- Interiors: a `review` block's `eye` takes views from inside a room at eye level (1.7 m, level or tilted up), so
+  ceilings are seen. A view from above shows the top of a ceiling.
 - `perf` sets every limiter to one cap (200 at most) with vsync off, and refuses to start while a client is running.
   Read the rates off `counters.png`; a rate at the cap means at least that. Load times are in `perf.json`.
 - `--no-run` (`family-review`) builds the module only.

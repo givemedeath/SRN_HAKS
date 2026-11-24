@@ -119,7 +119,45 @@ draft names is in the table.
   which bears on decision 1.
 - **The newer udp2 hak** (`udp2_off_int.hak`) is not on this machine (looked in `F:\Dev`, the archives, Downloads
   and the game's hak folder). The comparison waits for the file.
-- **Not done in this stage:** review modules and client pictures of the four sets and of the shells assembled.
+- **Client pictures (2026-11-24):** review specs `docs/tilesets/<set>/review.json` (every floor terrain as a room on
+  Wall, the passage crossers run across) and `groups.json` (groups laid apart; udp2 one floor finish only). Over 250
+  views, in `output/tilekit/s0i-*` (not kept in the repository).
+  - **User rule:** interiors are judged with their ceilings. Captures include eye-level views, the camera level or
+    tilted up a little. `tilekit review` takes them from a block's `eye` (1.7 m up, pitch 90 level, more looks up).
+    Views from above of a small room show mostly the black top of its ceiling and are of little use.
+  - **udp2 (Office):** clean modern rooms with a tiled acoustic ceiling and light panels. The floor terrains differ
+    mostly by wall: Service is concrete and brown brick, Tiled terracotta and stained plaster, Office_Vinyl, _Wood and
+    _Alum one dark green carpet with cream, wood panelled and grey panelled walls, Foyer_L and Foyer_U the two levels
+    of an atrium. Hallway1 and Hallway2 look alike.
+  - **tfb01 (Modern Interior):** no ceiling anywhere (open to the sky), low walls, and a medieval look: damask
+    wallpaper, timber framing, fireplaces. Furniture is built into its floor tiles and groups. It needs ceilings and
+    the heaviest restyle, and its rooms are furnished already, so few of its shells suit an unfurnished variant.
+  - **tbx78 (Facility):** rusted green metal plate rooms, panel ceiling, yellow lights; the corridor is an octagonal
+    riveted tunnel.
+  - **nac01 (Ducts):** a white junction room with two drum machines and a ceiling; the duct is a narrow round pipe.
+  - Groups laid apart show sky through their door openings: the review areas are written as exteriors. Not a fault
+    of the tiles.
+  - Not pictured: udp2 garage doors, tbx78 `cell`, `raised`, `doorway3`. Two tfb01 group views were taken late.
+- **nwn-director** (github.com/plenarius/nwn-director, suggested by the user): not adopted. It needs Linux (X11 or
+  Xvfb), a Docker server and a CD-key login, and draws stills on the CPU with the high-quality shaders off. Its
+  eye-level camera is what `eye` views now do; its holding of a view until the picture is saved is worth copying to
+  end late captures.
+
+## Stage 1: names proposal (2026-11-24, not approved)
+
+`docs/tilesets/srx02/names.json`: 14 terrains, 3 folds, 15 crossers, 166 groups, 13 categories.
+`tools/tilekit/test_names.py` holds it to the four set files.
+
+- A source name stays the key unless it clashes or differs by case: one `Wall` (three folds), nac01 `Service` becomes
+  `Duct_Room`, tbx78 `corridor` becomes `Fac_Corridor` and its other crossers take the `Fac_` prefix, `facility`
+  becomes `Facility`. The display says what the pictures show ("Office: Carpet, Wood Panelling").
+- Nine fantasy groups of tfb01 are `palette: false` (category Legacy).
+- **Stage 2 code this needs:** the merge leaves no group off the palette today, and it refuses a third group of one
+  name (tbx78 names three groups `room2x1`; the entry lists a display for each under `repeats`).
+- **For the review:** what tells Hallway A from B; whether the tfb01 names (Home, Retail) stand before its restyle;
+  the five crossers not pictured.
+- **Plan changes from the pictures:** tfb01's restyle (ceilings, modern walls) moves ahead of its furnished rooms;
+  the pilot rooms on tfb01 shells (R04, C01) should move to udp2 shells or wait for it. Decision for the user.
 
 ## Decisions for the user (defaults used unless changed)
 
