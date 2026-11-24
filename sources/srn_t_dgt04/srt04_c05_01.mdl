@@ -4294,6 +4294,12 @@ newanim tiledefault srt04_c05_01
       0.00000  2.44000 -2.42800  39.68750
       0.03333  2.44000 -2.42800  39.68750
   endnode
+  node trimesh day00_0
+    parent srt04_c05_01a
+    positionkey 2
+      0.00000  2.44000 -2.42800  39.68750
+      0.03333  2.44000 -2.42800  39.68750
+  endnode
   node trimesh Object01.003
     parent srt04_c05_01
   endnode
@@ -4400,6 +4406,12 @@ newanim animloop01 srt04_c05_01
     parent srt04_c05_01
   endnode
   node trimesh window_lit.003
+    parent srt04_c05_01a
+    positionkey 2
+      0.00000  2.51000 -2.49800  39.68750
+      0.03333  2.51000 -2.49800  39.68750
+  endnode
+  node trimesh day00_0
     parent srt04_c05_01a
     positionkey 2
       0.00000  2.51000 -2.49800  39.68750

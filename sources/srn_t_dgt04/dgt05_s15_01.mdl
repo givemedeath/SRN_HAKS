@@ -19165,6 +19165,12 @@ newanim tiledefault dgt05_s15_01
       0.00000  0.00000  0.00000 -7.00000
       0.03333  0.00000  0.00000 -7.00000
   endnode
+  node trimesh day00_0
+    parent dgt05_s15_01a
+    positionkey 2
+      0.00000  0.00000  0.00000 -7.00000
+      0.03333  0.00000  0.00000 -7.00000
+  endnode
   node trimesh e09_17_trim.030
     parent dgt05_s15_01
   endnode
@@ -19292,6 +19298,12 @@ newanim animloop01 dgt05_s15_01
       0.03333  0.00000  0.00000 -7.00000
   endnode
   node trimesh window_unlit02.019
+    parent dgt05_s15_01a
+    positionkey 2
+      0.00000  0.00000  0.00000  9.60000
+      0.03333  0.00000  0.00000  9.60000
+  endnode
+  node trimesh day00_0
     parent dgt05_s15_01a
     positionkey 2
       0.00000  0.00000  0.00000  9.60000

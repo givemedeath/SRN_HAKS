@@ -12659,6 +12659,12 @@ newanim tiledefault dgt04_e11_14
       0.00000  0.28000 -0.28000  12.42497
       0.03333  0.28000 -0.28000  12.42497
   endnode
+  node trimesh day00_0
+    parent dgt04_e11_14a
+    positionkey 2
+      0.00000  0.28000 -0.28000  12.42497
+      0.03333  0.28000 -0.28000  12.42497
+  endnode
   node trimesh glass_window15.008
     parent dgt04_e11_14
   endnode
@@ -12726,6 +12732,12 @@ newanim animloop01 dgt04_e11_14
       0.03333  0.28000 -0.28000  12.42497
   endnode
   node trimesh glass_window15.015
+    parent dgt04_e11_14a
+    positionkey 2
+      0.00000  0.38000 -0.38000  12.42497
+      0.03333  0.38000 -0.38000  12.42497
+  endnode
+  node trimesh day00_0
     parent dgt04_e11_14a
     positionkey 2
       0.00000  0.38000 -0.38000  12.42497

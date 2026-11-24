@@ -26621,6 +26621,12 @@ newanim tiledefault dgt04_e09_06
       0.00000 -4.90000  1.50000 -5.00000
       0.03333 -4.90000  1.50000 -5.00000
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_06a
+    positionkey 2
+      0.00000 -4.90000  1.50000 -5.00000
+      0.03333 -4.90000  1.50000 -5.00000
+  endnode
   node trimesh window_unlit02.027
     parent dgt04_e09_06a
     positionkey 2
@@ -26628,6 +26634,12 @@ newanim tiledefault dgt04_e09_06
       0.03333 -5.01000  0.27782  17.33344
   endnode
   node trimesh window_unlit02.028
+    parent dgt04_e09_06a
+    positionkey 2
+      0.00000 -5.01000  0.27782 -15.00000
+      0.03333 -5.01000  0.27782 -15.00000
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_06a
     positionkey 2
       0.00000 -5.01000  0.27782 -15.00000
@@ -26735,6 +26747,9 @@ newanim animloop01 dgt04_e09_06
   node trimesh Plane25.001
     parent dgt04_e09_06a
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_06a
+  endnode
   node trimesh window_unlit02.027
     parent dgt04_e09_06a
     positionkey 2
@@ -26742,6 +26757,12 @@ newanim animloop01 dgt04_e09_06
       0.03333 -5.01000  0.27782 -15.00000
   endnode
   node trimesh window_unlit02.028
+    parent dgt04_e09_06a
+    positionkey 2
+      0.00000 -5.01000  0.27782  17.33344
+      0.03333 -5.01000  0.27782  17.33344
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_06a
     positionkey 2
       0.00000 -5.01000  0.27782  17.33344
@@ -26855,10 +26876,16 @@ newanim animloop02 dgt04_e09_06
   node trimesh Plane25.001
     parent dgt04_e09_06a
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_06a
+  endnode
   node trimesh window_unlit02.027
     parent dgt04_e09_06a
   endnode
   node trimesh window_unlit02.028
+    parent dgt04_e09_06a
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_06a
   endnode
   node trimesh e09_17_trim.003
@@ -26965,10 +26992,17 @@ newanim animloop03 dgt04_e09_06
     parent dgt04_e09_06a
     position -4.90000  1.50000  2.10000
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_06a
+    position -4.90000  1.50000  2.10000
+  endnode
   node trimesh window_unlit02.027
     parent dgt04_e09_06a
   endnode
   node trimesh window_unlit02.028
+    parent dgt04_e09_06a
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_06a
   endnode
   node trimesh e09_17_trim.003

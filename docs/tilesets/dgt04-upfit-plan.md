@@ -384,12 +384,23 @@ surface in a further 17–24.
 ## Windows lit by the hour (user, 2026-11-24)
 
 The standard for the unified set: the hour drives the lights, through a tile's day and night animations
-(`docs/tilesets/srx01-plan.md`). The Modern Exterior tiles had none: their 195 glowing meshes glowed at every hour,
-and none was switched by AnimLoop1. `docs/tilesets/dgt04/daylight.json` lists the 19 lit window textures, each with
-the day texture the packs already hold. `tilekit daylight --tileset dgt04 --shared srx01` gave 169 models (109 in
-`srn_t_common`, 60 in `srn_t_dgt04`) their day and night: 177 lit panes, clear by day and full by night, each with a
-day pane. Passed by the user on a day and a night sheet of the review block, then applied and compiled; walkmeshes,
-the join tiles and the merged set are unchanged. A test holds every tile of the set to it.
+(`docs/tilesets/srx01-plan.md`). The Modern Exterior tiles had none. They switch their lights as the Suburbs do:
+the lit pane rests parked (15 to 22 m under the tile, or 5 cm behind the wall), and `animloop01` lifts it into place
+and drops the unlit pane away, in 168 of the 169 models. The set shipped AnimLoop1 off for 165 of those tiles, so a
+building stood dark at every hour unless a builder turned it on, and lit at every hour once on.
+`docs/tilesets/dgt04/daylight.json` lists the 19 lit window textures, each with the day texture the packs already
+hold. `tilekit daylight --tileset dgt04 --shared srx01` gave 169 models (109 in `srn_t_common`, 60 in
+`srn_t_dgt04`) their day and night: 177 lit panes, clear by day and full by night, each with a day pane.
+`tilekit daylight --tileset dgt04 --lights-on` turned AnimLoop1 on for the switched tiles, and the merged set was
+rebuilt. Areas already built keep the flags they were saved with. Walkmeshes and the join tiles are unchanged. A
+test holds every tile of the set to it.
+
+**The day pane goes where its lit pane goes** (review of PR 194, 2026-11-24). The first pass left each day pane at
+the lit pane's parked place, where no loop moved it: with the lights on, a window that lit at night was bare wall by
+day. The day sheet the user passed showed it and neither of us saw it. `tilekit daylight` now writes the day pane
+into every animation that names its lit pane, with the same keys; `--again` remade the 169 models. A test holds
+each day pane to its lit pane's moves. Seen in the client on the brick block at x03 y11: the window is there by day
+and lit by night.
 
 Left lit at every hour: the signs (`checks`, `motel2`, `hosp_wings`, `hosp_emergency`), the crossing signal
 (`walk`) and the shop window `window_store003`, which has no day picture. Not looked at closely: the highrise

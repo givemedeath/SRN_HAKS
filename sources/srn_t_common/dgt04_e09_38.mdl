@@ -10476,7 +10476,19 @@ newanim tiledefault dgt04_e09_38
       0.00000 -2.93000  0.00000  7.76748
       0.03333 -2.93000  0.00000  7.76748
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_38a
+    positionkey 2
+      0.00000 -2.93000  0.00000  7.76748
+      0.03333 -2.93000  0.00000  7.76748
+  endnode
   node trimesh window_lit_t
+    parent dgt04_e09_38a
+    positionkey 2
+      0.00000 -2.93000 -0.00000  17.51349
+      0.03333 -2.93000 -0.00000  17.51349
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_38a
     positionkey 2
       0.00000 -2.93000 -0.00000  17.51349
@@ -10719,7 +10731,19 @@ newanim animloop01 dgt04_e09_38
       0.00000 -3.01000  0.00000  7.76748
       0.03333 -3.01000  0.00000  7.76748
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_38a
+    positionkey 2
+      0.00000 -3.01000  0.00000  7.76748
+      0.03333 -3.01000  0.00000  7.76748
+  endnode
   node trimesh window_lit_t
+    parent dgt04_e09_38a
+    positionkey 2
+      0.00000 -3.01000 -0.00000  17.51349
+      0.03333 -3.01000 -0.00000  17.51349
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_38a
     positionkey 2
       0.00000 -3.01000 -0.00000  17.51349

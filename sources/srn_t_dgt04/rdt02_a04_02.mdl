@@ -10253,6 +10253,12 @@ newanim tiledefault rdt02_a04_02
       0.00000 -0.03536  0.03535 -4.81667
       0.03333 -0.03536  0.03535 -4.81667
   endnode
+  node trimesh day00_0
+    parent rdt02_a04_02a
+    positionkey 2
+      0.00000 -0.03536  0.03535 -4.81667
+      0.03333 -0.03536  0.03535 -4.81667
+  endnode
   node trimesh windows_unlit_a13_02
     parent rdt02_a04_02a
     positionkey 2
@@ -10353,6 +10359,12 @@ newanim animloop01 rdt02_a04_02
     parent rdt02_a04_02
   endnode
   node trimesh windows_lit_a13_02
+    parent rdt02_a04_02a
+    positionkey 2
+      0.00000 -0.03536  0.03535  7.70000
+      0.03333 -0.03536  0.03535  7.70000
+  endnode
+  node trimesh day00_0
     parent rdt02_a04_02a
     positionkey 2
       0.00000 -0.03536  0.03535  7.70000

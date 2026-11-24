@@ -1567,6 +1567,12 @@ newanim tiledefault dgt04_e01_04
       0.00000 -3.65000  0.00000  27.86288
       0.03333 -3.65000  0.00000  27.86288
   endnode
+  node trimesh day00_0
+    parent dgt04_e01_04a
+    positionkey 2
+      0.00000 -3.65000  0.00000  27.86288
+      0.03333 -3.65000  0.00000  27.86288
+  endnode
   node light dgt04_e01_04ml1
     parent dgt04_e01_04
   endnode
@@ -1652,6 +1658,12 @@ newanim animloop01 dgt04_e01_04
     parent dgt04_e01_04
   endnode
   node trimesh highrise_windows_lit.003
+    parent dgt04_e01_04a
+    positionkey 2
+      0.00000 -3.72000  0.00000  27.86288
+      0.03333 -3.72000  0.00000  27.86288
+  endnode
+  node trimesh day00_0
     parent dgt04_e01_04a
     positionkey 2
       0.00000 -3.72000  0.00000  27.86288

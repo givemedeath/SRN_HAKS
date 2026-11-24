@@ -27,6 +27,10 @@ def _field(body, word):
     return found.group(1) if found else None
 
 
+def _numbers(line):
+    return [float(word) for word in line.split()]
+
+
 def lit_nodes(text, textures, glow=GLOW):
     """[(node, parent, texture)] of the meshes of a model's geometry that draw one of `textures` and glow of their
     own, as the model spells them."""
@@ -78,7 +82,17 @@ def with_daylight(text, lit):
             pane = re.sub(r'(?mi)^([ \t]*node[ \t]+trimesh[ \t]+)[^\r\n]+?([ \t]*\r?)$', lambda at: at.group(1) + new + at.group(2), pane, count=1)
             pane = re.sub(r'(?mi)^([ \t]*bitmap[ \t]+)\S+', lambda at: at.group(1) + day, pane)
             pane = re.sub(r'(?mi)^([ \t]*selfillumcolor[ \t]+)[^\r\n]*?(\r?)$', lambda at: at.group(1) + '0 0 0' + at.group(2), pane)
+            pane = re.sub(r'(?mi)^([ \t]*shadow[ \t]+)\S+', lambda at: at.group(1) + '0', pane)  # the lit pane casts the one shadow of the outline
             text = text[:block.end()] + pane + text[block.end():]; faded.append((new, parent, 1, 0))
+            # the pane goes where its lit pane goes: a tile loop that lifts the lit pane into place from where it is parked
+            # lifts the day pane with it (the Modern Exterior windows that lit at night were bare wall by day, 2026-11-24)
+            parts = re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)
+            for at, part in enumerate(parts[1:], 1):
+                own = next((one for one in NODE.finditer(part) if word(one.group(2)) == word(node)), None)
+                if own:
+                    copy = re.sub(r'(?mi)^([ \t]*node[ \t]+\w+[ \t]+)[^\r\n]+?([ \t]*\r?)$', lambda one: one.group(1) + new + one.group(2), own.group(0), count=1)
+                    parts[at] = part[:own.end()] + copy + part[own.end():]
+            text = ''.join(parts)
     tree = {}  # by the name the game reads: to the first space, the first node of it, in any case
     for kind, node, body in NODE.findall(_geometry(text)):
         tree.setdefault(node.split()[0].lower(), (kind, node.split()[0], (_field(body, 'parent') or 'NULL').split()[0]))
@@ -104,21 +118,29 @@ def without(text):
     lit meshes keep the names they were given."""
     for anim in ANIMS:
         text = re.sub(rf'(?mis)^[ \t]*newanim[ \t]+{anim}[ \t].*?^[ \t]*doneanim[ \t]+{anim}[ \t][^\n]*\n', '', text)
-    geometry = _geometry(text)
-    return NODE.sub(lambda at: '' if at.group(1).lower() == 'trimesh' and PANE.match(at.group(2)) else at.group(0), geometry) + text[len(geometry):]
+    panes = {name.lower() for kind, name, body in NODE.findall(_geometry(text)) if kind.lower() == 'trimesh' and PANE.match(name)}
+    return NODE.sub(lambda at: '' if at.group(2).lower() in panes else at.group(0), text)  # in the geometry and in each animation that moves one
 
 
 def switched(text, textures, loop='animloop01'):
-    """Whether a model's lit meshes are switched by a tile loop: one of their parents is moved in `loop`. The suburb
-    tiles keep their lit panes parked under the tile and their unlit ones in place, and `animloop01` changes them
-    over, so a tile whose AnimLoop1 is off is dark at every hour (found 2026-11-24)."""
+    """Whether a model's lit meshes are switched by a tile loop: one of them, or one of their parents, is moved in
+    `loop`. The suburb tiles keep their lit panes parked under the tile and their unlit ones in place, and `animloop01`
+    changes them over, so a tile whose AnimLoop1 is off is dark at every hour (found 2026-11-24). The Modern Exterior
+    tiles move the lit mesh itself (found the same day, in the review of PR 194)."""
     at = re.search(rf'(?mis)^[ \t]*newanim[ \t]+{loop}[ \t].*?^[ \t]*doneanim[ \t]+{loop}[ \t]', text)
     if not at:
         return False
-    moved = {name.split()[0].lower() for kind, name, body in NODE.findall(at.group(0)) if re.search(r'(?mi)^[ \t]*positionkey', body)}
-    above = {name.split()[0].lower(): (_field(body, 'parent') or 'NULL').split()[0].lower() for kind, name, body in reversed(NODE.findall(_geometry(text)))}
+    nodes = list(reversed(NODE.findall(_geometry(text))))  # the first node of a name is the one the game reads
+    rest = {name.split()[0].lower(): _numbers(_field(body, 'position') or '0 0 0')[:3] for kind, name, body in nodes}
+
+    def away(name, body):  # a key that puts the node somewhere else than it rests: a loop written out of a modeller keys every node where it is
+        rows = re.search(r'(?mi)^[ \t]*positionkey[^\r\n]*\r?\n((?:[ \t]*[-+0-9.eE \t]+\r?\n)+)', body)
+        home = rest.get(name, [0.0, 0.0, 0.0])
+        return bool(rows) and any(len(row) >= 4 and max(abs(a - b) for a, b in zip(row[1:4], home)) > 0.01 for row in map(_numbers, rows.group(1).splitlines()))
+    moved = {name.split()[0].lower() for kind, name, body in NODE.findall(at.group(0)) if away(name.split()[0].lower(), body)}
+    above = {name.split()[0].lower(): (_field(body, 'parent') or 'NULL').split()[0].lower() for kind, name, body in nodes}
     for node, parent, texture in lit_nodes(text, textures):
-        seen, one = set(), parent.split()[0].lower()
+        seen, one = set(), node.split()[0].lower()
         while one in above and one not in seen:
             if one in moved:
                 return True
@@ -134,7 +156,8 @@ def lights_on(repo, tileset, lit, pack=None):
     pack = pack or f'srn_t_{tileset.lower()}'; path = Path(repo) / pack / f'{tileset.lower()}.set'; text = path.read_bytes().decode('cp1252'); told = []
 
     def model(name):
-        for folder in (Path(repo) / SOURCES / pack, Path(repo) / pack):
+        homes = dict.fromkeys((pack, *(one.format(tileset=tileset.lower()) for one in lamps.PACKS)))  # its own pack, then the common one: 109 Modern Exterior tiles live there
+        for folder in (Path(repo) / kept / home for home in homes for kept in (SOURCES, '')):
             if (folder / f'{name}.mdl').is_file():
                 return (folder / f'{name}.mdl').read_bytes().decode('cp1252', errors='replace')
         return ''

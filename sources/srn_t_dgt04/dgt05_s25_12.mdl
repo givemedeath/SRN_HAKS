@@ -29994,6 +29994,12 @@ newanim tiledefault dgt05_s25_12
       0.00000  0.00000  0.00000 -15.00000
       0.03333  0.00000  0.00000 -15.00000
   endnode
+  node trimesh day00_0
+    parent dgt05_s25_12a
+    positionkey 2
+      0.00000  0.00000  0.00000 -15.00000
+      0.03333  0.00000  0.00000 -15.00000
+  endnode
   node emitter emit_plume03
     parent dgt05_s25_12a
     birthratekey 1
@@ -30144,6 +30150,12 @@ newanim animloop01 dgt05_s25_12
       0.00000  0.00000  0.00000  16.80006
       0.03333  0.00000  0.00000  16.80006
   endnode
+  node trimesh day00_0
+    parent dgt05_s25_12a
+    positionkey 2
+      0.00000  0.00000  0.00000  16.80006
+      0.03333  0.00000  0.00000  16.80006
+  endnode
   node emitter emit_plume03
     parent dgt05_s25_12a
   endnode
@@ -30283,6 +30295,9 @@ newanim animloop02 dgt05_s25_12
     parent dgt05_s25_12a
   endnode
   node trimesh window_unlit02.066
+    parent dgt05_s25_12a
+  endnode
+  node trimesh day00_0
     parent dgt05_s25_12a
   endnode
   node emitter emit_plume03

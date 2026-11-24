@@ -2090,6 +2090,12 @@ newanim tiledefault dgt05_h41_01
       0.00000 -2.45000  0.00251  23.00000
       0.03333 -2.45000  0.00251  23.00000
   endnode
+  node trimesh day00_0
+    parent dgt05_h41_01a
+    positionkey 2
+      0.00000 -2.45000  0.00251  23.00000
+      0.03333 -2.45000  0.00251  23.00000
+  endnode
   node light dgt05_h41_01ml1
     parent dgt05_h41_01
   endnode
@@ -2193,6 +2199,12 @@ newanim animloop01 dgt05_h41_01
     parent dgt05_h41_01
   endnode
   node trimesh windows_lit
+    parent dgt05_h41_01a
+    positionkey 2
+      0.00000 -2.52000  0.00251  23.00000
+      0.03333 -2.52000  0.00251  23.00000
+  endnode
+  node trimesh day00_0
     parent dgt05_h41_01a
     positionkey 2
       0.00000 -2.52000  0.00251  23.00000

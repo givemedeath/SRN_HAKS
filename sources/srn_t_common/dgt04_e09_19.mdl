@@ -18592,6 +18592,12 @@ newanim tiledefault dgt04_e09_19
       0.00000 -4.90000  1.50000 -5.00000
       0.03333 -4.90000  1.50000 -5.00000
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_19a
+    positionkey 2
+      0.00000 -4.90000  1.50000 -5.00000
+      0.03333 -4.90000  1.50000 -5.00000
+  endnode
   node trimesh window_l_unlit
     parent dgt04_e09_19a
     positionkey 2
@@ -18599,6 +18605,12 @@ newanim tiledefault dgt04_e09_19
       0.03333 -4.90000  1.50000  2.10000
   endnode
   node trimesh window_lit.004
+    parent dgt04_e09_19a
+    positionkey 2
+      0.00000 -5.01000  0.00000 -7.00000
+      0.03333 -5.01000  0.00000 -7.00000
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_19a
     positionkey 2
       0.00000 -5.01000  0.00000 -7.00000
@@ -18697,10 +18709,19 @@ newanim animloop01 dgt04_e09_19
   node trimesh window_l_lit
     parent dgt04_e09_19a
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_19a
+  endnode
   node trimesh window_l_unlit
     parent dgt04_e09_19a
   endnode
   node trimesh window_lit.004
+    parent dgt04_e09_19a
+    positionkey 2
+      0.00000 -5.01000  0.00000  12.00000
+      0.03333 -5.01000  0.00000  12.00000
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_19a
     positionkey 2
       0.00000 -5.01000  0.00000  12.00000
@@ -18802,6 +18823,12 @@ newanim animloop02 dgt04_e09_19
       0.00000 -4.90000  1.50000  2.10000
       0.03333 -4.90000  1.50000  2.10000
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_19a
+    positionkey 2
+      0.00000 -4.90000  1.50000  2.10000
+      0.03333 -4.90000  1.50000  2.10000
+  endnode
   node trimesh window_l_unlit
     parent dgt04_e09_19a
     positionkey 2
@@ -18809,6 +18836,9 @@ newanim animloop02 dgt04_e09_19
       0.03333 -4.90000  1.50000 -5.00000
   endnode
   node trimesh window_lit.004
+    parent dgt04_e09_19a
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_19a
   endnode
   node trimesh window_unlit.004
@@ -18907,10 +18937,16 @@ newanim animloop03 dgt04_e09_19
   node trimesh window_l_lit
     parent dgt04_e09_19a
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_19a
+  endnode
   node trimesh window_l_unlit
     parent dgt04_e09_19a
   endnode
   node trimesh window_lit.004
+    parent dgt04_e09_19a
+  endnode
+  node trimesh day01_0
     parent dgt04_e09_19a
   endnode
   node trimesh window_unlit.004

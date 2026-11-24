@@ -137,7 +137,7 @@ node trimesh day00_0
   shininess 10
   selfillumcolor  0 0 0
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -211,7 +211,7 @@ node trimesh day01_0
   shininess 10
   selfillumcolor  0 0 0
   render 1
-  shadow 1
+  shadow 0
   beaming 0
   inheritcolor 0
   transparencyhint 0
@@ -5340,7 +5340,19 @@ newanim tiledefault dgt05_w06_02
       0.00000  0.00000 -1.25000  21.63975
       0.03333  0.00000 -1.25000  21.63975
   endnode
+  node trimesh day00_0
+    parent dgt05_w06_02a
+    positionkey 2
+      0.00000  0.00000 -1.25000  21.63975
+      0.03333  0.00000 -1.25000  21.63975
+  endnode
   node trimesh day05.016
+    parent dgt05_w06_02a
+    positionkey 2
+      0.00000 -0.00000  1.25000  21.63975
+      0.03333 -0.00000  1.25000  21.63975
+  endnode
+  node trimesh day01_0
     parent dgt05_w06_02a
     positionkey 2
       0.00000 -0.00000  1.25000  21.63975
@@ -5400,7 +5412,19 @@ newanim animloop01 dgt05_w06_02
       0.00000  0.00000 -1.25000  24.32318
       0.03333  0.00000 -1.25000  24.32318
   endnode
+  node trimesh day00_0
+    parent dgt05_w06_02a
+    positionkey 2
+      0.00000  0.00000 -1.25000  24.32318
+      0.03333  0.00000 -1.25000  24.32318
+  endnode
   node trimesh day05.016
+    parent dgt05_w06_02a
+    positionkey 2
+      0.00000 -0.00000  1.25000  24.32318
+      0.03333 -0.00000  1.25000  24.32318
+  endnode
+  node trimesh day01_0
     parent dgt05_w06_02a
     positionkey 2
       0.00000 -0.00000  1.25000  24.32318

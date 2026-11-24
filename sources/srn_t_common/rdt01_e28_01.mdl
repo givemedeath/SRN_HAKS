@@ -1572,6 +1572,12 @@ newanim tiledefault rdt01_e28_01
       0.00000 -0.00000 -0.00000 -1.16000
       0.03333 -0.00000 -0.00000 -1.16000
   endnode
+  node trimesh day00_0
+    parent rdt01_e28_01a
+    positionkey 2
+      0.00000 -0.00000 -0.00000 -1.16000
+      0.03333 -0.00000 -0.00000 -1.16000
+  endnode
   node trimesh windows_unlit_e28_01
     parent rdt01_e28_01a
     positionkey 2
@@ -1672,6 +1678,12 @@ newanim animloop01 rdt01_e28_01
     parent rdt01_e28_01
   endnode
   node trimesh windows_lit_e28_01
+    parent rdt01_e28_01a
+    positionkey 2
+      0.00000 -0.00000 -0.00000  7.70000
+      0.03333 -0.00000 -0.00000  7.70000
+  endnode
+  node trimesh day00_0
     parent rdt01_e28_01a
     positionkey 2
       0.00000 -0.00000 -0.00000  7.70000
