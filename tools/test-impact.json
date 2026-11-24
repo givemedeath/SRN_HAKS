@@ -5828,7 +5828,6 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/kit.py",
       "tools/tilekit/lamps.py",
-      "tools/tilekit/merged.py",
       "tools/tilekit/placer.py"
     ],
     "tools/tilekit/family_review.py": [
@@ -5842,7 +5841,8 @@
     ],
     "tools/tilekit/geometry.py": [],
     "tools/tilekit/inventory.py": [
-      "tools/tilekit/compiled.py"
+      "tools/tilekit/compiled.py",
+      "tools/tilekit/merged.py"
     ],
     "tools/tilekit/joins.py": [
       "tools/envkit/__init__.py",
