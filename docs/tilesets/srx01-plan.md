@@ -294,6 +294,107 @@ buildings' terrains over a district's ground (a patch's `over`, new). **Look app
   `srn_t_common` 841 MB.
 - **Names review:** closed at stage 1 (approved by the user); terrain and crosser names are frozen from here.
 
+## Release B pilot (2026-11-23, awaiting the user's gate)
+
+Shown through a review overlay; nothing is in the packs. Spec `docs/tilesets/udp1/materials.json` (19 textures, the
+top of the coverage list), block `docs/tilesets/udp1/pilot.json` (a suburb street, two houses, a mall, a strip mall
+and the tennis court beside the Stuffer Shack on Concrete). `tilekit material` takes a spec's own `packs`, since
+udp1's textures are in `srn_t_udp1`, `srn_t_common`, `srn_door` and `srn_placeable`.
+
+- Road and pavement from dgt04's masters and its `road` and `walkway` grades: the suburb road now has the tone of
+  the city's asphalt beside it.
+- Red brick from the Bricks097 master; block walls, siding, shingles, fence and windows upscaled, under a new
+  `suburb` grade (a little warm, less dark than `barrens`); grass under a new `lawn` grade.
+- A stain over a wall texture that covers a whole wall once shows as one hard band: the block walls take none.
+- **Seen, not yet addressed:** house windows are lit by day (the lit window texture is the only one the houses
+  have); the grass is dark by day, though lighter than dgt04's own; siding changes little at play distance.
+
+## Release B pilot fixes: windows, lawn, shadow wedges (user, 2026-11-23)
+
+- **Lit windows by day.** The suburb tiles drew their lit panes at every hour (their own unlit panes are parked some
+  20 m off the tile). `tilekit daylight --tileset udp1 --shared srx01 --spec docs/tilesets/udp1/daylight.json`
+  writes day and night animations: lit panes and lamp lenses clear by day, full by night, and a plain-glass day
+  pane for each lit window. 111 models, 690 lit meshes, 456 day panes. An animation must name each faded node's
+  whole line of parents: without them the client fell over as the area loaded. Two strip mall tiles
+  (`udp1_b12_04`, `udp1_b13_09`) are refused (their lit mesh shares its name) and still to do by hand.
+- **Lawn.** Grade `lawn` raised (gain 0.85 to 1.2, saturation 0.7 to 0.8).
+- **Triangles on the grass from a distance** are the game's shadow wedges from open one-plane meshes, as on dgt04.
+  `tilekit shadows --tileset udp1 --shared srx01` quiets them (479 models, 6,706 trims); seen gone in the pilot block.
+- `--shared`: a merged set draws every suburb tile too, so `daylight` and `shadows` skipped them all until the
+  merged set could be named as taking the change along. `lamps` still needs the same (given in the review of PR 193).
+- All of this is in review overlays only (`output/tilekit/b-shadow-overlay`); nothing is applied to the packs yet.
+
+## Release B: pilot passed, adoption, scans tried (user, 2026-11-23)
+
+- **Pilot gate passed** with the windows, lawn and shadow fixes above. The two strip mall tiles are done too:
+  `daylight` takes lit meshes of one name in their order (113 models, 702 lit meshes, 462 day panes).
+- **Scans tried and set aside.** Five CC0 scans (Grass008, WoodSiding009, PaintedBricks004, RoofingTiles003 of
+  ambientCG; brown_planks_03 of Poly Haven) were fetched into the shared masters and lined up against the originals.
+  The user kept every original: "those original textures are all probably actually fine", and of the lawn "the old
+  grass looks better". So the suburb keeps its own pictures, graded, with relief and roughness maps; only road, walk,
+  red brick and grey metal come from scans, as in the pilot. The fetched scans stay in the masters, unused.
+- **Adoption.** `compile --adopt srn_t_udp1` refused 76 models: the suburb tiles were exported with node names of
+  several words (`bridge rail`, `bridge deck`) and with meshes of one name, which a model's reader takes as one name
+  and the compiler's check cannot pair. `tilekit unique --pack srn_t_udp1` gives each such node a name of its own in
+  the sources, keeping what every parent and animation meant (374 models, 3,706 nodes); then all 677 compiled and
+  `compile --check` is clean.
+- **Remaining textures.** The spec now lists 99 textures: the 80 added keep their own size (no enlargement: a plain
+  enlargement adds nothing) and take the pilot's routes and grades by family. Left as they are: the lit plane
+  (`udp1-lght-pln`), the dirt decal, water, the nets and three tiny flat colours. Review block for the family
+  sheets: `docs/tilesets/udp1/families.json`.
+
+## Release B applied (user, 2026-11-24)
+
+- The remaining textures passed on the family sheets (`docs/tilesets/udp1/families.json`) and are in the packs: 82
+  applied on top of the pilot's 19 (two of the pilot's remade).
+- **Suburb asphalt lighter** (user): its eight pictures take a grade of their own, `suburb_road` (gain 0.85 where
+  the city's `road` has 0.55). The city's roads are unchanged.
+- **Join re-check**: the Concrete to Asphalt joins and junctions viewed again from the built packs; the kerb line
+  fits the lighter asphalt, `joins.py` is unchanged.
+- No lamp was moved: the suburb tiles have no source lights.
+- Not done: `detail` kit pieces; mall fronts, signs and civic buildings were not in the family views (their groups
+  need walks and driveways laid to fit).
+
+## City ground made concrete (user, 2026-11-23)
+
+Seen on the release B pilot: the Concrete terrain's ground was an asphalt scan (Road012A), as dark as the roads.
+`pavement` is now the Poly Haven scan `cracked_concrete` at the sidewalk's brightness (dgt04 spec, grade `ground`),
+applied to `srn_t_common`; the old Modern Exterior set takes it too. Tried and dropped: Concrete034 (a trowelled
+wall concrete: the right colour, no slab pattern) and Poly Haven `concrete_floor_damaged_01` (blotchy, repeats).
+The joins were viewed again from the built packs: the kerb strip sits cleanly on the new ground. The Barrens
+grounds (`pavement_dirty` and its kin) keep the asphalt scan.
+
+## Switched lights, and a day pane for `udp1-window3b` (user, 2026-11-24)
+
+The suburb tiles switch their lights with the tile's AnimLoop1: at rest the lit panes are parked under the tile and
+the unlit ones are in place, and `animloop01` moves the lit panes up and the unlit ones down some 20 m. Nearly every
+lit pane of the set is switched so. A tile that is dark at night has AnimLoop1 off (the set file's default for House
+4, the mall entrances and the police station); the review areas turn every loop on.
+
+`udp1-window3b` was listed with no day texture, so with the lights switched on its windows went clear by day with
+nothing in their place (eleven models: House 4 of each colour, four mall entrances, the police station). It is now
+paired with `udp1-window3` (in `srn_door` and `srn_placeable`). `tilekit daylight --again` makes the day and night of
+models that have them anew from the list and writes only those it changes: those eleven, the other 102 came out the
+same. Applied and compiled; House 4 seen in game by day and by night from the review overlay.
+
+**The standard (user, 2026-11-24): the hour drives the lights.** Windows, signs and lamp lenses glow by the tile's
+day and night animations; AnimLoop1 is the builder's switch for a building that stands dark, and is on unless turned
+off. The suburb set shipped it off for every lit building. `tilekit daylight --tileset udp1 --spec
+docs/tilesets/udp1/daylight.json --lights-on` turns it on in `udp1.set` for the 104 tiles whose lit panes it
+switches, and `tilekit merge` carries that into `srx01.set`; a test holds the set to it. The review areas always had
+every loop on, so nothing they showed has changed: what changes is a newly painted tile in the Toolset. Areas already
+built keep the flags they were saved with.
+
+Still glowing at every hour, surveyed and not changed (no day or night animation in either set):
+- **dgt04** (with `srn_t_common`): about 195 glowing meshes in 178 models the set draws. The night windows are
+  separate glow layers (`win001_unbrknn` and its kin, `hrise_05_wall_g`, `hrise_06_wall2_g`, `window_tex20b_g`,
+  `hosp_win01_g`, `window_01_lit`); some 170 of the glowing models switch by AnimLoop1 as the suburb does, the rest
+  have no animation at all. 122 compiled models were not read.
+- **fcx01**: about 203 glowing meshes in 116 models (`window1`, `glass`, `c_metall`, `lights3`, `bb1bottom`,
+  `black_window`), nearly all with no animation.
+- **udp1**: 96 meshes in 40 models are not in the lit list: the shop signs and logos (`udp1-allsigns`,
+  `udp1-logos-z`, `udp1-logos3`, `udp1-gogas-z`) and a red lamp (`udp1-msc-red`).
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.

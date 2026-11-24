@@ -254,7 +254,7 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
     def one(name):
         how = textures[name]; target = folder / f'{name}.png'; record = folder / f'{name}.json'
         source = lambda texture: textures.get(texture, {}).get('copy', texture)  # a copied terrain's texture is drawn from its source's picture
-        original = lambda: np.asarray(material.current(repo, source(name), stock=stock, before=spec.get('before')))
+        original = lambda: np.asarray(material.current(repo, source(name), stock=stock, **material.of_spec(spec)))
         day = folder / f'{how["of"]}.png' if how.get('of') else None  # a lit variant's day picture, as redrawn
         if how.get('kind') == 'window' and not how.get('of') and not how.get('glazed') and how.get('opening') != 'door':
             share = mostly_black(original())  # empty black windows went unnoticed in release 1 (2026-11-20): each is said
@@ -277,7 +277,7 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
             require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
             cleaner = _opened(better) if better is not None and better.is_file() else None
             with Image.open(day) as shown:
-                picture = composed(shown, np.asarray(material.current(repo, source(how['of']), stock=stock, before=spec.get('before'))), whole,
+                picture = composed(shown, np.asarray(material.current(repo, source(how['of']), stock=stock, **material.of_spec(spec))), whole,
                                    None if cleaner is None else np.asarray(cleaner), keep=how.get('keep')).resize(size, Image.LANCZOS)
             picture.save(target)
             record.write_text(json.dumps({'kind': 'tilekit-composed', 'texture': name, 'source': _sha(old), 'of': how['of'], 'day': _file_sha(day), 'size': list(size),

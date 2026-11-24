@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 udp1_blck_rd
+texture1 udp1_blck_rd_n
+texture2 udp1_blck_rd_s
+texture3 udp1_blck_rd_r
+texture4 null
+texture5 null

@@ -14,6 +14,7 @@ another runs, and a view captured after it had passed is not kept as that view."
 import copy
 import json
 import math
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -141,10 +142,12 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
 def stamped(cells, tiles, set_text, groups, width, height):
     """`cells` (`solve`) with whole groups laid over them: groups [{name, at: [column, row]}], the group's south-west
     tile at `at`, unturned, as the Toolset lays one. The ground under a group is the spec's to give (a patch of the
-    group's terrain): a group whose tiles disagree with a neighbour is refused, where the Toolset would repaint round it."""
+    group's terrain): a group whose tiles disagree with a neighbour is refused, where the Toolset would repaint round it.
+    A group that says `loose` is laid to be looked at only: its walks and drives may end at its edge (a mall front or a
+    school wants walks and driveways laid to fit, which no patch gives)."""
     from . import inventory
     shapes = {keys['Name'].lower(): (int(keys['Rows']), int(keys['Columns']), keys) for name, keys in inventory.sections(set_text) if name.startswith('GROUP') and 'Rows' in keys}
-    cells = dict(cells)
+    cells = dict(cells); loose = set()
     for group in groups:
         require(group['name'].lower() in shapes, f'The set has no group {group["name"]}')
         rows, columns, keys = shapes[group['name'].lower()]; column0, row0 = group['at']
@@ -154,7 +157,11 @@ def stamped(cells, tiles, set_text, groups, width, height):
                 number = int(keys[f'Tile{row * columns + column}'])
                 if number >= 0:
                     cells[(column0 + column, row0 + row)] = (number, 0)
+                    if group.get('loose'):
+                        loose |= {(column0 + column + x, row0 + row + y) for x in (-1, 0, 1) for y in (-1, 0, 1)}  # the tile and those round it
     wrong = disagreements(width, [cells[(column, row)] for row in range(height) for column in range(width)], tiles)
+    cell = lambda line: re.search(r' at (\d+),(\d+):', line)  # a line whose cell cannot be read is kept
+    wrong = [line for line in wrong if not cell(line) or tuple(map(int, cell(line).groups())) not in loose]
     require(not wrong, 'A group does not fit the ground it is laid on: ' + '; '.join(wrong[:4]) + (f' and {len(wrong) - 4} more' if len(wrong) > 4 else ''))
     return cells
 

@@ -5729,6 +5729,7 @@
       "tools/tilekit/compiled.py",
       "tools/tilekit/count.py",
       "tools/tilekit/crown.py",
+      "tools/tilekit/daylight.py",
       "tools/tilekit/detail.py",
       "tools/tilekit/doors.py",
       "tools/tilekit/enlarge.py",
@@ -5741,7 +5742,8 @@
       "tools/tilekit/remesh.py",
       "tools/tilekit/review.py",
       "tools/tilekit/shadows.py",
-      "tools/tilekit/terrain.py"
+      "tools/tilekit/terrain.py",
+      "tools/tilekit/unique.py"
     ],
     "tools/tilekit/apply.py": [
       "hakbuilder.json",
@@ -5794,6 +5796,12 @@
       "tools/envkit/tile.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/daylight.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/compiled.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/detail.py": [
       "tools/tilekit/apply.py",
@@ -5971,6 +5979,11 @@
       "tools/tilekit/geometry.py",
       "tools/tilekit/remesh.py"
     ],
+    "tools/tilekit/test_daylight.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/daylight.py",
+      "tools/tilekit/inventory.py"
+    ],
     "tools/tilekit/test_detail.py": [
       "hakbuilder.json",
       "tools/tilekit/__init__.py",
@@ -6102,6 +6115,14 @@
       "tools/tilekit/__main__.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/terrain.py"
+    ],
+    "tools/tilekit/test_unique.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/unique.py"
+    ],
+    "tools/tilekit/unique.py": [
+      "tools/tilekit/compiled.py",
+      "tools/tilekit/inventory.py"
     ]
   },
   "unresolved": [],
@@ -6400,10 +6421,17 @@
       "srn_placeable",
       "srn_t_common",
       "srn_t_dgt04",
-      "srn_t_srx01"
+      "srn_t_srx01",
+      "srn_t_udp1"
     ],
     "tools/tilekit/test_crown.py": [
       "srn_t_common"
+    ],
+    "tools/tilekit/test_daylight.py": [
+      "srn_door",
+      "srn_placeable",
+      "srn_t_common",
+      "srn_t_udp1"
     ],
     "tools/tilekit/test_detail.py": [
       "srn_t_common"
@@ -6803,6 +6831,7 @@
     "tools/tilekit/test_baselines.py",
     "tools/tilekit/test_compiled.py",
     "tools/tilekit/test_crown.py",
+    "tools/tilekit/test_daylight.py",
     "tools/tilekit/test_detail.py",
     "tools/tilekit/test_doors.py",
     "tools/tilekit/test_doorset.py",
@@ -6825,6 +6854,7 @@
     "tools/tilekit/test_review.py",
     "tools/tilekit/test_shadows.py",
     "tools/tilekit/test_sketch.py",
-    "tools/tilekit/test_terrain.py"
+    "tools/tilekit/test_terrain.py",
+    "tools/tilekit/test_unique.py"
   ]
 }

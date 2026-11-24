@@ -76,6 +76,7 @@ class ReviewTests(unittest.TestCase):
         self.assertEqual(laid[(1, 2)], cells[(1, 2)]); self.assertEqual(cells[(1, 1)], (4, 0))  # a hole in a group leaves the ground; what was solved is not changed
         with self.assertRaisesRegex(ValueError, 'does not fit the ground it is laid on: tile 12 at 3,3: Tower where a neighbour has Ground'):
             review.stamped(cells, tiles, text, [{'name': 'Keep', 'at': [3, 3]}], 5, 5)
+        self.assertEqual(review.stamped(cells, tiles, text, [{'name': 'Keep', 'at': [3, 3], 'loose': True}], 5, 5)[(3, 3)], (12, 0))  # laid to be looked at
         with self.assertRaisesRegex(ValueError, 'Keep at 4,1 leaves the area'):
             review.stamped(cells, tiles, text, [{'name': 'Keep', 'at': [4, 1]}], 5, 5)
         with self.assertRaisesRegex(ValueError, 'The set has no group Spare'):  # a group with no shape is one tile's name, not a building

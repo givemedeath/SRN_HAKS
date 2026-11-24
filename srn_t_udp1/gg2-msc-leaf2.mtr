@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 gg2_msc_leaf2
+texture1 gg2_msc_leaf2_n
+texture2 gg2_msc_leaf2_s
+texture3 gg2_msc_leaf2_r
+texture4 null
+texture5 null

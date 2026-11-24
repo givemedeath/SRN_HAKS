@@ -9,7 +9,7 @@ from tools import test_impact
 from tools.tilekit import compiled, inventory
 
 REPO = Path(__file__).resolve().parents[2]
-PACKS = ('srn_t_common', 'srn_t_dgt04', 'srn_t_srx01')  # the packs with sources: named so the test selector checks them out and runs this when one changes
+PACKS = ('srn_t_common', 'srn_t_dgt04', 'srn_t_srx01', 'srn_t_udp1')  # the packs with sources: named so the test selector checks them out and runs this when one changes
 BORROWED = ('srn_door', 'srn_placeable')  # the packs whose materials the sources may borrow (compiled.BORROW), named for the same reason
 
 MODEL = '''newmodel t_a01

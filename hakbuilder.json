@@ -239,59 +239,10 @@
       ]
     },
     {
-      "Resource": "gg-conc.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
       "Resource": "gg-conc3.dds",
       "Packs": [
         "srn_placeable",
         "srn_t_udp2"
-      ]
-    },
-    {
-      "Resource": "gg2-bark.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
-      "Resource": "gg2-forbase1.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "gg2-h2-3.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
-      "Resource": "gg2-msc-leaf2.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "gg2-msc-leaf2a.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "gg2-wd-pl.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
       ]
     },
     {
@@ -449,45 +400,10 @@
       ]
     },
     {
-      "Resource": "udp1-aircond.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-asph.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
       "Resource": "udp1-dumpster.dds",
       "Packs": [
         "srn_door",
         "srn_placeable"
-      ]
-    },
-    {
-      "Resource": "udp1-gogas.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-gogas2.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-h6-sdg.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
       ]
     },
     {
@@ -519,118 +435,6 @@
       ]
     },
     {
-      "Resource": "udp1-msc-stngl2.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-alum.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-chrm.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-grd-b.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-grd-r.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-grd-y.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-grid.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-gry.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-gry2.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-plt.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-rvt.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-ss-b.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-ss-dr.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-ss-dy.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-ss-g.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-mtl-vents.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
       "Resource": "udp1-net-chr.dds",
       "Packs": [
         "srn_placeable",
@@ -642,62 +446,6 @@
       "Packs": [
         "srn_placeable",
         "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-pave.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-pnt-wh1.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
-      "Resource": "udp1-pnt-wh3.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
-      "Resource": "udp1-pnt-wh4.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
-      "Resource": "udp1-tile-rdst.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_udp1"
-      ]
-    },
-    {
-      "Resource": "udp1-wd-fnc.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
-      "Resource": "udp1-wd-grd1.dds",
-      "Packs": [
-        "srn_placeable",
-        "srn_t_common"
-      ]
-    },
-    {
-      "Resource": "udp1-window3.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
       ]
     },
     {
@@ -1006,6 +754,1266 @@
       "Packs": [
         "srn_placeable",
         "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1-asph.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1-h6-sdg.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-gry.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1-pave.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-wd-fnc.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_asph.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_asph_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_asph_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_asph_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_h6_sdg.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_h6_sdg_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_h6_sdg_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_h6_sdg_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_gry.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_gry_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_gry_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_gry_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_pave.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_pave_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_pave_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_pave_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_wd_fnc.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_wd_fnc_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_wd_fnc_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_wd_fnc_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "gg-conc.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2-bark.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2-forbase1.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2-h2-3.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2-msc-leaf2.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2-msc-leaf2a.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2-wd-pl.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_bark.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_bark_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_bark_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_bark_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_forbase1.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_forbase1_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_forbase1_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_forbase1_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_h2_3.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_h2_3_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_h2_3_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_h2_3_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_msc_leaf2.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_msc_leaf2_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_msc_leaf2_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_msc_leaf2_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_msc_leaf2a.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_msc_leaf2a_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_msc_leaf2a_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_msc_leaf2a_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "gg2_wd_pl.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_wd_pl_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_wd_pl_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg2_wd_pl_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg_conc.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg_conc_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg_conc_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "gg_conc_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "u_msc_stngl2.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "u_msc_stngl2_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "u_msc_stngl2_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "u_msc_stngl2_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-aircond.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-gogas.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-gogas2.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-msc-stngl2.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-alum.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-chrm.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-grd-b.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-grd-r.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-grd-y.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-grid.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-gry2.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-plt.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-rvt.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-ss-b.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-ss-dr.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-ss-dy.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-ss-g.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-mtl-vents.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-pnt-wh1.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1-pnt-wh3.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1-pnt-wh4.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1-tile-rdst.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1-wd-grd1.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1-window3.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_aircond.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_aircond_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_aircond_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_aircond_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_gogas.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_gogas2.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_gogas2_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_gogas2_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_gogas2_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_gogas_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_gogas_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_gogas_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_alum.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_alum_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_alum_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_alum_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_chrm.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_chrm_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_chrm_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_chrm_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_b.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_b_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_b_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_b_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_r_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_r_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_r_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_y.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_y_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_y_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grd_y_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grid.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grid_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grid_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_grid_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_gry2.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_gry2_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_gry2_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_gry2_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_plt.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_plt_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_plt_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_plt_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_rvt.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_rvt_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_rvt_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_rvt_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_b.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_b_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_b_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_b_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_dr.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_dr_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_dr_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_dr_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_dy.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_dy_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_dy_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_dy_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_g.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_g_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_g_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_ss_g_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_vents.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_vents_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_vents_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_mtl_vents_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh1.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh1_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh1_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh1_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh3.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh3_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh3_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh3_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh4.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh4_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh4_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_pnt_wh4_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_tile_rdst.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_tile_rdst_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_tile_rdst_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_tile_rdst_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp1"
+      ]
+    },
+    {
+      "Resource": "udp1_wd_grd1.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_wd_grd1_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_wd_grd1_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_wd_grd1_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_common"
+      ]
+    },
+    {
+      "Resource": "udp1_window3.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_window3_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_window3_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp1_window3_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
       ]
     }
   ]

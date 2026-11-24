@@ -2,11 +2,11 @@
 its walkmeshes (walkmesh.json); `walkmesh` holds the tileset's walkmeshes against such a baseline and fails on any
 that changed; `review` builds a module of the tileset on the built packs and captures the same views of it in the
 game client each time, with an overlay folder shown instead of the packs' own files. `material` makes restyled
-textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps` and `shadows` write changed tile
+textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps`, `shadows` and `daylight` (lit panes clear by day) write changed tile
 models into it, `detail` adds kit pieces to tiles there and `remesh` replaces a tile's visible meshes there; `count`
 says what each tile costs to draw (faces, mesh nodes, materials) against a budget; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
 `apply` moves an overlay whose look the user passed into the packs; `compile` makes the packs' tile models from their
-ASCII sources (`sources/<pack>/`) with NeverBlender. The working tools of a restyle (`commands`) are told of in
+ASCII sources (`sources/<pack>/`) with NeverBlender, and `unique` gives the nodes of such sources names of their own. The working tools of a restyle (`commands`) are told of in
 docs/tilesets/tilekit-tools.md."""
 import argparse
 import json
@@ -88,15 +88,34 @@ def redraw_command(chosen):
 def lamps_command(chosen):
     from . import lamps
     radius = lamps.RADIUS if chosen.radius is None else chosen.radius
-    told = lamps.move(chosen.repo, chosen.tileset, chosen.out, radius=radius)
+    told = lamps.move(chosen.repo, chosen.tileset, chosen.out, radius=radius, shared=chosen.shared)
     states = sorted(set(told.values()))
     print(json.dumps({'radius': radius, **{state: sorted(name for name, one in told.items() if one == state) if state != 'moved' else sum(one == state for one in told.values()) for state in states}}, indent=1))
     return 0
 
 
+def daylight_command(chosen):
+    from . import daylight
+    if chosen.lights_on:
+        told = daylight.lights_on(chosen.repo, chosen.tileset, _json(chosen.spec)['lit'])
+        print(json.dumps({'turned on': len(told), 'models': told}))
+        return 0
+    require(chosen.out, 'daylight writes its models into --out')
+    told = daylight.write(chosen.repo, chosen.tileset, chosen.out, _json(chosen.spec)['lit'], chosen.shared, again=chosen.again)
+    print(json.dumps({'models': len(told['models']), 'lit': sum(told['models'].values()), 'panes': told['panes'], 'done': told['done'], 'refused': told['refused']}, indent=1))
+    return 0
+
+
+def unique_command(chosen):
+    from . import unique
+    told = unique.write(chosen.repo, chosen.pack)
+    print(json.dumps({'models': len(told), 'renamed': sum(told.values())}))
+    return 0
+
+
 def shadows_command(chosen):
     from . import shadows
-    told = shadows.quiet(chosen.repo, chosen.tileset, chosen.out)
+    told = shadows.quiet(chosen.repo, chosen.tileset, chosen.out, shared=chosen.shared)
     print(json.dumps({'models': len(told), 'trims': sum(told.values())}))
     return 0
 
@@ -243,9 +262,18 @@ def main(arguments=None):
     seven = commands.add_parser('lamps', help='move the lamps of a tileset\'s tiles from source lights (drawn as fire) to main lights, in model copies')
     seven.add_argument('--tileset', required=True); seven.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     seven.add_argument('--radius', type=float, help='the radius the moved lights are given (default: lamps.RADIUS, 7)'); seven.add_argument('--repo', type=Path, default=REPO)
+    seven.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
     eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
-    eight.add_argument('--repo', type=Path, default=REPO)
+    eight.add_argument('--repo', type=Path, default=REPO); eight.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
+    lit = commands.add_parser('daylight', help='make the lit panes of a tileset\'s tiles clear by day and full by night, in model copies (a copy already in --out is changed)')
+    lit.add_argument('--tileset', required=True); lit.add_argument('--spec', required=True, type=Path, help='the list of lit textures (docs/tilesets/<set>/daylight.json)')
+    lit.add_argument('--out', type=Path, help='the folder the changed models are written to: a review\'s overlay'); lit.add_argument('--repo', type=Path, default=REPO)
+    lit.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set); repeat for more')
+    lit.add_argument('--again', action='store_true', help='make the day and night of models that have them anew from the list, and write those it changes')
+    lit.add_argument('--lights-on', action='store_true', help='instead: turn AnimLoop1 on in the set file for the tiles whose lit panes it switches (then: merge)')
+    named = commands.add_parser('unique', help='give the nodes of an adopted tile pack\'s ASCII sources names of one word that no other node has, in place (then: compile)')
+    named.add_argument('--pack', required=True); named.add_argument('--repo', type=Path, default=REPO)
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
     nine.add_argument('--spec', type=Path, help='the tileset\'s material spec: the textures moved (without it, only the overlay\'s changed models)')
     nine.add_argument('--overlay', required=True, type=Path, help='the review overlay the look was passed on'); nine.add_argument('--repo', type=Path, default=REPO)
@@ -314,6 +342,10 @@ def main(arguments=None):
             return apply_command(chosen)
         if chosen.command == 'compile':
             return compile_command(chosen)
+        if chosen.command == 'daylight':
+            return daylight_command(chosen)
+        if chosen.command == 'unique':
+            return unique_command(chosen)
         if chosen.command == 'shadows':
             return shadows_command(chosen)
         if chosen.command == 'lamps':

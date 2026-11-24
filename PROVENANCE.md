@@ -2407,3 +2407,24 @@ project operator passed the look in the game client on 2026-11-20 (review captur
 - `srn_2da/doortypes.2da` rows 266-268 are copies of rows 117, 260 and 261 keyed to SRX01 (same models and names), so
   the Toolset knows those door types in the merged set.
 - `srn_2da/genericdoors.2da` rows 1094-1103 take a name each from the talk table (rows 156-165).
+- `srn_t_common/pavement` (the Concrete ground of `dgt04` and `srx01`; maps `pavement.dds`, `pavement_n.dds`,
+  `pavement_r.dds`) is made again from the CC0 scan
+  [cracked_concrete](https://polyhaven.com/a/cracked_concrete) by Dimitrios Savva, Poly Haven (1K JPG: colour,
+  normal, roughness), desaturated and graded to the sidewalk's brightness by `tilekit material`
+  (`docs/tilesets/dgt04/materials.json`, grade `ground`; user, 2026-11-23). It replaces the ambientCG Road012A
+  asphalt it was made from before. The fetched files and their hashes are in `tilekit/masters/fetched.json` of the
+  shared tool root, under `CrackedConcrete`.
+
+## Suburbs restyle, release B (`srn_t_udp1`, `srn_t_common`, `srn_door`, `srn_placeable`; 2026-11-24)
+
+The D20 Suburbs tiles (`udp1`, and through them the unified `srx01`) keep their own pictures: 99 textures of
+`docs/tilesets/udp1/materials.json` are the originals graded by `tilekit material`, each with a relief and a
+roughness map made from the picture itself. Twelve take detail from the CC0 ambientCG scans listed under Modern
+Exterior release 1: the road and parking pictures (Asphalt033), the walks (Concrete047A), the red brick
+(Bricks097) and the grey metal (MetalPlates013). No other outside material was added. The five scans fetched
+and tried on 2026-11-23 (Grass008, WoodSiding009, PaintedBricks004, RoofingTiles003 of ambientCG; brown_planks_03
+of Poly Haven) are in no pack: the user kept the originals.
+
+The tile models are the originals, compiled by NeverBlender from `sources/srn_t_udp1/` (node names made unique by
+`tilekit unique`), with day and night animations for their lit windows and lamp lenses (`tilekit daylight`) and
+the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are unchanged.

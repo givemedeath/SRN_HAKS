@@ -1,0 +1,263 @@
+{
+ "tileset": "srx01",
+ "fill": 0,
+ "haks": [
+  "srn_t_srx01",
+  "srn_t_dgt04",
+  "srn_t_udp1",
+  "srn_t_fcx01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 22,
+  "height": 16,
+  "lights": [
+   "day",
+   "night"
+  ],
+  "patches": [
+   {
+    "terrain": "Grass",
+    "at": [
+     0,
+     0
+    ],
+    "size": [
+     23,
+     17
+    ],
+    "border": true
+   },
+   {
+    "terrain": "Forest",
+    "over": true,
+    "at": [
+     1,
+     11
+    ],
+    "size": [
+     4,
+     4
+    ]
+   },
+   {
+    "terrain": "Pond",
+    "over": true,
+    "at": [
+     7,
+     12
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Mall_Tan",
+    "over": true,
+    "at": [
+     1,
+     1
+    ],
+    "size": [
+     4,
+     3
+    ]
+   },
+   {
+    "terrain": "Strip_Mall",
+    "over": true,
+    "at": [
+     7,
+     1
+    ],
+    "size": [
+     4,
+     2
+    ]
+   },
+   {
+    "terrain": "Asphalt",
+    "over": true,
+    "at": [
+     1,
+     6
+    ],
+    "size": [
+     4,
+     3
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "House 3, Grey",
+    "at": [
+     12,
+     1
+    ]
+   },
+   {
+    "name": "House 4, Yellow 1x2",
+    "at": [
+     14,
+     1
+    ]
+   },
+   {
+    "name": "House 3, Old",
+    "at": [
+     17,
+     1
+    ]
+   },
+   {
+    "name": "House 4, Old 1x2",
+    "at": [
+     19,
+     1
+    ]
+   },
+   {
+    "name": "House 4, Grey Brick 1x2",
+    "at": [
+     12,
+     5
+    ]
+   },
+   {
+    "name": "House 3, Yellow",
+    "at": [
+     15,
+     5
+    ]
+   },
+   {
+    "name": "Pool, Above Ground",
+    "at": [
+     17,
+     5
+    ]
+   },
+   {
+    "name": "Pool, In Ground",
+    "at": [
+     19,
+     5
+    ]
+   },
+   {
+    "name": "Swing Set",
+    "at": [
+     12,
+     9
+    ]
+   },
+   {
+    "name": "Jungle Gym",
+    "at": [
+     14,
+     9
+    ]
+   },
+   {
+    "name": "Bleacher, Plain",
+    "at": [
+     16,
+     9
+    ]
+   },
+   {
+    "name": "Water Tower Older",
+    "at": [
+     18,
+     9
+    ]
+   },
+   {
+    "name": "Transmission Tower",
+    "at": [
+     20,
+     9
+    ]
+   },
+   {
+    "name": "Baseball Diamond 4x4",
+    "at": [
+     12,
+     11
+    ]
+   },
+   {
+    "name": "Water Tower Newer 1x2",
+    "at": [
+     18,
+     12
+    ]
+   }
+  ],
+  "crossings": [
+   [
+    3,
+    5
+   ],
+   [
+    9,
+    4
+   ],
+   [
+    3,
+    9
+   ],
+   [
+    6,
+    11
+   ],
+   [
+    14,
+    4
+   ],
+   [
+    18,
+    4
+   ],
+   [
+    14,
+    8
+   ],
+   [
+    18,
+    8
+   ],
+   [
+    11,
+    13
+   ],
+   [
+    17,
+    12
+   ],
+   [
+    20,
+    12
+   ]
+  ],
+  "views": [
+   "x03y05-ne",
+   "x09y04-ne",
+   "x03y09-sw",
+   "x06y11-sw",
+   "x14y04-nw",
+   "x18y04-nw",
+   "x14y08-nw",
+   "x18y08-nw",
+   "x11y13-se",
+   "x17y12-ne",
+   "x20y12-nw"
+  ]
+ },
+ "note": "Release B family block: malls, strip mall, parking, houses of each kind, yard pieces, towers, forest and pond."
+}
