@@ -8,7 +8,7 @@ writes the same bytes: nothing else writes the merged files. `lock` pins what a 
 says what has changed since, so a source set changed later (an envkit sheet's new tiles, say) is seen and merged again.
 
 spec: {set (the merged set's resref), display, names (the names file), families: [{set, label}] in the order their
-tiles are numbered, general (the family whose GENERAL section is kept), grass (the family whose [GRASS] is kept),
+tiles are numbered (edge: false for a set with no edge table), general (the family whose GENERAL section is kept), grass (the family whose [GRASS] is kept),
 joins: [[terrain key, terrain key]] the ground pairs join tiles are built for, raised: [terrain key] grounds with
 raised tiles, numbers (the record of tile numbers, `numbered`), joinTiles (the joins spec), doors}.
 
@@ -17,7 +17,8 @@ each number, and a tile new to a source set, or a new join tile, takes the next 
 
 names: {terrains, crossers: [{set, name, key, display, palette (false leaves it off the palette)}], folds: [{set,
 name, into (a terrain key, or null for a name no tile uses)}], edgeNames: [{set, name, into}] spellings only an edge
-table has, groups: [{set, name, display}]}."""
+table has, groups: [{set, name, display, palette (false leaves it off the palette), repeats (a display for each group
+the set names so, where it names several alike; the later ones are called <name>_2, _3)}]}."""
 import hashlib
 import json
 import re
@@ -202,7 +203,7 @@ def merged_set(sets, names, spec, joined=(), numbers=()):
         keys.update({'PathNode': 'A', 'Orientation': 0, 'ImageMap2D': record['minimap']})
         tiles[number[(JOIN, record['model'])]] = [f'[TILE{number[(JOIN, record["model"])]}]{END}' + ''.join(f'{key}={value}{END}' for key, value in keys.items())]
     # groups
-    shown = {(entry['set'], entry['name']): entry['display'] for entry in names['groups']}; groups, taken, begun = [], set(), set()
+    shown = {(entry['set'], entry['name']): entry for entry in names['groups']}; groups, taken, begun, met = [], set(), set(), {}
     for name in order:
         label = next(family['label'] for family in spec['families'] if family['set'] == name); models = {tile['number']: tile['model'] for tile in laid[name]['tiles']}
         for section, raw in _sections(sets[name]):
@@ -216,12 +217,17 @@ def merged_set(sets, names, spec, joined=(), numbers=()):
             if models[real[0]].lower() in begun:  # the Toolset finds a group by its first tile's model, so a second one with that model lays the first
                 continue  # (seen 2026-11-21: an envkit building's suburb copy laid its city copy); its tiles stay, its group is left out
             begun.add(models[real[0]].lower())
-            called = was if was.lower() not in taken else f'{was}_{label}'  # an envkit building stands in two families under one name
+            entry = shown[(name, was)]; again = met.get((name, was), 0); met[(name, was)] = again + 1
+            if 'repeats' in entry:  # a set that names several groups alike (tbx78's three room2x1): a display for each, in the set's order
+                require(again < len(entry['repeats']), f'{name}: group {was} stands more often than its names entry lists displays')
+            display = entry['repeats'][again] if 'repeats' in entry else entry['display']
+            called = f'{was}_{again + 1}' if again and 'repeats' in entry else was
+            called = called if called.lower() not in taken else f'{called}_{label}'  # an envkit building stands in two families under one name
             require(called.lower() not in taken, f'Two groups are named {called}'); taken.add(called.lower())
             raw = re.sub(r'^\[GROUP\d+', f'[GROUP{len(groups)}', raw, count=1)
             raw = re.sub(r'(?m)^Name=[^\r\n]*', lambda _: f'Name={called}', raw, count=1)
             raw = MEMBER.sub(lambda found: f'{found.group(1)}={number[(name, int(found.group(2)))] if int(found.group(2)) >= 0 else -1}', raw)
-            groups.append({'set': name, 'name': called, 'was': was, 'display': shown[(name, was)], 'tiles': [number[(name, member)] if member >= 0 else -1 for member in members],
+            groups.append({'set': name, 'name': called, 'was': was, 'display': display, 'palette': entry.get('palette', True), 'tiles': [number[(name, member)] if member >= 0 else -1 for member in members],
                            'model': models[real[0]], 'raw': _crlf(raw).rstrip(END) + END})
     # rules
     own = []
@@ -275,7 +281,7 @@ def merged_edge(edges, names, spec, joined=()):
         kind = terrains if other['into'] in {entry['key'] for entry in names['terrains']} else crossers
         require(other['into'] in {entry['key'] for entry in names['terrains'] + names['crossers']}, f'{other["name"]} is spelled for no key')
         kind.setdefault(other['set'], {})[other['name'].lower()] = other['into']
-    for name in (family['set'] for family in spec['families']):
+    for name in (family['set'] for family in spec['families'] if family['set'] in edges):
         lines = [inventory.words(line) for line in _lines(edges[name])[3:] if line.strip()]
         for cells in lines:
             require(len(cells) == 6, f'{name}: an edge row has not six cells: ' + ' '.join(cells))
@@ -304,8 +310,9 @@ def palette(names, groups):
     tool = lambda resref, name: {'__struct_id': 0, 'RESREF': {'type': 'resref', 'value': resref}, 'STRREF': {'type': 'dword', 'value': name}}
     node = lambda which, listed: {'__struct_id': 0, 'ID': {'type': 'byte', 'value': which[0]}, 'LIST': {'type': 'list', 'value': listed}, 'STRREF': {'type': 'dword', 'value': which[1]}}
     ordered = lambda found: [entry(shown, resref) for shown, resref in sorted(found, key=lambda pair: (pair[0].lower(), pair[1]))]
-    single = [(group['display'], group['model']) for group in groups if len(group['tiles']) == 1]
-    several = [(group['display'], group['model']) for group in groups if len(group['tiles']) > 1]
+    listed = [group for group in groups if group.get('palette', True)]  # a group off the palette stays in the set: an area laid with it still reads
+    single = [(group['display'], group['model']) for group in listed if len(group['tiles']) == 1]
+    several = [(group['display'], group['model']) for group in listed if len(group['tiles']) > 1]
     painted = [(one['display'], one['key'].lower()) for one in names['terrains'] + names['crossers'] if one.get('palette', True)]
     return {'__data_type': 'ITP ', 'MAIN': {'type': 'list', 'value': [node(FEATURES, ordered(single)), node(GROUPS, ordered(several)),
                                                                      node(TERRAIN, [tool(*ERASER), tool(*RAISE)] + ordered(painted))]}}
@@ -317,7 +324,8 @@ def paths(repo, spec):
     inputs = {'names': repo / spec['names']}
     for family in spec['families']:
         inputs[f'set:{family["set"]}'] = repo / f'srn_t_{family["set"]}' / f'{family["set"]}.set'
-        inputs[f'edge:{family["set"]}'] = repo / 'srn_2da' / f'{family["set"]}_edge.2da'
+        if family.get('edge', True):  # false: a source set with no edge table (tfb01, nac01)
+            inputs[f'edge:{family["set"]}'] = repo / 'srn_2da' / f'{family["set"]}_edge.2da'
     if spec.get('joinTiles'):
         inputs['joins'] = repo / spec['joinTiles']
     outputs = {'set': pack / f'{name}.set', 'palette': pack / f'{name}palstd.itp', 'edge': repo / 'srn_2da' / f'{name}_edge.2da'}
@@ -343,7 +351,7 @@ def work(repo, spec):
         models = lambda found: [tile['model'].lower() for tile in inventory.read_set(found)['tiles']]
         was, now = models(outputs['set'].read_bytes().decode('cp1252')), models(text)
         require(now[:len(was)] == was, f'The numbers record {outputs["numbers"].name} is missing, and without it tiles of {outputs["set"].name} would take other numbers: restore it')
-    edge = merged_edge({name: inputs[f'edge:{name}'].read_bytes().decode('cp1252') for name in order}, names, spec, joins.edges(cut) if cut else ())
+    edge = merged_edge({name: inputs[f'edge:{name}'].read_bytes().decode('cp1252') for name in order if f'edge:{name}' in inputs}, names, spec, joins.edges(cut) if cut else ())
     numbers = None if record is None else '{\n "schemaVersion": 1,\n "kind": "tilekit-merge-numbers",\n "tiles": [\n' + ',\n'.join('  ' + json.dumps(run) for run in record) + '\n ]\n}\n'
     return {'set': text, 'edge': edge, 'palette': palette(names, groups), 'first': first, 'groups': groups, 'numbers': numbers}
 

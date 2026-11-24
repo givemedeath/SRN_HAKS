@@ -6067,6 +6067,11 @@
       "tools/tilekit/joins.py",
       "tools/tilekit/merge.py"
     ],
+    "tools/tilekit/test_merge_interior.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/merge.py"
+    ],
     "tools/tilekit/test_names.py": [
       "srn_tlk/allocations.json",
       "srn_tlk/srn.tlk.json",
@@ -6488,6 +6493,15 @@
       "srn_t_srx01",
       "srn_t_udp1"
     ],
+    "tools/tilekit/test_merge_interior.py": [
+      "srn_2da",
+      "srn_t_common",
+      "srn_t_nac01",
+      "srn_t_srx02",
+      "srn_t_tbx78",
+      "srn_t_tfb01",
+      "srn_t_udp2"
+    ],
     "tools/tilekit/test_names.py": [
       "srn_2da",
       "srn_t_dgt04",
@@ -6855,6 +6869,7 @@
     "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",
     "tools/tilekit/test_merge.py",
+    "tools/tilekit/test_merge_interior.py",
     "tools/tilekit/test_names.py",
     "tools/tilekit/test_openings.py",
     "tools/tilekit/test_perf.py",

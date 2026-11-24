@@ -1,0 +1,62 @@
+{
+ "set": "srx02",
+ "display": "SRN City Interior",
+ "names": "docs/tilesets/srx02/names.json",
+ "families": [
+  {
+   "set": "udp2",
+   "label": "Office"
+  },
+  {
+   "set": "tfb01",
+   "label": "Home",
+   "edge": false
+  },
+  {
+   "set": "tbx78",
+   "label": "Facility"
+  },
+  {
+   "set": "nac01",
+   "label": "Ducts",
+   "edge": false
+  }
+ ],
+ "general": "udp2",
+ "grass": "udp2",
+ "joins": [],
+ "numbers": "docs/tilesets/srx02/numbers.json",
+ "doors": {
+  "24": 269,
+  "42": 270,
+  "43": 271,
+  "54": 272,
+  "146": 273
+ },
+ "doorsNote": "doortypes.2da rows keyed to the base game sets TIN01 and TTF01, which tfb01 and tbx78 hooks name, copied to rows 269-273 keyed SRX02: the Toolset lists a door's types by its area's tileset.",
+ "absent": [
+  "gi_z01_01",
+  "gi_z01_02",
+  "gi_z01_03",
+  "gi_z01_04",
+  "gi_z01_05",
+  "gi_z01_06",
+  "gi_z01_07",
+  "gi_z01_08",
+  "gi_z01_09",
+  "gi_z02_01",
+  "gi_z02_02",
+  "gi_z02_03",
+  "gi_z02_04",
+  "gi_z02_05",
+  "gi_z02_06",
+  "gi_z02_07",
+  "gi_z03_01",
+  "tall_a01_01",
+  "tall_b01_01",
+  "tin01_o20_01",
+  "tin01_z10_01"
+ ],
+ "absentNote": "Models the set or its edge table names and no pack holds: udp2's 17 edge models gi_z* (its inventory records them), and four of the base game (tall_a01_01, tall_b01_01, tin01_o20_01 tiles; tin01_z10_01 the facility's wall border).",
+ "groupsNote": "Four tfb01 groups begin with the first tile of an earlier group (HomeLower03 as 01; HomeLower04 and 05 as 02; HomeUpper03 as 01): the Toolset lays the earlier one for them in tfb01 too, so the merge leaves them out. Their tiles stay."
+}

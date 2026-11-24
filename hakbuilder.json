@@ -79,6 +79,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_srx02",
+      "Path": "./srn_t_srx02/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_t_tfb01",
       "Path": "./srn_t_tfb01/",
       "CompileModels": false

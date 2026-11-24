@@ -143,7 +143,7 @@ draft names is in the table.
   eye-level camera is what `eye` views now do; its holding of a view until the picture is saved is worth copying to
   end late captures.
 
-## Stage 1: names proposal (2026-11-24, not approved)
+## Stage 1: names (approved by the user 2026-11-24)
 
 `docs/tilesets/srx02/names.json`: 14 terrains, 3 folds, 15 crossers, 166 groups, 13 categories.
 `tools/tilekit/test_names.py` holds it to the four set files.
@@ -162,6 +162,27 @@ draft names is in the table.
   room tooling (5), pilots (6). The pilots on udp2 and tbx78 shells (R02, O04, S01, S03) do not wait for 4b; R04 and
   C01 do. Walkmeshes stay as the baseline records them; built-in furniture that blocks walking keeps its footprint
   or the baseline is revised with the user's approval.
+
+## Stage 2: merge (2026-11-24)
+
+`docs/tilesets/srx02/merge.json` and `tilekit merge` write `srn_t_srx02/srx02.set`, `srx02palstd.itp` and
+`srn_2da/srx02_edge.2da`: 668 tiles (udp2 0-228, tfb01 229-566, tbx78 567-650, nac01 651-667; `numbers.json` holds
+them there), 164 groups, 130 rules, shown as "SRN City Interior". `tools/tilekit/test_merge_interior.py` guards it.
+
+- **Merge code added:** a group with `palette: false` stays in the set and off the palette; a names entry's `repeats`
+  names each of several groups a set calls alike (the later ones `<name>_2`, `_3`); a family with `edge: false` has no
+  edge table (tfb01, nac01).
+- **Rules:** the source sets' own 29, and one for every pair of floors of two families, each changing the neighbour
+  to Wall.
+- **Doors:** tfb01 and tbx78 hooks name types keyed to the base game's TIN01 and TTF01 (24, 42, 43, 54, 146);
+  `doortypes.2da` rows 269-273 are their copies keyed SRX02 and the merged hooks name those.
+- **Edge table:** udp2's calls its fifth floor `Study`, which no tile does; `edgeNames` maps it to `Office_Alum`.
+  Its 17 `gi_z*` models are in no pack (listed under `absent` with four base game models).
+- **Groups left out (4):** tfb01 `HomeLower03`, `04`, `05` and `HomeUpper03` begin with the first tile of an earlier
+  group, so the Toolset lays the earlier one for them in tfb01 too. Their tiles stay.
+- **Source fix:** `nac01.set` hook `[TILE8DOOR1] X==-4.75` is now `X=-4.75`.
+- **Open:** one EnvMap for the set (udp2's `tdc01__ref01` is kept; tfb01 and nac01 named others) is judged at the
+  release A look check. Crosser joins are stage 3.
 
 ## Decisions for the user (defaults used unless changed)
 

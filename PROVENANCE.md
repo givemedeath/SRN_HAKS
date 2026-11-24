@@ -2505,3 +2505,15 @@ of Poly Haven) are in no pack: the user kept the originals.
 The tile models are the originals, compiled by NeverBlender from `sources/srn_t_udp1/` (node names made unique by
 `tilekit unique`), with day and night animations for their lit windows and lamp lenses (`tilekit daylight`) and
 the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are unchanged.
+
+## Unified interior tileset `srx02` (`srn_t_srx02`, `srn_2da`, `srn_t_nac01`; 2026-11-24)
+
+- `srn_t_srx02/srx02.set`, `srx02palstd.itp` and `srn_2da/srx02_edge.2da` are written by `tools/tilekit/merge.py` from
+  the set files of `srn_t_udp2` (D20 Office Interiors UDP), `srn_t_tfb01` (D20 Modern Interior), `srn_t_tbx78` (D20
+  Modern Facility) and `srn_t_nac01` (D20 ServiceDucts) and the edge tables of the first and third, under the names in
+  `docs/tilesets/srx02/names.json`. They hold no model, texture or picture: every tile draws the source packs' own
+  files, whose provenance and terms are recorded above. The names, the palette layout and the generated rules between
+  the four sets are original work of the SRN project operator with Claude; the operator approved the names on
+  2026-11-24. `docs/tilesets/srx02/merged.json` pins what each merge read and wrote.
+- `srn_2da/doortypes.2da` rows 269-273 are copies of the base game's rows 24, 42, 43, 54 and 146 keyed to `SRX02`.
+- `srn_t_nac01/nac01.set`: one door hook's `X==-4.75` corrected to `X=-4.75` (a typing error of the source).

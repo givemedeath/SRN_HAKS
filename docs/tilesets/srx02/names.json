@@ -1,6 +1,6 @@
 {
  "set": "srx02",
- "status": "proposed 2026-11-24 from client pictures; not approved",
+ "status": "approved by the user, 2026-11-24 (from client pictures)",
  "rule": "key: the name in the set file, 16 characters at most, frozen at release A. display: what the Toolset palette shows, \"<category>: <name>\", so the palette lists sort by use.",
  "notes": [
   "A source name is kept as the key unless it clashes (Wall, Service, Corridor) or differs only by case; the display says what the pictures show.",
@@ -1476,6 +1476,14 @@
    "was": "door_transition",
    "category": "Facility",
    "display": "Facility: Transition Door"
+  }
+ ],
+ "edgeNames": [
+  {
+   "set": "udp2",
+   "name": "Study",
+   "into": "Office_Alum",
+   "reason": "udp2's edge table calls its fifth floor Study (models gi_z01_05, gi_z02_05, after Office_Wood's _04); no tile does, so those border rows never matched. Here they name Office_Alum"
   }
  ]
 }

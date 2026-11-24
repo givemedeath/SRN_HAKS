@@ -359,7 +359,7 @@ Orientation=180
 
 [TILE8DOOR1]
 Type=0
-X==-4.75
+X=-4.75
 Y=0
 Z=0
 Orientation=90
