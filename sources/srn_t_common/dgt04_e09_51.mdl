@@ -159,6 +159,152 @@ node trimesh windows_lit
      0.000  1.625  0
      0.000  0.000  0
 endnode
+node trimesh day00_0
+  parent dgt04_e09_51a
+  position -1.51625 -0.00000  38.60125
+  orientation  1.00000  0.00000  0.00000  0.00000
+  wirecolor  0.03  0.03  0.53
+  ambient  1.00  1.00  1.00
+  diffuse  0.80  0.80  0.80
+  specular  0.00  0.00  0.00
+  bitmap hrise_06_wall2
+  alpha 1.0
+  shininess 10
+  selfillumcolor  0 0 0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  transparencyhint 0
+  rotatetexture 0
+  tilefade 0
+  verts 40
+     1.55625 -2.50000  21.39875
+     1.55625 -0.00000  21.39875
+     1.55625  2.50000  21.39875
+     1.55625 -5.00000  21.39875
+     1.55625  5.00000  21.39875
+     1.55625 -0.00000  16.96875
+     1.55625 -2.50000  16.96875
+     1.55625  2.50000  16.96875
+     1.55625  5.00000  16.96875
+     1.55625 -5.00000  16.96875
+     1.55625  5.00000  13.03875
+     1.55625 -2.50000  13.03875
+     1.55625 -0.00000  13.03875
+     1.55625 -5.00000  13.03875
+     1.55625  2.50000  13.03875
+    -0.93375 -5.00000 -32.60125
+    -0.93375  5.00000 -32.60125
+    -0.93375  5.00000  12.03875
+    -0.93375 -5.00000  12.03875
+    -0.93375  5.00000 -21.44126
+    -0.93375  5.00000 -10.28126
+    -0.93375  5.00000  0.87874
+    -0.93375 -5.00000 -21.44126
+    -0.93375 -5.00000 -10.28126
+    -0.93375 -5.00000  0.87874
+    -0.93375 -2.50000 -32.60125
+    -0.93375  0.00000 -32.60125
+    -0.93375  2.50000 -32.60125
+    -0.93375  2.50000  12.03875
+    -0.93375  0.00000  12.03875
+    -0.93375 -2.50000  12.03875
+    -0.93375  2.50000  0.87874
+    -0.93375  0.00000  0.87874
+    -0.93375 -2.50000  0.87874
+    -0.93375  2.50000 -10.28126
+    -0.93375  0.00000 -10.28126
+    -0.93375 -2.50000 -10.28126
+    -0.93375  2.50000 -21.44126
+    -0.93375  0.00000 -21.44126
+    -0.93375 -2.50000 -21.44126
+  faces 48
+     7 12  5  0   0  1  2   0
+     5 11  6  0   2  3  4   0
+     6 13  9  0   4  5  6   0
+     8 14  7  0   7  8  0   0
+     2  5  1  0   9  2 10   0
+     1  6  0  0  10  4 11   0
+     0  9  3  0  11  6 12   0
+     4  7  2  0  13  0  9   0
+    19 27 37  0  14 15 16   0
+    17 31 28  0  13 17  9   0
+    21 34 31  0  18 19 17   0
+    20 37 34  0  20 16 19   0
+    36 22 23  0  21 22 23   0
+    35 39 36  0  24 25 21   0
+    34 38 35  0  19 26 24   0
+    33 23 24  0  27 23 28   0
+    32 36 33  0  29 21 27   0
+    31 35 32  0  17 24 29   0
+    30 24 18  0  11 28 12   0
+    29 33 30  0  10 27 11   0
+    28 32 29  0   9 29 10   0
+    39 15 22  0  25 30 22   0
+    38 25 39  0  26 31 25   0
+    37 26 38  0  16 32 26   0
+     7 14 12  0   0  8  1   0
+     5 12 11  0   2  1  3   0
+     6 11 13  0   4  3  5   0
+     8 10 14  0   7 33  8   0
+     2  7  5  0   9  0  2   0
+     1  5  6  0  10  2  4   0
+     0  6  9  0  11  4  6   0
+     4  8  7  0  13  7  0   0
+    19 16 27  0  14 34 15   0
+    17 21 31  0  13 18 17   0
+    21 20 34  0  18 20 19   0
+    20 19 37  0  20 14 16   0
+    36 39 22  0  21 25 22   0
+    35 38 39  0  24 26 25   0
+    34 37 38  0  19 16 26   0
+    33 36 23  0  27 21 23   0
+    32 35 36  0  29 24 21   0
+    31 34 35  0  17 19 24   0
+    30 33 24  0  11 27 28   0
+    29 32 33  0  10 29 27   0
+    28 31 32  0   9 17 29   0
+    39 25 15  0  25 31 30   0
+    38 26 25  0  26 32 31   0
+    37 27 26  0  16 15 32   0
+  tverts 35
+     0.250  1.802  0
+     0.500  1.625  0
+     0.500  1.802  0
+     0.750  1.625  0
+     0.750  1.802  0
+     1.000  1.625  0
+     1.000  1.802  0
+     0.000  1.802  0
+     0.250  1.625  0
+     0.250  2.000  0
+     0.500  2.000  0
+     0.750  2.000  0
+     1.000  2.000  0
+     0.000  2.000  0
+     0.000  0.500  0
+     0.250  0.000  0
+     0.250  0.500  0
+     0.250  1.500  0
+     0.000  1.500  0
+     0.250  1.000  0
+     0.000  1.000  0
+     0.750  1.000  0
+     1.000  0.500  0
+     1.000  1.000  0
+     0.500  1.000  0
+     0.750  0.500  0
+     0.500  0.500  0
+     0.750  1.500  0
+     1.000  1.500  0
+     0.500  1.500  0
+     1.000  0.000  0
+     0.750  0.000  0
+     0.500  0.000  0
+     0.000  1.625  0
+     0.000  0.000  0
+endnode
 node light dgt04_e09_51ml1
   parent dgt04_e09_51
   position -2.76984  0.00013  4.01771
@@ -1562,6 +1708,12 @@ newanim tiledefault dgt04_e09_51
       0.00000 -1.51625 -0.00000  38.60125
       0.03333 -1.51625 -0.00000  38.60125
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_51a
+    positionkey 2
+      0.00000 -1.51625 -0.00000  38.60125
+      0.03333 -1.51625 -0.00000  38.60125
+  endnode
   node light dgt04_e09_51ml1
     parent dgt04_e09_51
   endnode
@@ -1652,6 +1804,12 @@ newanim animloop01 dgt04_e09_51
       0.00000 -1.58625 -0.00000  38.60125
       0.03333 -1.58625 -0.00000  38.60125
   endnode
+  node trimesh day00_0
+    parent dgt04_e09_51a
+    positionkey 2
+      0.00000 -1.58625 -0.00000  38.60125
+      0.03333 -1.58625 -0.00000  38.60125
+  endnode
   node light dgt04_e09_51ml1
     parent dgt04_e09_51
   endnode
@@ -1726,4 +1884,104 @@ newanim animloop01 dgt04_e09_51
   endnode
 doneanim animloop01 dgt04_e09_51
 
+newanim day dgt04_e09_51
+  length 0.03333
+  transtime 0.25
+  animroot dgt04_e09_51
+  node dummy dgt04_e09_51
+    parent NULL
+  endnode
+  node dummy dgt04_e09_51a
+    parent dgt04_e09_51
+  endnode
+  node trimesh windows_lit
+    parent dgt04_e09_51a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt04_e09_51a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day dgt04_e09_51
+newanim day2night dgt04_e09_51
+  length 0.56667
+  transtime 0.25
+  animroot dgt04_e09_51
+  node dummy dgt04_e09_51
+    parent NULL
+  endnode
+  node dummy dgt04_e09_51a
+    parent dgt04_e09_51
+  endnode
+  node trimesh windows_lit
+    parent dgt04_e09_51a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt04_e09_51a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night dgt04_e09_51
+newanim night dgt04_e09_51
+  length 0.03333
+  transtime 0.25
+  animroot dgt04_e09_51
+  node dummy dgt04_e09_51
+    parent NULL
+  endnode
+  node dummy dgt04_e09_51a
+    parent dgt04_e09_51
+  endnode
+  node trimesh windows_lit
+    parent dgt04_e09_51a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt04_e09_51a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night dgt04_e09_51
+newanim night2day dgt04_e09_51
+  length 0.60000
+  transtime 0.25
+  animroot dgt04_e09_51
+  node dummy dgt04_e09_51
+    parent NULL
+  endnode
+  node dummy dgt04_e09_51a
+    parent dgt04_e09_51
+  endnode
+  node trimesh windows_lit
+    parent dgt04_e09_51a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt04_e09_51a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day dgt04_e09_51
 donemodel dgt04_e09_51

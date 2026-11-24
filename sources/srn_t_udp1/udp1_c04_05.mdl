@@ -5148,28 +5148,55 @@ endnode
 node trimesh window590
   parent light_on09
 endnode
+node trimesh day00_0
+  parent light_on09
+endnode
 node trimesh window591
+  parent light_on09
+endnode
+node trimesh day01_0
   parent light_on09
 endnode
 node trimesh window592
   parent light_on09
 endnode
+node trimesh day02_0
+  parent light_on09
+endnode
 node trimesh window593
+  parent light_on09
+endnode
+node trimesh day03_0
   parent light_on09
 endnode
 node trimesh window594
   parent light_on09
 endnode
+node trimesh day04_0
+  parent light_on09
+endnode
 node trimesh window595
+  parent light_on09
+endnode
+node trimesh day05_0
   parent light_on09
 endnode
 node trimesh window596
   parent light_on09
 endnode
+node trimesh day06_0
+  parent light_on09
+endnode
 node trimesh res_light_lens_on44
   parent light_on09
 endnode
+node trimesh day07_0
+  parent light_on09
+endnode
 node trimesh res_light_lens_on45
+  parent light_on09
+endnode
+node trimesh day08_0
   parent light_on09
 endnode
 node light misclight252
@@ -5344,28 +5371,55 @@ endnode
 node trimesh window590
   parent light_on09
 endnode
+node trimesh day00_0
+  parent light_on09
+endnode
 node trimesh window591
+  parent light_on09
+endnode
+node trimesh day01_0
   parent light_on09
 endnode
 node trimesh window592
   parent light_on09
 endnode
+node trimesh day02_0
+  parent light_on09
+endnode
 node trimesh window593
+  parent light_on09
+endnode
+node trimesh day03_0
   parent light_on09
 endnode
 node trimesh window594
   parent light_on09
 endnode
+node trimesh day04_0
+  parent light_on09
+endnode
 node trimesh window595
+  parent light_on09
+endnode
+node trimesh day05_0
   parent light_on09
 endnode
 node trimesh window596
   parent light_on09
 endnode
+node trimesh day06_0
+  parent light_on09
+endnode
 node trimesh res_light_lens_on44
   parent light_on09
 endnode
+node trimesh day07_0
+  parent light_on09
+endnode
 node trimesh res_light_lens_on45
+  parent light_on09
+endnode
+node trimesh day08_0
   parent light_on09
 endnode
 node light misclight252

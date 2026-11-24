@@ -9422,49 +9422,97 @@ endnode
 node trimesh window20
   parent light_on18
 endnode
+node trimesh day00_0
+  parent light_on18
+endnode
 node trimesh window21
+  parent light_on18
+endnode
+node trimesh day01_0
   parent light_on18
 endnode
 node trimesh window32
   parent light_on18
 endnode
+node trimesh day02_0
+  parent light_on18
+endnode
 node trimesh res_light_lens_on69
+  parent light_on18
+endnode
+node trimesh day03_0
   parent light_on18
 endnode
 node trimesh res_light_lens_on68
   parent light_on18
 endnode
+node trimesh day04_0
+  parent light_on18
+endnode
 node trimesh window756
+  parent light_on18
+endnode
+node trimesh day05_0
   parent light_on18
 endnode
 node trimesh window752
   parent light_on18
 endnode
+node trimesh day06_0
+  parent light_on18
+endnode
 node trimesh window751
+  parent light_on18
+endnode
+node trimesh day07_0
   parent light_on18
 endnode
 node trimesh res_light_lens_on70
   parent light_on18
 endnode
+node trimesh day08_0
+  parent light_on18
+endnode
 node trimesh window753
+  parent light_on18
+endnode
+node trimesh day09_0
   parent light_on18
 endnode
 node trimesh window754
   parent light_on18
 endnode
+node trimesh day10_0
+  parent light_on18
+endnode
 node trimesh window755
+  parent light_on18
+endnode
+node trimesh day11_0
   parent light_on18
 endnode
 node trimesh window749
   parent light_on18
 endnode
+node trimesh day12_0
+  parent light_on18
+endnode
 node trimesh window748
+  parent light_on18
+endnode
+node trimesh day13_0
   parent light_on18
 endnode
 node trimesh window747
   parent light_on18
 endnode
+node trimesh day14_0
+  parent light_on18
+endnode
 node trimesh window750
+  parent light_on18
+endnode
+node trimesh day15_0
   parent light_on18
 endnode
 node dummy light_off18
@@ -9753,49 +9801,97 @@ endnode
 node trimesh window20
   parent light_on18
 endnode
+node trimesh day00_0
+  parent light_on18
+endnode
 node trimesh window21
+  parent light_on18
+endnode
+node trimesh day01_0
   parent light_on18
 endnode
 node trimesh window32
   parent light_on18
 endnode
+node trimesh day02_0
+  parent light_on18
+endnode
 node trimesh res_light_lens_on69
+  parent light_on18
+endnode
+node trimesh day03_0
   parent light_on18
 endnode
 node trimesh res_light_lens_on68
   parent light_on18
 endnode
+node trimesh day04_0
+  parent light_on18
+endnode
 node trimesh window756
+  parent light_on18
+endnode
+node trimesh day05_0
   parent light_on18
 endnode
 node trimesh window752
   parent light_on18
 endnode
+node trimesh day06_0
+  parent light_on18
+endnode
 node trimesh window751
+  parent light_on18
+endnode
+node trimesh day07_0
   parent light_on18
 endnode
 node trimesh res_light_lens_on70
   parent light_on18
 endnode
+node trimesh day08_0
+  parent light_on18
+endnode
 node trimesh window753
+  parent light_on18
+endnode
+node trimesh day09_0
   parent light_on18
 endnode
 node trimesh window754
   parent light_on18
 endnode
+node trimesh day10_0
+  parent light_on18
+endnode
 node trimesh window755
+  parent light_on18
+endnode
+node trimesh day11_0
   parent light_on18
 endnode
 node trimesh window749
   parent light_on18
 endnode
+node trimesh day12_0
+  parent light_on18
+endnode
 node trimesh window748
+  parent light_on18
+endnode
+node trimesh day13_0
   parent light_on18
 endnode
 node trimesh window747
   parent light_on18
 endnode
+node trimesh day14_0
+  parent light_on18
+endnode
 node trimesh window750
+  parent light_on18
+endnode
+node trimesh day15_0
   parent light_on18
 endnode
 node dummy light_off18

@@ -8073,7 +8073,7 @@ node trimesh day17_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -11809,28 +11809,55 @@ endnode
 node trimesh skylight_windows20
   parent lite_off
 endnode
+node trimesh day13_0
+  parent lite_off
+endnode
 node trimesh skylight_windows19
+  parent lite_off
+endnode
+node trimesh day14_0
   parent lite_off
 endnode
 node trimesh skylight_windows21
   parent lite_off
 endnode
+node trimesh day15_0
+  parent lite_off
+endnode
 node trimesh school_windows03
+  parent lite_off
+endnode
+node trimesh day16_0
   parent lite_off
 endnode
 node trimesh windows05
   parent lite_off
 endnode
+node trimesh day17_0
+  parent lite_off
+endnode
 node trimesh skylight_windows23
+  parent lite_off
+endnode
+node trimesh day18_0
   parent lite_off
 endnode
 node trimesh skylight_windows24
   parent lite_off
 endnode
+node trimesh day19_0
+  parent lite_off
+endnode
 node trimesh skylight_windows25
   parent lite_off
 endnode
+node trimesh day20_0
+  parent lite_off
+endnode
 node trimesh skylight_windows22
+  parent lite_off
+endnode
+node trimesh day21_0
   parent lite_off
 endnode
 node dummy lite_on
@@ -12316,28 +12343,55 @@ endnode
 node trimesh skylight_windows20
   parent lite_off
 endnode
+node trimesh day13_0
+  parent lite_off
+endnode
 node trimesh skylight_windows19
+  parent lite_off
+endnode
+node trimesh day14_0
   parent lite_off
 endnode
 node trimesh skylight_windows21
   parent lite_off
 endnode
+node trimesh day15_0
+  parent lite_off
+endnode
 node trimesh school_windows03
+  parent lite_off
+endnode
+node trimesh day16_0
   parent lite_off
 endnode
 node trimesh windows05
   parent lite_off
 endnode
+node trimesh day17_0
+  parent lite_off
+endnode
 node trimesh skylight_windows23
+  parent lite_off
+endnode
+node trimesh day18_0
   parent lite_off
 endnode
 node trimesh skylight_windows24
   parent lite_off
 endnode
+node trimesh day19_0
+  parent lite_off
+endnode
 node trimesh skylight_windows25
   parent lite_off
 endnode
+node trimesh day20_0
+  parent lite_off
+endnode
 node trimesh skylight_windows22
+  parent lite_off
+endnode
+node trimesh day21_0
   parent lite_off
 endnode
 node dummy lite_on

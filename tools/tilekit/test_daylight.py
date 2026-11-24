@@ -2,6 +2,7 @@
 the whole line of parents of what it fades."""
 import json
 import re
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from tools.tilekit import daylight
 
 REPO = Path(__file__).resolve().parents[2]
 PACKS = ('srn_t_udp1', 'srn_door', 'srn_placeable')  # the packs that hold the list's textures: named so the test selector checks them out
+CITY = ('srn_t_common', 'srn_t_dgt04')  # the same for the Modern Exterior list
 MODEL = """newmodel t_a01
 beginmodelgeom t_a01
 node dummy t_a01
@@ -88,7 +90,7 @@ class Daylight(unittest.TestCase):
         twice = MODEL.replace('node trimesh lens lit01', 'node trimesh pane').replace('endmodelgeom t_a01', 'endmodelgeom t_a01\nnewanim loop t_a01\n  node trimesh pane\n    parent lights\n  endnode\n  node trimesh pane\n    parent lights\n  endnode\ndoneanim loop t_a01')
         made = daylight.with_daylight(twice, LIT)[0]; loop = anim(made, 'loop')
         self.assertEqual(re.findall(r'(?m)^node trimesh (lit\S+)', made), ['lit00_0', 'lit01_0'])
-        self.assertEqual(re.findall(r'node trimesh (\S+)', loop), ['lit00_0', 'lit01_0'])
+        self.assertEqual(re.findall(r'node trimesh (\S+)', loop), ['lit00_0', 'day00_0', 'lit01_0'])  # the first has a day pane, which goes where it goes
         self.assertIn('node trimesh lit00_0\n  parent lights\n  selfillumcolor 0.7 0.7 0.7\n  bitmap win_b', made)
         shared = MODEL.replace('node trimesh dull', 'node trimesh pane')
         with self.assertRaisesRegex(ValueError, 'shares its name'):
@@ -142,8 +144,9 @@ class Daylight(unittest.TestCase):
         lit = json.loads((REPO / 'docs' / 'tilesets' / 'udp1' / 'daylight.json').read_text(encoding='utf-8'))['lit']
         from tools.tilekit import inventory
         off = [keys['Model'] for name, keys in inventory.sections((REPO / 'srn_t_udp1' / 'udp1.set').read_text(encoding='cp1252'))
-               if re.fullmatch(r'TILE\d+', name) and keys.get('AnimLoop1') != '1' and (REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').is_file()
-               and daylight.switched((REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').read_text(encoding='cp1252'), lit)]
+               for loop in daylight.LOOPS
+               if re.fullmatch(r'TILE\d+', name) and keys.get(f'AnimLoop{loop}') != '1' and (REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').is_file()
+               and daylight.switched((REPO / 'sources' / 'srn_t_udp1' / f'{keys["Model"].lower()}.mdl').read_text(encoding='cp1252'), lit, f'animloop0{loop}')]
         self.assertEqual(off, [])  # the suburb set itself
 
     def test_line_ends_are_kept(self):
@@ -154,6 +157,74 @@ class Daylight(unittest.TestCase):
         lit = json.loads((REPO / 'docs' / 'tilesets' / 'udp1' / 'daylight.json').read_text(encoding='utf-8'))['lit']
         held = {path.stem.lower() for pack in PACKS for path in (REPO / pack).iterdir()}
         self.assertEqual(sorted(name for pair in lit.items() for name in pair if name and name not in held), [])
+
+    def test_the_city_list_names_textures_the_packs_hold_and_no_tile_of_it_glows_at_every_hour(self):
+        # the Modern Exterior windows glowed at noon until its lit panes were given the day and night (2026-11-24)
+        from tools.tilekit import inventory, lamps
+        lit = json.loads((REPO / 'docs' / 'tilesets' / 'dgt04' / 'daylight.json').read_text(encoding='utf-8'))['lit']
+        held = {path.stem.lower() for pack in CITY for path in (REPO / pack).iterdir()}
+        self.assertEqual(sorted(name for pair in lit.items() for name in pair if name and name not in held), [])
+        with tempfile.TemporaryDirectory() as temporary:
+            read = [(name, text) for name, file, text, others, source in inventory.drawn_copies(REPO, 'dgt04', Path(temporary), lamps.PACKS) if daylight.lit_nodes(text, lit)]
+        self.assertGreater(len(read), 150)  # the sources were read: without them every model is compiled and none is looked at
+        self.assertEqual([name for name, text in read if not re.search(r'(?mi)^[ \t]*newanim[ \t]+day[ \t]', text)], [])
+        # a tile loop lifts a lit pane into place from where it is parked; its day pane was left behind, and the windows
+        # that lit at night were bare wall by day (review of PR 194, 2026-11-24): a day pane is moved wherever its lit pane is
+        behind = []
+        for name, text in read:
+            nodes = daylight.NODE.findall(daylight._geometry(text))
+            for (kind, lit_pane, body), (_, pane, _) in zip(nodes, nodes[1:]):
+                if daylight.PANE.match(pane) and not daylight.PANE.match(lit_pane):
+                    for part in re.split(r'(?mi)^[ \t]*newanim[ \t]+', text)[1:]:
+                        keyed = {one.split()[0].lower(): re.findall(r'(?mi)^[ \t]*positionkey[^\n]*\n([^\n]*)|^[ \t]*position[ \t]+([^\r\n]*)', block)  # keyed, or a plain place
+                                 for _, one, block in daylight.NODE.findall(part)}
+                        if keyed.get(lit_pane.split()[0].lower()) != keyed.get(pane.lower()):
+                            behind.append((name, pane, part.split()[0]))
+        self.assertEqual(behind, [])
+        from tools.tilekit import inventory as sets
+        spec = json.loads((REPO / 'docs' / 'tilesets' / 'dgt04' / 'daylight.json').read_text(encoding='utf-8')); lit = daylight.switches(spec)
+        self.assertEqual(sorted(name for name in spec['switched'] if name not in held), [])  # the signs a loop raises, lit at every hour
+        with tempfile.TemporaryDirectory() as temporary:
+            signs = [(name, text) for name, file, text, others, source in inventory.drawn_copies(REPO, 'dgt04', Path(temporary), lamps.PACKS) if daylight.lit_nodes(text, lit)]
+        for tileset in ('dgt04', 'srx01'):  # and the lights are on unless turned off, as the suburb's
+            models = {name: text for name, text in signs}
+            off = [keys['Model'] for section, keys in sets.sections((REPO / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252'))
+                   for loop in daylight.LOOPS  # the shops switch their shop window by the second loop
+                   if re.fullmatch(r'TILE\d+', section) and keys.get(f'AnimLoop{loop}') != '1' and daylight.switched(models.get(keys['Model'].lower(), ''), lit, f'animloop0{loop}')]
+            self.assertEqual(off, [], tileset)
+        # and no lit pane is left parked where the others of its tile are raised (the pawn shop window, 2026-11-24)
+        self.assertEqual([(name, daylight.never(text, lit)) for name, text in read if daylight.never(text, lit)], [])
+
+    def test_an_animation_names_a_node_once(self):
+        # a lit window hung from a lit lens: the lens was named twice and the night never came (police and fire stations, 2026-11-24)
+        hung = MODEL.replace('node dummy lights on\n  parent t_a01\nendnode\n', 'node trimesh lights\n  parent t_a01\n  selfillumcolor 1 1 1\n  bitmap lens\n  verts 3\n    0 0 0\n    1 0 0\n    0 0 1\nendnode\n')
+        for text in (hung, hung.replace('node trimesh lights\n', 'node trimesh zlast\n', 1).replace('endmodelgeom', 'node trimesh lights\n  parent t_a01\n  selfillumcolor 1 1 1\n  bitmap lens\n  verts 3\n    0 0 0\n    1 0 0\n    0 0 1\nendnode\nendmodelgeom')):
+            night = anim(daylight.with_daylight(text, LIT)[0], 'night'); names = re.findall(r'(?m)^  node \w+ (\S+)', night)
+            self.assertEqual(len(names), len(set(names)), names)
+            self.assertLess(names.index('lights'), names.index('pane'))  # a parent before what hangs from it
+            self.assertIn('node trimesh lights\n    parent t_a01\n    alphakey 2', night)
+        twice = []
+        for pack in ('srn_t_udp1', 'srn_t_common', 'srn_t_dgt04'):
+            for path in sorted((REPO / 'sources' / pack).glob('*.mdl')):
+                text = path.read_bytes().decode('cp1252')
+                for part in re.split(r'(?mi)^[ \t]*newanim[ \t]+', text)[1:]:
+                    names = [name.split()[0].lower() for _, name, _ in daylight.NODE.findall(part)] if part.split()[0].lower() in daylight.ANIMS else []
+                    if len(names) != len(set(names)):
+                        twice.append((path.stem, part.split()[0]))
+        self.assertEqual(twice, [])
+
+    def test_a_day_pane_goes_where_a_loop_moves_its_lit_pane(self):
+        loop = 'newanim animloop01 t_a01\n  node dummy t_a01\n    parent NULL\n  endnode\n  node trimesh pane\n    parent lights\n    positionkey 1\n      0 0 0 10\n    endlist\n  endnode\ndoneanim animloop01 t_a01\n'
+        moving = MODEL.replace('donemodel', loop + 'donemodel')
+        self.assertTrue(daylight.switched(moving, LIT))  # the lit mesh itself is moved
+        self.assertFalse(daylight.switched(moving.replace('0 0 0 10', '0 0 0 0'), LIT))  # keyed where it rests: not moved
+        new, count, panes = daylight.with_daylight(moving, LIT)
+        self.assertEqual(panes, 1)
+        part = next(one for one in re.split(r'(?mi)^[ \t]*newanim[ \t]+', new)[1:] if one.startswith('animloop01'))
+        names = [one for _, one, block in daylight.NODE.findall(part) if 'positionkey' in block]
+        self.assertEqual(len(names), 2); self.assertTrue(daylight.PANE.match(names[1]))
+        bare = daylight.without(new)  # and it is taken out of the loop again with its pane
+        self.assertNotIn('day00_0', bare); self.assertEqual(daylight.with_daylight(bare, LIT)[0], new)
 
 
 if __name__ == '__main__':

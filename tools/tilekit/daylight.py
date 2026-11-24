@@ -6,7 +6,8 @@ texture has a day texture in the list gets a day pane: a copy that draws it with
 by night (the tiles' own unlit panes are parked some 20 m off; none is in place under a lit one). Compiled models and models another tileset uses (but a merged set named as sharing them) are left as they are; a copy already in the folder is
 the one changed.
 
-The list (`docs/tilesets/<set>/daylight.json`): {"lit": {lit texture: its day texture, or null for none}}."""
+The list (`docs/tilesets/<set>/daylight.json`): {"lit": {lit texture: its day texture, or null for none}, "switched":
+[textures of signs a tile loop raises, lit at every hour: `lights_on` turns their loops on too]}."""
 import re
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from . import inventory, lamps, require
 ANIMS = {'day': (0, 0, 1 / 30), 'day2night': (0, 1, 0.56667), 'night': (1, 1, 1 / 30), 'night2day': (1, 0, 0.6)}  # the stock city tiles' lengths
 NODE = re.compile(r'(?ms)^[ \t]*node[ \t]+(\w+)[ \t]+([^\r\n]+?)[ \t]*\r?\n(.*?)^[ \t]*endnode[ \t]*\r?\n')
 GLOW = 0.05  # a self-illumination under this is no light
+LOOPS = (1, 2, 3)  # a tile's loops: AnimLoop1 to 3 in a set file, animloop01 to 03 in a model
 PANE = re.compile(r'(?i)^day\d{2,}_\d+$')  # a day pane's name, as `with_daylight` gives it
 
 
@@ -25,6 +27,10 @@ def _geometry(text):
 def _field(body, word):
     found = re.search(r'(?mi)^[ \t]*' + word + r'[ \t]+(\S[^\r\n]*?)[ \t]*\r?$', body)
     return found.group(1) if found else None
+
+
+def _numbers(line):
+    return [float(word) for word in line.split()]
 
 
 def lit_nodes(text, textures, glow=GLOW):
@@ -78,22 +84,43 @@ def with_daylight(text, lit):
             pane = re.sub(r'(?mi)^([ \t]*node[ \t]+trimesh[ \t]+)[^\r\n]+?([ \t]*\r?)$', lambda at: at.group(1) + new + at.group(2), pane, count=1)
             pane = re.sub(r'(?mi)^([ \t]*bitmap[ \t]+)\S+', lambda at: at.group(1) + day, pane)
             pane = re.sub(r'(?mi)^([ \t]*selfillumcolor[ \t]+)[^\r\n]*?(\r?)$', lambda at: at.group(1) + '0 0 0' + at.group(2), pane)
+            pane = re.sub(r'(?mi)^([ \t]*shadow[ \t]+)\S+', lambda at: at.group(1) + '0', pane)  # the lit pane casts the one shadow of the outline
             text = text[:block.end()] + pane + text[block.end():]; faded.append((new, parent, 1, 0))
+            # the pane goes where its lit pane goes: a tile loop that lifts the lit pane into place from where it is parked
+            # lifts the day pane with it (the Modern Exterior windows that lit at night were bare wall by day, 2026-11-24)
+            parts = re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)
+            for at, part in enumerate(parts[1:], 1):
+                own = next((one for one in NODE.finditer(part) if word(one.group(2)) == word(node)), None)
+                if own:
+                    copy = re.sub(r'(?mi)^([ \t]*node[ \t]+\w+[ \t]+)[^\r\n]+?([ \t]*\r?)$', lambda one: one.group(1) + new + one.group(2), own.group(0), count=1)
+                    parts[at] = part[:own.end()] + copy + part[own.end():]
+            text = ''.join(parts)
     tree = {}  # by the name the game reads: to the first space, the first node of it, in any case
     for kind, node, body in NODE.findall(_geometry(text)):
         tree.setdefault(node.split()[0].lower(), (kind, node.split()[0], (_field(body, 'parent') or 'NULL').split()[0]))
     lines = []
     for anim, (start, finish, length) in ANIMS.items():
         lines += [f'newanim {anim} {name}', f'  length {length:.5f}', '  transtime 0.25', f'  animroot {name}', f'  node dummy {name}', '    parent NULL', '  endnode']
-        said = {name.lower()}
-        for node, parent, by_day, by_night in faded:  # an animation names a node's whole line of parents: without them the client falls over as the area loads
-            chain, above = [], parent
+        said = {name.lower()}; keyed = {node.lower(): (node, parent, by_day, by_night) for node, parent, by_day, by_night in faded}
+
+        def say(node, parent, by_day, by_night):
+            # A node is named once. A lit window hung from a lit lamp lens had the lens named twice, with its keys and
+            # then bare as the window's parent, and the night never came to that tile: the police and fire stations of
+            # the suburb stood dark with their lights switched on (found 2026-11-24).
+            if node.lower() in said:
+                return
+            chain, above = [], parent  # an animation names a node's whole line of parents: without them the client falls over as the area loads
             while above.lower() not in said and above.lower() in tree:
                 chain.append(tree[above.lower()]); above = chain[-1][2]
             for kind, one, over in reversed(chain):
-                said.add(one.lower()); lines += [f'  node {kind} {one}', f'    parent {over}', '  endnode']
-            first, last = (by_day, by_night)[start], (by_day, by_night)[finish]
-            lines += [f'  node trimesh {node}', f'    parent {parent}', '    alphakey 2', f'      0.00000 {first}', f'      {length:.5f} {last}', '    endlist', '  endnode']
+                if one.lower() in keyed:
+                    say(*keyed[one.lower()])  # a parent that is faded itself is named with its keys
+                elif one.lower() not in said:
+                    said.add(one.lower()); lines.extend([f'  node {kind} {one}', f'    parent {over}', '  endnode'])
+            first, last = (by_day, by_night)[start], (by_day, by_night)[finish]; said.add(node.lower())
+            lines.extend([f'  node trimesh {node}', f'    parent {parent}', '    alphakey 2', f'      0.00000 {first}', f'      {length:.5f} {last}', '    endlist', '  endnode'])
+        for one in faded:
+            say(*one)
         lines += [f'doneanim {anim} {name}']
     at = re.search(r'(?mi)^[ \t]*donemodel', text); require(at, f'{name} has no donemodel line')
     return text[:at.start()] + ending.join(lines) + ending + text[at.start():], len(found), sum(1 for one in faded if one[2])
@@ -104,65 +131,100 @@ def without(text):
     lit meshes keep the names they were given."""
     for anim in ANIMS:
         text = re.sub(rf'(?mis)^[ \t]*newanim[ \t]+{anim}[ \t].*?^[ \t]*doneanim[ \t]+{anim}[ \t][^\n]*\n', '', text)
-    geometry = _geometry(text)
-    return NODE.sub(lambda at: '' if at.group(1).lower() == 'trimesh' and PANE.match(at.group(2)) else at.group(0), geometry) + text[len(geometry):]
+    panes = {name.lower() for kind, name, body in NODE.findall(_geometry(text)) if kind.lower() == 'trimesh' and PANE.match(name)}
+    return NODE.sub(lambda at: '' if at.group(2).lower() in panes else at.group(0), text)  # in the geometry and in each animation that moves one
 
 
 def switched(text, textures, loop='animloop01'):
-    """Whether a model's lit meshes are switched by a tile loop: one of their parents is moved in `loop`. The suburb
-    tiles keep their lit panes parked under the tile and their unlit ones in place, and `animloop01` changes them
-    over, so a tile whose AnimLoop1 is off is dark at every hour (found 2026-11-24)."""
+    """Whether a model's lit meshes are switched by a tile loop: one of them, or one of their parents, is moved in
+    `loop`. The suburb tiles keep their lit panes parked under the tile and their unlit ones in place, and `animloop01`
+    changes them over, so a tile whose AnimLoop1 is off is dark at every hour (found 2026-11-24). The Modern Exterior
+    tiles move the lit mesh itself (found the same day, in the review of PR 194)."""
+    return bool(_switched(text, textures, loop))
+
+
+def never(text, textures):
+    """The lit meshes of a model that no tile loop moves, where a loop moves any of them: parked and never raised,
+    such a pane never lights (the pawn shop window of dgt04_e09_06, 2026-11-24). A model no loop switches is not told:
+    its lit panes are in place."""
+    moved = {node for loop in LOOPS for node in _switched(text, textures, f'animloop0{loop}')}
+    return [node for node, parent, texture in lit_nodes(text, textures) if moved and node not in moved]
+
+
+def _switched(text, textures, loop):
     at = re.search(rf'(?mis)^[ \t]*newanim[ \t]+{loop}[ \t].*?^[ \t]*doneanim[ \t]+{loop}[ \t]', text)
     if not at:
-        return False
-    moved = {name.split()[0].lower() for kind, name, body in NODE.findall(at.group(0)) if re.search(r'(?mi)^[ \t]*positionkey', body)}
-    above = {name.split()[0].lower(): (_field(body, 'parent') or 'NULL').split()[0].lower() for kind, name, body in reversed(NODE.findall(_geometry(text)))}
+        return []
+    nodes = list(reversed(NODE.findall(_geometry(text))))  # the first node of a name is the one the game reads
+    rest = {name.split()[0].lower(): _numbers(_field(body, 'position') or '0 0 0')[:3] for kind, name, body in nodes}
+
+    def away(name, body):  # a key that puts the node somewhere else than it rests: a loop written out of a modeller keys every node where it is
+        rows = re.search(r'(?mi)^[ \t]*positionkey[^\r\n]*\r?\n((?:[ \t]*[-+0-9.eE \t]+\r?\n)+)', body)
+        home = rest.get(name, [0.0, 0.0, 0.0]); plain = _field(body, 'position')  # a plain place in an animation is its one key (dgt04_e09_21)
+        keys = [row[1:4] for row in map(_numbers, rows.group(1).splitlines()) if len(row) >= 4] if rows else [_numbers(plain)[:3]] if plain else []
+        return any(len(key) == 3 and max(abs(a - b) for a, b in zip(key, home)) > 0.01 for key in keys)
+    moved = {name.split()[0].lower() for kind, name, body in NODE.findall(at.group(0)) if away(name.split()[0].lower(), body)}
+    above = {name.split()[0].lower(): (_field(body, 'parent') or 'NULL').split()[0].lower() for kind, name, body in nodes}
+    told = []
     for node, parent, texture in lit_nodes(text, textures):
-        seen, one = set(), parent.split()[0].lower()
+        seen, one = set(), node.split()[0].lower()
         while one in above and one not in seen:
             if one in moved:
-                return True
+                told.append(node); break
             seen.add(one); one = above[one]
-    return False
+    return told
+
+
+def switches(spec):
+    """The textures of a list whose lit meshes a tile loop may raise: its lit panes and its `switched` signs. A sign
+    is lit at every hour, but only where its loop is on: the motel and cheque signs of the Modern Exterior rest parked
+    under the tile (2026-11-24). The loops of a traffic light or a beacon are the builder's, and are not listed."""
+    return {**spec['lit'], **dict.fromkeys(spec.get('switched', ()))}
 
 
 def lights_on(repo, tileset, lit, pack=None):
-    """Turn AnimLoop1 on in a tileset's set file for every tile whose model's lit meshes are switched by it, and
-    tell the models turned on. The standard (user, 2026-11-24): the hour drives the lights, through the day and night
-    animations; AnimLoop1 is the builder's switch for a building that stands dark, and is on unless turned off."""
+    """Turn each of AnimLoop1 to 3 on in a tileset's set file for every tile whose model's lit meshes are switched by
+    it, and tell the models turned on. The standard (user, 2026-11-24): the hour drives the lights, through the day and
+    night animations; a tile loop is the builder's switch for a building that stands dark, and is on unless turned off.
+    The Modern Exterior shops switch their upper windows by the first loop and the shop window by the second, which the
+    set left off (2026-11-24)."""
     from .compiled import SOURCES
     pack = pack or f'srn_t_{tileset.lower()}'; path = Path(repo) / pack / f'{tileset.lower()}.set'; text = path.read_bytes().decode('cp1252'); told = []
 
     def model(name):
-        for folder in (Path(repo) / SOURCES / pack, Path(repo) / pack):
+        homes = dict.fromkeys((pack, *(one.format(tileset=tileset.lower()) for one in lamps.PACKS)))  # its own pack, then the common one: 109 Modern Exterior tiles live there
+        for folder in (Path(repo) / kept / home for home in homes for kept in (SOURCES, '')):
             if (folder / f'{name}.mdl').is_file():
                 return (folder / f'{name}.mdl').read_bytes().decode('cp1252', errors='replace')
         return ''
 
     def one(at):
-        name = re.search(r'(?mi)^Model=(\S+)', at.group(0))
-        if not name or not re.search(r'(?m)^AnimLoop1=0[ \t]*\r?$', at.group(0)) or not switched(model(name.group(1).lower()), lit):
-            return at.group(0)
-        told.append(name.group(1).lower())
-        return re.sub(r'(?m)^AnimLoop1=0([ \t]*\r?)$', r'AnimLoop1=1\1', at.group(0))
+        name = re.search(r'(?mi)^Model=(\S+)', at.group(0)); tile = at.group(0)
+        for loop in LOOPS:
+            if name and re.search(rf'(?m)^AnimLoop{loop}=0[ \t]*\r?$', tile) and switched(model(name.group(1).lower()), lit, f'animloop0{loop}'):
+                told.append(name.group(1).lower()); tile = re.sub(rf'(?m)^AnimLoop{loop}=0([ \t]*\r?)$', rf'AnimLoop{loop}=1\1', tile)
+        return tile
     new = re.sub(r'(?ms)^\[TILE\d+\][^\[]*', one, text)
     if told:
         path.write_bytes(new.encode('cp1252'))
-    return sorted(told)
+    return sorted(set(told))
 
 
 def write(repo, tileset, folder, lit, shared=(), again=False):
     """Write the models of a tileset that have lit meshes, with their day and night, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {'models': {model: lit meshes}, 'panes': day panes
-    made, 'refused': {model: why}, 'done': how many had their day and night already (a second run, or the pack's own)}.
+    made, 'refused': {model: why}, 'done': how many had their day and night already (a second run, or the pack's own),
+    'parked': {model: its lit meshes no loop raises where a loop raises others (`never`)}}.
     again: a model that has its day and night is made anew from the list, and written where that changes it (a lit
     texture given a day texture since: the windows of eleven suburb tiles were blank by day, 2026-11-24). shared: the tilesets that draw these tiles too and take the change with them (a merged
     set); a model any other tileset draws is left."""
-    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}, 'done': 0}
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}, 'done': 0, 'parked': {}}
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):
         if set(others) - {one.lower() for one in shared}:  # another tileset draws it too
             continue
+        if never(text, lit):
+            told['parked'][name] = never(text, lit)
         if lit_nodes(text, lit) and {one.lower() for one in re.findall(r'(?mi)^[ \t]*newanim[ \t]+(\S+)', text)} >= set(ANIMS):
             told['done'] += 1
             if not again:

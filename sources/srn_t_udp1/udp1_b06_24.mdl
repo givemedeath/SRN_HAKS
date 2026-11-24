@@ -8342,7 +8342,7 @@ node trimesh day16_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -11188,25 +11188,49 @@ endnode
 node trimesh skylight_windows27
   parent lite_off01
 endnode
+node trimesh day13_0
+  parent lite_off01
+endnode
 node trimesh skylight_windows28
+  parent lite_off01
+endnode
+node trimesh day14_0
   parent lite_off01
 endnode
 node trimesh school_windows04
   parent lite_off01
 endnode
+node trimesh day15_0
+  parent lite_off01
+endnode
 node trimesh windows06
+  parent lite_off01
+endnode
+node trimesh day16_0
   parent lite_off01
 endnode
 node trimesh skylight_windows29
   parent lite_off01
 endnode
+node trimesh day17_0
+  parent lite_off01
+endnode
 node trimesh skylight_windows30
+  parent lite_off01
+endnode
+node trimesh day18_0
   parent lite_off01
 endnode
 node trimesh skylight_windows31
   parent lite_off01
 endnode
+node trimesh day19_0
+  parent lite_off01
+endnode
 node trimesh skylight_windows32
+  parent lite_off01
+endnode
+node trimesh day20_0
   parent lite_off01
 endnode
 node dummy lite_on01
@@ -11647,25 +11671,49 @@ endnode
 node trimesh skylight_windows27
   parent lite_off01
 endnode
+node trimesh day13_0
+  parent lite_off01
+endnode
 node trimesh skylight_windows28
+  parent lite_off01
+endnode
+node trimesh day14_0
   parent lite_off01
 endnode
 node trimesh school_windows04
   parent lite_off01
 endnode
+node trimesh day15_0
+  parent lite_off01
+endnode
 node trimesh windows06
+  parent lite_off01
+endnode
+node trimesh day16_0
   parent lite_off01
 endnode
 node trimesh skylight_windows29
   parent lite_off01
 endnode
+node trimesh day17_0
+  parent lite_off01
+endnode
 node trimesh skylight_windows30
+  parent lite_off01
+endnode
+node trimesh day18_0
   parent lite_off01
 endnode
 node trimesh skylight_windows31
   parent lite_off01
 endnode
+node trimesh day19_0
+  parent lite_off01
+endnode
 node trimesh skylight_windows32
+  parent lite_off01
+endnode
+node trimesh day20_0
   parent lite_off01
 endnode
 node dummy lite_on01

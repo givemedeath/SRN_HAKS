@@ -380,3 +380,55 @@ surface in a further 17–24.
 ## Open items
 
 - Other sessions append envkit groups to `dgt04.set`; stratum 4 lands as one short-lived change to that file.
+
+## Windows lit by the hour (user, 2026-11-24)
+
+The standard for the unified set: the hour drives the lights, through a tile's day and night animations
+(`docs/tilesets/srx01-plan.md`). The Modern Exterior tiles had none. They switch their lights as the Suburbs do:
+the lit pane rests parked (15 to 22 m under the tile, or 5 cm behind the wall), and `animloop01` lifts it into place
+and drops the unlit pane away, in 168 of the 169 models. The set shipped AnimLoop1 off for 165 of those tiles, so a
+building stood dark at every hour unless a builder turned it on, and lit at every hour once on.
+`docs/tilesets/dgt04/daylight.json` lists the 19 lit window textures, each with the day texture the packs already
+hold. `tilekit daylight --tileset dgt04 --shared srx01` gave 169 models (109 in `srn_t_common`, 60 in
+`srn_t_dgt04`) their day and night: 177 lit panes, clear by day and full by night, each with a day pane.
+`tilekit daylight --tileset dgt04 --lights-on` turned AnimLoop1 on for the switched tiles, and the merged set was
+rebuilt. Areas already built keep the flags they were saved with. Walkmeshes and the join tiles are unchanged. A
+test holds every tile of the set to it.
+
+**The day pane goes where its lit pane goes** (review of PR 194, 2026-11-24). The first pass left each day pane at
+the lit pane's parked place, where no loop moved it: with the lights on, a window that lit at night was bare wall by
+day. The day sheet the user passed showed it and neither of us saw it. `tilekit daylight` now writes the day pane
+into every animation that names its lit pane, with the same keys; `--again` remade the 169 models. A test holds
+each day pane to its lit pane's moves. Seen in the client on the brick block at x03 y11: the window is there by day
+and lit by night.
+
+Left lit at every hour: the signs (`checks`, `motel2`, `hosp_wings`, `hosp_emergency`), the crossing signal
+(`walk`) and the shop window `window_store003`, which has no day picture. Not looked at closely: the highrise
+facades (`hrise_05_wall_g`, `hrise_06_wall2_g`), which the block's low views barely show.
+
+**Checked from the built packs (2026-11-24).** The review block by day and by night, with views looking up the
+highrise facades from the two northern crossings (camera 30 m back, pitch 120): every facade is whole by day and
+lit by night, none bare. In the Toolset (a user folder of its own, `envkit toolset`): Tenement, Brick and Glass
+Tower, Stone Base painted as terrain; the facades show whole and without flicker, the parked panes hang under the
+tile where only a camera below the ground sees them (as the set always had them), and the saved area gives every
+painted switched tile `Tile_AnimLoop1` 1.
+
+**The shops' second and third switches (user, 2026-11-24).** Six lit panes looked as if no loop raised them. Each
+is raised, by a loop the set left off: the shop windows of `dgt04_e09_19`, `e09_25` (the pharmacy) and `e09_26` by
+`animloop02`; the pawn shop window of `e09_06` by `animloop03`, and the upper windows of `e09_21` by `animloop01`,
+both written as a plain `position` in the loop where the others have a `positionkey` (which the check had not
+read). `daylight.switched` reads both, `tilekit daylight --lights-on` turns on each of AnimLoop1 to 3 that switches
+a listed lit pane (five tiles here), and the merged set was rebuilt. No model changed. Seen in the client from the
+built packs, each tile stood alone and looked at from the west: the pawn window, both shop windows and the pharmacy
+sign lit at night and unlit by day, an upper window of `e09_21` lit. A test holds every loop of both sets to it, and
+tells a lit pane left parked where a loop raises the others of its tile.
+
+**Signs on a switch, and the store window (review of PR 194, 2026-11-24).** The signs said to be lit at every hour
+were lit only where a builder turned their loop on: the cheque sign of `dgt04_e09_06` and the motel signs of
+`e09_13` and `e09_19` rest parked under the tile, and so did the store window (`window_store003`) of `e11_02`,
+`e11_03` and `e11_04`. The list now names the sign textures as `switched`, and `--lights-on` turns their loops on
+(six tiles). The store window draws one texture lit and unlit, so it is listed as its own day texture and follows
+the hour; three models remade and compiled. Seen in the client from the overlay: store window, pawn window and
+signs lit at night. The suburb's traffic lights and beacons also ride on loops two and three; those are states a
+builder chooses, and are left off. `tilekit daylight` now tells the lit panes no loop raises (`parked`): none in
+either set.
