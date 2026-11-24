@@ -181,6 +181,10 @@ them there), 164 groups, 130 rules, shown as "SRN City Interior". `tools/tilekit
 - **Groups left out (4):** tfb01 `HomeLower03`, `04`, `05` and `HomeUpper03` begin with the first tile of an earlier
   group, so the Toolset lays the earlier one for them in tfb01 too. Their tiles stay.
 - **Source fix:** `nac01.set` hook `[TILE8DOOR1] X==-4.75` is now `X=-4.75`.
+- **Client check:** `docs/tilesets/srx02/review.json` lays rooms of all four families and their four passages in one
+  area of the merged set; 20 eye-level views, none late, every tile drawn (`output/tilekit/s2-srx02-eye`).
+- **Not done:** the Toolset check (palette lists, painting each family's floors, laying a group of each, save and
+  read back).
 - **Open:** one EnvMap for the set (udp2's `tdc01__ref01` is kept; tfb01 and nac01 named others) is judged at the
   release A look check. Crosser joins are stage 3.
 
