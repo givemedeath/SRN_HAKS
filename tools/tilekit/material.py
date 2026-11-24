@@ -231,6 +231,12 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
     raise ValueError(f'No pack holds a picture of {name}' + ('' if stock else ' (a base-game texture needs --stock)'))
 
 
+def of_spec(spec):
+    """What `current` takes from a material spec: `before`, and `packs` where the spec names its own (a tileset whose
+    textures are not in the city set's packs: the first pack named that holds a texture gives its picture)."""
+    return {'before': spec.get('before'), **({'packs': tuple(spec['packs'])} if spec.get('packs') else {})}
+
+
 def _derived(folder, name, old, *, doubled=None):
     """Refuse a picture `redraw` or `enlarge` left in `folder` whose record says it was made from another original
     than `old` (the picture the spec starts from), another day picture (a lit one), or another enlargement; one with
@@ -270,7 +276,7 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             scan = scans[how['master']]
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
-        old = np.asarray(current(repo, how.get('copy', name), stock=stock, before=spec.get('before')))  # a copy starts from its source's picture
+        old = np.asarray(current(repo, how.get('copy', name), stock=stock, **of_spec(spec)))  # a copy starts from its source's picture
         if picture is not None:  # made from that picture, as its record says
             _derived(redrawn if how.get('redrawn') else enlarged, name, old, doubled=None if how.get('redrawn') else how['doubled'])
         made = make(old, how, scan, enlarged=picture)

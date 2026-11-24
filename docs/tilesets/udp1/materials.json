@@ -1,0 +1,298 @@
+{
+ "tileset": "udp1",
+ "status": "pilot: shown through a review overlay, nothing in the packs",
+ "before": "f0112d5e5a5b",
+ "packs": [
+  "srn_t_udp1",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable"
+ ],
+ "grades": {
+  "road": {
+   "saturation": 0.4,
+   "contrast": 1.2,
+   "gain": 0.55,
+   "tint": [
+    0.92,
+    0.98,
+    1.1
+   ],
+   "paint": 0.8
+  },
+  "walkway": {
+   "saturation": 0.4,
+   "contrast": 1.15,
+   "gain": 0.68,
+   "tint": [
+    0.94,
+    0.98,
+    1.06
+   ]
+  },
+  "roof": {
+   "saturation": 0.5,
+   "contrast": 1.1,
+   "gain": 0.5,
+   "tint": [
+    1.0,
+    0.98,
+    0.95
+   ]
+  },
+  "lit_warm": {
+   "saturation": 1.15,
+   "contrast": 1.15,
+   "gain": 1.0,
+   "tint": [
+    1.08,
+    1.0,
+    0.85
+   ]
+  },
+  "industrial": {
+   "saturation": 0.6,
+   "contrast": 1.2,
+   "gain": 0.6,
+   "tint": [
+    1.0,
+    0.97,
+    0.92
+   ]
+  },
+  "plant": {
+   "saturation": 0.6,
+   "contrast": 1.1,
+   "gain": 0.65,
+   "tint": [
+    0.95,
+    1.0,
+    1.0
+   ]
+  },
+  "suburb": {
+   "saturation": 0.7,
+   "contrast": 1.2,
+   "gain": 0.72,
+   "tint": [
+    1.0,
+    0.98,
+    0.94
+   ]
+  },
+  "lawn": {
+   "saturation": 0.7,
+   "contrast": 1.1,
+   "gain": 0.85,
+   "tint": [
+    0.96,
+    1.0,
+    0.92
+   ]
+  }
+ },
+ "textures": {
+  "udp1-asph": {
+   "route": "master",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "tone": 0.5,
+   "grade": "road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph"
+  },
+  "udp1-asph-str": {
+   "route": "layout",
+   "master": "Asphalt033",
+   "repeat": 2,
+   "keep": 6,
+   "grade": "road",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_asph_str"
+  },
+  "udp1-pave": {
+   "route": "master",
+   "master": "Concrete047A",
+   "repeat": 2,
+   "tone": 0.5,
+   "grade": "walkway",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_pave"
+  },
+  "udp1-pave-wlk": {
+   "route": "layout",
+   "master": "Concrete047A",
+   "repeat": 2,
+   "keep": 16,
+   "grade": "walkway",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp1_pave_wlk"
+  },
+  "az2-grass": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 0.5,
+   "roughness": 0.6,
+   "grade": "lawn",
+   "stem": "az2_grass"
+  },
+  "udp1-blck-rd": {
+   "route": "master",
+   "master": "Bricks097",
+   "repeat": 2,
+   "tone": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stain": 0.4,
+   "stem": "udp1_blck_rd"
+  },
+  "udp1-blck-rd2": {
+   "route": "master",
+   "master": "Bricks097",
+   "repeat": 2,
+   "tone": 0.5,
+   "grade": "suburb",
+   "size": [
+    1024,
+    1024
+   ],
+   "stain": 0.4,
+   "stem": "udp1_blck_rd2"
+  },
+  "udp1-blck-bg2": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.4,
+   "stem": "udp1_blck_bg2"
+  },
+  "udp1-h6-sdg": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "stem": "udp1_h6_sdg"
+  },
+  "udp1-h3-sdg": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "stem": "udp1_h3_sdg"
+  },
+  "udp1-h1-sdg": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "stem": "udp1_h1_sdg"
+  },
+  "udp1-shing2": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "roof",
+   "stem": "udp1_shing2"
+  },
+  "udp1-shing3": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "roof",
+   "stem": "udp1_shing3"
+  },
+  "udp1-window2": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stem": "udp1_window2"
+  },
+  "udp1-window2b": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "lit_warm",
+   "stem": "udp1_window2b"
+  },
+  "udp1-wd-fnc": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "suburb",
+   "stain": 0.3,
+   "stem": "udp1_wd_fnc"
+  },
+  "udp1-mtl-gry": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "grade": "industrial",
+   "size": [
+    512,
+    512
+   ],
+   "keep": 8,
+   "grain": 2.5,
+   "stem": "udp1_mtl_gry"
+  }
+ }
+}
