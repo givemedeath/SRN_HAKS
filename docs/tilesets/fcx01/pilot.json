@@ -1,0 +1,156 @@
+{
+ "tileset": "fcx01",
+ "haks": [
+  "srn_t_fcx01",
+  "srn_t_dgt04",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 19,
+  "height": 12,
+  "lights": [
+   "day",
+   "night"
+  ],
+  "patches": [
+   {
+    "terrain": "holes",
+    "at": [
+     7,
+     1
+    ],
+    "size": [
+     11,
+     10
+    ]
+   },
+   {
+    "terrain": "Cobble2",
+    "over": true,
+    "at": [
+     11,
+     2
+    ],
+    "size": [
+     6,
+     8
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "Tower00",
+    "at": [
+     1,
+     1
+    ]
+   },
+   {
+    "name": "b_tower",
+    "at": [
+     4,
+     1
+    ]
+   },
+   {
+    "name": "d_house02",
+    "at": [
+     1,
+     7
+    ]
+   },
+   {
+    "name": "Tower02",
+    "at": [
+     3,
+     6
+    ]
+   },
+   {
+    "name": "b_arbre",
+    "at": [
+     5,
+     4
+    ]
+   },
+   {
+    "name": "platform1",
+    "at": [
+     7,
+     2
+    ]
+   },
+   {
+    "name": "d_tower02",
+    "at": [
+     8,
+     5
+    ]
+   },
+   {
+    "name": "b_tower02",
+    "at": [
+     8,
+     7
+    ]
+   },
+   {
+    "name": "Tower04",
+    "at": [
+     11,
+     2
+    ]
+   },
+   {
+    "name": "d_build02",
+    "at": [
+     14,
+     2
+    ]
+   },
+   {
+    "name": "d_build",
+    "at": [
+     11,
+     5
+    ]
+   },
+   {
+    "name": "d_monum",
+    "at": [
+     15,
+     5
+    ]
+   },
+   {
+    "name": "d_tower",
+    "at": [
+     15,
+     7
+    ]
+   }
+  ],
+  "crossings": [
+   [
+    3,
+    4
+   ],
+   [
+    8,
+    4
+   ],
+   [
+    13,
+    4
+   ]
+  ],
+  "near": {
+   "distance": 18.0,
+   "pitch": 74.0
+  }
+ },
+ "note": "Release C pilot block: the pale plaza (Cobble) and the dark one (Cobble2) with their towers and buildings on either side of the void, for the look gate."
+}

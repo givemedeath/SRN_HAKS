@@ -1,0 +1,247 @@
+{
+ "tileset": "fcx01",
+ "status": "release C pilot: a review overlay only, nothing applied to the packs",
+ "before": "8fac7e59b9c6",
+ "packs": [
+  "srn_t_fcx01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable"
+ ],
+ "note": "Left as they are: glass, lab_win1, dgt04_chrome and the arcology_* textures (dgt04's look), and the textures other tilesets than shp02 draw (window1, floor01, pub).",
+ "grades": {
+  "arcology": {
+   "saturation": 0.25,
+   "contrast": 1.15,
+   "gain": 0.85,
+   "tint": [
+    0.94,
+    0.99,
+    1.08
+   ]
+  },
+  "arcology_dark": {
+   "saturation": 0.3,
+   "contrast": 1.2,
+   "gain": 0.7,
+   "tint": [
+    0.9,
+    0.97,
+    1.1
+   ]
+  },
+  "steel": {
+   "saturation": 0.2,
+   "contrast": 1.2,
+   "gain": 0.85,
+   "tint": [
+    0.94,
+    0.99,
+    1.07
+   ]
+  },
+  "plaza": {
+   "saturation": 0.2,
+   "contrast": 1.15,
+   "gain": 0.7,
+   "tint": [
+    0.95,
+    0.99,
+    1.06
+   ]
+  },
+  "lit": {
+   "saturation": 1.15,
+   "contrast": 1.15,
+   "gain": 1.0,
+   "tint": [
+    0.85,
+    1.0,
+    1.1
+   ]
+  }
+ },
+ "textures": {
+  "bb1bottom": {
+   "route": "layout",
+   "master": "Concrete046",
+   "repeat": 1,
+   "keep": 5,
+   "grade": "arcology",
+   "size": [
+    1024,
+    512
+   ]
+  },
+  "imp_modules_id2": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "steel",
+   "size": [
+    1024,
+    1024
+   ],
+   "grain": 2.0,
+   "stem": "impmodulesid2"
+  },
+  "cel04r2aol9": {
+   "route": "layout",
+   "master": "Concrete047A",
+   "repeat": 2,
+   "keep": 4,
+   "grade": "plaza",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "black_window": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 0.5,
+   "roughness": 0.3,
+   "grade": "lit",
+   "glow": {
+    "above": 128
+   }
+  },
+  "gris3": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "arcology",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "d_ground03": {
+   "route": "layout",
+   "master": "Concrete034",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "arcology_dark",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "ctown_build1": {
+   "route": "layout",
+   "master": "Concrete046",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "arcology",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "d_wall02": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.5,
+   "grade": "arcology_dark"
+  },
+  "c_metall": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "steel",
+   "size": [
+    1024,
+    1024
+   ],
+   "grain": 2.0
+  },
+  "imp_modules_id4": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 8,
+   "grade": "steel",
+   "size": [
+    512,
+    512
+   ],
+   "grain": 2.0,
+   "stem": "impmodulesid4"
+  },
+  "ctown_wal_id8": {
+   "route": "layout",
+   "master": "Concrete046",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "arcology",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "imp_modules_id1": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "steel",
+   "size": [
+    1024,
+    1024
+   ],
+   "grain": 2.0,
+   "stem": "impmodulesid1"
+  },
+  "floor00": {
+   "route": "master",
+   "master": "Concrete047A",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "arcology",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "bb3bottom": {
+   "route": "upscale",
+   "size": [
+    1024,
+    512
+   ],
+   "relief": 1.0,
+   "roughness": 0.5,
+   "grade": "arcology"
+  },
+  "tile013gs": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "plaza"
+  },
+  "floor2_l1_1a": {
+   "route": "upscale",
+   "size": [
+    1024,
+    1024
+   ],
+   "relief": 1.0,
+   "roughness": 0.6,
+   "grade": "arcology_dark"
+  }
+ }
+}
