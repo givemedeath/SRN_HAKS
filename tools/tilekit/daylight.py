@@ -101,13 +101,15 @@ def with_daylight(text, lit):
 def write(repo, tileset, folder, lit, shared=()):
     """Write the models of a tileset that have lit meshes, with their day and night, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {'models': {model: lit meshes}, 'panes': day panes
-    made, 'refused': {model: why}}. shared: the tilesets that draw these tiles too and take the change with them (a merged
+    made, 'refused': {model: why}, 'done': how many had their day and night already (a second run, or the pack's own)}. shared: the tilesets that draw these tiles too and take the change with them (a merged
     set); a model any other tileset draws is left."""
-    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}}
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}, 'done': 0}
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):
         if set(others) - {one.lower() for one in shared}:  # another tileset draws it too
             continue
+        if lit_nodes(text, lit) and {one.lower() for one in re.findall(r'(?mi)^[ \t]*newanim[ \t]+(\S+)', text)} >= set(ANIMS):
+            told['done'] += 1; continue
         try:
             new, count, panes = with_daylight(text, lit)
         except ValueError as error:

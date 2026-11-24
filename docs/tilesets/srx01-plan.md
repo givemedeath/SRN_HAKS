@@ -321,7 +321,7 @@ udp1's textures are in `srn_t_udp1`, `srn_t_common`, `srn_door` and `srn_placeab
 - **Triangles on the grass from a distance** are the game's shadow wedges from open one-plane meshes, as on dgt04.
   `tilekit shadows --tileset udp1 --shared srx01` quiets them (479 models, 6,706 trims); seen gone in the pilot block.
 - `--shared`: a merged set draws every suburb tile too, so `daylight` and `shadows` skipped them all until the
-  merged set could be named as taking the change along. `lamps` still needs the same.
+  merged set could be named as taking the change along. `lamps` still needs the same (given in the review of PR 193).
 - All of this is in review overlays only (`output/tilekit/b-shadow-overlay`); nothing is applied to the packs yet.
 
 ## Release B: pilot passed, adoption, scans tried (user, 2026-11-23)

@@ -6426,6 +6426,7 @@
       "srn_t_common"
     ],
     "tools/tilekit/test_daylight.py": [
+      "srn_t_common",
       "srn_t_udp1"
     ],
     "tools/tilekit/test_detail.py": [

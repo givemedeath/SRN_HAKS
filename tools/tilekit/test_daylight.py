@@ -104,6 +104,21 @@ class Daylight(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'has children'):
             daylight.with_daylight(MODEL.replace('  parent t_a01\n  selfillumcolor 0 0 0', '  parent lens\n  selfillumcolor 0 0 0'), LIT)
 
+    def test_write_takes_a_merged_set_s_tiles_and_counts_those_already_done(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary); own = repo / 'srn_t_t'; merged = repo / 'srn_t_m'; out = repo / 'out'
+            for folder in (own, merged, repo / 'srn_t_common'):
+                folder.mkdir()
+            for folder, name in ((own, 't'), (merged, 'm')):
+                (folder / f'{name}.set').write_text('[TILES]\nCount=1\n[TILE0]\nModel=t_a01\n', encoding='cp1252')
+            (own / 't_a01.mdl').write_text(MODEL, encoding='cp1252')
+            self.assertEqual(daylight.write(repo, 't', out, LIT)['models'], {})  # the merged set draws it too
+            told = daylight.write(repo, 't', out, LIT, shared=['M'])
+            self.assertEqual((told['models'], told['panes'], told['done'], told['refused']), ({'t_a01': 2}, 1, 0, {}))
+            again = daylight.write(repo, 't', out, LIT, shared=['M'])  # the folder's copy has its day and night: no refusal
+            self.assertEqual((again['models'], again['done'], again['refused']), ({}, 1, {}))
+
     def test_line_ends_are_kept(self):
         made = daylight.with_daylight(MODEL.replace('\n', '\r\n'), LIT)[0]
         self.assertNotIn('\n', made.replace('\r\n', ''))

@@ -2,11 +2,11 @@
 its walkmeshes (walkmesh.json); `walkmesh` holds the tileset's walkmeshes against such a baseline and fails on any
 that changed; `review` builds a module of the tileset on the built packs and captures the same views of it in the
 game client each time, with an overlay folder shown instead of the packs' own files. `material` makes restyled
-textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps` and `shadows` write changed tile
+textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps`, `shadows` and `daylight` (lit panes clear by day) write changed tile
 models into it, `detail` adds kit pieces to tiles there and `remesh` replaces a tile's visible meshes there; `count`
 says what each tile costs to draw (faces, mesh nodes, materials) against a budget; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
 `apply` moves an overlay whose look the user passed into the packs; `compile` makes the packs' tile models from their
-ASCII sources (`sources/<pack>/`) with NeverBlender. The working tools of a restyle (`commands`) are told of in
+ASCII sources (`sources/<pack>/`) with NeverBlender, and `unique` gives the nodes of such sources names of their own. The working tools of a restyle (`commands`) are told of in
 docs/tilesets/tilekit-tools.md."""
 import argparse
 import json
@@ -97,7 +97,7 @@ def lamps_command(chosen):
 def daylight_command(chosen):
     from . import daylight
     told = daylight.write(chosen.repo, chosen.tileset, chosen.out, _json(chosen.spec)['lit'], chosen.shared)
-    print(json.dumps({'models': len(told['models']), 'lit': sum(told['models'].values()), 'panes': told['panes'], 'refused': told['refused']}, indent=1))
+    print(json.dumps({'models': len(told['models']), 'lit': sum(told['models'].values()), 'panes': told['panes'], 'done': told['done'], 'refused': told['refused']}, indent=1))
     return 0
 
 

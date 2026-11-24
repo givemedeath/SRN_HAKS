@@ -28,11 +28,12 @@ def unique(text):
         stem = re.sub(r'\s+', '_', name.strip())[:LONGEST - 4]
         made = next(one for one in [stem] + [f'{stem}_{count}' for count in range(2, 999)] if one.lower() not in taken)
         taken.add(made.lower()); return made
+    changed = 0  # the first node of a repeated word keeps its name
     for name in whole:
         word = name.split()[0].lower()
         if word not in plain:
-            given.setdefault(word, []).append(fresh(name))
-    if not given:
+            given.setdefault(word, []).append(fresh(name)); changed += given[word][-1] != name
+    if not changed:
         return text, 0
     seen = {}  # within the geometry or one animation: how many nodes of a word have gone by
     for index, line in enumerate(lines):
@@ -49,7 +50,7 @@ def unique(text):
         at = PARENT.match(line)
         if at and at.group(2).split()[0].lower() in given:  # the first node of the word, as the game reads a parent
             lines[index] = at.group(1) + given[at.group(2).split()[0].lower()][0] + at.group(3)
-    return ending.join(lines), sum(len(names) for names in given.values())
+    return ending.join(lines), changed
 
 
 def write(repo, pack):

@@ -1,6 +1,6 @@
 {
  "tileset": "udp1",
- "status": "pilot: shown through a review overlay, nothing in the packs",
+ "status": "release B: applied to the packs (PR 193, 2026-11-24)",
  "before": "f0112d5e5a5b",
  "packs": [
   "srn_t_udp1",

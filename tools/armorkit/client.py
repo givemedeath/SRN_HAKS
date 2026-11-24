@@ -137,7 +137,9 @@ def start(nwn_root, user_directory, module, *, width=1600, height=900):
     if not settings.exists():
         settings.write_text(settings_text(width, height), encoding='utf-8')
     else:  # one left by an earlier run, or rewritten by the game with its own defaults
-        settings.write_text(keyhole_off(settings.read_text(encoding='utf-8')), encoding='utf-8')
+        # read and written byte for byte but for the keyholing lines: a character it cannot decode stops no run
+        old = settings.read_bytes().decode('utf-8', errors='surrogateescape')
+        settings.write_bytes(keyhole_off(old).encode('utf-8', errors='surrogateescape'))
     log = user / 'logs' / 'nwclientLog1.txt'
     if log.exists():
         log.unlink()

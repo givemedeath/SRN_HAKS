@@ -51,7 +51,7 @@ donemodel t_a01
 class Unique(unittest.TestCase):
     def test_each_node_takes_its_own_name_and_references_keep_their_meaning(self):
         made, count = unique.unique(MODEL); geometry, loop = made.split('newanim')
-        self.assertEqual(count, 4)
+        self.assertEqual(count, 3)  # the first `zip` keeps its name
         for part in (geometry, loop):
             self.assertEqual([line.split()[2] for line in part.splitlines() if line.strip().startswith('node trimesh') and line.split()[2] != 'post' and line.split()[2] != 'wall'],
                              ['bridge_rail', 'bridge_deck', 'zip', 'zip_2'])

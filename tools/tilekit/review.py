@@ -160,7 +160,8 @@ def stamped(cells, tiles, set_text, groups, width, height):
                     if group.get('loose'):
                         loose |= {(column0 + column + x, row0 + row + y) for x in (-1, 0, 1) for y in (-1, 0, 1)}  # the tile and those round it
     wrong = disagreements(width, [cells[(column, row)] for row in range(height) for column in range(width)], tiles)
-    wrong = [line for line in wrong if tuple(map(int, re.search(r' at (\d+),(\d+):', line).groups())) not in loose]
+    cell = lambda line: re.search(r' at (\d+),(\d+):', line)  # a line whose cell cannot be read is kept
+    wrong = [line for line in wrong if not cell(line) or tuple(map(int, cell(line).groups())) not in loose]
     require(not wrong, 'A group does not fit the ground it is laid on: ' + '; '.join(wrong[:4]) + (f' and {len(wrong) - 4} more' if len(wrong) > 4 else ''))
     return cells
 
