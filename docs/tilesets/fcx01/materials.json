@@ -1,7 +1,7 @@
 {
  "tileset": "fcx01",
  "status": "release C: applied to the packs (2026-11-24)",
- "before": "8fac7e59b9c6",
+ "before": "a3e15d27c2b4",
  "packs": [
   "srn_t_fcx01",
   "srn_t_common",

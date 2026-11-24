@@ -52,11 +52,21 @@ class Lamps(unittest.TestCase):
         self.assertEqual(lamps.named(text, 't_a01'), (text, []))
         taken = MODEL.format(first='ml1').replace('t_a01sl2', 'x_z01ml1')  # its own name is another lamp's: left
         self.assertEqual(lamps.named(taken, 't_a01'), (taken, []))
+        twice = MODEL.format(first='ml1').replace('t_a01ml1', 'x_z01ml1').replace('t_a01sl2', 'y_z02ml1')  # two lamps of other tiles want one name
+        text, made = lamps.named(twice, 't_a01')
+        self.assertEqual(made, ['t_a01ml1']); self.assertIn('node light y_z02ml1', text); self.assertNotIn('x_z01', text)
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary); (repo / 'srn_t_t').mkdir(); (repo / 'srn_t_t' / 't.set').write_text(SET, encoding='cp1252')
             (repo / 'srn_t_t' / 't_a01.mdl').write_text(other, encoding='cp1252')
             self.assertEqual(lamps.move(repo, 't', repo / 'out'), {'t_a01': 'named'})
             self.assertIn('node light t_a01ml1', (repo / 'out' / 't_a01.mdl').read_text(encoding='cp1252'))
+        with tempfile.TemporaryDirectory() as temporary:  # a tile another tileset draws too is left, and said
+            repo = Path(temporary)
+            for pack, name in (('srn_t_t', 't'), ('srn_t_u', 'u')):
+                (repo / pack).mkdir(); (repo / pack / f'{name}.set').write_text(SET, encoding='cp1252')
+            (repo / 'srn_t_t' / 't_a01.mdl').write_text(other, encoding='cp1252')
+            self.assertEqual(lamps.move(repo, 't', repo / 'out'), {'t_a01': 'shared with u'})
+            self.assertFalse((repo / 'out' / 't_a01.mdl').exists())
 
     def test_a_light_node_written_with_a_tab_is_found(self):
         text, made = lamps.moved(MODEL.format(first='sl1').replace('node light t_a01sl1', 'node\tlight  t_a01sl1'))

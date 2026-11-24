@@ -26,7 +26,7 @@ class ToolsetTests(unittest.TestCase):
 
     def test_the_module_has_one_plain_area_for_each_tileset_and_the_projects_packs(self):
         made = toolset.documents(); ifo = made['module.ifo']
-        for name in ('ektdg_a', 'ektud_a'):
+        for name in ('ektdg_a', 'ektud_a', 'ektfc_a'):
             self.assertTrue({name + '.are', name + '.git', name + '.gic'} <= set(made))  # the Toolset opens no area without all three
         self.assertEqual([row['Area_Name']['value'] for row in ifo['Mod_Area_list']['value']], ['ektdg_a', 'ektud_a', 'ektfc_a']); self.assertEqual(ifo['Mod_Entry_Area']['value'], 'ektdg_a')
         self.assertEqual([row['Mod_Hak']['value'] for row in ifo['Mod_HakList']['value']], list(toolset.HAKS)); self.assertEqual(ifo['Mod_CustomTlk']['value'], 'srn')

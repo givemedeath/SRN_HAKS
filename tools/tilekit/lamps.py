@@ -47,13 +47,13 @@ def named(text, model):
     spelled = {}
     for name in re.findall(r'(?im)^\s*node[ \t]+light[ \t]+(\S+)', text):
         spelled.setdefault(name.lower(), name)
-    made = []
+    made = []; taken = set(spelled)  # with the names given here: two lamps of other tiles never take one name
     for low, name in sorted(spelled.items()):
         lamp = LAMP.match(name)
-        if not lamp or lamp.group(1).lower() == model.lower() or (model + lamp.group(2)).lower() in spelled:
+        if not lamp or lamp.group(1).lower() == model.lower() or (model + lamp.group(2)).lower() in taken:
             continue
-        new = model + lamp.group(2).lower()
-        text = re.sub(r'(?i)(?<!\S)' + re.escape(name) + r'(?!\S)', new, text); made.append(new)
+        new = model + lamp.group(2).lower(); taken.add(new.lower())
+        text =re.sub(r'(?i)(?<!\S)' + re.escape(name) + r'(?!\S)', new, text); made.append(new)
     return text, made
 
 
@@ -68,9 +68,11 @@ def move(repo, tileset, folder, *, radius=RADIUS, shared=()):
         if renamed and not set(others) - {one.lower() for one in shared}:  # lamps under another tile's name: this tile's own now
             require(inventory.walk_hash(own) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
             noted(folder, file, source); (folder / file).write_bytes(own.encode('cp1252')); told[name] = 'named'; text = own
+        elif renamed:  # left for the other tileset's sake, and said so: its lamps stay dark
+            told[name] = 'shared with ' + ', '.join(others)
         new, said = moved(text, radius)
         if new is None:
-            if said != 'no source light' and told.get(name) != 'named':
+            if said != 'no source light' and name not in told:
                 told[name] = said
         elif set(others) - {one.lower() for one in shared}:  # shared: a merged set that takes the change with the tiles
             told[name] = 'shared with ' + ', '.join(others)

@@ -73,6 +73,8 @@ class Retexture(unittest.TestCase):
         self.assertIn('    selfillumcolor 1.0 0.0 0.0\r', text)  # an animation is left as it is
         self.assertIn('  ambient 1.0 1.0 1.0 \r\n  diffuse 1.0 1.0 1.0\r\n  selfillumcolor 0.0 0.0 0.0\r\n  bitmap D_Ground03', text)  # another texture's mesh too
         self.assertEqual(retexture.whitened(text, ['sign']), (text, []))
+        with self.assertRaisesRegex(ValueError, 'lamp'):  # a glow that is no colour is refused by its mesh's name
+            retexture.whitened(MODEL.replace('selfillumcolor 1.0 0.0 0.0 \r', 'selfillumcolor 1.0 red 0.0 \r'), ['sign'])
 
     def test_a_list_names_textures_a_model_can_carry(self):
         with self.assertRaises(ValueError):

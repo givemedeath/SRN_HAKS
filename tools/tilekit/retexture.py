@@ -54,7 +54,9 @@ def whitened(text, textures):
         block = found.group(0); bitmap = BITMAP.search(block)
         if not bitmap or bitmap.group(2).lower() not in wanted:
             return block
-        glows = any(float(value) > 0 for line in COLOUR.finditer(block) if line.group(2).lower() == 'selfillumcolor' for value in line.group(3).split())
+        glow = [value for line in COLOUR.finditer(block) if line.group(2).lower() == 'selfillumcolor' for value in line.group(3).split()]
+        require(all(re.fullmatch(r'[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?', value, re.I) for value in glow), f'{found.group(1)}: a glow that is no colour ({" ".join(glow)})')
+        glows = any(float(value) > 0 for value in glow)
         new = COLOUR.sub(lambda line: line.group(1) + (line.group(3) if line.group(2).lower() == 'selfillumcolor' and not glows else WHITE) + line.group(4), block)
         if new != block:
             meshes.append(found.group(1))
