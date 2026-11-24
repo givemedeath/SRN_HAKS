@@ -46,6 +46,8 @@ class OpeningsTest(unittest.TestCase):
         found = openings.doorways(SET, {'t': text})
         self.assertEqual(found[0], {'tile': 7, 'model': 't', 'door': 0, 'at': [0, 0, 0], 'turn': 0, 'width': 3.0, 'height': 2.8, 'left': 1.0, 'right': 2.0})
         self.assertEqual(found[1]['note'], 'no uncompiled model'); self.assertEqual(len(found), 2)
+        step = LINTEL.replace('lintel', 'step').replace('2.8', '0.2')
+        self.assertEqual(openings.doorways(SET, {'t': model(*JAMBS, LINTEL, step)})[0]['height'], 2.8)
         open_ = openings.doorways(SET, {'t': model(JAMBS[0])})[0]
         self.assertEqual((open_['width'], open_['height'], open_['left'], open_['right']), (None, None, None, 2.0))
 

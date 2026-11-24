@@ -58,6 +58,8 @@ class FamilyReviewTest(unittest.TestCase):
     def test_a_block_seen_from_its_crossings(self):
         _, shots, _ = self.plan({'kind': 'block', 'name': 'big', 'lights': ['day'], 'width': 8, 'height': 8, 'patches': [{'terrain': 'tower', 'at': [2, 2], 'size': [2, 2]}], 'crossings': [[0, 0], [5, 5]], 'views': ['x05y05-sw']})
         self.assertEqual([shot['label'] for shot in shots], ['day-big-x05y05-sw'])
+        with self.assertRaisesRegex(ValueError, 'x5y5-ne'):
+            self.plan({'kind': 'block', 'name': 'big', 'lights': ['day'], 'width': 8, 'height': 8, 'patches': [], 'crossings': [[5, 5]], 'views': ['x05y05-sw', 'x5y5-ne']})
 
     def test_a_street_is_of_tiles_wholly_of_its_terrain(self):
         with mock.patch.object(family_review.placer, '_kerbs', return_value=[1]):
@@ -72,6 +74,9 @@ class FamilyReviewTest(unittest.TestCase):
         self.assertEqual([shot['label'] for shot in shots], ['day-t2-d0']); self.assertNotIn('doors', areas[0]); self.assertEqual(shots[0]['facing'], 270.0)  # from the street past the cell's side
         areas, shots, _ = self.plan({**layout, 'doors': {'x_side': 1094}})
         self.assertEqual([(one['row'], one['opened']) for one in areas[0]['doors']], [(1094, 0), (1094, 1)]); self.assertEqual([shot['label'][-4:] for shot in shots], ['shut', 'open'])
+        for opened in ([], [3], [1, 1]):
+            with self.assertRaisesRegex(ValueError, 'each state once'):
+                self.plan({**layout, 'doors': {'x_side': 1094}, 'opened': opened})
         areas, shots, _ = self.plan({**layout, 'clear': [], 'doors': {'x_side': 1094}, 'opened': [0, 1, 2]})
         self.assertEqual([shot['label'] for shot in shots], ['day-t2-d0-shut', 'day-t3-d0', 'day-t2-d0-open', 'day-t2-d0-open2'])
 
@@ -126,13 +131,29 @@ class FamilyReviewTest(unittest.TestCase):
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'every': 0}]}, 'at least 1'),
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'lights': ['overcast']}]}, 'not laid in'),
                             ({'kind': 'tiles', 'name': 'a', 'models': ['x_full', 'x_full']}, 'Two views'),
-                            ({'kind': 'towers', 'name': 'a', 'terrains': []}, 'no terrain'), ({'kind': 'towers', 'name': 'a', 'terrains': ['Tower'], 'across': 0}, 'at least 1'),
+                            ({'kind': 'towers', 'name': 'a', 'terrains': []}, 'no terrain'), ({'kind': 'tiles', 'name': 'a', 'models': ['x_full'], 'glass': ['none'], 'views': [{'kind': 'facade'}, {'kind': 'glass'}]}, 'no tile has a view glass'), ({'kind': 'towers', 'name': 'a', 'terrains': ['Tower'], 'across': 0}, 'at least 1'),
                             ({'kind': 'tiles', 'name': '\u00e9', 'terrains': ['Tower']}, 'lowercase'),
                             ({'kind': 'street', 'name': 'a', 'terrains': ['Ground'], 'close': [{'piece': 'x', 'light': 'dusk'}]}, 'lit by')):
             with self.assertRaisesRegex(ValueError, why):
                 self.plan(layout)
         with self.assertRaisesRegex(ValueError, 'srn_t_x'):
             family_review.haks({'tileset': 'x'})
+
+    def test_a_run(self):
+        layout = {'kind': 'tiles', 'name': 'fam', 'models': ['x_full']}; spec = {'tileset': 'x', 'haks': ['srn_t_x', 'srn_door'], 'layouts': [layout]}; done = {'captures': ['a', 'b'], 'late': [], 'elsewhere': []}
+        with mock.patch.object(review, 'build', return_value={'module': 'm.mod', 'overlay': ['x.set']}) as build, mock.patch.object(review, 'capture', return_value=dict(done)) as capture, \
+                mock.patch.object(review, 'sheets', return_value={'s.jpg': 2}):
+            overlay = self.repo / 'ov'; overlay.mkdir(); said = dict(overlay=overlay, base=self.repo)
+            told = family_review.run(self.repo, spec, 'out', 'n', 'game', 'built', **said); self.assertEqual((told['views'], told['captures'], told['sheets'], told['areas']), (2, 2, {'s.jpg': 2}, ['famd', 'famn']))
+            self.assertEqual(build.call_args.kwargs, {'overlay': overlay, 'haks': ('srn_t_x', 'srn_door')}); self.assertEqual((build.call_args.args[0], build.call_args.args[3:]), ('n', ('out', 'game', 'built')))
+            self.assertNotIn('captures', family_review.run(self.repo, spec, 'out', 'n', 'game', 'built', start=False, **said)); self.assertEqual(capture.call_count, 1)
+
+    def test_an_output_without_a_folder_is_refused_first(self):
+        from types import SimpleNamespace
+        from tools.tilekit import commands
+        for command in (commands.propose_command, commands.openings_command, commands.rank_command):
+            with self.assertRaisesRegex(ValueError, 'does not exist'):
+                command(SimpleNamespace(out=self.repo / 'none' / 'a.json'))
 
     def test_every_run_states_the_client_settings(self):
         text = client_settings.settings()

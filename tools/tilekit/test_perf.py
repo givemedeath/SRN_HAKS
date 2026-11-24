@@ -20,6 +20,13 @@ class PerfTest(unittest.TestCase):
         dark = Image.new('RGB', (400, 225)); dark.paste((200, 200, 200), (120, 30, 280, 200)); self.assertTrue(perf.loading(dark))
         self.assertFalse(perf.loading(Image.new('RGB', (400, 225), (40, 40, 40))))
 
+    def test_the_counter_is_cut_from_the_right(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path, out = Path(folder) / 'shot-00-a.png', Path(folder) / 'c.png'; picture = Image.new('RGB', (1280, 720)); picture.paste((255, 0, 0), (1020, 0, 1280, 90)); picture.save(path)
+            self.assertEqual(perf.counters([path], out), 1)
+            with Image.open(out) as page:
+                self.assertEqual(page.getpixel((100, 100)), (255, 0, 0)); self.assertEqual(page.getpixel((510, 200)), (255, 0, 0))
+
     def test_the_watch_grabs_only_round_an_area_change(self):
         with tempfile.TemporaryDirectory() as folder:
             now = [0.0]; log = Path(folder) / 'log.txt'; grabbed = []

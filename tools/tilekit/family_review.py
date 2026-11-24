@@ -3,6 +3,7 @@ builder paints it; here a spec names the tiles and the views, so a run stays a h
 {tileset, fill, haks, layouts: [{kind, name, lights, ...}]}
 
 Each layout is an area for each of its `lights` (default: day and night), `name` (letters, unique) naming its areas:
+Views of one name in two layouts are told apart by the later layout's name at the end.
 - `tiles`: tiles apart on plain ground. {models or terrains (patterns), placements (a placement spec, for what is on
   them), space, across, room, glass (material patterns), views: [{kind, lights, every, also, only}]}. View kinds:
   `facade` (the wall with the most windows, or the glass), `wall` (the wall with street pieces), `roof` (from its
@@ -157,14 +158,14 @@ def tiles(of, layout):
     placements = {name.lower(): them for name, them in of.json(layout['placements'])['tiles'].items()} if 'placements' in layout else {}
     views = layout.get('views', [{'kind': 'facade'}]); across = min(across, (LARGEST - 1 - 2 * room) // space + 1); down = (LARGEST - 1 - 2 * room) // space + 1
     require(across > 0, 'These tiles do not fit an area: less space or room'); pages = [names[start:start + across * down] for start in range(0, len(names), across * down)]
-    require(len(pages) <= 9, 'More tiles than nine areas hold: name fewer'); areas, shots, made = [], [], {}
+    require(len(pages) <= 9, 'More tiles than nine areas hold: name fewer'); areas, shots, made, met = [], [], {}, set()
     for light in layout.get('lights', LIGHTS):
         for page, group in enumerate(pages):
             rows = -(-len(group) // across); width, height = space * (min(len(group), across) - 1) + 1 + 2 * room, space * (rows - 1) + 1 + 2 * room
             cells = _filled(of, width, height); tag = f'{layout["name"]}{light[0]}{page or ""}'; taken = []
             for index, name in enumerate(group):
                 column, row = space * (index % across) + room, space * (index // across) + room; cells[column, row] = (of.numbers[name], 0); pieces = {one['piece'] for one in placements.get(name, ())}
-                for view in views:
+                for number, view in enumerate(views):
                     if light not in view.get('lights', layout.get('lights', LIGHTS)) or 'only' in view and not pieces & set(view['only']):
                         continue
                     if (page * across * down + index) % view.get('every', 1) and not pieces & set(view.get('also', ())):
@@ -173,10 +174,12 @@ def tiles(of, layout):
                         made[view['kind'], name] = _tile_view(of, view['kind'], name, placements.get(name, []), layout)
                     seen = made[view['kind'], name]
                     if seen:
+                        met.add(number)
                         x, y, facing, distance, pitch, up = seen
                         taken.append({**review._shot(tag, f'{light}-{_short(name, of.tileset)}-{view["kind"]}', (column + 0.5) * review.TILE + x, (row + 0.5) * review.TILE + y, facing, distance, pitch), 'height': up})
             if taken:
                 areas.append(_area(of, tag, f'{layout["name"]}, {light}', width, height, cells, light)); shots += taken
+    unmet = [view['kind'] for number, view in enumerate(views) if number not in met]; require(not unmet, f'{layout["name"]}: no tile has a view ' + ', '.join(unmet))
     return areas, shots
 
 
@@ -211,6 +214,7 @@ def block(of, layout):
     for light in layout.get('lights', LIGHTS):
         tag = f'{layout["name"]}{light[0]}'; areas.append(_area(of, tag, f'{layout["name"]}, {light}', width, height, cells, light))
         made = review.corner_shots(tag, f'{light}-{layout["name"]}', [tuple(cell) for cell in layout['crossings']], distance=layout.get('distance', 34.0), pitch=layout.get('pitch', 58.0))
+        unmet = sorted(set(views or ()) - {'-'.join(shot['label'].rsplit('-', 2)[-2:]) for shot in made}); require(not unmet, f'{layout["name"]}: no crossing has a view ' + ', '.join(unmet))
         shots += [shot for shot in made if not views or '-'.join(shot['label'].rsplit('-', 2)[-2:]) in views]
     return areas, shots
 
@@ -261,6 +265,7 @@ def doors(of, layout):
     numbers = sorted({one['tile'] for one in hooks}); laid = [of.fill, *(value for number in numbers for value in (number, of.fill))]
     unknown = sorted((set(stood) | set(turns)) - {one['model'] for one in hooks}); require(not unknown, 'No measured hook, to stand or turn a door at, is of ' + ', '.join(unknown))
     opened = list(layout.get('opened', (0, 1))) if stood else [None]; areas, shots = [], []
+    require(not stood or opened and set(opened) <= {0, 1, 2} and len(set(opened)) == len(opened), 'A door is opened 0 (shut), 1 or 2, each state once')
     for light in layout.get('lights', ('day',)):
         width, height, cells, _ = review.grid(laid * len(opened), of.fill, across=len(laid)) if len(laid) <= LARGEST else (0, 0, None, 0)
         require(cells, f'{len(numbers)} tiles do not stand apart in a row: name fewer models'); tag = f'{layout["name"]}{light[0]}'; leaves = []

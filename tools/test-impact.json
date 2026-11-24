@@ -6418,7 +6418,8 @@
       "srn_2da"
     ],
     "tools/tilekit/test_family_review.py": [
-      "srn_2da"
+      "srn_2da",
+      "srn_door"
     ],
     "tools/tilekit/test_inventory.py": [
       "srn_2da",

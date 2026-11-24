@@ -114,5 +114,7 @@ def props(folder, masters, blender, run=subprocess.run):
     except subprocess.TimeoutExpired as error:
         raise ValueError(f'Blender did not finish in {LIMIT} s') from error
     require(result.returncode == 0, 'Blender failed: ' + (result.stderr or b'').decode(errors='replace')[-1500:])
-    missing = [name for name in names if not (folder / f'{name}-front.png').is_file()]; require(not missing, 'No render of ' + ', '.join(missing[:6]))
+    pieces = json.loads((folder / 'pieces.json').read_text(encoding='utf-8'))
+    missing = [f'{name}-{view}' for name in names for view in SHOWN if (view != 'night' or pieces[name]['glows']) and not (folder / f'{name}-{view}.png').is_file()]
+    require(not missing, 'No render of ' + ', '.join(missing[:6]))
     return {'pieces': len(names), 'sheets': sheets(folder)}

@@ -43,10 +43,13 @@ class SketchTest(unittest.TestCase):
 
     def test_props_are_exported_rendered_and_sheeted(self):
         with tempfile.TemporaryDirectory() as folder:
+            shown = ['front', 'side']
+
             def run(command, **_):
                 self.assertEqual(command[command.index('-t') + 1], '4'); self.assertTrue(Path(command[command.index('--python') + 1]).is_file())
                 for name in json.loads((Path(folder) / 'pieces.json').read_text()):
-                    Image.new('RGB', (8, 6), 'red').save(Path(folder) / f'{name}-front.png')
+                    for view in shown:
+                        Image.new('RGB', (8, 6), 'red').save(Path(folder) / f'{name}-{view}.png')
                 return SimpleNamespace(returncode=0, stderr=b'')
             import numpy as np
             maps = {'colour': np.zeros((4, 4, 3), np.uint8), 'glow': np.zeros((4, 4, 3), np.uint8), 'metal': np.zeros((4, 4)), 'roughness': np.ones((4, 4))}
@@ -55,6 +58,12 @@ class SketchTest(unittest.TestCase):
                 told = sketch.props(folder, 'masters', 'blender', run)
                 self.assertEqual(told['sheets'], ['sheet-wall.jpg', 'sheet-roof.jpg']); self.assertTrue((Path(folder) / 'sheet-roof.jpg').is_file()); self.assertFalse((Path(folder) / 'mast-night.png').exists())
                 self.assertTrue((Path(folder) / 'mast-mine.png').exists())
+
+                with mock.patch('tools.tilekit.sketch._glows', return_value=True), self.assertRaisesRegex(ValueError, 'No render of ac_unit-night'):
+                    sketch.props(folder, 'masters', 'blender', run)
+                shown.remove('side')
+                with self.assertRaisesRegex(ValueError, 'No render of ac_unit-side'):
+                    sketch.props(folder, 'masters', 'blender', run)
 
                 def slow(*_, **__):
                     raise subprocess.TimeoutExpired('blender', 1)

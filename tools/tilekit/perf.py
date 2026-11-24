@@ -23,7 +23,7 @@ EVERY, POLL, LOOK = 0.1, 0.02, 1.0  # seconds between grabs, between looks at th
 GAP = 8.0  # seconds without a frame that are a pause in the grabbing (a stalled grab is shorter)
 LEAD = 2.0  # seconds before a view ends that grabbing begins
 DARK = 12  # the brightest a load screen's margins are, of 255
-COUNTER = (1340, 0, 1600, 90)  # the counter's corner of a 1600 x 900 capture
+COUNTER = (260, 90)  # the counter's corner of a capture, at its top right: pixels across and down
 SHOT = prop_fixture.LOG_PREFIX + ' shot='
 
 
@@ -93,12 +93,12 @@ def loads(frames, after=0.0):
 def counters(captures, output):
     """One sheet of the captures' counters, each under its view's name."""
     from PIL import Image, ImageDraw
-    captures = [Path(one) for one in captures]; require(captures, 'No captures to read a counter from'); wide, high = COUNTER[2] - COUNTER[0], COUNTER[3] - COUNTER[1]
+    captures = [Path(one) for one in captures]; require(captures, 'No captures to read a counter from'); wide, high = COUNTER
     page = Image.new('RGB', (2 * wide, -(-len(captures) // 2) * (high + 14)), 'white'); draw = ImageDraw.Draw(page)
     for index, path in enumerate(captures):
         x, y = index % 2 * wide, index // 2 * (high + 14); draw.text((x + 2, y + 1), path.stem, fill='black')
         with Image.open(path) as picture:
-            page.paste(picture.crop(COUNTER), (x, y + 14))
+            page.paste(picture.crop((picture.width - wide, 0, picture.width, high)), (x, y + 14))
     page.resize((page.width * 2, page.height * 2)).save(output)
     return len(captures)
 

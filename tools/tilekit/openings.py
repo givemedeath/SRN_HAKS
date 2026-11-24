@@ -2,7 +2,7 @@
 doorway or a window.
 
 A hook's doorway is measured by rays against what the tile draws (kit pieces apart): along the door's width both ways,
-`ACROSS` metres over the hook, and upward from it. A ray that meets nothing within `FAR` leaves that measure None.
+`ACROSS` metres over the hook, and upward from there (over a doorstep). A ray that meets nothing within `FAR` leaves that measure None.
 A black opening is an upright face on one of the cell's axes drawn with a named material (`materials`, patterns):
 faces whose spans touch along the wall are one opening, a door where it starts within `SILL` metres of the walkable
 ground in front of it, else a window."""
@@ -15,7 +15,6 @@ from pathlib import Path
 from . import detail, geometry, inventory, merged
 
 ACROSS, FAR, NEAREST = 1.0, 20.0, 0.02
-FOOT = 0.1  # metres over the hook the upward ray starts
 SILL, GROUND = 0.4, 3.0  # metres: a door's foot over its ground, and how far about the opening its ground is looked for
 SMALLEST, TOUCH, THIN = 0.2, 0.05, 0.05
 
@@ -51,8 +50,8 @@ def measured(triangles, at, turn):
     """{width, height, left, right} of the doorway at a hook."""
     angle = math.radians(turn); along = (math.cos(angle), math.sin(angle), 0.0); middle = (at[0], at[1], at[2] + ACROSS)
     left, right = cast(triangles, middle, along), cast(triangles, middle, tuple(-value for value in along))
-    up = cast(triangles, (at[0], at[1], at[2] + FOOT), (0.0, 0.0, 1.0))
-    return {'width': round(left + right, 1) if None not in (left, right) else None, 'height': round(up + FOOT, 1) if up is not None else None,
+    up = cast(triangles, middle, (0.0, 0.0, 1.0))
+    return {'width': round(left + right, 1) if None not in (left, right) else None, 'height': round(up + ACROSS, 1) if up is not None else None,
             'left': None if left is None else round(left, 2), 'right': None if right is None else round(right, 2)}
 
 

@@ -21,6 +21,12 @@ def _json(path):
     return json.loads(Path(path).read_text(encoding='utf-8-sig'))
 
 
+def _out(path):
+    """`path`, refused before the work where its folder is not there to be written into."""
+    from . import require
+    require(path.parent.is_dir(), f'The folder of {path} does not exist'); return path
+
+
 def _told(told):
     print(json.dumps(told, indent=1))
 
@@ -34,14 +40,14 @@ def repair_command(chosen):
 
 def propose_command(chosen):
     from . import family
-    written, told = family.propose(chosen.repo, family.read(chosen.spec), chosen.kit)
+    _out(chosen.out); written, told = family.propose(chosen.repo, family.read(chosen.spec), chosen.kit)
     chosen.out.write_text(json.dumps(written, indent=1) + '\n', encoding='utf-8', newline='\n'); _told(told)
     return 1 if told['over'] else 0
 
 
 def openings_command(chosen):
     from . import openings
-    told = openings.openings(chosen.repo, chosen.tileset, _names(chosen.black, '--black'), tuple(_names(chosen.types, '--types')))
+    _out(chosen.out); told = openings.openings(chosen.repo, chosen.tileset, _names(chosen.black, '--black'), tuple(_names(chosen.types, '--types')))
     chosen.out.write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')
     sizes = {}
     for one in told['hooks']:
@@ -73,7 +79,7 @@ def perf_command(chosen):
 
 def rank_command(chosen):
     from . import audit
-    told = audit.rank(chosen.repo, chosen.tileset, _names(chosen.ground, '--ground')); chosen.out.write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')
+    _out(chosen.out); told = audit.rank(chosen.repo, chosen.tileset, _names(chosen.ground, '--ground')); chosen.out.write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')
     _told({'tiles': len(told), 'plainest': [row['tile'] for row in told[:chosen.show]]}); return 0
 
 
