@@ -75,6 +75,9 @@ class FamilyReviewTest(unittest.TestCase):
         self.assertEqual(len(self.plan(layout)[1]), 2)
         with self.assertRaisesRegex(ValueError, 'typo'):
             self.plan({**layout, 'doors': {'typo': 1}})
+        (self.repo / 'op.json').write_text(json.dumps({'hooks': [{**hook, 'tile': 3}]}))
+        with self.assertRaisesRegex(ValueError, 'measure the openings again'):
+            self.plan(layout)
 
     def test_an_up_view_fits_the_default_room(self):
         self.assertEqual(len(self.plan({'kind': 'tiles', 'name': 'up', 'models': ['x_full'], 'lights': ['day'], 'views': [{'kind': 'up'}]})[1]), 1)
@@ -84,6 +87,9 @@ class FamilyReviewTest(unittest.TestCase):
         self.assertEqual(family_review.texts_of(self.repo, 'm', None, ()), {})
         (spec / 'merge.json').write_text(json.dumps({'families': [{'set': 'X'}]}))
         self.assertEqual(set(family_review.texts_of(self.repo, 'm', None, ())), {'x_plain', 'x_corner', 'x_side', 'x_full'}); self.assertEqual(merged.over(self.repo, 'x'), {'m'}); self.assertEqual(merged.over(self.repo, 'm'), set())
+        with self.assertRaisesRegex(ValueError, 'srn_t_x'):
+            family_review.haks({'tileset': 'm', 'haks': ['srn_t_m']}, self.repo)
+        self.assertEqual(family_review.haks({'tileset': 'm', 'haks': ['srn_t_m', 'srn_t_x']}, self.repo), ('srn_t_m', 'srn_t_x'))
 
     def test_models_only_the_overlay_has(self):
         overlay = self.repo / 'ov'; overlay.mkdir(); (overlay / 'x.set').write_text(set_text() + tile(4, 'x_new', ['New'] * 4)); (overlay / 'x_new.mdl').write_text(model(WALK))
@@ -98,11 +104,16 @@ class FamilyReviewTest(unittest.TestCase):
     def test_wrong_specs_are_refused(self):
         from types import SimpleNamespace
         from tools.tilekit import commands
-        for chosen, why in (({'views': ',', 'most': 3}, 'No view'), ({'views': None, 'most': 0}, 'at least one')):
-            with self.assertRaisesRegex(ValueError, why):
-                commands._most(SimpleNamespace(all=False, **chosen))
+        with self.assertRaisesRegex(ValueError, 'at least one'):
+            commands._most(SimpleNamespace(all=False, most=0))
+        for empty in ('', ','):
+            with self.assertRaisesRegex(ValueError, '--models'):
+                commands._names(empty, '--models')
+        self.assertEqual(commands._names(None, '--models'), [])
         for layout, why in (({'kind': 'x', 'name': 'a'}, 'A layout is'), ({'kind': 'tiles', 'name': 'A1'}, 'lowercase'), ({'kind': 'tiles', 'name': 'a', 'terrains': ['none']}, 'No tile'),
-                            ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'lights': ['dusk']}, 'lit by')):
+                            ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'lights': ['dusk']}, 'lit by'),
+                            ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'lights': ['dusk']}]}, 'lit by'),
+                            ({'kind': 'street', 'name': 'a', 'terrains': ['Ground'], 'close': [{'piece': 'x', 'light': 'dusk'}]}, 'lit by')):
             with self.assertRaisesRegex(ValueError, why):
                 self.plan(layout)
         with self.assertRaisesRegex(ValueError, 'srn_t_x'):

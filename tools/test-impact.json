@@ -5831,6 +5831,8 @@
       "tools/tilekit/placer.py"
     ],
     "tools/tilekit/family_review.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/prop_fixture.py",
       "tools/tilekit/detail.py",
       "tools/tilekit/effects.py",
       "tools/tilekit/geometry.py",

@@ -1,4 +1,5 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -21,6 +22,11 @@ class SketchTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'draws nothing'):
             sketch.sketch(model(), 't')
 
+    def test_what_lies_below_ground_is_drawn(self):
+        page = sketch.sketch(model(wall('low', 'brick', 'x', 2, -2, 2, -10, -3)), 't'); self.assertEqual(page.height, 40 + max(12, 9) * sketch.SCALE)
+        left = sketch.PAD * 3 + 4 * sketch.HALF * sketch.SCALE  # the side view
+        self.assertTrue(any(page.getpixel((left + sketch.HALF * sketch.SCALE, y)) != (250, 250, 245) for y in range(50, 30 + 8 * sketch.SCALE)))
+
     def test_the_nearer_wall_is_drawn_over_the_farther(self):
         far, near = wall('far', 'b', 'y', 4, -2, 2, 0, 8), wall('near', 'b', 'y', -4, -4, 0, 0, 8).replace('0 1 2 1', '0 2 1 1')
         page = sketch.sketch(model(near, far), 't'); top = sketch.PAD + 2 * sketch.HALF * sketch.SCALE + sketch.PAD
@@ -36,9 +42,15 @@ class SketchTest(unittest.TestCase):
             import numpy as np
             maps = {'colour': np.zeros((4, 4, 3), np.uint8), 'glow': np.zeros((4, 4, 3), np.uint8), 'metal': np.zeros((4, 4)), 'roughness': np.ones((4, 4))}
             with mock.patch('tools.tilekit.kit.atlas', return_value=maps):
-                (Path(folder) / 'mast-night.png').write_bytes(b'old')
+                (Path(folder) / 'mast-night.png').write_bytes(b'old'); (Path(folder) / 'mast-mine.png').write_bytes(b'kept')
                 told = sketch.props(folder, 'masters', 'blender', run)
                 self.assertEqual(told['sheets'], ['sheet-wall.jpg', 'sheet-roof.jpg']); self.assertTrue((Path(folder) / 'sheet-roof.jpg').is_file()); self.assertFalse((Path(folder) / 'mast-night.png').exists())
+                self.assertTrue((Path(folder) / 'mast-mine.png').exists())
+
+                def slow(*_, **__):
+                    raise subprocess.TimeoutExpired('blender', 1)
+                with self.assertRaisesRegex(ValueError, 'did not finish'):
+                    sketch.props(folder, 'masters', 'blender', slow)
                 with self.assertRaisesRegex(ValueError, 'Blender failed'):
                     sketch.props(folder, 'masters', 'blender', lambda *_, **__: SimpleNamespace(returncode=1, stderr=b'no'))
 

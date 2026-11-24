@@ -17,6 +17,13 @@ class FamilyTest(unittest.TestCase):
         self.assertIs(family.family_of(SPEC, ['Street'] * 4), SPEC['families'][1])
         self.assertIsNone(family.family_of(SPEC, ['Street', 'Street', 'Street', 'Water']))
 
+    def test_a_model_of_several_tiles(self):
+        self.assertIs(family.family_of(SPEC, ['Slums1'] * 4, ['Water'] * 4), SPEC['families'][0]); self.assertIsNone(family.family_of(SPEC))
+        one = {'terrains': ['A'], 'placer': 'propose'}
+        with mock.patch.object(placer, 'propose', return_value=[]) as call:
+            family.proposed({'families': [one]}, one, 'text', 't', ['B', 'B', 'A', 'A'], ['B', 'A', 'B', 'A'])
+        self.assertEqual(call.call_args.kwargs['open'], placer.open_sides(['B', 'B', 'A', 'A'], lambda name: name == 'A') & placer.open_sides(['B', 'A', 'B', 'A'], lambda name: name == 'A'))
+
     def test_options_reach_the_placers(self):
         one = {'terrains': ['A'], 'placer': 'propose', 'options': {'grids': True, 'plant': 'roof'},
                'add': [{'placer': 'propose_corporate', 'options': {'plant': None}, 'pieces': ['camera']}]}

@@ -5,7 +5,7 @@ frame counter to settle, with vsync off and every frame limiter at one cap (200 
 machine, and a cap that is reached says only that the rate is at least that). The counter's corner of every capture is
 put on one sheet, `counters.png`, to be read by eye. While the client loads another area its window is grabbed every
 `EVERY` seconds: a load screen is black outside its picture, so the stretch of frames with dark margins is the load.
-The first of them is the client starting and is left out. Frames, log lines with the time each was seen, and what was
+What is dark before the first view is the client starting, and is left out. Frames, log lines with the time each was seen, and what was
 measured are kept in the run's folder (`perf.json`). A run is refused while another client is up: it would measure both."""
 import json
 import threading
@@ -74,9 +74,9 @@ def loading(image):
     return max(max(image.crop((0, 0, int(width * 0.25), height)).getextrema()), max(image.crop((int(width * 0.75), int(height * 0.15), width, height)).getextrema())) <= DARK
 
 
-def loads(frames):
-    """[{from, to, seconds, ended}] of the load screens in [(time, is a load screen)], the first (the client starting) left
-    out. A stretch ends where grabbing paused (`GAP`); `ended` is false where no frame after it was seen lit: the load
+def loads(frames, after=0.0):
+    """[{from, to, seconds, ended}] of the load screens in [(time, is a load screen)] that begin after `after` (the first view:
+    until then the client is starting). A stretch ends where grabbing paused (`GAP`); `ended` is false where no frame after it was seen lit: the load
     took longer than the grabbing, or the view itself is that dark."""
     found, start, last = [], None, None
     for at, dark in sorted(frames):
@@ -87,7 +87,7 @@ def loads(frames):
         last = at
     if start is not None:
         found.append((start, last, False))
-    return [{'from': begin, 'to': end, 'seconds': round(end - begin, 2), 'ended': ended} for begin, end, ended in found[1:]]
+    return [{'from': begin, 'to': end, 'seconds': round(end - begin, 2), 'ended': ended} for begin, end, ended in found if begin > after]
 
 
 def counters(captures, output):
@@ -107,7 +107,7 @@ def run(repo, spec, out, name, game, built, *, overlay=None, base='.', views=Non
     """Build the areas, run the client over their views and write perf.json. Returns what it holds."""
     extra = settings(cap, cap, stats=True, vsync=False); require(not client.running(), 'A game client is running; frame rates measured beside it would be of both')  # before anything is built
     out = Path(out); areas, shots, left = family_review.plan(repo, spec, overlay=overlay, base=base, views=views, most=most)
-    record = review.build(name, areas, shots, out, game, built, overlay=overlay, haks=family_review.haks(spec), hold=HOLD, arrive=ARRIVE)
+    record = review.build(name, areas, shots, out, game, built, overlay=overlay, haks=family_review.haks(spec, repo), hold=HOLD, arrive=ARRIVE)
     frames = out / 'frames'; frames.mkdir(); watch = Watch(Path(record['userDirectory']) / 'logs' / 'nwclientLog1.txt', frames, shots); watch.start()
     try:
         result = prop_fixture.run(game, record, out / 'captures', settle=SETTLE, extra_settings=extra, late_ok=True)
@@ -118,8 +118,9 @@ def run(repo, spec, out, name, game, built, *, overlay=None, base='.', views=Non
     for path in frames.glob('*.jpg'):
         with Image.open(path) as picture:
             seen.append((float(path.stem), loading(picture)))
+    first = next((at for at, line in watch.stamps if SHOT in line), float('inf'))  # no view: nothing was loaded for one
     told = {'module': record['module'], 'cap': cap, 'overlay': record['overlay'], 'views': len(shots), 'leftOut': left, 'captures': result['captures'], 'late': result['late'],
-            'elsewhere': review.elsewhere(result['lines']), 'loads': loads(seen), 'frames': len(seen), 'grabsMissed': watch.missed, 'stamps': watch.stamps}
+            'elsewhere': review.elsewhere(result['lines']), 'loads': loads(seen, first), 'frames': len(seen), 'grabsMissed': watch.missed, 'stamps': watch.stamps}
     if result['captures']:
         counters(result['captures'], out / 'counters.png')
     (out / 'perf.json').write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')

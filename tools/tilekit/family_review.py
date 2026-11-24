@@ -22,6 +22,8 @@ import json
 import math
 from pathlib import Path
 
+from tools.envkit import prop_fixture
+
 from . import detail, effects, geometry, inventory, merged, placer, require, review
 
 LIGHTS = ('day', 'night')
@@ -250,6 +252,8 @@ def doors(of, layout):
     wanted = [name.lower() for name in layout['models']] if 'models' in layout else None; stood, turns = ({name.lower(): value for name, value in layout.get(key, {}).items()} for key in ('doors', 'turns'))
     hooks = [one for one in hooks if (wanted is None or one['model'] in wanted) and (one['width'], one['height']) not in clear]
     missing = sorted(set(wanted or ()) - {one['model'] for one in hooks}); require(not missing, 'No measured hook is of ' + ', '.join(missing)); require(hooks, 'No door hook to look at')
+    wrong = sorted({f'{one["tile"]} ({one["model"]})' for one in hooks if of.tiles.get(one['tile'], {}).get('model') != one['model']})  # measured on another set file
+    require(not wrong, 'The set has no such tile as was measured: ' + ', '.join(wrong[:4]) + '; measure the openings again')
     numbers = sorted({one['tile'] for one in hooks}); laid = [of.fill, *(value for number in numbers for value in (number, of.fill))]
     unknown = sorted((set(stood) | set(turns)) - {one['model'] for one in hooks}); require(not unknown, 'No measured hook, to stand or turn a door at, is of ' + ', '.join(unknown))
     opened = list(layout.get('opened', (0, 1))) if stood else [None]; areas, shots = [], []
@@ -280,13 +284,15 @@ def plan(repo, spec, *, overlay=None, base='.', views=None, most=MOST):
     of = Set(repo, spec['tileset'].lower(), overlay, spec.get('fill'), base); areas, shots = [], []
     for layout in spec['layouts']:
         require(layout.get('kind') in KINDS, 'A layout is ' + ', '.join(KINDS)); require(str(layout.get('name', '')).isalpha() and layout['name'].islower() and len(layout['name']) <= 8, 'A layout\'s name is 1 to 8 lowercase letters')
-        unlit = sorted(set(layout.get('lights', LIGHTS)) - set(review.LIGHTS)); require(not unlit, 'A layout is lit by ' + ', '.join(review.LIGHTS))
+        unlit = sorted({*layout.get('lights', LIGHTS), *(light for view in layout.get('views', ()) if isinstance(view, dict) for light in view.get('lights', ())),
+                        *(close['light'] for close in layout.get('close', ()))} - set(review.LIGHTS)); require(not unlit, 'A layout is lit by ' + ', '.join(review.LIGHTS))
         for area in (made := KINDS[layout['kind']](of, layout))[0]:
             require(area['tag'] not in {one['tag'] for one in areas}, f'Two areas would be named {area["tag"]}: another name for a layout'); areas.append(area)
         shots += made[1]
     sizes = {area['tag']: (area['width'] * review.TILE, area['height'] * review.TILE) for area in areas}
     outside = [shot['label'] for shot in shots if not all(0 < at < size for at, size in zip(shot['stand'], sizes[shot['area']]))]
     require(not outside, 'These views stand outside their area (give the layout more room): ' + ', '.join(outside[:4]))
+    unsaid = [shot['label'] for shot in shots if not prop_fixture.LABEL.fullmatch(shot['label'])]; require(not unsaid, 'A view\'s label is letters, digits, - and _: ' + ', '.join(unsaid[:4]))
     if views:
         shots = [shot for shot in shots if shot['label'].startswith(tuple(views))]
     require(shots, 'No view to take'); kept = shots if most is None or len(shots) <= most else [shots[index * len(shots) // most] for index in range(most)]
@@ -294,16 +300,16 @@ def plan(repo, spec, *, overlay=None, base='.', views=None, most=MOST):
     return [area for area in areas if area['tag'] in tags], kept, [shot['label'] for shot in shots if shot not in kept]
 
 
-def haks(spec):
-    """The packs the module loads (the spec's, or review's), with the tileset's own among them."""
-    found = tuple(spec.get('haks', review.HAKS)); pack = f'srn_t_{spec["tileset"].lower()}'
-    require(pack in found, f'The module would not load {pack}: add it to the spec\'s haks'); return found
+def haks(spec, repo='.'):
+    """The packs the module loads (the spec's, or review's), with the tileset's own among them, and a merged set's families'."""
+    found = tuple(spec.get('haks', review.HAKS)); missing = [pack for pack in (f'srn_t_{one}' for one in (spec['tileset'].lower(), *merged.families(repo, spec['tileset']))) if pack not in found]
+    require(not missing, 'The module would not load ' + ', '.join(missing) + ': add it to the spec\'s haks'); return found
 
 
 def run(repo, spec, out, name, game, built, *, overlay=None, base='.', views=None, most=MOST, start=True):
     """Build the review into the fresh folder `out` and capture its views. Returns what was done."""
     areas, shots, left = plan(repo, spec, overlay=overlay, base=base, views=views, most=most)
-    record = review.build(name, areas, shots, out, game, built, overlay=overlay, haks=haks(spec))
+    record = review.build(name, areas, shots, out, game, built, overlay=overlay, haks=haks(spec, repo))
     told = {'module': record['module'], 'areas': [area['tag'] for area in areas], 'views': len(shots), 'leftOut': left, 'overlay': record['overlay']}
     if start:
         told.update(review.capture(game, record, out)); told['captures'] = len(told['captures']); told['sheets'] = review.sheets(out)

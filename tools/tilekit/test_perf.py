@@ -13,9 +13,10 @@ SHOTS = [{'area': 'a'}, {'area': 'a'}, {'area': 'b'}]
 class PerfTest(unittest.TestCase):
     def test_load_screens_are_the_dark_stretches_after_the_first(self):
         frames = [(0.1, True), (0.2, True), (0.3, False), (5.0, True), (5.1, True), (6.2, True), (6.3, False), (9.0, True), (9.5, True)]
-        self.assertEqual(perf.loads(frames), [{'from': 5.0, 'to': 6.2, 'seconds': 1.2, 'ended': True}, {'from': 9.0, 'to': 9.5, 'seconds': 0.5, 'ended': False}])
-        paused = perf.loads([(0.1, True), (0.2, False), (9.0, True), (9.5, True), (30.0, True), (31.0, True), (31.1, False)])
+        self.assertEqual(perf.loads(frames, 4.0), [{'from': 5.0, 'to': 6.2, 'seconds': 1.2, 'ended': True}, {'from': 9.0, 'to': 9.5, 'seconds': 0.5, 'ended': False}])
+        paused = perf.loads([(0.1, True), (0.2, False), (9.0, True), (9.5, True), (30.0, True), (31.0, True), (31.1, False)], 4.0)
         self.assertEqual([(one['seconds'], one['ended']) for one in paused], [(0.5, False), (1.0, True)])  # not one load across the pause
+        self.assertEqual(len(perf.loads([(5.0, True), (5.5, False)], 4.0)), 1)  # the client's start showed no dark stretch: the first is a load
         dark = Image.new('RGB', (400, 225)); dark.paste((200, 200, 200), (120, 30, 280, 200)); self.assertTrue(perf.loading(dark))
         self.assertFalse(perf.loading(Image.new('RGB', (400, 225), (40, 40, 40))))
 

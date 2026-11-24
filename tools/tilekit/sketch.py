@@ -13,6 +13,7 @@ from . import geometry, require
 VIEWS = (('top', 0, 1, 2, 1), ('front -y', 0, 2, 1, -1), ('side +x', 1, 2, 0, 1))  # across, up, depth, and which way is nearer
 SCALE, PAD, HALF = 9, 20, 6  # pixels a metre, pixels between, metres drawn round the middle
 THREADS = 4  # the repository's rule for preview renders
+SHOWN, LIMIT = ('front', 'side', 'night'), 3600  # the renders of a piece (props_blender), and the seconds Blender has
 SKIPPED = ('camera_head',)  # a part of another piece
 
 
@@ -26,9 +27,9 @@ def sketch(text, title):
     """A picture of a model from three sides."""
     from PIL import Image, ImageDraw
     triangles = geometry.triangles(geometry.parse(text)[2]); require(triangles, f'{title} draws nothing')
-    tall = max(point[2] for triangle in triangles for point in triangle) + 2; panels = []
+    heights = [point[2] for triangle in triangles for point in triangle]; foot = min(0.0, min(heights)); tall = max(heights) - foot + 2; panels = []  # from the ground, or from what lies below it
     for label, across, up, depth, near in VIEWS:
-        high = 2 * HALF if label == 'top' else tall; base = HALF if label == 'top' else 0; wide = 2 * HALF * SCALE
+        high = 2 * HALF if label == 'top' else tall; base = HALF if label == 'top' else -foot; wide = 2 * HALF * SCALE
         picture = Image.new('RGB', (wide, max(1, int(high * SCALE))), (250, 250, 245)); draw = ImageDraw.Draw(picture)
         for triangle in sorted(triangles, key=lambda triangle: near * sum(point[depth] for point in triangle)):
             grey = _shade(triangle)
@@ -84,7 +85,7 @@ def sheets(folder):
         page = Image.new('RGB', (6 * wide, -(-len(names) // 2) * (high + label)), 'white'); draw = ImageDraw.Draw(page)
         for index, name in enumerate(names):
             x, y = index % 2 * 3 * wide, index // 2 * (high + label); draw.text((x + 4, y + 3), name, fill='black')
-            for slot, view in enumerate(('front', 'side', 'night')):
+            for slot, view in enumerate(SHOWN):
                 path = folder / f'{name}-{view}.png'
                 if path.is_file():
                     with Image.open(path) as picture:
@@ -96,9 +97,12 @@ def sheets(folder):
 def props(folder, masters, blender, run=subprocess.run):
     folder = Path(folder).resolve(); names = export(folder, masters)
     for name in names:  # an earlier run's renders are not this one's
-        for path in folder.glob(f'{name}-*.png'):
-            path.unlink()
-    result = run(command(blender, folder), capture_output=True, timeout=3600)
+        for view in SHOWN:
+            (folder / f'{name}-{view}.png').unlink(missing_ok=True)
+    try:
+        result = run(command(blender, folder), capture_output=True, timeout=LIMIT)
+    except subprocess.TimeoutExpired as error:
+        raise ValueError(f'Blender did not finish in {LIMIT} s') from error
     require(result.returncode == 0, 'Blender failed: ' + (result.stderr or b'').decode(errors='replace')[-1500:])
     missing = [name for name in names if not (folder / f'{name}-front.png').is_file()]; require(not missing, 'No render of ' + ', '.join(missing[:6]))
     return {'pieces': len(names), 'sheets': sheets(folder)}

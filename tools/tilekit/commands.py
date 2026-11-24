@@ -9,8 +9,12 @@ def _tileset(parser, repo):
     return parser
 
 
-def _names(text):
-    return [name for name in (text or '').split(',') if name]
+def _names(text, option=None):
+    """The names of a comma separated list; a list of `option` that was given and names nothing is refused, not read as all."""
+    from . import require
+    found = [name for name in (text or '').split(',') if name]
+    require(option is None or text is None or found, f'Nothing named in {option}')
+    return found
 
 
 def _json(path):
@@ -23,7 +27,7 @@ def _told(told):
 
 def repair_command(chosen):
     from . import repair
-    told = repair.repair(chosen.repo, chosen.tileset, models=_names(chosen.models), write=chosen.write)
+    told = repair.repair(chosen.repo, chosen.tileset, models=_names(chosen.models, '--models'), write=chosen.write)
     _told({'written': chosen.write, 'models': told})
     return 0
 
@@ -37,7 +41,7 @@ def propose_command(chosen):
 
 def openings_command(chosen):
     from . import openings
-    told = openings.openings(chosen.repo, chosen.tileset, _names(chosen.black), tuple(_names(chosen.types)))
+    told = openings.openings(chosen.repo, chosen.tileset, _names(chosen.black, '--black'), tuple(_names(chosen.types, '--types')))
     chosen.out.write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')
     sizes = {}
     for one in told['hooks']:
@@ -48,28 +52,28 @@ def openings_command(chosen):
 
 def _most(chosen):
     from . import require
-    require(chosen.views is None or _names(chosen.views), 'No view named in --views'); require(chosen.all or chosen.most > 0, '--most is at least one view')
+    require(chosen.all or chosen.most > 0, '--most is at least one view')
     return None if chosen.all else chosen.most
 
 
 def family_review_command(chosen):
     from . import family_review
     _told(family_review.run(chosen.repo, _json(chosen.spec), chosen.out, chosen.name, chosen.game, chosen.built, overlay=chosen.overlay, base=chosen.spec.parent,
-                            views=_names(chosen.views), most=_most(chosen), start=not chosen.no_run))
+                            views=_names(chosen.views, '--views'), most=_most(chosen), start=not chosen.no_run))
     return 0
 
 
 def perf_command(chosen):
     from . import perf
     told = perf.run(chosen.repo, _json(chosen.spec), chosen.out, chosen.name, chosen.game, chosen.built, overlay=chosen.overlay, base=chosen.spec.parent,
-                    views=_names(chosen.views), most=_most(chosen), cap=chosen.cap)
+                    views=_names(chosen.views, '--views'), most=_most(chosen), cap=chosen.cap)
     _told({**told, 'captures': len(told['captures']), 'stamps': len(told['stamps'])})
     return 0
 
 
 def rank_command(chosen):
     from . import audit
-    told = audit.rank(chosen.repo, chosen.tileset, _names(chosen.ground)); chosen.out.write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')
+    told = audit.rank(chosen.repo, chosen.tileset, _names(chosen.ground, '--ground')); chosen.out.write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')
     _told({'tiles': len(told), 'plainest': [row['tile'] for row in told[:chosen.show]]}); return 0
 
 

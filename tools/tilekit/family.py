@@ -54,9 +54,10 @@ def _checked(spec):
             require(step.get('options', {}).get('plant') in PLANTS, 'A plant is ' + ', '.join(key for key in PLANTS if key) + ' or null')
 
 
-def family_of(spec, corners):
+def family_of(spec, *tiles):
+    """The first family one of the tiles (each its corners) belongs to, or None."""
     for one in spec['families']:
-        if (all if one.get('match') == 'all' else any)(_is(corner, one['terrains']) for corner in corners):
+        if any((all if one.get('match') == 'all' else any)(_is(corner, one['terrains']) for corner in corners) for corners in tiles):
             return one
     return None
 
@@ -71,10 +72,11 @@ def _step(step, base, name, open_):
     return [one for one in found if 'pieces' not in step or one['piece'] in step['pieces']]
 
 
-def proposed(spec, family, base, name, corners):
-    """The placers' pieces for one tile, not yet checked."""
+def proposed(spec, family, base, name, *tiles):
+    """The placers' pieces for one model, not yet checked. tiles: the corners of each tile that draws it; a side is on a
+    street only where it is for all of them."""
     building = spec.get('building') or [terrain for one in spec['families'] for terrain in one['terrains']]
-    open_ = placer.open_sides(corners, lambda terrain: _is(terrain, building))
+    open_ = set.intersection(*(set(placer.open_sides(corners, lambda terrain: _is(terrain, building))) for corners in tiles))
     return [one for step in (family, *family.get('add', ())) for one in _step(step, base, name, open_)]
 
 
@@ -95,10 +97,13 @@ def propose(repo, spec, kit):
     from .kit import SWEEPS
     _checked(spec); repo = Path(repo); tileset = spec['tileset'].lower(); budget = {**BUDGET, **spec.get('budget', {})}; cache = {}
     laid = inventory.read_set((repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'))
-    corners = {tile['model']: tile['corners'] for tile in laid['tiles']}; taken = set(spec.get('taken', ()))
+    corners = {}
+    for tile in laid['tiles']:  # a model may be drawn by several tiles, of different terrains
+        corners.setdefault(tile['model'], []).append(tile['corners'])
+    taken = set(spec.get('taken', ()))
     tiles, said, refused, dropped, seen = {}, {}, {}, {}, 0
     for name, _, text, others, source in inventory.drawn_copies(repo, tileset, None, lamps.PACKS):
-        family = family_of(spec, corners[name]) if name in corners and name not in taken and not _is(name, spec.get('skip', SKIP)) else None
+        family = family_of(spec, *corners[name]) if name in corners and name not in taken and not _is(name, spec.get('skip', SKIP)) else None
         if family is None:
             continue
         seen += 1
@@ -106,7 +111,7 @@ def propose(repo, spec, kit):
             refused[name] = 'drawn by other tilesets too: ' + ', '.join(others); continue
         wok_path = (repo / source.parent.name / source.name).with_suffix('.wok')  # in the pack, beside a compiled model too
         wok = wok_path.read_bytes().decode('cp1252') if wok_path.is_file() else None
-        placements = proposed(spec, family, effects.without_fx(detail.without_kit(text)), name, corners[name])
+        placements = proposed(spec, family, effects.without_fx(detail.without_kit(text)), name, *corners[name])
         for piece in {one['piece'] for one in placements} - set(effects.EFFECTS):  # the kit's own lack, not the tile's
             for part in (piece, *([SWEEPS[piece]['head']] if piece in SWEEPS else [])):
                 require((Path(kit) / f'{part}.mdl').is_file(), f'No kit piece {part} in {kit}')
