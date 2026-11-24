@@ -8,6 +8,8 @@ Each layout is an area for each of its `lights` (default: day and night), `name`
   `facade` (the wall with the most windows, or the glass), `wall` (the wall with street pieces), `roof` (from its
   highest walkable floor), `up` (at its top from the street), `glass` (straight at its largest glass). `every` n-th
   tile is taken, and those with one of the pieces `also`; `only` the tiles with one of those pieces.
+- `block`: terrains painted by the set's rules: {width, height, patches, runs, ground} as a review's block, {crossings,
+  views (of them, as 'x03y03-ne'), distance, pitch} its views.
 - `street`: kerbed tiles side by side, as a street shows them: {terrains, placements, across, down}, seen from two
   sides; `close`: [{piece, light}] a near view of the first tile with that piece.
 - `towers`: whole buildings painted by the set's rules: {terrains (one may be named twice), size, apart, room, across,
@@ -180,13 +182,27 @@ def street(of, layout):
     return areas, shots
 
 
+def _loose(of):
+    """The tiles no painted layout lays: those of groups, and envkit's."""
+    return {number for group in of.laid['groups'] for number in group['tiles']} | {number for number, tile in of.tiles.items() if tile['model'].startswith('ek_')}
+
+
+def block(of, layout):
+    width, height = layout['width'], layout['height']; require(max(width, height) <= LARGEST, f'{layout["name"]}: {width} x {height} tiles is more than an area holds ({LARGEST})'); areas, shots = [], []
+    cells = review.solve(of.tiles, layout.get('ground', of.laid['default']), width, height, layout['patches'], layout.get('runs', ()), avoid=_loose(of)); views = layout.get('views')
+    for light in layout.get('lights', LIGHTS):
+        tag = f'{layout["name"]}{light[0]}'; areas.append(_area(of, tag, f'{layout["name"]}, {light}', width, height, cells, light))
+        made = review.corner_shots(tag, f'{light}-{layout["name"]}', [tuple(cell) for cell in layout['crossings']], distance=layout.get('distance', 34.0), pitch=layout.get('pitch', 58.0))
+        shots += [shot for shot in made if not views or '-'.join(shot['label'].rsplit('-', 2)[-2:]) in views]
+    return areas, shots
+
+
 def towers(of, layout):
     terrains, size, apart, room = layout['terrains'], layout.get('size', 4), layout.get('apart', 8), layout.get('room', 3)  # corners a side, corners between, empty tiles round the edge
     across = min(layout.get('across', 3), len(terrains)); rows = -(-len(terrains) // across); width, height = room * 2 + apart * (across - 1) + size, room * 2 + apart * (rows - 1) + size
-    avoid = {number for group in of.laid['groups'] for number in group['tiles']} | {number for number, tile in of.tiles.items() if tile['model'].startswith('ek_')}
     patches = [{'terrain': terrain, 'at': [room + apart * (index % across), room + apart * (index // across)], 'size': [size, size]} for index, terrain in enumerate(terrains)]
     require(max(width, height) <= LARGEST, f'{layout["name"]}: {width} x {height} tiles is more than an area holds ({LARGEST})')
-    cells = review.solve(of.tiles, layout.get('ground', of.laid['default']), width, height, patches, avoid=avoid); areas, shots = [], []
+    cells = review.solve(of.tiles, layout.get('ground', of.laid['default']), width, height, patches, avoid=_loose(of)); areas, shots = [], []
     for light in layout.get('lights', LIGHTS):
         tag = f'{layout["name"]}{light[0]}'; taken = []
         for number, patch in enumerate(patches):
@@ -239,7 +255,7 @@ def doors(of, layout):
     return areas, shots
 
 
-KINDS = {'tiles': tiles, 'street': street, 'towers': towers, 'doors': doors}
+KINDS = {'tiles': tiles, 'block': block, 'street': street, 'towers': towers, 'doors': doors}
 
 
 def plan(repo, spec, *, overlay=None, base='.', views=None, most=MOST):

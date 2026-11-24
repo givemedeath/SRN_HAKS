@@ -4834,7 +4834,8 @@
     ],
     "tools/phenotypes/test_freeze_target_rig.py": [
       "tools/phenotypes/freeze_target_rig.py",
-      "tools/phenotypes/target_contract.py"
+      "tools/phenotypes/target_contract.py",
+      "tools/tilekit/audit.py"
     ],
     "tools/phenotypes/test_generate_purpose_built_part_cli.py": [
       "tools/phenotypes/generate_purpose_built_part.py"
@@ -5722,6 +5723,7 @@
       "tools/headkit/comfy.py",
       "tools/shared_tools.py",
       "tools/tilekit/apply.py",
+      "tools/tilekit/commands.py",
       "tools/tilekit/compiled.py",
       "tools/tilekit/count.py",
       "tools/tilekit/crown.py",
@@ -5745,6 +5747,27 @@
       "tools/tilekit/cuts.py",
       "tools/tilekit/detail.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/audit.py": [
+      "tools/tilekit/compiled.py",
+      "tools/tilekit/detail.py",
+      "tools/tilekit/effects.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/client_settings.py": [],
+    "tools/tilekit/commands.py": [
+      "tools/shared_tools.py",
+      "tools/tilekit/audit.py",
+      "tools/tilekit/family.py",
+      "tools/tilekit/family_review.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py",
+      "tools/tilekit/openings.py",
+      "tools/tilekit/perf.py",
+      "tools/tilekit/repair.py",
+      "tools/tilekit/sketch.py"
     ],
     "tools/tilekit/compiled.py": [
       "sources/compiled.json",
@@ -5797,6 +5820,23 @@
       "tools/headkit/design.py",
       "tools/tilekit/material.py"
     ],
+    "tools/tilekit/family.py": [
+      "tools/tilekit/detail.py",
+      "tools/tilekit/effects.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/kit.py",
+      "tools/tilekit/lamps.py",
+      "tools/tilekit/placer.py"
+    ],
+    "tools/tilekit/family_review.py": [
+      "tools/tilekit/detail.py",
+      "tools/tilekit/effects.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py",
+      "tools/tilekit/placer.py",
+      "tools/tilekit/review.py"
+    ],
     "tools/tilekit/geometry.py": [],
     "tools/tilekit/inventory.py": [
       "tools/tilekit/compiled.py"
@@ -5815,11 +5855,27 @@
       "tools/tilekit/enlarge.py",
       "tools/tilekit/pictures.py"
     ],
+    "tools/tilekit/openings.py": [
+      "tools/tilekit/detail.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/perf.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/envkit/__init__.py",
+      "tools/envkit/prop_fixture.py",
+      "tools/tilekit/client_settings.py",
+      "tools/tilekit/family_review.py",
+      "tools/tilekit/review.py"
+    ],
     "tools/tilekit/pictures.py": [],
     "tools/tilekit/placer.py": [
       "tools/tilekit/detail.py",
       "tools/tilekit/geometry.py"
     ],
+    "tools/tilekit/props_blender.py": [],
     "tools/tilekit/redraw.py": [
       "tools/envkit/__init__.py",
       "tools/envkit/reference.py",
@@ -5834,6 +5890,10 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py"
     ],
+    "tools/tilekit/repair.py": [
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
     "tools/tilekit/review.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/client.py",
@@ -5844,12 +5904,18 @@
       "tools/envkit/prop_fixture.py",
       "tools/phenotypes/tool_runtime.py",
       "tools/tilekit/apply.py",
+      "tools/tilekit/client_settings.py",
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/shadows.py": [
       "tools/tilekit/apply.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/sketch.py": [
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/kit.py",
+      "tools/tilekit/props_blender.py"
     ],
     "tools/tilekit/terrain.py": [
       "tools/tilekit/apply.py",
@@ -5861,6 +5927,13 @@
       "hakbuilder.json",
       "tools/tilekit/__init__.py",
       "tools/tilekit/apply.py"
+    ],
+    "tools/tilekit/test_audit.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/audit.py",
+      "tools/tilekit/test_detail.py",
+      "tools/tilekit/test_family_review.py",
+      "tools/tilekit/test_openings.py"
     ],
     "tools/tilekit/test_baselines.py": [
       "tools/tilekit/__init__.py",
@@ -5912,6 +5985,20 @@
       "tools/tilekit/material.py",
       "tools/tilekit/test_material.py"
     ],
+    "tools/tilekit/test_family.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/detail.py",
+      "tools/tilekit/family.py",
+      "tools/tilekit/placer.py",
+      "tools/tilekit/test_detail.py"
+    ],
+    "tools/tilekit/test_family_review.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/client_settings.py",
+      "tools/tilekit/family_review.py",
+      "tools/tilekit/review.py",
+      "tools/tilekit/test_openings.py"
+    ],
     "tools/tilekit/test_inventory.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/inventory.py"
@@ -5932,6 +6019,14 @@
       "tools/tilekit/material.py",
       "tools/tilekit/pictures.py"
     ],
+    "tools/tilekit/test_openings.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/openings.py"
+    ],
+    "tools/tilekit/test_perf.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/perf.py"
+    ],
     "tools/tilekit/test_redraw.py": [
       "tools/tilekit/material.py",
       "tools/tilekit/redraw.py",
@@ -5943,6 +6038,10 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/remesh.py"
     ],
+    "tools/tilekit/test_repair.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/repair.py"
+    ],
     "tools/tilekit/test_review.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/review.py"
@@ -5950,6 +6049,11 @@
     "tools/tilekit/test_shadows.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/shadows.py"
+    ],
+    "tools/tilekit/test_sketch.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/sketch.py",
+      "tools/tilekit/test_openings.py"
     ],
     "tools/tilekit/test_terrain.py": [
       "tools/tilekit/__init__.py",
@@ -6236,6 +6340,9 @@
       "srn_placeable",
       "srn_t_common"
     ],
+    "tools/tilekit/test_audit.py": [
+      "srn_2da"
+    ],
     "tools/tilekit/test_baselines.py": [
       "srn_2da",
       "srn_t_common",
@@ -6260,6 +6367,12 @@
     "tools/tilekit/test_enlarge.py": [
       "srn_t_common"
     ],
+    "tools/tilekit/test_family.py": [
+      "srn_2da"
+    ],
+    "tools/tilekit/test_family_review.py": [
+      "srn_2da"
+    ],
     "tools/tilekit/test_inventory.py": [
       "srn_2da",
       "srn_placeable",
@@ -6277,6 +6390,9 @@
     ],
     "tools/tilekit/test_remesh.py": [
       "srn_t_common"
+    ],
+    "tools/tilekit/test_repair.py": [
+      "srn_2da"
     ],
     "tools/tilekit/test_review.py": [
       "srn_2da"
@@ -6611,6 +6727,7 @@
     "tools/test_shared_tools.py",
     "tools/test_test_impact.py",
     "tools/tilekit/test_apply.py",
+    "tools/tilekit/test_audit.py",
     "tools/tilekit/test_baselines.py",
     "tools/tilekit/test_compiled.py",
     "tools/tilekit/test_crown.py",
@@ -6619,14 +6736,20 @@
     "tools/tilekit/test_doorset.py",
     "tools/tilekit/test_effects.py",
     "tools/tilekit/test_enlarge.py",
+    "tools/tilekit/test_family.py",
+    "tools/tilekit/test_family_review.py",
     "tools/tilekit/test_inventory.py",
     "tools/tilekit/test_kit.py",
     "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",
+    "tools/tilekit/test_openings.py",
+    "tools/tilekit/test_perf.py",
     "tools/tilekit/test_redraw.py",
     "tools/tilekit/test_remesh.py",
+    "tools/tilekit/test_repair.py",
     "tools/tilekit/test_review.py",
     "tools/tilekit/test_shadows.py",
+    "tools/tilekit/test_sketch.py",
     "tools/tilekit/test_terrain.py"
   ]
 }

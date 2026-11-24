@@ -1,0 +1,30 @@
+{
+ "tileset": "dgt04",
+ "families": [
+  {
+   "terrains": [
+    "Highrise_08"
+   ],
+   "placer": "propose",
+   "options": {
+    "look": "residential",
+    "grids": true,
+    "above": 13.0
+   }
+  },
+  {
+   "terrains": [
+    "Highrise_09"
+   ],
+   "placer": "propose",
+   "options": {
+    "look": "derelict",
+    "grids": true,
+    "above": 13.0
+   }
+  }
+ ],
+ "building": [
+  "Highrise*"
+ ]
+}

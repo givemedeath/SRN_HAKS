@@ -1,0 +1,11 @@
+{
+ "tileset": "dgt04",
+ "families": [
+  {
+   "terrains": [
+    "Slums*"
+   ],
+   "placer": "propose"
+  }
+ ]
+}

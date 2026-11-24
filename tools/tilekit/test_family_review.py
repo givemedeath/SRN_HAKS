@@ -51,6 +51,10 @@ class FamilyReviewTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'outside'):
             self.plan({'kind': 'towers', 'name': 'tow', 'terrains': ['Tower'], 'size': 2, 'room': 1, 'views': [{'kind': 'far'}]})
 
+    def test_a_block_seen_from_its_crossings(self):
+        _, shots, _ = self.plan({'kind': 'block', 'name': 'big', 'lights': ['day'], 'width': 8, 'height': 8, 'patches': [{'terrain': 'tower', 'at': [2, 2], 'size': [2, 2]}], 'crossings': [[0, 0], [5, 5]], 'views': ['x05y05-sw']})
+        self.assertEqual([shot['label'] for shot in shots], ['day-big-x05y05-sw'])
+
     def test_doors_stand_at_their_hooks(self):
         hook = {'tile': 2, 'model': 'x_side', 'door': 0, 'at': [0.0, 4.9, 0.0], 'turn': 0.0, 'width': 4.0, 'height': 3.0}
         (self.repo / 'op.json').write_text(json.dumps({'hooks': [hook, {**hook, 'tile': 3, 'model': 'x_full', 'width': 2.0}, {'tile': 1, 'model': 'x_corner', 'note': 'no'}]}))

@@ -68,6 +68,37 @@ def perf_command(chosen):
     return 0
 
 
+def rank_command(chosen):
+    from . import audit
+    told = audit.rank(chosen.repo, chosen.tileset, _names(chosen.ground)); chosen.out.write_text(json.dumps(told, indent=1) + '\n', encoding='utf-8', newline='\n')
+    _told({'tiles': len(told), 'plainest': [row['tile'] for row in told[:chosen.show]]}); return 0
+
+
+def shared_command(chosen):
+    from . import audit
+    _told(audit.shared(chosen.repo, chosen.tileset, _json(chosen.spec)['textures'])); return 0
+
+
+def placements_command(chosen):
+    from . import audit
+    told = {path.name: audit.placements(chosen.repo, _json(path), chosen.kit) for path in chosen.spec}; _told(told); return 1 if any(told.values()) else 0
+
+
+def sketch_command(chosen):
+    from . import inventory, lamps, require, sketch
+    wanted = [name.lower() for name in _names(chosen.models)]
+    texts = {name: text for name, _, text, _, _ in inventory.drawn_copies(chosen.repo, chosen.tileset.lower(), chosen.overlay, lamps.PACKS) if name in wanted}
+    missing = sorted(set(wanted) - set(texts)); require(not missing, 'No uncompiled model of the tileset is ' + ', '.join(missing))
+    _told({'sketched': sketch.sketches({name: texts[name] for name in wanted}, chosen.out)}); return 0
+
+
+def props_command(chosen):
+    from tools import shared_tools
+    from . import sketch
+    masters = chosen.masters or shared_tools.tools_root(chosen.repo)[0] / 'tilekit' / 'masters'
+    _told(sketch.props(chosen.out, masters, chosen.blender)); return 0
+
+
 def _client(parser, repo):
     parser.add_argument('--spec', required=True, type=Path, help='the family review spec (docs/tilesets/tilekit-tools.md)')
     parser.add_argument('--game', required=True, type=Path, help='the game install folder'); parser.add_argument('--built', required=True, type=Path, help='the folder the packs were built into')
@@ -92,5 +123,17 @@ def add(commands, repo):
     four.add_argument('--no-run', action='store_true', help='build the module and stop')
     five = _client(commands.add_parser('perf', help='measure frame rates and load times of the areas of a family review spec'), repo)
     five.add_argument('--cap', type=int, default=200, help='the frame limit, 1 to 200')
+    six = _tileset(commands.add_parser('rank', help='rank a tileset\'s building tiles by how plain their own geometry is'), repo)
+    six.add_argument('--ground', help='the terrains that are no building, comma separated (the default terrain is one)'); six.add_argument('--out', required=True, type=Path)
+    six.add_argument('--show', type=int, default=40)
+    seven = _tileset(commands.add_parser('shared', help='list the models outside a tileset that name its restyled textures'), repo)
+    seven.add_argument('--spec', required=True, type=Path, help='the material spec')
+    eight = commands.add_parser('placements', help='hold placement specs\' wall pieces against their tiles\' own geometry (exit 1 when any runs into it)')
+    eight.add_argument('--spec', required=True, type=Path, nargs='+'); eight.add_argument('--kit', required=True, type=Path); eight.add_argument('--repo', type=Path, default=repo)
+    nine = _tileset(commands.add_parser('sketch', help='draw tile models from the top, the front and the side'), repo)
+    nine.add_argument('--models', required=True, help='comma separated'); nine.add_argument('--out', required=True, type=Path, help='the picture written'); nine.add_argument('--overlay', type=Path)
+    ten = commands.add_parser('props', help='render every kit piece in Blender, by day and night, on sheets')
+    ten.add_argument('--blender', required=True, type=Path); ten.add_argument('--out', required=True, type=Path, help='a folder for the renders')
+    ten.add_argument('--masters', type=Path, help='the folder of tiling scans (default: tilekit/masters in the shared tool root)'); ten.add_argument('--repo', type=Path, default=repo)
     return {'repair': repair_command, 'propose': propose_command, 'openings': openings_command, 'family-review': family_review_command,
-            'perf': perf_command}
+            'perf': perf_command, 'rank': rank_command, 'shared': shared_command, 'placements': placements_command, 'sketch': sketch_command, 'props': props_command}
