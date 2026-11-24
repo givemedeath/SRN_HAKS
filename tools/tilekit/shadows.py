@@ -52,13 +52,13 @@ def quieted(text, thin=THIN, small=SMALL, flat=FLAT):
     return geometry + cut + rest, names
 
 
-def quiet(repo, tileset, folder, *, thin=THIN, small=SMALL, flat=FLAT):
+def quiet(repo, tileset, folder, *, thin=THIN, small=SMALL, flat=FLAT, shared=()):
     """Write the models of a tileset whose trims cast shadows, with those trims quiet, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {model: count of trims}."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):  # the edge tiles too
-        if others:  # another tileset draws it too
+        if set(others) - {one.lower() for one in shared}:  # another tileset draws it too (`shared`: a merged set, which takes the change with it)
             continue
         new, names = quieted(text, thin, small, flat)
         if names:

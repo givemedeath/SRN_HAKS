@@ -81,9 +81,9 @@
    ]
   },
   "lawn": {
-   "saturation": 0.7,
+   "saturation": 0.8,
    "contrast": 1.1,
-   "gain": 0.85,
+   "gain": 1.2,
    "tint": [
     0.96,
     1.0,
