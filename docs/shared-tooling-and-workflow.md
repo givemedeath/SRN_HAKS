@@ -306,9 +306,12 @@ configuration dependencies and documents read by literal path. Use
 import root, so package tests such as `tools/phenomorpher/phenomorpher/**` run
 package-qualified with the invoking interpreter. Unknown or uncovered changes,
 unresolved dependencies, shared infrastructure listed in `tools/ci-scope.json`
-and shared helpers trigger the full Python suite. A helper or configuration is
-shared when its dependent tests span more than one suite folder (phenotypes,
-heads, robes, the PhenoMorpher package or root tools). Markdown that no test reads selects no helper tests;
+and helpers shared with the root tools trigger the full Python suite. A helper or
+configuration is shared when its dependent tests span more than one suite folder
+(phenotypes, heads, robes, the PhenoMorpher package, a kit or root tools). Shared by
+kits only, it runs every test of those kits and no other kit's (user decision
+2026-11-24: a tilekit helper that envkit also uses ran every suite, 20 minutes for 2).
+Markdown that no test reads selects no helper tests;
 `srn_*` asset changes, and ASCII sources in `sources/<pack>/`, select tests that name that pack. Dynamic dependencies still
 require full-suite review; focused selection is a convenience, not a release gate.
 Refresh the tracked `tools/test-impact.json` with `--write-catalog` when helpers
@@ -354,8 +357,9 @@ a module removes its entry. `test_ci_scope` fails otherwise, because an unmeasur
 module weighs the median and unbalances both CI shards and local `--jobs` runs.
 
 Before PR readiness select validation from the changed files and their dependencies:
-focused affected tests for helper, configuration and documentation changes, the full
-helper suites when shared helpers change, clean-checkout tests and affected native tool
+focused affected tests for helper, configuration and documentation changes, the whole
+suites of the kits that share a changed helper (the full helper suite when the root
+tools share it or shared infrastructure changes), clean-checkout tests and affected native tool
 smokes. Reserve full repository verification and all-pack rebuilds for unknown dependency
 coverage, repository-wide build changes, release checks or an explicit request.
 Item-import regressions run only when `tools/Test-ItemImportScope.ps1` finds item-import
