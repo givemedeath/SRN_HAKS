@@ -1,0 +1,103 @@
+{
+ "tileset": "dgt04",
+ "families": [
+  {
+   "terrains": [
+    "Highrise_04"
+   ],
+   "placer": "propose",
+   "options": {
+    "look": "ruin",
+    "plant": null
+   }
+  },
+  {
+   "terrains": [
+    "Apartments"
+   ],
+   "placer": "propose",
+   "options": {
+    "look": "residential",
+    "plant": "roof"
+   }
+  },
+  {
+   "terrains": [
+    "Warehouse_01",
+    "Warehouse_02"
+   ],
+   "placer": "propose",
+   "options": {
+    "look": "industrial",
+    "plant": "roof"
+   }
+  },
+  {
+   "terrains": [
+    "Police_Station"
+   ],
+   "placer": "propose",
+   "options": {
+    "look": "secure",
+    "plant": "roof"
+   },
+   "add": [
+    {
+     "placer": "propose_corporate",
+     "options": {
+      "plant": null,
+      "ledges": false
+     },
+     "pieces": [
+      "camera"
+     ]
+    }
+   ]
+  },
+  {
+   "terrains": [
+    "Hospital"
+   ],
+   "placer": "propose",
+   "options": {
+    "look": "civic",
+    "plant": "roof"
+   },
+   "add": [
+    {
+     "placer": "propose_corporate",
+     "options": {
+      "plant": null,
+      "ledges": false,
+      "beside": "cross_sign"
+     }
+    }
+   ]
+  },
+  {
+   "terrains": [
+    "Lab"
+   ],
+   "placer": "propose_corporate",
+   "options": {
+    "plant": "roof",
+    "ledges": false,
+    "watch": true,
+    "sign": "hazard_sign",
+    "eye": 1.6
+   }
+  }
+ ],
+ "building": [
+  "Highrise*",
+  "Slums*",
+  "Apartments",
+  "Warehouse_0*",
+  "Police_Station",
+  "Hospital",
+  "Lab"
+ ],
+ "taken": [
+  "detail-slums.json"
+ ]
+}

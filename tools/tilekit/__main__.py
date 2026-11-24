@@ -6,7 +6,8 @@ textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamp
 models into it, `detail` adds kit pieces to tiles there and `remesh` replaces a tile's visible meshes there; `count`
 says what each tile costs to draw (faces, mesh nodes, materials) against a budget; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
 `apply` moves an overlay whose look the user passed into the packs; `compile` makes the packs' tile models from their
-ASCII sources (`sources/<pack>/`) with NeverBlender."""
+ASCII sources (`sources/<pack>/`) with NeverBlender. The working tools of a restyle (`commands`) are told of in
+docs/tilesets/tilekit-tools.md."""
 import argparse
 import json
 import sys
@@ -16,7 +17,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     __package__ = 'tools.tilekit'
 
-from . import PARTS, inventory, require
+from . import PARTS, commands as extra, inventory, require
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -288,8 +289,11 @@ def main(arguments=None):
     fifteen.add_argument('--tileset', required=True); fifteen.add_argument('--terrain', required=True, help='the tower\'s terrain, as the set file names it')
     fifteen.add_argument('--tiles', required=True, help='its tile models, comma separated'); fifteen.add_argument('--out', required=True, type=Path, help='the folder of rebuilds: remesh --source')
     fifteen.add_argument('--overlay', type=Path, help='a review overlay read before the packs (a copied terrain\'s)'); fifteen.add_argument('--repo', type=Path, default=REPO)
+    more = extra.add(commands, REPO)
     chosen = parser.parse_args(arguments)
     try:
+        if chosen.command in more:
+            return more[chosen.command](chosen)
         if chosen.command == 'doors':
             return doors_command(chosen)
         if chosen.command == 'crown':

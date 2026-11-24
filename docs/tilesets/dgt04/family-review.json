@@ -1,0 +1,74 @@
+{
+ "tileset": "dgt04",
+ "layouts": [
+  {
+   "kind": "towers",
+   "name": "towers",
+   "terrains": [
+    "Highrise_08",
+    "Highrise_09"
+   ],
+   "apart": 12,
+   "room": 5,
+   "views": [
+    {
+     "kind": "side",
+     "sides": [
+      "w"
+     ]
+    },
+    {
+     "kind": "up",
+     "lights": [
+      "day"
+     ],
+     "back": 35.0,
+     "pitch": 128.0
+    }
+   ]
+  },
+  {
+   "kind": "tiles",
+   "name": "corp",
+   "terrains": [
+    "Highrise_01",
+    "Highrise_03"
+   ],
+   "placements": "detail-highrise.json",
+   "room": 4,
+   "views": [
+    {
+     "kind": "wall",
+     "every": 2
+    },
+    {
+     "kind": "up",
+     "only": [
+      "mast"
+     ],
+     "lights": [
+      "day"
+     ]
+    }
+   ]
+  },
+  {
+   "kind": "street",
+   "name": "street",
+   "terrains": [
+    "Concrete"
+   ],
+   "placements": "detail-streets.json",
+   "close": [
+    {
+     "piece": "bollard",
+     "light": "day"
+    },
+    {
+     "piece": "steam",
+     "light": "night"
+    }
+   ]
+  }
+ ]
+}
