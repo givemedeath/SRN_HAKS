@@ -6944,34 +6944,67 @@ endnode
 node trimesh res_light_lens_on24
   parent lighton01
 endnode
+node trimesh day00_0
+  parent lighton01
+endnode
 node trimesh window468
+  parent lighton01
+endnode
+node trimesh day01_0
   parent lighton01
 endnode
 node trimesh window469
   parent lighton01
 endnode
+node trimesh day02_0
+  parent lighton01
+endnode
 node trimesh window470
+  parent lighton01
+endnode
+node trimesh day03_0
   parent lighton01
 endnode
 node trimesh window471
   parent lighton01
 endnode
+node trimesh day04_0
+  parent lighton01
+endnode
 node trimesh window472
+  parent lighton01
+endnode
+node trimesh day05_0
   parent lighton01
 endnode
 node trimesh res_light_lens_on25
   parent lighton01
 endnode
+node trimesh day06_0
+  parent lighton01
+endnode
 node trimesh res_light_lens_on26
+  parent lighton01
+endnode
+node trimesh day07_0
   parent lighton01
 endnode
 node trimesh window473
   parent lighton01
 endnode
+node trimesh day08_0
+  parent lighton01
+endnode
 node trimesh window474
   parent lighton01
 endnode
+node trimesh day09_0
+  parent lighton01
+endnode
 node trimesh window475
+  parent lighton01
+endnode
+node trimesh day10_0
   parent lighton01
 endnode
 node dummy lightoff01
@@ -7212,34 +7245,67 @@ endnode
 node trimesh res_light_lens_on24
   parent lighton01
 endnode
+node trimesh day00_0
+  parent lighton01
+endnode
 node trimesh window468
+  parent lighton01
+endnode
+node trimesh day01_0
   parent lighton01
 endnode
 node trimesh window469
   parent lighton01
 endnode
+node trimesh day02_0
+  parent lighton01
+endnode
 node trimesh window470
+  parent lighton01
+endnode
+node trimesh day03_0
   parent lighton01
 endnode
 node trimesh window471
   parent lighton01
 endnode
+node trimesh day04_0
+  parent lighton01
+endnode
 node trimesh window472
+  parent lighton01
+endnode
+node trimesh day05_0
   parent lighton01
 endnode
 node trimesh res_light_lens_on25
   parent lighton01
 endnode
+node trimesh day06_0
+  parent lighton01
+endnode
 node trimesh res_light_lens_on26
+  parent lighton01
+endnode
+node trimesh day07_0
   parent lighton01
 endnode
 node trimesh window473
   parent lighton01
 endnode
+node trimesh day08_0
+  parent lighton01
+endnode
 node trimesh window474
   parent lighton01
 endnode
+node trimesh day09_0
+  parent lighton01
+endnode
 node trimesh window475
+  parent lighton01
+endnode
+node trimesh day10_0
   parent lighton01
 endnode
 node dummy lightoff01

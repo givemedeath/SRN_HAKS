@@ -2309,9 +2309,6 @@ newanim day udp1_b05_20
       0.03333 0
     endlist
   endnode
-  node trimesh lightlens47
-    parent udp1_b05_20a
-  endnode
   node trimesh garage_window03
     parent lightlens47
     alphakey 2
@@ -2343,9 +2340,6 @@ newanim day2night udp1_b05_20
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh lightlens47
-    parent udp1_b05_20a
   endnode
   node trimesh garage_window03
     parent lightlens47
@@ -2379,9 +2373,6 @@ newanim night udp1_b05_20
       0.03333 1
     endlist
   endnode
-  node trimesh lightlens47
-    parent udp1_b05_20a
-  endnode
   node trimesh garage_window03
     parent lightlens47
     alphakey 2
@@ -2413,9 +2404,6 @@ newanim night2day udp1_b05_20
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh lightlens47
-    parent udp1_b05_20a
   endnode
   node trimesh garage_window03
     parent lightlens47

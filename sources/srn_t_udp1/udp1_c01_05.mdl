@@ -5368,28 +5368,55 @@ endnode
 node trimesh window29
   parent light_on06
 endnode
+node trimesh day00_0
+  parent light_on06
+endnode
 node trimesh window549
+  parent light_on06
+endnode
+node trimesh day01_0
   parent light_on06
 endnode
 node trimesh window550
   parent light_on06
 endnode
+node trimesh day02_0
+  parent light_on06
+endnode
 node trimesh window551
+  parent light_on06
+endnode
+node trimesh day03_0
   parent light_on06
 endnode
 node trimesh window552
   parent light_on06
 endnode
+node trimesh day04_0
+  parent light_on06
+endnode
 node trimesh window553
+  parent light_on06
+endnode
+node trimesh day05_0
   parent light_on06
 endnode
 node trimesh window554
   parent light_on06
 endnode
+node trimesh day06_0
+  parent light_on06
+endnode
 node trimesh res_light_lens_on39
   parent light_on06
 endnode
+node trimesh day07_0
+  parent light_on06
+endnode
 node trimesh res_light_lens_on19
+  parent light_on06
+endnode
+node trimesh day08_0
   parent light_on06
 endnode
 node trimesh res_light_body42
@@ -5562,28 +5589,55 @@ endnode
 node trimesh window29
   parent light_on06
 endnode
+node trimesh day00_0
+  parent light_on06
+endnode
 node trimesh window549
+  parent light_on06
+endnode
+node trimesh day01_0
   parent light_on06
 endnode
 node trimesh window550
   parent light_on06
 endnode
+node trimesh day02_0
+  parent light_on06
+endnode
 node trimesh window551
+  parent light_on06
+endnode
+node trimesh day03_0
   parent light_on06
 endnode
 node trimesh window552
   parent light_on06
 endnode
+node trimesh day04_0
+  parent light_on06
+endnode
 node trimesh window553
+  parent light_on06
+endnode
+node trimesh day05_0
   parent light_on06
 endnode
 node trimesh window554
   parent light_on06
 endnode
+node trimesh day06_0
+  parent light_on06
+endnode
 node trimesh res_light_lens_on39
   parent light_on06
 endnode
+node trimesh day07_0
+  parent light_on06
+endnode
 node trimesh res_light_lens_on19
+  parent light_on06
+endnode
+node trimesh day08_0
   parent light_on06
 endnode
 node trimesh res_light_body42

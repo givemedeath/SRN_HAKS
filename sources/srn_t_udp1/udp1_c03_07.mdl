@@ -6697,7 +6697,7 @@ node trimesh day02_0
   selfillumcolor 0 0 0
   bitmap udp1-window3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6869,7 +6869,7 @@ node trimesh day03_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -9475,49 +9475,97 @@ endnode
 node trimesh window665
   parent light_on14
 endnode
+node trimesh day00_0
+  parent light_on14
+endnode
 node trimesh window666
+  parent light_on14
+endnode
+node trimesh day01_0
   parent light_on14
 endnode
 node trimesh PORCH22
   parent light_on14
 endnode
+node trimesh day02_0
+  parent light_on14
+endnode
 node trimesh PORCH23
+  parent light_on14
+endnode
+node trimesh day03_0
   parent light_on14
 endnode
 node trimesh window667
   parent light_on14
 endnode
+node trimesh day04_0
+  parent light_on14
+endnode
 node trimesh window668
+  parent light_on14
+endnode
+node trimesh day05_0
   parent light_on14
 endnode
 node trimesh window669
   parent light_on14
 endnode
+node trimesh day06_0
+  parent light_on14
+endnode
 node trimesh window670
+  parent light_on14
+endnode
+node trimesh day07_0
   parent light_on14
 endnode
 node trimesh window671
   parent light_on14
 endnode
+node trimesh day08_0
+  parent light_on14
+endnode
 node trimesh window672
+  parent light_on14
+endnode
+node trimesh day09_0
   parent light_on14
 endnode
 node trimesh window673
   parent light_on14
 endnode
+node trimesh day10_0
+  parent light_on14
+endnode
 node trimesh window674
+  parent light_on14
+endnode
+node trimesh day11_0
   parent light_on14
 endnode
 node trimesh window675
   parent light_on14
 endnode
+node trimesh day12_0
+  parent light_on14
+endnode
 node trimesh res_light_lens_on56
+  parent light_on14
+endnode
+node trimesh day13_0
   parent light_on14
 endnode
 node trimesh res_light_lens_on57
   parent light_on14
 endnode
+node trimesh day14_0
+  parent light_on14
+endnode
 node trimesh res_light_lens_on58
+  parent light_on14
+endnode
+node trimesh day15_0
   parent light_on14
 endnode
 node light misclight262
@@ -9797,49 +9845,97 @@ endnode
 node trimesh window665
   parent light_on14
 endnode
+node trimesh day00_0
+  parent light_on14
+endnode
 node trimesh window666
+  parent light_on14
+endnode
+node trimesh day01_0
   parent light_on14
 endnode
 node trimesh PORCH22
   parent light_on14
 endnode
+node trimesh day02_0
+  parent light_on14
+endnode
 node trimesh PORCH23
+  parent light_on14
+endnode
+node trimesh day03_0
   parent light_on14
 endnode
 node trimesh window667
   parent light_on14
 endnode
+node trimesh day04_0
+  parent light_on14
+endnode
 node trimesh window668
+  parent light_on14
+endnode
+node trimesh day05_0
   parent light_on14
 endnode
 node trimesh window669
   parent light_on14
 endnode
+node trimesh day06_0
+  parent light_on14
+endnode
 node trimesh window670
+  parent light_on14
+endnode
+node trimesh day07_0
   parent light_on14
 endnode
 node trimesh window671
   parent light_on14
 endnode
+node trimesh day08_0
+  parent light_on14
+endnode
 node trimesh window672
+  parent light_on14
+endnode
+node trimesh day09_0
   parent light_on14
 endnode
 node trimesh window673
   parent light_on14
 endnode
+node trimesh day10_0
+  parent light_on14
+endnode
 node trimesh window674
+  parent light_on14
+endnode
+node trimesh day11_0
   parent light_on14
 endnode
 node trimesh window675
   parent light_on14
 endnode
+node trimesh day12_0
+  parent light_on14
+endnode
 node trimesh res_light_lens_on56
+  parent light_on14
+endnode
+node trimesh day13_0
   parent light_on14
 endnode
 node trimesh res_light_lens_on57
   parent light_on14
 endnode
+node trimesh day14_0
+  parent light_on14
+endnode
 node trimesh res_light_lens_on58
+  parent light_on14
+endnode
+node trimesh day15_0
   parent light_on14
 endnode
 node light misclight262

@@ -4439,7 +4439,7 @@ node trimesh day02_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4579,7 +4579,7 @@ node trimesh day03_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4719,7 +4719,7 @@ node trimesh day04_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5206,7 +5206,7 @@ node trimesh day05_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5693,7 +5693,7 @@ node trimesh day06_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -8920,16 +8920,31 @@ endnode
 node trimesh police_station_skylight01
   parent lightlens68
 endnode
+node trimesh day02_0
+  parent lightlens68
+endnode
 node trimesh police_station_skylight
+  parent lightlens68
+endnode
+node trimesh day03_0
   parent lightlens68
 endnode
 node trimesh police_station_skylight02
   parent lightlens68
 endnode
+node trimesh day04_0
+  parent lightlens68
+endnode
 node trimesh police_station_windows
   parent lightlens68
 endnode
+node trimesh day05_0
+  parent lightlens68
+endnode
 node trimesh police_station_skylight03
+  parent lightlens68
+endnode
+node trimesh day06_0
   parent lightlens68
 endnode
 node trimesh lightlens69
@@ -9064,6 +9079,9 @@ node trimesh lightlens76
     endlist
 endnode
 node trimesh jail_win
+  parent lightlens76
+endnode
+node trimesh day11_0
   parent lightlens76
 endnode
 node trimesh lightlens77
@@ -9304,16 +9322,31 @@ endnode
 node trimesh police_station_skylight01
   parent lightlens68
 endnode
+node trimesh day02_0
+  parent lightlens68
+endnode
 node trimesh police_station_skylight
+  parent lightlens68
+endnode
+node trimesh day03_0
   parent lightlens68
 endnode
 node trimesh police_station_skylight02
   parent lightlens68
 endnode
+node trimesh day04_0
+  parent lightlens68
+endnode
 node trimesh police_station_windows
   parent lightlens68
 endnode
+node trimesh day05_0
+  parent lightlens68
+endnode
 node trimesh police_station_skylight03
+  parent lightlens68
+endnode
+node trimesh day06_0
   parent lightlens68
 endnode
 node trimesh lightlens69
@@ -9450,6 +9483,9 @@ endnode
 node trimesh jail_win
   parent lightlens76
 endnode
+node trimesh day11_0
+  parent lightlens76
+endnode
 node trimesh lightlens77
   parent udp1_c05_14a
     positionkey
@@ -9570,9 +9606,6 @@ newanim day udp1_c05_14
       0.03333 0
     endlist
   endnode
-  node trimesh lightlens68
-    parent udp1_c05_14a
-  endnode
   node trimesh police_station_skylight01
     parent lightlens68
     alphakey 2
@@ -9670,9 +9703,6 @@ newanim day udp1_c05_14
       0.00000 0
       0.03333 0
     endlist
-  endnode
-  node trimesh lightlens76
-    parent udp1_c05_14a
   endnode
   node trimesh jail_win
     parent lightlens76
@@ -9720,9 +9750,6 @@ newanim day2night udp1_c05_14
       0.56667 1
     endlist
   endnode
-  node trimesh lightlens68
-    parent udp1_c05_14a
-  endnode
   node trimesh police_station_skylight01
     parent lightlens68
     alphakey 2
@@ -9820,9 +9847,6 @@ newanim day2night udp1_c05_14
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh lightlens76
-    parent udp1_c05_14a
   endnode
   node trimesh jail_win
     parent lightlens76
@@ -9870,9 +9894,6 @@ newanim night udp1_c05_14
       0.03333 1
     endlist
   endnode
-  node trimesh lightlens68
-    parent udp1_c05_14a
-  endnode
   node trimesh police_station_skylight01
     parent lightlens68
     alphakey 2
@@ -9970,9 +9991,6 @@ newanim night udp1_c05_14
       0.00000 1
       0.03333 1
     endlist
-  endnode
-  node trimesh lightlens76
-    parent udp1_c05_14a
   endnode
   node trimesh jail_win
     parent lightlens76
@@ -10020,9 +10038,6 @@ newanim night2day udp1_c05_14
       0.60000 0
     endlist
   endnode
-  node trimesh lightlens68
-    parent udp1_c05_14a
-  endnode
   node trimesh police_station_skylight01
     parent lightlens68
     alphakey 2
@@ -10120,9 +10135,6 @@ newanim night2day udp1_c05_14
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh lightlens76
-    parent udp1_c05_14a
   endnode
   node trimesh jail_win
     parent lightlens76

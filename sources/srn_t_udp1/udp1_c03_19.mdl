@@ -30904,7 +30904,7 @@ node trimesh day00_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -36657,7 +36657,13 @@ endnode
 node trimesh hospital_base02
   parent main-on01
 endnode
+node trimesh day00_0
+  parent main-on01
+endnode
 node trimesh hospital_glass02
+  parent main-on01
+endnode
+node trimesh day01_0
   parent main-on01
 endnode
 node trimesh cross10
@@ -37413,7 +37419,13 @@ endnode
 node trimesh hospital_base02
   parent main-on01
 endnode
+node trimesh day00_0
+  parent main-on01
+endnode
 node trimesh hospital_glass02
+  parent main-on01
+endnode
+node trimesh day01_0
   parent main-on01
 endnode
 node trimesh cross10
@@ -38169,7 +38181,13 @@ endnode
 node trimesh hospital_base02
   parent main-on01
 endnode
+node trimesh day00_0
+  parent main-on01
+endnode
 node trimesh hospital_glass02
+  parent main-on01
+endnode
+node trimesh day01_0
   parent main-on01
 endnode
 node trimesh cross10

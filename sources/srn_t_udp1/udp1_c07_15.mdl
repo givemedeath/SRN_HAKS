@@ -6422,7 +6422,7 @@ node trimesh day03_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6644,7 +6644,7 @@ node trimesh day04_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6960,7 +6960,7 @@ node trimesh day05_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -8301,10 +8301,19 @@ endnode
 node trimesh firestation_windows01
   parent lightlens63
 endnode
+node trimesh day03_0
+  parent lightlens63
+endnode
 node trimesh skylight01
   parent lightlens63
 endnode
+node trimesh day04_0
+  parent lightlens63
+endnode
 node trimesh firestation_skylight01
+  parent lightlens63
+endnode
+node trimesh day05_0
   parent lightlens63
 endnode
 node trimesh lightlens64
@@ -8607,10 +8616,19 @@ endnode
 node trimesh firestation_windows01
   parent lightlens63
 endnode
+node trimesh day03_0
+  parent lightlens63
+endnode
 node trimesh skylight01
   parent lightlens63
 endnode
+node trimesh day04_0
+  parent lightlens63
+endnode
 node trimesh firestation_skylight01
+  parent lightlens63
+endnode
+node trimesh day05_0
   parent lightlens63
 endnode
 node trimesh lightlens64
@@ -8698,9 +8716,6 @@ newanim day udp1_c07_15
       0.03333 0
     endlist
   endnode
-  node trimesh lightlens63
-    parent udp1_c07_15a
-  endnode
   node trimesh firestation_windows01
     parent lightlens63
     alphakey 2
@@ -8781,9 +8796,6 @@ newanim day2night udp1_c07_15
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh lightlens63
-    parent udp1_c07_15a
   endnode
   node trimesh firestation_windows01
     parent lightlens63
@@ -8866,9 +8878,6 @@ newanim night udp1_c07_15
       0.03333 1
     endlist
   endnode
-  node trimesh lightlens63
-    parent udp1_c07_15a
-  endnode
   node trimesh firestation_windows01
     parent lightlens63
     alphakey 2
@@ -8949,9 +8958,6 @@ newanim night2day udp1_c07_15
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh lightlens63
-    parent udp1_c07_15a
   endnode
   node trimesh firestation_windows01
     parent lightlens63

@@ -99,15 +99,26 @@ def with_daylight(text, lit):
     lines = []
     for anim, (start, finish, length) in ANIMS.items():
         lines += [f'newanim {anim} {name}', f'  length {length:.5f}', '  transtime 0.25', f'  animroot {name}', f'  node dummy {name}', '    parent NULL', '  endnode']
-        said = {name.lower()}
-        for node, parent, by_day, by_night in faded:  # an animation names a node's whole line of parents: without them the client falls over as the area loads
-            chain, above = [], parent
+        said = {name.lower()}; keyed = {node.lower(): (node, parent, by_day, by_night) for node, parent, by_day, by_night in faded}
+
+        def say(node, parent, by_day, by_night):
+            # A node is named once. A lit window hung from a lit lamp lens had the lens named twice, with its keys and
+            # then bare as the window's parent, and the night never came to that tile: the police and fire stations of
+            # the suburb stood dark with their lights switched on (found 2026-11-24).
+            if node.lower() in said:
+                return
+            chain, above = [], parent  # an animation names a node's whole line of parents: without them the client falls over as the area loads
             while above.lower() not in said and above.lower() in tree:
                 chain.append(tree[above.lower()]); above = chain[-1][2]
             for kind, one, over in reversed(chain):
-                said.add(one.lower()); lines += [f'  node {kind} {one}', f'    parent {over}', '  endnode']
-            first, last = (by_day, by_night)[start], (by_day, by_night)[finish]
-            lines += [f'  node trimesh {node}', f'    parent {parent}', '    alphakey 2', f'      0.00000 {first}', f'      {length:.5f} {last}', '    endlist', '  endnode']
+                if one.lower() in keyed:
+                    say(*keyed[one.lower()])  # a parent that is faded itself is named with its keys
+                elif one.lower() not in said:
+                    said.add(one.lower()); lines.extend([f'  node {kind} {one}', f'    parent {over}', '  endnode'])
+            first, last = (by_day, by_night)[start], (by_day, by_night)[finish]; said.add(node.lower())
+            lines.extend([f'  node trimesh {node}', f'    parent {parent}', '    alphakey 2', f'      0.00000 {first}', f'      {length:.5f} {last}', '    endlist', '  endnode'])
+        for one in faded:
+            say(*one)
         lines += [f'doneanim {anim} {name}']
     at = re.search(r'(?mi)^[ \t]*donemodel', text); require(at, f'{name} has no donemodel line')
     return text[:at.start()] + ending.join(lines) + ending + text[at.start():], len(found), sum(1 for one in faded if one[2])

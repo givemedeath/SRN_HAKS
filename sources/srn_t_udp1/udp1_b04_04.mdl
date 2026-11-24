@@ -5434,6 +5434,9 @@ endnode
 node trimesh entry_glass01
   parent mall-light-on05
 endnode
+node trimesh day03_0
+  parent mall-light-on05
+endnode
 node trimesh mallsign03
   parent udp1_b04_04a
     positionkey
@@ -5733,6 +5736,9 @@ endnode
 node trimesh entry_glass01
   parent mall-light-on05
 endnode
+node trimesh day03_0
+  parent mall-light-on05
+endnode
 node trimesh mallsign03
   parent udp1_b04_04a
     positionkey
@@ -5785,9 +5791,6 @@ newanim day udp1_b04_04
       0.03333 0
     endlist
   endnode
-  node trimesh mall-light-on05
-    parent udp1_b04_04a
-  endnode
   node trimesh entry_glass01
     parent mall-light-on05
     alphakey 2
@@ -5833,9 +5836,6 @@ newanim day2night udp1_b04_04
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh mall-light-on05
-    parent udp1_b04_04a
   endnode
   node trimesh entry_glass01
     parent mall-light-on05
@@ -5883,9 +5883,6 @@ newanim night udp1_b04_04
       0.03333 1
     endlist
   endnode
-  node trimesh mall-light-on05
-    parent udp1_b04_04a
-  endnode
   node trimesh entry_glass01
     parent mall-light-on05
     alphakey 2
@@ -5931,9 +5928,6 @@ newanim night2day udp1_b04_04
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh mall-light-on05
-    parent udp1_b04_04a
   endnode
   node trimesh entry_glass01
     parent mall-light-on05

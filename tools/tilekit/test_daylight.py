@@ -186,6 +186,24 @@ class Daylight(unittest.TestCase):
                    if re.fullmatch(r'TILE\d+', section) and keys.get('AnimLoop1') != '1' and daylight.switched(models.get(keys['Model'].lower(), ''), lit)]
             self.assertEqual(off, [], tileset)
 
+    def test_an_animation_names_a_node_once(self):
+        # a lit window hung from a lit lens: the lens was named twice and the night never came (police and fire stations, 2026-11-24)
+        hung = MODEL.replace('node dummy lights on\n  parent t_a01\nendnode\n', 'node trimesh lights\n  parent t_a01\n  selfillumcolor 1 1 1\n  bitmap lens\n  verts 3\n    0 0 0\n    1 0 0\n    0 0 1\nendnode\n')
+        for text in (hung, hung.replace('node trimesh lights\n', 'node trimesh zlast\n', 1).replace('endmodelgeom', 'node trimesh lights\n  parent t_a01\n  selfillumcolor 1 1 1\n  bitmap lens\n  verts 3\n    0 0 0\n    1 0 0\n    0 0 1\nendnode\nendmodelgeom')):
+            night = anim(daylight.with_daylight(text, LIT)[0], 'night'); names = re.findall(r'(?m)^  node \w+ (\S+)', night)
+            self.assertEqual(len(names), len(set(names)), names)
+            self.assertLess(names.index('lights'), names.index('pane'))  # a parent before what hangs from it
+            self.assertIn('node trimesh lights\n    parent t_a01\n    alphakey 2', night)
+        twice = []
+        for pack in ('srn_t_udp1', 'srn_t_common', 'srn_t_dgt04'):
+            for path in sorted((REPO / 'sources' / pack).glob('*.mdl')):
+                text = path.read_bytes().decode('cp1252')
+                for part in re.split(r'(?mi)^[ \t]*newanim[ \t]+', text)[1:]:
+                    names = [name.split()[0].lower() for _, name, _ in daylight.NODE.findall(part)] if part.split()[0].lower() in daylight.ANIMS else []
+                    if len(names) != len(set(names)):
+                        twice.append((path.stem, part.split()[0]))
+        self.assertEqual(twice, [])
+
     def test_a_day_pane_goes_where_a_loop_moves_its_lit_pane(self):
         loop = 'newanim animloop01 t_a01\n  node dummy t_a01\n    parent NULL\n  endnode\n  node trimesh pane\n    parent lights\n    positionkey 1\n      0 0 0 10\n    endlist\n  endnode\ndoneanim animloop01 t_a01\n'
         moving = MODEL.replace('donemodel', loop + 'donemodel')

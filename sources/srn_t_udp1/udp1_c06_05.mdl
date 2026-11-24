@@ -5400,28 +5400,55 @@ endnode
 node trimesh window618
   parent light_on11
 endnode
+node trimesh day00_0
+  parent light_on11
+endnode
 node trimesh window619
+  parent light_on11
+endnode
+node trimesh day01_0
   parent light_on11
 endnode
 node trimesh window620
   parent light_on11
 endnode
+node trimesh day02_0
+  parent light_on11
+endnode
 node trimesh window621
+  parent light_on11
+endnode
+node trimesh day03_0
   parent light_on11
 endnode
 node trimesh window622
   parent light_on11
 endnode
+node trimesh day04_0
+  parent light_on11
+endnode
 node trimesh window623
+  parent light_on11
+endnode
+node trimesh day05_0
   parent light_on11
 endnode
 node trimesh window624
   parent light_on11
 endnode
+node trimesh day06_0
+  parent light_on11
+endnode
 node trimesh res_light_lens_on48
   parent light_on11
 endnode
+node trimesh day07_0
+  parent light_on11
+endnode
 node trimesh res_light_lens_on49
+  parent light_on11
+endnode
+node trimesh day08_0
   parent light_on11
 endnode
 node light misclight256
@@ -5608,28 +5635,55 @@ endnode
 node trimesh window618
   parent light_on11
 endnode
+node trimesh day00_0
+  parent light_on11
+endnode
 node trimesh window619
+  parent light_on11
+endnode
+node trimesh day01_0
   parent light_on11
 endnode
 node trimesh window620
   parent light_on11
 endnode
+node trimesh day02_0
+  parent light_on11
+endnode
 node trimesh window621
+  parent light_on11
+endnode
+node trimesh day03_0
   parent light_on11
 endnode
 node trimesh window622
   parent light_on11
 endnode
+node trimesh day04_0
+  parent light_on11
+endnode
 node trimesh window623
+  parent light_on11
+endnode
+node trimesh day05_0
   parent light_on11
 endnode
 node trimesh window624
   parent light_on11
 endnode
+node trimesh day06_0
+  parent light_on11
+endnode
 node trimesh res_light_lens_on48
   parent light_on11
 endnode
+node trimesh day07_0
+  parent light_on11
+endnode
 node trimesh res_light_lens_on49
+  parent light_on11
+endnode
+node trimesh day08_0
   parent light_on11
 endnode
 node light misclight256

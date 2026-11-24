@@ -6917,34 +6917,67 @@ endnode
 node trimesh res_light_lens_on21
   parent lighton
 endnode
+node trimesh day00_0
+  parent lighton
+endnode
 node trimesh window464
+  parent lighton
+endnode
+node trimesh day01_0
   parent lighton
 endnode
 node trimesh window465
   parent lighton
 endnode
+node trimesh day02_0
+  parent lighton
+endnode
 node trimesh window466
+  parent lighton
+endnode
+node trimesh day03_0
   parent lighton
 endnode
 node trimesh window467
   parent lighton
 endnode
+node trimesh day04_0
+  parent lighton
+endnode
 node trimesh window463
+  parent lighton
+endnode
+node trimesh day05_0
   parent lighton
 endnode
 node trimesh res_light_lens_on23
   parent lighton
 endnode
+node trimesh day06_0
+  parent lighton
+endnode
 node trimesh res_light_lens_on22
+  parent lighton
+endnode
+node trimesh day07_0
   parent lighton
 endnode
 node trimesh window462
   parent lighton
 endnode
+node trimesh day08_0
+  parent lighton
+endnode
 node trimesh window461
   parent lighton
 endnode
+node trimesh day09_0
+  parent lighton
+endnode
 node trimesh window28
+  parent lighton
+endnode
+node trimesh day10_0
   parent lighton
 endnode
 node dummy lightoff
@@ -7185,34 +7218,67 @@ endnode
 node trimesh res_light_lens_on21
   parent lighton
 endnode
+node trimesh day00_0
+  parent lighton
+endnode
 node trimesh window464
+  parent lighton
+endnode
+node trimesh day01_0
   parent lighton
 endnode
 node trimesh window465
   parent lighton
 endnode
+node trimesh day02_0
+  parent lighton
+endnode
 node trimesh window466
+  parent lighton
+endnode
+node trimesh day03_0
   parent lighton
 endnode
 node trimesh window467
   parent lighton
 endnode
+node trimesh day04_0
+  parent lighton
+endnode
 node trimesh window463
+  parent lighton
+endnode
+node trimesh day05_0
   parent lighton
 endnode
 node trimesh res_light_lens_on23
   parent lighton
 endnode
+node trimesh day06_0
+  parent lighton
+endnode
 node trimesh res_light_lens_on22
+  parent lighton
+endnode
+node trimesh day07_0
   parent lighton
 endnode
 node trimesh window462
   parent lighton
 endnode
+node trimesh day08_0
+  parent lighton
+endnode
 node trimesh window461
   parent lighton
 endnode
+node trimesh day09_0
+  parent lighton
+endnode
 node trimesh window28
+  parent lighton
+endnode
+node trimesh day10_0
   parent lighton
 endnode
 node dummy lightoff

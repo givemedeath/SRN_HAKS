@@ -14381,6 +14381,9 @@ endnode
 node trimesh GASSTATION_WINDOWS01
   parent GASULIGHTS-ON
 endnode
+node trimesh day01_0
+  parent GASULIGHTS-ON
+endnode
 node trimesh lightbody01
   parent udp1_b06_04
 endnode
@@ -14874,6 +14877,9 @@ endnode
 node trimesh GASSTATION_WINDOWS01
   parent GASULIGHTS-ON
 endnode
+node trimesh day01_0
+  parent GASULIGHTS-ON
+endnode
 node trimesh lightbody01
   parent udp1_b06_04
 endnode
@@ -14928,9 +14934,6 @@ newanim day udp1_b06_04
       0.03333 0
     endlist
   endnode
-  node trimesh GASULIGHTS-ON
-    parent udp1_b06_04a
-  endnode
   node trimesh GASSTATION_WINDOWS01
     parent GASULIGHTS-ON
     alphakey 2
@@ -14962,9 +14965,6 @@ newanim day2night udp1_b06_04
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh GASULIGHTS-ON
-    parent udp1_b06_04a
   endnode
   node trimesh GASSTATION_WINDOWS01
     parent GASULIGHTS-ON
@@ -14998,9 +14998,6 @@ newanim night udp1_b06_04
       0.03333 1
     endlist
   endnode
-  node trimesh GASULIGHTS-ON
-    parent udp1_b06_04a
-  endnode
   node trimesh GASSTATION_WINDOWS01
     parent GASULIGHTS-ON
     alphakey 2
@@ -15032,9 +15029,6 @@ newanim night2day udp1_b06_04
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh GASULIGHTS-ON
-    parent udp1_b06_04a
   endnode
   node trimesh GASSTATION_WINDOWS01
     parent GASULIGHTS-ON
