@@ -113,6 +113,7 @@ class FamilyReviewTest(unittest.TestCase):
         for layout, why in (({'kind': 'x', 'name': 'a'}, 'A layout is'), ({'kind': 'tiles', 'name': 'A1'}, 'lowercase'), ({'kind': 'tiles', 'name': 'a', 'terrains': ['none']}, 'No tile'),
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'lights': ['dusk']}, 'lit by'),
                             ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'views': [{'kind': 'facade', 'lights': ['dusk']}]}, 'lit by'),
+                            ({'kind': 'tiles', 'name': 'a', 'terrains': ['Tower'], 'space': 0}, 'at least 1'),
                             ({'kind': 'street', 'name': 'a', 'terrains': ['Ground'], 'close': [{'piece': 'x', 'light': 'dusk'}]}, 'lit by')):
             with self.assertRaisesRegex(ValueError, why):
                 self.plan(layout)

@@ -151,6 +151,7 @@ def _tile_view(of, kind, name, placements, layout):
 def tiles(of, layout):
     names = of.chosen(layout); space, across, room = layout.get('space', 5), layout.get('across', 5), layout.get('room', 4)
     placements = {name.lower(): them for name, them in of.json(layout['placements'])['tiles'].items()} if 'placements' in layout else {}
+    require(space > 0 and across > 0 and room >= 0, 'Space and across are at least 1, and room is not negative')
     views = layout.get('views', [{'kind': 'facade'}]); across = min(across, (LARGEST - 1 - 2 * room) // space + 1); down = (LARGEST - 1 - 2 * room) // space + 1
     require(across > 0, 'These tiles do not fit an area: less space or room'); pages = [names[start:start + across * down] for start in range(0, len(names), across * down)]
     require(len(pages) <= 9, 'More tiles than nine areas hold: name fewer'); areas, shots, made = [], [], {}
