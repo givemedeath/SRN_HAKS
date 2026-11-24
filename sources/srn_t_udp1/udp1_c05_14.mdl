@@ -6844,6 +6844,51 @@ node trimesh jail_win
     0 0 0
     1 1 0
 endnode
+node trimesh day11_0
+  parent lightlens76
+  position 6.28534 -8.25181 -3.62468
+  orientation 0 0 0 0
+  wirecolor 0.601563 0.601563 0.601563
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window3
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 8
+    -4.80001 0 -0.550001
+    -2.70001 0 -0.550002
+    2.69999 0 -0.550004
+    4.79999 0 -0.550004
+    -4.80001 0 0.549999
+    -2.70001 0 0.549998
+    2.69999 0 0.549996
+    4.79999 0 0.549996
+  faces 4
+    0 1 5  32  8 1 9  5
+    5 4 0  32  5 4 0  5
+    2 3 7  32  10 3 11  5
+    7 6 2  32  7 6 2  5
+  tverts 12
+    0 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    0 1 0
+    1 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
 node trimesh lightlens77
   parent udp1_c05_14a
   position 3.71463 -3.94819 6.30467
@@ -9636,6 +9681,13 @@ newanim day udp1_c05_14
       0.03333 0
     endlist
   endnode
+  node trimesh day11_0
+    parent lightlens76
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
   node trimesh lightlens78
     parent udp1_c05_14a
     alphakey 2
@@ -9777,6 +9829,13 @@ newanim day2night udp1_c05_14
     alphakey 2
       0.00000 0
       0.56667 1
+    endlist
+  endnode
+  node trimesh day11_0
+    parent lightlens76
+    alphakey 2
+      0.00000 1
+      0.56667 0
     endlist
   endnode
   node trimesh lightlens78
@@ -9922,6 +9981,13 @@ newanim night udp1_c05_14
       0.03333 1
     endlist
   endnode
+  node trimesh day11_0
+    parent lightlens76
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
   node trimesh lightlens78
     parent udp1_c05_14a
     alphakey 2
@@ -10063,6 +10129,13 @@ newanim night2day udp1_c05_14
     alphakey 2
       0.00000 1
       0.60000 0
+    endlist
+  endnode
+  node trimesh day11_0
+    parent lightlens76
+    alphakey 2
+      0.00000 0
+      0.60000 1
     endlist
   endnode
   node trimesh lightlens78

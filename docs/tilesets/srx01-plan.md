@@ -364,6 +364,19 @@ wall concrete: the right colour, no slab pattern) and Poly Haven `concrete_floor
 The joins were viewed again from the built packs: the kerb strip sits cleanly on the new ground. The Barrens
 grounds (`pavement_dirty` and its kin) keep the asphalt scan.
 
+## Switched lights, and a day pane for `udp1-window3b` (user, 2026-11-24)
+
+The suburb tiles switch their lights with the tile's AnimLoop1: at rest the lit panes are parked under the tile and
+the unlit ones are in place, and `animloop01` moves the lit panes up and the unlit ones down some 20 m. Nearly every
+lit pane of the set is switched so. A tile that is dark at night has AnimLoop1 off (the set file's default for House
+4, the mall entrances and the police station); the review areas turn every loop on.
+
+`udp1-window3b` was listed with no day texture, so with the lights switched on its windows went clear by day with
+nothing in their place (eleven models: House 4 of each colour, four mall entrances, the police station). It is now
+paired with `udp1-window3` (in `srn_door` and `srn_placeable`). `tilekit daylight --again` makes the day and night of
+models that have them anew from the list and writes only those it changes: those eleven, the other 102 came out the
+same. Applied and compiled; House 4 seen in game by day and by night from the review overlay.
+
 ## Proposed name
 
 `srx01`: pack `srn_t_srx01`, set `srx01.set`, palette `srx01palstd.itp`, edge table `srn_2da/srx01_edge.2da`.

@@ -96,7 +96,7 @@ def lamps_command(chosen):
 
 def daylight_command(chosen):
     from . import daylight
-    told = daylight.write(chosen.repo, chosen.tileset, chosen.out, _json(chosen.spec)['lit'], chosen.shared)
+    told = daylight.write(chosen.repo, chosen.tileset, chosen.out, _json(chosen.spec)['lit'], chosen.shared, again=chosen.again)
     print(json.dumps({'models': len(told['models']), 'lit': sum(told['models'].values()), 'panes': told['panes'], 'done': told['done'], 'refused': told['refused']}, indent=1))
     return 0
 
@@ -265,6 +265,7 @@ def main(arguments=None):
     lit.add_argument('--tileset', required=True); lit.add_argument('--spec', required=True, type=Path, help='the list of lit textures (docs/tilesets/<set>/daylight.json)')
     lit.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); lit.add_argument('--repo', type=Path, default=REPO)
     lit.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set); repeat for more')
+    lit.add_argument('--again', action='store_true', help='make the day and night of models that have them anew from the list, and write those it changes')
     named = commands.add_parser('unique', help='give the nodes of an adopted tile pack\'s ASCII sources names of one word that no other node has, in place (then: compile)')
     named.add_argument('--pack', required=True); named.add_argument('--repo', type=Path, default=REPO)
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')

@@ -6426,6 +6426,8 @@
       "srn_t_common"
     ],
     "tools/tilekit/test_daylight.py": [
+      "srn_door",
+      "srn_placeable",
       "srn_t_common",
       "srn_t_udp1"
     ],

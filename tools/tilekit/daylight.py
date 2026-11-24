@@ -15,6 +15,7 @@ from . import inventory, lamps, require
 ANIMS = {'day': (0, 0, 1 / 30), 'day2night': (0, 1, 0.56667), 'night': (1, 1, 1 / 30), 'night2day': (1, 0, 0.6)}  # the stock city tiles' lengths
 NODE = re.compile(r'(?ms)^[ \t]*node[ \t]+(\w+)[ \t]+([^\r\n]+?)[ \t]*\r?\n(.*?)^[ \t]*endnode[ \t]*\r?\n')
 GLOW = 0.05  # a self-illumination under this is no light
+PANE = re.compile(r'(?i)^day\d{2,}_\d+$')  # a day pane's name, as `with_daylight` gives it
 
 
 def _geometry(text):
@@ -98,10 +99,21 @@ def with_daylight(text, lit):
     return text[:at.start()] + ending.join(lines) + ending + text[at.start():], len(found), sum(1 for one in faded if one[2])
 
 
-def write(repo, tileset, folder, lit, shared=()):
+def without(text):
+    """The model's text without the day and night `with_daylight` wrote: its four animations and its day panes. The
+    lit meshes keep the names they were given."""
+    for anim in ANIMS:
+        text = re.sub(rf'(?mis)^[ \t]*newanim[ \t]+{anim}[ \t].*?^[ \t]*doneanim[ \t]+{anim}[ \t][^\n]*\n', '', text)
+    geometry = _geometry(text)
+    return NODE.sub(lambda at: '' if at.group(1).lower() == 'trimesh' and PANE.match(at.group(2)) else at.group(0), geometry) + text[len(geometry):]
+
+
+def write(repo, tileset, folder, lit, shared=(), again=False):
     """Write the models of a tileset that have lit meshes, with their day and night, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {'models': {model: lit meshes}, 'panes': day panes
-    made, 'refused': {model: why}, 'done': how many had their day and night already (a second run, or the pack's own)}. shared: the tilesets that draw these tiles too and take the change with them (a merged
+    made, 'refused': {model: why}, 'done': how many had their day and night already (a second run, or the pack's own)}.
+    again: a model that has its day and night is made anew from the list, and written where that changes it (a lit
+    texture given a day texture since: the windows of eleven suburb tiles were blank by day, 2026-11-24). shared: the tilesets that draw these tiles too and take the change with them (a merged
     set); a model any other tileset draws is left."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}, 'done': 0}
     from .apply import noted
@@ -109,12 +121,14 @@ def write(repo, tileset, folder, lit, shared=()):
         if set(others) - {one.lower() for one in shared}:  # another tileset draws it too
             continue
         if lit_nodes(text, lit) and {one.lower() for one in re.findall(r'(?mi)^[ \t]*newanim[ \t]+(\S+)', text)} >= set(ANIMS):
-            told['done'] += 1; continue
+            told['done'] += 1
+            if not again:
+                continue
         try:
-            new, count, panes = with_daylight(text, lit)
+            new, count, panes = with_daylight(without(text) if again else text, lit)
         except ValueError as error:
             told['refused'][name] = str(error); continue
-        if count:
+        if count and new != text:
             require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
             noted(folder, file, source); (folder / file).write_bytes(new.encode('cp1252')); told['models'][name] = count; told['panes'] += panes
     return told

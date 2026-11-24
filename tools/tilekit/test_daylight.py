@@ -8,6 +8,7 @@ from pathlib import Path
 from tools.tilekit import daylight
 
 REPO = Path(__file__).resolve().parents[2]
+PACKS = ('srn_t_udp1', 'srn_door', 'srn_placeable')  # the packs that hold the list's textures: named so the test selector checks them out
 MODEL = """newmodel t_a01
 beginmodelgeom t_a01
 node dummy t_a01
@@ -118,6 +119,11 @@ class Daylight(unittest.TestCase):
             self.assertEqual((told['models'], told['panes'], told['done'], told['refused']), ({'t_a01': 2}, 1, 0, {}))
             again = daylight.write(repo, 't', out, LIT, shared=['M'])  # the folder's copy has its day and night: no refusal
             self.assertEqual((again['models'], again['done'], again['refused']), ({}, 1, {}))
+            made = (out / 't_a01.mdl').read_text(encoding='cp1252'); self.assertEqual(daylight.with_daylight(daylight.without(made), LIT)[0], made)
+            self.assertEqual(daylight.write(repo, 't', out, LIT, shared=['M'], again=True)['models'], {})  # made anew, the same: not written
+            anew = daylight.write(repo, 't', out, {**LIT, 'lens': 'glass'}, shared=['M'], again=True)  # the lens given a day texture since
+            self.assertEqual((anew['models'], anew['panes']), ({'t_a01': 2}, 2)); made = (out / 't_a01.mdl').read_text(encoding='cp1252')
+            self.assertEqual(len(re.findall(r'(?m)^node trimesh day\d+_\d+$', made)), 2); self.assertEqual(made.count('newanim day t_a01'), 1)
 
     def test_line_ends_are_kept(self):
         made = daylight.with_daylight(MODEL.replace('\n', '\r\n'), LIT)[0]
@@ -125,7 +131,7 @@ class Daylight(unittest.TestCase):
 
     def test_the_suburb_list_names_textures_the_pack_holds(self):
         lit = json.loads((REPO / 'docs' / 'tilesets' / 'udp1' / 'daylight.json').read_text(encoding='utf-8'))['lit']
-        held = {path.stem.lower() for path in (REPO / 'srn_t_udp1').iterdir()}
+        held = {path.stem.lower() for pack in PACKS for path in (REPO / pack).iterdir()}
         self.assertEqual(sorted(name for pair in lit.items() for name in pair if name and name not in held), [])
 
 

@@ -3482,6 +3482,146 @@ node trimesh doorglass29
     0 0 0
     1 1 0
 endnode
+node trimesh day02_0
+  shadow 0
+  parent mall-light-on07
+  position 3.97449 -2.10761 -2.42216
+  orientation 1 0 0 -1.5708
+  wirecolor 0.527344 0.527344 0.527344
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window3
+  verts 28
+    8 1.04955 0
+    6 1.04955 0
+    2 1.04955 0
+    -0.5 1.04955 0
+    -2 1.04955 0
+    -6 1.04956 0
+    -8 1.04956 0
+    8 -0.501324 0
+    6 -0.501324 0
+    4 -0.501324 0
+    2 -0.501324 0
+    -0.5 -0.501323 0
+    -2 -0.501323 0
+    -4 -0.501323 0
+    -6 -0.501323 0
+    -8 -0.501323 0
+    8 -2.50132 0
+    6 -2.50132 0
+    4 -2.50132 0
+    2 -2.50132 0
+    -0.5 -2.50132 0
+    -2 -2.50132 0
+    -4 -2.50132 0
+    -6 -2.50132 0
+    -8 -2.50132 0
+    0.5 -2.50132 0
+    0.499999 -0.501324 0
+    0.500001 1.04955 0
+  faces 24
+    7 0 8  1  28 29 30  0
+    1 8 0  1  1 31 0  0
+    11 3 12  1  32 33 34  0
+    4 12 3  1  4 35 3  0
+    14 5 15  1  36 37 38  0
+    6 15 5  1  6 39 5  0
+    16 7 17  1  16 40 41  0
+    8 17 7  1  42 43 7  0
+    17 8 18  1  17 44 45  0
+    9 18 8  1  46 47 8  0
+    18 9 19  1  18 48 49  0
+    10 19 9  1  50 51 9  0
+    20 11 21  1  20 52 53  0
+    12 21 11  1  54 55 11  0
+    21 12 22  1  21 56 57  0
+    13 22 12  1  58 59 12  0
+    22 13 23  1  22 60 61  0
+    14 23 13  1  62 63 13  0
+    23 14 24  1  23 64 65  0
+    15 24 14  1  15 24 14  0
+    19 10 25  1  19 66 67  0
+    26 25 10  1  68 25 69  0
+    10 2 26  1  10 70 71  0
+    27 26 2  1  27 26 2  0
+  tverts 72
+    0 0 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 0 0
+    0 0 0
+    0 1 0
+    0 0 0
+    0 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    0 1 0
+    0 1 0
+    0 1 0
+    0 1 0
+    0 1 0
+    0 1 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    0 0 0
+    0 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
 node trimesh mall-lights-off07
   shadow 0
   parent udp1_b05_02a
@@ -4507,6 +4647,13 @@ newanim day udp1_b05_02
       0.03333 0
     endlist
   endnode
+  node trimesh day02_0
+    parent mall-light-on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
 doneanim day udp1_b05_02
 newanim day2night udp1_b05_02
   length 0.56667
@@ -4540,6 +4687,13 @@ newanim day2night udp1_b05_02
     alphakey 2
       0.00000 0
       0.56667 1
+    endlist
+  endnode
+  node trimesh day02_0
+    parent mall-light-on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
     endlist
   endnode
 doneanim day2night udp1_b05_02
@@ -4577,6 +4731,13 @@ newanim night udp1_b05_02
       0.03333 1
     endlist
   endnode
+  node trimesh day02_0
+    parent mall-light-on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
 doneanim night udp1_b05_02
 newanim night2day udp1_b05_02
   length 0.60000
@@ -4610,6 +4771,13 @@ newanim night2day udp1_b05_02
     alphakey 2
       0.00000 1
       0.60000 0
+    endlist
+  endnode
+  node trimesh day02_0
+    parent mall-light-on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
     endlist
   endnode
 doneanim night2day udp1_b05_02
