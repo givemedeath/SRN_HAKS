@@ -3017,6 +3017,9 @@ endnode
 node trimesh stripmall_windows29
   parent light-on72
 endnode
+node trimesh day02_0
+  parent light-on72
+endnode
 node trimesh light-off71
   parent udp1_b15_03a
     positionkey
@@ -3212,6 +3215,9 @@ endnode
 node trimesh stripmall_windows29
   parent light-on72
 endnode
+node trimesh day02_0
+  parent light-on72
+endnode
 node trimesh light-off71
   parent udp1_b15_03a
     positionkey
@@ -3309,9 +3315,6 @@ newanim day udp1_b15_03
       0.03333 0
     endlist
   endnode
-  node trimesh light-on72
-    parent udp1_b15_03a
-  endnode
   node trimesh stripmall_windows29
     parent light-on72
     alphakey 2
@@ -3364,9 +3367,6 @@ newanim day2night udp1_b15_03
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh light-on72
-    parent udp1_b15_03a
   endnode
   node trimesh stripmall_windows29
     parent light-on72
@@ -3421,9 +3421,6 @@ newanim night udp1_b15_03
       0.03333 1
     endlist
   endnode
-  node trimesh light-on72
-    parent udp1_b15_03a
-  endnode
   node trimesh stripmall_windows29
     parent light-on72
     alphakey 2
@@ -3476,9 +3473,6 @@ newanim night2day udp1_b15_03
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh light-on72
-    parent udp1_b15_03a
   endnode
   node trimesh stripmall_windows29
     parent light-on72

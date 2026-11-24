@@ -7109,22 +7109,43 @@ endnode
 node trimesh res_light_lens_on07
   parent light_on02
 endnode
+node trimesh day00_0
+  parent light_on02
+endnode
 node trimesh res_light_lens_on08
+  parent light_on02
+endnode
+node trimesh day01_0
   parent light_on02
 endnode
 node trimesh res_light_lens_on09
   parent light_on02
 endnode
+node trimesh day02_0
+  parent light_on02
+endnode
 node trimesh window424
+  parent light_on02
+endnode
+node trimesh day03_0
   parent light_on02
 endnode
 node trimesh window425
   parent light_on02
 endnode
+node trimesh day04_0
+  parent light_on02
+endnode
 node trimesh window426
   parent light_on02
 endnode
+node trimesh day05_0
+  parent light_on02
+endnode
 node trimesh window427
+  parent light_on02
+endnode
+node trimesh day06_0
   parent light_on02
 endnode
 node trimesh res_light_base07
@@ -7363,22 +7384,43 @@ endnode
 node trimesh res_light_lens_on07
   parent light_on02
 endnode
+node trimesh day00_0
+  parent light_on02
+endnode
 node trimesh res_light_lens_on08
+  parent light_on02
+endnode
+node trimesh day01_0
   parent light_on02
 endnode
 node trimesh res_light_lens_on09
   parent light_on02
 endnode
+node trimesh day02_0
+  parent light_on02
+endnode
 node trimesh window424
+  parent light_on02
+endnode
+node trimesh day03_0
   parent light_on02
 endnode
 node trimesh window425
   parent light_on02
 endnode
+node trimesh day04_0
+  parent light_on02
+endnode
 node trimesh window426
   parent light_on02
 endnode
+node trimesh day05_0
+  parent light_on02
+endnode
 node trimesh window427
+  parent light_on02
+endnode
+node trimesh day06_0
   parent light_on02
 endnode
 node trimesh res_light_base07

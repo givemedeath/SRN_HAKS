@@ -13021,10 +13021,19 @@ endnode
 node trimesh windows03
   parent mall-light-on48
 endnode
+node trimesh day01_0
+  parent mall-light-on48
+endnode
 node trimesh window119
   parent mall-light-on48
 endnode
+node trimesh day02_0
+  parent mall-light-on48
+endnode
 node trimesh window120
+  parent mall-light-on48
+endnode
+node trimesh day03_0
   parent mall-light-on48
 endnode
 node light misclight180
@@ -13365,10 +13374,19 @@ endnode
 node trimesh windows03
   parent mall-light-on48
 endnode
+node trimesh day01_0
+  parent mall-light-on48
+endnode
 node trimesh window119
   parent mall-light-on48
 endnode
+node trimesh day02_0
+  parent mall-light-on48
+endnode
 node trimesh window120
+  parent mall-light-on48
+endnode
+node trimesh day03_0
   parent mall-light-on48
 endnode
 node light misclight180
@@ -13490,9 +13508,6 @@ newanim day udp1_b05_15
       0.03333 0
     endlist
   endnode
-  node trimesh mall-light-on48
-    parent udp1_b05_15a
-  endnode
   node trimesh windows03
     parent mall-light-on48
     alphakey 2
@@ -13552,9 +13567,6 @@ newanim day2night udp1_b05_15
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh mall-light-on48
-    parent udp1_b05_15a
   endnode
   node trimesh windows03
     parent mall-light-on48
@@ -13616,9 +13628,6 @@ newanim night udp1_b05_15
       0.03333 1
     endlist
   endnode
-  node trimesh mall-light-on48
-    parent udp1_b05_15a
-  endnode
   node trimesh windows03
     parent mall-light-on48
     alphakey 2
@@ -13678,9 +13687,6 @@ newanim night2day udp1_b05_15
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh mall-light-on48
-    parent udp1_b05_15a
   endnode
   node trimesh windows03
     parent mall-light-on48

@@ -58,6 +58,51 @@ node trimesh window_lit.005
      0.000  0.000  0
      0.999  0.000  0
 endnode
+node trimesh day00_0
+  parent dgt05_i07_11a
+  position  0.00333 -2.50667 -7.00000
+  orientation  1.00000  0.00000  0.00000  0.00000
+  wirecolor  0.03  0.03  0.53
+  ambient  1.00  1.00  1.00
+  diffuse  0.80  0.80  0.80
+  specular  0.00  0.00  0.00
+  bitmap hosp_win01
+  alpha 1.0
+  shininess 11
+  selfillumcolor  0 0 0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  transparencyhint 0
+  verts 12
+     0.00667 -0.99333 -6.05000
+     0.00667  1.00667 -6.05000
+     0.00667 -0.99333 -3.55000
+     0.00667  1.00667 -3.55000
+    -3.50333 -2.50333 -1.25000
+    -1.50333 -2.50333 -1.25000
+    -3.50333 -2.50333  1.25000
+    -1.50333 -2.50333  1.25000
+     1.49667  2.49667  3.55000
+     3.49667  2.49667  3.55000
+     1.49667  2.49667  6.05000
+     3.49667  2.49667  6.05000
+  faces 6
+     2  0  3  0  0 1 2   0
+     1  3  0  0  3 2 1   0
+     6  4  7  0  0 1 2   0
+     5  7  4  0  3 2 1   0
+    10  8 11  0  0 4 2   0
+     9 11  8  0  5 2 4   0
+  tverts 6
+     0.000  1.000  0
+     0.000  0.000  0
+     1.000  0.999  0
+     0.999  0.000  0
+     0.000  0.000  0
+     0.999  0.000  0
+endnode
 node trimesh window_unlit.005
   parent dgt05_i07_11a
   position  0.00332 -2.50667  12.00000
@@ -18692,6 +18737,12 @@ newanim tiledefault dgt05_i07_11
       0.00000  0.00333 -2.50667 -7.00000
       0.03333  0.00333 -2.50667 -7.00000
   endnode
+  node trimesh day00_0
+    parent dgt05_i07_11a
+    positionkey 2
+      0.00000  0.00333 -2.50667 -7.00000
+      0.03333  0.00333 -2.50667 -7.00000
+  endnode
   node trimesh window_unlit.005
     parent dgt05_i07_11a
     positionkey 2
@@ -18809,6 +18860,12 @@ newanim animloop01 dgt05_i07_11
       0.00000  0.00333 -2.50667  12.00000
       0.03333  0.00333 -2.50667  12.00000
   endnode
+  node trimesh day00_0
+    parent dgt05_i07_11a
+    positionkey 2
+      0.00000  0.00333 -2.50667  12.00000
+      0.03333  0.00333 -2.50667  12.00000
+  endnode
   node trimesh window_unlit.005
     parent dgt05_i07_11a
     positionkey 2
@@ -18910,4 +18967,104 @@ newanim animloop01 dgt05_i07_11
   endnode
 doneanim animloop01 dgt05_i07_11
 
+newanim day dgt05_i07_11
+  length 0.03333
+  transtime 0.25
+  animroot dgt05_i07_11
+  node dummy dgt05_i07_11
+    parent NULL
+  endnode
+  node dummy dgt05_i07_11a
+    parent dgt05_i07_11
+  endnode
+  node trimesh window_lit.005
+    parent dgt05_i07_11a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt05_i07_11a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day dgt05_i07_11
+newanim day2night dgt05_i07_11
+  length 0.56667
+  transtime 0.25
+  animroot dgt05_i07_11
+  node dummy dgt05_i07_11
+    parent NULL
+  endnode
+  node dummy dgt05_i07_11a
+    parent dgt05_i07_11
+  endnode
+  node trimesh window_lit.005
+    parent dgt05_i07_11a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt05_i07_11a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night dgt05_i07_11
+newanim night dgt05_i07_11
+  length 0.03333
+  transtime 0.25
+  animroot dgt05_i07_11
+  node dummy dgt05_i07_11
+    parent NULL
+  endnode
+  node dummy dgt05_i07_11a
+    parent dgt05_i07_11
+  endnode
+  node trimesh window_lit.005
+    parent dgt05_i07_11a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt05_i07_11a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night dgt05_i07_11
+newanim night2day dgt05_i07_11
+  length 0.60000
+  transtime 0.25
+  animroot dgt05_i07_11
+  node dummy dgt05_i07_11
+    parent NULL
+  endnode
+  node dummy dgt05_i07_11a
+    parent dgt05_i07_11
+  endnode
+  node trimesh window_lit.005
+    parent dgt05_i07_11a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent dgt05_i07_11a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day dgt05_i07_11
 donemodel dgt05_i07_11

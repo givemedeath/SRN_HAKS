@@ -5982,7 +5982,8 @@
     "tools/tilekit/test_daylight.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/daylight.py",
-      "tools/tilekit/inventory.py"
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/test_detail.py": [
       "hakbuilder.json",
@@ -6434,6 +6435,7 @@
       "srn_door",
       "srn_placeable",
       "srn_t_common",
+      "srn_t_dgt04",
       "srn_t_udp1"
     ],
     "tools/tilekit/test_detail.py": [

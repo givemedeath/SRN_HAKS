@@ -3895,10 +3895,19 @@ endnode
 node trimesh doorglass03
   parent mall-light-on19
 endnode
+node trimesh day02_0
+  parent mall-light-on19
+endnode
 node trimesh vestibule_outer01
   parent mall-light-on19
 endnode
+node trimesh day03_0
+  parent mall-light-on19
+endnode
 node trimesh vestibule_inner01
+  parent mall-light-on19
+endnode
+node trimesh day04_0
   parent mall-light-on19
 endnode
 node trimesh mall-lights-off19
@@ -4064,10 +4073,19 @@ endnode
 node trimesh doorglass03
   parent mall-light-on19
 endnode
+node trimesh day02_0
+  parent mall-light-on19
+endnode
 node trimesh vestibule_outer01
   parent mall-light-on19
 endnode
+node trimesh day03_0
+  parent mall-light-on19
+endnode
 node trimesh vestibule_inner01
+  parent mall-light-on19
+endnode
+node trimesh day04_0
   parent mall-light-on19
 endnode
 node trimesh mall-lights-off19
@@ -4143,9 +4161,6 @@ newanim day udp1_b04_08
       0.03333 0
     endlist
   endnode
-  node trimesh mall-light-on19
-    parent udp1_b04_08a
-  endnode
   node trimesh doorglass03
     parent mall-light-on19
     alphakey 2
@@ -4212,9 +4227,6 @@ newanim day2night udp1_b04_08
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh mall-light-on19
-    parent udp1_b04_08a
   endnode
   node trimesh doorglass03
     parent mall-light-on19
@@ -4283,9 +4295,6 @@ newanim night udp1_b04_08
       0.03333 1
     endlist
   endnode
-  node trimesh mall-light-on19
-    parent udp1_b04_08a
-  endnode
   node trimesh doorglass03
     parent mall-light-on19
     alphakey 2
@@ -4352,9 +4361,6 @@ newanim night2day udp1_b04_08
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh mall-light-on19
-    parent udp1_b04_08a
   endnode
   node trimesh doorglass03
     parent mall-light-on19

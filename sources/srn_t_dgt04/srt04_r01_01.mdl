@@ -56,6 +56,49 @@ node trimesh windows_lit.003
      0.750 -0.000  0
      0.000  0.000  0
 endnode
+node trimesh day00_0
+  parent srt04_r01_01a
+  position -2.38000  0.00250  23.00000
+  orientation  1.00000  0.00000  0.00000  0.00000
+  wirecolor  0.03  0.03  0.53
+  ambient  1.00  1.00  1.00
+  diffuse  0.80  0.80  0.80
+  specular  0.00  0.00  0.00
+  bitmap hr08_wall
+  alpha 1.0
+  shininess 10
+  selfillumcolor  0 0 0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  transparencyhint 0
+  rotatetexture 0
+  tilefade 0
+  verts 8
+     0.00000 -5.00250 -17.00000
+     0.00000  4.99750 -17.00000
+     0.00000 -5.00250  17.00000
+     0.00000  4.99750  17.00000
+     0.00000  0.67750  17.00000
+     0.00000  0.67750 -17.00000
+     0.00000 -0.67250  17.00000
+     0.00000 -0.67250 -17.00000
+  faces 4
+    6 0 2  0  0 1 2   0
+    3 5 4  0  3 4 5   0
+    6 7 0  0  0 6 1   0
+    3 1 5  0  3 7 4   0
+  tverts 8
+     0.750  1.000  0
+     1.000 -0.000  0
+     1.000  1.000  0
+     0.000  1.000  0
+     0.250  0.000  0
+     0.250  1.000  0
+     0.750 -0.000  0
+     0.000  0.000  0
+endnode
 node light srt04_r01_01ml1
   parent srt04_r01_01
   position -2.76984  0.00013  4.01771
@@ -47999,6 +48042,12 @@ newanim tiledefault srt04_r01_01
       0.00000 -2.38000  0.00250  23.00000
       0.03333 -2.38000  0.00250  23.00000
   endnode
+  node trimesh day00_0
+    parent srt04_r01_01a
+    positionkey 2
+      0.00000 -2.38000  0.00250  23.00000
+      0.03333 -2.38000  0.00250  23.00000
+  endnode
   node light srt04_r01_01ml1
     parent srt04_r01_01
   endnode
@@ -48083,6 +48132,12 @@ newanim animloop01 srt04_r01_01
       0.00000 -2.52000  0.00250  23.00000
       0.03333 -2.52000  0.00250  23.00000
   endnode
+  node trimesh day00_0
+    parent srt04_r01_01a
+    positionkey 2
+      0.00000 -2.52000  0.00250  23.00000
+      0.03333 -2.52000  0.00250  23.00000
+  endnode
   node light srt04_r01_01ml1
     parent srt04_r01_01
   endnode
@@ -48151,4 +48206,104 @@ newanim animloop01 srt04_r01_01
   endnode
 doneanim animloop01 srt04_r01_01
 
+newanim day srt04_r01_01
+  length 0.03333
+  transtime 0.25
+  animroot srt04_r01_01
+  node dummy srt04_r01_01
+    parent NULL
+  endnode
+  node dummy srt04_r01_01a
+    parent srt04_r01_01
+  endnode
+  node trimesh windows_lit.003
+    parent srt04_r01_01a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent srt04_r01_01a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day srt04_r01_01
+newanim day2night srt04_r01_01
+  length 0.56667
+  transtime 0.25
+  animroot srt04_r01_01
+  node dummy srt04_r01_01
+    parent NULL
+  endnode
+  node dummy srt04_r01_01a
+    parent srt04_r01_01
+  endnode
+  node trimesh windows_lit.003
+    parent srt04_r01_01a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent srt04_r01_01a
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night srt04_r01_01
+newanim night srt04_r01_01
+  length 0.03333
+  transtime 0.25
+  animroot srt04_r01_01
+  node dummy srt04_r01_01
+    parent NULL
+  endnode
+  node dummy srt04_r01_01a
+    parent srt04_r01_01
+  endnode
+  node trimesh windows_lit.003
+    parent srt04_r01_01a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent srt04_r01_01a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night srt04_r01_01
+newanim night2day srt04_r01_01
+  length 0.60000
+  transtime 0.25
+  animroot srt04_r01_01
+  node dummy srt04_r01_01
+    parent NULL
+  endnode
+  node dummy srt04_r01_01a
+    parent srt04_r01_01
+  endnode
+  node trimesh windows_lit.003
+    parent srt04_r01_01a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent srt04_r01_01a
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day srt04_r01_01
 donemodel srt04_r01_01

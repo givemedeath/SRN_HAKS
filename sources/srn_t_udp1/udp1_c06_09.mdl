@@ -8369,49 +8369,97 @@ endnode
 node trimesh window863
   parent light_on23
 endnode
+node trimesh day00_0
+  parent light_on23
+endnode
 node trimesh window864
+  parent light_on23
+endnode
+node trimesh day01_0
   parent light_on23
 endnode
 node trimesh window865
   parent light_on23
 endnode
+node trimesh day02_0
+  parent light_on23
+endnode
 node trimesh res_light_lens_on83
+  parent light_on23
+endnode
+node trimesh day03_0
   parent light_on23
 endnode
 node trimesh res_light_lens_on84
   parent light_on23
 endnode
+node trimesh day04_0
+  parent light_on23
+endnode
 node trimesh window866
+  parent light_on23
+endnode
+node trimesh day05_0
   parent light_on23
 endnode
 node trimesh window867
   parent light_on23
 endnode
+node trimesh day06_0
+  parent light_on23
+endnode
 node trimesh window868
+  parent light_on23
+endnode
+node trimesh day07_0
   parent light_on23
 endnode
 node trimesh res_light_lens_on85
   parent light_on23
 endnode
+node trimesh day08_0
+  parent light_on23
+endnode
 node trimesh window869
+  parent light_on23
+endnode
+node trimesh day09_0
   parent light_on23
 endnode
 node trimesh window870
   parent light_on23
 endnode
+node trimesh day10_0
+  parent light_on23
+endnode
 node trimesh window871
+  parent light_on23
+endnode
+node trimesh day11_0
   parent light_on23
 endnode
 node trimesh window872
   parent light_on23
 endnode
+node trimesh day12_0
+  parent light_on23
+endnode
 node trimesh window873
+  parent light_on23
+endnode
+node trimesh day13_0
   parent light_on23
 endnode
 node trimesh window874
   parent light_on23
 endnode
+node trimesh day14_0
+  parent light_on23
+endnode
 node trimesh window875
+  parent light_on23
+endnode
+node trimesh day15_0
   parent light_on23
 endnode
 node dummy light_off23
@@ -8673,49 +8721,97 @@ endnode
 node trimesh window863
   parent light_on23
 endnode
+node trimesh day00_0
+  parent light_on23
+endnode
 node trimesh window864
+  parent light_on23
+endnode
+node trimesh day01_0
   parent light_on23
 endnode
 node trimesh window865
   parent light_on23
 endnode
+node trimesh day02_0
+  parent light_on23
+endnode
 node trimesh res_light_lens_on83
+  parent light_on23
+endnode
+node trimesh day03_0
   parent light_on23
 endnode
 node trimesh res_light_lens_on84
   parent light_on23
 endnode
+node trimesh day04_0
+  parent light_on23
+endnode
 node trimesh window866
+  parent light_on23
+endnode
+node trimesh day05_0
   parent light_on23
 endnode
 node trimesh window867
   parent light_on23
 endnode
+node trimesh day06_0
+  parent light_on23
+endnode
 node trimesh window868
+  parent light_on23
+endnode
+node trimesh day07_0
   parent light_on23
 endnode
 node trimesh res_light_lens_on85
   parent light_on23
 endnode
+node trimesh day08_0
+  parent light_on23
+endnode
 node trimesh window869
+  parent light_on23
+endnode
+node trimesh day09_0
   parent light_on23
 endnode
 node trimesh window870
   parent light_on23
 endnode
+node trimesh day10_0
+  parent light_on23
+endnode
 node trimesh window871
+  parent light_on23
+endnode
+node trimesh day11_0
   parent light_on23
 endnode
 node trimesh window872
   parent light_on23
 endnode
+node trimesh day12_0
+  parent light_on23
+endnode
 node trimesh window873
+  parent light_on23
+endnode
+node trimesh day13_0
   parent light_on23
 endnode
 node trimesh window874
   parent light_on23
 endnode
+node trimesh day14_0
+  parent light_on23
+endnode
 node trimesh window875
+  parent light_on23
+endnode
+node trimesh day15_0
   parent light_on23
 endnode
 node dummy light_off23

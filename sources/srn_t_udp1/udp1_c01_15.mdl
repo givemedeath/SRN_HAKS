@@ -5381,7 +5381,7 @@ node trimesh day02_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5521,7 +5521,7 @@ node trimesh day03_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5661,7 +5661,7 @@ node trimesh day04_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5801,7 +5801,7 @@ node trimesh day05_0
   selfillumcolor 0 0 0
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7168,16 +7168,31 @@ endnode
 node trimesh church_clerestory01
   parent lightlens80
 endnode
+node trimesh day01_0
+  parent lightlens80
+endnode
 node trimesh church_skylights04
+  parent lightlens80
+endnode
+node trimesh day02_0
   parent lightlens80
 endnode
 node trimesh church_skylights05
   parent lightlens80
 endnode
+node trimesh day03_0
+  parent lightlens80
+endnode
 node trimesh church_skylights06
   parent lightlens80
 endnode
+node trimesh day04_0
+  parent lightlens80
+endnode
 node trimesh church_skylights07
+  parent lightlens80
+endnode
+node trimesh day05_0
   parent lightlens80
 endnode
 node trimesh church_stained_gl
@@ -7407,16 +7422,31 @@ endnode
 node trimesh church_clerestory01
   parent lightlens80
 endnode
+node trimesh day01_0
+  parent lightlens80
+endnode
 node trimesh church_skylights04
+  parent lightlens80
+endnode
+node trimesh day02_0
   parent lightlens80
 endnode
 node trimesh church_skylights05
   parent lightlens80
 endnode
+node trimesh day03_0
+  parent lightlens80
+endnode
 node trimesh church_skylights06
   parent lightlens80
 endnode
+node trimesh day04_0
+  parent lightlens80
+endnode
 node trimesh church_skylights07
+  parent lightlens80
+endnode
+node trimesh day05_0
   parent lightlens80
 endnode
 node trimesh church_stained_gl
@@ -7511,9 +7541,6 @@ newanim day udp1_c01_15
       0.00000 0
       0.03333 0
     endlist
-  endnode
-  node trimesh lightlens80
-    parent udp1_c01_15a
   endnode
   node trimesh church_clerestory01
     parent lightlens80
@@ -7610,9 +7637,6 @@ newanim day2night udp1_c01_15
       0.56667 1
     endlist
   endnode
-  node trimesh lightlens80
-    parent udp1_c01_15a
-  endnode
   node trimesh church_clerestory01
     parent lightlens80
     alphakey 2
@@ -7708,9 +7732,6 @@ newanim night udp1_c01_15
       0.03333 1
     endlist
   endnode
-  node trimesh lightlens80
-    parent udp1_c01_15a
-  endnode
   node trimesh church_clerestory01
     parent lightlens80
     alphakey 2
@@ -7805,9 +7826,6 @@ newanim night2day udp1_c01_15
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh lightlens80
-    parent udp1_c01_15a
   endnode
   node trimesh church_clerestory01
     parent lightlens80

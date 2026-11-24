@@ -4215,6 +4215,9 @@ endnode
 node trimesh doorglass31
   parent mall-light-on17
 endnode
+node trimesh day02_0
+  parent mall-light-on17
+endnode
 node trimesh mall-lights-off17
   parent udp1_b05_08a
     positionkey
@@ -4456,6 +4459,9 @@ endnode
 node trimesh doorglass31
   parent mall-light-on17
 endnode
+node trimesh day02_0
+  parent mall-light-on17
+endnode
 node trimesh mall-lights-off17
   parent udp1_b05_08a
     positionkey
@@ -4523,9 +4529,6 @@ newanim day udp1_b05_08
       0.03333 0
     endlist
   endnode
-  node trimesh mall-light-on17
-    parent udp1_b05_08a
-  endnode
   node trimesh doorglass31
     parent mall-light-on17
     alphakey 2
@@ -4564,9 +4567,6 @@ newanim day2night udp1_b05_08
       0.00000 0
       0.56667 1
     endlist
-  endnode
-  node trimesh mall-light-on17
-    parent udp1_b05_08a
   endnode
   node trimesh doorglass31
     parent mall-light-on17
@@ -4607,9 +4607,6 @@ newanim night udp1_b05_08
       0.03333 1
     endlist
   endnode
-  node trimesh mall-light-on17
-    parent udp1_b05_08a
-  endnode
   node trimesh doorglass31
     parent mall-light-on17
     alphakey 2
@@ -4648,9 +4645,6 @@ newanim night2day udp1_b05_08
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh mall-light-on17
-    parent udp1_b05_08a
   endnode
   node trimesh doorglass31
     parent mall-light-on17

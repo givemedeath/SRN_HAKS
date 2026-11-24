@@ -2809,6 +2809,9 @@ endnode
 node trimesh stripmall_windows03
   parent light-on08
 endnode
+node trimesh day04_0
+  parent light-on08
+endnode
 doneanim tiledefault udp1_b10_03
 
 #MAXANIM ASCII
@@ -2999,6 +3002,9 @@ endnode
 node trimesh stripmall_windows03
   parent light-on08
 endnode
+node trimesh day04_0
+  parent light-on08
+endnode
 doneanim animloop01 udp1_b10_03
 newanim day udp1_b10_03
   length 0.03333
@@ -3037,9 +3043,6 @@ newanim day udp1_b10_03
       0.00000 0
       0.03333 0
     endlist
-  endnode
-  node trimesh light-on08
-    parent udp1_b10_03a
   endnode
   node trimesh stripmall_windows03
     parent light-on08
@@ -3094,9 +3097,6 @@ newanim day2night udp1_b10_03
       0.56667 1
     endlist
   endnode
-  node trimesh light-on08
-    parent udp1_b10_03a
-  endnode
   node trimesh stripmall_windows03
     parent light-on08
     alphakey 2
@@ -3150,9 +3150,6 @@ newanim night udp1_b10_03
       0.03333 1
     endlist
   endnode
-  node trimesh light-on08
-    parent udp1_b10_03a
-  endnode
   node trimesh stripmall_windows03
     parent light-on08
     alphakey 2
@@ -3205,9 +3202,6 @@ newanim night2day udp1_b10_03
       0.00000 1
       0.60000 0
     endlist
-  endnode
-  node trimesh light-on08
-    parent udp1_b10_03a
   endnode
   node trimesh stripmall_windows03
     parent light-on08
