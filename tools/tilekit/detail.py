@@ -32,6 +32,13 @@ PROUD = 0.3  # metres in front of the wall a piece is fixed to beyond which the 
 STANDOFF = 0.2  # metres off the cell's side beyond which a tile's own geometry is a fixture on its wall, not the wall
 
 
+class Refused(ValueError):
+    """A placement `place` refused: `number` is its place in the tile's list."""
+
+    def __init__(self, number, message):
+        super().__init__(message); self.number = number
+
+
 def turned(at, turn, scale):
     """The move of a piece's point to the tile's coordinates: scaled (one number, or [across, out, up] in the piece's
     own axes), turned about the vertical, then put `at`."""
@@ -220,7 +227,18 @@ def with_walkmesh_of(text, pack_text):
 def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
     """(new text, {pieces, faces, nodes, cuts}, new .wok text or None, footprints [(polygon, roof, top)]) of a tile model with its placements added,
     refused where a piece leaves the cell or stands where a player walks. A piece that `blocks` stands on a walkable
-    roof instead, and its footprint is cut out of the roof's walkmesh (`cuts`): `wok`, the tile's .wok, is cut with it."""
+    roof instead, and its footprint is cut out of the roof's walkmesh (`cuts`): `wok`, the tile's .wok, is cut with it.
+    A refusal of one placement is a `Refused` with its number."""
+    at = [None]  # the placement being worked on
+    try:
+        return _place(text, name, placements, kit, cache, pack_text, wok, at)
+    except ValueError as error:
+        if at[0] is None:
+            raise
+        raise Refused(at[0], str(error)) from error
+
+
+def _place(text, name, placements, kit, cache, pack_text, wok, progress):
     from .kit import SWEEPS
     cache = {} if cache is None else cache; text = effects.without_fx(without_kit(text)); turning = []
     if pack_text is not None:  # an applied batch: its walkmesh is cut already, and cut again it refuses its own roof clutter
@@ -241,6 +259,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
                                    for point in geometry.samples(tuple(points[corner] for corner in face[:3]), 0.15))
         return sampled
     for number, placement in enumerate(placements):
+        progress[0] = number
         piece = placement['piece']; at = placement['at']
         if piece in effects.EFFECTS:  # an emitter, not geometry (`effects`)
             effects.check(name, number, at, piece); fx.append((piece, at, placement.get('fall'))); continue
@@ -292,6 +311,7 @@ def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
                 out = geometry.overhanging(swung); require(not out, f'{name} #{number} ({sweep["head"]}) leaves the cell turned {aside:+.0f} degrees, at ' + ', '.join(map(str, out[:3])))
                 _clear(name, number, sweep['head'], swung, fixtures, walk, *against)
             turning.append((look, verts, tverts, faces, pivot, turn, sweep['sweep'], sweep['period']))
+    progress[0] = None  # what follows is of the tile, not of one placement
     new, count = added(text, name, parts); new, emitters = effects.added(new, root, fx); cut = None
     taken = {node.name.lower() for node in geometry.parse(new)[2]}; named = [f'{name}{MARK}{count + index:02d}' for index in range(len(turning))]
     require(not taken & {one.lower() for one in named}, f'{name} already has a node named like its turning heads')

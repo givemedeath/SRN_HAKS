@@ -27,8 +27,18 @@ def repair_command(chosen):
     return 0
 
 
+def propose_command(chosen):
+    from . import family
+    written, told = family.propose(chosen.repo, family.read(chosen.spec), chosen.kit)
+    chosen.out.write_text(json.dumps(written, indent=1) + '\n', encoding='utf-8', newline='\n'); _told(told)
+    return 1 if told['over'] else 0
+
+
 def add(commands, repo):
     """Register the commands; {name: function of the parsed arguments}."""
     one = _tileset(commands.add_parser('repair', help='report broken animation blocks of a tileset\'s ASCII models, or put them right with --write'), repo)
     one.add_argument('--models', help='only these models, comma separated'); one.add_argument('--write', action='store_true', help='write the ASCII sources (then run compile)')
-    return {'repair': repair_command}
+    two = commands.add_parser('propose', help='propose the kit pieces of a family of tiles: a placement spec for detail, each tile checked by it')
+    two.add_argument('--spec', required=True, type=Path, help='the family spec'); two.add_argument('--kit', required=True, type=Path, help='the folder of kit pieces')
+    two.add_argument('--out', required=True, type=Path, help='the placement spec written'); two.add_argument('--repo', type=Path, default=repo)
+    return {'repair': repair_command, 'propose': propose_command}
