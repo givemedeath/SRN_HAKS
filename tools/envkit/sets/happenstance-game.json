@@ -1,0 +1,33 @@
+{
+  "models": {
+    "ek_hs_sign": {"source": "meshy/models/hs-happenstance-sign-a1", "height": 1.4, "lift": 3.2, "colour": 2048, "placeable": {"label": "Happenstance, Neon Sign", "sound": 28, "category": 156}},
+    "ek_hs_martini": {"source": "meshy/models/hs-martini-sign-a1", "height": 1.3, "lift": 3.0, "colour": 1024, "placeable": {"label": "Happenstance, Martini Neon Sign", "sound": 28, "category": 156}},
+    "ek_hs_familia": {"source": "meshy/models/hs-familia-sign-a1", "height": 1.1, "lift": 1.6, "colour": 1024, "placeable": {"label": "Happenstance, Casquilho Familia Sign", "sound": 28, "category": 156}},
+    "ek_hs_canopy": {"source": "meshy/models/hs-entrance-canopy-a1", "height": 0.9, "lift": 2.6, "colour": 2048, "placeable": {"label": "Happenstance, Entrance Canopy", "sound": 28, "category": 161}},
+    "ek_hs_doors": {"source": "meshy/models/hs-entrance-doors-a1", "height": 2.3, "colour": 2048, "placeable": {"label": "Happenstance, Entrance Doors", "sound": 28, "category": 159}},
+    "ek_hs_shopwin": {"source": "meshy/models/hs-storefront-window-large-a1", "height": 1.6, "lift": 0.8, "colour": 2048, "placeable": {"label": "Happenstance, Storefront Window, Large", "sound": 26, "category": 161}},
+    "ek_hs_shopwin2": {"source": "meshy/models/hs-storefront-window-small-a1", "height": 1.6, "lift": 0.8, "colour": 2048, "placeable": {"label": "Happenstance, Storefront Window, Small", "sound": 26, "category": 161}},
+    "ek_hs_upwin": {"source": "meshy/models/hs-upper-window-large-a1", "height": 1.4, "lift": 4.0, "colour": 2048, "placeable": {"label": "Happenstance, Upper Window, Large", "sound": 26, "category": 161}},
+    "ek_hs_upwin2": {"source": "meshy/models/hs-upper-window-small-a1", "height": 1.4, "lift": 4.0, "colour": 2048, "placeable": {"label": "Happenstance, Upper Window, Small", "sound": 26, "category": 161}},
+    "ek_hs_svcdoor": {"source": "meshy/models/hs-service-door-a1", "height": 2.15, "colour": 2048, "placeable": {"label": "Happenstance, Service Door", "sound": 28, "category": 159}},
+    "ek_hs_rolldoor": {"source": "meshy/models/hs-roll-up-door-a1", "height": 2.8, "colour": 2048, "placeable": {"label": "Happenstance, Roll-Up Door", "sound": 28, "category": 159}},
+    "ek_hs_walllamp": {"source": "meshy/models/hs-wall-light-a1", "height": 0.3, "lift": 2.3, "colour": 1024, "placeable": {"label": "Happenstance, Wall Light", "sound": 28, "category": 161}},
+    "ek_hs_alleylmp": {"source": "meshy/models/hs-alley-lamp-a1", "height": 0.6, "lift": 2.5, "colour": 1024, "placeable": {"label": "Happenstance, Alley Lamp", "sound": 28, "category": 161}},
+    "ek_hs_chain": {"source": "meshy/models/hs-chain-bollards-a1", "height": 0.9, "colour": 1024, "placeable": {"label": "Happenstance, Chain Bollards", "sound": 28, "category": 158}},
+    "ek_hs_stanchn": {"source": "meshy/models/hs-queue-stanchion-a1", "height": 1.0, "colour": 1024, "placeable": {"label": "Happenstance, Queue Stanchion", "sound": 28, "category": 158}},
+    "ek_hs_dumpster": {"source": "meshy/models/hs-dumpster-a1", "height": 1.2, "colour": 2048, "placeable": {"label": "Happenstance, Tagged Dumpster", "sound": 28, "category": 158}},
+    "ek_hs_bags": {"source": "meshy/models/hs-trash-bags-a1", "height": 0.65, "colour": 1024, "placeable": {"label": "Happenstance, Trash Bags", "sound": 27, "category": 158}},
+    "ek_hs_planter": {"source": "meshy/models/hs-planter-steel-a1", "height": 0.95, "colour": 2048, "placeable": {"label": "Happenstance, Steel Planter", "sound": 28, "category": 161}},
+    "ek_hs_cabinet": {"source": "meshy/models/hs-utility-cabinet-a1", "height": 1.2, "colour": 2048, "placeable": {"label": "Happenstance, Utility Cabinet", "sound": 28, "category": 161}},
+    "ek_hs_elecbox": {"source": "meshy/models/hs-electrical-box-a1", "height": 0.9, "lift": 1.0, "colour": 2048, "placeable": {"label": "Happenstance, Electrical Box", "sound": 28, "category": 161}},
+    "ek_hs_conduit": {"source": "meshy/models/hs-conduit-bundle-a1", "height": 0.8, "lift": 2.2, "colour": 1024, "placeable": {"label": "Happenstance, Conduit Bundle", "sound": 28, "category": 161}},
+    "ek_hs_pipe": {"source": "meshy/models/hs-drainpipe-a1", "height": 0.8, "colour": 1024, "placeable": {"label": "Happenstance, Drainpipe", "sound": 28, "category": 161}},
+    "ek_hs_pipes": {"source": "meshy/models/hs-drainpipes-dual-a1", "height": 0.8, "colour": 1024, "placeable": {"label": "Happenstance, Twin Drainpipes", "sound": 28, "category": 161}},
+    "ek_hs_acunit": {"source": "meshy/models/hs-ac-unit-a1", "height": 0.75, "lift": 2.2, "colour": 2048, "placeable": {"label": "Happenstance, Wall AC Unit", "sound": 28, "category": 161}},
+    "ek_hs_hvac": {"source": "meshy/models/hs-hvac-large-a1", "height": 1.3, "colour": 2048, "placeable": {"label": "Happenstance, Rooftop HVAC, Large", "sound": 28, "category": 161}},
+    "ek_hs_hvac2": {"source": "meshy/models/hs-hvac-small-a1", "height": 1.0, "colour": 2048, "placeable": {"label": "Happenstance, Rooftop HVAC, Small", "sound": 28, "category": 161}},
+    "ek_hs_turbine": {"source": "meshy/models/hs-roof-vent-a1", "height": 0.45, "colour": 1024, "placeable": {"label": "Happenstance, Turbine Roof Vent", "sound": 28, "category": 161}},
+    "ek_hs_ventcap": {"source": "meshy/models/hs-vent-stack-a1", "height": 0.6, "colour": 1024, "placeable": {"label": "Happenstance, Roof Vent Stack", "sound": 28, "category": 161}},
+    "ek_hs_antenna": {"source": "meshy/models/hs-antenna-mast-a1", "height": 2.5, "colour": 2048, "placeable": {"label": "Happenstance, Antenna Mast", "sound": 28, "category": 161}}
+  }
+}

@@ -397,6 +397,10 @@ envkit onboard same    --sheets <sheets> --output <scratch>/same [--only <sheet>
 envkit onboard revise  --decisions <scratch>/decisions.txt
 ```
 
+A type can be closed (`reference.CLOSED`): it has designs enough, and a set that states another made prop of it is
+refused with the props to choose a `same` from. `dumpster` is closed after the Happenstance nightclub's (user,
+2026-11-24: "I'm pretty sure we have enough dumpsters now, make sure we don't do anymore after this one").
+
 `boxes` proposes a numbered box round each thing drawn on the sheet (T for the building views, P for the prop
 set). A spec names them, one block a sheet:
 
