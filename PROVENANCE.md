@@ -1625,7 +1625,7 @@ the small storefront window's panes show faint facets close up by day, and the l
 Checked in the game client on 2026-11-24: by day and by night from front, back and side with a figure for scale, from
 the converted files (the four props hung at 3 metres and more were judged from copies lowered into the frame); and
 by night from the pack's files, where the lights of the ten lit props were put out by script and brought back, the
-ground lit by the canopy and the two lamps. Not yet placed in the Toolset.
+ground lit by the canopy and the two lamps. Placed in the Toolset the same day from the Standard palette (Shadowrun City): the neon sign, the entrance doors, the large storefront window, the alley lamp, the tagged dumpster and the antenna mast, saved with their rows, the four lit ones not static.
 
 ## Envkit props moved to their own pack (`srn_envprop`, `srn_placeable`; 2026-11-24)
 
