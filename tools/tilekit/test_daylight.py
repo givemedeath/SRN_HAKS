@@ -82,6 +82,17 @@ class Daylight(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'already'):
             daylight.with_daylight(made, LIT)
 
+    def test_lit_meshes_of_one_name_each_take_their_own(self):
+        # two strip mall tiles name every lit window alike (udp1_b12_04, udp1_b13_09)
+        twice = MODEL.replace('node trimesh lens lit01', 'node trimesh pane').replace('endmodelgeom t_a01', 'endmodelgeom t_a01\nnewanim loop t_a01\n  node trimesh pane\n    parent lights\n  endnode\n  node trimesh pane\n    parent lights\n  endnode\ndoneanim loop t_a01')
+        made = daylight.with_daylight(twice, LIT)[0]; loop = anim(made, 'loop')
+        self.assertEqual(re.findall(r'(?m)^node trimesh (lit\S+)', made), ['lit00_0', 'lit01_0'])
+        self.assertEqual(re.findall(r'node trimesh (\S+)', loop), ['lit00_0', 'lit01_0'])
+        self.assertIn('node trimesh lit00_0\n  parent lights\n  selfillumcolor 0.7 0.7 0.7\n  bitmap win_b', made)
+        shared = MODEL.replace('node trimesh dull', 'node trimesh pane')
+        with self.assertRaisesRegex(ValueError, 'shares its name'):
+            daylight.with_daylight(shared, LIT)
+
     def test_line_ends_are_kept(self):
         made = daylight.with_daylight(MODEL.replace('\n', '\r\n'), LIT)[0]
         self.assertNotIn('\n', made.replace('\r\n', ''))

@@ -40,7 +40,7 @@ def lit_nodes(text, textures, glow=GLOW):
 def with_daylight(text, lit):
     """(the model's text with the four animations written for its lit meshes, how many, how many day panes made).
     lit: {lit texture: day texture or None}. A model with none is given back as it is; one that has a day or night
-    animation already, or a lit mesh that cannot take a name of its own, is refused."""
+    animation already, or a lit mesh that shares its name with an unlit one or has children, is refused."""
     lit = {name.lower(): (day.lower() if day else None) for name, day in lit.items()}; found = lit_nodes(text, lit)
     if not found:
         return text, 0, 0
@@ -56,9 +56,11 @@ def with_daylight(text, lit):
     for index, (node, parent, texture) in enumerate(found):
         if ' ' in node or every.count(node) != 1:  # the game reads a name to its first space, and the first node of a name: the lit mesh takes a name of its own
             line = re.compile(r'(?m)^([ \t]*node[ \t]+trimesh[ \t]+)' + re.escape(node) + r'([ \t]*\r?)$')
-            require(len(line.findall(_geometry(text))) == 1 and not re.search(r'(?mi)^[ \t]*parent[ \t]+' + re.escape(node) + r'[ \t]*\r?$', text),
-                    f'{name}: the lit mesh {node!r} is not the only one of its name, or has children')
-            new = fresh('lit', index); text = line.sub(lambda at: at.group(1) + new + at.group(2), text); node = new
+            require(every.count(node) == sum(1 for one in found if one[0] == node) and not re.search(r'(?mi)^[ \t]*parent[ \t]+' + re.escape(node) + r'[ \t]*\r?$', text),
+                    f'{name}: the lit mesh {node!r} shares its name with a mesh that is not lit, or has children')
+            # meshes of one name are taken in their order: the first still under the old name, in the geometry and in each animation
+            new = fresh('lit', index); parts = re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)
+            text = ''.join(line.sub(lambda at: at.group(1) + new + at.group(2), part, count=1) for part in parts); node = new
         faded.append((node, parent, 0, 1))
         day = lit[texture]
         if day:
