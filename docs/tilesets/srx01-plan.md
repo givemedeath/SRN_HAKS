@@ -635,10 +635,10 @@ The four textures it shares with dgt04 keep dgt04's look.
   (its slab floor as before), and the unified set's joins, where the new plaza paving meets the city's concrete at
   the kerb with no change to `joins.py`. Eight join tiles (`srx01_jp*`) were recompiled for the paving's new
   material; their sources are as they were.
-- **Also restyled, and not looked at in game (found in review, 2026-11-24):** five placeables and one door draw
-  textures restyled in place. The Snow Speeder (`plc_ghtroc`: `cable`, `gris3`, `imp_modules_id3`), the four VoS
-  counters (`vos_gundisplay5` to `8`: `imp_modules_id3`) and the door `fci_door_01` (`lsf_grate01`). Whether they
-  keep the new look or get the old pictures back under names of their own is the user's call.
+- **Also restyled (found in review, 2026-11-24):** five placeables and one door draw textures restyled in place.
+  The Snow Speeder (`plc_ghtroc`: `cable`, `gris3`, `imp_modules_id3`), the four VoS counters (`vos_gundisplay5`
+  to `8`: `imp_modules_id3`) and the door `fci_door_01` (`lsf_grate01`). Seen in game from the built packs; they
+  keep the new look (user, 2026-11-24).
 - **Left as they are:** the sign strip (broken blocks in game), the advertising panel's garbled caption, the dim
   marker lamp strip; the windows are lit at every hour (no day and night animations).
 - **Toolset (2026-11-24, by computer use on the built packs, `envkit toolset --tileset fcx01`):** the area opens on
