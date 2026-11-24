@@ -2414,3 +2414,17 @@ project operator passed the look in the game client on 2026-11-20 (review captur
   (`docs/tilesets/dgt04/materials.json`, grade `ground`; user, 2026-11-23). It replaces the ambientCG Road012A
   asphalt it was made from before. The fetched files and their hashes are in `tilekit/masters/fetched.json` of the
   shared tool root, under `CrackedConcrete`.
+
+## Suburbs restyle, release B (`srn_t_udp1`, `srn_t_common`, `srn_door`, `srn_placeable`; 2026-11-24)
+
+The D20 Suburbs tiles (`udp1`, and through them the unified `srx01`) keep their own pictures: 99 textures of
+`docs/tilesets/udp1/materials.json` are the originals graded by `tilekit material`, each with a relief and a
+roughness map made from the picture itself. Twelve take detail from the CC0 ambientCG scans listed under Modern
+Exterior release 1: the road and parking pictures (Asphalt033), the walks (Concrete047A), the red brick
+(Bricks097) and the grey metal (MetalPlates013). No other outside material was added. The five scans fetched
+and tried on 2026-11-23 (Grass008, WoodSiding009, PaintedBricks004, RoofingTiles003 of ambientCG; brown_planks_03
+of Poly Haven) are in no pack: the user kept the originals.
+
+The tile models are the originals, compiled by NeverBlender from `sources/srn_t_udp1/` (node names made unique by
+`tilekit unique`), with day and night animations for their lit windows and lamp lenses (`tilekit daylight`) and
+the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are unchanged.

@@ -343,6 +343,18 @@ udp1's textures are in `srn_t_udp1`, `srn_t_common`, `srn_door` and `srn_placeab
   (`udp1-lght-pln`), the dirt decal, water, the nets and three tiny flat colours. Review block for the family
   sheets: `docs/tilesets/udp1/families.json`.
 
+## Release B applied (user, 2026-11-24)
+
+- The remaining textures passed on the family sheets (`docs/tilesets/udp1/families.json`) and are in the packs: 82
+  applied on top of the pilot's 19 (two of the pilot's remade).
+- **Suburb asphalt lighter** (user): its eight pictures take a grade of their own, `suburb_road` (gain 0.85 where
+  the city's `road` has 0.55). The city's roads are unchanged.
+- **Join re-check**: the Concrete to Asphalt joins and junctions viewed again from the built packs; the kerb line
+  fits the lighter asphalt, `joins.py` is unchanged.
+- No lamp was moved: the suburb tiles have no source lights.
+- Not done: `detail` kit pieces; mall fronts, signs and civic buildings were not in the family views (their groups
+  need walks and driveways laid to fit).
+
 ## City ground made concrete (user, 2026-11-23)
 
 Seen on the release B pilot: the Concrete terrain's ground was an asphalt scan (Road012A), as dark as the roads.
