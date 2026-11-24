@@ -626,6 +626,17 @@ The four textures it shares with dgt04 keep dgt04's look.
 
 **Join re-check:** the Concrete↔Cobble joins and junctions, as in release B.
 
+**Applied (user passed the look, 2026-11-24):**
+- **Adoption:** `compile --adopt srn_t_fcx01` took all 243 tiles with no refusal; no `unique` pass was needed.
+- **Apply:** the model changes were made again from the adopted sources (`lamps`: 45 tiles, `retexture`: 115) and
+  applied with the 46 textures: 373 files put, 134 tiles recompiled, 44 old pictures removed.
+- **Checks:** `compile --check`, `merge --check` and `joins --check` clean; the repository test passes and the packs
+  are rebuilt. Seen from the built packs: the pilot block by day and at night with lamps on, the starship interior
+  (its slab floor as before), and the unified set's joins, where the new plaza paving meets the city's concrete at
+  the kerb with no change to `joins.py`.
+- **Left as they are:** the sign strip (broken blocks in game), the advertising panel's garbled caption, the dim
+  marker lamp strip; the windows are lit at every hour (no day and night animations). Not done: a Toolset check.
+
 ### 7. Cohesion
 
 - **Look pass:** the user's whole-city look pass across the three districts and the joins, by day and night.

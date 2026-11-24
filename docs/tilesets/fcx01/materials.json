@@ -1,6 +1,6 @@
 {
  "tileset": "fcx01",
- "status": "release C pilot: a review overlay only, nothing applied to the packs",
+ "status": "release C: applied to the packs (2026-11-24)",
  "before": "8fac7e59b9c6",
  "packs": [
   "srn_t_fcx01",
