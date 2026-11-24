@@ -39,7 +39,7 @@ node trimesh doortrim69
   shininess 10
   bitmap gg2-h2-7
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -742,7 +742,7 @@ node trimesh stoop04
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1058,7 +1058,7 @@ node trimesh doortrim70
   shininess 10
   bitmap gg2-h2-7
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1100,7 +1100,7 @@ node trimesh doortrim71
   shininess 10
   bitmap gg2-h2-7
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1142,7 +1142,7 @@ node trimesh doortrim72
   shininess 10
   bitmap gg2-h2-7
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1184,7 +1184,7 @@ node trimesh doortrim73
   shininess 10
   bitmap gg2-h2-7
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1226,7 +1226,7 @@ node trimesh doortrim74
   shininess 10
   bitmap gg2-h2-7
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1460,7 +1460,7 @@ node trimesh AC_unit_rear02
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1528,7 +1528,7 @@ node trimesh WINDOW_AC_UNIT08
   shininess 10
   bitmap udp1-aircond2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1594,7 +1594,7 @@ node trimesh WINDOW_AC_UNIT09
   shininess 10
   bitmap udp1-aircond2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1660,7 +1660,7 @@ node trimesh AC_unit_rear03
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2923,7 +2923,7 @@ node trimesh window555
   shininess 10
   bitmap udp1-window1
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2997,7 +2997,7 @@ node trimesh window556
   shininess 10
   bitmap udp1-window1
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3071,7 +3071,7 @@ node trimesh window557
   shininess 10
   bitmap udp1-window1
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3117,7 +3117,7 @@ node trimesh window558
   shininess 10
   bitmap udp1-window1
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3163,7 +3163,7 @@ node trimesh window559
   shininess 10
   bitmap udp1-window1
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3209,7 +3209,7 @@ node trimesh window560
   shininess 10
   bitmap udp1-window1
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3283,7 +3283,7 @@ node trimesh window561
   shininess 10
   bitmap udp1-window1
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3329,7 +3329,7 @@ node trimesh res_light_lens_off40
   shininess 10
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3389,7 +3389,7 @@ node trimesh res_light_lens_off41
   shininess 10
   bitmap udp1-window2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3456,7 +3456,54 @@ node trimesh window562
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window1b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 8
+    0.893512 1.06866 -0.0270549
+    -0.896488 1.06866 -0.0270547
+    0.893512 -1.07134 -0.0270549
+    -0.896488 -1.07134 -0.0270547
+    0.893512 1.06866 0.0229451
+    -0.896488 1.06866 0.0229453
+    0.893512 -1.07134 0.0229451
+    -0.896488 -1.07134 0.0229453
+  faces 10
+    4 5 7  4  4 5 7  0
+    7 6 4  4  7 6 4  0
+    0 1 5  8  0 1 5  4
+    5 4 0  8  5 4 0  4
+    1 3 7  16  1 3 7  3
+    7 5 1  16  7 5 1  3
+    3 2 6  32  3 2 6  5
+    6 7 3  32  6 7 3  5
+    2 0 4  64  2 0 4  2
+    4 6 2  64  4 6 2  2
+  tverts 8
+    0.00103229 0.00174892 -0.040517
+    1.00063 0.00174871 -0.0405139
+    0.00103259 0.999501 -0.040517
+    1.00063 0.9995 -0.0405139
+    0.00103229 0.00174892 0.958484
+    1.00063 0.00174871 0.958487
+    0.00103259 0.999501 0.958484
+    1.00063 0.9995 0.958487
+endnode
+node trimesh day00_0
+  parent light_on07
+  position -0.538482 -9.37053 -7.77134
+  orientation 0 0.707107 -0.707107 -3.14159
+  wirecolor 0.0273438 0.0273438 0.0273438
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window1
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3503,7 +3550,82 @@ node trimesh window563
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window1b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 16
+    2.31817 1.06866 -0.0229492
+    0.908174 1.06866 -0.0229492
+    -0.901826 1.06866 -0.0229492
+    -2.31183 1.06866 -0.0229492
+    2.31817 -1.07134 -0.0229492
+    0.908174 -1.07134 -0.0229492
+    -0.901826 -1.07134 -0.0229492
+    -2.31183 -1.07134 -0.0229492
+    2.31817 1.06866 0.0270508
+    0.908174 1.06866 0.0270508
+    -0.901826 1.06866 0.0270508
+    -2.31183 1.06866 0.0270508
+    2.31817 -1.07134 0.0270508
+    0.908174 -1.07134 0.0270508
+    -0.901826 -1.07134 0.0270508
+    -2.31183 -1.07134 0.0270508
+  faces 22
+    8 9 13  4  8 9 13  0
+    13 12 8  4  13 12 8  0
+    9 10 14  4  9 10 14  0
+    14 13 9  4  14 13 9  0
+    10 11 15  4  10 11 15  0
+    15 14 10  4  15 14 10  0
+    0 1 9  8  0 1 9  4
+    9 8 0  8  9 8 0  4
+    1 2 10  8  1 2 10  4
+    10 9 1  8  10 9 1  4
+    2 3 11  8  2 3 11  4
+    11 10 2  8  11 10 2  4
+    3 7 15  16  3 7 15  3
+    15 11 3  16  15 11 3  3
+    7 6 14  32  7 6 14  5
+    14 15 7  32  14 15 7  5
+    6 5 13  32  6 5 13  5
+    13 14 6  32  13 14 6  5
+    5 4 12  32  5 4 12  5
+    12 13 5  32  12 13 5  5
+    4 0 8  64  4 0 8  2
+    8 12 4  64  8 12 4  2
+  tverts 16
+    -1.01848 0.000499934 0.000499517
+    -0.0061605 0.000499725 0.000499517
+    1.00616 0.000499517 0.000499517
+    2.01848 0.000499308 0.000499517
+    -1.01848 0.999501 0.000499517
+    -0.0061602 0.999501 0.000499517
+    1.00616 0.9995 0.000499517
+    2.01848 0.9995 0.000499517
+    -1.01848 0.000499934 0.999501
+    -0.0061605 0.000499725 0.999501
+    1.00616 0.000499517 0.999501
+    2.01848 0.000499308 0.999501
+    -1.01848 0.999501 0.999501
+    -0.0061602 0.999501 0.999501
+    1.00616 0.9995 0.999501
+    2.01848 0.9995 0.999501
+endnode
+node trimesh day01_0
+  parent light_on07
+  position -0.300171 -1.02053 -7.77134
+  orientation 1 0 0 -1.5708
+  wirecolor 0.0273438 0.0273438 0.0273438
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window1
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3578,7 +3700,82 @@ node trimesh window564
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window1b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 16
+    2.31205 1.06866 -0.0249922
+    0.90205 1.06866 -0.0249923
+    -0.907951 1.06866 -0.0249924
+    -2.31795 1.06866 -0.0249925
+    2.31205 -1.07134 -0.0249922
+    0.902049 -1.07134 -0.0249923
+    -0.907951 -1.07134 -0.0249924
+    -2.31795 -1.07134 -0.0249924
+    2.31205 1.06866 0.0250077
+    0.90205 1.06866 0.0250077
+    -0.907951 1.06866 0.0250076
+    -2.31795 1.06866 0.0250075
+    2.31205 -1.07134 0.0250078
+    0.902049 -1.07134 0.0250077
+    -0.907951 -1.07134 0.0250076
+    -2.31795 -1.07134 0.0250076
+  faces 22
+    8 9 13  4  8 9 13  0
+    13 12 8  4  13 12 8  0
+    9 10 14  4  9 10 14  0
+    14 13 9  4  14 13 9  0
+    10 11 15  4  10 11 15  0
+    15 14 10  4  15 14 10  0
+    0 1 9  8  0 1 9  4
+    9 8 0  8  9 8 0  4
+    1 2 10  8  1 2 10  4
+    10 9 1  8  10 9 1  4
+    2 3 11  8  2 3 11  4
+    11 10 2  8  11 10 2  4
+    3 7 15  16  3 7 15  3
+    15 11 3  16  15 11 3  3
+    7 6 14  32  7 6 14  5
+    14 15 7  32  14 15 7  5
+    6 5 13  32  6 5 13  5
+    13 14 6  32  13 14 6  5
+    5 4 12  32  5 4 12  5
+    12 13 5  32  12 13 5  5
+    4 0 8  64  4 0 8  2
+    8 12 4  64  8 12 4  2
+  tverts 16
+    -1.01848 0.000499934 0.000499517
+    -0.0061605 0.000499725 0.000499517
+    1.00616 0.000499517 0.000499517
+    2.01848 0.000499308 0.000499517
+    -1.01848 0.999501 0.000499517
+    -0.0061602 0.999501 0.000499517
+    1.00616 0.9995 0.000499517
+    2.01848 0.9995 0.000499517
+    -1.01848 0.000499934 0.999501
+    -0.0061605 0.000499725 0.999501
+    1.00616 0.000499517 0.999501
+    2.01848 0.000499308 0.999501
+    -1.01848 0.999501 0.999501
+    -0.0061602 0.999501 0.999501
+    1.00616 0.9995 0.999501
+    2.01848 0.9995 0.999501
+endnode
+node trimesh day02_0
+  parent light_on07
+  position -6.627 -5.19553 -7.77134
+  orientation 0.57735 0.57735 -0.57735 -2.0944
+  wirecolor 0.0273438 0.0273438 0.0273438
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window1
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3653,7 +3850,54 @@ node trimesh window565
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window1b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 8
+    0.722046 0.841251 -0.0249995
+    -0.717953 0.841252 -0.0249993
+    0.722046 -0.838749 -0.0249995
+    -0.717954 -0.838748 -0.0249993
+    0.722046 0.841251 0.0250005
+    -0.717953 0.841252 0.0250007
+    0.722046 -0.838749 0.0250005
+    -0.717954 -0.838748 0.0250007
+  faces 10
+    4 5 7  4  4 5 7  0
+    7 6 4  4  7 6 4  0
+    0 1 5  8  0 1 5  4
+    5 4 0  8  5 4 0  4
+    1 3 7  16  1 3 7  3
+    7 5 1  16  7 5 1  3
+    3 2 6  32  3 2 6  5
+    6 7 3  32  6 7 3  5
+    2 0 4  64  2 0 4  2
+    4 6 2  64  4 6 2  2
+  tverts 8
+    0.000488281 -0.00172687 0.00055179
+    0.99668 -0.00172704 0.000555217
+    0.000488549 1.00023 0.00055179
+    0.99668 1.00023 0.000555217
+    0.000488281 -0.00172687 0.999552
+    0.99668 -0.00172704 0.999556
+    0.000488549 1.00023 0.999552
+    0.99668 1.00023 0.999556
+endnode
+node trimesh day03_0
+  parent light_on07
+  position -6.627 -5.19553 -4.52875
+  orientation 0.57735 0.57735 -0.57735 -2.0944
+  wirecolor 0.0273438 0.0273438 0.0273438
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window1
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3700,7 +3944,54 @@ node trimesh window566
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window1b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 8
+    0.892077 1.06866 -0.0270545
+    -0.897923 1.06866 -0.0270543
+    0.892077 -1.07134 -0.0270545
+    -0.897923 -1.07134 -0.0270543
+    0.892077 1.06866 0.0229455
+    -0.897923 1.06866 0.0229457
+    0.892077 -1.07134 0.0229455
+    -0.897923 -1.07134 0.0229457
+  faces 10
+    4 5 7  4  4 5 7  0
+    7 6 4  4  7 6 4  0
+    0 1 5  8  0 1 5  4
+    5 4 0  8  5 4 0  4
+    1 3 7  16  1 3 7  3
+    7 5 1  16  7 5 1  3
+    3 2 6  32  3 2 6  5
+    6 7 3  32  6 7 3  5
+    2 0 4  64  2 0 4  2
+    4 6 2  64  4 6 2  2
+  tverts 8
+    0.00183395 0.00174892 -0.0405129
+    1.00143 0.00174871 -0.0405098
+    0.00183424 0.999501 -0.0405129
+    1.00143 0.9995 -0.0405098
+    0.00183395 0.00174892 0.958488
+    1.00143 0.00174871 0.958491
+    0.00183424 0.999501 0.958488
+    1.00143 0.9995 0.958491
+endnode
+node trimesh day04_0
+  parent light_on07
+  position 1.80008 -9.37053 -7.77134
+  orientation 0 0.707107 -0.707107 -3.14159
+  wirecolor 0.0273438 0.0273438 0.0273438
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window1
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3747,7 +4038,54 @@ node trimesh window567
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window1b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 8
+    0.717953 0.841251 -0.0249993
+    -0.722047 0.841252 -0.0249994
+    0.717953 -0.838749 -0.0249993
+    -0.722047 -0.838748 -0.0249994
+    0.717953 0.841251 0.0250007
+    -0.722047 0.841252 0.0250006
+    0.717953 -0.838749 0.0250007
+    -0.722047 -0.838748 0.0250006
+  faces 10
+    4 5 7  4  4 5 7  0
+    7 6 4  4  7 6 4  0
+    0 1 5  8  0 1 5  4
+    5 4 0  8  5 4 0  4
+    1 3 7  16  1 3 7  3
+    7 5 1  16  7 5 1  3
+    3 2 6  32  3 2 6  5
+    6 7 3  32  6 7 3  5
+    2 0 4  64  2 0 4  2
+    4 6 2  64  4 6 2  2
+  tverts 8
+    0.00332296 -0.00172687 0.000457674
+    0.999514 -0.00172704 0.000454247
+    0.00332323 1.00023 0.000457674
+    0.999515 1.00023 0.000454247
+    0.00332296 -0.00172687 0.999458
+    0.999514 -0.00172704 0.999455
+    0.00332323 1.00023 0.999458
+    0.999515 1.00023 0.999455
+endnode
+node trimesh day05_0
+  parent light_on07
+  position 3.423 -5.19553 -4.52875
+  orientation -0.57735 0.57735 -0.57735 -4.18879
+  wirecolor 0.0273438 0.0273438 0.0273438
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window1
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3794,7 +4132,82 @@ node trimesh window568
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window1b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 16
+    2.31795 1.06866 -0.0249991
+    0.907953 1.06866 -0.0249993
+    -0.902047 1.06866 -0.0249995
+    -2.31205 1.06866 -0.0249997
+    2.31795 -1.07134 -0.0249991
+    0.907953 -1.07134 -0.0249993
+    -0.902047 -1.07134 -0.0249995
+    -2.31205 -1.07134 -0.0249997
+    2.31795 1.06866 0.0250009
+    0.907953 1.06866 0.0250007
+    -0.902047 1.06866 0.0250005
+    -2.31205 1.06866 0.0250003
+    2.31795 -1.07134 0.0250009
+    0.907953 -1.07134 0.0250007
+    -0.902047 -1.07134 0.0250005
+    -2.31205 -1.07134 0.0250003
+  faces 22
+    8 9 13  4  8 9 13  0
+    13 12 8  4  13 12 8  0
+    9 10 14  4  9 10 14  0
+    14 13 9  4  14 13 9  0
+    10 11 15  4  10 11 15  0
+    15 14 10  4  15 14 10  0
+    0 1 9  8  0 1 9  4
+    9 8 0  8  9 8 0  4
+    1 2 10  8  1 2 10  4
+    10 9 1  8  10 9 1  4
+    2 3 11  8  2 3 11  4
+    11 10 2  8  11 10 2  4
+    3 7 15  16  3 7 15  3
+    15 11 3  16  15 11 3  3
+    7 6 14  32  7 6 14  5
+    14 15 7  32  14 15 7  5
+    6 5 13  32  6 5 13  5
+    13 14 6  32  13 14 6  5
+    5 4 12  32  5 4 12  5
+    12 13 5  32  12 13 5  5
+    4 0 8  64  4 0 8  2
+    8 12 4  64  8 12 4  2
+  tverts 16
+    -1.01848 0.000499934 0.000499517
+    -0.0061605 0.000499725 0.000499517
+    1.00616 0.000499517 0.000499517
+    2.01848 0.000499308 0.000499517
+    -1.01848 0.999501 0.000499517
+    -0.0061602 0.999501 0.000499517
+    1.00616 0.9995 0.000499517
+    2.01848 0.9995 0.000499517
+    -1.01848 0.000499934 0.999501
+    -0.0061605 0.000499725 0.999501
+    1.00616 0.000499517 0.999501
+    2.01848 0.000499308 0.999501
+    -1.01848 0.999501 0.999501
+    -0.0061602 0.999501 0.999501
+    1.00616 0.9995 0.999501
+    2.01848 0.9995 0.999501
+endnode
+node trimesh day06_0
+  parent light_on07
+  position 3.423 -5.19553 -7.77134
+  orientation -0.57735 0.57735 -0.57735 -4.18879
+  wirecolor 0.0273438 0.0273438 0.0273438
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window1
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3869,7 +4282,68 @@ node trimesh res_light_lens_on40
   selfillumcolor 1 1 1
   bitmap udp1-window2b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 8
+    -0.117643 0.0034275 -0.13396
+    0.00235661 -0.116572 -0.13396
+    0.112357 0.00342751 -0.13396
+    0.0023566 0.113428 -0.13396
+    -0.177643 0.00342749 0.13604
+    0.00235662 -0.176572 0.13604
+    0.172357 0.00342752 0.13604
+    0.00235659 0.173428 0.13604
+  faces 8
+    0 5 4  0  8 9 10  2
+    0 1 5  0  11 12 13  2
+    1 6 5  0  14 15 5  2
+    1 2 6  0  1 16 17  2
+    2 7 6  0  18 19 6  2
+    2 3 7  0  2 20 21  2
+    3 4 7  0  22 23 7  2
+    3 0 4  0  3 0 4  2
+  tverts 24
+    1 0 0
+    0 0 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
+node trimesh day07_0
+  parent light_on07
+  position -1.68964 -9.54005 -7.33604
+  orientation 0 0 -1 -3.14159
+  wirecolor 0.769531 0.769531 0.769531
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3930,7 +4404,68 @@ node trimesh res_light_lens_on41
   selfillumcolor 1 1 1
   bitmap udp1-window2b
   render 1
-  Shadow 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 8
+    -0.116035 0.00341798 -0.13396
+    0.00396483 -0.116582 -0.13396
+    0.113965 0.00341796 -0.13396
+    0.00396485 0.113418 -0.13396
+    -0.176035 0.00341798 0.13604
+    0.00396483 -0.176582 0.13604
+    0.173965 0.00341795 0.13604
+    0.00396486 0.173418 0.13604
+  faces 8
+    0 5 4  0  8 9 10  2
+    0 1 5  0  11 12 13  2
+    1 6 5  0  14 15 5  2
+    1 2 6  0  1 16 17  2
+    2 7 6  0  18 19 6  2
+    2 3 7  0  2 20 21  2
+    3 4 7  0  22 23 7  2
+    3 0 4  0  3 0 4  2
+  tverts 24
+    1 0 0
+    0 0 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
+node trimesh day08_0
+  parent light_on07
+  position -3.36596 -0.846894 -7.33604
+  orientation 0 0 0 0
+  wirecolor 0.769531 0.769531 0.769531
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  render 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4022,7 +4557,7 @@ node trimesh res_light_body43
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4228,7 +4763,7 @@ node trimesh res_light_arm43
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4312,7 +4847,7 @@ node trimesh res_light_base43
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4373,7 +4908,7 @@ node trimesh res_light_arm44
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4457,7 +4992,7 @@ node trimesh res_light_body44
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4663,7 +5198,7 @@ node trimesh res_light_base44
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5130,4 +5665,564 @@ node trimesh res_light_base44
   parent udp1_c02_05
 endnode
 doneanim animloop01 udp1_c02_05
+newanim day udp1_c02_05
+  length 0.03333
+  transtime 0.25
+  animroot udp1_c02_05
+  node dummy udp1_c02_05
+    parent NULL
+  endnode
+  node dummy udp1_c02_05a
+    parent udp1_c02_05
+  endnode
+  node dummy light_on07
+    parent udp1_c02_05a
+  endnode
+  node trimesh window562
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh window563
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day01_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh window564
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day02_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh window565
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh window566
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day04_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh window567
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh window568
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day06_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh res_light_lens_on40
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day07_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh res_light_lens_on41
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day08_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day udp1_c02_05
+newanim day2night udp1_c02_05
+  length 0.56667
+  transtime 0.25
+  animroot udp1_c02_05
+  node dummy udp1_c02_05
+    parent NULL
+  endnode
+  node dummy udp1_c02_05a
+    parent udp1_c02_05
+  endnode
+  node dummy light_on07
+    parent udp1_c02_05a
+  endnode
+  node trimesh window562
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh window563
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day01_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh window564
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day02_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh window565
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh window566
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day04_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh window567
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh window568
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day06_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh res_light_lens_on40
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day07_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh res_light_lens_on41
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day08_0
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night udp1_c02_05
+newanim night udp1_c02_05
+  length 0.03333
+  transtime 0.25
+  animroot udp1_c02_05
+  node dummy udp1_c02_05
+    parent NULL
+  endnode
+  node dummy udp1_c02_05a
+    parent udp1_c02_05
+  endnode
+  node dummy light_on07
+    parent udp1_c02_05a
+  endnode
+  node trimesh window562
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day00_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh window563
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day01_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh window564
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day02_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh window565
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh window566
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day04_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh window567
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh window568
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day06_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh res_light_lens_on40
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day07_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh res_light_lens_on41
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day08_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night udp1_c02_05
+newanim night2day udp1_c02_05
+  length 0.60000
+  transtime 0.25
+  animroot udp1_c02_05
+  node dummy udp1_c02_05
+    parent NULL
+  endnode
+  node dummy udp1_c02_05a
+    parent udp1_c02_05
+  endnode
+  node dummy light_on07
+    parent udp1_c02_05a
+  endnode
+  node trimesh window562
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh window563
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day01_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh window564
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day02_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh window565
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh window566
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day04_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh window567
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh window568
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day06_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh res_light_lens_on40
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day07_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh res_light_lens_on41
+    parent light_on07
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day08_0
+    parent light_on07
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day udp1_c02_05
 donemodel udp1_c02_05

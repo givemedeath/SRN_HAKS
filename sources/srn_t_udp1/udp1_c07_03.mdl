@@ -39,7 +39,7 @@ node trimesh grass
   shininess 10
   bitmap az2-grass
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -163,7 +163,7 @@ node trimesh swing_support01
   shininess 10
   bitmap udp1-mtl-ss-y
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -267,7 +267,7 @@ node trimesh swing_support02
   shininess 10
   bitmap udp1-mtl-ss-y
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -371,7 +371,7 @@ node trimesh gym_side
   shininess 10
   bitmap udp1-mtl-ss-y
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -415,7 +415,7 @@ node trimesh gym_bar
   shininess 10
   bitmap udp1-mtl-ss-y
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -535,7 +535,7 @@ node trimesh swing_support03
   shininess 10
   bitmap udp1-mtl-ss-y
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -639,7 +639,7 @@ node trimesh gym_side01
   shininess 10
   bitmap udp1-mtl-ss-y
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -683,7 +683,7 @@ node trimesh swing_support04
   shininess 10
   bitmap udp1-mtl-ss-y
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -787,7 +787,7 @@ node trimesh seat
   shininess 10
   bitmap udp1-mtl-grd-r
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -935,7 +935,7 @@ node trimesh chain
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -973,7 +973,7 @@ node trimesh chain01
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1011,7 +1011,7 @@ node trimesh chain02
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1049,7 +1049,7 @@ node trimesh joint
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1125,7 +1125,7 @@ node trimesh joint01
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1201,7 +1201,7 @@ node trimesh chain03
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1239,7 +1239,7 @@ node trimesh chain04
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1277,7 +1277,7 @@ node trimesh chain05
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1315,7 +1315,7 @@ node trimesh seat01
   shininess 10
   bitmap udp1-mtl-grd-r
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1463,7 +1463,7 @@ node trimesh chain06
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1501,7 +1501,7 @@ node trimesh chain07
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1539,7 +1539,7 @@ node trimesh chain08
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1577,7 +1577,7 @@ node trimesh joint02
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1653,7 +1653,7 @@ node trimesh joint03
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1729,7 +1729,7 @@ node trimesh chain09
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1767,7 +1767,7 @@ node trimesh chain10
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1805,7 +1805,7 @@ node trimesh chain11
   shininess 10
   bitmap udp1-h6-sdg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

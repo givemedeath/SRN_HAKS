@@ -23,7 +23,7 @@ node trimesh LIGHT_BASE47
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -91,7 +91,7 @@ node trimesh stripmall_column43
   shininess 10
   bitmap udp1-blck-gr2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -223,7 +223,7 @@ node trimesh stripmall_column44
   shininess 10
   bitmap udp1-blck-gr2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -355,7 +355,7 @@ node trimesh LIGHT_BASE48
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -685,7 +685,7 @@ node trimesh stripmall_winbase81
   shininess 10
   bitmap udp1-blck-bg2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -851,7 +851,7 @@ node trimesh stripmall_roofedge39
   shininess 10
   bitmap udp1-mtl-ss-dr
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -987,7 +987,7 @@ node trimesh roof_edge159
   shininess 10
   bitmap udp1-mtl-ss-dr
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1123,7 +1123,7 @@ node trimesh stripmall_winbase82
   shininess 10
   bitmap udp1-h6-ss
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1273,7 +1273,7 @@ node trimesh stripmall_signface39
   shininess 10
   bitmap udp1-mtl-ss-dr
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

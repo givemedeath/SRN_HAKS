@@ -1,0 +1,274 @@
+{
+ "tileset": "srx01",
+ "fill": 0,
+ "haks": [
+  "srn_t_srx01",
+  "srn_t_dgt04",
+  "srn_t_udp1",
+  "srn_t_fcx01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 24,
+  "height": 20,
+  "lights": [
+   "day",
+   "night"
+  ],
+  "patches": [
+   {
+    "terrain": "Grass",
+    "at": [
+     0,
+     0
+    ],
+    "size": [
+     25,
+     21
+    ],
+    "border": true
+   },
+   {
+    "terrain": "Forest",
+    "over": true,
+    "at": [
+     1,
+     15
+    ],
+    "size": [
+     4,
+     4
+    ]
+   },
+   {
+    "terrain": "Pond",
+    "over": true,
+    "at": [
+     7,
+     16
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Mall_Tan",
+    "over": true,
+    "at": [
+     1,
+     1
+    ],
+    "size": [
+     4,
+     3
+    ]
+   },
+   {
+    "terrain": "Strip_Mall",
+    "over": true,
+    "at": [
+     7,
+     1
+    ],
+    "size": [
+     4,
+     2
+    ]
+   },
+   {
+    "terrain": "Asphalt",
+    "over": true,
+    "at": [
+     1,
+     6
+    ],
+    "size": [
+     4,
+     3
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "Suburb_Road",
+    "cells": [
+     [
+      0,
+      10
+     ],
+     [
+      23,
+      10
+     ]
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "House 1, Grey 1x2",
+    "at": [
+     1,
+     11
+    ]
+   },
+   {
+    "name": "House 2, Yellow 1x2",
+    "at": [
+     4,
+     11
+    ]
+   },
+   {
+    "name": "House 3, Old",
+    "at": [
+     7,
+     11
+    ]
+   },
+   {
+    "name": "House 5, Grey Brick 1x2",
+    "at": [
+     10,
+     11
+    ]
+   },
+   {
+    "name": "Garage 1, Yellow",
+    "at": [
+     13,
+     11
+    ]
+   },
+   {
+    "name": "Pool, In Ground",
+    "at": [
+     13,
+     14
+    ]
+   },
+   {
+    "name": "Swing Set",
+    "at": [
+     16,
+     14
+    ]
+   },
+   {
+    "name": "Gas Station 1x4",
+    "at": [
+     13,
+     1
+    ]
+   },
+   {
+    "name": "Restaurant, Chicken King 3x3",
+    "at": [
+     13,
+     5
+    ]
+   },
+   {
+    "name": "Fire Station 2x4",
+    "at": [
+     18,
+     1
+    ]
+   },
+   {
+    "name": "School 1 4x4",
+    "at": [
+     18,
+     13
+    ]
+   },
+   {
+    "name": "Church 3x2",
+    "at": [
+     18,
+     6
+    ]
+   },
+   {
+    "name": "Water Tower Older",
+    "at": [
+     11,
+     16
+    ]
+   }
+  ],
+  "crossings": [
+   [
+    3,
+    5
+   ],
+   [
+    9,
+    4
+   ],
+   [
+    3,
+    8
+   ],
+   [
+    6,
+    13
+   ],
+   [
+    12,
+    13
+   ],
+   [
+    15,
+    4
+   ],
+   [
+    15,
+    8
+   ],
+   [
+    20,
+    5
+   ],
+   [
+    20,
+    9
+   ],
+   [
+    20,
+    12
+   ],
+   [
+    3,
+    14
+   ],
+   [
+    8,
+    15
+   ],
+   [
+    15,
+    13
+   ]
+  ],
+  "views": [
+   "x03y05-ne",
+   "x09y04-ne",
+   "x03y08-sw",
+   "x06y13-nw",
+   "x12y13-nw",
+   "x15y04-nw",
+   "x15y08-nw",
+   "x20y05-nw",
+   "x20y09-nw",
+   "x20y12-sw",
+   "x03y14-sw",
+   "x08y15-sw",
+   "x15y13-ne"
+  ]
+ },
+ "note": "Release B family block: malls, strip mall, parking, houses, civic buildings, forest and pond on one street."
+}

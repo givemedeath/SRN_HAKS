@@ -23,7 +23,7 @@ node trimesh roof_edge158
   shininess 10
   bitmap udp1-mtl-ss-dr
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -225,7 +225,7 @@ node trimesh minimall_lower_wall70
   shininess 10
   bitmap udp1-blck-bg2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -327,7 +327,7 @@ node trimesh upper_minimall_wall67
   shininess 10
   bitmap udp1-blck-bg
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -375,7 +375,7 @@ node trimesh floor43
   shininess 10
   bitmap udp1-pave-sgl
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

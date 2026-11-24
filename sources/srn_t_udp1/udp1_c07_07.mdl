@@ -39,7 +39,7 @@ node trimesh grass371
   shininess 10
   bitmap az2-grass
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -8834,7 +8834,7 @@ node trimesh anchor
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -8902,7 +8902,7 @@ node trimesh anchor01
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -8970,7 +8970,7 @@ node trimesh anchor02
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -9038,7 +9038,7 @@ node trimesh anchor03
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -9134,7 +9134,7 @@ node trimesh emerg_light02
   shininess 10
   bitmap udp1-msc-red
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -9246,7 +9246,7 @@ node trimesh emerg_light03
   selfillumcolor 1 1 1
   bitmap udp1-msc-red
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -11783,7 +11783,7 @@ node trimesh emerg_light_base01
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

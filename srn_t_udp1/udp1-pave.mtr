@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 udp1_pave
+texture1 udp1_pave_n
+texture2 udp1_pave_s
+texture3 udp1_pave_r
+texture4 null
+texture5 null

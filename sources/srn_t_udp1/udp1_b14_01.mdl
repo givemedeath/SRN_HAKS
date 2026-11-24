@@ -29,6 +29,7 @@ node light udp1_b14_01ml1
     fadingLight 1
 endnode
 node trimesh stripmall_roof
+  shadow 0
   parent udp1_b14_01
   position 0 0 5.83
   orientation 0 0 0 0

@@ -74,6 +74,7 @@ node light udp1_i01_17ml1
     fadingLight 1
 endnode
 node trimesh ground184
+  shadow 0
   parent udp1_i01_17
   position 0 0 0.0999989
   orientation 0 0 0 0

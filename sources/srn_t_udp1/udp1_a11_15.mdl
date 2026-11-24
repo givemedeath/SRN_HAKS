@@ -210,7 +210,7 @@ node trimesh curb287
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -383,7 +383,7 @@ node trimesh curb288
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -482,7 +482,7 @@ node trimesh curb289
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -581,7 +581,7 @@ node trimesh asphalt112
   shininess 10
   bitmap udp1-asph
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -647,7 +647,7 @@ node trimesh grass175
   shininess 10
   bitmap az2-grass
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

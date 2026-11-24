@@ -23,7 +23,7 @@ node trimesh floor43
   shininess 10
   bitmap az2_dirt01
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

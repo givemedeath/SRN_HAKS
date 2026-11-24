@@ -324,6 +324,25 @@ udp1's textures are in `srn_t_udp1`, `srn_t_common`, `srn_door` and `srn_placeab
   merged set could be named as taking the change along. `lamps` still needs the same.
 - All of this is in review overlays only (`output/tilekit/b-shadow-overlay`); nothing is applied to the packs yet.
 
+## Release B: pilot passed, adoption, scans tried (user, 2026-11-23)
+
+- **Pilot gate passed** with the windows, lawn and shadow fixes above. The two strip mall tiles are done too:
+  `daylight` takes lit meshes of one name in their order (113 models, 702 lit meshes, 462 day panes).
+- **Scans tried and set aside.** Five CC0 scans (Grass008, WoodSiding009, PaintedBricks004, RoofingTiles003 of
+  ambientCG; brown_planks_03 of Poly Haven) were fetched into the shared masters and lined up against the originals.
+  The user kept every original: "those original textures are all probably actually fine", and of the lawn "the old
+  grass looks better". So the suburb keeps its own pictures, graded, with relief and roughness maps; only road, walk,
+  red brick and grey metal come from scans, as in the pilot. The fetched scans stay in the masters, unused.
+- **Adoption.** `compile --adopt srn_t_udp1` refused 76 models: the suburb tiles were exported with node names of
+  several words (`bridge rail`, `bridge deck`) and with meshes of one name, which a model's reader takes as one name
+  and the compiler's check cannot pair. `tilekit unique --pack srn_t_udp1` gives each such node a name of its own in
+  the sources, keeping what every parent and animation meant (374 models, 3,706 nodes); then all 677 compiled and
+  `compile --check` is clean.
+- **Remaining textures.** The spec now lists 99 textures: the 80 added keep their own size (no enlargement: a plain
+  enlargement adds nothing) and take the pilot's routes and grades by family. Left as they are: the lit plane
+  (`udp1-lght-pln`), the dirt decal, water, the nets and three tiny flat colours. Review block for the family
+  sheets: `docs/tilesets/udp1/families.json`.
+
 ## City ground made concrete (user, 2026-11-23)
 
 Seen on the release B pilot: the Concrete terrain's ground was an asphalt scan (Road012A), as dark as the roads.

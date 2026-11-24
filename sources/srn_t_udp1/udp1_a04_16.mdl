@@ -23,7 +23,7 @@ node trimesh asphalt68
   shininess 10
   bitmap udp1-asph
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -232,7 +232,7 @@ node trimesh grass41
   shininess 10
   bitmap az2-grass
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -348,7 +348,7 @@ node trimesh asphalt69
   shininess 10
   bitmap udp1-asph
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -557,7 +557,7 @@ node trimesh sidewalk_section90
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -603,7 +603,7 @@ node trimesh sidewalk_section91
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -657,7 +657,7 @@ node trimesh sidewalk_section92
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -703,7 +703,7 @@ node trimesh sidewalk_section93
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -749,7 +749,7 @@ node trimesh sidewalk_section105
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -791,7 +791,7 @@ node trimesh pavement_filler
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -857,7 +857,7 @@ node trimesh pavement_filler01
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

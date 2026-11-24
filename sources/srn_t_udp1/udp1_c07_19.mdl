@@ -1037,7 +1037,7 @@ node trimesh home_base_2
   shininess 10
   bitmap udp1-pnt-wh4
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1119,7 +1119,7 @@ node trimesh BASE
   shininess 10
   bitmap udp1-pnt-wh4
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1187,7 +1187,7 @@ node trimesh BASE01
   shininess 10
   bitmap udp1-pnt-wh4
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1255,7 +1255,7 @@ node trimesh BASE02_2
   shininess 10
   bitmap udp1-pnt-wh4
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2203,7 +2203,7 @@ node trimesh pitchers_plate
   shininess 10
   bitmap udp1-pnt-wh4
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3453,7 +3453,7 @@ node trimesh grass
   shininess 10
   bitmap az2-grass
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6737,7 +6737,7 @@ node trimesh backstop01
   shininess 10
   bitmap udp1-net-chr
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 1
   tilefade 0
@@ -7313,7 +7313,7 @@ node trimesh diamond_side_fence03
   shininess 10
   bitmap udp1-net-chr
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 1
   tilefade 0
@@ -7461,7 +7461,7 @@ node trimesh diamond_side_fence02
   shininess 10
   bitmap udp1-net-chr
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 1
   tilefade 0

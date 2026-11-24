@@ -253,6 +253,7 @@ node aabb walkm13
      2.50 2.75 0.00   5.00 6.25 0.00   23
 endnode
 node trimesh roof21
+  shadow 0
   parent udp1_b01_13
   position 0 -1.25001 9.43
   orientation 0 0 0 0

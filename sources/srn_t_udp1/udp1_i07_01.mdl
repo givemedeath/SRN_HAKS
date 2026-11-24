@@ -131,6 +131,7 @@ node aabb walkm
      0.93 1.67 3.00   5.00 5.00 3.00   0
 endnode
 node trimesh treetrunk167
+  shadow 0
   parent udp1_i07_01
   position -3.50786 -3.27411 2.1
   orientation 0 0 -1 -3.75246
@@ -237,6 +238,7 @@ node light udp1_i07_01ml1
     fadingLight 1
 endnode
 node trimesh treetrunk165
+  shadow 0
   parent udp1_i07_01
   position 2.80568 3.2343 2.1
   orientation 0 0 -1 -0.436332
@@ -327,6 +329,7 @@ node trimesh treetrunk165
     0.66926 1 0.596502
 endnode
 node trimesh treetrunk164
+  shadow 0
   parent udp1_i07_01
   position 0.595073 -3.29618 2.1
   orientation 0 0 1 -1.13446
@@ -935,6 +938,7 @@ node trimesh treesingle206
     0.199191 0.938103 0.135795
 endnode
 node trimesh treetrunk166
+  shadow 0
   parent udp1_i07_01
   position 3.93208 -1.70259 2.1
   orientation 0 0 1 -1.13446
@@ -1079,6 +1083,7 @@ node trimesh rock09
     0.629684 0.81954 0.999501
 endnode
 node trimesh ground135
+  shadow 0
   parent udp1_i07_01
   position 0 0 0.1
   orientation 0 0 0 0
@@ -1693,6 +1698,7 @@ node trimesh treesingle207
     0.199191 0.938103 0.135795
 endnode
 node trimesh treetrunk559
+  shadow 0
   parent udp1_i07_01
   position 2.76843 -3.03122 2.1
   orientation 0 0 1 -1.13446
@@ -1783,6 +1789,7 @@ node trimesh treetrunk559
     0.71463 1 0.904387
 endnode
 node trimesh treetrunk560
+  shadow 0
   parent udp1_i07_01
   position 3.58408 4.05546 2.1
   orientation 0 0 -1 -0.436332
@@ -1873,6 +1880,7 @@ node trimesh treetrunk560
     0.66926 1 0.596502
 endnode
 node trimesh treetrunk561
+  shadow 0
   parent udp1_i07_01
   position 4.77236 -3.46587 2.1
   orientation 0 0 1 -1.13446
@@ -1963,6 +1971,7 @@ node trimesh treetrunk561
     0.71463 1 0.904387
 endnode
 node trimesh treetrunk562
+  shadow 0
   parent udp1_i07_01
   position -2.4051 -2.24982 2.1
   orientation 0 0 -1 -3.75246

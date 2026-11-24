@@ -256,7 +256,7 @@ node trimesh roundgrill_edge17
   shininess 10
   bitmap gg2-wd-pl
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -390,7 +390,7 @@ node trimesh roundgrill_interior17
   shininess 10
   bitmap gg2-wd-sd
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -430,7 +430,7 @@ node trimesh curb463
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -603,7 +603,7 @@ node trimesh curb464
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -823,7 +823,7 @@ node trimesh curb465
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

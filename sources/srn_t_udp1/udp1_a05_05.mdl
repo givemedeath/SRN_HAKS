@@ -23,7 +23,7 @@ node trimesh sidewalk_section118
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -79,7 +79,7 @@ node trimesh sidewalk_section116
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -135,7 +135,7 @@ node trimesh single_tile07
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -187,7 +187,7 @@ node trimesh sidewalk_section117
   shininess 10
   bitmap udp1-pave-wlk
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -243,7 +243,7 @@ node trimesh grass64
   shininess 10
   bitmap az2-grass
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

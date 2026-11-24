@@ -23,7 +23,7 @@ node trimesh curb169
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -133,7 +133,7 @@ node trimesh curb172
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -243,7 +243,7 @@ node trimesh curb203
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -379,7 +379,7 @@ node trimesh curb204
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -552,7 +552,7 @@ node trimesh curb205
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -704,7 +704,7 @@ node trimesh parking09
   shininess 10
   bitmap udp1-asph-pkg2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -788,7 +788,7 @@ node trimesh HC_Sign05
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -818,7 +818,7 @@ node trimesh grass99
   shininess 10
   bitmap az2-grass
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -866,7 +866,7 @@ node trimesh sign_bar16
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -934,7 +934,7 @@ node trimesh HC_Sign02
   shininess 10
   bitmap udp1-allsigns
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -964,7 +964,7 @@ node trimesh HC_Sign03
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -994,7 +994,7 @@ node trimesh sign_bar17
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1062,7 +1062,7 @@ node trimesh HC_Sign04
   shininess 10
   bitmap udp1-allsigns
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

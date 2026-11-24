@@ -814,6 +814,7 @@ node trimesh trim01
     0.575 0.495 0.629904
 endnode
 node trimesh asph04
+  shadow 0
   parent udp1_a06_12
   position 0 0 0
   orientation 0 0 0 0

@@ -313,6 +313,7 @@ node trimesh doorinside59
     6.38658 2.54274 0.5
 endnode
 node trimesh trim33
+  shadow 0
   parent udp1_b07_29
   position 18.4694 -31.8789 7.98573
   orientation 0 0 0 0
@@ -359,6 +360,7 @@ node trimesh trim33
     2.6 0.666259 2.9
 endnode
 node trimesh trim34
+  shadow 0
   parent udp1_b07_29
   position 41.8694 -31.8789 7.98573
   orientation 0 0 0 0
@@ -479,6 +481,7 @@ node trimesh trim35
     2.9 0.666259 -1.6
 endnode
 node trimesh window72
+  shadow 0
   parent udp1_b07_29
   position 40.034 -7.76072 2.02999
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -519,6 +522,7 @@ node trimesh window72
     0.999501 0.9995 0.999501
 endnode
 node trimesh window73
+  shadow 0
   parent udp1_b07_29
   position -3.0951 -19.6478 2.02999
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -559,6 +563,7 @@ node trimesh window73
     0.999501 0.9995 0.999501
 endnode
 node trimesh window74
+  shadow 0
   parent udp1_b07_29
   position -3.09511 -24.6478 2.02999
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -599,6 +604,7 @@ node trimesh window74
     0.999501 0.9995 0.999501
 endnode
 node trimesh window75
+  shadow 0
   parent udp1_b07_29
   position 37.2962 -3.55021 2.02999
   orientation 1 0 0 -1.5708
@@ -639,6 +645,7 @@ node trimesh window75
     0.999501 0.9995 0.999501
 endnode
 node trimesh window76
+  shadow 0
   parent udp1_b07_29
   position 35.5462 -3.55021 2.02999
   orientation 1 0 0 -1.5708
@@ -679,6 +686,7 @@ node trimesh window76
     0.999501 0.9995 0.999501
 endnode
 node trimesh window77
+  shadow 0
   parent udp1_b07_29
   position -3.0951 -9.64778 2.02999
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -719,6 +727,7 @@ node trimesh window77
     0.999501 0.9995 0.999501
 endnode
 node trimesh window78
+  shadow 0
   parent udp1_b07_29
   position 40.034 -12.7607 2.02999
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -759,6 +768,7 @@ node trimesh window78
     0.999501 0.9995 0.999501
 endnode
 node trimesh canopy_column08
+  shadow 0
   parent udp1_b07_29
   position 33.9824 -1.86111 0.129995
   orientation 0 0 0 0
@@ -849,6 +859,7 @@ node trimesh canopy_column08
     0.0934721 -0.582783 -0.330195
 endnode
 node trimesh window79
+  shadow 0
   parent udp1_b07_29
   position -3.0951 -4.64779 2.02999
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -889,6 +900,7 @@ node trimesh window79
     0.999501 0.9995 0.999501
 endnode
 node trimesh window80
+  shadow 0
   parent udp1_b07_29
   position 24.7739 -3.55021 2.02999
   orientation 1 0 0 -1.5708
@@ -929,6 +941,7 @@ node trimesh window80
     0.999501 0.9995 0.999501
 endnode
 node trimesh canopy_column09
+  shadow 0
   parent udp1_b07_29
   position 26.2805 -1.86111 0.129995
   orientation 0 0 0 0
@@ -1019,6 +1032,7 @@ node trimesh canopy_column09
     0.0934724 -0.582783 1.1102
 endnode
 node trimesh window81
+  shadow 0
   parent udp1_b07_29
   position 23.0239 -3.55021 2.02999
   orientation 1 0 0 -1.5708
@@ -1125,6 +1139,7 @@ node trimesh school_middle02
     -1.22229 2.00638 -2.4613
 endnode
 node trimesh window82
+  shadow 0
   parent udp1_b07_29
   position -3.0951 0.352213 2.02999
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -1165,6 +1180,7 @@ node trimesh window82
     0.999501 0.9995 0.999501
 endnode
 node trimesh trim36
+  shadow 0
   parent udp1_b07_29
   position 7.53716 -37.0279 8.26703
   orientation 0 0 0 0
@@ -1239,6 +1255,7 @@ node trimesh trim36
     0.0835811 0.999501 4.53603
 endnode
 node trimesh window83
+  shadow 0
   parent udp1_b07_29
   position -3.09511 -29.6478 2.02999
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -1279,6 +1296,7 @@ node trimesh window83
     0.999501 0.9995 0.999501
 endnode
 node trimesh window84
+  shadow 0
   parent udp1_b07_29
   position -3.09511 -34.6478 2.02999
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -1319,6 +1337,7 @@ node trimesh window84
     0.999501 0.9995 0.999501
 endnode
 node trimesh entryroof02
+  shadow 0
   parent udp1_b07_29
   position 30.1694 -4.55021 3.13
   orientation 0 0 0 0
@@ -1439,6 +1458,7 @@ node trimesh doortrim13
     1.37789 2.82849 0.733459
 endnode
 node trimesh doortrim14
+  shadow 0
   parent udp1_b07_29
   position -2.9951 -14.643 1.63
   orientation 0 0 0 0
@@ -1485,6 +1505,7 @@ node trimesh doortrim14
     -0.782112 -1.86849 0.73346
 endnode
 node trimesh window85
+  shadow 0
   parent udp1_b07_29
   position 40.034 -17.7607 2.02999
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -1829,6 +1850,7 @@ node trimesh roof18
     2.78 2.48 0.370703
 endnode
 node trimesh window86
+  shadow 0
   parent udp1_b07_29
   position 11.4049 -37.3279 2.02999
   orientation 0 0.707107 -0.707107 -3.14159
@@ -1869,6 +1891,7 @@ node trimesh window86
     0.999501 0.9995 0.999501
 endnode
 node trimesh window87
+  shadow 0
   parent udp1_b07_29
   position 16.4049 -37.3279 2.02999
   orientation 0 0.707107 -0.707107 -3.14159
@@ -1909,6 +1932,7 @@ node trimesh window87
     0.999501 0.9995 0.999501
 endnode
 node trimesh trim38
+  shadow 0
   parent udp1_b07_29
   position 30.1694 -3.85021 8.26703
   orientation 0 0 0 0
@@ -1999,6 +2023,7 @@ node trimesh entry_side04
     -2.0613 0.608977 -2.24
 endnode
 node trimesh roof19
+  shadow 0
   parent udp1_b07_29
   position 30.1694 -14.8328 5.01703
   orientation 0 0 0 0
@@ -2031,6 +2056,7 @@ node trimesh roof19
     0.623922 -0.390173 0.39
 endnode
 node trimesh trim39
+  shadow 0
   parent udp1_b07_29
   position 39.734 -8.60107 8.26703
   orientation 0 0 0 0
@@ -2103,6 +2129,7 @@ node trimesh entry_side05
     3.0613 1.20898 -1.44
 endnode
 node trimesh window88
+  shadow 0
   parent udp1_b07_29
   position 1.40489 -37.3279 2.02999
   orientation 0 0.707107 -0.707107 -3.14159
@@ -2143,6 +2170,7 @@ node trimesh window88
     0.999501 0.9995 0.999501
 endnode
 node trimesh window89
+  shadow 0
   parent udp1_b07_29
   position 6.40489 -37.3279 2.02999
   orientation 0 0.707107 -0.707107 -3.14159
@@ -2183,6 +2211,7 @@ node trimesh window89
     0.999501 0.9995 0.999501
 endnode
 node trimesh roof20
+  shadow 0
   parent udp1_b07_29
   position 8.90489 -17.1478 4.11703
   orientation 0 0 0 0
@@ -2565,6 +2594,7 @@ node trimesh classroom03
     4.77782 0.768976 0.0129052
 endnode
 node trimesh window90
+  shadow 0
   parent udp1_b07_29
   position 16.4049 3.03237 2.02999
   orientation 1 0 0 -1.5708
@@ -2605,6 +2635,7 @@ node trimesh window90
     0.999501 0.9995 0.999501
 endnode
 node trimesh window91
+  shadow 0
   parent udp1_b07_29
   position 6.4049 3.03237 2.02999
   orientation 1 0 0 -1.5708
@@ -2645,6 +2676,7 @@ node trimesh window91
     0.999501 0.9995 0.999501
 endnode
 node trimesh window92
+  shadow 0
   parent udp1_b07_29
   position 1.4049 3.03237 2.02999
   orientation 1 0 0 -1.5708
@@ -2685,6 +2717,7 @@ node trimesh window92
     0.999501 0.9995 0.999501
 endnode
 node trimesh window93
+  shadow 0
   parent udp1_b07_29
   position 11.4049 3.03237 2.02999
   orientation 1 0 0 -1.5708
@@ -2901,6 +2934,7 @@ node aabb walkm162
      2.50 3.03 0.00   5.00 5.00 0.00   0
 endnode
 node trimesh trim41
+  shadow 0
   parent udp1_b07_29
   position -2.7951 -17.1478 8.26703
   orientation 0 0 0 0
@@ -3031,6 +3065,7 @@ node trimesh trim41
     4.53603 0.999501 2.9
 endnode
 node trimesh trim42
+  shadow 0
   parent udp1_b07_29
   position 8.9049 2.73237 8.26703
   orientation 0 0 0 0
@@ -3105,6 +3140,7 @@ node trimesh trim42
     2.9 0.999501 -3.53603
 endnode
 node trimesh trim43
+  shadow 0
   parent udp1_b07_29
   position 20.6049 -0.558931 8.26703
   orientation 0 0 0 0
@@ -3151,6 +3187,7 @@ node trimesh trim43
     4.53603 0.999501 -1.9
 endnode
 node trimesh canopy_column10
+  shadow 0
   parent udp1_b07_29
   position 26.2805 3.80705 0.129995
   orientation 0 0 0 0
@@ -3241,6 +3278,7 @@ node trimesh canopy_column10
     1.1271 -0.582783 1.1102
 endnode
 node trimesh canopy_column11
+  shadow 0
   parent udp1_b07_29
   position 33.9824 3.80705 0.129995
   orientation 0 0 0 0
@@ -3331,6 +3369,7 @@ node trimesh canopy_column11
     1.1271 -0.582783 -0.330195
 endnode
 node trimesh paving06
+  shadow 0
   parent udp1_b07_29
   position 30.0001 -20 0.0999953
   orientation 0 0 0 0
@@ -4425,6 +4464,7 @@ node trimesh doortrim18
     1.37789 2.82849 0.733459
 endnode
 node trimesh window94
+  shadow 0
   parent udp1_b07_29
   position 16.4049 3.03237 5.88013
   orientation 1 0 0 -1.5708
@@ -4465,6 +4505,7 @@ node trimesh window94
     0.999501 0.9995 0.999501
 endnode
 node trimesh window95
+  shadow 0
   parent udp1_b07_29
   position 6.4049 3.03237 5.88013
   orientation 1 0 0 -1.5708
@@ -4505,6 +4546,7 @@ node trimesh window95
     0.999501 0.9995 0.999501
 endnode
 node trimesh window96
+  shadow 0
   parent udp1_b07_29
   position 1.4049 3.03237 5.88013
   orientation 1 0 0 -1.5708
@@ -4545,6 +4587,7 @@ node trimesh window96
     0.999501 0.9995 0.999501
 endnode
 node trimesh window97
+  shadow 0
   parent udp1_b07_29
   position 11.4049 3.03237 5.88013
   orientation 1 0 0 -1.5708
@@ -4585,6 +4628,7 @@ node trimesh window97
     0.999501 0.9995 0.999501
 endnode
 node trimesh window98
+  shadow 0
   parent udp1_b07_29
   position -3.0951 -19.6478 5.88013
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -4625,6 +4669,7 @@ node trimesh window98
     0.999501 0.9995 0.999501
 endnode
 node trimesh window99
+  shadow 0
   parent udp1_b07_29
   position -3.09511 -24.6478 5.88013
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -4665,6 +4710,7 @@ node trimesh window99
     0.999501 0.9995 0.999501
 endnode
 node trimesh window100
+  shadow 0
   parent udp1_b07_29
   position -3.0951 -9.64778 5.88013
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -4705,6 +4751,7 @@ node trimesh window100
     0.999501 0.9995 0.999501
 endnode
 node trimesh window101
+  shadow 0
   parent udp1_b07_29
   position -3.0951 -4.64779 5.88013
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -4745,6 +4792,7 @@ node trimesh window101
     0.999501 0.9995 0.999501
 endnode
 node trimesh window102
+  shadow 0
   parent udp1_b07_29
   position -3.0951 0.352213 5.88013
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -4785,6 +4833,7 @@ node trimesh window102
     0.999501 0.9995 0.999501
 endnode
 node trimesh window103
+  shadow 0
   parent udp1_b07_29
   position -3.09511 -29.6478 5.88013
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -4825,6 +4874,7 @@ node trimesh window103
     0.999501 0.9995 0.999501
 endnode
 node trimesh window104
+  shadow 0
   parent udp1_b07_29
   position -3.09511 -34.6478 5.88013
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -4865,6 +4915,7 @@ node trimesh window104
     0.999501 0.9995 0.999501
 endnode
 node trimesh window105
+  shadow 0
   parent udp1_b07_29
   position 1.40489 -37.3279 5.88013
   orientation 0 0.707107 -0.707107 -3.14159
@@ -4905,6 +4956,7 @@ node trimesh window105
     0.999501 0.9995 0.999501
 endnode
 node trimesh window106
+  shadow 0
   parent udp1_b07_29
   position 6.40489 -37.3279 5.88013
   orientation 0 0.707107 -0.707107 -3.14159
@@ -4945,6 +4997,7 @@ node trimesh window106
     0.999501 0.9995 0.999501
 endnode
 node trimesh window107
+  shadow 0
   parent udp1_b07_29
   position 11.4049 -37.3279 5.88013
   orientation 0 0.707107 -0.707107 -3.14159
@@ -4985,6 +5038,7 @@ node trimesh window107
     0.999501 0.9995 0.999501
 endnode
 node trimesh window108
+  shadow 0
   parent udp1_b07_29
   position 16.4049 -37.3279 5.88013
   orientation 0 0.707107 -0.707107 -3.14159
@@ -5025,6 +5079,7 @@ node trimesh window108
     0.999501 0.9995 0.999501
 endnode
 node trimesh window109
+  shadow 0
   parent udp1_b07_29
   position 40.034 -17.7607 5.88013
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -5065,6 +5120,7 @@ node trimesh window109
     0.999501 0.9995 0.999501
 endnode
 node trimesh window110
+  shadow 0
   parent udp1_b07_29
   position 40.034 -12.7607 5.88013
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -5105,6 +5161,7 @@ node trimesh window110
     0.999501 0.9995 0.999501
 endnode
 node trimesh window111
+  shadow 0
   parent udp1_b07_29
   position 40.034 -7.76072 5.88013
   orientation -0.57735 0.57735 -0.57735 -4.18879
@@ -5145,6 +5202,7 @@ node trimesh window111
     0.999501 0.9995 0.999501
 endnode
 node trimesh window112
+  shadow 0
   parent udp1_b07_29
   position 37.2962 -3.55021 5.88013
   orientation 1 0 0 -1.5708
@@ -5185,6 +5243,7 @@ node trimesh window112
     0.999501 0.9995 0.999501
 endnode
 node trimesh window113
+  shadow 0
   parent udp1_b07_29
   position 35.5462 -3.55021 5.88013
   orientation 1 0 0 -1.5708
@@ -5225,6 +5284,7 @@ node trimesh window113
     0.999501 0.9995 0.999501
 endnode
 node trimesh window114
+  shadow 0
   parent udp1_b07_29
   position 24.7739 -3.55021 5.88013
   orientation 1 0 0 -1.5708
@@ -5265,6 +5325,7 @@ node trimesh window114
     0.999501 0.9995 0.999501
 endnode
 node trimesh window115
+  shadow 0
   parent udp1_b07_29
   position 23.0239 -3.55021 5.88013
   orientation 1 0 0 -1.5708
@@ -5940,6 +6001,7 @@ node trimesh school_middle01
     3.4613 1.20898 -3.81291
 endnode
 node trimesh window116
+  shadow 0
   parent udp1_b07_29
   position -3.0951 -14.643 5.88013
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -6374,6 +6436,7 @@ node trimesh roof_upper01
     -6.12077 0.28406 0.989151
 endnode
 node trimesh window117
+  shadow 0
   parent udp1_b07_29
   position 29.2944 -3.55021 5.88013
   orientation 1 0 0 -1.5708
@@ -6414,6 +6477,7 @@ node trimesh window117
     0.999501 0.9995 0.999501
 endnode
 node trimesh window118
+  shadow 0
   parent udp1_b07_29
   position 31.0444 -3.55021 5.88013
   orientation 1 0 0 -1.5708
@@ -6454,6 +6518,7 @@ node trimesh window118
     0.999501 0.9995 0.999501
 endnode
 node trimesh vent05
+  shadow 0
   parent udp1_b07_29
   position 5.94599 -27.8747 8.19069
   orientation 0 0 0 0
@@ -6524,6 +6589,7 @@ node trimesh vent05
     0.66857 0.666306 0.333693
 endnode
 node trimesh AC_Unit05
+  shadow 0
   parent udp1_b07_29
   position 3.98232 -27.8544 7.89668
   orientation 0 0 0 0
@@ -6586,6 +6652,7 @@ node trimesh AC_Unit05
     0.939269 0.89281 0.5
 endnode
 node trimesh base07
+  shadow 0
   parent udp1_b07_29
   position 3.97876 -27.8747 7.71703
   orientation 0 0 0 0
@@ -6640,6 +6707,7 @@ node trimesh base07
     0.691212 0.53048 0.0595312
 endnode
 node trimesh vent06
+  shadow 0
   parent udp1_b07_29
   position 25.3657 -10.3373 8.19069
   orientation 0 0 -1 -1.5708
@@ -6710,6 +6778,7 @@ node trimesh vent06
     0.66857 0.666306 0.333693
 endnode
 node trimesh AC_Unit06
+  shadow 0
   parent udp1_b07_29
   position 25.3454 -12.3009 7.89668
   orientation 0 0 -1 -1.5708
@@ -6772,6 +6841,7 @@ node trimesh AC_Unit06
     0.939269 0.89281 0.5
 endnode
 node trimesh base08
+  shadow 0
   parent udp1_b07_29
   position 25.3657 -12.3045 7.71703
   orientation 0 0 -1 -1.5708
@@ -30785,6 +30855,7 @@ node light misclight208
     fadingLight 0
 endnode
 node trimesh light_base80
+  shadow 0
   parent udp1_b07_29
   position 42.343 -26.0007 6.07884
   orientation 0 0 1 -1.5708
@@ -30839,6 +30910,7 @@ node trimesh light_base80
     0.9995 0.999501 0.000499517
 endnode
 node trimesh lightbody24
+  shadow 0
   parent udp1_b07_29
   position 42.6827 -26.0007 6.04387
   orientation -0.357407 0.357407 0.862856 -1.71777
@@ -31130,6 +31202,7 @@ node trimesh light_base81
     0.5 0.55 0.621231
 endnode
 node trimesh light_base82
+  shadow 0
   parent udp1_b07_29
   position 42.343 -38.0903 6.07884
   orientation 0 0 1 -1.5708
@@ -31184,6 +31257,7 @@ node trimesh light_base82
     0.9995 0.999501 0.000499517
 endnode
 node trimesh lightbody25
+  shadow 0
   parent udp1_b07_29
   position 42.6827 -38.0903 6.04387
   orientation -0.357407 0.357407 0.862856 -1.71777
@@ -31328,6 +31402,7 @@ node trimesh lightbody25
     0.0868522 0.5 0.08781
 endnode
 node trimesh light_base83
+  shadow 0
   parent udp1_b07_29
   position 39.1111 -42.5525 6.07884
   orientation 0 0 -1 -3.14159
@@ -31382,6 +31457,7 @@ node trimesh light_base83
     0.9995 0.999501 0.000499517
 endnode
 node trimesh lightbody26
+  shadow 0
   parent udp1_b07_29
   position 39.1111 -42.8922 6.04387
   orientation 0 -0.382683 -0.92388 -3.14159
@@ -31526,6 +31602,7 @@ node trimesh lightbody26
     0.0868522 0.5 0.08781
 endnode
 node trimesh light_base84
+  shadow 0
   parent udp1_b07_29
   position 21.1557 -42.5525 6.07884
   orientation 0 0 -1 -3.14159
@@ -31580,6 +31657,7 @@ node trimesh light_base84
     0.9995 0.999501 0.000499517
 endnode
 node trimesh lightbody27
+  shadow 0
   parent udp1_b07_29
   position 21.1557 -42.8922 6.04387
   orientation 0 -0.382683 -0.92388 -3.14159
@@ -37542,4 +37620,104 @@ node trimesh light_base116
   parent udp1_b07_29
 endnode
 doneanim animloop01 udp1_b07_29
+newanim day udp1_b07_29
+  length 0.03333
+  transtime 0.25
+  animroot udp1_b07_29
+  node dummy udp1_b07_29
+    parent NULL
+  endnode
+  node dummy udp1_b07_29a
+    parent udp1_b07_29
+  endnode
+  node trimesh lightlens53
+    parent udp1_b07_29a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh mall-light-on81
+    parent udp1_b07_29a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim day udp1_b07_29
+newanim day2night udp1_b07_29
+  length 0.56667
+  transtime 0.25
+  animroot udp1_b07_29
+  node dummy udp1_b07_29
+    parent NULL
+  endnode
+  node dummy udp1_b07_29a
+    parent udp1_b07_29
+  endnode
+  node trimesh lightlens53
+    parent udp1_b07_29a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh mall-light-on81
+    parent udp1_b07_29a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+doneanim day2night udp1_b07_29
+newanim night udp1_b07_29
+  length 0.03333
+  transtime 0.25
+  animroot udp1_b07_29
+  node dummy udp1_b07_29
+    parent NULL
+  endnode
+  node dummy udp1_b07_29a
+    parent udp1_b07_29
+  endnode
+  node trimesh lightlens53
+    parent udp1_b07_29a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh mall-light-on81
+    parent udp1_b07_29a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim night udp1_b07_29
+newanim night2day udp1_b07_29
+  length 0.60000
+  transtime 0.25
+  animroot udp1_b07_29
+  node dummy udp1_b07_29
+    parent NULL
+  endnode
+  node dummy udp1_b07_29a
+    parent udp1_b07_29
+  endnode
+  node trimesh lightlens53
+    parent udp1_b07_29a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh mall-light-on81
+    parent udp1_b07_29a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+doneanim night2day udp1_b07_29
 donemodel udp1_b07_29

@@ -39,7 +39,7 @@ node trimesh ASPHALT06
   shininess 10
   bitmap udp1-asph
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -87,7 +87,7 @@ node trimesh stop_sign_rear02
   shininess 10
   bitmap udp1-allsigns
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -133,7 +133,7 @@ node trimesh sign_bar02
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -201,7 +201,7 @@ node trimesh stop_sign_front02
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -247,7 +247,7 @@ node trimesh sign_bar03
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -315,7 +315,7 @@ node trimesh stop_sign_front03
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -361,7 +361,7 @@ node trimesh stop_sign_rear03
   shininess 10
   bitmap udp1-allsigns
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -407,7 +407,7 @@ node trimesh stop_sign_rear01
   shininess 10
   bitmap udp1-allsigns
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -453,7 +453,7 @@ node trimesh sign_bar01
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -521,7 +521,7 @@ node trimesh stop_sign_front01
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

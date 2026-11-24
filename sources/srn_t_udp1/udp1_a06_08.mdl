@@ -113,7 +113,7 @@ node trimesh ASPHALT23
   shininess 10
   bitmap udp1-asph
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -189,7 +189,7 @@ node trimesh stop_sign_front11
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -271,7 +271,7 @@ node trimesh stop_sign_rear11
   shininess 10
   bitmap udp1-allsigns
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -317,7 +317,7 @@ node trimesh sign_bar11
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

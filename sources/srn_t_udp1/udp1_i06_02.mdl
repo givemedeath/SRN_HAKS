@@ -103,6 +103,7 @@ node aabb walkm302
      4.36 1.69 3.00   5.00 5.00 3.00   13
 endnode
 node trimesh treetrunk150
+  shadow 0
   parent udp1_i06_02
   position 3.14852 -3.57043 2.1
   orientation 0 0 0 0
@@ -209,6 +210,7 @@ node light udp1_i06_02ml1
     fadingLight 1
 endnode
 node trimesh ground129
+  shadow 0
   parent udp1_i06_02
   position 0 0 0.0999989
   orientation 0 0 0 0
@@ -564,6 +566,7 @@ node trimesh treesingle183
     0.199191 0.938103 0.135795
 endnode
 node trimesh treetrunk146
+  shadow 0
   parent udp1_i06_02
   position 3.25955 3.89867 2.1
   orientation 0 0 -1 -0.436332
@@ -654,6 +657,7 @@ node trimesh treetrunk146
     0.66926 1 0.596502
 endnode
 node trimesh treetrunk145
+  shadow 0
   parent udp1_i06_02
   position -3.60332 3.45838 2.1
   orientation 0 0 -1 -0.436332
@@ -744,6 +748,7 @@ node trimesh treetrunk145
     0.66926 1 0.596502
 endnode
 node trimesh treetrunk148
+  shadow 0
   parent udp1_i06_02
   position -3.69374 -3.50938 2.1
   orientation 0 0 -1 -3.75246
@@ -834,6 +839,7 @@ node trimesh treetrunk148
     1.5509 1 0.605883
 endnode
 node trimesh treetrunk144
+  shadow 0
   parent udp1_i06_02
   position -3.11657 -0.193693 2.1
   orientation 0 0 1 -1.13446
@@ -1960,6 +1966,7 @@ node trimesh treesingle189
     0.199191 0.938103 0.135795
 endnode
 node trimesh treetrunk545
+  shadow 0
   parent udp1_i06_02
   position 4.22675 2.38232 2.1
   orientation 0 0 1 -1.13446
@@ -2050,6 +2057,7 @@ node trimesh treetrunk545
     0.71463 1 0.904387
 endnode
 node trimesh treetrunk546
+  shadow 0
   parent udp1_i06_02
   position -3.90526 2.1358 2.1
   orientation 0 0 -1 -0.436332
@@ -2140,6 +2148,7 @@ node trimesh treetrunk546
     0.66926 1 0.596502
 endnode
 node trimesh treetrunk547
+  shadow 0
   parent udp1_i06_02
   position -2.60467 -2.39387 2.1
   orientation 0 0 -1 -0.436332
@@ -2230,6 +2239,7 @@ node trimesh treetrunk547
     0.66926 1 0.596502
 endnode
 node trimesh treetrunk548
+  shadow 0
   parent udp1_i06_02
   position 4.09134 -2.47936 2.1
   orientation 0 0 -1 -3.75246

@@ -173,6 +173,7 @@ node light udp1_i10_01ml1
     fadingLight 1
 endnode
 node trimesh ground132
+  shadow 0
   parent udp1_i10_01
   position 0 0 0.0999989
   orientation 0 0 0 0
@@ -269,6 +270,7 @@ node trimesh ground132
     0.999501 0.9995 0.5
 endnode
 node trimesh treetrunk245
+  shadow 0
   parent udp1_i10_01
   position 3.17397 3.76828 2.1
   orientation 0 0 -1 -2.00713
@@ -359,6 +361,7 @@ node trimesh treetrunk245
     0.472043 1 -0.226018
 endnode
 node trimesh treetrunk250
+  shadow 0
   parent udp1_i10_01
   position 4.27022 -4.18651 2.1
   orientation 0 0 1 -1.13446
@@ -967,6 +970,7 @@ node trimesh treesingle278
     0.199191 0.938103 0.135795
 endnode
 node trimesh treetrunk605
+  shadow 0
   parent udp1_i10_01
   position 4.26407 2.85303 2.1
   orientation 0 0 -1 -2.00713
@@ -1057,6 +1061,7 @@ node trimesh treetrunk605
     0.472043 1 -0.226018
 endnode
 node trimesh treetrunk606
+  shadow 0
   parent udp1_i10_01
   position 2.68487 -4.35809 2.1
   orientation 0 0 1 -1.13446

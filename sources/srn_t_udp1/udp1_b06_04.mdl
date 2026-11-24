@@ -377,6 +377,7 @@ node trimesh canopy25
     -2.5 0.500001 0.6
 endnode
 node trimesh asphalt241
+  shadow 0
   parent udp1_b06_04
   position 0 0 0
   orientation 0 0 0 0
@@ -447,6 +448,7 @@ node trimesh asphalt241
     0.845 1 0.5
 endnode
 node trimesh paving40
+  shadow 0
   parent udp1_b06_04
   position 0 0 0.129999
   orientation 0 0 -1 -3.14159
@@ -518,6 +520,7 @@ node trimesh paving40
     0.00121787 0 0.599912
 endnode
 node trimesh curb442
+  shadow 0
   parent udp1_b06_04
   position -3.68497 -1.95995 0
   orientation 0 0 1 -1.5708
@@ -648,6 +651,7 @@ node trimesh curb442
     1 0.5215 0.5075
 endnode
 node trimesh asphalt242
+  shadow 0
   parent udp1_b06_04
   position 0 0 0
   orientation 0 0 0 0
@@ -718,6 +722,7 @@ node trimesh asphalt242
     0.845 1 0.5
 endnode
 node trimesh curb443
+  shadow 0
   parent udp1_b06_04
   position 3.68503 1.96005 0
   orientation 0 0 -1 -1.5708
@@ -848,6 +853,7 @@ node trimesh curb443
     1 0.5215 0.5075
 endnode
 node trimesh paving41
+  shadow 0
   parent udp1_b06_04
   position 0 0 0.129999
   orientation 0 0 0 0
@@ -919,6 +925,7 @@ node trimesh paving41
     0.00121787 0 0.599912
 endnode
 node trimesh paving42
+  shadow 0
   parent udp1_b06_04
   position 10 0 0.129999
   orientation 0 0 -1 -3.14159
@@ -990,6 +997,7 @@ node trimesh paving42
     0.00121787 0 0.599912
 endnode
 node trimesh curb444
+  shadow 0
   parent udp1_b06_04
   position 6.31503 -1.95995 0
   orientation 0 0 1 -1.5708
@@ -1120,6 +1128,7 @@ node trimesh curb444
     1 0.5215 0.5075
 endnode
 node trimesh asphalt243
+  shadow 0
   parent udp1_b06_04
   position 10 0 0
   orientation 0 0 0 0
@@ -1190,6 +1199,7 @@ node trimesh asphalt243
     0.845 1 0.5
 endnode
 node trimesh curb445
+  shadow 0
   parent udp1_b06_04
   position 13.685 1.96004 0
   orientation 0 0 -1 -1.5708
@@ -1320,6 +1330,7 @@ node trimesh curb445
     1 0.5215 0.5075
 endnode
 node trimesh paving43
+  shadow 0
   parent udp1_b06_04
   position 10 0 0.129999
   orientation 0 0 0 0
@@ -1391,6 +1402,7 @@ node trimesh paving43
     0.00121787 0 0.599912
 endnode
 node trimesh asphalt244
+  shadow 0
   parent udp1_b06_04
   position 10 0 0
   orientation 0 0 0 0
@@ -1461,6 +1473,7 @@ node trimesh asphalt244
     0.845 1 0.5
 endnode
 node trimesh paving44
+  shadow 0
   parent udp1_b06_04
   position 20 0 0.129999
   orientation 0 0 -1 -3.14159
@@ -1532,6 +1545,7 @@ node trimesh paving44
     0.00121787 0 0.599912
 endnode
 node trimesh curb446
+  shadow 0
   parent udp1_b06_04
   position 16.315 -1.95996 0
   orientation 0 0 1 -1.5708
@@ -1662,6 +1676,7 @@ node trimesh curb446
     1 0.5215 0.5075
 endnode
 node trimesh asphalt245
+  shadow 0
   parent udp1_b06_04
   position 20 0 0
   orientation 0 0 0 0
@@ -1732,6 +1747,7 @@ node trimesh asphalt245
     0.845 1 0.5
 endnode
 node trimesh curb447
+  shadow 0
   parent udp1_b06_04
   position 23.685 1.96004 0
   orientation 0 0 -1 -1.5708
@@ -1862,6 +1878,7 @@ node trimesh curb447
     1 0.5215 0.5075
 endnode
 node trimesh paving45
+  shadow 0
   parent udp1_b06_04
   position 20 0 0.129999
   orientation 0 0 0 0
@@ -1933,6 +1950,7 @@ node trimesh paving45
     0.00121787 0 0.599912
 endnode
 node trimesh asphalt246
+  shadow 0
   parent udp1_b06_04
   position 20 0 0
   orientation 0 0 0 0
@@ -2661,6 +2679,7 @@ node trimesh gasstation_lower01
     1.20317 0.715173 4.73854
 endnode
 node trimesh goeat_sign06
+  shadow 0
   parent udp1_b06_04
   position 31.4604 4.24769 1.73456
   orientation 1 0 0 -1.5708
@@ -2860,6 +2879,7 @@ node trimesh roof71
     0.921901 1.34771 0.999499
 endnode
 node trimesh goeat_sign07
+  shadow 0
   parent udp1_b06_04
   position 31.4604 -4.27713 1.73456
   orientation 0 0.707107 -0.707107 -3.14159
@@ -3131,6 +3151,7 @@ node trimesh canopy26
     -0.99 0.101982 -19.2802
 endnode
 node trimesh canopy_support10
+  shadow 0
   parent udp1_b06_04
   position 24.3421 -3.8452 5.4724
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -3257,6 +3278,7 @@ node trimesh canopy_support10
     1.2 0.558889 0.457762
 endnode
 node trimesh sign_stand01
+  shadow 0
   parent udp1_b06_04
   position -4.35796 1.17123 0
   orientation 0 0 1 -1.5708
@@ -3489,6 +3511,7 @@ node trimesh gassign_back
     0.774541 0.1165 -2.94168
 endnode
 node trimesh ice_machine01
+  shadow 0
   parent udp1_b06_04
   position 25.4211 2.48974 0.129997
   orientation 0 0 0 0
@@ -3751,6 +3774,7 @@ node trimesh gas_tube04
     0.0477152 0.24856 0.865639
 endnode
 node trimesh ice_machine_top01
+  shadow 0
   parent udp1_b06_04
   position 25.6774 2.17705 1.35648
   orientation 0 0 0 0
@@ -3815,6 +3839,7 @@ node trimesh ice_machine_top01
     0.965518 0.671414 0.5
 endnode
 node trimesh gas_station_pump02
+  shadow 0
   parent udp1_b06_04
   position 5.00037 -2.32873 0.9
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -3915,6 +3940,7 @@ node trimesh gas_station_pump02
     0.000499487 0.9995 0.000499517
 endnode
 node trimesh gas_station_sides02
+  shadow 0
   parent udp1_b06_04
   position 5.00037 -2.32873 0.9
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -4523,6 +4549,7 @@ node trimesh gas_tube05
     0.0477152 0.24856 0.865639
 endnode
 node trimesh joint04
+  shadow 0
   parent udp1_b06_04
   position 4.8199 -2.81157 2.0628
   orientation 0.992433 -0.0868267 -0.0868266 -1.57839
@@ -4731,6 +4758,7 @@ node trimesh Line06
     0.49903 0.485444 0.5025
 endnode
 node trimesh joint05
+  shadow 0
   parent udp1_b06_04
   position 5.18084 -1.8459 2.0628
   orientation 0.0617456 0.705758 -0.705757 -3.26493
@@ -5025,6 +5053,7 @@ node trimesh pump_socket05
     0.999501 0.9995 0.318648
 endnode
 node trimesh gas_station_pump03
+  shadow 0
   parent udp1_b06_04
   position 5.00037 2.23285 0.9
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -5125,6 +5154,7 @@ node trimesh gas_station_pump03
     0.000499487 0.9995 0.000499517
 endnode
 node trimesh gas_station_sides03
+  shadow 0
   parent udp1_b06_04
   position 5.00037 2.23285 0.9
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -5471,6 +5501,7 @@ node trimesh gas_tube07
     0.0477152 0.24856 0.865639
 endnode
 node trimesh joint06
+  shadow 0
   parent udp1_b06_04
   position 5.18084 2.71568 2.0628
   orientation 0.0617456 0.705758 -0.705757 -3.26493
@@ -5609,6 +5640,7 @@ node trimesh pump_socket06
     0.999501 0.9995 0.318648
 endnode
 node trimesh joint07
+  shadow 0
   parent udp1_b06_04
   position 4.81991 1.75002 2.0628
   orientation 0.992433 -0.0868267 -0.0868266 -1.57839
@@ -6079,6 +6111,7 @@ node trimesh Line08
     0.49903 0.485444 0.5025
 endnode
 node trimesh canopy_support12
+  shadow 0
   parent udp1_b06_04
   position 14.9869 -3.8452 5.4724
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -6205,6 +6238,7 @@ node trimesh canopy_support12
     1.2 0.558889 0.457762
 endnode
 node trimesh canopy_support13
+  shadow 0
   parent udp1_b06_04
   position 5.00564 -3.8452 5.4724
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -6331,6 +6365,7 @@ node trimesh canopy_support13
     1.2 0.558889 0.457762
 endnode
 node trimesh canopy_support14
+  shadow 0
   parent udp1_b06_04
   position 5.00393 3.81513 5.4724
   orientation 0.57735 -0.57735 0.57735 -2.0944
@@ -6457,6 +6492,7 @@ node trimesh canopy_support14
     1.2 0.558889 0.457762
 endnode
 node trimesh canopy_support15
+  shadow 0
   parent udp1_b06_04
   position 14.9852 3.81513 5.4724
   orientation 0.57735 -0.57735 0.57735 -2.0944
@@ -6583,6 +6619,7 @@ node trimesh canopy_support15
     1.2 0.558889 0.457762
 endnode
 node trimesh canopy_support16
+  shadow 0
   parent udp1_b06_04
   position 24.3404 3.81513 5.4724
   orientation 0.57735 -0.57735 0.57735 -2.0944
@@ -6865,6 +6902,7 @@ node trimesh gas_tube08
     0.0477152 0.24856 0.865639
 endnode
 node trimesh gas_station_pump04
+  shadow 0
   parent udp1_b06_04
   position 14.9899 -2.32873 0.9
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -6965,6 +7003,7 @@ node trimesh gas_station_pump04
     0.000499487 0.9995 0.000499517
 endnode
 node trimesh gas_station_sides04
+  shadow 0
   parent udp1_b06_04
   position 14.9899 -2.32873 0.9
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -7573,6 +7612,7 @@ node trimesh gas_tube09
     0.0477152 0.24856 0.865639
 endnode
 node trimesh joint08
+  shadow 0
   parent udp1_b06_04
   position 14.8094 -2.81157 2.0628
   orientation 0.992433 -0.0868267 -0.0868266 -1.57839
@@ -7781,6 +7821,7 @@ node trimesh Line10
     0.49903 0.485444 0.5025
 endnode
 node trimesh joint09
+  shadow 0
   parent udp1_b06_04
   position 15.1704 -1.8459 2.0628
   orientation 0.0617456 0.705758 -0.705757 -3.26493
@@ -8075,6 +8116,7 @@ node trimesh pump_socket09
     0.999501 0.9995 0.318648
 endnode
 node trimesh gas_station_pump05
+  shadow 0
   parent udp1_b06_04
   position 14.9899 2.23285 0.9
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -8175,6 +8217,7 @@ node trimesh gas_station_pump05
     0.000499487 0.9995 0.000499517
 endnode
 node trimesh gas_station_sides05
+  shadow 0
   parent udp1_b06_04
   position 14.9899 2.23285 0.9
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -8521,6 +8564,7 @@ node trimesh gas_tube11
     0.0477152 0.24856 0.865639
 endnode
 node trimesh joint10
+  shadow 0
   parent udp1_b06_04
   position 15.1704 2.71568 2.0628
   orientation 0.0617456 0.705758 -0.705757 -3.26493
@@ -8659,6 +8703,7 @@ node trimesh pump_socket10
     0.999501 0.9995 0.318648
 endnode
 node trimesh joint11
+  shadow 0
   parent udp1_b06_04
   position 14.8094 1.75002 2.0628
   orientation 0.992433 -0.0868267 -0.0868266 -1.57839
@@ -9129,6 +9174,7 @@ node trimesh Line12
     0.49903 0.485444 0.5025
 endnode
 node trimesh floor
+  shadow 0
   parent udp1_b06_04
   position 30 0 0.0999988
   orientation 0 0 0 0
@@ -9289,6 +9335,7 @@ node trimesh floor
     1.5 1.5 0.9995
 endnode
 node trimesh ice_machine_rear01
+  shadow 0
   parent udp1_b06_04
   position 25.4211 2.48974 0.129997
   orientation 0 0 0 0
@@ -10248,6 +10295,7 @@ node dummy udp1_b06_04a
   wirecolor 0.554688 0.554688 0.554688
 endnode
 node trimesh GAS-NEON-ON00
+  shadow 0
   parent udp1_b06_04a
   position -4.39473 1.17123 -15.2008
   orientation 1 0 0 -1.5708
@@ -10415,6 +10463,7 @@ node trimesh GAS-NEON-ON00
     -0.0116926 0.032792 0.685499
 endnode
 node trimesh GAS-NEON-ON01
+  shadow 0
   parent udp1_b06_04a
   position 13.9756 -0.00466919 -24.5165
   orientation 0 0 0 0
@@ -10582,6 +10631,7 @@ node trimesh GAS-NEON-ON01
     0.000499547 0.0287431 128.346
 endnode
 node trimesh GAS-NEON-ON02
+  shadow 0
   parent udp1_b06_04a
   position 13.9756 -0.00466919 -25.2705
   orientation 0 0 0 0
@@ -10749,6 +10799,7 @@ node trimesh GAS-NEON-ON02
     0.000499547 0.0287431 128.346
 endnode
 node trimesh GAS-NEON-ON03
+  shadow 0
   parent udp1_b06_04a
   position 21.8847 -0.00466988 -26.0606
   orientation 0 0 0 0
@@ -10916,6 +10967,7 @@ node trimesh GAS-NEON-ON03
     0.00427702 0.0287431 108.663
 endnode
 node trimesh GAS-NEON-ON04
+  shadow 0
   parent udp1_b06_04a
   position 21.8847 -0.00466988 -26.2329
   orientation 0 0 0 0
@@ -11083,6 +11135,7 @@ node trimesh GAS-NEON-ON04
     0.00427702 0.0287431 108.663
 endnode
 node trimesh GAS-NEON-ON05
+  shadow 0
   parent udp1_b06_04a
   position 21.8847 -0.00466988 -26.4048
   orientation 0 0 0 0
@@ -11250,6 +11303,7 @@ node trimesh GAS-NEON-ON05
     0.00427702 0.0287431 108.663
 endnode
 node trimesh GAS-NEON-OFF00
+  shadow 0
   parent udp1_b06_04a
   position -4.39473 1.17123 14.7992
   orientation 1 0 0 -1.5708
@@ -11416,6 +11470,7 @@ node trimesh GAS-NEON-OFF00
     -0.0116926 0.032792 0.685499
 endnode
 node trimesh GAS-NEON-OFF01
+  shadow 0
   parent udp1_b06_04a
   position 13.9756 -0.00466919 5.48346
   orientation 0 0 0 0
@@ -11582,6 +11637,7 @@ node trimesh GAS-NEON-OFF01
     0.000499547 0.0287431 128.346
 endnode
 node trimesh GAS-NEON-OFF02
+  shadow 0
   parent udp1_b06_04a
   position 13.9756 -0.00466919 4.72945
   orientation 0 0 0 0
@@ -11748,6 +11804,7 @@ node trimesh GAS-NEON-OFF02
     0.000499547 0.0287431 128.346
 endnode
 node trimesh GAS-NEON-OFF03
+  shadow 0
   parent udp1_b06_04a
   position 21.8847 -0.00466988 3.93936
   orientation 0 0 0 0
@@ -11914,6 +11971,7 @@ node trimesh GAS-NEON-OFF03
     0.00427702 0.0287431 108.663
 endnode
 node trimesh GAS-NEON-OFF04
+  shadow 0
   parent udp1_b06_04a
   position 21.8847 -0.00466988 3.76715
   orientation 0 0 0 0
@@ -12080,6 +12138,7 @@ node trimesh GAS-NEON-OFF04
     0.00427702 0.0287431 108.663
 endnode
 node trimesh GAS-NEON-OFF05
+  shadow 0
   parent udp1_b06_04a
   position 21.8847 -0.00466988 3.59517
   orientation 0 0 0 0
@@ -12976,7 +13035,67 @@ node trimesh GASSTATION_WINDOWS01
     0 0 0
     1 1 0
 endnode
+node trimesh day01_0
+  parent GASULIGHTS-ON
+  position 17.4178 4.41279 -4.32325
+  orientation 0 0 0 0
+  wirecolor 0.695313 0.695313 0.695313
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  verts 12
+    -1.40634 0 0.860692
+    -4.21901 0 0.860692
+    -4.21901 -2.8257 0.860692
+    -4.21901 -5.65139 0.860692
+    -4.21901 -8.47708 0.860692
+    -1.40634 -8.47708 0.860692
+    -1.40634 0 3
+    -4.21901 0 3
+    -4.21901 -2.8257 3
+    -4.21901 -5.65139 3
+    -4.21901 -8.47708 3
+    -1.40634 -8.47708 3
+  faces 8
+    0 1 7  8  12 13 14  4
+    7 6 0  8  15 6 0  4
+    1 2 8  16  16 2 17  3
+    8 7 1  16  8 7 1  3
+    3 4 10  16  18 19 20  3
+    10 9 3  16  21 9 3  3
+    4 5 11  32  22 5 23  5
+    11 10 4  32  11 10 4  5
+  tverts 24
+    0 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
 node trimesh lightbody01
+  shadow 0
   parent udp1_b06_04
   position 34.6965 0.011654 3.71348
   orientation -0.357407 0.357407 0.862856 -1.71777
@@ -13121,6 +13240,7 @@ node trimesh lightbody01
     0.0868522 0.5 0.08781
 endnode
 node trimesh light_base01
+  shadow 0
   parent udp1_b06_04
   position 34.3568 0.011654 3.74845
   orientation 0 0 1 -1.5708
@@ -13175,6 +13295,7 @@ node trimesh light_base01
     0.9995 0.999501 0.000499517
 endnode
 node trimesh light_body01
+  shadow 0
   parent udp1_b06_04
   position 22.6906 1.89944 4.38898
   orientation 0 0 0 0
@@ -13237,6 +13358,7 @@ node trimesh light_body01
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body03
+  shadow 0
   parent udp1_b06_04
   position 17.2072 -2.25718 4.38898
   orientation 0 0 0 0
@@ -13299,6 +13421,7 @@ node trimesh light_body03
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body
+  shadow 0
   parent udp1_b06_04
   position 22.6906 -2.25718 4.38898
   orientation 0 0 0 0
@@ -13361,6 +13484,7 @@ node trimesh light_body
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body05
+  shadow 0
   parent udp1_b06_04
   position 12.7945 -2.25718 4.38898
   orientation 0 0 0 0
@@ -13423,6 +13547,7 @@ node trimesh light_body05
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body07
+  shadow 0
   parent udp1_b06_04
   position 7.21677 -2.25718 4.38898
   orientation 0 0 0 0
@@ -13485,6 +13610,7 @@ node trimesh light_body07
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body06
+  shadow 0
   parent udp1_b06_04
   position 7.21677 1.89944 4.38898
   orientation 0 0 0 0
@@ -13547,6 +13673,7 @@ node trimesh light_body06
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body04
+  shadow 0
   parent udp1_b06_04
   position 12.7945 1.89944 4.38898
   orientation 0 0 0 0
@@ -13609,6 +13736,7 @@ node trimesh light_body04
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body02
+  shadow 0
   parent udp1_b06_04
   position 17.2072 1.89944 4.38898
   orientation 0 0 0 0
@@ -13671,6 +13799,7 @@ node trimesh light_body02
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body08
+  shadow 0
   parent udp1_b06_04
   position 2.73441 -2.25718 4.38898
   orientation 0 0 0 0
@@ -13733,6 +13862,7 @@ node trimesh light_body08
     1.0548 0.584458 -0.0548002
 endnode
 node trimesh light_body09
+  shadow 0
   parent udp1_b06_04
   position 2.73441 1.89944 4.38898
   orientation 0 0 0 0
@@ -14781,4 +14911,144 @@ node trimesh light_body09
   parent udp1_b06_04
 endnode
 doneanim animloop01 udp1_b06_04
+newanim day udp1_b06_04
+  length 0.03333
+  transtime 0.25
+  animroot udp1_b06_04
+  node dummy udp1_b06_04
+    parent NULL
+  endnode
+  node dummy udp1_b06_04a
+    parent udp1_b06_04
+  endnode
+  node trimesh GASULIGHTS-ON
+    parent udp1_b06_04a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh GASULIGHTS-ON
+    parent udp1_b06_04a
+  endnode
+  node trimesh GASSTATION_WINDOWS01
+    parent GASULIGHTS-ON
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day01_0
+    parent GASULIGHTS-ON
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day udp1_b06_04
+newanim day2night udp1_b06_04
+  length 0.56667
+  transtime 0.25
+  animroot udp1_b06_04
+  node dummy udp1_b06_04
+    parent NULL
+  endnode
+  node dummy udp1_b06_04a
+    parent udp1_b06_04
+  endnode
+  node trimesh GASULIGHTS-ON
+    parent udp1_b06_04a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh GASULIGHTS-ON
+    parent udp1_b06_04a
+  endnode
+  node trimesh GASSTATION_WINDOWS01
+    parent GASULIGHTS-ON
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day01_0
+    parent GASULIGHTS-ON
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night udp1_b06_04
+newanim night udp1_b06_04
+  length 0.03333
+  transtime 0.25
+  animroot udp1_b06_04
+  node dummy udp1_b06_04
+    parent NULL
+  endnode
+  node dummy udp1_b06_04a
+    parent udp1_b06_04
+  endnode
+  node trimesh GASULIGHTS-ON
+    parent udp1_b06_04a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh GASULIGHTS-ON
+    parent udp1_b06_04a
+  endnode
+  node trimesh GASSTATION_WINDOWS01
+    parent GASULIGHTS-ON
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day01_0
+    parent GASULIGHTS-ON
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night udp1_b06_04
+newanim night2day udp1_b06_04
+  length 0.60000
+  transtime 0.25
+  animroot udp1_b06_04
+  node dummy udp1_b06_04
+    parent NULL
+  endnode
+  node dummy udp1_b06_04a
+    parent udp1_b06_04
+  endnode
+  node trimesh GASULIGHTS-ON
+    parent udp1_b06_04a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh GASULIGHTS-ON
+    parent udp1_b06_04a
+  endnode
+  node trimesh GASSTATION_WINDOWS01
+    parent GASULIGHTS-ON
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day01_0
+    parent GASULIGHTS-ON
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day udp1_b06_04
 donemodel udp1_b06_04

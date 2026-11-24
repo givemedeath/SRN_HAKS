@@ -127,6 +127,7 @@ node light udp1_b13_09ml1
     fadingLight 1
 endnode
 node trimesh stripmall_column
+  shadow 0
   parent udp1_b13_09
   position 3.07463 3.0746 1.83
   orientation 0 0 0 0
@@ -253,6 +254,7 @@ node trimesh stripmall_column
     0.335074 0.276884 -1.27761
 endnode
 node trimesh stripmall_winbase01
+  shadow 0
   parent udp1_b13_09
   position -2.8 -0.650006 1.07911
   orientation 0 0 -1 -3.14159
@@ -341,6 +343,7 @@ node trimesh stripmall_winbase01
     0.43 3 0.490556
 endnode
 node trimesh stripmall_column_2
+  shadow 0
   parent udp1_b13_09
   position -3.07463 -3.07465 1.83
   orientation 0 0 -1 -3.14159
@@ -467,6 +470,7 @@ node trimesh stripmall_column_2
     0.335074 0.276884 -2.60746
 endnode
 node trimesh roof_edge
+  shadow 0
   parent udp1_b13_09
   position 2.5 0.299993 6.405
   orientation 0 0 0 0
@@ -541,6 +545,7 @@ node trimesh roof_edge
     0.4425 1 0.44
 endnode
 node trimesh roof_edge_2
+  shadow 0
   parent udp1_b13_09
   position -2.5 -0.300006 6.405
   orientation 0 0 -1 -3.14159
@@ -615,6 +620,7 @@ node trimesh roof_edge_2
     0.5575 2 0.56
 endnode
 node trimesh stripmall_winbase
+  shadow 0
   parent udp1_b13_09
   position -2.8 -0.600006 1.88
   orientation 0 0 -1 -3.14159
@@ -673,6 +679,7 @@ node trimesh stripmall_winbase
     4.5 0.298792 0.619999
 endnode
 node trimesh stripmall_roofedge
+  shadow 0
   parent udp1_b13_09
   position 4.5 4.14999 4.98
   orientation 0 0 0 0
@@ -719,6 +726,7 @@ node trimesh stripmall_roofedge
     0.14 -0.14 1.03
 endnode
 node trimesh stripmall_winbase_2
+  shadow 0
   parent udp1_b13_09
   position 2.8 0.599993 1.88
   orientation 0 0 0 0
@@ -777,6 +785,7 @@ node trimesh stripmall_winbase_2
     -1.5 0.298793 0.38
 endnode
 node trimesh stripmall_roofedge_2
+  shadow 0
   parent udp1_b13_09
   position -4.5 -4.15001 4.98
   orientation 0 0 -1 -3.14159
@@ -823,6 +832,7 @@ node trimesh stripmall_roofedge_2
     1.86 -1.86 1.03
 endnode
 node trimesh stripmall_signface
+  shadow 0
   parent udp1_b13_09
   position -4.5 -4.00001 4.13
   orientation 0 0 -1 -3.14159
@@ -916,6 +926,7 @@ node trimesh roof_underside_2
     0.91 2.09 0.505
 endnode
 node trimesh stripmall_signface_2
+  shadow 0
   parent udp1_b13_09
   position 4.5 3.99999 4.13
   orientation 0 0 0 0
@@ -973,6 +984,7 @@ node trimesh roof_body_2
     2.2 0.2 0.83
 endnode
 node trimesh stripmall_winbase03
+  shadow 0
   parent udp1_b13_09
   position 2.8 0.649993 1.07911
   orientation 0 0 0 0
@@ -1092,6 +1104,7 @@ node trimesh roof_body_3
     0.2 3.8 0.83
 endnode
 node trimesh stripmall_signface_3
+  shadow 0
   parent udp1_b13_09
   position 4 4.49999 4.13
   orientation 0 0 1 -1.5708
@@ -1149,6 +1162,7 @@ node trimesh roof_body_4
     1.8 2.2 0.83
 endnode
 node trimesh floor26
+  shadow 0
   parent udp1_b13_09
   position 0 0 0.0999986
   orientation 0 0 0 0
@@ -1319,6 +1333,7 @@ node trimesh roof_underside_3
     1.91 0.91 0.505
 endnode
 node trimesh stripmall_signface_4
+  shadow 0
   parent udp1_b13_09
   position -4 -4.50001 4.13
   orientation 0 0 -1 -1.5708
@@ -1412,6 +1427,7 @@ node trimesh roof_underside_4
     1.09 0.0900002 0.505
 endnode
 node trimesh stripmall_winbase_3
+  shadow 0
   parent udp1_b13_09
   position 0.600005 2.79999 1.88
   orientation 0 0 1 -1.5708
@@ -1470,6 +1486,7 @@ node trimesh stripmall_winbase_3
     -0.5 0.298793 -2.38
 endnode
 node trimesh stripmall_roofedge_3
+  shadow 0
   parent udp1_b13_09
   position -4.15 -4.50001 4.98
   orientation 0 0 -1 -1.5708
@@ -1516,6 +1533,7 @@ node trimesh stripmall_roofedge_3
     0.514405 -0.29 0.53
 endnode
 node trimesh stripmall_winbase_4
+  shadow 0
   parent udp1_b13_09
   position -0.599996 -2.80001 1.88
   orientation 0 0 -1 -1.5708
@@ -1574,6 +1592,7 @@ node trimesh stripmall_winbase_4
     -0.5 0.298793 -2.62
 endnode
 node trimesh stripmall_roofedge_4
+  shadow 0
   parent udp1_b13_09
   position 4.15 4.49999 4.98
   orientation 0 0 1 -1.5708
@@ -1620,6 +1639,7 @@ node trimesh stripmall_roofedge_4
     0.514405 -0.29 0.53
 endnode
 node trimesh roof_edge_3
+  shadow 0
   parent udp1_b13_09
   position -0.299996 -2.50001 6.405
   orientation 0 0 -1 -1.5708
@@ -1694,6 +1714,7 @@ node trimesh roof_edge_3
     0.4425 1 1.56
 endnode
 node trimesh roof_edge_4
+  shadow 0
   parent udp1_b13_09
   position 0.300005 2.49999 6.405
   orientation 0 0 1 -1.5708
@@ -1839,6 +1860,7 @@ node trimesh stripmall_base_roof
     3 0 0.000498712
 endnode
 node trimesh stripmall_winbase02
+  shadow 0
   parent udp1_b13_09
   position -0.649996 -2.80001 1.07911
   orientation 0 0 -1 -1.5708
@@ -1927,6 +1949,7 @@ node trimesh stripmall_winbase02
     -0.57 0.25 0.509444
 endnode
 node trimesh stripmall_winbase04
+  shadow 0
   parent udp1_b13_09
   position 0.650005 2.79999 1.07911
   orientation 0 0 1 -1.5708
@@ -2288,6 +2311,7 @@ node aabb walkm691
      0.00 2.50 0.13   0.60 5.00 6.45   10
 endnode
 node trimesh LIGHT_BASE45
+  shadow 0
   parent udp1_b13_09
   position -1.99487 -1.99868 3.58
   orientation 0 0 0 0
@@ -2350,6 +2374,7 @@ node trimesh LIGHT_BASE45
     0.668423 0.5125 0.346585
 endnode
 node trimesh LIGHT_BASE46
+  shadow 0
   parent udp1_b13_09
   position 1.78621 1.81273 3.58
   orientation 0 0 0 0
@@ -2418,6 +2443,7 @@ node dummy udp1_b13_09a
   wirecolor 0.335938 0.335938 0.335938
 endnode
 node trimesh light-on59
+  shadow 0
   parent udp1_b13_09a
   position -1.99487 -1.99867 -6.45274
   orientation 0 0 0 0
@@ -2465,6 +2491,7 @@ node trimesh light-on59
     1 1 0
 endnode
 node trimesh light-on60
+  shadow 0
   parent udp1_b13_09a
   position -1.99487 -1.99867 -6.45274
   orientation 0 0 0 0
@@ -2512,6 +2539,7 @@ node trimesh light-on60
     1 1 0
 endnode
 node trimesh light-off59
+  shadow 0
   parent udp1_b13_09a
   position -1.99487 -1.99867 3.54726
   orientation 0 0 0 0
@@ -2558,6 +2586,7 @@ node trimesh light-off59
     1 1 0
 endnode
 node trimesh light-off60
+  shadow 0
   parent udp1_b13_09a
   position -1.99487 -1.99867 3.54726
   orientation 0 0 0 0
@@ -2620,6 +2649,7 @@ node light misclight85
     fadingLight 0
 endnode
 node trimesh light-on62
+  shadow 0
   parent udp1_b13_09a
   position 1.78621 1.81273 -6.45274
   orientation 0 0 0 0
@@ -2667,6 +2697,7 @@ node trimesh light-on62
     1 1 0
 endnode
 node trimesh stripmall_windows
+  shadow 0
   parent light-on62
   position -2.3862 -4.61273 -1.39549
   orientation 0 0 -1 -1.5708
@@ -2703,7 +2734,46 @@ node trimesh stripmall_windows
     0 0 0
     1 1 0
 endnode
+node trimesh day03_0
+  shadow 0
+  parent light-on62
+  position -2.3862 -4.61273 -1.39549
+  orientation 0 0 -1 -1.5708
+  wirecolor 0.777344 0.777344 0.777344
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  verts 6
+    2.2 0 -0.978227
+    0.299999 0 -0.978227
+    -2.2 0 -0.978228
+    2.2 0 0.978227
+    0.299999 0 0.978227
+    -2.2 0 0.978227
+  faces 4
+    0 1 4  8  6 7 8  4
+    4 3 0  8  9 3 0  4
+    1 2 5  8  10 2 11  4
+    5 4 1  8  5 4 1  4
+  tverts 12
+    0 0 0
+    0 0 0
+    1 0 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
 node trimesh stripmall_windows_2
+  shadow 0
   parent light-on62
   position -4.5862 -2.41273 -1.39549
   orientation 0 0 -1 -3.14159
@@ -2740,7 +2810,46 @@ node trimesh stripmall_windows_2
     0 0 0
     1 1 0
 endnode
+node trimesh day04_0
+  shadow 0
+  parent light-on62
+  position -4.5862 -2.41273 -1.39549
+  orientation 0 0 -1 -3.14159
+  wirecolor 0.777344 0.777344 0.777344
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  verts 6
+    -2.2 0 -0.978227
+    -0.3 0 -0.978227
+    2.2 0 -0.978227
+    -2.2 0 0.978227
+    -0.3 0 0.978227
+    2.2 0 0.978227
+  faces 4
+    1 0 4  8  6 7 8  4
+    3 4 0  8  3 9 0  4
+    2 1 5  8  2 10 11  4
+    4 5 1  8  4 5 1  4
+  tverts 12
+    0 0 0
+    0 0 0
+    0 1 0
+    1 0 0
+    1 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
 node trimesh stripmall_windows_3
+  shadow 0
   parent light-on62
   position -1.1862 0.987266 -1.39549
   orientation 0 0 1 -1.5708
@@ -2777,7 +2886,46 @@ node trimesh stripmall_windows_3
     0 0 0
     1 1 0
 endnode
+node trimesh day05_0
+  shadow 0
+  parent light-on62
+  position -1.1862 0.987266 -1.39549
+  orientation 0 0 1 -1.5708
+  wirecolor 0.777344 0.777344 0.777344
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  verts 6
+    2.20001 0 -0.978227
+    0.300005 0 -0.978227
+    -2.19999 0 -0.978228
+    2.20001 0 0.978227
+    0.300005 0 0.978227
+    -2.19999 0 0.978227
+  faces 4
+    0 1 4  8  6 7 8  4
+    4 3 0  8  9 3 0  4
+    1 2 5  8  10 2 11  4
+    5 4 1  8  5 4 1  4
+  tverts 12
+    0 0 0
+    0 0 0
+    1 0 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
 node trimesh stripmall_windows_4
+  shadow 0
   parent light-on62
   position 1.0138 -1.21273 -1.39549
   orientation 0 0 0 0
@@ -2814,7 +2962,46 @@ node trimesh stripmall_windows_4
     0 0 0
     1 1 0
 endnode
+node trimesh day06_0
+  shadow 0
+  parent light-on62
+  position 1.0138 -1.21273 -1.39549
+  orientation 0 0 0 0
+  wirecolor 0.777344 0.777344 0.777344
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  verts 6
+    -2.2 0 -0.978227
+    -0.3 0 -0.978227
+    2.2 0 -0.978227
+    -2.2 0 0.978227
+    -0.3 0 0.978227
+    2.2 0 0.978227
+  faces 4
+    1 0 4  8  6 7 8  4
+    3 4 0  8  3 9 0  4
+    2 1 5  8  2 10 11  4
+    4 5 1  8  4 5 1  4
+  tverts 12
+    0 0 0
+    0 0 0
+    0 1 0
+    1 0 0
+    1 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
 node trimesh light-off61
+  shadow 0
   parent udp1_b13_09a
   position 1.78621 1.81273 3.54726
   orientation 0 0 0 0
@@ -2861,6 +3048,7 @@ node trimesh light-off61
     1 1 0
 endnode
 node trimesh stripmall_windows54
+  shadow 0
   parent light-off61
   position -2.3862 -4.61273 -1.39549
   orientation 0 0 -1 -1.5708
@@ -2897,6 +3085,7 @@ node trimesh stripmall_windows54
     1 1 0
 endnode
 node trimesh stripmall_windows55
+  shadow 0
   parent light-off61
   position -4.5862 -2.41273 -1.39549
   orientation 0 0 -1 -3.14159
@@ -2933,6 +3122,7 @@ node trimesh stripmall_windows55
     1 1 0
 endnode
 node trimesh stripmall_windows56
+  shadow 0
   parent light-off61
   position -1.1862 0.987266 -1.39549
   orientation 0 0 1 -1.5708
@@ -2969,6 +3159,7 @@ node trimesh stripmall_windows56
     1 1 0
 endnode
 node trimesh stripmall_windows57
+  shadow 0
   parent light-off61
   position 1.0138 -1.21273 -1.39549
   orientation 0 0 0 0
@@ -3005,6 +3196,7 @@ node trimesh stripmall_windows57
     1 1 0
 endnode
 node trimesh light-off62
+  shadow 0
   parent udp1_b13_09a
   position 1.78621 1.81273 3.54726
   orientation 0 0 0 0
@@ -3067,6 +3259,7 @@ node light misclight86
     fadingLight 0
 endnode
 node trimesh light-on61
+  shadow 0
   parent udp1_b13_09a
   position 1.78621 1.81273 -6.45274
   orientation 0 0 0 0
@@ -3608,4 +3801,396 @@ node trimesh light-on61
     endlist
 endnode
 doneanim animloop01 udp1_b13_09
+newanim day udp1_b13_09
+  length 0.03333
+  transtime 0.25
+  animroot udp1_b13_09
+  node dummy udp1_b13_09
+    parent NULL
+  endnode
+  node dummy udp1_b13_09a
+    parent udp1_b13_09
+  endnode
+  node trimesh light-on59
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh light-on60
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh light-on62
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh light-on62
+    parent udp1_b13_09a
+  endnode
+  node trimesh stripmall_windows
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh stripmall_windows_2
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day04_0
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh stripmall_windows_3
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh stripmall_windows_4
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day06_0
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh light-on61
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim day udp1_b13_09
+newanim day2night udp1_b13_09
+  length 0.56667
+  transtime 0.25
+  animroot udp1_b13_09
+  node dummy udp1_b13_09
+    parent NULL
+  endnode
+  node dummy udp1_b13_09a
+    parent udp1_b13_09
+  endnode
+  node trimesh light-on59
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh light-on60
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh light-on62
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh light-on62
+    parent udp1_b13_09a
+  endnode
+  node trimesh stripmall_windows
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh stripmall_windows_2
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day04_0
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh stripmall_windows_3
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh stripmall_windows_4
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day06_0
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh light-on61
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+doneanim day2night udp1_b13_09
+newanim night udp1_b13_09
+  length 0.03333
+  transtime 0.25
+  animroot udp1_b13_09
+  node dummy udp1_b13_09
+    parent NULL
+  endnode
+  node dummy udp1_b13_09a
+    parent udp1_b13_09
+  endnode
+  node trimesh light-on59
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh light-on60
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh light-on62
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh light-on62
+    parent udp1_b13_09a
+  endnode
+  node trimesh stripmall_windows
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh stripmall_windows_2
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day04_0
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh stripmall_windows_3
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh stripmall_windows_4
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day06_0
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh light-on61
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim night udp1_b13_09
+newanim night2day udp1_b13_09
+  length 0.60000
+  transtime 0.25
+  animroot udp1_b13_09
+  node dummy udp1_b13_09
+    parent NULL
+  endnode
+  node dummy udp1_b13_09a
+    parent udp1_b13_09
+  endnode
+  node trimesh light-on59
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh light-on60
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh light-on62
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh light-on62
+    parent udp1_b13_09a
+  endnode
+  node trimesh stripmall_windows
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh stripmall_windows_2
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day04_0
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh stripmall_windows_3
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh stripmall_windows_4
+    parent light-on62
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day06_0
+    parent light-on62
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh light-on61
+    parent udp1_b13_09a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+doneanim night2day udp1_b13_09
 donemodel udp1_b13_09

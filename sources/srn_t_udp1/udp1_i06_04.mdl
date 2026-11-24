@@ -643,6 +643,7 @@ node light udp1_i06_04ml1
     fadingLight 1
 endnode
 node trimesh ground127
+  shadow 0
   parent udp1_i06_04
   position 0 0 0.0999989
   orientation 0 0 0 0
@@ -1257,6 +1258,7 @@ node trimesh treesingle201
     0.199191 0.938103 0.135795
 endnode
 node trimesh treetrunk163
+  shadow 0
   parent udp1_i06_04
   position 3.53289 -3.01624 2.1
   orientation 0 0 -1 -0.436332
@@ -1606,6 +1608,7 @@ node trimesh treesingle203
     0.199191 0.938103 0.135795
 endnode
 node trimesh treetrunk159
+  shadow 0
   parent udp1_i06_04
   position -3.70184 -3.38007 2.1
   orientation 0 0 -1 -2.00713
@@ -1696,6 +1699,7 @@ node trimesh treetrunk159
     0.472043 1 -0.226018
 endnode
 node trimesh treetrunk160
+  shadow 0
   parent udp1_i06_04
   position -3.75028 3.70786 2.1
   orientation 0 0 0 0
@@ -1786,6 +1790,7 @@ node trimesh treetrunk160
     1.50451 1 0.707392
 endnode
 node trimesh treetrunk161
+  shadow 0
   parent udp1_i06_04
   position 1.62621 0.151141 2.1
   orientation 0 0 -1 -0.436332
@@ -1876,6 +1881,7 @@ node trimesh treetrunk161
     0.66926 1 0.596502
 endnode
 node trimesh treetrunk162
+  shadow 0
   parent udp1_i06_04
   position 3.72378 3.66977 2.1
   orientation 0 0 0 0
@@ -1966,6 +1972,7 @@ node trimesh treetrunk162
     1.50451 1 0.707392
 endnode
 node trimesh treetrunk554
+  shadow 0
   parent udp1_i06_04
   position 4.04937 -1.68722 2.1
   orientation 0 0 -1 -2.00713
@@ -2056,6 +2063,7 @@ node trimesh treetrunk554
     0.472043 1 -0.226018
 endnode
 node trimesh treetrunk555
+  shadow 0
   parent udp1_i06_04
   position -3.37089 1.84817 2.1
   orientation 0 0 0 0
@@ -2146,6 +2154,7 @@ node trimesh treetrunk555
     1.50451 1 0.707392
 endnode
 node trimesh treetrunk556
+  shadow 0
   parent udp1_i06_04
   position 3.0737 2.86821 2.1
   orientation 0 0 -1 -0.436332
@@ -2236,6 +2245,7 @@ node trimesh treetrunk556
     0.66926 1 0.596502
 endnode
 node trimesh treetrunk557
+  shadow 0
   parent udp1_i06_04
   position 3.81152 -0.514524 2.1
   orientation 0 0 0 0
@@ -2326,6 +2336,7 @@ node trimesh treetrunk557
     1.50451 1 0.707392
 endnode
 node trimesh treetrunk558
+  shadow 0
   parent udp1_i06_04
   position -3.49042 -1.75843 2.1
   orientation 0 0 -1 -0.436332

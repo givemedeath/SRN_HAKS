@@ -13,6 +13,7 @@ node dummy udp1_b10_06
   parent NULL
 endnode
 node trimesh upper_minimall_wall64
+  shadow 0
   parent udp1_b10_06
   position 0 0.599995 5.23
   orientation 1 0 0 -1.5708
@@ -115,6 +116,7 @@ node trimesh stripmall_base_roof33
     -1 1 0.00049907
 endnode
 node trimesh roof_edge153
+  shadow 0
   parent udp1_b10_06
   position 0 0.299995 6.405
   orientation 0 0 0 0
@@ -255,7 +257,7 @@ node trimesh AC_unit_rear13
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -313,6 +315,7 @@ node trimesh AC_unit_rear13
     0.999173 0.45359 0.095905
 endnode
 node trimesh minimall_lower_wall67
+  shadow 0
   parent udp1_b10_06
   position 0 0.599995 1.88
   orientation 1 0 0 -1.5708
@@ -435,7 +438,7 @@ node trimesh WINDOW_AC_UNIT29
   shininess 10
   bitmap udp1-aircond2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -624,6 +627,7 @@ node aabb walkm706
      0.00 0.00 0.13   2.50 0.60 6.45   10
 endnode
 node trimesh floor39
+  shadow 0
   parent udp1_b10_06
   position 0 2.79998 0.114999
   orientation 0 0 0 0

@@ -299,7 +299,7 @@ node trimesh police_station_floor
   shininess 10
   bitmap udp1-mtl-grid
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -857,7 +857,7 @@ node trimesh jail_bar
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -907,7 +907,7 @@ node trimesh jail_bar01
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -957,7 +957,7 @@ node trimesh jail_bar02
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1007,7 +1007,7 @@ node trimesh jail_bar03
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1057,7 +1057,7 @@ node trimesh jail_bar04
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1107,7 +1107,7 @@ node trimesh jail_bar05
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1157,7 +1157,7 @@ node trimesh jail_bar06
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1207,7 +1207,7 @@ node trimesh jail_bar07
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1257,7 +1257,7 @@ node trimesh police_station_roof
   shininess 10
   bitmap udp1-asph
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3459,7 +3459,7 @@ node trimesh police_station_entry_brick
   shininess 10
   bitmap udp1-blck-bg2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3671,7 +3671,7 @@ node trimesh conc
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4242,7 +4242,7 @@ node trimesh lightlens67
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4279,7 +4279,7 @@ node trimesh lightlens66
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4332,7 +4332,7 @@ node trimesh lightlens68
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4368,6 +4368,76 @@ node trimesh police_station_skylight01
   shininess 10
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window2b
+  render 1
+  Shadow 1
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 9
+    1.24998 2.50001 -0.500005
+    -1.25001 2.50001 -0.500004
+    1.24998 0 -0.500005
+    -1.25002 0 -0.500004
+    1.24998 -2.49999 -0.500005
+    -1.25002 -2.49999 -0.500004
+    0 1.25001 0.499995
+    0 0 0.499995
+    0 -1.24999 0.499995
+  faces 10
+    0 1 6  0  9 10 11  0
+    2 0 6  0  12 0 13  0
+    6 7 2  0  14 15 16  0
+    1 3 7  0  17 18 19  0
+    7 6 1  0  20 6 1  0
+    4 2 7  0  21 2 22  0
+    7 8 4  0  23 24 25  0
+    3 5 8  0  26 27 28  0
+    8 7 3  0  29 7 3  0
+    5 4 8  0  5 4 8  0
+  tverts 30
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+endnode
+node trimesh day02_0
+  parent lightlens68
+  position 12.4826 -6.41892 0.625328
+  orientation 0 0 0 0
+  wirecolor 0.601563 0.601563 0.601563
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
   render 1
   Shadow 1
   beaming 0
@@ -4497,6 +4567,76 @@ node trimesh police_station_skylight
     1 1 0
     1 1 0
 endnode
+node trimesh day03_0
+  parent lightlens68
+  position 17.4826 -6.41892 0.625332
+  orientation 0 0 0 0
+  wirecolor 0.601563 0.601563 0.601563
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  render 1
+  Shadow 1
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 9
+    1.24998 2.5 -0.500007
+    -1.25002 2.50001 -0.500006
+    1.24998 0 -0.500007
+    -1.25002 0 -0.500006
+    1.24998 -2.5 -0.500007
+    -1.25002 -2.49999 -0.500006
+    0 1.25001 0.499994
+    0 0 0.499994
+    0 -1.24999 0.499994
+  faces 10
+    0 1 6  0  9 10 11  0
+    2 0 6  0  12 0 13  0
+    6 7 2  0  14 15 16  0
+    1 3 7  0  17 18 19  0
+    7 6 1  0  20 6 1  0
+    4 2 7  0  21 2 22  0
+    7 8 4  0  23 24 25  0
+    3 5 8  0  26 27 28  0
+    8 7 3  0  29 7 3  0
+    5 4 8  0  5 4 8  0
+  tverts 30
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+endnode
 node trimesh police_station_skylight02
   parent lightlens68
   position 4.98259 -6.41893 0.625321
@@ -4508,6 +4648,76 @@ node trimesh police_station_skylight02
   shininess 10
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window2b
+  render 1
+  Shadow 1
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 9
+    1.24998 2.5 -0.500003
+    -1.25001 2.5 -0.500003
+    1.24998 0 -0.500003
+    -1.25002 0 -0.500003
+    1.24998 -2.5 -0.500003
+    -1.25002 -2.5 -0.500003
+    0 1.25 0.499997
+    0 0 0.499997
+    0 -1.25 0.499997
+  faces 10
+    0 1 6  0  9 10 11  0
+    2 0 6  0  12 0 13  0
+    6 7 2  0  14 15 16  0
+    1 3 7  0  17 18 19  0
+    7 6 1  0  20 6 1  0
+    4 2 7  0  21 2 22  0
+    7 8 4  0  23 24 25  0
+    3 5 8  0  26 27 28  0
+    8 7 3  0  29 7 3  0
+    5 4 8  0  5 4 8  0
+  tverts 30
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+endnode
+node trimesh day04_0
+  parent lightlens68
+  position 4.98259 -6.41893 0.625321
+  orientation 0 0 0 0
+  wirecolor 0.601563 0.601563 0.601563
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
   render 1
   Shadow 1
   beaming 0
@@ -4984,6 +5194,423 @@ node trimesh police_station_windows
     1 1 0
     0 0 0
 endnode
+node trimesh day05_0
+  parent lightlens68
+  position 8.73258 -8.91894 -3.62468
+  orientation 0 0 0 0
+  wirecolor 0.601563 0.601563 0.601563
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  render 1
+  Shadow 1
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 76
+    7.49998 7.5 -2.25001
+    4.99998 7.5 -2.25
+    2.49998 7.5 -2.25
+    -2.50002 7.5 -2.25
+    -5.00002 7.5 -2.25
+    -7.50002 7.5 -2.25
+    12.5 2.49999 -2.25001
+    -12.5 2.5 -2.25
+    12.5 0 -2.25001
+    -12.5 0 -2.25
+    12.5 -2.50001 -2.25001
+    -12.5 -2.5 -2.25
+    12.5 7.49999 2.24999
+    9.99998 7.49999 2.24999
+    7.49998 7.5 2.24999
+    4.99998 7.5 2.24999
+    2.49998 7.5 2.25
+    -2.50001 7.5 2.25
+    -5.00001 7.5 2.25
+    -7.50001 7.5 2.25
+    -10 7.5 2.25
+    -12.5 7.5 2.25
+    12.5 4.99999 2.24999
+    -12.5 5 2.25
+    12.5 2.49999 2.24999
+    -12.5 2.5 2.25
+    12.5 0 2.24999
+    -12.5 0 2.25
+    12.5 -2.50001 2.24999
+    -12.5 -2.5 2.25
+    12.5 -5.00001 2.24999
+    -12.5 -5 2.25
+    12.5 -7.50001 2.24999
+    9.99998 -7.50001 2.24999
+    7.49998 -7.5 2.24999
+    -7.50002 -7.5 2.25
+    -10 -7.5 2.25
+    -12.5 -7.5 2.25
+    7.49998 7.5 -0.750006
+    4.99998 7.5 -0.750005
+    2.49998 7.5 -0.750004
+    -2.50002 7.5 -0.750002
+    -5.00002 7.5 -0.750001
+    -7.50001 7.5 -0.750001
+    -12.5 2.5 -0.749999
+    -12.5 0 -0.749999
+    -12.5 -2.5 -0.749999
+    12.5 -2.50001 -0.750007
+    12.5 0 -0.750007
+    12.5 2.49999 -0.750007
+    12.5 7.49999 0.749993
+    9.99998 7.49999 0.749993
+    7.49998 7.5 0.749994
+    4.99998 7.5 0.749995
+    2.49998 7.5 0.749996
+    -2.50002 7.5 0.749998
+    -5.00001 7.5 0.749999
+    -7.50001 7.5 0.75
+    -10 7.5 0.75
+    -12.5 7.5 0.750001
+    -12.5 5 0.750001
+    -12.5 2.5 0.750001
+    -12.5 0 0.750001
+    -12.5 -2.5 0.750001
+    -12.5 -5 0.750001
+    -12.5 -7.5 0.750001
+    -10 -7.5 0.75
+    -7.50002 -7.5 0.75
+    7.49998 -7.5 0.749994
+    9.99998 -7.50001 0.749993
+    12.5 -7.50001 0.749993
+    12.5 -5.00001 0.749993
+    12.5 -2.50001 0.749993
+    12.5 0 0.749993
+    12.5 2.49999 0.749993
+    12.5 4.99999 0.749993
+  faces 80
+    0 1 39  8  76 77 78  4
+    39 38 0  8  79 80 0  4
+    1 2 40  8  81 2 82  4
+    40 39 1  8  83 84 1  4
+    3 4 42  8  85 86 87  4
+    42 41 3  8  88 89 3  4
+    4 5 43  8  90 5 91  4
+    43 42 4  8  92 93 4  4
+    38 39 53  8  94 95 96  4
+    53 52 38  8  97 98 38  4
+    39 40 54  8  99 40 100  4
+    54 53 39  8  101 102 39  4
+    41 42 56  8  103 104 105  4
+    56 55 41  8  106 107 41  4
+    42 43 57  8  108 43 109  4
+    57 56 42  8  110 111 42  4
+    50 51 13  8  112 113 114  4
+    13 12 50  8  115 116 117  4
+    51 52 14  8  118 119 120  4
+    14 13 51  8  121 13 51  4
+    52 53 15  8  122 123 124  4
+    15 14 52  8  125 14 52  4
+    53 54 16  8  126 54 127  4
+    16 15 53  8  16 15 53  4
+    55 56 18  8  128 129 130  4
+    18 17 55  8  131 17 55  4
+    56 57 19  8  132 133 134  4
+    19 18 56  8  135 18 56  4
+    57 58 20  8  136 137 138  4
+    20 19 57  8  139 19 57  4
+    58 59 21  8  140 141 142  4
+    21 20 58  8  143 20 58  4
+    7 9 45  16  144 145 146  3
+    45 44 7  16  147 148 7  3
+    9 11 46  16  149 11 150  3
+    46 45 9  16  151 152 9  3
+    44 45 62  16  153 154 155  3
+    62 61 44  16  156 157 44  3
+    45 46 63  16  158 46 159  3
+    63 62 45  16  160 161 45  3
+    59 60 23  16  162 163 164  3
+    23 21 59  16  165 21 59  3
+    60 61 25  16  166 167 168  3
+    25 23 60  16  169 23 60  3
+    61 62 27  16  170 171 172  3
+    27 25 61  16  173 25 61  3
+    62 63 29  16  174 175 176  3
+    29 27 62  16  177 27 62  3
+    63 64 31  16  178 179 180  3
+    31 29 63  16  181 29 63  3
+    64 65 37  16  182 183 184  3
+    37 31 64  16  185 31 64  3
+    65 66 36  32  186 187 188  5
+    36 37 65  32  189 37 65  5
+    66 67 35  32  190 67 191  5
+    35 36 66  32  35 36 66  5
+    68 69 33  32  192 193 194  5
+    33 34 68  32  195 34 68  5
+    69 70 32  32  196 197 198  5
+    32 33 69  32  199 33 69  5
+    10 8 48  64  200 201 202  2
+    48 47 10  64  203 204 10  2
+    8 6 49  64  205 6 206  2
+    49 48 8  64  207 208 8  2
+    47 48 73  64  209 210 211  2
+    73 72 47  64  212 213 47  2
+    48 49 74  64  214 49 215  2
+    74 73 48  64  216 217 48  2
+    70 71 30  64  218 219 220  2
+    30 32 70  64  221 32 70  2
+    71 72 28  64  222 223 224  2
+    28 30 71  64  225 30 71  2
+    72 73 26  64  226 227 228  2
+    26 28 72  64  229 28 72  2
+    73 74 24  64  230 231 232  2
+    24 26 73  64  233 26 73  2
+    74 75 22  64  234 235 236  2
+    22 24 74  64  237 24 74  2
+    75 50 12  64  238 50 239  2
+    12 22 75  64  12 22 75  2
+  tverts 240
+    0 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 0 0
+    0 0 0
+    0 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    1 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    0 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    0 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    0 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 1 0
+    0 0 0
+endnode
 node trimesh police_station_skylight03
   parent lightlens68
   position -0.0173978 -6.41894 0.625317
@@ -5054,6 +5681,76 @@ node trimesh police_station_skylight03
     1 1 0
     1 1 0
 endnode
+node trimesh day06_0
+  parent lightlens68
+  position -0.0173978 -6.41894 0.625317
+  orientation 0 0 0 0
+  wirecolor 0.601563 0.601563 0.601563
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  render 1
+  Shadow 1
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 0
+  verts 9
+    1.24998 2.5 -0.500001
+    -1.25001 2.5 -0.500001
+    1.24998 0 -0.500001
+    -1.25002 0 -0.500001
+    1.24998 -2.5 -0.500001
+    -1.25002 -2.5 -0.500001
+    0 1.25 0.499999
+    0 0 0.499999
+    0 -1.25 0.499999
+  faces 10
+    0 1 6  0  9 10 11  0
+    2 0 6  0  12 0 13  0
+    6 7 2  0  14 15 16  0
+    1 3 7  0  17 18 19  0
+    7 6 1  0  20 6 1  0
+    4 2 7  0  21 2 22  0
+    7 8 4  0  23 24 25  0
+    3 5 8  0  26 27 28  0
+    8 7 3  0  29 7 3  0
+    5 4 8  0  5 4 8  0
+  tverts 30
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    0 0 0
+    0 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+    1 1 0
+    0 1 0
+    0 0 0
+    0 0 0
+    1 0 0
+    1 1 0
+    1 1 0
+endnode
 node trimesh lightlens69
   parent udp1_c05_14a
   position 1.26738 3.91894 6.30467
@@ -5065,7 +5762,7 @@ node trimesh lightlens69
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5810,7 +6507,7 @@ node trimesh lightlens70
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5846,7 +6543,7 @@ node trimesh lightlens71
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5899,7 +6596,7 @@ node trimesh lightlens72
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5935,7 +6632,7 @@ node trimesh lightlens73
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5988,7 +6685,7 @@ node trimesh lightlens74
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6024,7 +6721,7 @@ node trimesh lightlens75
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6077,7 +6774,7 @@ node trimesh lightlens76
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6114,7 +6811,7 @@ node trimesh jail_win
   selfillumcolor 0.698039 0.698039 0.698039
   bitmap udp1-window3b
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6158,7 +6855,7 @@ node trimesh lightlens77
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6194,7 +6891,7 @@ node trimesh jail_win01
   shininess 10
   bitmap udp1-window3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6255,7 +6952,7 @@ node trimesh lightlens78
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6291,7 +6988,7 @@ node trimesh lightlens79
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6343,7 +7040,7 @@ node trimesh lightbody34
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6493,7 +7190,7 @@ node trimesh light_base126
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6553,7 +7250,7 @@ node trimesh lightbody35
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6703,7 +7400,7 @@ node trimesh light_base127
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6763,7 +7460,7 @@ node trimesh lightbody36
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6913,7 +7610,7 @@ node trimesh light_base128
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -6973,7 +7670,7 @@ node trimesh lightbody37
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7123,7 +7820,7 @@ node trimesh light_base129
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7183,7 +7880,7 @@ node trimesh lightbody38
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7333,7 +8030,7 @@ node trimesh light_base130
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7393,7 +8090,7 @@ node trimesh lightbody39
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7543,7 +8240,7 @@ node trimesh light_base131
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7603,7 +8300,7 @@ node trimesh lightbody40
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7753,7 +8450,7 @@ node trimesh light_base132
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -8804,4 +9501,576 @@ node trimesh walkm02
   parent udp1_c05_14
 endnode
 doneanim animloop01 udp1_c05_14
+newanim day udp1_c05_14
+  length 0.03333
+  transtime 0.25
+  animroot udp1_c05_14
+  node dummy udp1_c05_14
+    parent NULL
+  endnode
+  node dummy udp1_c05_14a
+    parent udp1_c05_14
+  endnode
+  node trimesh lightlens66
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens68
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens68
+    parent udp1_c05_14a
+  endnode
+  node trimesh police_station_skylight01
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day02_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh police_station_skylight
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh police_station_skylight02
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day04_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh police_station_windows
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh police_station_skylight03
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day06_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens70
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens72
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens74
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens76
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens76
+    parent udp1_c05_14a
+  endnode
+  node trimesh jail_win
+    parent lightlens76
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens78
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim day udp1_c05_14
+newanim day2night udp1_c05_14
+  length 0.56667
+  transtime 0.25
+  animroot udp1_c05_14
+  node dummy udp1_c05_14
+    parent NULL
+  endnode
+  node dummy udp1_c05_14a
+    parent udp1_c05_14
+  endnode
+  node trimesh lightlens66
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lightlens68
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lightlens68
+    parent udp1_c05_14a
+  endnode
+  node trimesh police_station_skylight01
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day02_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh police_station_skylight
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh police_station_skylight02
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day04_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh police_station_windows
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh police_station_skylight03
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day06_0
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh lightlens70
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lightlens72
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lightlens74
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lightlens76
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lightlens76
+    parent udp1_c05_14a
+  endnode
+  node trimesh jail_win
+    parent lightlens76
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lightlens78
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+doneanim day2night udp1_c05_14
+newanim night udp1_c05_14
+  length 0.03333
+  transtime 0.25
+  animroot udp1_c05_14
+  node dummy udp1_c05_14
+    parent NULL
+  endnode
+  node dummy udp1_c05_14a
+    parent udp1_c05_14
+  endnode
+  node trimesh lightlens66
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens68
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens68
+    parent udp1_c05_14a
+  endnode
+  node trimesh police_station_skylight01
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day02_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh police_station_skylight
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh police_station_skylight02
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day04_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh police_station_windows
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day05_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh police_station_skylight03
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day06_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens70
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens72
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens74
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens76
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens76
+    parent udp1_c05_14a
+  endnode
+  node trimesh jail_win
+    parent lightlens76
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens78
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim night udp1_c05_14
+newanim night2day udp1_c05_14
+  length 0.60000
+  transtime 0.25
+  animroot udp1_c05_14
+  node dummy udp1_c05_14
+    parent NULL
+  endnode
+  node dummy udp1_c05_14a
+    parent udp1_c05_14
+  endnode
+  node trimesh lightlens66
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lightlens68
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lightlens68
+    parent udp1_c05_14a
+  endnode
+  node trimesh police_station_skylight01
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day02_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh police_station_skylight
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh police_station_skylight02
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day04_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh police_station_windows
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day05_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh police_station_skylight03
+    parent lightlens68
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day06_0
+    parent lightlens68
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh lightlens70
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lightlens72
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lightlens74
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lightlens76
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lightlens76
+    parent udp1_c05_14a
+  endnode
+  node trimesh jail_win
+    parent lightlens76
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lightlens78
+    parent udp1_c05_14a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+doneanim night2day udp1_c05_14
 donemodel udp1_c05_14

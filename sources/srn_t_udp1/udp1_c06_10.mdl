@@ -23,7 +23,7 @@ node trimesh garage_column36
   shininess 10
   bitmap gg2-wd-pl
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -155,7 +155,7 @@ node trimesh garage_column37
   shininess 10
   bitmap gg2-wd-pl
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -520,7 +520,7 @@ node trimesh curb460
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -740,7 +740,7 @@ node trimesh curb461
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2709,7 +2709,7 @@ node trimesh garage_column38
   shininess 10
   bitmap gg2-wd-pl
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2841,7 +2841,7 @@ node trimesh garage_column39
   shininess 10
   bitmap gg2-wd-pl
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3359,7 +3359,7 @@ node trimesh curb462
   shininess 10
   bitmap udp1-pave
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3532,7 +3532,7 @@ node trimesh garage_column40
   shininess 10
   bitmap gg2-wd-pl
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3664,7 +3664,7 @@ node trimesh garage_column41
   shininess 10
   bitmap gg2-wd-pl
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3977,7 +3977,7 @@ node trimesh mall-lights-off89
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -13939,6 +13939,7 @@ node dummy light_off27
   wirecolor 0.878906 0.878906 0.878906
 endnode
 node trimesh mall-lights-off90
+  shadow 0
   parent light_off27
   position -1.9517 -4.70607 3.1866
   orientation 1 0 0 -1.5708
@@ -23915,6 +23916,7 @@ node light misclight285
     fadingLight 0
 endnode
 node trimesh light_base124
+  shadow 0
   parent udp1_c06_10
   position -0.0168905 -0.20139 3.27066
   orientation 1 0 0 -1.5708
@@ -23969,6 +23971,7 @@ node trimesh light_base124
     1.50005 0.46 200.04
 endnode
 node trimesh LAMP_HANGAR03
+  shadow 0
   parent udp1_c06_10
   position -0.0168905 -0.20139 3.33511
   orientation 0 0 0 0
@@ -24259,4 +24262,88 @@ node trimesh LAMP_HANGAR03
   parent udp1_c06_10
 endnode
 doneanim animloop01 udp1_c06_10
+newanim day udp1_c06_10
+  length 0.03333
+  transtime 0.25
+  animroot udp1_c06_10
+  node dummy udp1_c06_10
+    parent NULL
+  endnode
+  node dummy udp1_c04_10a
+    parent udp1_c06_10
+  endnode
+  node dummy light_on27
+    parent udp1_c04_10a
+  endnode
+  node trimesh mall-lights-off89
+    parent light_on27
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim day udp1_c06_10
+newanim day2night udp1_c06_10
+  length 0.56667
+  transtime 0.25
+  animroot udp1_c06_10
+  node dummy udp1_c06_10
+    parent NULL
+  endnode
+  node dummy udp1_c04_10a
+    parent udp1_c06_10
+  endnode
+  node dummy light_on27
+    parent udp1_c04_10a
+  endnode
+  node trimesh mall-lights-off89
+    parent light_on27
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+doneanim day2night udp1_c06_10
+newanim night udp1_c06_10
+  length 0.03333
+  transtime 0.25
+  animroot udp1_c06_10
+  node dummy udp1_c06_10
+    parent NULL
+  endnode
+  node dummy udp1_c04_10a
+    parent udp1_c06_10
+  endnode
+  node dummy light_on27
+    parent udp1_c04_10a
+  endnode
+  node trimesh mall-lights-off89
+    parent light_on27
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim night udp1_c06_10
+newanim night2day udp1_c06_10
+  length 0.60000
+  transtime 0.25
+  animroot udp1_c06_10
+  node dummy udp1_c06_10
+    parent NULL
+  endnode
+  node dummy udp1_c04_10a
+    parent udp1_c06_10
+  endnode
+  node dummy light_on27
+    parent udp1_c04_10a
+  endnode
+  node trimesh mall-lights-off89
+    parent light_on27
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+doneanim night2day udp1_c06_10
 donemodel udp1_c06_10

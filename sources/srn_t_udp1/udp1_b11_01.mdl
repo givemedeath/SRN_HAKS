@@ -13,6 +13,7 @@ node dummy udp1_b11_01
   parent NULL
 endnode
 node trimesh roof_edge66
+  shadow 0
   parent udp1_b11_01
   position -0.299995 -2.2 6.405
   orientation 0 0 -1 -1.5708
@@ -123,6 +124,7 @@ node trimesh roof_edge66
     0.4425 -1 0.44
 endnode
 node trimesh minimall_lower_wall05
+  shadow 0
   parent udp1_b11_01
   position -0.599995 -2.2 1.88
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -199,6 +201,7 @@ node light udp1_b11_01ml1
     fadingLight 1
 endnode
 node trimesh upper_minimall_wall05
+  shadow 0
   parent udp1_b11_01
   position -0.599995 -2.2 5.23
   orientation 0.57735 0.57735 -0.57735 -2.0944
@@ -229,6 +232,7 @@ node trimesh upper_minimall_wall05
     -0.5 -0.341207 0.500003
 endnode
 node trimesh upper_minimall_wall04
+  shadow 0
   parent udp1_b11_01
   position 2.20001 0.599997 5.23
   orientation 1 0 0 -1.5708
@@ -333,6 +337,7 @@ node trimesh stripmall_base_roof05
     -1.35 0.65 0.00049907
 endnode
 node trimesh minimall_lower_wall04
+  shadow 0
   parent udp1_b11_01
   position 2.20001 0.599997 1.88
   orientation 1 0 0 -1.5708
@@ -393,6 +398,7 @@ node trimesh minimall_lower_wall04
     0.38 0.998792 0.500003
 endnode
 node trimesh roof_edge65
+  shadow 0
   parent udp1_b11_01
   position 2.2 0.299997 6.405
   orientation 0 0 0 0
@@ -503,6 +509,7 @@ node trimesh roof_edge65
     0.4425 -1 0.44
 endnode
 node trimesh floor07
+  shadow 0
   parent udp1_b11_01
   position 0 0 0.0999986
   orientation 0 0 0 0

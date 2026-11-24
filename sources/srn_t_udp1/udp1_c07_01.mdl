@@ -39,7 +39,7 @@ node trimesh step05
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -99,7 +99,7 @@ node trimesh WINDOW_AC_UNIT30
   shininess 10
   bitmap udp1-aircond2
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -165,7 +165,7 @@ node trimesh pool_support
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -217,7 +217,7 @@ node trimesh pool_support01
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -269,7 +269,7 @@ node trimesh OilTank02
   shininess 10
   bitmap udp1-h6-ss
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -615,7 +615,7 @@ node trimesh OilTank01
   shininess 10
   bitmap udp1-h6-ss
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -961,7 +961,7 @@ node trimesh support13
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1057,7 +1057,7 @@ node trimesh pool_support05
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1109,7 +1109,7 @@ node trimesh pool_support06
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1161,7 +1161,7 @@ node trimesh pool_support07
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1213,7 +1213,7 @@ node trimesh pool_support08
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1265,7 +1265,7 @@ node trimesh pool_support09
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1317,7 +1317,7 @@ node trimesh pool_support10
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1369,7 +1369,7 @@ node trimesh pool_support11
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1421,7 +1421,7 @@ node trimesh support12
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1517,7 +1517,7 @@ node trimesh support11
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1613,7 +1613,7 @@ node trimesh support
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1833,7 +1833,7 @@ node trimesh stair_side
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1889,7 +1889,7 @@ node trimesh stair_side01
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1945,7 +1945,7 @@ node trimesh step
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2005,7 +2005,7 @@ node trimesh step01
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2065,7 +2065,7 @@ node trimesh step02
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2125,7 +2125,7 @@ node trimesh step03
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2185,7 +2185,7 @@ node trimesh step04
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2245,7 +2245,7 @@ node trimesh handrail02
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2313,7 +2313,7 @@ node trimesh support_2
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2363,7 +2363,7 @@ node trimesh support01
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2413,7 +2413,7 @@ node trimesh support02
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2463,7 +2463,7 @@ node trimesh support03
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2513,7 +2513,7 @@ node trimesh support04
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2563,7 +2563,7 @@ node trimesh support05
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2613,7 +2613,7 @@ node trimesh support06
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2663,7 +2663,7 @@ node trimesh support07
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2713,7 +2713,7 @@ node trimesh support08
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2763,7 +2763,7 @@ node trimesh support09
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2813,7 +2813,7 @@ node trimesh support10
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2863,7 +2863,7 @@ node trimesh handrail
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2931,7 +2931,7 @@ node trimesh handrail_2
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2999,7 +2999,7 @@ node trimesh handrail01
   shininess 10
   bitmap udp1-wd-fnc
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3067,7 +3067,7 @@ node trimesh pool_heater
   shininess 10
   bitmap udp1-h6-ss
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3456,7 +3456,7 @@ node trimesh pool_support04
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3508,7 +3508,7 @@ node trimesh pool_support03
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3560,7 +3560,7 @@ node trimesh pool_support02
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3860,7 +3860,7 @@ node trimesh grass363
   shininess 10
   bitmap az2-grass
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3962,7 +3962,7 @@ node trimesh pool_bottom
   shininess 10
   bitmap gg2-h2-3
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

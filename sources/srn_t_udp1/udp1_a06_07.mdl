@@ -23,7 +23,7 @@ node trimesh sign_bar13
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -91,7 +91,7 @@ node trimesh sign_bar14
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -159,7 +159,7 @@ node trimesh schoolsign04
   shininess 10
   bitmap udp1-allsigns
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -292,7 +292,7 @@ node trimesh schoolsign02
   shininess 10
   bitmap udp1-allsigns
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -325,7 +325,7 @@ node trimesh schoolsign03
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -358,7 +358,7 @@ node trimesh schoolsign05
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0

@@ -23,7 +23,7 @@ node trimesh streetlightpost10
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -153,7 +153,7 @@ node trimesh support09
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1066,7 +1066,7 @@ node trimesh light_base10
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1589,7 +1589,7 @@ node trimesh lamphead12
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1871,7 +1871,7 @@ node trimesh support13
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1939,7 +1939,7 @@ node trimesh light_base14
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2697,7 +2697,7 @@ node trimesh lens_lit19
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2836,7 +2836,7 @@ node trimesh lens_unlit19
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4197,4 +4197,88 @@ node trimesh light_brace24
   parent udp1_a26_07
 endnode
 doneanim animloop03 udp1_a26_07
+newanim day udp1_a26_07
+  length 0.03333
+  transtime 0.25
+  animroot udp1_a26_07
+  node dummy udp1_a26_07
+    parent NULL
+  endnode
+  node dummy udp1_a26_07a
+    parent udp1_a26_07
+  endnode
+  node dummy light-on_animroot04
+    parent udp1_a26_07a
+  endnode
+  node trimesh lens_lit19
+    parent light-on_animroot04
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim day udp1_a26_07
+newanim day2night udp1_a26_07
+  length 0.56667
+  transtime 0.25
+  animroot udp1_a26_07
+  node dummy udp1_a26_07
+    parent NULL
+  endnode
+  node dummy udp1_a26_07a
+    parent udp1_a26_07
+  endnode
+  node dummy light-on_animroot04
+    parent udp1_a26_07a
+  endnode
+  node trimesh lens_lit19
+    parent light-on_animroot04
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+doneanim day2night udp1_a26_07
+newanim night udp1_a26_07
+  length 0.03333
+  transtime 0.25
+  animroot udp1_a26_07
+  node dummy udp1_a26_07
+    parent NULL
+  endnode
+  node dummy udp1_a26_07a
+    parent udp1_a26_07
+  endnode
+  node dummy light-on_animroot04
+    parent udp1_a26_07a
+  endnode
+  node trimesh lens_lit19
+    parent light-on_animroot04
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim night udp1_a26_07
+newanim night2day udp1_a26_07
+  length 0.60000
+  transtime 0.25
+  animroot udp1_a26_07
+  node dummy udp1_a26_07
+    parent NULL
+  endnode
+  node dummy udp1_a26_07a
+    parent udp1_a26_07
+  endnode
+  node dummy light-on_animroot04
+    parent udp1_a26_07a
+  endnode
+  node trimesh lens_lit19
+    parent light-on_animroot04
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+doneanim night2day udp1_a26_07
 donemodel udp1_a26_07

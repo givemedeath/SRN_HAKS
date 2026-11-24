@@ -73,6 +73,7 @@ node trimesh stripmall_base_roof32
     -1 1 0.00049907
 endnode
 node trimesh roof_edge152
+  shadow 0
   parent udp1_b10_05
   position 0 0.299995 6.405
   orientation 0 0 0 0
@@ -336,6 +337,7 @@ node aabb walkm705
      0.00 0.00 0.13   2.50 0.60 6.45   10
 endnode
 node trimesh minimall_lower_wall66
+  shadow 0
   parent udp1_b10_05
   position 0 0.599995 1.88
   orientation 1 0 0 -1.5708
@@ -432,6 +434,7 @@ node trimesh minimall_lower_wall66
     -0.5 0.998793 0.500003
 endnode
 node trimesh upper_minimall_wall63
+  shadow 0
   parent udp1_b10_05
   position 0 0.599995 5.23
   orientation 1 0 0 -1.5708
@@ -474,6 +477,7 @@ node trimesh upper_minimall_wall63
     -0.5 -0.341207 0.499996
 endnode
 node trimesh floor38
+  shadow 0
   parent udp1_b10_05
   position 0 2.79999 0.114999
   orientation 0 0 0 0

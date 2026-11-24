@@ -23,7 +23,7 @@ node trimesh stopl_panel06
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -626,7 +626,7 @@ node trimesh light_base01
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -754,7 +754,7 @@ node trimesh ASPHALT60
   shininess 10
   bitmap udp1-asph
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1012,7 +1012,7 @@ node trimesh support
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1310,7 +1310,7 @@ node trimesh streetlightpost02
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1440,7 +1440,7 @@ node trimesh lamphead04
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1606,7 +1606,7 @@ node trimesh streetlight07
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -1819,7 +1819,7 @@ node trimesh stopl_panel00
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2422,7 +2422,7 @@ node trimesh light_base02
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2534,7 +2534,7 @@ node trimesh support01
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2832,7 +2832,7 @@ node trimesh streetlightpost03
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -2962,7 +2962,7 @@ node trimesh lamphead05
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3128,7 +3128,7 @@ node trimesh streetlight09
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3341,7 +3341,7 @@ node trimesh stopl_panel01
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -3944,7 +3944,7 @@ node trimesh light_base03
   shininess 10
   bitmap udp1-mtl-gry
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4056,7 +4056,7 @@ node trimesh support02
   shininess 10
   bitmap udp1-mtl-chrm
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4432,7 +4432,7 @@ node trimesh lens_lit04
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4566,7 +4566,7 @@ node trimesh lens_lit05
   selfillumcolor 1 1 1
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4705,7 +4705,7 @@ node trimesh lens_unlit05
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -4838,7 +4838,7 @@ node trimesh lens_unlit04
   shininess 10
   bitmap udp1-lght-pln
   render 1
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -5600,7 +5600,7 @@ node trimesh light_brace14
   shininess 10
   bitmap udp1-mtl-chrm
   render 0
-  Shadow 1
+  Shadow 0
   beaming 0
   transparencyhint 0
   tilefade 0
@@ -7106,4 +7106,116 @@ node trimesh light_brace17
   parent udp1_a06_10
 endnode
 doneanim animloop03 udp1_a06_10
+newanim day udp1_a06_10
+  length 0.03333
+  transtime 0.25
+  animroot udp1_a06_10
+  node dummy udp1_a06_10
+    parent NULL
+  endnode
+  node dummy udp1_a06_10a
+    parent udp1_a06_10
+  endnode
+  node dummy light-on_animroot
+    parent udp1_a06_10a
+  endnode
+  node trimesh lens_lit04
+    parent light-on_animroot
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lens_lit05
+    parent light-on_animroot
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim day udp1_a06_10
+newanim day2night udp1_a06_10
+  length 0.56667
+  transtime 0.25
+  animroot udp1_a06_10
+  node dummy udp1_a06_10
+    parent NULL
+  endnode
+  node dummy udp1_a06_10a
+    parent udp1_a06_10
+  endnode
+  node dummy light-on_animroot
+    parent udp1_a06_10a
+  endnode
+  node trimesh lens_lit04
+    parent light-on_animroot
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lens_lit05
+    parent light-on_animroot
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+doneanim day2night udp1_a06_10
+newanim night udp1_a06_10
+  length 0.03333
+  transtime 0.25
+  animroot udp1_a06_10
+  node dummy udp1_a06_10
+    parent NULL
+  endnode
+  node dummy udp1_a06_10a
+    parent udp1_a06_10
+  endnode
+  node dummy light-on_animroot
+    parent udp1_a06_10a
+  endnode
+  node trimesh lens_lit04
+    parent light-on_animroot
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lens_lit05
+    parent light-on_animroot
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim night udp1_a06_10
+newanim night2day udp1_a06_10
+  length 0.60000
+  transtime 0.25
+  animroot udp1_a06_10
+  node dummy udp1_a06_10
+    parent NULL
+  endnode
+  node dummy udp1_a06_10a
+    parent udp1_a06_10
+  endnode
+  node dummy light-on_animroot
+    parent udp1_a06_10a
+  endnode
+  node trimesh lens_lit04
+    parent light-on_animroot
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lens_lit05
+    parent light-on_animroot
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+doneanim night2day udp1_a06_10
 donemodel udp1_a06_10

@@ -13,6 +13,7 @@ node dummy udp1_b01_07
   parent NULL
 endnode
 node trimesh roof_edge04
+  shadow 0
   parent udp1_b01_07
   position 2.85002 0 9.905
   orientation 0 0 1 -1.5708
@@ -59,6 +60,7 @@ node trimesh roof_edge04
     0 0.4525 0.535001
 endnode
 node trimesh box_bldg_upper04
+  shadow 0
   parent udp1_b01_07
   position 3.20004 0 7.63
   orientation 0 0 1 -1.5708
@@ -111,6 +113,7 @@ node light udp1_b01_07ml1
     fadingLight 1
 endnode
 node trimesh box_bldg_lower04
+  shadow 0
   parent udp1_b01_07
   position 3.20004 0 2.63
   orientation 0 0 1 -1.5708
@@ -147,6 +150,7 @@ node trimesh box_bldg_lower04
     2 -0.5 0.5
 endnode
 node trimesh roof_edge03
+  shadow 0
   parent udp1_b01_07
   position 0 2.84999 9.905
   orientation 0 0 0 0
@@ -193,6 +197,7 @@ node trimesh roof_edge03
     0.750001 0.4525 0.535001
 endnode
 node trimesh roof02
+  shadow 0
   parent udp1_b01_07
   position 0 -1.25001 9.43
   orientation 0 0 0 0
@@ -463,6 +468,7 @@ node aabb walkm
      2.60 3.75 0.95   3.00 6.25 0.95   35
 endnode
 node trimesh box_bldg_lower03
+  shadow 0
   parent udp1_b01_07
   position 0 3.2 2.63
   orientation 0 0 0 0
@@ -499,6 +505,7 @@ node trimesh box_bldg_lower03
     0.359991 0 0.5
 endnode
 node trimesh single_tile09
+  shadow 0
   parent udp1_b01_07
   position 4.10004 4.1 0.0999985
   orientation 0 0 0 0
@@ -523,6 +530,7 @@ node trimesh single_tile09
     0.271058 0.742072 0.9995
 endnode
 node trimesh box_bldg_upper03
+  shadow 0
   parent udp1_b01_07
   position 0 3.2 7.63
   orientation 0 0 0 0

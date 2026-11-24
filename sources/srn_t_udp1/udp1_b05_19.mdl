@@ -388,6 +388,7 @@ node light udp1_b05_19ml1
     fadingLight 1
 endnode
 node trimesh roof_edge57
+  shadow 0
   parent udp1_b05_19
   position 0 2.84999 9.905
   orientation 0 0 0 0
@@ -518,6 +519,7 @@ node trimesh roof_edge57
     0 0.4525 0.535001
 endnode
 node trimesh sidewalk_section269
+  shadow 0
   parent udp1_b05_19
   position 2.50005 4.10001 0.114999
   orientation 0 0 -1 -1.5708
@@ -568,6 +570,7 @@ node trimesh sidewalk_section269
     -0.993383 1 0.000499547
 endnode
 node trimesh sidewalk_section270
+  shadow 0
   parent udp1_b05_19
   position -2.49999 4.10001 0.114999
   orientation 0 0 -1 -1.5708
@@ -618,6 +621,7 @@ node trimesh sidewalk_section270
     -0.993383 1 0.000499547
 endnode
 node trimesh box_bldg_lower50
+  shadow 0
   parent udp1_b05_19
   position 0 3.20001 2.63
   orientation 0 0 0 0
@@ -722,6 +726,7 @@ node trimesh box_bldg_lower50
     2 -0.5 0.5
 endnode
 node trimesh roof68
+  shadow 0
   parent udp1_b05_19
   position 0 -1.25001 9.43
   orientation 0 0 0 0
@@ -800,6 +805,7 @@ node trimesh roof68
     1.5 0.249998 0.5
 endnode
 node trimesh box_bldg_upper40
+  shadow 0
   parent udp1_b05_19
   position 0 3.20001 7.63
   orientation 0 0 0 0
@@ -1177,6 +1183,7 @@ node trimesh bumper01
     0.159883 0.755 0.184375
 endnode
 node trimesh bollard
+  shadow 0
   parent udp1_b05_19
   position -1.02784 3.66905 0
   orientation 0 0 0 0
@@ -1259,6 +1266,7 @@ node trimesh bollard
     0.751663 0.673925 0.5
 endnode
 node trimesh bollard01
+  shadow 0
   parent udp1_b05_19
   position 4.07696 3.66905 0
   orientation 0 0 0 0
@@ -1341,6 +1349,7 @@ node trimesh bollard01
     0.751663 0.673925 0.5
 endnode
 node trimesh garage_door
+  shadow 0
   parent udp1_b05_19
   position 1.2686 3.00001 3.36076
   orientation 1 0 0 -1.5708
@@ -1703,6 +1712,7 @@ node light misclight174
     fadingLight 0
 endnode
 node trimesh lightlens45
+  shadow 0
   parent udp1_b05_19a
   position 0 3.6325 7.02013
   orientation -1 0 0 -0.785398
@@ -1726,6 +1736,7 @@ node trimesh lightlens45
     5 3 2  2  0 0 0  1
 endnode
 node trimesh garage_window02
+  shadow 0
   parent lightlens45
   position 1.26851 -3.03482 -2.14032
   orientation 1 0 0 -2.35619
@@ -1764,6 +1775,7 @@ node trimesh garage_window02
     1 1 0
 endnode
 node trimesh lightlens44
+  shadow 0
   parent udp1_b05_19a
   position 0 3.6325 -2.97987
   orientation -1 0 0 -0.785398
@@ -1788,6 +1800,7 @@ node trimesh lightlens44
     5 3 2  2  0 0 0  1
 endnode
 node trimesh garage_window
+  shadow 0
   parent lightlens44
   position 1.26851 -3.03482 -2.14032
   orientation 1 0 0 -2.35619
@@ -1826,7 +1839,48 @@ node trimesh garage_window
     0 0 0
     1 1 0
 endnode
+node trimesh day01_0
+  shadow 0
+  parent lightlens44
+  position 1.26851 -3.03482 -2.14032
+  orientation 1 0 0 -2.35619
+  wirecolor 0.105469 0.105469 0.105469
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-window2
+  verts 8
+    1.77766 -0.132007 0
+    0.777656 -0.132007 0
+    -0.222342 -0.132007 0
+    -1.22235 -0.132007 0
+    1.77766 -0.497655 0
+    0.777656 -0.497655 0
+    -0.222342 -0.497655 0
+    -1.22235 -0.497655 0
+  faces 4
+    4 0 5  1  4 8 9  0
+    1 5 0  1  1 5 0  0
+    6 2 7  1  6 10 11  0
+    3 7 2  1  3 7 2  0
+  tverts 12
+    0 0 0
+    1 0 0
+    0 0 0
+    1 0 0
+    0 1 0
+    1 1 0
+    0 1 0
+    1 1 0
+    0 0 0
+    1 1 0
+    0 0 0
+    1 1 0
+endnode
 node trimesh lightbody22
+  shadow 0
   parent udp1_b05_19
   position 0 3.63251 7.02013
   orientation -1 0 0 -0.785398
@@ -1971,6 +2025,7 @@ node trimesh lightbody22
     0.0868522 0.5 0.08781
 endnode
 node trimesh light_base65
+  shadow 0
   parent udp1_b05_19
   position 0 3.29281 7.05511
   orientation 0 0 0 0
@@ -2025,4 +2080,144 @@ node trimesh light_base65
     0.9995 0.999501 0.000499517
 endnode
 endmodelgeom udp1_b05_19
+newanim day udp1_b05_19
+  length 0.03333
+  transtime 0.25
+  animroot udp1_b05_19
+  node dummy udp1_b05_19
+    parent NULL
+  endnode
+  node dummy udp1_b05_19a
+    parent udp1_b05_19
+  endnode
+  node trimesh lightlens44
+    parent udp1_b05_19a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh lightlens44
+    parent udp1_b05_19a
+  endnode
+  node trimesh garage_window
+    parent lightlens44
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day01_0
+    parent lightlens44
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+doneanim day udp1_b05_19
+newanim day2night udp1_b05_19
+  length 0.56667
+  transtime 0.25
+  animroot udp1_b05_19
+  node dummy udp1_b05_19
+    parent NULL
+  endnode
+  node dummy udp1_b05_19a
+    parent udp1_b05_19
+  endnode
+  node trimesh lightlens44
+    parent udp1_b05_19a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh lightlens44
+    parent udp1_b05_19a
+  endnode
+  node trimesh garage_window
+    parent lightlens44
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day01_0
+    parent lightlens44
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night udp1_b05_19
+newanim night udp1_b05_19
+  length 0.03333
+  transtime 0.25
+  animroot udp1_b05_19
+  node dummy udp1_b05_19
+    parent NULL
+  endnode
+  node dummy udp1_b05_19a
+    parent udp1_b05_19
+  endnode
+  node trimesh lightlens44
+    parent udp1_b05_19a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh lightlens44
+    parent udp1_b05_19a
+  endnode
+  node trimesh garage_window
+    parent lightlens44
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day01_0
+    parent lightlens44
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night udp1_b05_19
+newanim night2day udp1_b05_19
+  length 0.60000
+  transtime 0.25
+  animroot udp1_b05_19
+  node dummy udp1_b05_19
+    parent NULL
+  endnode
+  node dummy udp1_b05_19a
+    parent udp1_b05_19
+  endnode
+  node trimesh lightlens44
+    parent udp1_b05_19a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh lightlens44
+    parent udp1_b05_19a
+  endnode
+  node trimesh garage_window
+    parent lightlens44
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day01_0
+    parent lightlens44
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+doneanim night2day udp1_b05_19
 donemodel udp1_b05_19

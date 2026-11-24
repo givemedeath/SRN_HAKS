@@ -218,6 +218,7 @@ node aabb walkm12
      2.50 3.75 0.00   5.00 6.25 0.00   27
 endnode
 node trimesh roof20
+  shadow 0
   parent udp1_b01_12
   position 0 -1.25002 9.43
   orientation 0 0 0 0
@@ -376,6 +377,7 @@ node trimesh AC_Unit
     0.939269 0.89281 0.5
 endnode
 node trimesh base
+  shadow 0
   parent udp1_b01_12
   position -0.00603844 -1.28449 9.43
   orientation 0 0 0 0
@@ -430,6 +432,7 @@ node trimesh base
     0.691212 0.53048 0.0595312
 endnode
 node trimesh vent
+  shadow 0
   parent udp1_b01_12
   position 3.33154 -1.28449 10.2336
   orientation 0 0 0 0
