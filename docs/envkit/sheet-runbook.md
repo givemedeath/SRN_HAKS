@@ -382,7 +382,7 @@ user: "It should fully replace the Council of Denver sheet"): the set keeps its 
 no building view (the sheet's own note: the shell comes from a tileset), and `17_council_of_denver_intersector_administration_hall.png`
 is taken out of `<sheets>`, where `audit` would tell it as a sheet without a set. Nothing had been made from sheet 17;
 the props of other sets that were the same as one of its props now name the kit's prop, or for the twin floodlight on
-a pole, which the kit does not draw, `cas-checkpoint/floodlight`. Sheet 60 is sheet 6's Shiawase substation drawn again for the Barrens (user, 2026-11-17): the same
+a pole, which the kit does not draw, `parking-garage/light-pole`, the one of them drawn whole with its base. Sheet 60 is sheet 6's Shiawase substation drawn again for the Barrens (user, 2026-11-17): the same
 building worn down, on one fenced slab with an open yard, one door (the way down to the utility tunnels) and one
 roller door. It was drawn with the Codex CLI's image tool from sheet 6 and revised from its own drawing; where
 `boxes` joins a hero to the title block or a row of props to its heading, as it did there, state the boxes by hand
