@@ -183,8 +183,13 @@ them there), 164 groups, 130 rules, shown as "SRN City Interior". `tools/tilekit
 - **Source fix:** `nac01.set` hook `[TILE8DOOR1] X==-4.75` is now `X=-4.75`.
 - **Client check:** `docs/tilesets/srx02/review.json` lays rooms of all four families and their four passages in one
   area of the merged set; 20 eye-level views, none late, every tile drawn (`output/tilekit/s2-srx02-eye`).
-- **Not done:** the Toolset check (palette lists, painting each family's floors, laying a group of each, save and
-  read back).
+- **Toolset check (2026-11-24, by computer use on an isolated user folder):** the review module opens; the palette
+  lists 107 features, 48 groups (155, the 164 less the nine fantasy ones) and 29 terrains and crossers with the eraser
+  and raise tools. A floor of each family painted on Wall beside the others (Home kitchen, Facility, Duct junction
+  room, Office terracotta), then a tile or group of each family with groups laid (Office Restrooms, Facility Room 1x2
+  B, Home Slum Home A). Undo took a paint back. Saved ("Area verified successfully") and read back: tileset `srx02`,
+  18 of 418 tiles changed, to tiles of all four families (udp2 4, tfb01 6, tbx78 3, nac01 5), none past 667.
+  Not tried: redo (Ctrl+Y did nothing; the Edit menu was not used), rotating a group, reopening the saved module.
 - **Open:** one EnvMap for the set (udp2's `tdc01__ref01` is kept; tfb01 and nac01 named others) is judged at the
   release A look check. Crosser joins are stage 3.
 
