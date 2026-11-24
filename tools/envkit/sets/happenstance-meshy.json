@@ -31,7 +31,7 @@
     "roof-vent": {"triangles": 4000},
     "vent-stack": {"triangles": 2000},
     "antenna-mast": {"triangles": 6000},
-    "satellite-dish": {"triangles": 5000},
+    "satellite-dish": {"triangles": 5000, "key": "hs-satellite-dish-a2"},
     "graffiti-panel": {"triangles": 2000},
     "curb-section": {"triangles": 1500},
     "sidewalk-section": {"triangles": 2000}
