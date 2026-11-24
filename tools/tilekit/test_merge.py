@@ -100,6 +100,15 @@ class Refresh(unittest.TestCase):
             self.assertEqual(merge.stale(repo, spec, home / 'merge.json', home / 'merged.json'), ['set:a'])
             with self.assertRaisesRegex(ValueError, 'no category'):
                 merge.refresh(repo, {'a': ('Other', 'Other')}, district='Nowhere', gff=gff)
+            # A building only a later family has is no copy; it becomes one when an earlier family gains the building.
+            families = [{'set': 'z', 'label': 'Old Town'}, {'set': 'a', 'label': 'City'}, {'set': 'b', 'label': 'Town'}]
+            (home / 'merge.json').write_text(json.dumps({**spec, 'families': families}), encoding='utf-8')
+            shown = lambda added: {(entry['set'], entry['name']): entry['display'] for entry in merge.named(repo, added)[0][3]['groups']}
+            self.assertEqual(shown({'b': ('Bar', 'A Bar')})[('b', 'Bar')], 'Unsorted: A Bar')
+            self.assertEqual(shown({'b': ('Hut', 'A Hut')})[('b', 'Hut')], 'Unsorted: A Hut (town)')  # a has its Hut already
+            both = shown({'b': ('Bar', 'A Bar'), 'z': ('Bar', 'A Bar')}); self.assertEqual((both[('z', 'Bar')], both[('b', 'Bar')]), ('Unsorted: A Bar', 'Unsorted: A Bar (town)'))
+            first = shown({'z': ('Hut', 'A Hut')}); self.assertEqual((first[('z', 'Hut')], first[('a', 'Hut')]), ('Unsorted: A Hut', 'Unsorted: A Hut (city)'))
+            (home / 'merge.json').write_text(json.dumps(spec), encoding='utf-8')
             before = (home / 'names.json').read_bytes()
             with self.assertRaisesRegex(ValueError, 'no category'):  # what an install asks before it changes a source set: nothing is written
                 merge.named(repo, {'a': ('Other', 'Other')}, district='Nowhere')
@@ -268,11 +277,12 @@ class Merged(unittest.TestCase):
                 if not re.fullmatch(r'GROUP\d+', section):
                     continue
                 size = int(keys['Rows']) * int(keys['Columns'])
-                if source[int(keys['Tile0'])].lower() in begun:  # a later family's copy of a building: left out, the Toolset would lay the first
+                lead = source[next(int(keys[f'Tile{at}']) for at in range(size) if int(keys[f'Tile{at}']) >= 0)].lower()  # -1 is a slot with no tile
+                if lead in begun:  # a later family's copy of a building: left out, the Toolset would lay the first
                     continue
-                begun.add(source[int(keys['Tile0'])].lower()); now = groups[index]; index += 1
+                begun.add(lead); now = groups[index]; index += 1
                 self.assertEqual((now['Rows'], now['Columns']), (keys['Rows'], keys['Columns']))
-                self.assertEqual([models[int(now[f'Tile{at}'])] for at in range(size)], [source[int(keys[f'Tile{at}'])] for at in range(size)], f'{name} {keys["Name"]}')
+                self.assertEqual([models.get(int(now[f'Tile{at}'])) for at in range(size)], [source.get(int(keys[f'Tile{at}'])) for at in range(size)], f'{name} {keys["Name"]}')
         self.assertEqual(index, len(groups))
         listed = [entry['RESREF']['value'] for node in self.made['palette']['MAIN']['value'][:2] for entry in node['LIST']['value']]
         self.assertEqual(len(listed), len(groups))
