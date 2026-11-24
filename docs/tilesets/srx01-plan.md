@@ -669,6 +669,14 @@ The four textures it shares with dgt04 keep dgt04's look.
 
 - **Look pass:** the user's whole-city look pass across the three districts and the joins, by day and night.
 - **Performance:** against the baseline.
+- **Measured (2026-11-24, after Release C and the day and night of the arcology and the suburb signs, from the built
+  packs):** the districts block (`docs/tilesets/srx01/districts.json`) by day and at night, 17 views each, in
+  `output/tilekit/e-districts`, for the user's look pass. Frame rate by the stage 2 method, same three views
+  (suburb, city street, arcology void), 6-second average, run 1 / run 2: day 179 179 180 / 181 181 180; night
+  179 178 180 / 182 179 171. Every view holds the cap but the arcology void at night in run 2 (171 against the
+  test's 175; 180 in run 1, 173 over 12 s). Area load, night from day: 0.8 s and 1.0 s (1.4–1.8 s at stage 2). The
+  block has the tile lamps off, as a newly built area has: the city streets and the arcology plaza are nearly
+  unlit at night there, the suburb houses are lit.
 - **Old sets:** whether to retire them is the user's call later. This plan keeps them.
 
 ## Verification (each stage)
