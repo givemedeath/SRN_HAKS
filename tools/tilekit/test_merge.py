@@ -120,6 +120,40 @@ class Refresh(unittest.TestCase):
             merge.numbered({'a': 2, 'b': 2}, [], record)
         with self.assertRaisesRegex(ValueError, 'names a tile twice'):
             merge.numbered({'a': 2}, [], [['a', 0, 2], ['a', 1, 1]])
+        for run in (['a', 0], ['join', 'j1', 1], ['a', 0, '2'], ['a', -1, 2]):
+            with self.assertRaisesRegex(ValueError, 'a run that is neither'):
+                merge.numbered({'a': 2}, ['j1'], [run])
+
+    def test_a_lost_numbers_record_is_refused_once_tiles_would_move(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as folder:
+            repo = Path(folder); (repo / 'srn_2da').mkdir(); home = repo / 'docs' / 'tilesets' / 'm'; home.mkdir(parents=True)
+            for name in 'ab':
+                (repo / f'srn_t_{name}').mkdir(); (repo / f'srn_t_{name}' / f'{name}.set').write_bytes(small().replace(b'Model=m', b'Model=' + name.encode()))
+                (repo / 'srn_2da' / f'{name}_edge.2da').write_bytes(b'2DA V2.0\n\n  Corner1 Edge Corner2 Height Model\n')
+            names = {'categories': ['Unsorted'], 'terrains': [{'set': name, 'name': 'Old', 'key': key, 'display': key} for name, key in (('a', 'New'), ('b', 'Newer'))],
+                     'crossers': [], 'groups': [{'set': name, 'name': 'Hut', 'display': 'Hut ' + name} for name in 'ab']}
+            (home / 'names.json').write_text(json.dumps(names), encoding='utf-8')
+            spec = {'set': 'm', 'display': 'M', 'names': 'docs/tilesets/m/names.json', 'numbers': 'docs/tilesets/m/numbers.json',
+                    'families': [{'set': 'a', 'label': 'City'}, {'set': 'b', 'label': 'Town'}], 'general': 'a', 'grass': 'a'}
+            (home / 'merge.json').write_text(json.dumps(spec), encoding='utf-8')
+            gff = lambda arguments: Path(arguments[3]).write_bytes(Path(arguments[1]).read_bytes())
+            merge.merge(repo, home / 'merge.json', home / 'merged.json', gff=gff)
+            self.assertEqual(json.loads((home / 'numbers.json').read_text(encoding='utf-8'))['tiles'], [['a', 0, 2], ['b', 0, 2]])
+            more = small().replace(b'Model=m', b'Model=a').decode().replace('Count=2', 'Count=3').replace(
+                '[GROUPS]', '[TILE2]\r\nModel=a2\r\nTopLeft=Old\r\nTopRight=Old\r\nBottomLeft=Old\r\nBottomRight=Old\r\nTop=\r\nRight=\r\nBottom=\r\nLeft=\r\nDoors=0\r\n\r\n[GROUPS]')
+            (repo / 'srn_t_a' / 'a.set').write_bytes(more.encode())
+            merge.merge(repo, home / 'merge.json', home / 'merged.json', gff=gff)  # a's new tile takes the number after b's
+            self.assertEqual(json.loads((home / 'numbers.json').read_text(encoding='utf-8'))['tiles'], [['a', 0, 2], ['b', 0, 2], ['a', 2, 1]])
+            self.assertEqual(merge.stale(repo, spec, home / 'merge.json', home / 'merged.json'), [])
+            kept = (home / 'numbers.json').read_bytes(); (home / 'numbers.json').unlink()
+            self.assertEqual(merge.stale(repo, spec, home / 'merge.json', home / 'merged.json'), ['numbers'])
+            with self.assertRaisesRegex(ValueError, 'numbers record numbers.json is missing, and without it tiles of m.set would take other numbers'):
+                merge.merge(repo, home / 'merge.json', home / 'merged.json', gff=gff)
+            (home / 'numbers.json').write_text('[]', encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'is no numbers record'):
+                merge.work(repo, spec)
+            (home / 'numbers.json').write_bytes(kept); self.assertEqual(merge.stale(repo, spec, home / 'merge.json', home / 'merged.json'), [])
         names = {'terrains': [{'set': name, 'name': 'Old', 'key': key, 'display': key} for name, key in (('a', 'New'), ('b', 'Newer'))], 'crossers': [],
                  'groups': [{'set': name, 'name': 'Hut', 'display': 'Hut'} for name in 'ab']}
         spec = {'set': 'm', 'display': 'M', 'families': [{'set': 'a', 'label': 'City'}, {'set': 'b', 'label': 'Town'}], 'general': 'a', 'grass': 'a'}
@@ -176,15 +210,19 @@ class Merged(unittest.TestCase):
         self.assertEqual([group['display'] for group in self.made['groups'] if group['display'].endswith(')')], [])  # no copy is left to tell apart
 
     def test_every_source_tile_is_there_once_and_only_its_names_changed(self):
+        # Where a tile stands is the numbers record's to say: a family's later tiles (an envkit building's) come after the joins.
+        joined = joins.tiles(json.loads((REPO / SPEC['joinTiles']).read_text(encoding='utf-8')))
+        number, _ = merge.numbered({name: len(inventory.read_set(self.sources[name])['tiles']) for name in ORDER}, [record['model'] for record in joined],
+                                   json.loads((REPO / SPEC['numbers']).read_text(encoding='utf-8'))['tiles'])
         count = 0
         for name in ORDER:
-            source = keyed(self.sources[name]); first = self.made['first'][name]; self.assertEqual(first, count)
+            source = keyed(self.sources[name]); self.assertEqual(self.made['first'][name], number[(name, 0)])
             for section, keys in source.items():
                 found = re.fullmatch(r'TILE(\d+)(DOOR\d+)?', section)
                 if not found:
                     continue
                 count += 0 if found.group(2) else 1
-                now = self.merged[f'TILE{first + int(found.group(1))}{found.group(2) or ""}']; want = dict(keys)
+                now = self.merged[f'TILE{number[(name, int(found.group(1)))]}{found.group(2) or ""}']; want = dict(keys)
                 if not found.group(2):
                     for key in ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight'):
                         want[key] = self.terrains[name][keys[key].lower()]
@@ -193,8 +231,9 @@ class Merged(unittest.TestCase):
                 if found.group(2) and want['Type'] in DOORS:  # a keyed door type is its copy keyed to this set
                     want['Type'] = str(DOORS[want['Type']])
                 self.assertEqual(now, want, f'{name} {section}')
-        joined = joins.tiles(json.loads((REPO / SPEC['joinTiles']).read_text(encoding='utf-8')))  # the join tiles come after every family's own
-        self.assertEqual([tile['model'] for tile in self.laid['tiles'][count:]], [record['model'] for record in joined]); count += len(joined)
+        for record in joined:
+            self.assertEqual(self.laid['tiles'][number[('join', record['model'])]]['model'], record['model'])
+        count += len(joined); self.assertEqual(sorted(number.values()), list(range(count)))  # every number once, none left out
         self.assertEqual(count, len(self.laid['tiles'])); self.assertEqual(int(self.merged['TILES']['Count']), count)
         self.assertEqual(len([section for section in self.merged if re.fullmatch(r'TILE\d+', section)]), count)
 

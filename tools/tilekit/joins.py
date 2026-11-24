@@ -245,7 +245,8 @@ def _cut(pair, shape):
 
 def tiles(spec):
     """[{model, corners {TopLeft...: terrain}, crossers {Top...: crosser or ''}, minimap}] of the join tiles, in the
-    order the merged set numbers them after its families' tiles."""
+    order a merge numbers those new to it. One the merged set's numbers record holds keeps its number wherever it
+    stands here (`merge.numbered`)."""
     made = []
     for pair in spec['pairs']:
         for shape in ('1', '2', '3', '4', 'r', 's', 't'):

@@ -147,6 +147,8 @@ def numbered(counts, joined, record=()):
     the record names and the sets no longer have is refused: its number would name another tile in a saved area."""
     record = [list(run) for run in record]; number, at = {}, 0
     for run in record:
+        require(len(run) == 2 and run[0] == JOIN and isinstance(run[1], str) or len(run) == 3 and run[0] != JOIN and all(isinstance(cell, int) and cell >= 0 for cell in run[1:]),
+                f'The numbers record has a run that is neither [set, first tile, how many] nor ["join", model]: {run}')
         if run[0] == JOIN:
             require(run[1] in joined, f'The numbers record names the join tile {run[1]}, which is no longer built: tile {at} would be lost')
             number[(JOIN, run[1])] = at; at += 1
@@ -289,7 +291,7 @@ def merged_edge(edges, names, spec, joined=()):
             require(between, f'{name}: an edge row has {edge!r} between its corners, which is no crosser or terrain with a name')  # a terrain stands there too (a bridge's deck)
             rows.append((corner(one), between, corner(other), height, model))
     rows += [(one, '****', other, '0', model) for one, other, model in joined]
-    wide = [max(len(row[index]) for row in rows) + 2 for index in range(5)]; head = ('Corner1', 'Edge', 'Corner2', 'Height', 'Model'); number = len(str(len(rows))) + 2
+    wide = [max((len(row[index]) for row in rows), default=0) + 2 for index in range(5)]; head = ('Corner1', 'Edge', 'Corner2', 'Height', 'Model'); number = len(str(len(rows))) + 2
     lines = ['2DA V2.0', '', ' ' * number + ''.join(cell.ljust(max(width, len(cell) + 2)) for cell, width in zip(head, wide)).rstrip()]
     lines += [str(index).ljust(number) + ''.join(cell.ljust(max(width, len(head[at]) + 2)) for at, (cell, width) in enumerate(zip(row, wide))).rstrip() for index, row in enumerate(rows)]
     return '\n'.join(lines) + '\n'  # a 2DA is kept with plain line ends in the repository (.gitattributes): the bytes written are the bytes checked out
@@ -331,9 +333,16 @@ def work(repo, spec):
     order = [family['set'] for family in spec['families']]; cut = json.loads(inputs['joins'].read_text(encoding='utf-8')) if 'joins' in inputs else None
     sets = {name: inputs[f'set:{name}'].read_bytes().decode('cp1252') for name in order}; joined = joins.tiles(cut) if cut else (); record = None
     if 'numbers' in outputs:
-        kept = json.loads(outputs['numbers'].read_text(encoding='utf-8'))['tiles'] if outputs['numbers'].is_file() else ()
-        _, record = numbered({name: len(inventory.read_set(sets[name])['tiles']) for name in order}, [one['model'] for one in joined], kept)
+        kept = json.loads(outputs['numbers'].read_text(encoding='utf-8')) if outputs['numbers'].is_file() else {'tiles': []}
+        require(isinstance(kept, dict) and isinstance(kept.get('tiles'), list), f'{outputs["numbers"].name} is no numbers record: it has no list of tiles')
+        _, record = numbered({name: len(inventory.read_set(sets[name])['tiles']) for name in order}, [one['model'] for one in joined], kept['tiles'])
     text, first, groups = merged_set(sets, names, spec, joined, record or ())
+    if 'numbers' in outputs and not outputs['numbers'].is_file() and outputs['set'].is_file():
+        # The record is lost and the set is there: numbered afresh, a tile added since would take a number in the
+        # middle. A set whose tiles all keep their numbers so is one the record is first kept for.
+        models = lambda found: [tile['model'].lower() for tile in inventory.read_set(found)['tiles']]
+        was, now = models(outputs['set'].read_bytes().decode('cp1252')), models(text)
+        require(now[:len(was)] == was, f'The numbers record {outputs["numbers"].name} is missing, and without it tiles of {outputs["set"].name} would take other numbers: restore it')
     edge = merged_edge({name: inputs[f'edge:{name}'].read_bytes().decode('cp1252') for name in order}, names, spec, joins.edges(cut) if cut else ())
     numbers = None if record is None else '{\n "schemaVersion": 1,\n "kind": "tilekit-merge-numbers",\n "tiles": [\n' + ',\n'.join('  ' + json.dumps(run) for run in record) + '\n ]\n}\n'
     return {'set': text, 'edge': edge, 'palette': palette(names, groups), 'first': first, 'groups': groups, 'numbers': numbers}
