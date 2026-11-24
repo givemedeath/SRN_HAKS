@@ -402,7 +402,7 @@ def command_check(args):
 def command_toolset(args):
     from . import toolset
     if args.action == 'prepare':
-        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or tuple(toolset.AREAS), game=args.game, size=toolset.SIZE if args.size is None else args.size)
+        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or toolset.GROUPS, game=args.game, size=toolset.SIZE if args.size is None else args.size)
     elif args.action == 'saved':
         made = toolset.saved(Path(args.user) / 'modules' / f'{toolset.MODULE}.mod', args.repo)
     else:
