@@ -597,6 +597,18 @@ The same process on fcx01:
 
 The four textures it shares with dgt04 keep dgt04's look.
 
+**Started (2026-11-24), nothing applied yet:**
+- **Pilot:** `docs/tilesets/fcx01/materials.json` (16 textures, about 80% of the surface, as a review overlay) and the
+  pilot block `docs/tilesets/fcx01/pilot.json`: the pale plaza and the dark one with their towers on either side of the
+  void. The user asked for the dark plaza lighter (its grade's gain 0.7 to 1.05).
+- **Shared with the starship interior (user, 2026-11-24): restyled in place.** About 22 of the set's textures are in
+  `srn_t_common` and are drawn by `shp02` too; they take the arcology's look there as well, with no copies under new
+  names. The pilot block's `shared` part lays the `shp02` tiles that draw them; its grid views stand inside roofs, so
+  the interior still needs views of its own before the restyle is applied.
+- **Lamps:** the set's lamps are main lights already (196 tiles). 45 tiles carry their lamps under another tile's name
+  (`tme01_z01_01ml1`, `fcx01_v01_01ml1`), where the game never switches them on: `tilekit lamps` now gives such a lamp
+  its tile's own name (`lamps.named`). No tile has a day or night animation; the glowing meshes are lit at every hour.
+
 **Join re-check:** the Concrete↔Cobble joins and junctions, as in release B.
 
 ### 7. Cohesion

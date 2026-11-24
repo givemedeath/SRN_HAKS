@@ -3,6 +3,7 @@
  "haks": [
   "srn_t_fcx01",
   "srn_t_dgt04",
+  "srn_t_shp02",
   "srn_t_common",
   "srn_door",
   "srn_placeable",
@@ -150,7 +151,42 @@
   "near": {
    "distance": 18.0,
    "pitch": 74.0
-  }
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 2,
+    "source": 0,
+    "lights": [
+     "night"
+    ]
+   }
+  ]
  },
- "note": "Release C pilot block: the pale plaza (Cobble) and the dark one (Cobble2) with their towers and buildings on either side of the void, for the look gate."
+ "note": "Release C pilot block: the pale plaza (Cobble) and the dark one (Cobble2) with their towers and buildings on either side of the void, for the look gate.",
+ "shared": {
+  "lights": [
+   "day"
+  ],
+  "tilesets": {
+   "shp02": {
+    "models": [
+     "fci01_a01_01",
+     "fci01_a01_02",
+     "fci01_a01_03",
+     "fci01_a01_04",
+     "fci01_a01_09",
+     "fci01_a01_13",
+     "fci01_a01_14",
+     "fci01_a01_15",
+     "fci01_b01_01",
+     "fci01_j01_01",
+     "fci01_j01_02",
+     "fci01_j01_03",
+     "fci01_k01_05",
+     "fci01_k01_14"
+    ]
+   }
+  }
+ }
 }

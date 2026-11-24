@@ -44,6 +44,20 @@ class Lamps(unittest.TestCase):
         self.assertEqual(text.count('radius 6.0'), 2); self.assertEqual(text.count('node light t_a01ml2'), 2)  # the animation's node too
         self.assertIn('verts 1', text)
 
+    def test_a_lamp_under_another_tile_s_name_takes_its_own(self):
+        other = MODEL.format(first='ml1').replace('t_a01ml1', 'X_Z01ml1').replace('t_a01sl2', 'x_z01ML2')
+        text, made = lamps.named(other, 't_a01')
+        self.assertEqual(made, ['t_a01ml1', 't_a01ml2']); self.assertNotIn('z01', text.lower())
+        self.assertEqual(text.count('t_a01ml2'), 2)  # the animation's node too
+        self.assertEqual(lamps.named(text, 't_a01'), (text, []))
+        taken = MODEL.format(first='ml1').replace('t_a01sl2', 'x_z01ml1')  # its own name is another lamp's: left
+        self.assertEqual(lamps.named(taken, 't_a01'), (taken, []))
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary); (repo / 'srn_t_t').mkdir(); (repo / 'srn_t_t' / 't.set').write_text(SET, encoding='cp1252')
+            (repo / 'srn_t_t' / 't_a01.mdl').write_text(other, encoding='cp1252')
+            self.assertEqual(lamps.move(repo, 't', repo / 'out'), {'t_a01': 'named'})
+            self.assertIn('node light t_a01ml1', (repo / 'out' / 't_a01.mdl').read_text(encoding='cp1252'))
+
     def test_a_light_node_written_with_a_tab_is_found(self):
         text, made = lamps.moved(MODEL.format(first='sl1').replace('node light t_a01sl1', 'node\tlight  t_a01sl1'))
         self.assertEqual(made, ['t_a01ml1', 't_a01ml2'])

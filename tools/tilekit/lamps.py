@@ -2,7 +2,10 @@
 every source light a tile switches on, whatever the model says of flares; a main light is a plain steady light. A tile
 whose lamps are source lights (`<tile>sl1`, `sl2`) and that has no main light gets them renamed (`ml1`, `ml2`) with a
 radius, in a copy of its model; a builder then switches them on with the tile's main lights. Tiles that already have
-a main light are left as they are, as are compiled models and models another tileset uses."""
+a main light are left as they are, as are compiled models and models another tileset uses.
+
+The game finds a tile's lights by the model's own name (`<tile>ml1`). A light copied in with its first tile's name
+(`tme01_z01_01ml1` in 45 Futuristic City tiles, 2026-11-24) is never switched on: `named` gives it the tile's."""
 import re
 from pathlib import Path
 
@@ -35,6 +38,25 @@ def moved(text, radius=RADIUS):
     return text, made
 
 
+LAMP = re.compile(r'(?i)^(.*)((?:ml|sl)[12])$')
+
+
+def named(text, model):
+    """(the model's text with every lamp named after another model renamed to its own, the new names). A lamp whose own
+    name is taken already is left under the old one, where the game never finds it, as before."""
+    spelled = {}
+    for name in re.findall(r'(?im)^\s*node[ \t]+light[ \t]+(\S+)', text):
+        spelled.setdefault(name.lower(), name)
+    made = []
+    for low, name in sorted(spelled.items()):
+        lamp = LAMP.match(name)
+        if not lamp or lamp.group(1).lower() == model.lower() or (model + lamp.group(2)).lower() in spelled:
+            continue
+        new = model + lamp.group(2).lower()
+        text = re.sub(r'(?i)(?<!\S)' + re.escape(name) + r'(?!\S)', new, text); made.append(new)
+    return text, made
+
+
 def move(repo, tileset, folder, *, radius=RADIUS, shared=()):
     """Write the moved models of a tileset into `folder` (a review's overlay; a model already there is changed in
     place) and tell {model: state}. A model whose walkmesh would differ afterwards is a refusal: nothing here touches one."""
@@ -42,9 +64,13 @@ def move(repo, tileset, folder, *, radius=RADIUS, shared=()):
     # the set's tiles and its edge tiles; a copy already in the folder (the shadows') is the one moved, so neither undoes the other
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, PACKS):
+        own, renamed = named(text, name)
+        if renamed and not set(others) - {one.lower() for one in shared}:  # lamps under another tile's name: this tile's own now
+            require(inventory.walk_hash(own) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
+            noted(folder, file, source); (folder / file).write_bytes(own.encode('cp1252')); told[name] = 'named'; text = own
         new, said = moved(text, radius)
         if new is None:
-            if said != 'no source light':
+            if said != 'no source light' and told.get(name) != 'named':
                 told[name] = said
         elif set(others) - {one.lower() for one in shared}:  # shared: a merged set that takes the change with the tiles
             told[name] = 'shared with ' + ', '.join(others)
