@@ -11,7 +11,7 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from . import detail, effects, geometry, inventory, lamps, require
+from . import detail, effects, geometry, inventory, merged, require
 from .compiled import source
 
 LOWEST = 6.0  # metres: a lower tile is no building
@@ -55,7 +55,7 @@ def rank(repo, tileset, ground=()):
         kinds = [corner for corner in tile['corners'] if corner.lower() not in plain]
         if kinds:
             families[tile['model']].update(kinds)
-    rows = [{'tile': name, 'family': families[name].most_common(1)[0][0], **told} for name, _, text, _, _ in inventory.drawn_copies(repo, tileset, None, lamps.PACKS)
+    rows = [{'tile': name, 'family': families[name].most_common(1)[0][0], **told} for name, _, text, _, _ in inventory.drawn_copies(repo, tileset, None, merged.packs(repo, tileset))
             if name in families for told in [plainness(text)] if told]
     return sorted(rows, key=lambda row: -row['plain'] * math.log10(max(row['highArea'], 10)))
 
@@ -78,7 +78,7 @@ def placements(repo, spec, kit):
     """[{tile, piece, number, why}] of a placement spec's wall pieces that run into their tile's own geometry, the kit and
     the effects taken out of it."""
     tileset = spec['tileset'].lower(); wanted = {name.lower(): them for name, them in spec['tiles'].items()}; cache, found, seen = {}, [], set()
-    for name, _, text, _, _ in inventory.drawn_copies(repo, tileset, None, lamps.PACKS):
+    for name, _, text, _, _ in inventory.drawn_copies(repo, tileset, None, merged.packs(repo, tileset)):
         if name not in wanted:
             continue
         seen.add(name); _, _, nodes = geometry.parse(effects.without_fx(detail.without_kit(text))); moves = geometry.placed(nodes); drawn = []

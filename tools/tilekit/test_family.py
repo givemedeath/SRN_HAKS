@@ -72,6 +72,10 @@ class FamilyTest(unittest.TestCase):
                 written, told = family.propose(repo, family.read(repo / 'spec.json'), kit)
                 self.assertEqual(written, {'tileset': 'x', 'tiles': {'t_a01': placed[:1]}})
                 self.assertEqual((told['tiles'], told['passed'], list(told['over']), list(told['dropped'])), (1, 1, ['t_a01'], ['t_a01']))
+                other = repo / 'srn_t_m'; other.mkdir(); (other / 'm.set').write_text(rows)
+                self.assertEqual(list(family.propose(repo, SPEC, kit)[1]['refused']), ['t_a01', 't_a02'])
+                merge = repo / 'docs' / 'tilesets' / 'm'; merge.mkdir(parents=True); (merge / 'merge.json').write_text(json.dumps({'families': [{'set': 'x'}]}))
+                self.assertEqual(family.propose(repo, SPEC, kit)[1]['passed'], 2)  # a set merged of this one is no other
                 (kit / 'box.mdl').unlink()
                 with self.assertRaisesRegex(ValueError, 'No kit piece box'):
                     family.propose(repo, SPEC, kit)

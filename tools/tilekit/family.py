@@ -22,7 +22,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from . import detail, effects, inventory, lamps, placer, require
+from . import detail, effects, inventory, lamps, merged, placer, require
 
 TRIES = 12
 BUDGET = {'faces': 2700, 'effects': 4}
@@ -95,13 +95,13 @@ def propose(repo, spec, kit):
     from .kit import SWEEPS
     _checked(spec); repo = Path(repo); tileset = spec['tileset'].lower(); budget = {**BUDGET, **spec.get('budget', {})}; cache = {}
     laid = inventory.read_set((repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'))
-    corners = {tile['model']: tile['corners'] for tile in laid['tiles']}; taken = set(spec.get('taken', ()))
+    corners = {tile['model']: tile['corners'] for tile in laid['tiles']}; taken = set(spec.get('taken', ())); shown = merged.over(repo, tileset)
     tiles, said, refused, dropped, seen = {}, {}, {}, {}, 0
     for name, _, text, others, source in inventory.drawn_copies(repo, tileset, None, lamps.PACKS):
         family = family_of(spec, corners[name]) if name in corners and name not in taken and not _is(name, spec.get('skip', SKIP)) else None
         if family is None:
             continue
-        seen += 1
+        seen += 1; others = [one for one in others if one not in shown]  # a set merged of this one is meant to show its pieces
         if others:
             refused[name] = 'drawn by other tilesets too: ' + ', '.join(others); continue
         wok_path = (repo / source.parent.name / source.name).with_suffix('.wok')  # in the pack, beside a compiled model too

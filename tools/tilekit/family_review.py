@@ -22,7 +22,7 @@ import json
 import math
 from pathlib import Path
 
-from . import detail, effects, geometry, inventory, lamps, placer, require, review
+from . import detail, effects, geometry, inventory, merged, placer, require, review
 
 LIGHTS = ('day', 'night')
 MOST = 24  # views of a run unless more are asked for
@@ -45,6 +45,17 @@ def _short(name, tileset):
     return name[len(tileset) + 1:] if name.startswith(tileset + '_') else name
 
 
+def texts_of(repo, tileset, overlay, names):
+    """{model: text} of the uncompiled models a tileset draws, the overlay's first, with those of `names` it alone has (a
+    copied terrain's)."""
+    found = {name: text for name, _, text, _, _ in inventory.drawn_copies(repo, tileset, overlay, merged.packs(repo, tileset))}
+    for name in names if overlay else ():
+        path = Path(overlay) / f'{name}.mdl'
+        if name not in found and path.is_file() and not inventory.compiled(data := path.read_bytes()):
+            found[name] = data.decode('cp1252')
+    return found
+
+
 class Set:
     """What the layouts need of a tileset: its set file, its tiles' texts, read once."""
 
@@ -61,11 +72,7 @@ class Set:
     @property
     def texts(self):
         if self._texts is None:
-            self._texts = {name: text for name, _, text, _, _ in inventory.drawn_copies(self.repo, self.tileset, self.overlay, lamps.PACKS)}
-            for name in self.numbers if self.overlay else ():  # models the overlay alone has (a copied terrain's)
-                path = Path(self.overlay) / f'{name}.mdl'
-                if name not in self._texts and path.is_file() and not inventory.compiled(data := path.read_bytes()):
-                    self._texts[name] = data.decode('cp1252')
+            self._texts = texts_of(self.repo, self.tileset, self.overlay, self.numbers)
         return self._texts
 
     def json(self, path):
@@ -140,7 +147,7 @@ def _tile_view(of, kind, name, placements, layout):
 
 
 def tiles(of, layout):
-    names = of.chosen(layout); space, across, room = layout.get('space', 5), layout.get('across', 5), layout.get('room', 3)
+    names = of.chosen(layout); space, across, room = layout.get('space', 5), layout.get('across', 5), layout.get('room', 4)
     placements = {name.lower(): them for name, them in of.json(layout['placements'])['tiles'].items()} if 'placements' in layout else {}
     views = layout.get('views', [{'kind': 'facade'}]); across = min(across, (LARGEST - 1 - 2 * room) // space + 1); down = (LARGEST - 1 - 2 * room) // space + 1
     require(across > 0, 'These tiles do not fit an area: less space or room'); pages = [names[start:start + across * down] for start in range(0, len(names), across * down)]
@@ -239,18 +246,19 @@ def door_side(nodes, at, normal):
 
 
 def doors(of, layout):
-    hooks = [one for one in of.json(layout['hooks'])['hooks'] if 'note' not in one]; clear = {tuple(one) for one in layout.get('clear', ())}; wanted = layout.get('models')
+    hooks = [one for one in of.json(layout['hooks'])['hooks'] if 'note' not in one]; clear = {tuple(one) for one in layout.get('clear', ())}
+    wanted = [name.lower() for name in layout['models']] if 'models' in layout else None; stood, turns = ({name.lower(): value for name, value in layout.get(key, {}).items()} for key in ('doors', 'turns'))
     hooks = [one for one in hooks if (wanted is None or one['model'] in wanted) and (one['width'], one['height']) not in clear]
     missing = sorted(set(wanted or ()) - {one['model'] for one in hooks}); require(not missing, 'No measured hook is of ' + ', '.join(missing)); require(hooks, 'No door hook to look at')
-    numbers = sorted({one['tile'] for one in hooks}); laid = [of.fill, *(value for number in numbers for value in (number, of.fill))]; stood = layout.get('doors', {})
-    unknown = sorted(set(stood) - {one['model'] for one in hooks}); require(not unknown, 'No measured hook, to stand a door at, is of ' + ', '.join(unknown))
+    numbers = sorted({one['tile'] for one in hooks}); laid = [of.fill, *(value for number in numbers for value in (number, of.fill))]
+    unknown = sorted((set(stood) | set(turns)) - {one['model'] for one in hooks}); require(not unknown, 'No measured hook, to stand or turn a door at, is of ' + ', '.join(unknown))
     opened = list(layout.get('opened', (0, 1))) if stood else [None]; areas, shots = [], []
     for light in layout.get('lights', ('day',)):
         width, height, cells, _ = review.grid(laid * len(opened), of.fill, across=len(laid)) if len(laid) <= LARGEST else (0, 0, None, 0)
         require(cells, f'{len(numbers)} tiles do not stand apart in a row: name fewer models'); tag = f'{layout["name"]}{light[0]}'; leaves = []
         for which, state in enumerate(opened):
             for one in hooks:
-                x0, y0 = laid.index(one['tile']) * review.TILE + 5, (which * 2 + 1) * review.TILE + 5; (x, y, z), turn = one['at'], layout.get('turns', {}).get(one['model'], one['turn'])
+                x0, y0 = laid.index(one['tile']) * review.TILE + 5, (which * 2 + 1) * review.TILE + 5; (x, y, z), turn = one['at'], turns.get(one['model'], one['turn'])
                 normal = (-math.sin(math.radians(turn)), math.cos(math.radians(turn))); side = door_side(of.nodes(one['model']), (x, y, z), normal)
                 if one['model'] in stood:
                     leaves.append({'row': stood[one['model']], 'position': (x0 + x, y0 + y, z), 'bearing': turn, 'opened': state})

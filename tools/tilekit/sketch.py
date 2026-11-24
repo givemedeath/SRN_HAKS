@@ -94,7 +94,11 @@ def sheets(folder):
 
 
 def props(folder, masters, blender, run=subprocess.run):
-    folder = Path(folder).resolve(); names = export(folder, masters); result = run(command(blender, folder), capture_output=True, timeout=3600)
+    folder = Path(folder).resolve(); names = export(folder, masters)
+    for name in names:  # an earlier run's renders are not this one's
+        for path in folder.glob(f'{name}-*.png'):
+            path.unlink()
+    result = run(command(blender, folder), capture_output=True, timeout=3600)
     require(result.returncode == 0, 'Blender failed: ' + (result.stderr or b'').decode(errors='replace')[-1500:])
     missing = [name for name in names if not (folder / f'{name}-front.png').is_file()]; require(not missing, 'No render of ' + ', '.join(missing[:6]))
     return {'pieces': len(names), 'sheets': sheets(folder)}

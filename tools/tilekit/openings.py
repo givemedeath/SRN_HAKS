@@ -12,7 +12,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-from . import detail, geometry, inventory, lamps
+from . import detail, geometry, inventory, merged
 
 ACROSS, FAR, NEAREST = 1.0, 20.0, 0.02
 FOOT = 0.1  # metres over the hook the upward ray starts
@@ -107,6 +107,6 @@ def black(text, materials):
 def openings(repo, tileset, materials=(), kinds=('0',)):
     """{tileset, hooks, black}: the doorways of the tileset's hooks, and the openings drawn with `materials`."""
     repo, tileset = Path(repo), tileset.lower()
-    texts = {name: text for name, _, text, _, _ in inventory.drawn_copies(repo, tileset, None, lamps.PACKS)}
+    texts = {name: text for name, _, text, _, _ in inventory.drawn_copies(repo, tileset, None, merged.packs(repo, tileset))}
     set_text = (repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252')
     return {'tileset': tileset, 'hooks': doorways(set_text, texts, kinds), 'black': [{'model': name, **row} for name, text in texts.items() for row in black(text, materials)] if materials else []}

@@ -6,7 +6,7 @@ closes the nodes, gives each the parent it has in the geometry, spells `endlist`
 the same. A repeat that differs is kept and told: which of the two the tile means is a decision. A node that needs a
 parent the geometry does not have is refused by name. Lines that need nothing are left as they are, and so is a model
 with nothing to repair, to the byte."""
-from . import inventory, lamps, require
+from . import inventory, merged, require
 
 SPELLED = 'e n d l i s t'
 
@@ -82,7 +82,7 @@ def repair(repo, tileset, *, models=None, write=False):
     """{model: what was put right} of a tileset's ASCII models (`models`: only these) that need anything. Nothing is
     written without `write`; with it, the ASCII source is, and the binaries are then compiled from it (`compile`)."""
     wanted = {name.lower() for name in models} if models else None; found, seen = {}, set()
-    for name, _, text, _, path in inventory.drawn_copies(repo, tileset.lower(), None, lamps.PACKS):
+    for name, _, text, _, path in inventory.drawn_copies(repo, tileset.lower(), None, merged.packs(repo, tileset)):
         if wanted is not None and name not in wanted:
             continue
         seen.add(name)

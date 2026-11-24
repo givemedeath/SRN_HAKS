@@ -17,11 +17,8 @@ def _json(path):
     return json.loads(Path(path).read_text(encoding='utf-8-sig'))
 
 
-def _told(told, out=None):
-    text = json.dumps(told, indent=1)
-    if out:
-        Path(out).write_text(text + '\n', encoding='utf-8', newline='\n')
-    print(text)
+def _told(told):
+    print(json.dumps(told, indent=1))
 
 
 def repair_command(chosen):
@@ -87,9 +84,10 @@ def placements_command(chosen):
 
 
 def sketch_command(chosen):
-    from . import inventory, lamps, require, sketch
+    from . import require, sketch
+    from .family_review import texts_of
     wanted = [name.lower() for name in _names(chosen.models)]
-    texts = {name: text for name, _, text, _, _ in inventory.drawn_copies(chosen.repo, chosen.tileset.lower(), chosen.overlay, lamps.PACKS) if name in wanted}
+    texts = texts_of(chosen.repo, chosen.tileset.lower(), chosen.overlay, wanted)
     missing = sorted(set(wanted) - set(texts)); require(not missing, 'No uncompiled model of the tileset is ' + ', '.join(missing))
     _told({'sketched': sketch.sketches({name: texts[name] for name in wanted}, chosen.out)}); return 0
 

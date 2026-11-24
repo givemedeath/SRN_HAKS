@@ -36,8 +36,9 @@ class SketchTest(unittest.TestCase):
             import numpy as np
             maps = {'colour': np.zeros((4, 4, 3), np.uint8), 'glow': np.zeros((4, 4, 3), np.uint8), 'metal': np.zeros((4, 4)), 'roughness': np.ones((4, 4))}
             with mock.patch('tools.tilekit.kit.atlas', return_value=maps):
+                (Path(folder) / 'mast-night.png').write_bytes(b'old')
                 told = sketch.props(folder, 'masters', 'blender', run)
-                self.assertEqual(told['sheets'], ['sheet-wall.jpg', 'sheet-roof.jpg']); self.assertTrue((Path(folder) / 'sheet-roof.jpg').is_file())
+                self.assertEqual(told['sheets'], ['sheet-wall.jpg', 'sheet-roof.jpg']); self.assertTrue((Path(folder) / 'sheet-roof.jpg').is_file()); self.assertFalse((Path(folder) / 'mast-night.png').exists())
                 with self.assertRaisesRegex(ValueError, 'Blender failed'):
                     sketch.props(folder, 'masters', 'blender', lambda *_, **__: SimpleNamespace(returncode=1, stderr=b'no'))
 

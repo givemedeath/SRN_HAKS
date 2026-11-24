@@ -5758,7 +5758,7 @@
       "tools/tilekit/effects.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
-      "tools/tilekit/lamps.py"
+      "tools/tilekit/merged.py"
     ],
     "tools/tilekit/client_settings.py": [],
     "tools/tilekit/commands.py": [
@@ -5766,8 +5766,6 @@
       "tools/tilekit/audit.py",
       "tools/tilekit/family.py",
       "tools/tilekit/family_review.py",
-      "tools/tilekit/inventory.py",
-      "tools/tilekit/lamps.py",
       "tools/tilekit/openings.py",
       "tools/tilekit/perf.py",
       "tools/tilekit/repair.py",
@@ -5830,6 +5828,7 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/kit.py",
       "tools/tilekit/lamps.py",
+      "tools/tilekit/merged.py",
       "tools/tilekit/placer.py"
     ],
     "tools/tilekit/family_review.py": [
@@ -5837,7 +5836,7 @@
       "tools/tilekit/effects.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
-      "tools/tilekit/lamps.py",
+      "tools/tilekit/merged.py",
       "tools/tilekit/placer.py",
       "tools/tilekit/review.py"
     ],
@@ -5870,11 +5869,14 @@
       "tools/tilekit/joins.py",
       "tools/tilekit/terrain.py"
     ],
+    "tools/tilekit/merged.py": [
+      "tools/tilekit/lamps.py"
+    ],
     "tools/tilekit/openings.py": [
       "tools/tilekit/detail.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
-      "tools/tilekit/lamps.py"
+      "tools/tilekit/merged.py"
     ],
     "tools/tilekit/perf.py": [
       "tools/armorkit/__init__.py",
@@ -5907,7 +5909,7 @@
     ],
     "tools/tilekit/repair.py": [
       "tools/tilekit/inventory.py",
-      "tools/tilekit/lamps.py"
+      "tools/tilekit/merged.py"
     ],
     "tools/tilekit/review.py": [
       "tools/armorkit/__init__.py",
@@ -6012,6 +6014,7 @@
       "tools/tilekit/client_settings.py",
       "tools/tilekit/commands.py",
       "tools/tilekit/family_review.py",
+      "tools/tilekit/merged.py",
       "tools/tilekit/review.py",
       "tools/tilekit/test_openings.py"
     ],

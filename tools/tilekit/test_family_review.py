@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from tools.tilekit import client_settings, family_review, review
+from tools.tilekit import client_settings, family_review, merged, review
 from tools.tilekit.test_openings import WALK, model, wall
 
 CORNERS = ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')
@@ -71,10 +71,19 @@ class FamilyReviewTest(unittest.TestCase):
 
     def test_doors_at_the_ends_of_a_row_and_wide_ones(self):
         hook = {'tile': 2, 'model': 'x_side', 'door': 0, 'at': [-4.9, 0.0, 0.0], 'turn': 90.0, 'width': 9.0, 'height': 3.0}
-        (self.repo / 'op.json').write_text(json.dumps({'hooks': [hook, {**hook, 'at': [4.9, 0.0, 0.0], 'turn': -90.0, 'door': 1}]})); layout = {'kind': 'doors', 'name': 'dr', 'hooks': 'op.json'}
+        (self.repo / 'op.json').write_text(json.dumps({'hooks': [hook, {**hook, 'at': [4.9, 0.0, 0.0], 'turn': -90.0, 'door': 1}]})); layout = {'kind': 'doors', 'name': 'dr', 'hooks': 'op.json', 'models': ['X_Side']}
         self.assertEqual(len(self.plan(layout)[1]), 2)
         with self.assertRaisesRegex(ValueError, 'typo'):
             self.plan({**layout, 'doors': {'typo': 1}})
+
+    def test_an_up_view_fits_the_default_room(self):
+        self.assertEqual(len(self.plan({'kind': 'tiles', 'name': 'up', 'models': ['x_full'], 'lights': ['day'], 'views': [{'kind': 'up'}]})[1]), 1)
+
+    def test_a_merged_sets_tiles_are_read_from_its_families(self):
+        (self.repo / 'srn_t_m').mkdir(); (self.repo / 'srn_t_m' / 'm.set').write_text(set_text()); spec = self.repo / 'docs' / 'tilesets' / 'm'; spec.mkdir(parents=True)
+        self.assertEqual(family_review.texts_of(self.repo, 'm', None, ()), {})
+        (spec / 'merge.json').write_text(json.dumps({'families': [{'set': 'X'}]}))
+        self.assertEqual(set(family_review.texts_of(self.repo, 'm', None, ())), {'x_plain', 'x_corner', 'x_side', 'x_full'}); self.assertEqual(merged.over(self.repo, 'x'), {'m'}); self.assertEqual(merged.over(self.repo, 'm'), set())
 
     def test_models_only_the_overlay_has(self):
         overlay = self.repo / 'ov'; overlay.mkdir(); (overlay / 'x.set').write_text(set_text() + tile(4, 'x_new', ['New'] * 4)); (overlay / 'x_new.mdl').write_text(model(WALK))
