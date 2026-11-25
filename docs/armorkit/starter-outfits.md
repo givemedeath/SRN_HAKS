@@ -4,6 +4,10 @@ Written 2026-11-24. This reconciles the prioritised concept-sheet looks with the
 need, and says which Armorkit parts each role's outfit takes. It is a proposal: nothing here is generated,
 numbered in the registry or published, and every number, set name and roster row below waits for the user.
 
+The user answered on 2026-11-24; the decisions and the work in order are in
+[starter-outfits-plan.md](starter-outfits-plan.md). The text below stays as proposed, but for the bare-slot
+part number, which is 1.
+
 The concept sheets guide the look; they are not a build list (user, 2026-11-15). The recipes themselves and the
 wardrobe live in SR_NWN ([plan.md](plan.md), Goal and scope). What this document gives SR_NWN is the slot-by-slot
 content of each recipe, so that the parts can be made to fit it.
@@ -93,12 +97,12 @@ the user's to approve, and so are these.
 | Set | Number | Family | Slots | Tier | Channels (suggested: dark base, one accent) |
 |---|---|---|---|---|---|
 | `street-casual` | 3010 | Civilian | chest, bicep, forearm, pelvis, thigh, shin, foot | 1 | cloth1 jacket, cloth2 shirt and trousers, leather1 belt, leather2 shoes |
-| `street-casual` T-shirt | 3011 | Civilian | chest, bicep (skin shows); forearm bare (part 0) | 1 | cloth2 shirt, skin |
-| `bar-service` | 4010 | Workwear | chest, bicep, pelvis, thigh, shin, foot; forearm bare (part 0) | 1 | cloth1 shirt, cloth2 trousers, leather1 bib and straps, leather2 boots |
+| `street-casual` T-shirt | 3011 | Civilian | chest, bicep (skin shows); forearm bare (part 1) | 1 | cloth2 shirt, skin |
+| `bar-service` | 4010 | Workwear | chest, bicep, pelvis, thigh, shin, foot; forearm bare (part 1) | 1 | cloth1 shirt, cloth2 trousers, leather1 bib and straps, leather2 boots |
 | `bar-service` apron | 4010 | Workwear | belt | — | leather1 apron, cloth1 towel, metal2 buckles |
-| `street-vendor` | 4020 | Workwear | chest, bicep; forearm bare (part 0) | 1 | cloth1 jacket, cloth2 shirt |
+| `street-vendor` | 4020 | Workwear | chest, bicep; forearm bare (part 1) | 1 | cloth1 jacket, cloth2 shirt |
 | `street-vendor` apron and waist pack | 4020 | Workwear | belt | — | cloth1 apron, leather1 pack, metal2 buckles |
-| `office` | 5010 | Corporate | chest, bicep, pelvis, thigh, shin, foot; forearm bare (part 0) | 1 | cloth1 shirt, cloth2 trousers and tie, leather1 belt, leather2 shoes |
+| `office` | 5010 | Corporate | chest, bicep, pelvis, thigh, shin, foot; forearm bare (part 1) | 1 | cloth1 shirt, cloth2 trousers and tie, leather1 belt, leather2 shoes |
 | Badge lanyard | neck 2000 | Standalone | neck (logo badge) | — | cloth1 strap; logo cell set by SR_NWN |
 
 Service and retail have no family block of their own. They are placed under workwear (4000s) here, as the
@@ -109,20 +113,20 @@ tier-2 ends a civilian over part is the lower tier; the registry marks such pair
 
 ## Recipes
 
-Slot by slot, for SR_NWN. A slot the outfit leaves bare has no Armorkit model: the recipe names part 0 there
+Slot by slot, for SR_NWN. A slot the outfit leaves bare has no Armorkit model: the recipe names part 1 there
 and the wearer shows the body's own part (user, 2026-11-24).
 
 | Role | Chest | Bicep | Forearm | Hand | Pelvis, thigh, shin | Foot | Belt | Neck | Shoulder |
 |---|---|---|---|---|---|---|---|---|---|
-| R1 Citizen | 3010 | 3010 | 3010 | 0 | 3010 | 3010 | — | — | — |
-| R1 Citizen, warm day | 3011 | 3011 | 0 | 0 | 3010 | 3010 | — | — | — |
-| R2 Barrens resident | 3010 or 3011 | same | same | 0 | 3010 or 4010 | 4010 | — | — | — |
-| R3 Street vendor | 4020 | 4020 | 0 | 0 | 3010 | 4010 | 4020 | — | — |
-| R4 Bartender | 4010 | 4010 | 0 | 0 | 4010 | 4010 | 4010 | — | — |
-| R5 Café staff | 4010 | 4010 | 0 | 0 | 5010 | 5010 | 4010 | — | — |
-| R6 Office worker | 5010 | 5010 | 0 | 0 | 5010 | 5010 | — | 2000 | — |
-| R7 Front desk (first slice) | 5010 | 5010 | 0 | 0 | 5010 | 5010 | — | 2000 | — |
-| R8 Guard | 6020 | 6020 | 0 | 6020 | 6020 | 6020 | 6020 | — | 1000 |
+| R1 Citizen | 3010 | 3010 | 3010 | 1 | 3010 | 3010 | — | — | — |
+| R1 Citizen, warm day | 3011 | 3011 | 1 | 0 | 3010 | 3010 | — | — | — |
+| R2 Barrens resident | 3010 or 3011 | same | same | 1 | 3010 or 4010 | 4010 | — | — | — |
+| R3 Street vendor | 4020 | 4020 | 1 | 0 | 3010 | 4010 | 4020 | — | — |
+| R4 Bartender | 4010 | 4010 | 1 | 0 | 4010 | 4010 | 4010 | — | — |
+| R5 Café staff | 4010 | 4010 | 1 | 0 | 5010 | 5010 | 4010 | — | — |
+| R6 Office worker | 5010 | 5010 | 1 | 0 | 5010 | 5010 | — | 2000 | — |
+| R7 Front desk (first slice) | 5010 | 5010 | 1 | 0 | 5010 | 5010 | — | 2000 | — |
+| R8 Guard | 6020 | 6020 | 1 | 6020 | 6020 | 6020 | 6020 | — | 1000 |
 
 Colours tell roles apart where the parts are shared: R2 in faded earth colours against R1's dark base and one
 accent; R5 in a light shirt and dark apron against R4's black shirt and brown leather; R7 tidier and darker
@@ -151,7 +155,7 @@ carried to the other 18 bodies (`bodies`), gated and published.
 
 Kit work the recipes depend on, none of it built:
 
-1. **Bare hands in the brief.** A bare slot needs no model, only part 0 in the recipe. The brief's `bare` list
+1. **Bare hands in the brief.** A bare slot needs no model, only part 1 in the recipe. The brief's `bare` list
    takes only `forearm` today (`brief.BARE`), so it has to take `hand` as well, for the bake to make no hand
    part and to finish the wrist against the body's hand. Three of the four looks have bare hands; Facility
    Security always had gloves.
@@ -163,7 +167,7 @@ Kit work the recipes depend on, none of it built:
    6020 come to about 1.7 GB, and the two torso-only sets and the accessories take it to about the 2 GB limit
    of a hak (an estimate from 6020's size, not measured). `srn_parts` has to be split before the last of them
    is published; plan revision 2026-11-15 expected the split before about ten outfits.
-5. **Later, not first slice:** a T-shirt chest print; a skirt over bare legs (Front Desk): the legs are part 0 and need no
+5. **Later, not first slice:** a T-shirt chest print; a skirt over bare legs (Front Desk): the legs are part 1 and need no
    model, but `bare` has to take `thigh` and `shin` and the skirt is a belt-slot piece; a heavier-worn Barrens variant.
 
 ## Order and the representative outfit
