@@ -378,7 +378,11 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   - Gaps the pilots could not fill: a low-poly store gondola, a reach-in chiller, checkout with a scanner, a modern
     wardrobe, a bathtub that is not yellow, a coffee table, a TV stand, a nightstand, a kitchen counter top with no upper
     cabinet, a working rifle rack.
-  - Not done: laying and turning the groups in the Toolset; doors in the inner doorways; eye-level views tilted far up.
+  - Toolset (2026-11-25, by computer use on an isolated user folder): the palette lists the six pairs under Home, Office,
+    Security and Retail. Each furnished room painted turned (a quarter turn; the barracks a half), the bare apartment
+    unturned; a group is refused at the area's edge and where its door faces a wall it cannot change. Saved ('Area verified
+    successfully'), read back (every tile of each group in place with one orientation) and reopened.
+  - Not done: the Toolset undo of a room; doors in the inner doorways; eye-level views tilted far up.
   - Seen beside this: the same crack test finds a few in exterior tiles (`dgt05_b07_06`, `dgt05_r07_31`, `dgt05_r07_32`,
     `rdt02_a01_03`; the `dgt05_w25` tiles look like levels over one another). Not looked into.
 
