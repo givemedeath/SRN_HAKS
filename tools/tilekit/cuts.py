@@ -337,9 +337,12 @@ def _walk_node(text):
     return node
 
 
+BY_VERTEX = ('normals', 'tangents', 'colors', 'constraints')  # blocks that mean nothing once the vertices change
+
+
 def rewritten(text, walk):
     """`text` (a model or a .wok) with its aabb node's vertices, faces and box tree made `walk`'s. Whatever else the node
-    holds (texture corners the faces name) stays."""
+    holds (texture corners the faces name) stays, but for blocks with a row for each of the old vertices."""
     import numpy as np
     from tools.envkit import tile
     head = 'beginmodelgeom wok\n' if 'beginmodelgeom' not in text.lower() else ''
@@ -354,8 +357,8 @@ def rewritten(text, walk):
     kept, ours = [], False
     for line in lines[start:node.end]:
         word = line.split()[:1]
-        if word and not re.match(r'[-+.]?\d', word[0]):  # a block's first line; its rows are numbers
-            ours = word[0].lower() in ('verts', 'faces', 'aabb')
+        if word and not re.match(r'[-+.]?\d|#', word[0]):  # a block's first line; its rows are numbers, and a comment is neither
+            ours = word[0].lower() in ('verts', 'faces', 'aabb', *BY_VERTEX)
         if not ours:
             kept.append(line)
     body += kept + [f'{indent}aabb ' + form(boxes[0])] + [f'{indent}  ' + form(box) for box in boxes[1:]]

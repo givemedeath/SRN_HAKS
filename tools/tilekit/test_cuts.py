@@ -39,6 +39,10 @@ class Rewritten(unittest.TestCase):
             self.assertEqual((node.verts, node.faces, len(node.tverts)), (self.walk.verts, self.walk.faces, 3))
             self.assertEqual(lines[-2:], ['endnode', 'endwalkmeshgeom t'])
 
+    def test_a_comment_in_a_block_and_a_row_for_each_old_vertex_go(self):
+        text = WOK.replace('-1\n', '-1\n    # the leaf\n').replace('  tverts 3\n', '  normals 3\n    0 0 1\n    0 0 1\n    0 0 1\n  tverts 3\n')
+        self.assertEqual(cuts.rewritten(text, self.walk), cuts.rewritten(WOK, self.walk))
+
     def test_writing_twice_changes_nothing_more(self):
         once = cuts.rewritten(WOK, self.walk)
         self.assertEqual(cuts.rewritten(once, self.walk), once)
