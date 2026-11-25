@@ -127,8 +127,8 @@ SKIN = ('bicep',)  # and those it may share with the body's skin
 # A limb's end at the torso is grown to lie inside the outfit's own chest or pelvis. With the torso slot left to the body and the limb
 # kept, that end stood 2.2 to 2.8 cm out of the body's skin (Facility Security split again, 2026-11-24): the limb goes with it
 WITH = {'chest': 'bicep', 'pelvis': 'thigh'}
-MATERIAL_KEYS = {'name', 'kind', 'colour', 'look', 'wears', 'shown', 'suggested', 'channel', 'tint'}
-OPTIONAL = {'shown', 'suggested', 'channel', 'tint'}  # what a material may hold beside what it must
+MATERIAL_KEYS = {'name', 'kind', 'colour', 'look', 'wears', 'shown', 'suggested', 'channel', 'tint', 'unworn'}
+OPTIONAL = {'shown', 'suggested', 'channel', 'tint', 'unworn'}  # what a material may hold beside what it must
 SEAL, SEAL_KIND, PROMPT = 'brief-seal.json', 'srn-armorkit-brief-seal', 'PROMPT.txt'
 
 
@@ -178,6 +178,7 @@ def validate(document):
                 f'{material["name"]}: a material may name channel 1 or 2 of the kind it is tinted on')
         require(colour(material['colour']) and all(key not in material or colour(material[key]) for key in ('shown', 'suggested')),
                 f'{material["name"]}: a colour is three whole numbers, 0-255')
+        require(material.get('unworn', True) is True, f'{material["name"]}: unworn is true or left out')
         require('tint' not in material or (material['tint'] in texture.KINDS and material['tint'] != material['kind']),
                 f'{material["name"]}: tint names another kind of {texture.KINDS}, whose colour channels the material is tinted on')
     names, kinds = [material['name'] for material in materials], [tinted(material) for material in materials]
@@ -327,8 +328,18 @@ def admit(image, root):
     require(False, f'{image} does not come from a brief: seal its reference folder (armorkit brief BRIEF --seal FOLDER) and register the image there')
 
 
-def worn(brief, found):
+def baked(brief):
+    """The brief's materials a baked outfit shows: all but those it marks `unworn`. An unworn material is drawn
+    in the reference and generated with the outfit, and cut off with the slots the brief leaves to the body:
+    the gloves beyond a short sleeve, which hold the sleeve short in the image and show the fit where the arm
+    ends (Street Casual, 2026-11-25). The whole mesh shows it; the parts cut from it do not."""
+    return [material for material in brief['materials'] if not material.get('unworn')]
+
+
+def worn(brief, found, cut=False):
     """The brief's material for each material the outfit's colours show (`texture.materials`), in that order.
+    With `cut`, the colours are those of the baked parts, which show no material the brief marks `unworn`
+    (`baked`).
 
     Every way of pairing the two lists is tried, and the one with the least colour difference in all is taken
     (in `texture.tone`'s space, against a material's `shown` colour where the brief has one). Taken together,
@@ -336,6 +347,7 @@ def worn(brief, found):
     within `MARGIN`, the outfit cannot be told which way round and is refused: its colours as shown belong in
     the brief then. A different number of materials than the brief lists is refused too."""
     materials = validate(brief)['materials']
+    materials = baked(brief) if cut else materials
     seen = np.asarray(found['colours'], float).reshape(-1, 3)
     require(len(seen) == len(materials), f'The outfit shows {len(seen)} materials and its brief lists {len(materials)}')
     asked = texture.tone(np.array([material.get('shown', material['colour']) for material in materials], float) / 255)

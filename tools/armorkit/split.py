@@ -42,6 +42,9 @@ SLEEVE_ABOVE = 0.10  # a trough cut with the arms held out reaches this far abov
 # plane: the strip between joined sleeve and torso, and the whole upper sleeve went to the chest. That outfit needs 0.075
 SLEEVE_PARTED = 0.5  # at least this share of a trough's faces, by area, goes with the arm, or the sleeve was not parted
 SLEEVE_FUSED = 1.6  # a section reaching this many times farther toward the torso than away from it is sleeve and torso in one
+SLEEVE_LOST = 6  # sections in a row with no curve round the arm's line, below the first that had one, before the arm is taken to have ended
+SLEEVE_MIDDLE = 0.5  # a section reaching less than this share of the way to the other shoulder joint is short of the body's middle
+SLEEVE_WEB = 3  # sections in a row short of the body's middle that may still be the web under the armpit
 SLEEVE_ROOM = 0.003  # the sleeve seam stands this far inside the sleeve's inner side at the armpit
 SLEEVE_WALL = 0.01  # the walls in front of the arm and behind it stand this far outside the sleeve
 SLEEVE_ARMPIT = 0.03  # the sleeve's inner side is taken over this far below the armpit
@@ -425,14 +428,27 @@ def sleeve(vertices, faces, joints, side, padded=False, above=3 * SLEEVE_STEP):
     u, v = seams.frame(axis)
     toward, along = np.array([inward @ u, inward @ v]), np.array([-(inward @ v), inward @ u])
     across = along[0] * u + along[1] * v  # the walls' normal: `along`, in space
-    fused, clear, under, armpit = [], [], [], None
+    between = float(np.linalg.norm(other - start))
+    fused, clear, under, armpit, lost, short = [], [], [], None, 0, 0
     for depth in np.arange(0.0, length, SLEEVE_STEP):
         points = round_origin(seams.section(vertices, faces, start + depth * axis, axis))
         if not len(points):
-            if fused or depth > length / 4:
+            lost += 1
+            if (fused and lost > SLEEVE_LOST) or (not fused and depth > length / 4):
                 break  # the arm has ended
-            continue  # the joint lies just outside the outfit's shoulder: no curve runs round the arm's line yet
-        if (points @ toward).max() > SLEEVE_FUSED * -(points @ toward).min():
+            # the joint lies just outside the outfit's shoulder: no curve runs round the arm's line yet. Or a few
+            # sections in the armpit of a wide sleeve close on no curve round the line: up to four in a row on
+            # Street Casual, with the sleeve whole below them (2026-11-25)
+            continue
+        lost = 0
+        reach = float((points @ toward).max())
+        joined = reach > SLEEVE_FUSED * -(points @ toward).min()
+        # One curve with the torso reaches the body's middle. Right under the armpit a sleeve still reaches toward
+        # the torso without it, by the web between them; a wide sleeve round a line nearer its outer side than its
+        # inner does so all the way down, and was read as the torso's to the elbow (Street Casual, 2026-11-25): after
+        # `SLEEVE_WEB` such sections in a row the sleeve is free
+        short = short + 1 if reach < SLEEVE_MIDDLE * between else 0
+        if joined and not (armpit is None and fused and short > SLEEVE_WEB):
             if armpit is None:
                 fused.append(points)
         else:

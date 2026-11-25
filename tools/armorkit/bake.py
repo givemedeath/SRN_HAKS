@@ -759,7 +759,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     mark('lay out, colour and relief')
     # what the torso wears over a sleeve is drawn as the sleeve's cloth, with the sleeve's closings
     if 'chest' in parts:
-        first = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
+        first = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), len(brief.baked(document)))
         chest = parts['chest']
         seen = np.where(chest['covered'], texture.labels(chest['rgb'].reshape(-1, 3), first['tones']).reshape(chest['covered'].shape), -1)
         others = texture.edge_materials(seen, texture.face_texels(chest['uv'], chest['f'], made['chest'] == split.CLOSING, len(chest['rgb'])))
@@ -1193,10 +1193,10 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     that the same is read instead of drawn. An outfit carried to another body (`refit`) keeps its maps, so
     of Facility Security's 12 parts 10 are the same textures on all the bodies of a gender, and drawing
     them is most of what a bake of kept parts takes (155 of 221 s, 2026-11-15)."""
-    count, parts = len(document['materials']), {name: parts[name] for name in sorted(parts)}
+    count, parts = len(brief.baked(document)), {name: parts[name] for name in sorted(parts)}
     size = lambda part: len(part['rgb'])
     found = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
-    worn = brief.worn(document, found)  # the brief's material for each the colours show: its kind is the brief's to say
+    worn = brief.worn(document, found, cut=True)  # the brief's material for each the colours show: its kind is the brief's to say
     kinds = [material['kind'] for material in worn]  # what each is: how it wears
     tints = [brief.tinted(material) for material in worn]  # and the kind whose channels it is tinted on, another's where the brief says so
     channel = brief.channels(worn)  # two channels per material: its garments are told apart by where they are worn, or the one it names
@@ -1221,7 +1221,7 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
         rows[own[name]] = second[at[i]:at[i + 1]]
         twice = texture.face_texels(part['uv'], part['f'], texture.added_second(part['v'], part['f'], part['added'], rows), size(part))
         trim = np.full(part['covered'].shape, -1)
-        for material in np.unique(part['trimmed'][part['trimmed'] >= 0]):
+        for material in (material for material in np.unique(part['trimmed'][part['trimmed'] >= 0]) if int(material) in here):  # none of an unworn material's
             trim[texture.face_texels(part['uv'], part['f'], part['trimmed'] == material, size(part))] = here[int(material)]
         draw = lambda part=part, twice=twice, trim=trim, name=name: texture.tint_maps(
             part['rgb'], part['covered'], found, channel, relief=part['relief'],

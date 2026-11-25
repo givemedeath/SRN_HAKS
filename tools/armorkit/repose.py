@@ -384,7 +384,10 @@ def outfit_joints(vertices, faces, body):
                 # toward the glove: through the middle of a sleeve standing out wide of the arm, on the next mesh,
                 # it put the elbow 5 cm outside the arm and no section of the sleeve came clear of the torso. The
                 # shoulder is read front to back too: that sleeve's line reached the shoulder's height 7 cm behind it
-                shoulder, straight = own, seams.unit(start - own)
+                # The line keeps to the sleeve's own depth, front to back: that mesh's gloves hung 12 cm in front of its
+                # sleeves, the trough leaned forward with the arm's line, and the wall behind the arm ended 2 cm under
+                # the shoulder plane, where the strip left joined sleeve and chest
+                shoulder, straight = own, seams.unit((start - own) * [1.0, 0.0, 1.0])
             require(straight[2] < -0.2, f'The {"left" if sign < 0 else "right"} sleeve does not point down the arm')
         arm = np.concatenate([glove, arm])
         path = np.concatenate([shoulder[None], arm[::-1][:, [1, 2, 0]]])  # from the shoulder down the arm

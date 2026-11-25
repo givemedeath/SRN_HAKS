@@ -232,6 +232,40 @@ class JointTests(unittest.TestCase):
             for joint, most in (('shoulder', 0.05), ('elbow', 0.06), ('wrist', 0.04), ('tip', 0.01)):
                 self.assertLess(float(np.linalg.norm(self.own(here[joint + side]) - self.own(self.here[joint + side]))), most, (joint, side))
 
+    def test_a_loose_sleeves_arm_keeps_the_sleeves_depth_and_a_line_ending_behind_the_shoulder_is_not_taken(self):
+        v, faces = doll(inside=bare)
+        label = np.arange(len(v))
+        for _ in range(len(v)):  # the pieces of the doll: the outfit, and a glove beyond each sleeve
+            least = label[faces].min(axis=1)
+            before = label.copy()
+            np.minimum.at(label, faces.ravel(), np.repeat(least, 3))
+            if np.array_equal(before, label):
+                break
+        outfit = np.bincount(label).argmax()
+        v = v + np.where(label != outfit, 0.2, 0.0)[:, None] * [0.0, 1.0, 0.0]  # the gloves hang in front of the sleeves
+        vertices, real = v * SCALE + SHIFT, repose.through
+
+        def inward(points, toward, height):  # a short, wide sleeve's rings: their line points down and in toward the torso
+            middle, _ = real(points, toward, height)
+            line = np.array([-0.45 * np.sign(middle[0] - SHIFT[0]), 0.0, -0.9])
+            return middle, line / np.linalg.norm(line)
+
+        def backward(points, toward, height):  # or runs up to the shoulder's height well behind the sleeve
+            middle, line = real(points, toward, height)
+            line = line + [0.0, 0.6, 0.0]
+            return middle, line / np.linalg.norm(line)
+        with mock.patch.object(repose, 'through', inward):
+            here, _ = repose.outfit_joints(vertices, faces, self.there)
+        with mock.patch.object(repose, 'through', backward):
+            behind, _ = repose.outfit_joints(vertices, faces, self.there)
+            with mock.patch.object(repose, 'SHOULDER_BEHIND', 1e9):
+                taken, _ = repose.outfit_joints(vertices, faces, self.there)
+        for side in 'lr':
+            self.assertGreater(here['wrist' + side][1], here['shoulder' + side][1] + 0.05, side)  # the glove is in front
+            self.assertAlmostEqual(here['elbow' + side][1], here['shoulder' + side][1], places=9, msg=side)  # the upper arm is not
+            self.assertTrue(np.allclose(behind['shoulder' + side], here['shoulder' + side]), side)  # the body's shoulder, both times
+            self.assertGreater(abs(taken['shoulder' + side][1] - here['shoulder' + side][1]), 0.03, side)
+
     def test_a_sliver_of_sleeve_above_the_armpit_is_passed_over_and_the_arm_found_below_it(self):
         v, faces = doll(inside=notched)  # the walk from the sliver ended after one section, and no arm was found
         here, marks = repose.outfit_joints(v * SCALE + SHIFT, faces, self.there)

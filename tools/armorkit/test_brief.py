@@ -210,6 +210,20 @@ class BriefTests(unittest.TestCase):
         self.assertEqual(second['pads'], first['pads'])
         self.assertIn('BRIGHT LIGHT SKY BLUE hard plastic', brief.prompt(second))  # written: no two materials are drawn too alike
 
+    def test_a_material_drawn_but_cut_off_with_a_bare_slot_is_not_among_the_baked_outfits(self):
+        given = document(('fabric', 'cloth', GREY), ('gloves', 'leather', TAN), ('plates', 'metal', BLUE))
+        given['materials'][1]['unworn'] = True
+        brief.validate(given)
+        self.assertEqual([material['name'] for material in brief.baked(given)], ['fabric', 'plates'])
+        names = lambda found, **how: [material['name'] for material in brief.worn(given, found, **how)]
+        self.assertEqual(names(shown(TAN, BLUE, GREY)), ['gloves', 'plates', 'fabric'])  # the whole mesh shows the gloves
+        self.assertEqual(names(shown(BLUE, GREY), cut=True), ['plates', 'fabric'])  # the parts cut from it do not
+        with self.assertRaisesRegex(ValueError, 'shows 2 materials and its brief lists 3'):
+            brief.worn(given, shown(BLUE, GREY))
+        given['materials'][1]['unworn'] = False
+        with self.assertRaisesRegex(ValueError, 'unworn is true or left out'):
+            brief.validate(given)
+
     def test_a_brief_may_say_how_worn_it_is_drawn_and_what_colours_its_concept_wears(self):
         given = document()
         given['wear'] = 0.35
