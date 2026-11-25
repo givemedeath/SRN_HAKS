@@ -53,7 +53,8 @@ For SR_NWN. A 1 is the body's own part.
 | Office worker | 5010 | 5010 | 1 | 1 | 5010 | 5010 | — | 2000 | — |
 | Guard | 6020 | 6020 | 1 | 6020 | 6020 | 6020 | 6020 | — | 1000 |
 
-Roles that share parts are told apart by colour. Every new end is tier 1.
+Roles that share parts are told apart by colour. Every new end is tier 1, but Street Casual's hips, knees
+and ankles, which are tier 3 (State, 2026-11-25: its trousers and boots are 3 to 8 cm bulkier than tier 1).
 
 ## Models to generate
 
@@ -221,6 +222,39 @@ gathered into heavy boots, a band of the accent round each upper sleeve and a pa
 `street-casual-male/reference-v2`; one Qwen image, `run-1/image-0.png`, seed 20261125. `reference-v1` keeps
 the first design's image. Not run: a bake with a tinted or named channel (`bake.tints` reads them through
 `brief.channels`; the brief's side is tested). Next: the user's review of the redraw.
+
+* **Client views of `male-16`** (27 in realistic colours, 13 in the six contrasting ones; the screen grab
+  failed part way through both runs). User, 2026-11-25: "pelvis/thigh cuts/joins need improvement pretty bad.
+  same with shin/foot. The belt also seems large and tilted", then: the hip cut "should be along brief lines",
+  with no crotch on the thigh and the back sloped as the front; "the feet are still looking very rough"; "if
+  the footwear rides high into the shin, then the shin should carry that part, cut where it fits the rig".
+* **What was wrong, and what the kit does now** (`tools/armorkit`, tests in `test_joins.py`):
+  * *Tier.* The outfit's sections stand 3 to 8 cm outside tier 1 at the hips, knees and ankles (hip 17.6 cm
+    against 9.6 to 11.0; tier 3 is 13.4 to 14.8), so each under end was drawn in by centimetres and the part
+    over it stood out as a hem. A bake takes a tier per joint (`--tier-at JOINT=TIER`, `seams.at`). Street
+    Casual is cut at tier 3 with its shoulders and waist at tier 1: at tier 3 the sleeve ends stood 1.7 cm
+    outside the chest in a swing, and the waistband was widened so the belt fitted 15% larger. Its registry
+    entry has to carry those tiers; what it mixes with at the hips, knees and ankles is tier 3 or heavier.
+  * *Hips.* The thigh was cut on the body's own pelvis line, level, 7 to 8 cm below the hip plane. It is now
+    cut like briefs (`split.briefs`): 1 cm below the plane at the outside of the hip, down to 1 cm below the
+    outfit's own crotch between the legs (9 cm here; the old line left a strip of crotch on each thigh),
+    alike before and behind. Outfits baked before this have the level line and would need baking again to
+    share parts at the hips with one that has the new.
+  * *Ankles.* The ankle plane tilts forward through a heavy boot's toe box. The top of the toe box went to
+    the shin, whose closing ran out over the toes as a brim; `split.footed` gives what lies before the shaft
+    to the foot. The boot's shaft above the plane stays the shin's. And the end-shaping step read the foot's
+    ring from the toe box and drew the toe caps in by 10 cm, a wedge of sawteeth: an under end's ring is now
+    read no farther out than what the part is open on (`ends.opening`), in the seam gate too.
+  * *Belt.* Levelled by its strap, the innermost surface in each direction, not by all its surface
+    (`accessory.level`): the buckle and pouches had tipped it.
+* **Bake `male-22`** (tier 3, shoulders and waist 1): **all gates pass**. Belt `belt-10` fitted over it at the
+  earlier size (scale 0.585), gates pass.
+* **Bake speed** (user: yes to all three). Parts are reduced, laid out and tinted in four processes
+  (`--workers`), each part's reduction, maps and texture are kept in a cache (`--cache`, here
+  `.tools/armorkit/bake-cache` in the shared tool root) and a bake can go on from a capture without reading
+  the mesh (`--resume`, same tiers only). Street Casual from its mesh: 1196 s before, 855 s with an empty
+  cache, 530 s with only the waist's tier changed; from the capture with nothing changed, 179 s and the same
+  models byte for byte.
 
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 

@@ -41,7 +41,7 @@ SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'sh
 TUCKED = ('shoulder',)  # the joints whose closings are brought in under the part beside them (`tucked`): where a sleeve is cut from the torso
 TUCK = 0.002  # metres under that part's surface
 WORKERS = 4  # processes at most that a bake's parts are reduced, laid out and tinted in side by side (`worked`): the machine is shared
-ANKLE_TUCK = 0.15  # a foot's cap starts this share inside its rim: as wide as a boot's shaft, it came out through the front of the trousers above it
+ANKLE_TUCK = 0.25  # a foot's cap starts this share inside its rim: as wide as a boot's shaft, it came out through the front of the trousers above it
 ELSEWHERE = 0.01  # of a part's own surface in the colour of a material its slot does not wear: reported from here
 BUDGET = {'chest': 16000, 'slot': 5800, 'outfit': 80000, 'texture': 1024}  # doubled 2026-11-25 (user); triangles a chest, another part and a whole outfit may have; texels a side
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
@@ -196,7 +196,7 @@ def swept(vertices, faces, scale=1.0):
     return vertices[used], kept.reshape(-1, 3), areas
 
 
-def ends(parts, bones, body, tier, contract=None):
+def ends(parts, bones, body, tier, contract=None, drawn=()):
     """How each end of a baked outfit meets the seam contract (docs/armorkit/seam-contract.md) at tier `tier` on
     body `body`: (report, failures), or None when the contract has no rings of that body.
 
@@ -223,6 +223,8 @@ def ends(parts, bones, body, tier, contract=None):
     report, failures = {}, []
     for joint, spec in seams.JOINTS.items():
         report[joint] = {}
+        if joint in drawn:  # cut as the outfit is drawn there, to no envelope: nothing of the contract's to meet (`bake`'s `drawn`)
+            continue
         for side in seams.sides(joint):
             letter, paired = ('l', None) if side == 'c' else (side, side)
             point, normal = seams.plane(bones, joint, letter)
@@ -777,7 +779,7 @@ def _reduced_job(job):
 
 
 def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None, capture=None,
-         mark=None, workers=1, cache=None, resume=None):
+         mark=None, workers=1, cache=None, resume=None, drawn=()):
     """(parts, bones, whole): a generated outfit as the parts body `body` wears, each with its maps, and what
     it holds of holes and detached pieces (`surface`, at the body's size).
 
@@ -802,7 +804,13 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     (`worked`). With `resume`, the file an earlier bake of this mesh on this body at this tier kept what it
     gave the split in (`capture`), the mesh is not read, fitted or measured again and `mesh` may be None:
     the bake goes on from the split, as the code now cuts it. What was measured for the split then is not
-    measured again: a bake after a change to the fit or to what is measured takes the mesh."""
+    measured again: a bake after a change to the fit or to what is measured takes the mesh.
+
+    At the joints `drawn` names, the outfit is cut on the plane and its two ends are left as it is drawn
+    there, brought to no envelope. A heavy boot is as long again before the ankle as the envelope is wide:
+    brought to it at any tier, Street Casual's boots were moved by 9 cm and more at the plane, a collar round
+    the ankle with the closing's colour showing under it (user, 2026-11-25: cut where it fits the rig). The
+    two parts fit each other as they were drawn, and no other set's part at that joint."""
     count = len(document['materials'])
     require(not document.get('skin') or body_textures is not None, "An outfit that shows the body's skin on a part needs the folder of the body's textures")
     mark = stages(say)[0] if mark is None else mark
@@ -868,6 +876,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
             keep_split({**given, 'bake': {'mats': mats, 'metals': metals, 'brief_of': brief_of, 'whole': whole, 'tones': np.asarray(tones)}}, capture)
             say('split inputs kept in', capture)
         mark('measure the split')
+    given['drawn'] = sorted(drawn)
     result, made, origins = cut(given, contract)
     mark('split')
     own_part = functools.lru_cache(maxsize=None)(lambda name: bodyskin.body_part(body_pack, body_textures, body, name, bones))  # read once a bake
@@ -950,7 +959,8 @@ def cut(given, contract=None):
     bare = bare_joints(given)
     result = split.split(given['vertices'], given['faces'], given['columns'], given['joints'], given['radii'], given['overlaps'],
                          reaches=given['reaches'], whole=UNCUT, made=made, sleeves=given['sleeves'], guards=given['guards'],
-                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'], bare=bare),
+                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'],
+                                               joints=tuple(joint for joint in shaping.TUBES if joint not in given.get('drawn', ())), bare=bare),
                          deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={**{('ankle', side): ANKLE_TUCK for side in 'lr'}, **{key: shaping.TUCK for key in bare}},
                          ends=contract.get('ends'))
     return result, made, origins
@@ -1123,7 +1133,7 @@ def resplit(capture, contract=None, body_pack=None, workers=1, cache=None):
         parts[name]['skin'] = np.zeros(len(parts[name]['f']), bool)
     collapsed = {name: _collapsed(part['v'], part['f']) for name, part in parts.items()}
     failures = [f'{name}: {count} triangles with two corners at one point, which the model compiler drops' for name, count in collapsed.items() if count]
-    joined = ends(parts, given['bones'], given['body'], given['tier'], contract)
+    joined = ends(parts, given['bones'], given['body'], given['tier'], contract, given.get('drawn', ()))
     began = time.monotonic()
     skin = None if body_pack is None else measure.body(body_pack, given['body'])[1]
     covered = hidden(parts, given['bones'], given['body'], contract, skin, left)
@@ -1600,7 +1610,7 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None, covered=N
 
 def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=None, xatlas=None, kept=None, body='pmh0', tier=2,
         packs=(), game=None, resources=(), say=lambda *_: None, body_textures=None, capture=None, tint_cache=None, workers=1, cache=None,
-        resume=None):
+        resume=None, drawn=()):
     """Bake one outfit into `output` and check it: the record, also written as `<output>/bake.json`.
 
     With `mesh`, `colours`, `raw` and `xatlas` the outfit is baked (`bake`) and, where `kept` names a folder,
@@ -1627,7 +1637,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     own = None
     if mesh is not None or resume is not None:
         parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture, mark=mark,
-                                   workers=workers, cache=cache, resume=resume)
+                                   workers=workers, cache=cache, resume=resume, drawn=drawn)
         if kept is not None:
             store(parts, kept, document)
             mark('keep the parts')
@@ -1643,8 +1653,8 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     mark('write')
     own = measure.body(body_pack, body)[1] if own is None else own
     covered = hidden(parts, bones, body, skin=own, left=left_to_body(document))
-    record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
-              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered, through(parts, bones),
+    record = {'model': document['model'], 'body': body, 'tier': tier, **({'drawn': sorted(drawn)} if drawn else {}), 'number': number, 'models': models, **record,
+              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier, drawn=drawn), covered, through(parts, bones),
                              facing(parts, bones))}
     mark('gates')
     if game is not None:

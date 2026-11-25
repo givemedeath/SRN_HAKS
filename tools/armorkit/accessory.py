@@ -27,6 +27,9 @@ from .registry import require
 
 KIND = 'srn-armorkit-accessory'
 STRAP_ROUNDS = 8  # times a hoop is levelled again by its strap alone (`level`)
+AXIS_ROUNDS = 5  # times a hoop is then stood by the way its strap's inner faces look (`level`)
+INWARD = 0.7  # a face looks at the hoop's axis when its normal lies this much along the way there
+AXIS_DEPTH = 1.15  # and is the strap's when it lies within this many times the least radius of such faces in its direction
 STRAP_DEPTH = 1.08  # the strap: what lies within this many times the hoop's least radius in its direction
 BODY_SIDE = 0.2  # of a belt's face normal toward the hoop's axis: past this the face lies against the body and is no metal's
 BUDGET = {'triangles': 8000, 'texture': 1024}  # docs/armorkit/plan.md, Budgets: an accessory (user decision 2026-11-25, from 4,000)
@@ -89,6 +92,24 @@ def level(vertices, faces, rounds=30):
         slope = np.linalg.lstsq(np.c_[mean[:, :2], np.ones(len(mean))], mean[:, 2], rcond=None)[0]
         centre = centre + turn.T @ np.append(mean[:, :2].mean(axis=0), mean[:, 2].mean())  # the strap's own middle, not the pouches'
         turn = repose.turn(_unit(np.array([-slope[0], -slope[1], 1.0])), up) @ turn
+    # And last by the way the strap's inner faces look: each looks at the hoop's axis, so the axis is the direction
+    # most nearly square to them all. The strap's height where it is innermost says less: by it Street Casual's belt
+    # still leaned back 9 degrees, its back edge 3 cm lower than its front, the buckle and the pouches' backs being
+    # innermost and taller at the front (user, 2026-11-25: "still looks a little tilted backwards").
+    square = np.cross(b - a, c - a)
+    square = square / np.maximum(np.linalg.norm(square, axis=1, keepdims=True), 1e-12)
+    for _ in range(AXIS_ROUNDS):
+        stood, looks = (middle - centre) @ turn.T, square @ turn.T
+        radius = np.maximum(np.hypot(stood[:, 0], stood[:, 1]), 1e-9)
+        inward = np.abs((looks[:, :2] * stood[:, :2]).sum(axis=1)) / radius > INWARD  # either way round: a generated mesh is wound both
+        way = np.floor((np.arctan2(stood[:, 1], stood[:, 0]) + np.pi) / (2 * np.pi) * DIRECTIONS).astype(int) % DIRECTIONS
+        least = np.full(DIRECTIONS, np.inf)
+        np.minimum.at(least, way[inward], radius[inward])
+        strap = inward & (radius <= AXIS_DEPTH * least[way])
+        if len(np.unique(way[strap])) < DIRECTIONS // 2:
+            break
+        axis = np.linalg.eigh((looks[strap] * area[strap, None]).T @ looks[strap])[1][:, 0]
+        turn = repose.turn(axis if axis[2] > 0 else -axis, up) @ turn
     return (points - centre) @ turn.T, turn
 
 

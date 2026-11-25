@@ -24,6 +24,8 @@ NECK = 0.45  # the neck starts where the torso's curve is narrower than this sha
 STEP_LIMIT = 0.05  # a limb is followed to the next section's curve only within this share of the height
 FEW = 3  # sections a limb is followed for at least: fewer is a sliver
 SLEEVE = 4  # sections in a row with something beside the torso, above a stretch with nothing: a short sleeve over a bare arm
+SLEEVE_BANDS, SLEEVE_WAYS = 12, 16  # a sleeve's middle is read in this many bands along the upper arm and directions round it (`centred`)
+SLEEVE_RAMP = 0.4  # and the sleeve is set round its arm from this share of the way to the elbow on, by less nearer the shoulder
 JOINED = 1.15  # above a short sleeve the torso's curve is at least this much wider than beside it: the sleeves have joined it
 GAP = 0.05  # a glove lies at least this share of the height below its sleeve's hem: less is a section missing from a whole arm
 SHOULDER_OFF = 0.04  # of the outfit's height: a shoulder the sleeve's line puts farther than this from where the body's would lie is not the sleeve's to say
@@ -697,6 +699,52 @@ def outside_forearm(points, wrist, axis, fore, rng):
     return wrist + h[:, None] * axis + flat * grow[:, None]
 
 
+def centred(vertices, weight, there):
+    """The vertices with each sleeve set round its arm: what follows an upper arm moved across the arm's line
+    until the line runs through the middle of it.
+
+    A box sleeve hangs off the shoulder as it was drawn, not round the arm: Street Casual's stood 2.5 cm off
+    the arm's line at its hem, outward and back, and 5 to 7 cm higher up, and the body's own arm came out of
+    it against one side (user, 2026-11-25: the skin in the biceps "should probably be at least a little more
+    centered"). Along the arm, in `SLEEVE_BANDS` bands from the shoulder to the elbow, the middle of the
+    sleeve is where its radii to opposite sides are alike (in `SLEEVE_WAYS` directions, the median of what lies
+    in each: a pocket on one side does not weigh by its many vertices). Each vertex moves back by that much
+    across the line, by the share it follows the upper arm, and by nothing at the shoulder, where the sleeve is
+    one with the torso, to all of it from `SLEEVE_RAMP` of the way to the elbow on. A sleeve that lies round
+    its arm already has its middle on the line and stays."""
+    vertices = np.array(vertices, float)
+    for side in 'lr':
+        follows = weight[[index for index, bone in enumerate(BONES) if bone[0] == 'upper' + side]].sum(axis=0)
+        start, end = there['shoulder' + side], there['elbow' + side]
+        axis, length = seams.unit(end - start), float(np.linalg.norm(end - start))
+        u, v = seams.frame(axis)
+        relative = vertices - start
+        along = relative @ axis
+        flat = np.stack([relative @ u, relative @ v], axis=1)
+        mine = (follows >= 0.5) & (along > 0) & (along < length)
+        band = np.floor(along / length * SLEEVE_BANDS).astype(int)
+        way = np.floor((np.arctan2(flat[:, 1], flat[:, 0]) % (2 * np.pi)) / (2 * np.pi) * SLEEVE_WAYS).astype(int) % SLEEVE_WAYS
+        turn = (np.arange(SLEEVE_WAYS) + 0.5) * 2 * np.pi / SLEEVE_WAYS
+        ways = np.stack([np.cos(turn), np.sin(turn)], axis=1)
+        middles = np.full((SLEEVE_BANDS, 2), np.nan)
+        for k in range(SLEEVE_BANDS):
+            here = mine & (band == k)
+            radius = np.array([np.median(np.linalg.norm(flat[here & (way == d)], axis=1)) if (here & (way == d)).any() else np.nan
+                               for d in range(SLEEVE_WAYS)])
+            across = (radius - np.roll(radius, SLEEVE_WAYS // 2)) / 2  # how far its middle lies toward each direction
+            if (~np.isnan(across)).sum() >= SLEEVE_WAYS * 3 // 4:
+                middles[k] = np.nansum(across[:, None] * ways, axis=0) * 2 / (~np.isnan(across)).sum()
+        found = ~np.isnan(middles[:, 0])
+        if not found.any():
+            continue
+        at = (np.arange(SLEEVE_BANDS) + 0.5) * length / SLEEVE_BANDS
+        middle = np.stack([np.interp(along, at[found], middles[found, k]) for k in range(2)], axis=1)
+        share = np.clip(along / (SLEEVE_RAMP * length), 0.0, 1.0)
+        share = follows * share * share * (3 - 2 * share)
+        vertices -= share[:, None] * (middle[:, :1] * u + middle[:, 1:] * v)
+    return vertices
+
+
 def apart(vertices, side, legs, there):
     """The vertices with each leg kept on its own side of the middle between the body's hip joints.
 
@@ -756,6 +804,7 @@ def onto_body(vertices, faces, bones, parts, clearance=CLEARANCE, materials=None
     posed, weight = repose(vertices, faces, here, there, scale, marks['height'], free)
     fitted, report = fit(posed, weight, there, parts, clearance)
     fitted, gloves = gloved(fitted, weight, there, parts, faces)
+    fitted = centred(fitted, weight, there)
     follows = lambda kinds: weight[[index for index, bone in enumerate(BONES) if kind(bone[0]) in kinds]].sum(axis=0)
     fitted = apart(fitted, np.where(vertices[:, 0] < marks['middle'], -1.0, 1.0), follows(('thigh', 'shin', 'foot')), there)
     fitted = grounded(fitted, follows(('foot',)))

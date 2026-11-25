@@ -152,7 +152,7 @@ def command_bake(args):
     record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
                       xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=tiers(args.tier, args.tier_at), tint_cache=args.tint_cache,
                       packs=args.pack, game=args.nwn_root, resources=args.resources, body_textures=args.body_textures,
-                      capture=args.capture, workers=args.workers, cache=args.cache, resume=args.resume,
+                      capture=args.capture, workers=args.workers, cache=args.cache, resume=args.resume, drawn=tuple(args.as_drawn),
                       say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
     if not record['gates']['passed']:
@@ -368,6 +368,8 @@ def main(argv=None):
     p.add_argument('--nwn-root', help='game install folder: with it the models are compiled')
     p.add_argument('--resources', action='append', default=[], help='folder the compiler looks animations up in')
     p.add_argument('--capture', help='file to keep what the split is given in, for `split` to run it again')
+    p.add_argument('--as-drawn', action='append', default=[], choices=['elbow', 'wrist', 'waist', 'knee', 'ankle'], metavar='JOINT',
+                   help='a joint the outfit is cut at as it is drawn, its ends brought to no envelope (ankle, for heavy boots); may be repeated')
     p.add_argument('--resume', help='a file an earlier bake of this mesh kept with --capture: go on from the split, without --mesh')
     p.add_argument('--workers', type=int, default=4, help='processes the parts are reduced, laid out and tinted in side by side')
     p.add_argument('--cache', help="folder that keeps each part's reduction, maps and texture, read again while nothing they are made from has changed")

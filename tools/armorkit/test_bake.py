@@ -548,7 +548,7 @@ class BakeTests(unittest.TestCase):
             tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
             with mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
                     mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4), 'pelvis_g': np.eye(4)}, {})), \
-                    mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({'waist': {}}, [])), \
+                    mock.patch.object(bake, 'ends', lambda parts, bones, body, tier, **more: ({'waist': {}}, [])), \
                     mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({'waist': {}}, [])), \
                     mock.patch.object(export, 'compile_models', lambda sources, into, **given: compiled.append((sources, into, given)) or sources):
                 record = bake.run({'model': 'outfit', 'materials': []}, output, 'bodies', 332, kept=Path(folder) / 'kept', game='game', resources=['srn_body'])
@@ -569,7 +569,7 @@ class BakeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(bake, 'bake', baked), \
                 mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
                 mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4)}, {})), \
-                mock.patch.object(bake, 'ends', lambda parts, bones, body, tier: ({}, [])), \
+                mock.patch.object(bake, 'ends', lambda parts, bones, body, tier, **more: ({}, [])), \
                 mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({}, [])):
             record = bake.run({'model': 'outfit', 'materials': []}, Path(folder) / 'out', 'bodies', 332, mesh='m', colours='c', raw='r', xatlas='x')
         self.assertEqual(list(record['seconds']), ['split', 'tint', 'write', 'gates'])
@@ -802,7 +802,7 @@ class SplitCaptureTests(unittest.TestCase):
         origins = {'chest': np.array([0]), 'handl': np.array([0])}
         given = {'guards': {}, 'bones': {}, 'body': 'pmh0', 'tier': 2, 'left': ['handl'], 'shared': ['chest']}
         measured = []
-        def ends(parts, bones, body, tier, contract):
+        def ends(parts, bones, body, tier, contract, drawn=()):
             measured.append(parts)
             return {'elbow': {}}, ['forel does not reach the elbow plane']
         covered = lambda parts, bones, body, contract, skin, left: ({'elbow': {}}, ['chest at the waist: open on its plane, 1.0 cm of edge'])

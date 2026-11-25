@@ -60,12 +60,7 @@
     105,
     105
    ],
-   "slots": [
-    "chest",
-    "pelvis",
-    "thigh",
-    "shin"
-   ]
+   "slots": ["pelvis", "thigh", "shin"]
   },
   {
    "name": "trim",
@@ -89,11 +84,7 @@
     120,
     70
    ],
-   "slots": [
-    "pelvis",
-    "thigh",
-    "shin"
-   ]
+   "slots": ["pelvis", "thigh"]
   },
   {
    "name": "gloves",
