@@ -285,6 +285,14 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   `defaultheight 256`, `numx 4`, `numy 8`, `fps 8`, a four second loop. In the client two views from one spot show
   the ticker at different places. The sheet is a 2048 x 2048 TGA, not yet DDS. (The television placeable's
   `fxpa_screen`, additive and a decal, drew nothing on a tile; a plain cycle does.)
+- **The screen shows an explosion (user, 2026-11-24).** Local Qwen drew the screen's still again three times
+  (`output/_boom.py`: the blast on the central tower, the fireball, the tower burning under smoke); the buildings
+  stayed where they were, so the frames blend between them: skyline, flash, fireball, smoke, and the footage begins
+  again. Seen in the client.
+- **Ghost shapes on the walls (user, 2026-11-24)** were not from the removed bed and chair (the unfurnished room has
+  none): they were the baked placeables' own stencil shadows, and a glass lamp that drew almost clear. Baked
+  furniture now has `shadow 0`, as the set's own furniture has, and the lamp is `pkt_slamp01`. A rule for the room
+  tooling. The wall's panels still differ a little in tone from face to face: the wall mesh's own shading.
 - **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
   other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
 
