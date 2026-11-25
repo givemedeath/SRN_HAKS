@@ -43,6 +43,9 @@ def _numbers(line):
 
 def mapped(spec):
     """The lit textures of a list that glow through their materials' glow maps: those a day material is made from."""
+    days = {name.lower(): (day or '').lower() for name, day in spec.get('lit', {}).items()}
+    for day, lit in spec.get('dayMaterials', {}).items():  # a slip here left a mesh no glow of its own while its day pane drew another texture
+        require(days.get(lit.lower()) == day.lower(), f'{day}: a day material is the day texture of the lit texture it is made from ({lit}), in `lit`')
     return {lit.lower() for lit in spec.get('dayMaterials', {}).values()}
 
 
@@ -116,7 +119,7 @@ def animated(text, node, keep=()):
     if under in line[1:]:
         return text, placed[placed[key][1]][0]
     require(under != key and key not in _line(placed, under)[1:], f'{name}: the mesh {node!r} holds the animated node')
-    root = line[-1]
+    root = line[-1]; require(placed[root][1] == 'null', f'{name}: the parents of the mesh {node!r} do not reach the model\'s root')
     keyed = {at.group(2).split()[0].lower() for part in re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)[1:] for at in NODE.finditer(part) if re.search(r'(?i)key\b', at.group(3)) or PLACED.search(at.group(3))}
     held = next((one for one in reversed(line[1:-1]) if one in keyed or one in keep), None)
     if held:
@@ -275,7 +278,7 @@ def day_materials(repo, spec, packs, *, check=False):
     """Write the day materials of a list (`dayMaterials`: {day texture: the lit texture whose material it is, without
     the glow map}) beside the materials they are made from, in the first of `packs` that holds each. Tells {day texture:
     pack} of those written; with `check` nothing is written and those that are missing or differ are told."""
-    told = {}
+    told = {}; mapped(spec)  # the list agrees with itself
     for day, lit in spec.get('dayMaterials', {}).items():
         require(RESREF.fullmatch(day) and day != lit.lower(), f'{day}: a day material has a lowercase name of its own, of 16 characters at most')
         home = next((Path(repo) / pack for pack in packs if (Path(repo) / pack / f'{lit}.mtr').is_file()), None)

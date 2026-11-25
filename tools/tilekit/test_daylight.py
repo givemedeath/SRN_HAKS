@@ -232,6 +232,8 @@ class Daylight(unittest.TestCase):
         late = loop.replace('doneanim', '  node dummy t_a01a\n    parent t_a01\n  endnode\ndoneanim')  # named after it, as a tile's own loop has it
         moved = daylight.animated(MODEL.replace('node dummy lights on', 'node dummy t_a01a\n  parent t_a01\nendnode\nnode dummy lights on').replace('donemodel', late + 'donemodel'), 'pane')[0]
         names = re.findall(r'(?m)^  node \w+ (\S+)', anim(moved, 'animloop01')); self.assertEqual(names, ['t_a01', 't_a01a', 'lights'])
+        with self.assertRaisesRegex(ValueError, 'do not reach'):  # a parent the model lacks: no root to hang the animated node from
+            daylight.animated(MODEL.replace('node dummy lights on\n  parent t_a01\n', 'node dummy lights on\n  parent gone\n'), 'pane')
         with self.assertRaisesRegex(ValueError, 'not placed as'):  # the loop moves it in its old parent's frame
             daylight.animated(arm.replace('donemodel', loop.replace('node dummy lights\n    parent t_a01\n', 'node trimesh pane\n    parent lights\n') + 'donemodel'), 'pane')
         # a plain place in an animation is a key too (review of PR 198): the mesh it places is refused, the parent it places keeps its meshes
@@ -253,7 +255,7 @@ class Daylight(unittest.TestCase):
     def test_a_mesh_lit_by_its_material_s_glow_map_is_lit_whatever_its_own_glow(self):
         # the arcology's wall bands glow through their material with no glow of their own, and its cyan panes came out
         # blue at night: the game tints a glow map by the mesh's glow colour (2026-11-24)
-        self.assertEqual(daylight.mapped({'dayMaterials': {'win_d': 'WIN_B'}}), {'win_b'}); self.assertEqual(daylight.mapped({}), set())
+        self.assertEqual(daylight.mapped({'lit': {'Win_B': 'win_d'}, 'dayMaterials': {'win_d': 'WIN_B'}}), {'win_b'}); self.assertEqual(daylight.mapped({}), set())
         self.assertEqual([node for node, parent, texture in daylight.lit_nodes(MODEL, LIT, mapped={'win_b'})], ['pane', 'lens lit01', 'dull'])
         made, lit, panes = daylight.with_daylight(MODEL, LIT, {'win_b'}); self.assertEqual((lit, panes), (3, 2))
         self.assertIn('node trimesh pane\n  parent t_a01a\n  selfillumcolor 0 0 0\n  bitmap win_b\n', made)
@@ -285,14 +287,17 @@ class Daylight(unittest.TestCase):
             daylight.unlit(daylight.unlit(material))
         with tempfile.TemporaryDirectory() as temporary:
             repo = Path(temporary); (repo / 'a').mkdir(); (repo / 'b').mkdir(); (repo / 'b' / 'win.mtr').write_bytes(material.encode('ascii'))
-            spec = {'dayMaterials': {'win_d': 'win'}}
+            spec = {'lit': {'win': 'win_d'}, 'dayMaterials': {'win_d': 'win'}}
             self.assertEqual(daylight.day_materials(repo, spec, ['a', 'b'], check=True), {'win_d': 'b'}); self.assertFalse((repo / 'b' / 'win_d.mtr').exists())
             self.assertEqual(daylight.day_materials(repo, spec, ['a', 'b']), {'win_d': 'b'})
             self.assertEqual((repo / 'b' / 'win_d.mtr').read_bytes(), daylight.unlit(material).encode('ascii'))
             self.assertEqual(daylight.day_materials(repo, spec, ['a', 'b']), {})
             for bad in ({'Win_D': 'win'}, {'win': 'win'}, {'a_name_longer_than_one': 'win'}, {'win_d': 'none'}):
                 with self.assertRaises(ValueError):
-                    daylight.day_materials(repo, {'dayMaterials': bad}, ['a', 'b'])
+                    daylight.day_materials(repo, {'lit': {'win': next(iter(bad))}, 'dayMaterials': bad}, ['a', 'b'])
+            for lit in ({}, {'win': 'other'}, {'win': None}):  # not the lit texture's day texture in the list
+                with self.assertRaisesRegex(ValueError, 'is the day texture of'):
+                    daylight.day_materials(repo, {'lit': lit, 'dayMaterials': {'win_d': 'win'}}, ['a', 'b'])
         # the lists: every day material is in the packs as its lit one makes it, and no day texture has a glow map
         for tileset, packs in (('fcx01', ARCOLOGY), ('udp1', PACKS), ('dgt04', CITY)):
             spec = json.loads((REPO / 'docs' / 'tilesets' / tileset / 'daylight.json').read_text(encoding='utf-8'))

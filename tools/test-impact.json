@@ -6446,6 +6446,7 @@
       "srn_t_udp1"
     ],
     "tools/tilekit/test_blink.py": [
+      "srn_t_common",
       "srn_t_fcx01"
     ],
     "tools/tilekit/test_compiled.py": [

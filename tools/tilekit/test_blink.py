@@ -76,6 +76,8 @@ class Blink(unittest.TestCase):
         self.assertIn('  node trimesh blink01\n    parent t_a01a\n    alphakey 6\n      0.00000 0\n      1.48000 0\n      1.50000 1\n      3.50000 1\n      3.52000 0\n      4.00000 0\n    endlist\n', loop)
         bare = blink.without(made); self.assertNotIn('blink', bare); self.assertNotIn('newanim', bare); self.assertEqual(blink.with_lights(bare, SPEC)[0], made)
         self.assertEqual(blink.without(MODEL), MODEL)
+        close = blink.with_lights(MODEL, {**SPEC, 'lights': {'red': {**SPEC['lights']['red'], 'on': [[0.1, 0.7], [0.74, 1.0]]}}})[0]  # two edges apart: no key time twice
+        times = re.findall(r'(?m)^      (\d+\.\d+) ', close); self.assertEqual(len(times), len(set(times)), times)
         # an animation that keys nothing and blinked no lamp is the tile's own, and stays (review of PR 198)
         own = 'newanim tiledefault t_a01\n  node emitter spray\n    parent t_a01\n  endnode\ndoneanim tiledefault t_a01\n'
         kept = made.replace('newanim animloop01', own + 'newanim animloop01'); self.assertEqual(blink.without(kept), bare.replace('donemodel', own + 'donemodel'))
@@ -91,12 +93,28 @@ class Blink(unittest.TestCase):
             with self.assertRaises(ValueError):
                 blink.with_lights(MODEL, {**SPEC, 'lights': lights})
 
+    def test_made_anew_a_model_loses_the_lamps_the_list_no_longer_has(self):
+        # review of PR 198: a model the list gave no pane any more was not written, and kept its old lamps
+        import tempfile
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary); out = repo / 'out'
+            for folder in ('srn_t_t', 'srn_t_common'):
+                (repo / folder).mkdir()
+            (repo / 'srn_t_t' / 't.set').write_text('[TILES]\nCount=1\n[TILE0]\nModel=t_a01\n', encoding='cp1252')
+            (repo / 'srn_t_t' / 't_a01.mdl').write_text(MODEL, encoding='cp1252')
+            self.assertEqual(blink.write(repo, 't', out, SPEC)['models'], {'t_a01': 2})
+            self.assertEqual(blink.write(repo, 't', out, SPEC), {'models': {}, 'refused': {}, 'done': 1})  # it has them: left
+            self.assertEqual(blink.write(repo, 't', out, SPEC, again=True)['models'], {})  # made anew, the same: not written
+            gone = {**SPEC, 'lights': {'red': {**SPEC['lights']['red'], 'boxes': [[1.2, 0.1, 1.4, 0.3]]}}}
+            self.assertEqual(blink.write(repo, 't', out, gone, again=True)['models'], {'t_a01': 0})
+            self.assertEqual(blink.without((out / 't_a01.mdl').read_text(encoding='cp1252')), (out / 't_a01.mdl').read_text(encoding='cp1252'))
+
     def test_a_glow_s_boxes_light_only_what_is_inside_them(self):
         colour = np.full((8, 8, 3), 200, np.uint8); colour[:, 4:] = 90
         lit = material.glow({'colour': colour}, {'boxes': [{'box': [0, 0, 0.5, 0.5]}, {'box': [0.5, 0.5, 1, 1], 'above': 100}]})
         self.assertTrue((lit[:4, :4] == 200).all()); self.assertEqual(int(lit.sum()), 16 * 3 * 200)  # the second box's pixels are under its own threshold
         self.assertEqual(int(material.glow({'colour': colour}, {'above': 250, 'boxes': [{'box': [0, 0, 1, 1], 'above': 50}]}).min()), 90)
-        for wrong in ([{'box': [0.5, 0, 0.5, 1]}], [{'box': [0, 0, 1, 1.5]}], [{'box': [0, 0, 1, 1], 'gain': 2}], [[0, 0, 1, 1]]):
+        for wrong in ([{'box': [0.5, 0.5, 0.51, 0.51]}], [{'box': [0.5, 0, 0.5, 1]}], [{'box': [0, 0, 1, 1.5]}], [{'box': [0, 0, 1, 1], 'gain': 2}], [[0, 0, 1, 1]]):
             with self.assertRaises(ValueError):
                 material.glow({'colour': colour}, {'boxes': wrong})
 
@@ -107,9 +125,13 @@ class Blink(unittest.TestCase):
         for name in ('fcx01_m01_02', 'fcx01_m01_11'):  # two consoles in each: the list made anew gives the source as it is
             text = (REPO / 'sources' / 'srn_t_fcx01' / f'{name}.mdl').read_bytes().decode('cp1252')
             self.assertEqual(blink.with_lights(blink.without(text), spec), (text, 2 * boxes), name)
-        tile = (pack / 'fcx01.set').read_bytes().decode('cp1252')
-        for name in ('fcx01_m01_02', 'fcx01_m01_11'):  # the loop is on where the set lays the tile
-            block = re.search(rf'(?mis)^\[TILE\d+\]\s*\nModel={name}\s*\n.*?(?=^\[)', tile).group(0); self.assertRegex(block, r'(?m)^AnimLoop1=1\s*$')
+        laid = 0
+        for path in sorted(REPO.glob('srn_t_*/*.set')):  # the loop is on in every set that lays the tile: the merged one too (review of PR 198)
+            tile = path.read_bytes().decode('cp1252')
+            for name in ('fcx01_m01_02', 'fcx01_m01_11'):
+                for block in re.findall(rf'(?mis)^\[TILE\d+\]\s*\nModel={name}\s*\n.*?(?=^\[)', tile):
+                    laid += 1; self.assertRegex(block, r'(?m)^AnimLoop1=1\s*$', f'{path.name}: {name}')
+        self.assertGreaterEqual(laid, 4)  # fcx01 and srx01, two tiles each
         # the lamp's patch is a lit place of the glow map: a lamp over a dark place would never show
         stem = re.search(r'(?m)^texture5[ \t]+(\S+)', (pack / f'{spec["texture"]}.mtr').read_text(encoding='ascii')).group(1); self.assertNotEqual(stem, 'null')
         glow = np.asarray(pictures.read(pack / f'{stem}.dds'))[::-1]; height, width = glow.shape[:2]  # stored bottom row first

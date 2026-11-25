@@ -138,7 +138,7 @@ def with_lights(text, spec):
     for node, on in keyed:
         keys = [(0.0, 0)] if on[0][0] > 0 else []
         for start, finish in on:
-            keys += ([(start - EDGE, 0)] if start >= EDGE and (not keys or keys[-1][0] < start - EDGE) else []) + [(start, 1), (finish, 1), (finish + EDGE, 0)]
+            keys += ([(start - EDGE, 0)] if start >= EDGE and (not keys or keys[-1][0] < start - EDGE - 1e-9) else []) + [(start, 1), (finish, 1), (finish + EDGE, 0)]
         keys += [(period, 0)] if keys[-1][0] < period else []
         lines += [f'  node trimesh {node}', f'    parent {parent}', f'    alphakey {len(keys)}'] + [f'      {at:.5f} {value}' for at, value in keys] + ['    endlist', '  endnode']
     lines += [f'doneanim {loop} {name}']
@@ -163,7 +163,7 @@ def write(repo, tileset, folder, spec, shared=(), again=False):
             new, count = with_lights(without(text) if again else text, spec)
         except ValueError as error:
             told['refused'][name] = str(error); continue
-        if count and new != text:
+        if new != text:  # with none left too: made anew from a list that no longer lights it, a model loses its lamp panes
             require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
             noted(folder, file, source); (folder / file).write_bytes(new.encode('cp1252')); told['models'][name] = count
     return told

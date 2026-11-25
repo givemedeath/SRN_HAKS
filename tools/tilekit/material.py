@@ -109,6 +109,7 @@ def glow(made, lit):
             require(isinstance(one, dict) and set(one) <= {'box', 'above'} and len(one.get('box', ())) == 4 and 0 <= one['box'][0] < one['box'][2] <= 1 and 0 <= one['box'][1] < one['box'][3] <= 1,
                     'A glow\'s box is {box: [left, top, right, bottom] in 0-1, above}')
             left, top, right, bottom = one['box']; rows, columns = slice(round(top * height), round(bottom * height)), slice(round(left * width), round(right * width))
+            require(inside[rows, columns].size, f'The glow\'s box {one["box"]} holds no pixel of the picture')
             inside[rows, columns] |= colour[rows, columns].max(axis=2) >= float(one.get('above', lit.get('above', 0)))
         shown = inside
     if 'alpha' in made:
