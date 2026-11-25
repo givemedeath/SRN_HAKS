@@ -280,6 +280,18 @@ the first design's image. Not run: a bake with a tinted or named channel (`bake.
   under part and fit that hidden leftover to the envelope, in place of the grown dome and the reshaped rims
   (the user's suggestion, 2026-11-25).
 
+* **Leftover ends (`male-26`), 2026-11-25:** the user's suggestion, "cut a little more than needed and use the
+  leftover to shape the joint overlap", with "make sure the leftover part gets capped and rounded after any
+  shaping so there are no potential holes visible". At a joint cut as drawn the under part's end is now the
+  over part's own surface past the plane, up to 3 cm of it, drawn in under the over part, held inside it through
+  the joint's bend and then rounded in to a pole (`split.kept_end`, kind `KEPT`, drawn as the outfit is there).
+  Street Casual is baked with `--as-drawn ankle --as-drawn knee`; all gates pass, and the client shows clean
+  knees and ankles standing, sitting and crouching, in contrasting and realistic colours
+  (`output/armorkit/street-casual/review/male-26-joints.jpg`). Ends are also thinned before the surface that
+  shows when a part is over its budget: the foot's own surface went from 2,390 to 4,688 triangles, the upper
+  arm's from 1,174 to 2,848. Still open: a thin line of another colour across the instep where the foot meets
+  the shin; the boots' gloss; elbow and wrist not tried (short sleeves, bare hands here); older outfits not rebaked.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
