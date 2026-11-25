@@ -150,6 +150,19 @@ def _filled(values):
     return np.interp(index, np.concatenate([index[known] - len(values), index[known], index[known] + len(values)]), np.tile(values[known], 3))
 
 
+def strap(points):
+    """(low, high): the heights a hoop's strap lies between, pouches apart: the middle of where its surface begins and
+    ends in the fifth of the directions round its axis in which it spans least."""
+    way = _cells(points)[0]
+    low_at, high_at = np.full(DIRECTIONS, np.inf), np.full(DIRECTIONS, -np.inf)
+    np.minimum.at(low_at, way, points[:, 2])
+    np.maximum.at(high_at, way, points[:, 2])
+    known = np.isfinite(low_at)
+    span = np.where(known, high_at - low_at, np.inf)
+    least = known & (span <= np.percentile(span[known], 20))
+    return float(np.median(low_at[least])), float(np.median(high_at[least]))
+
+
 def wrap(points, faces, under, centre, clearance=CLEARANCE):
     """(points, record): a level hoop put round what is worn under it.
 
@@ -158,8 +171,13 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     The hoop is first scaled as a whole, so that its inner outline is as long round as the outline of what is
     worn under it at the band's height: its band and pouches keep their proportions. Then each direction round
     the axis is moved in or out as one column, by as much as brings the hoop's inner face there `clearance`
-    outside the widest of what lies under it at any height the hoop has surface in that direction, a holster
-    down the thigh too. The move is evened round the circle and never less than a direction asks. Before it, a
+    outside the widest of what lies under it at the heights of its strap (`strap`). The move is evened round the
+    circle and never less than a direction asks. What hangs below the strap, a pouch or a holster down the thigh,
+    does not move the strap: where the trousers under it are wider than the strap was moved for, it is swung out
+    from the strap's lower edge, nothing there and the most at the hoop's lowest point, as a pouch hangs over a
+    thigh. Moved as one column by the widest under any of it, a belt over baggy trousers stood off the waistband
+    by as much as their thigh pockets bulge (Street Casual in the client, user, 2026-11-25: "belt still seems
+    too large"). Before it, a
     hoop whose band is less than `BAND` tall is made taller to it (`TALLER` at most) and deeper (`DEEPER` at most):
     heights and how far each point stands off the inner face grow, lengths round the hoop do not."""
     points, centre = np.asarray(points, float), np.asarray(centre, float)
@@ -169,8 +187,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     hoop_way, _, hoop_radius = _cells(points)
     np.minimum.at(inner, hoop_way, hoop_radius)
     inner = _filled(np.where(np.isfinite(inner), inner, np.nan))
-    # the band is where most of the hoop's surface is: the levels within the middle half of its points
-    low, high = np.percentile(points[:, 2], [25, 75])
+    low, high = strap(points)  # the band: the strap's own heights, not where most of the hoop's surface is, which its pouches pull down
     scale = 1.0
     for _ in range(2):  # the band's height depends on the scale, and the scale on what lies at the band's height
         band = (height >= np.floor(low * scale / LEVELS)) & (height <= np.floor(high * scale / LEVELS))
@@ -200,6 +217,9 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     grid = np.array([(i, j, GRID - i - j) for i in range(GRID + 1) for j in range(GRID + 1 - i)], float) / GRID  # points over each face
     faces = np.asarray(faces, int)
     moved = np.zeros(DIRECTIONS)
+    band_low, band_high = strap(placed)
+    hang = max(band_low - float(placed[:, 2].min()), 1e-6)  # how far the hoop hangs below its strap
+    below = np.clip((band_low - placed[:, 2]) / hang, 0.0, 1.0)  # per point: its share of that
     for again in range(3):  # a move changes which level a slanting face lies over what: read again until nothing is left inside
         over = np.einsum('gk,fkc->fgc', grid, placed[faces]).reshape(-1, 3)  # the hoop's surface, not its corners alone
         hoop_way, hoop_level, hoop_radius = _cells(over)
@@ -207,13 +227,22 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
         for key, value in zip(zip(hoop_way.tolist(), hoop_level.tolist()), hoop_radius.tolist()):
             if value < least.get(key, np.inf):
                 least[key] = value
-        move = np.full(DIRECTIONS, -np.inf)
+        move, hung = np.full(DIRECTIONS, -np.inf), {}
         for (direction, band_level), value in least.items():
             if (direction, band_level) in table:
-                move[direction] = max(move[direction], table[(direction, band_level)] + clearance - value)
+                need = table[(direction, band_level)] + clearance - value
+                if (band_level + 1) * LEVELS > band_low:  # the strap's
+                    move[direction] = max(move[direction], need)
+                else:  # what hangs below it, by its share of the swing
+                    hung.setdefault(direction, []).append((need, min(max((band_low - (band_level + 0.5) * LEVELS) / hang, 0.2), 1.0)))
         move = _filled(np.where(np.isfinite(move), move, np.nan))
         move = _evened(np.maximum(move, 0.0) if again else move)  # after the first, only outward
+        swing = np.zeros(DIRECTIONS)
+        for direction, needs in hung.items():
+            swing[direction] = max(0.0, max((need - move[direction]) / part for need, part in needs))
+        swing = _evened(swing)
         shift = (1 - share) * move[first % DIRECTIONS] + share * move[(first + 1) % DIRECTIONS]
+        shift = shift + below * ((1 - share) * swing[first % DIRECTIONS] + share * swing[(first + 1) % DIRECTIONS])
         radius = np.hypot(placed[:, 0], placed[:, 1])
         grown = np.maximum(radius + shift, 1e-6) / np.maximum(radius, 1e-6)
         placed = np.stack([placed[:, 0] * grown, placed[:, 1] * grown, placed[:, 2]], axis=1)

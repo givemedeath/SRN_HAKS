@@ -236,6 +236,26 @@ class KeptEndTests(unittest.TestCase):
         self.assertTrue(role['cap'][7:].all())
 
 
+class HangingTests(unittest.TestCase):
+    def test_a_belt_is_fitted_by_its_strap_and_what_hangs_from_it_swings_out_over_the_thighs(self):
+        strap, faces = rings(0.5, (-0.025, 0.025), 96)
+        turn = np.arange(9) * 2 * np.pi / 96  # a pouch: a sheet hanging from the strap over a twelfth of the way round
+        sheet, sheet_faces = strip(np.array([(0.5 * np.cos(a), 0.5 * np.sin(a), -0.025) for a in turn]),
+                                   np.array([(0.5 * np.cos(a), 0.5 * np.sin(a), -0.3) for a in turn]))
+        hoop, hoop_faces = np.concatenate([strap, sheet]), np.concatenate([faces, sheet_faces + len(strap)])
+        waist, waist_faces = rings(0.15, np.arange(0.97, 1.21, 0.01), 96)
+        thighs, thigh_faces = rings(0.20, np.arange(0.80, 0.97, 0.01), 96)  # trousers wider below the waistband
+        placed, record = accessory.wrap(hoop, hoop_faces, [(waist, waist_faces), (thighs, thigh_faces)], np.array((0.0, 0.0, 1.0)))
+        radius = np.hypot(placed[:, 0], placed[:, 1])
+        band = placed[:len(strap)]
+        self.assertLess(np.hypot(band[:, 0], band[:, 1]).max(), 0.17)  # the strap on the waistband, not out where the thighs are
+        self.assertGreater(np.hypot(band[:, 0], band[:, 1]).min(), 0.15)
+        low = placed[:, 2] < 0.96
+        self.assertTrue(low.any() and (radius[low] > 0.20).all())  # and the pouch outside the thighs it hangs over
+        self.assertAlmostEqual(accessory.strap(hoop)[0], -0.025)
+        self.assertAlmostEqual(accessory.strap(hoop)[1], 0.025)
+
+
 class WorkedTests(unittest.TestCase):
     def test_jobs_are_worked_in_their_order_here_or_in_processes(self):
         jobs = [{'x': np.arange(3) + k} for k in range(3)]

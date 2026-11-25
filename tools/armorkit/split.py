@@ -1974,7 +1974,10 @@ def split(vertices, faces, uvs, joints, radii, overlaps=None, reach=REACH, reach
                 more = cap(pv, pt, pf, len(pv), point, across, depth, reach_here, grown=grown, **options)
                 pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
                 kinds.append(np.where(full[np.asarray(grown, int)], PADDED, CAP))
-        if name == 'pelvis':  # last: its edges are no opening to close
+        # last: its edges are no opening to close. A pelvis cut on a brief line keeps the crotch itself and its thighs
+        # begin below it: the strip repeated there was the insides of two trouser legs, hanging from the crotch as two
+        # flaps a hand long (Street Casual in the client, user, 2026-11-25)
+        if name == 'pelvis' and not any(entry.get('briefs') for entry in seat.values()):
             more = gusset(v, t, legs, len(pv), between)
             pv, pt, pf = np.concatenate([pv, more[0]]), np.concatenate([pt, more[1]]), np.concatenate([pf, more[2]])
             kinds.append(np.full(len(more[2]), GUSSET))

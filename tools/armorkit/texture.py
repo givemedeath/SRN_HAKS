@@ -617,8 +617,17 @@ def wear_fields(uvs, faces, positions, size, span):
     return mottle, scuff
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, wear=None, sharpen=None, among=None):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, wear=None, sharpen=None, among=None, edged=False, highlights=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
+
+    `edged`: the part's closings take the material most of their own texels were read as, their edge's, not the
+    part's commonest. A shin's one closing is across its opening at the ankle, inside a boot's shaft: as the
+    trousers the shin mostly is, it showed as a line of trousers across the boot's instep (Street Casual, 2026-11-25).
+
+    `highlights[k]` is the share material k keeps of how much lighter a texel is than its lit shade (`lit`), 1 or
+    None for all of it. A reference draws polished leather with its highlights, the game lights the part itself, and
+    drawn twice a black boot came out wet (Street Casual in the client, 2026-11-25): no material file's roughness
+    changed it, the highlights being the texture's own shades.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
     (`channels`), the second of which a texel takes where `second` flags it for its material: (size, size,
@@ -719,6 +728,15 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         factor = turned[covered]
         ratio = np.maximum(factor, 1.0) * np.minimum(ratio, np.minimum(factor, 1.0) * np.maximum(ratio, 1.0))
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
+    if highlights is not None:
+        require(len(highlights) == len(pairs), 'A share of its highlights per material is required')
+        for k, share in enumerate(highlights):
+            mine = covered & (material == k)
+            if share is None or share >= 1 or not mine.any():
+                continue
+            top = float(lit[k]) if lit is not None else float(np.percentile(shade[mine], LIT))
+            over = mine & (shade > top)
+            shade[over] = top + (shade[over] - top) * share
     if trim is not None:
         trim = np.asarray(trim, int)
         require(trim.shape == covered.shape and trim.max() < len(pairs), 'A material per texel, or -1, is required')
@@ -766,6 +784,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     if plain.any():  # as dark as the edge it grew from, evened out, and no lighter than the cloth's open surface
         reach = max(1, covered.shape[0] // CAP_STREAK)
         local = smooth(np.where(plain, shade, 0.0), reach) / np.maximum(smooth(plain, reach), 1e-9)
+        if edged:
+            base = int(np.bincount(material[plain], minlength=len(pairs)).argmax())
         material[plain], shade[plain] = base, np.minimum(local, even(base))[plain]
         if shadow is not None:
             dark = plain & np.asarray(shadow, bool)

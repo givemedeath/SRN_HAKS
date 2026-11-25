@@ -46,6 +46,8 @@ ELSEWHERE = 0.01  # of a part's own surface in the colour of a material its slot
 BUDGET = {'chest': 16000, 'slot': 5800, 'outfit': 80000, 'texture': 1024}  # doubled 2026-11-25 (user); triangles a chest, another part and a whole outfit may have; texels a side
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
 # their budgets come to 39,900)
+EDGED = ('shin', 'forearm')  # slots whose one closing lies inside what is worn at its end (a boot, a glove) and is drawn as that (`texture.tint_maps`)
+HIGHLIGHTS = {'leather': 0.3}  # by kind: the share of its drawn highlights a material keeps (`texture.tint_maps`)
 END_BAND = 0.02  # metres: a part over its budget keeps every vertex this near a joint's plane, where its end is measured
 SKIN_ROUNDS = 3  # a part sharing its slot with the body's skin is reduced again at most this often, as the skin beside it is counted anew
 WHOLE = 'no holes or detached pieces'  # the gate `surface` answers, on the generated outfit as the bake is given it
@@ -767,7 +769,8 @@ def _tinted(job):
         part['rgb'], part['covered'], job['found'], job['channel'], relief=part['relief'],
         charts=texture.chart_map(part['uv'], part['f'], size), closing=part['closing'], second=job['twice'],
         cap=part['cap'], padded=part['padded'], lit=job['lit'], trim=job['trim'],
-        shadow=part['closing'] if job['armhole'] else None, speck=job['speck'], sharpen=texture.SHARPEN, among=job['among'], wear=wear)
+        shadow=part['closing'] if job['armhole'] else None, speck=job['speck'], sharpen=texture.SHARPEN, among=job['among'], wear=wear,
+        edged=job['edged'], highlights=job['highlights'])
     return {'shades': shades, 'layers': layers}
 
 
@@ -1500,10 +1503,11 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None,
                 say(f'{name}: {read[k]:.0%} of it has the colour of {worn[k]["name"]}, which is not worn on the {slot_of[name]} and is drawn as what is')
         jobs[name] = {'part': {key: part[key] for key in ('rgb', 'covered', 'relief', 'uv', 'f', 'src', 'closing', 'cap', 'padded')}, 'found': found,
                       'channel': channel, 'twice': twice, 'lit': lit, 'trim': trim, 'armhole': name in ARMHOLE, 'speck': speck, 'among': among,
-                      'amount': amount, 'kinds': kinds, 'span': span}
+                      'amount': amount, 'kinds': kinds, 'span': span, 'edged': slot_of[name] in EDGED,
+                      'highlights': [HIGHLIGHTS.get(material['kind']) for material in worn]}
         keys[name] = None if cache is None else digest(
             written, export.LAYERS, part['rgb'], part['covered'], found, channel, part['relief'], part['uv'], part['f'], part['closing'], twice,
-            part['cap'], part['padded'], lit, trim, name in ARMHOLE, speck, texture.SHARPEN, amount, kinds, part['src'] if amount else None, span, among)
+            part['cap'], part['padded'], lit, trim, name in ARMHOLE, speck, texture.SHARPEN, amount, kinds, part['src'] if amount else None, span, among, jobs[name]['edged'], jobs[name]['highlights'])
     missing = [name for name in parts if cache is None or not (Path(cache) / (keys[name] + '.npz')).is_file()]
     ahead = dict(zip(missing, worked([jobs[name] for name in missing], _tinted, workers)[0])) if workers > 1 and len(missing) > 1 else {}
     for name, part in parts.items():

@@ -177,6 +177,23 @@ class MaterialTests(unittest.TestCase):
         closing[4:8, 10:14] = True
         layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, closing=closing, among=only)[1]
         self.assertTrue((layers == export.LAYERS['leather1']).all())
+        # edged, a closing is what its own texels were read as: a shin's, inside the boot it ends in
+        closing[4:8, 2:6] = True
+        right = closing.copy()
+        right[:, :8] = False
+        layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, closing=right, edged=True)[1]
+        self.assertTrue((layers[:, 8:] == export.LAYERS['cloth1']).all())
+        left = closing.copy()
+        left[:, 8:] = False
+        layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, closing=left, edged=True)[1]
+        self.assertTrue((layers[4:8, 2:6] == export.LAYERS['leather1']).all())
+        # a material keeps a share of its drawn highlights: what is lighter than its lit shade
+        shiny = colour.copy()
+        shiny[2:4, 2:4] = np.minimum(np.asarray(TAN, float) * 1.3, 255 if np.max(TAN) > 1 else 1.0)
+        full = texture.tint_maps(shiny, covered, self.found, channels, speck=0)[0]
+        dulled = texture.tint_maps(shiny, covered, self.found, channels, speck=0, highlights=[0.3] * 3)[0]
+        self.assertTrue((dulled[2:4, 2:4] < full[2:4, 2:4]).all())
+        self.assertTrue((dulled[8:, :8] == full[8:, :8]).all() and (dulled <= full).all())
         for wrong in (np.zeros(3, bool), np.ones(2, bool)):
             with self.assertRaises(ValueError):
                 texture.tint_maps(colour, covered, self.found, channels, among=wrong)
