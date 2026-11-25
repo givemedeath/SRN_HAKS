@@ -272,6 +272,13 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   news broadcast): a walnut bookcase of real books round a lit city-news screen, about two minutes. On the tile the
   screen's part of the picture is drawn again on a quad lit by itself, so it glows in a dark room. It does not move:
   a playing picture would need a frame sheet and is not made.
+- **The room's textures drawn again** (`docs/tilesets/tfb01/redraw.json`, `tilekit redraw --bindings`, local Qwen,
+  seed 1, four jobs in about eight minutes, none failed): `tfb01_lwalls` (off-white painted wall, a flat grey rail,
+  grey panelling below, in the old bands), `tfb01_furnish2` (the dresser), `tfb01_shpflr1` (the floor, tiling),
+  `tfb01_door2` (the door frame's wood and metal), each 1024 px on the layout it had. Pictures are in
+  `output/tilekit/tfb01-redrawn` (not in a pack); client views in `output/tilekit/trial8-c`. These four are drawn
+  by tiles all over the set, so every room that uses them changes with them. The wall's skirting does not show at
+  the floor, and the walls are near white under the review's bright lights.
 - **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
   other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
 

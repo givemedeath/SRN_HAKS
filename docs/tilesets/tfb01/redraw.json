@@ -1,0 +1,32 @@
+{
+ "tileset": "tfb01",
+ "before": "239e8836580e49e4a22ecf117bc1ecf93fe5c478",
+ "packs": [
+  "srn_t_tfb01",
+  "srn_door",
+  "srn_t_common"
+ ],
+ "textures": {
+  "tfb01_lwalls": {
+   "kind": "wall",
+   "district": "home",
+   "note": "It is an interior wall in three bands, and the old patterned wallpaper, red rail and green boards go. The upper half becomes smooth, warm off-white painted plaster with only the faintest roller texture. The narrow band across the middle becomes a simple flat pale grey rail. The lower part becomes plain light grey wall panelling with a slim dark grey skirting board along the very bottom edge. The bands stay at the same heights."
+  },
+  "tfb01_furnish2": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "It is a pale grey-oak laminate cabinet: the left part is a plain side panel, the right part its front, two drawers above a door, with brushed steel handles. The thin red outlines become fine dark shadow gaps between the drawers and the door."
+  },
+  "tfb01_shpflr1": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "Dark brown wood plank flooring, the boards running from top to bottom, matte, lightly worn."
+  },
+  "tfb01_door2": {
+   "kind": "trim",
+   "district": "home",
+   "note": "Two plain materials side by side, with the split where it is: on the left, pale grey-brown wood with a fine vertical grain; on the right, smooth blue-grey painted metal with faint wear."
+  }
+ }
+}
