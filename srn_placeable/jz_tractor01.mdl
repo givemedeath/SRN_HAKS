@@ -752,7 +752,7 @@ node trimesh m_basep
   diffuse 0.588 0.588 0.588 
   specular 0.0 0.0 0.0 
   shininess 10.0
-  bitmap _jz_tractorp01
+  bitmap jz_tractorp01
   verts 44
     -0.205625 0.749062 -0.66125
     -0.412813 0.389062 0.587812
