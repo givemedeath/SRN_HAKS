@@ -29,6 +29,52 @@
    "district": "derelict",
    "copy": "window_tex08",
    "note": "A plain rendered wall with one small window in it. Weathered grey plywood boards are nailed across the whole window opening, covering the glass. The wall around it stays smooth and plain, only lightly stained."
+  },
+  "hr09_win07": {
+   "kind": "window",
+   "district": "derelict",
+   "copy": "window_tex07",
+   "glazed": true,
+   "note": "Abandoned: a rusted, peeling frame around wide panes of filthy glass, cracked across and one pane holed, soot and water streaks down it; a dark empty room behind."
+  },
+  "hr08_trim": {
+   "kind": "trim",
+   "district": "residential",
+   "copy": "hrise_05_trim",
+   "note": "A stone band with a Greek key pattern above a plain course."
+  },
+  "hr09_build_g": {
+   "kind": "facade",
+   "district": "derelict",
+   "copy": "build_01_g",
+   "of": "hr09_build",
+   "light": "nearly every window dark; two or three show the faint warm flicker of squatters' fires",
+   "compose": true,
+   "keep": {
+    "share": 0.25,
+    "colour": [
+     255,
+     140,
+     60
+    ],
+    "seed": 2
+   }
+  },
+  "hr09_win08_g": {
+   "kind": "window",
+   "district": "derelict",
+   "copy": "window_tex08_g",
+   "of": "hr09_win08",
+   "light": "a thin warm glow leaking through the gaps between the boards",
+   "compose": true,
+   "keep": {
+    "share": 1.0,
+    "colour": [
+     255,
+     140,
+     60
+    ]
+   }
   }
  }
 }

@@ -220,7 +220,7 @@ def run(nwn_root, record, captures, *, settle=1.5, width=1600, height=900, extra
     caller that takes them again or does not judge by them."""
     user = Path(record['userDirectory']); timeout = record['start'] + len(record['shots']) * record['hold'] + 240
     # Every run states its own settings, so none are left over from the run before.
-    (user / 'settings.tml').write_text(client.SETTINGS.format(width=width, height=height) + extra_settings, encoding='utf-8')
+    (user / 'settings.tml').write_text(client.settings_text(width, height, extra_settings), encoding='utf-8')
     process = client.start(nwn_root, user, Path(record['module']).stem, width=width, height=height)
     shots, seen, missed, labels = [], 0, [], []
     try:

@@ -1,0 +1,27 @@
+{
+  "tileset": "srx01",
+  "fill": 0,
+  "haks": ["srn_t_srx01", "srn_t_dgt04", "srn_t_udp1", "srn_t_fcx01", "srn_t_common", "srn_door", "srn_placeable", "srn_2da"],
+  "block": {
+    "width": 14,
+    "height": 10,
+    "lights": ["day"],
+    "patches": [
+      {"terrain": "Asphalt", "at": [0, 0], "size": [6, 5], "border": true},
+      {"terrain": "Plaza_Light", "at": [9, 0], "size": [6, 5], "border": true},
+      {"terrain": "Asphalt", "at": [7, 7], "size": [1, 1]},
+      {"terrain": "Asphalt", "at": [8, 8], "size": [1, 1]}
+    ],
+    "runs": [
+      {"crosser": "Suburb_Road", "cells": [[2, 0], [2, 4]]},
+      {"crosser": "Street", "cells": [[2, 4], [2, 9]]},
+      {"crosser": "Street", "cells": [[4, 4], [4, 9]]},
+      {"crosser": "Suburb_Road", "cells": [[0, 0], [0, 4]]},
+      {"crosser": "Arcology_Road", "cells": [[11, 0], [11, 4]]},
+      {"crosser": "Street", "cells": [[11, 4], [11, 9]]}
+    ],
+    "crossings": [[2, 4], [5, 4], [11, 4], [8, 4], [7, 7], [0, 4], [13, 4]],
+    "views": ["x02y04-ne", "x02y04-sw", "x05y04-nw", "x11y04-ne", "x11y04-sw", "x08y04-ne", "x07y07-ne", "x00y04-nw", "x13y04-ne"],
+    "near": {"distance": 14, "pitch": 62, "views": ["x02y04-ne", "x02y04-se", "x11y04-ne", "x11y04-sw", "x05y04-nw"]}
+  }
+}

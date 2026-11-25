@@ -46,13 +46,32 @@ def ignored_prefixes(repo):
                           capture_output=True,text=True,encoding='utf-8')
     return tuple(p for p in result.stdout.split('\0') if p) if not result.returncode else ()
 
+def omitted_files(repo):
+    """Tracked files a sparse checkout left out (skip-worktree), such as sources/compiled.json in a leg without
+    sources: still literals the catalog resolves, so every checkout catalogs the same edges."""
+    if not (repo/'.git').exists():return frozenset()
+    result=subprocess.run(['git','-C',str(repo),'ls-files','-z','-t'],capture_output=True,text=True,encoding='utf-8')
+    return frozenset(row[2:] for row in result.stdout.split('\0') if row.startswith('S ')) if not result.returncode else frozenset()
+
 def packs(repo):
     """Pack folders on disk or in HEAD, so a sparse checkout catalogs the same pack names as a full one."""
     return sorted({p.name for p in repo.iterdir() if p.is_dir() and re.fullmatch(r'srn_[a-z0-9_]+',p.name)}|committed_packs(repo))
 
+SOURCES='sources'  # ASCII sources of compiled pack models: sources/<pack>/ (tools/tilekit/compiled.py)
+
+def committed_sources(repo):
+    """Packs with a sources/<pack>/ folder in HEAD; empty outside a Git checkout."""
+    if not (repo/'.git').exists():return set()
+    result=subprocess.run(['git','-C',str(repo),'ls-tree','-d','--name-only','HEAD',SOURCES+'/'],capture_output=True,text=True)
+    return {n.split('/')[-1] for n in result.stdout.splitlines() if re.fullmatch(r'srn_[a-z0-9_]+',n.split('/')[-1])} if not result.returncode else set()
+
 def absent_packs(repo=REPO):
-    """Committed pack folders that this (sparse) checkout did not materialise."""
-    return sorted(repo/name for name in committed_packs(repo) if not (repo/name).is_dir())
+    """Committed pack folders, and their sources/<pack>/ folders, that this (sparse) checkout did not materialise."""
+    kept=committed_sources(repo)
+    folders=[repo/name for name in committed_packs(repo)]+[repo/SOURCES/name for name in kept]
+    # A leg reaching no pack with sources has no sources/ at all; its compiled.json and listing are then absent too.
+    if kept and not (repo/SOURCES).is_dir():folders=[p for p in folders if p.parent!=repo/SOURCES]+[repo/SOURCES]
+    return sorted(p for p in folders if not p.is_dir())
 
 def pack_needs(data,test):
     """Packs named by a file in the test's transitive dependency closure, including the test itself."""
@@ -81,7 +100,14 @@ def catalog(repo=REPO):
     literal_index={}
     for p in all_files+[m for m in markdown_files(repo) if m not in set(all_files) and not local_only(m)]:literal_index.setdefault(p.name,[]).append(p)
     pack_names=set(packs(repo))
-    present=lambda p:p.is_file() and not local_only(p)
+    omitted=omitted_files(repo)
+    # An omitted file is looked up in the index before the disk, so the runner's absent-folder guard never sees the stat.
+    def present(p):
+        # Textual: resolve() would stat the path (realpath on Windows), which the guard counts as a read.
+        try:
+            if os.path.relpath(os.path.normpath(p),os.path.normpath(repo)).replace(os.sep,'/') in omitted:return True
+        except ValueError:pass  # another drive (Windows): not in this checkout
+        return p.is_file() and not local_only(p)
     config=repo/CONFIG
     # The selector's own tests name helper paths as data; those strings are not reads of the helpers.
     data_only=set(json.loads(config.read_text(encoding='utf-8')).get('literalsAreData',[])) if config.is_file() else set()
@@ -185,6 +211,8 @@ def select(changed,data,config=None,deleted=()):
         elif path.lower().endswith('.md') and path in deleted:return full(data,'Deleted document; its former readers are unknown: '+path)
         elif path.lower().endswith('.md'):documentation.append(path)
         elif re.fullmatch(r'srn_[a-z0-9_]+',first) and len(path.split('/'))>1:changed_packs.add(first)
+        # An ASCII source in sources/<pack>/ is that pack's asset: the tests that reach the pack read it.
+        elif first==SOURCES and len(path.split('/'))>2 and re.fullmatch(r'srn_[a-z0-9_]+',path.split('/')[1]):changed_packs.add(path.split('/')[1])
         else:return full(data,'Unknown/configuration dependency; full suite required: '+path)
     impacted.update(p for p,rows in data.get('packReferences',{}).items() if changed_packs&set(rows))
     impacted=dependents(impacted,data)
@@ -226,7 +254,7 @@ class Result(unittest.TextTestResult):
 result=unittest.TextTestRunner(verbosity=2,durations=0,resultclass=Result).run(unittest.defaultTestLoader.loadTestsFromNames(names))
 if out:
     with open(out,'w',encoding='utf-8') as f:json.dump([[n,round(t,3)] for n,t in result.collectedDurations],f)
-for test,path in sorted(touched):print('Absent pack accessed by '+(test or 'module import/fixture')+': '+path,file=sys.stderr)
+for test,path in sorted(touched):print('Absent pack or sources folder accessed by '+(test or 'module import/fixture')+': '+path,file=sys.stderr)
 sys.exit(0 if result.wasSuccessful() and result.testsRun and not touched else 1)
 '''
 

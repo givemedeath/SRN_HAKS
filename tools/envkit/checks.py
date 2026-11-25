@@ -148,7 +148,7 @@ def rows_of_lights(models, sizes, tags, halos):
     return props, shots, people
 
 
-def lights(game, repo, base, name, models_path, built, *, pack='srn_placeable'):
+def lights(game, repo, base, name, models_path, built, *, pack='srn_envprop'):
     """The lit props of a game set as the pack holds them, by night: lit, put out by script, and on again. `built` (the
     folders `game` converted into, the first that holds a model serving) is read for their sizes only."""
     repo, base = Path(repo).resolve(), Path(base).resolve(); models = convert.load_models(models_path); pack = repo / pack
@@ -338,7 +338,7 @@ def _ground(repo, tileset, resources):
     pack, common = repo / f'srn_t_{tileset}', repo / 'srn_t_common'; fill = FILL[tileset]
     for path in common.glob('ek_*'):
         shutil.copyfile(path, resources / path.name)
-    for path in (repo / 'srn_placeable').glob('ek_off*'):
+    for path in (repo / 'srn_envprop').glob('ek_off*'):
         shutil.copyfile(path, resources / path.name)
     for path in (pack / f'{tileset}.set', pack / f'{tileset}palstd.itp'):
         shutil.copyfile(path, resources / path.name)
@@ -347,7 +347,9 @@ def _ground(repo, tileset, resources):
     found = [folder / f'{plain}.mdl' for folder in (pack, common) if plain and (folder / f'{plain}.mdl').is_file()]
     require(found and picture, f'{tileset} has no plain tile {fill} with a model in its pack to lay the check area with')
     source, picture = found[0], picture.lower()
-    bitmaps = {line.split()[1].lower() for line in source.read_text(encoding='cp1252').splitlines() if line.strip().startswith('bitmap') and line.split()[1].lower() != 'null'}
+    from tools.tilekit.compiled import source as ascii_source  # a compiled tile's bitmaps are read from its ASCII source
+    bitmaps = {line.split()[1].lower() for line in ascii_source(repo, source).read_text(encoding='cp1252').splitlines()
+               if line.strip().startswith('bitmap') and len(line.split()) > 1 and line.split()[1].lower() != 'null'}
     for folder in (pack, common):
         for one in (plain, picture, 'pavement', *bitmaps):
             for path in folder.glob(one + '.*'):
@@ -421,7 +423,7 @@ def group(game, repo, base, name, models_path, built, model, tileset, mode='day'
         shutil.copyfile(folder / 'source' / f'{one["model"]}.wok', resources / f'{one["model"]}.wok')
     for path in [*(folder / 'shared').iterdir(), *(folder / 'source').glob('*.tga')]:
         shutil.copyfile(path, resources / path.name)
-    from_pack(repo / 'srn_placeable', scale_prop, resources)  # something of a known size in the corner of the area
+    from_pack(repo / 'srn_envprop', scale_prop, resources)  # something of a known size in the corner of the area
     door, night = laid_door(made), mode == 'night'; facing = float((models[model]['tiles'].get('door') or {}).get('facing', 90.0)); people, walkers = [], []
     if mode == 'walk':
         roomy = tile.read_walk(walk_picture); chosen = tile.walk_targets(roomy, tile.read_walk(walk_picture, planned=True))

@@ -1,0 +1,269 @@
+{
+  "tileset": "srx01",
+  "fill": 0,
+  "haks": [
+    "srn_t_srx01",
+    "srn_t_dgt04",
+    "srn_t_udp1",
+    "srn_t_fcx01",
+    "srn_t_common",
+    "srn_door",
+    "srn_placeable",
+    "srn_2da"
+  ],
+  "block": {
+    "width": 24,
+    "height": 14,
+    "lights": [
+      "day",
+      "night"
+    ],
+    "patches": [
+      {
+        "terrain": "Grass",
+        "at": [
+          0,
+          0
+        ],
+        "size": [
+          8,
+          15
+        ],
+        "border": true
+      },
+      {
+        "terrain": "Asphalt",
+        "at": [
+          8,
+          0
+        ],
+        "size": [
+          2,
+          15
+        ],
+        "border": true
+      },
+      {
+        "terrain": "Mall_Red",
+        "over": true,
+        "at": [
+          2,
+          9
+        ],
+        "size": [
+          3,
+          3
+        ]
+      },
+      {
+        "terrain": "Strip_Mall",
+        "over": true,
+        "at": [
+          2,
+          5
+        ],
+        "size": [
+          3,
+          2
+        ]
+      },
+      {
+        "terrain": "Tenement_Brick",
+        "at": [
+          11,
+          10
+        ],
+        "size": [
+          3,
+          3
+        ]
+      },
+      {
+        "terrain": "Tower_Colonnade",
+        "at": [
+          11,
+          2
+        ],
+        "size": [
+          3,
+          3
+        ]
+      },
+      {
+        "terrain": "Plaza_Light",
+        "at": [
+          17,
+          0
+        ],
+        "size": [
+          8,
+          15
+        ],
+        "border": true
+      },
+      {
+        "terrain": "Arcology_Void",
+        "over": true,
+        "at": [
+          19,
+          8
+        ],
+        "size": [
+          4,
+          5
+        ]
+      }
+    ],
+    "runs": [
+      {
+        "crosser": "Suburb_Road",
+        "cells": [
+          [
+            8,
+            0
+          ],
+          [
+            8,
+            13
+          ]
+        ]
+      },
+      {
+        "crosser": "Street",
+        "cells": [
+          [
+            14,
+            0
+          ],
+          [
+            14,
+            13
+          ]
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "name": "House 4, Blue 1x2",
+        "at": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "House 4, Red Brick 1x2",
+        "at": [
+          5,
+          2
+        ]
+      },
+      {
+        "name": "Tennis Court 3x2",
+        "at": [
+          5,
+          9
+        ]
+      },
+      {
+        "name": "Stuffer_Shack",
+        "at": [
+          11,
+          6
+        ]
+      },
+      {
+        "name": "Tower02",
+        "at": [
+          18,
+          1
+        ]
+      },
+      {
+        "name": "Tower00",
+        "at": [
+          22,
+          1
+        ]
+      },
+      {
+        "name": "Tower03",
+        "at": [
+          20,
+          4
+        ]
+      },
+      {
+        "name": "platform1",
+        "at": [
+          20,
+          10
+        ]
+      }
+    ],
+    "crossings": [
+      [
+        3,
+        4
+      ],
+      [
+        3,
+        8
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        14,
+        7
+      ],
+      [
+        16,
+        7
+      ],
+      [
+        18,
+        7
+      ],
+      [
+        21,
+        7
+      ],
+      [
+        20,
+        2
+      ],
+      [
+        12,
+        12
+      ]
+    ],
+    "views": [
+      "x03y04-ne",
+      "x03y04-sw",
+      "x03y08-ne",
+      "x06y06-ne",
+      "x06y06-sw",
+      "x08y07-nw",
+      "x10y04-ne",
+      "x14y07-sw",
+      "x14y07-nw",
+      "x16y07-ne",
+      "x16y07-nw",
+      "x18y07-ne",
+      "x18y07-sw",
+      "x21y07-sw",
+      "x21y07-nw",
+      "x20y02-nw",
+      "x12y12-sw"
+    ]
+  }
+}

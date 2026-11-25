@@ -14,6 +14,7 @@ another runs, and a view captured after it had passed is not kept as that view."
 import copy
 import json
 import math
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -23,9 +24,10 @@ from tools.armorkit.client_fixture import field
 from tools.envkit import checks, prop_fixture
 
 from . import PARTS, require
+from .client_settings import settings
 
 TILE = 10.0
-HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_2da')  # as a module lists them, first wins
+HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_envprop', 'srn_2da')  # as a module lists them, first wins
 TLK = 'srn'
 START, HOLD = 8.0, 6.0  # seconds before the first view, and each view is held
 ARRIVE = 8.0  # seconds given to a view in another area than the last, for the area to load
@@ -93,7 +95,7 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
     """{(column, row): (tile number, turn)} for an area of `default` terrain with `patches` of other terrains and `runs`
     of crossers, each cell laid with a tile that agrees with it. patches: [{terrain, at: [column, row], size: [columns,
     rows]}] in corners of the area (a patch of 2 by 2 corners is the smallest building: four corner tiles, four sides and
-    a middle). runs: [{crosser, cells: [[column, row], [column, row]]}] straight from cell to cell, crossing every edge
+    a middle), a later one lying over an earlier only where it says `over`. runs: [{crosser, cells: [[column, row], [column, row]]}] straight from cell to cell, crossing every edge
     between and the area's edge where they reach it. avoid: tile numbers never laid (those of groups, which the Toolset
     lays only as groups). Tiles with a raised corner are not laid. Where several tiles fit, cells take them in turn."""
     corner, edge = {}, {}
@@ -102,7 +104,7 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
         require(low <= x0 and x0 + columns <= width + 1 - low and low <= y0 and y0 + rows <= height + 1 - low, f'{patch["terrain"]} at {x0},{y0} reaches the area\'s edge')
         for x in range(x0, x0 + columns):
             for y in range(y0, y0 + rows):
-                require((x, y) not in corner, f'{patch["terrain"]} at {x0},{y0} lies over another patch')
+                require(patch.get('over') or (x, y) not in corner, f'{patch["terrain"]} at {x0},{y0} lies over another patch')  # `over`: a building on a district's ground
                 corner[(x, y)] = patch['terrain'].lower()  # names in any case, as the game reads them (`_folded`)
     for run in runs:
         (c0, r0), (c1, r1) = run['cells']; require(c0 == c1 or r0 == r1, 'A run of a crosser is straight')
@@ -137,6 +139,33 @@ def solve(tiles, default, width, height, patches, runs=(), avoid=()):
     return laid
 
 
+def stamped(cells, tiles, set_text, groups, width, height):
+    """`cells` (`solve`) with whole groups laid over them: groups [{name, at: [column, row]}], the group's south-west
+    tile at `at`, unturned, as the Toolset lays one. The ground under a group is the spec's to give (a patch of the
+    group's terrain): a group whose tiles disagree with a neighbour is refused, where the Toolset would repaint round it.
+    A group that says `loose` is laid to be looked at only: its walks and drives may end at its edge (a mall front or a
+    school wants walks and driveways laid to fit, which no patch gives)."""
+    from . import inventory
+    shapes = {keys['Name'].lower(): (int(keys['Rows']), int(keys['Columns']), keys) for name, keys in inventory.sections(set_text) if name.startswith('GROUP') and 'Rows' in keys}
+    cells = dict(cells); loose = set()
+    for group in groups:
+        require(group['name'].lower() in shapes, f'The set has no group {group["name"]}')
+        rows, columns, keys = shapes[group['name'].lower()]; column0, row0 = group['at']
+        require(0 <= column0 and column0 + columns <= width and 0 <= row0 and row0 + rows <= height, f'{group["name"]} at {column0},{row0} leaves the area')
+        for row in range(rows):
+            for column in range(columns):
+                number = int(keys[f'Tile{row * columns + column}'])
+                if number >= 0:
+                    cells[(column0 + column, row0 + row)] = (number, 0)
+                    if group.get('loose'):
+                        loose |= {(column0 + column + x, row0 + row + y) for x in (-1, 0, 1) for y in (-1, 0, 1)}  # the tile and those round it
+    wrong = disagreements(width, [cells[(column, row)] for row in range(height) for column in range(width)], tiles)
+    cell = lambda line: re.search(r' at (\d+),(\d+):', line)  # a line whose cell cannot be read is kept
+    wrong = [line for line in wrong if not cell(line) or tuple(map(int, cell(line).groups())) not in loose]
+    require(not wrong, 'A group does not fit the ground it is laid on: ' + '; '.join(wrong[:4]) + (f' and {len(wrong) - 4} more' if len(wrong) > 4 else ''))
+    return cells
+
+
 def grid(numbers, fill, across=32):
     """(width, height, laid, rows) for every tile of `numbers` laid unturned in rows of `across`, each row with a row
     of the plain tile `fill` south of it and one north of the last: a view from either side of a row sees no other."""
@@ -147,6 +176,8 @@ def grid(numbers, fill, across=32):
         laid[(index % across, index // across * 2 + 1)] = (number, 0)
     return across, height, laid, rows
 
+
+PITCH_LIMIT, DISTANCE_LIMIT = 150.0, 200.0  # a view's camera may look up from the street (pitch over 90) at a tower's top, and stand far off
 
 def _shot(area, label, x, y, facing, distance, pitch):
     return {'area': area, 'label': label, 'stand': [round(x, 2), round(y, 2)], 'facing': facing, 'distance': distance, 'pitch': pitch, 'height': 1.0}
@@ -202,7 +233,7 @@ def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
               '  DelayCommand(wait,SetCameraHeight(pc,height)); DelayCommand(wait,AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP)));',
               f'  DelayCommand(wait+{prop_fixture.LINE_DELAY:.1f},Line(pc,n,label,area));',
               f'  DelayCommand(wait+{hold:.1f},Shot(pc,n+1));', '}',
-              'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', '  SetCameraLimits(pc,1.0,89.0,0.5,60.0);',
+              'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', f'  SetCameraLimits(pc,1.0,{PITCH_LIMIT:.1f},0.5,{DISTANCE_LIMIT:.1f});',
               '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
               '  SetCutsceneMode(pc,TRUE,FALSE);', f'  WriteTimestampedLogEntry("{prefix} enter shots={len(shots)}");',
               f'  DelayCommand({start:.1f},Shot(pc,0));', '}']
@@ -241,10 +272,27 @@ def prop_shots(area, prefix, rows, *, across=5, spacing=6.0, apart=12.0, distanc
     return [_shot(area, f'{prefix}-r{row:02d}', TILE + spacing * across / 2, TILE + apart * (row + 0.5) - 3.0, 90, distance, pitch) for row in range(rows)]
 
 
-def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, props=()):
+def door(tag, generic, position, bearing, opened=0):
+    """One generic door of an area's door list: `generic` its row of genericdoors.2da (a row past 255 is read from
+    GenericType_New), standing at `position` (x, y, z) turned `bearing` degrees, `opened` 0 shut, 1 or 2 open that way."""
+    x, y, z = position; gff_float = client_fixture.gff_float
+    values = {'Tag': field('cexostring', tag), 'LocName': field('cexolocstring', {'0': tag}), 'Description': field('cexolocstring', {}),
+              'TemplateResRef': field('resref', ''), 'Appearance': field('dword', 0), 'GenericType': field('byte', min(generic, 255)),
+              'GenericType_New': field('dword', generic), 'OpenState': field('byte', opened), 'AnimationState': field('byte', opened),
+              'Plot': field('byte', 1), 'HP': field('short', 15), 'CurrentHP': field('short', 15), 'Hardness': field('byte', 5),
+              'Fort': field('byte', 16), 'Ref': field('byte', 0), 'Will': field('byte', 0), 'Faction': field('dword', 1),
+              'Lockable': field('byte', 0), 'Locked': field('byte', 0), 'KeyRequired': field('byte', 0), 'KeyName': field('cexostring', ''),
+              'Interruptable': field('byte', 1), 'Conversation': field('resref', ''), 'LinkedTo': field('cexostring', ''),
+              'LinkedToFlags': field('byte', 0), 'PortraitId': field('word', 0), 'TrapFlag': field('byte', 0),
+              'X': gff_float(x), 'Y': gff_float(y), 'Z': gff_float(z), 'Bearing': gff_float(math.radians(bearing))}
+    return {'__struct_id': 8, **values}
+
+
+def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, props=(), doors=()):
     """{file: document} of one area: its tiles as laid ({(column, row): (tile number, turn)}, every cell), its lighting
-    one of LIGHTS, nothing standing in it but `props` (`prop_rows`). lamps: {main, source} switches every tile's own
-    lights on, as a builder does in the Toolset: each a row of lightcolor.2da for both of that kind, 0 for off."""
+    one of LIGHTS, nothing standing in it but `props` (`prop_rows`) and `doors` ([{row, position, bearing, opened}],
+    `door`). lamps: {main, source} switches every tile's own lights on, as a builder does in the Toolset: each a row of
+    lightcolor.2da for both of that kind, 0 for off."""
     require(NAME.fullmatch(tag) and len(tag) <= client_fixture.RESREF, 'An area\'s tag is a lowercase resref')
     require(light in LIGHTS, 'An area is lit by ' + ', '.join(LIGHTS)); require(len(laid) == width * height, f'{tag}: every cell of the area is laid')
     made = client_fixture.area_documents(tag, [], 1); are = made.pop(tag + '_a.are'); git = made.pop(tag + '_a.git'); template = are['Tile_List']['value'][0]  # a tile's fields, copied for every cell
@@ -259,11 +307,13 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
             cells.append(cell)
     are.update({'Tileset': field('resref', tileset), 'Width': field('int', width), 'Height': field('int', height), 'Tile_List': field('list', cells),
                 'Name': field('cexolocstring', {'0': title}), 'Tag': field('cexostring', tag), 'ResRef': field('resref', tag),
-                'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 90.0)})
+                'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 9999.0)})
     are.update({key: field(KINDS.get(key, 'dword'), value) for key, value in LIGHTS[light].items()})
     if props:
         git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', SOUTH))
                                                for index, prop in enumerate(props)])
+    if doors:
+        git['Door List'] = field('list', [door(f'{tag}_d{index}', one['row'], one['position'], one['bearing'], one.get('opened', 0)) for index, one in enumerate(doors)])
     return {tag + '.are': are, tag + '.git': git}
 
 
@@ -287,7 +337,7 @@ def read_area(path, run=None):
     return are['Width']['value'], are['Height']['value'], [(one['Tile_ID']['value'], one['Tile_Orientation']['value']) for one in are['Tile_List']['value']]
 
 
-def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, tlk=TLK, start=START, hold=HOLD):
+def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, tlk=TLK, start=START, hold=HOLD, arrive=ARRIVE):
     """Build the review module into the fresh folder `output`: a user folder of its own holding the module, the talk
     table and the built packs (as hard links to those in `built`, copies where the file system has none), with a pack
     of the module's own first in its list holding the files of `overlay`. areas: [{tag, title, tileset, width, height,
@@ -300,8 +350,8 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     require(areas and shots and {shot['area'] for shot in shots} <= {area['tag'] for area in areas}, 'Every view is of one of the areas')
     missing = [pack for pack in haks if not (built / f'{pack}.hak').is_file()] + ([] if (built / f'{tlk}.tlk').is_file() else [tlk + '.tlk'])
     require(not missing, f'The built packs are needed in {built}: ' + ', '.join(missing))
-    from .apply import MADE_FROM, MODELS_FROM  # an overlay's records, for apply: no game files
-    laid_over = sorted(path for path in Path(overlay).iterdir() if path.name not in (MADE_FROM, MODELS_FROM)) if overlay else []  # refused before anything is made: the folder stays fresh
+    from .apply import KIT_FILES, MADE_FROM, MODELS_FROM, WALK_CUTS  # an overlay's records, for apply: no game files
+    laid_over = sorted(path for path in Path(overlay).iterdir() if path.name not in (MADE_FROM, MODELS_FROM, WALK_CUTS, KIT_FILES)) if overlay else []  # refused before anything is made: the folder stays fresh
     for path in laid_over:
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Overlay files are lowercase resref files: ' + path.name)
     user, staged, documents, binary = (output / part for part in ('userdir', 'hak-resources', 'json', 'module'))
@@ -316,14 +366,15 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     for path in laid_over:
         shutil.copyfile(path, staged / path.name); held.append(path.name)
     run('nwn_erf', ['-c', '-f', user / 'hak' / f'{name}.hak', '-e', 'HAK', staged])
-    script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold), encoding='ascii', newline='\n')
+    script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold, arrive), encoding='ascii', newline='\n')
     run('nwn_script_comp', ['--root', root, '--userdirectory', user, '--no-ovr', script])
     require(script.with_suffix('.ncs').is_file(), 'The entry script did not compile')
     made = client_fixture.module_documents(name, list(haks), tlk, tuple(shots[0]['stand'])); ifo = made['module.ifo']
     ifo['Mod_Area_list']['value'] = [{'__struct_id': 6, 'Area_Name': field('resref', area['tag'])} for area in areas]
     ifo['Mod_Entry_Area'] = field('resref', shots[0]['area']); ifo['Mod_Name'] = field('cexolocstring', {'0': 'Tilekit review ' + name})
     for area in areas:
-        made.update(area_documents(area['tag'], area['title'], area['tileset'], area['width'], area['height'], area['laid'], area['light'], area.get('lamps'), area.get('props', ())))
+        made.update(area_documents(area['tag'], area['title'], area['tileset'], area['width'], area['height'], area['laid'], area['light'], area.get('lamps'), area.get('props', ()),
+                                   area.get('doors', ())))
     for filename, document in made.items():
         path = documents / (filename + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
         run('nwn_gff', ['-i', path, '-o', binary / filename])
@@ -331,7 +382,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     record = {'name': name, 'userDirectory': str(user), 'module': module.name, 'hak': f'{name}.hak', 'haks': list(haks), 'overlay': held,
               'areas': [{key: area[key] for key in ('tag', 'title', 'tileset', 'width', 'height', 'light')} for area in areas],
               # `hold` is what a capture is timed against; what the views wait before it counts toward the run's start.
-              'shots': [shot['label'] for shot in shots], 'start': start + sum(waits(shots)), 'hold': hold,
+              'shots': [shot['label'] for shot in shots], 'start': start + sum(waits(shots, arrive)), 'hold': hold,
               'clientValidated': False}
     (output / 'fixture.json').write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
     return record
@@ -342,7 +393,7 @@ def capture(game, record, folder):
     client runs. Returns {captures, late, elsewhere}: `late` names the views captured after they had passed, kept as
     -late.png; `elsewhere` those whose area the player had not reached when the view was taken. Neither shows its view."""
     checks.wait_for_clients(); captures = Path(folder) / 'captures'
-    result = prop_fixture.run(game, record, captures, late_ok=True)
+    result = prop_fixture.run(game, record, captures, extra_settings=settings(), late_ok=True)
     (captures / 'run.json').write_text(json.dumps(result, indent=1), encoding='utf-8')
     return {'captures': result['captures'], 'late': result['late'], 'elsewhere': elsewhere(result['lines'])}
 
@@ -354,7 +405,7 @@ def elsewhere(lines):
 
 def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
-    patches, runs, crossings, lights, views (which of a crossing's views are taken, as 'x03y03-ne'; all without it),
+    patches, runs, groups (`stamped`), crossings, lights, views (which of a crossing's views are taken, as 'x03y03-ne'; all without it),
     near: {distance, pitch, views}, lamps: [{name, main, source, lights}] (the block again with
     every tile's own lights on, `area_documents`; views `lamp-<name>-<light>`)}, grid: {across, lights}, area: {step, lights},
     shared: {lights, tilesets: {tileset: {models, fill, lights}}, placeables: {lights, groups: [{name, models, lights, and
@@ -384,6 +435,8 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
         # A view is the label's last two parts (x03y03-ne), however many parts its prefix has (lamp-main-night).
         chosen = lambda made, views: [shot for shot in made if not views or '-'.join(shot['label'].rsplit('-', 2)[-2:]) in views]
         cells = solve(tiles, laid['default'], block['width'], block['height'], block['patches'], block.get('runs', ()), avoid=grouped | envkit)
+        if block.get('groups'):  # whole buildings, as a builder lays them
+            cells = stamped(cells, tiles, set_text, block['groups'], block['width'], block['height'])
         for light in block['lights']:
             tag = 'tkb' + light[0]; add(tag, f'Block, {light}', block['width'], block['height'], cells, light)
             shots += chosen(corner_shots(tag, f'block-{light}', [tuple(cell) for cell in block['crossings']]), block.get('views'))

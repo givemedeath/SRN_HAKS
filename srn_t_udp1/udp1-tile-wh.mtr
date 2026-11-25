@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 udp1_tile_wh
+texture1 udp1_tile_wh_n
+texture2 udp1_tile_wh_s
+texture3 udp1_tile_wh_r
+texture4 null
+texture5 null

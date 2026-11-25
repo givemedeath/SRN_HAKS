@@ -1,0 +1,177 @@
+{
+ "tileset": "srx01",
+ "fill": 0,
+ "haks": [
+  "srn_t_srx01",
+  "srn_t_dgt04",
+  "srn_t_udp1",
+  "srn_t_fcx01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 15,
+  "height": 14,
+  "lights": [
+   "day",
+   "night"
+  ],
+  "patches": [
+   {
+    "terrain": "Grass",
+    "at": [
+     0,
+     0
+    ],
+    "size": [
+     8,
+     15
+    ],
+    "border": true
+   },
+   {
+    "terrain": "Asphalt",
+    "at": [
+     8,
+     0
+    ],
+    "size": [
+     2,
+     15
+    ],
+    "border": true
+   },
+   {
+    "terrain": "Mall_Red",
+    "over": true,
+    "at": [
+     2,
+     9
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Strip_Mall",
+    "over": true,
+    "at": [
+     2,
+     5
+    ],
+    "size": [
+     3,
+     2
+    ]
+   },
+   {
+    "terrain": "Tenement_Brick",
+    "at": [
+     11,
+     10
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Tower_Colonnade",
+    "at": [
+     11,
+     2
+    ],
+    "size": [
+     3,
+     3
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "Suburb_Road",
+    "cells": [
+     [
+      8,
+      0
+     ],
+     [
+      8,
+      13
+     ]
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "House 4, Blue 1x2",
+    "at": [
+     1,
+     2
+    ]
+   },
+   {
+    "name": "House 4, Red Brick 1x2",
+    "at": [
+     5,
+     2
+    ]
+   },
+   {
+    "name": "Tennis Court 3x2",
+    "at": [
+     5,
+     9
+    ]
+   },
+   {
+    "name": "Stuffer_Shack",
+    "at": [
+     11,
+     6
+    ]
+   }
+  ],
+  "crossings": [
+   [
+    3,
+    4
+   ],
+   [
+    3,
+    8
+   ],
+   [
+    6,
+    6
+   ],
+   [
+    8,
+    7
+   ],
+   [
+    10,
+    7
+   ],
+   [
+    6,
+    3
+   ]
+  ],
+  "views": [
+   "x03y04-ne",
+   "x03y04-sw",
+   "x03y08-ne",
+   "x06y06-ne",
+   "x06y06-sw",
+   "x08y07-nw",
+   "x08y07-sw",
+   "x10y07-sw",
+   "x06y03-nw"
+  ]
+ },
+ "note": "Release B pilot block: a suburb street with houses, a mall and a strip mall beside the Stuffer Shack on Concrete."
+}

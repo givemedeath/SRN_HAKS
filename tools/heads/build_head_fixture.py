@@ -158,7 +158,7 @@ def module_documents(actors,hak_names,lighting,*,name='SRN Head Pilot',
         Tile_List=field('list',tiles),Version=field('dword',2),Flags=field('dword',4),DayNightCycle=field('byte',0),IsNight=field('byte',0),
         SunAmbientColor=field('dword',ambient),MoonAmbientColor=field('dword',ambient),SunDiffuseColor=field('dword',diffuse),
         MoonDiffuseColor=field('dword',diffuse),SunShadows=field('byte',int(lighting=='directional')),
-        ShadowOpacity=field('byte',20),FogClipDist=field('float',80),SkyBox=field('byte',0))
+        ShadowOpacity=field('byte',20),FogClipDist=field('float',9999),SkyBox=field('byte',0))
     git=structure('GIT ',**{'Creature List':field('list',actors),'Door List':field('list',[]),'Placeable List':field('list',[]),
         'TriggerList':field('list',[]),'WaypointList':field('list',[]),'StoreList':field('list',[])})
     ifo=structure('IFO ',Mod_Name=field('cexolocstring',{'0':name}),Mod_Description=field('cexolocstring',{'0':description}),

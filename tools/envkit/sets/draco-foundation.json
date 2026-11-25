@@ -16,7 +16,7 @@
     "dome-camera": {"kind": "prop", "type": "security-camera", "variant": "Ceiling dome camera.", "subject": "ceiling dome security camera", "box": [463, 841, 510, 873]},
     "keypad-panel": {"kind": "prop", "type": "access-terminal", "variant": "Wall-mounted keypad and reader panel.", "subject": "wall-mounted keypad and reader panel", "box": [463, 877, 508, 916]},
     "beam-gate": {"kind": "prop", "type": "turnstile", "variant": "Glass-wing gate between posts with a red beam.", "subject": "glass-wing access gate with a red beam", "box": [296, 947, 424, 1008]},
-    "scanner-arch": {"kind": "prop", "type": "scanner-arch", "same": "council-hall/security-arch", "subject": "walk-through security scanner arch", "box": [429, 923, 510, 1012]},
+    "scanner-arch": {"kind": "prop", "type": "scanner-arch", "same": "council-hall/metal-detector-arch", "subject": "walk-through security scanner arch", "box": [429, 923, 510, 1012]},
     "executive-desk": {"kind": "prop", "type": "executive-desk", "variant": "Dark wooden L-desk with two terminals, no backdrop.", "subject": "dark wooden executive desk with two terminals", "box": [577, 840, 722, 907]},
     "office-chair": {"kind": "prop", "type": "office-chair", "subject": "black leather office chair", "box": [737, 832, 778, 897]},
     "sofa": {"kind": "prop", "type": "sofa", "subject": "dark leather two-seat sofa", "box": [574, 953, 670, 1010]},

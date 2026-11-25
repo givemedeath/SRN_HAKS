@@ -7,6 +7,16 @@ from pathlib import Path
 
 from tools.tilekit import apply
 
+
+def compiled_copy(repo, keys):
+    """A stand-in for the NeverBlender compile: each source copied to its pack as it is."""
+    for key in keys:
+        pack, name = key.split('/'); (Path(repo) / pack / name).write_bytes((Path(repo) / 'sources' / pack / name).read_bytes())
+
+
+def _apply(*args, **kwargs):
+    return apply.apply(*args, compiler=lambda keys: compiled_copy(args[0], keys), **kwargs)
+
 MATERIAL = 'renderhint NormalAndSpecMapped\n\ntexture0 {0}\ntexture1 {0}_n\ntexture2 null\n'
 
 
@@ -35,7 +45,7 @@ class ApplyTests(unittest.TestCase):
 
     def test_each_texture_goes_where_its_name_was_and_its_old_copies_go(self):
         (self.overlay / 'stray.dds').write_bytes(b'left')
-        told = apply.apply(self.repo, self.spec, self.overlay)
+        told = _apply(self.repo, self.spec, self.overlay)
         self.assertEqual(self.names('srn_t_common'), ['bin.dds', 'bin.mtr', 'bin_n.dds', 't_a01.mdl', 'wall.dds', 'wall.mtr', 'wall.txi', 'wall_n.dds'])  # the old TXI is left
         self.assertEqual(self.names('srn_placeable'), ['bin.dds', 'bin.mtr', 'bin_n.dds', 'crate.dds'])
         self.assertEqual(self.names('srn_t_tst'), ['tcn_w.dds', 'tcn_w.txi', 'tst.set'])  # a base-game texture goes to the tileset's pack
@@ -44,20 +54,65 @@ class ApplyTests(unittest.TestCase):
         self.assertEqual([(entry['Resource'], entry['Packs']) for entry in overrides],
                          [('other.dds', ['srn_t_common', 'srn_placeable']), ('bin.dds', ['srn_placeable', 'srn_t_common']),
                           ('bin.mtr', ['srn_placeable', 'srn_t_common']), ('bin_n.dds', ['srn_placeable', 'srn_t_common'])])
-        self.assertEqual(told, {'put': 12, 'deleted': 1, 'overrides': 3, 'new overrides': 2, 'dropped overrides': 0, 'not applied': ['stray.dds']})  # of no texture of the spec
-        apply.apply(self.repo, self.spec, self.overlay)  # again: every entry where it stood
+        self.assertEqual(told, {'put': 12, 'compiled': 0, 'deleted': 1, 'overrides': 3, 'new overrides': 2, 'dropped overrides': 0, 'not applied': ['stray.dds']})  # of no texture of the spec
+        _apply(self.repo, self.spec, self.overlay)  # again: every entry where it stood
         self.assertEqual(json.loads((self.repo / 'hakbuilder.json').read_text(encoding='utf-8'))['ExpectedOverrides'], overrides)
 
+    def test_a_tile_model_goes_to_its_source_and_is_compiled_into_its_pack(self):
+        (self.repo / 'sources' / 'srn_t_common').mkdir(parents=True); (self.repo / 'sources' / 'srn_t_common' / 't_a01.mdl').write_bytes(b'old')
+        (self.repo / 'srn_t_common' / 't_a01.mdl').write_bytes(b'\0\0\0\0binary')  # the pack holds the compiled copy
+        with self.assertRaisesRegex(ValueError, 'NeverBlender add-on that compile them'):
+            apply.apply(self.repo, None, self.overlay)  # without a compiler nothing is written
+        self.assertEqual((self.repo / 'sources' / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'old')
+        asked = []; apply.apply(self.repo, None, self.overlay, compiler=asked.append)
+        self.assertEqual(asked, [['srn_t_common/t_a01.mdl']]); self.assertEqual((self.repo / 'sources' / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'model')
+        self.assertEqual((self.repo / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'\0\0\0\0binary')  # the compile writes the pack, not apply
+
+    def test_a_material_restyled_in_a_compiled_pack_recompiles_its_models(self):
+        (self.repo / 'sources' / 'srn_t_common').mkdir(parents=True); (self.repo / 'sources' / 'srn_t_common' / 't_b01.mdl').write_bytes(b'kept')
+        (self.overlay / 't_a01.mdl').unlink()  # textures alone: no model changes
+        with self.assertRaisesRegex(ValueError, 'the materials of compiled packs'):
+            apply.apply(self.repo, self.spec, self.overlay)
+        asked = []; apply.apply(self.repo, self.spec, self.overlay, compiler=asked.append)
+        self.assertEqual(asked, [['srn_t_common/t_b01.mdl']])  # every source: wall.mtr and bin.mtr give its meshes tangents now
+
+    def test_the_kit_s_files_go_to_the_tileset_s_pack_as_detail_recorded_them(self):
+        for name in ('tst_kit.mtr', 'tst_kit.dds', 'tst_fx.tga'):
+            (self.overlay / name).write_bytes(name.encode())
+        record = {'kind': 'tilekit-kit-files', 'tileset': 'tst', 'files': {name: hashlib.sha256(name.encode()).hexdigest() for name in ('tst_kit.mtr', 'tst_kit.dds', 'tst_fx.tga')}}
+        (self.overlay / apply.KIT_FILES).write_text(json.dumps(record), encoding='utf-8')
+        told = _apply(self.repo, None, self.overlay)
+        self.assertEqual(self.names('srn_t_tst'), ['tst.set', 'tst_fx.tga', 'tst_kit.dds', 'tst_kit.mtr']); self.assertEqual(told['put'], 4)
+        _apply(self.repo, None, self.overlay)  # again: over its own copies
+        (self.overlay / 'tst_fx.tga').write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError, 'not in the overlay as'):
+            _apply(self.repo, None, self.overlay)
+        (self.overlay / 'tst_fx.tga').write_bytes(b'tst_fx.tga'); (self.repo / 'srn_placeable' / 'tst_kit.dds').write_bytes(b'other')
+        with self.assertRaisesRegex(ValueError, 'already a file of srn_placeable'):
+            _apply(self.repo, None, self.overlay)
+
+    def test_a_model_with_turning_heads_needs_its_loop_on_in_the_set_file(self):  # batch 4's flags were set by hand, 2026-11-20
+        (self.overlay / 't_a01.mdl').write_text('newanim animloop01 t_a01\n  length 24.0\n  node trimesh t_a01_kit01\n    parent t_a01a\n'
+                                                '    orientationkey 1\n      0.0 0 0 1 0.5\n  endnode\ndoneanim animloop01 t_a01\n', encoding='cp1252')
+        (self.repo / 'srn_t_tst' / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=0\n', encoding='cp1252')
+        with self.assertRaisesRegex(ValueError, 'AnimLoop1 off'):
+            _apply(self.repo, None, self.overlay)
+        (self.overlay / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=1\n', encoding='cp1252')  # a terrain copy's set file is read in place of the pack's
+        self.assertEqual(apply._loop_flags(self.repo, ['srn_t_tst'], 't_a01', 1, self.overlay), [True])
+        self.assertEqual(apply._loop_flags(self.repo, ['srn_t_tst'], 't_a01', 1), [False]); (self.overlay / 'tst.set').unlink()
+        (self.repo / 'srn_t_tst' / 'tst.set').write_text('[TILE0]\nModel=t_a01\nAnimLoop1=1\n', encoding='cp1252')
+        self.assertEqual(_apply(self.repo, None, self.overlay)['put'], 1)
+
     def test_an_overlay_of_models_alone_needs_no_spec(self):
-        self.assertEqual(apply.apply(self.repo, None, self.overlay)['put'], 1)
+        self.assertEqual(_apply(self.repo, None, self.overlay)['put'], 1)
         self.assertEqual((self.repo / 'srn_t_common' / 't_a01.mdl').read_bytes(), b'model'); self.assertEqual((self.repo / 'srn_t_common' / 'wall.tga').read_bytes(), b'old')
 
     def test_applying_again_finds_a_restyle_by_its_material_and_a_model_s_walkmesh_must_stand(self):
         (self.overlay / 'wall.mtr').write_text(MATERIAL.format('wl'), encoding='ascii')  # maps of a stem of their own
         for stem in ('wl', 'wl_n'):
             (self.overlay / f'{stem}.dds').write_bytes(b'new')
-        apply.apply(self.repo, self.spec, self.overlay)
-        first = self.names('srn_t_common'); apply.apply(self.repo, self.spec, self.overlay)
+        _apply(self.repo, self.spec, self.overlay)
+        first = self.names('srn_t_common'); _apply(self.repo, self.spec, self.overlay)
         self.assertEqual(self.names('srn_t_common'), first); self.assertNotIn('wall.dds', first)
         (self.repo / 'srn_t_common' / 't_a01.mdl').write_text('node aabb wm\n  verts 1\n    0 0 0\nendnode\n', encoding='cp1252')
         (self.overlay / 't_a01.mdl').write_text('node aabb wm\n  verts 1\n    0 0 1\nendnode\n', encoding='cp1252')
@@ -95,11 +150,11 @@ class ApplyTests(unittest.TestCase):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (self.repo / 'srn_t_common' / 'flat_wall.dds').write_bytes(b'dds'); self.assertEqual(len(apply.plan(self.repo, {'tileset': 'tst'}, overlay)['put']), 3)
         (self.repo / 'srn_t_common' / 'flat_wall.dds').unlink(); (overlay / apply.MADE_FROM).write_text(made_from(laid(2)), encoding='utf-8')
-        told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
+        told = _apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((told['put'], told['not applied']), (3, [])); self.assertEqual(self.names('srn_t_tst'), ['n_t01.mdl', 'n_t01.wok', 'tst.set'])
         self.assertEqual((self.repo / 'srn_t_tst' / 'tst.set').read_bytes(), laid(3))
         (overlay / 'n_t01.wok').write_bytes(b'moved')
-        with self.assertRaisesRegex(ValueError, 'a walkmesh in a pack is not replaced'):
+        with self.assertRaisesRegex(ValueError, 'a walkmesh in a pack is replaced only as walk-cuts.json records'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (overlay / 'n_t01.wok').write_bytes(b'walk')
         (self.repo / 'srn_t_tst' / 'tst.set').write_bytes(laid(4))  # another addition since the overlay was made
@@ -145,18 +200,18 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'tstpalstd.itp: the pack copy changed since the overlay was made'):
             apply.plan(self.repo, {'tileset': 'tst'}, overlay)
         (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
-        told = apply.apply(self.repo, {'tileset': 'tst'}, overlay)
+        told = _apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((told['put'], told['not applied'], told['catalogued']), (3, [], True))  # the record itself is no pack file
         written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))
         self.assertEqual(([one['terrain'] for one in written['terrainTiles']], [one['group'] for one in written['tileGroups']]), (['Tower_2'], [1]))
         import datetime
         self.assertEqual({one['added'] for one in written['terrainTiles'] + written['tileGroups']}, {datetime.date.today().isoformat()})  # the day they reached the packs
-        apply.apply(self.repo, {'tileset': 'tst'}, overlay); written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))  # applied again
+        _apply(self.repo, {'tileset': 'tst'}, overlay); written = json.loads((self.repo / 'docs' / 'additions' / 'catalog.json').read_text(encoding='utf-8'))  # applied again
         self.assertEqual((len(written['terrainTiles']), len(written['tileGroups'])), (1, 1))
         moved = {**record, 'catalog': {'terrainTiles': [{**record['catalog']['terrainTiles'][0], 'tiles': [4]}]}}  # numbers once given are kept
         (overlay / apply.MADE_FROM).write_text(json.dumps(moved), encoding='utf-8'); (self.repo / 'srn_t_tst' / 'tstpalstd.itp').write_bytes(b'palette 1')
         with self.assertRaisesRegex(ValueError, r'Terrain Tower_2 of tst has tiles \[3\] in the additions catalog'):
-            apply.apply(self.repo, {'tileset': 'tst'}, overlay)
+            _apply(self.repo, {'tileset': 'tst'}, overlay)
         self.assertEqual((self.repo / 'srn_t_tst' / 'tstpalstd.itp').read_bytes(), b'palette 1')  # refused before anything was written
         clash = {**record, 'catalog': {'terrainTiles': [{**record['catalog']['terrainTiles'][0], 'terrain': 'Tower_3'}]}}  # tile 3 is Tower_2's
         (overlay / apply.MADE_FROM).write_text(json.dumps(clash), encoding='utf-8')
@@ -176,15 +231,15 @@ class ApplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 't_a01.mdl: the pack copy changed since the overlay copy was made from it'):
             apply.plan(self.repo, None, self.overlay)
         (self.repo / 'srn_t_common' / 't_a01.mdl').write_bytes(b'old')
-        told = apply.apply(self.repo, None, self.overlay); self.assertEqual(told['put'], 1); self.assertNotIn(apply.MODELS_FROM, told['not applied'])  # the record is no pack file
+        told = _apply(self.repo, None, self.overlay); self.assertEqual(told['put'], 1); self.assertNotIn(apply.MODELS_FROM, told['not applied'])  # the record is no pack file
         self.assertEqual(len(apply.plan(self.repo, None, self.overlay)['put']), 1)  # applied again: in place already
 
     def test_a_plain_texture_takes_away_the_material_an_earlier_apply_put_in(self):
-        apply.apply(self.repo, self.spec, self.overlay)
+        _apply(self.repo, self.spec, self.overlay)
         for name in ('wall.mtr', 'wall_n.dds'):
             (self.overlay / name).unlink()
         (self.overlay / 'wall.txi').write_bytes(b'envmap x')  # the look the game makes from its TXI, which the material would take over
-        apply.apply(self.repo, self.spec, self.overlay)
+        _apply(self.repo, self.spec, self.overlay)
         self.assertEqual([name for name in self.names('srn_t_common') if name.startswith('wall')], ['wall.dds', 'wall.txi'])
 
     def test_a_copy_of_a_tileset_the_catalog_has_no_baseline_for_is_refused(self):
@@ -202,7 +257,7 @@ class ApplyTests(unittest.TestCase):
 
     def test_names_are_matched_in_any_case_and_a_pack_s_spelling_kept(self):
         (self.repo / 'srn_t_common' / 'wall.tga').rename(self.repo / 'srn_t_common' / 'Wall.TGA')
-        apply.apply(self.repo, self.spec, self.overlay)
+        _apply(self.repo, self.spec, self.overlay)
         self.assertNotIn('Wall.TGA', self.names('srn_t_common')); self.assertIn('wall.mtr', self.names('srn_t_common'))
         (self.repo / 'srn_placeable' / 'Wall_N.dds').write_bytes(b'theirs')
         with self.assertRaisesRegex(ValueError, 'wall_n.dds is already a file of srn_placeable'):

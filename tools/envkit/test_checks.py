@@ -296,7 +296,7 @@ class CheckTests(unittest.TestCase):
         from pathlib import Path
         with tempfile.TemporaryDirectory() as scratch:
             repo = Path(scratch); pack, common, resources = repo / 'srn_t_dgt04', repo / 'srn_t_common', repo / 'resources'
-            for folder in (pack, common, repo / 'srn_placeable', resources):
+            for folder in (pack, common, repo / 'srn_envprop', resources):
                 folder.mkdir()
             fill = checks.FILL['dgt04']
             (pack / 'dgt04.set').write_bytes(f'[TILE{fill}]\r\nModel=t_plain\r\nImageMap2D=MI_plain\r\n'.encode('cp1252')); (pack / 'dgt04palstd.itp').write_bytes(b'ITP ')
@@ -308,6 +308,11 @@ class CheckTests(unittest.TestCase):
             checks._ground(repo, 'dgt04', resources)
             self.assertEqual(sorted(path.name for path in resources.iterdir()), ['dgt04.set', 'dgt04palstd.itp', 'kerb.dds', 'kerb.mtr', 'kerb_n.dds', 'mi_plain.tga',
                                                                                'pavement.dds', 'pavement.mtr', 'pavement_n.dds', 'pv_r.dds', 't_plain.mdl'])
+            # Compiled into the pack, its ASCII kept in sources/ (2026-11-20): its bitmaps are read from the source.
+            (repo / 'sources' / 'srn_t_dgt04').mkdir(parents=True); (pack / 't_plain.mdl').replace(repo / 'sources' / 'srn_t_dgt04' / 't_plain.mdl')
+            (pack / 't_plain.mdl').write_bytes(b'\0\0\0\0binary bitmap kerb'); again = repo / 'again'; again.mkdir()
+            checks._ground(repo, 'dgt04', again)
+            self.assertIn('kerb_n.dds', [path.name for path in again.iterdir()]); self.assertEqual((again / 't_plain.mdl').read_bytes()[:4], b'\0\0\0\0')
 
     def test_a_check_is_built_into_fresh_folders_and_reads_a_set_file_whatever_its_line_endings(self):
         import tempfile

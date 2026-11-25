@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ctown_build7
+texture1 ctown_build7_n
+texture2 ctown_build7_s
+texture3 ctown_build7_r
+texture4 null
+texture5 null

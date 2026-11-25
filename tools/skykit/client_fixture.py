@@ -196,7 +196,7 @@ def build(nwn_root, out, transition=False, play=False, live=None):
                     DayNightCycle=field('byte', 1), IsNight=field('byte', 0), SkyBox=field('byte', 16),
                     SunAmbientColor=field('dword', 7895160), SunDiffuseColor=field('dword', 13421772),
                     MoonAmbientColor=field('dword', 3947580), MoonDiffuseColor=field('dword', 6579300),
-                    SunFogAmount=field('byte', 0), MoonFogAmount=field('byte', 0), FogClipDist=field('float', 200.0),
+                    SunFogAmount=field('byte', 0), MoonFogAmount=field('byte', 0), FogClipDist=field('float', 9999.0),
                     SunShadows=field('byte', 1), MoonShadows=field('byte', 0), ShadowOpacity=field('byte', 30),
                     ChanceRain=field('int', 0), ChanceSnow=field('int', 0), ChanceLightning=field('int', 0),
                     WindPower=field('int', 1))

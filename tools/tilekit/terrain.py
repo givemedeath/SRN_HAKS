@@ -19,6 +19,7 @@ from pathlib import Path
 
 from . import inventory, require
 from .apply import MADE_FROM, MODELS, TABLES
+from .compiled import source as source_of
 
 HEADER = re.compile(r'(?m)^\[([^\]]+)\][ \t]*\r?$')
 CORNERS = ('TopLeft', 'TopRight', 'BottomLeft', 'BottomRight')
@@ -233,7 +234,7 @@ def copy(repo, spec, folder, *, gff=None, source='tilekit terrain'):
             require(re.fullmatch(r'[a-z0-9_]{1,16}', new), f'{new}: a model is named by a resref of at most 16 lowercase letters, digits and underscores')
             home = next((pack for pack in homes if (pack, f'{old.lower()}.mdl') in held), None); require(home, f'No pack holds {old}.mdl')
             require(f'{new}.mdl' not in taken and f'{new}.wok' not in taken, f'A pack holds {new} already')
-            data = held[(home, f'{old.lower()}.mdl')].read_bytes(); require(not inventory.compiled(data), f'{old} is compiled: its names cannot be changed here')
+            data = source_of(repo, held[(home, f'{old.lower()}.mdl')]).read_bytes(); require(not inventory.compiled(data), f'{old} is compiled: its names cannot be changed here')
             text = data.decode('cp1252'); made = retextured(renamed(text, {old: new}), textures)
             drawn |= {name.lower() for _, name in TEXTURE.findall(text)}
             require(inventory.walk_hash(renamed(made, {new: old})) == inventory.walk_hash(text), f'{new}: its walkmesh would differ from {old}\'s')

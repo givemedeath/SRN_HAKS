@@ -1,0 +1,74 @@
+{
+ "schemaVersion": 1,
+ "model": "pfe0_head019",
+ "head": "elf-female-b",
+ "defect": "client check 2026-11-04 (PR 86 heads): large bright oval on shaved scalp, both rear views",
+ "source": {
+  "plt": {
+   "path": "srn_head/pfe0_head019.plt",
+   "sha256": "25817920f35fc7f322b61cba33a163172bfba7284286e48b9b7ef85d3b2540d3"
+  },
+  "mdl": {
+   "path": "srn_head/pfe0_head019.mdl",
+   "sha256": "96e88af16837de2758291b7dc34b1861f9f178770c147985d659302c7459a92a"
+  }
+ },
+ "previewRows": {
+  "0": 6,
+  "1": 24,
+  "8": 26,
+  "9": 0
+ },
+ "operations": [
+  {
+   "name": "scalp-highlight",
+   "op": "curve",
+   "points": [
+    [
+     0,
+     0
+    ],
+    [
+     70,
+     70
+    ],
+    [
+     255,
+     100
+    ]
+   ],
+   "when": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "lt": 0.64
+     },
+     {
+      "of": "y",
+      "gt": 0.34
+     },
+     {
+      "of": "x",
+      "center": 0.5,
+      "lt": 0.36
+     }
+    ]
+   },
+   "ramp": [
+    {
+     "of": "z",
+     "from": 0.64,
+     "to": 0.52
+    },
+    {
+     "of": "y",
+     "from": 0.34,
+     "to": 0.46
+    }
+   ]
+  }
+ ]
+}

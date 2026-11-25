@@ -1,0 +1,2606 @@
+{
+ "schemaVersion": 1,
+ "pack": "srn_door",
+ "doors": [
+  {
+   "model": "ctp_curtain_01",
+   "family": "ctp_curtain",
+   "form": "compiled",
+   "faces": null,
+   "nodes": null,
+   "textures": [],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1082,
+     "label": "ctp_curtain01"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "curtain",
+   "walkmesh": true
+  },
+  {
+   "model": "ctp_curtain_02",
+   "family": "ctp_curtain",
+   "form": "compiled",
+   "faces": null,
+   "nodes": null,
+   "textures": [],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1083,
+     "label": "ctp_curtain02"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "curtain",
+   "walkmesh": true
+  },
+  {
+   "model": "ctp_curtain_03",
+   "family": "ctp_curtain",
+   "form": "compiled",
+   "faces": null,
+   "nodes": null,
+   "textures": [],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1084,
+     "label": "ctp_curtain03"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "curtain",
+   "walkmesh": true
+  },
+  {
+   "model": "ctp_curtain_04",
+   "family": "ctp_curtain",
+   "form": "compiled",
+   "faces": null,
+   "nodes": null,
+   "textures": [],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1085,
+     "label": "ctp_curtain04"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "curtain",
+   "walkmesh": true
+  },
+  {
+   "model": "ctp_curtain_05",
+   "family": "ctp_curtain",
+   "form": "compiled",
+   "faces": null,
+   "nodes": null,
+   "textures": [],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1086,
+     "label": "ctp_curtain05"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "curtain",
+   "walkmesh": true
+  },
+  {
+   "model": "ctp_curtain_06",
+   "family": "ctp_curtain",
+   "form": "compiled",
+   "faces": null,
+   "nodes": null,
+   "textures": [],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1087,
+     "label": "ctp_curtain06"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "curtain",
+   "walkmesh": true
+  },
+  {
+   "model": "fci_door_01",
+   "family": "fci_door",
+   "form": "ascii",
+   "faces": 14,
+   "nodes": 2,
+   "textures": [
+    "lsf_grate01"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1021,
+     "label": "fci_Door_01"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "fci_door_02",
+   "family": "fci_door",
+   "form": "ascii",
+   "faces": 14,
+   "nodes": 2,
+   "textures": [
+    "00cract1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1022,
+     "label": "fci_Door_02"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "fci_door_03",
+   "family": "fci_door",
+   "form": "ascii",
+   "faces": 14,
+   "nodes": 2,
+   "textures": [
+    "fci_door03"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1023,
+     "label": "fci_Door_03"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "fci_door_04",
+   "family": "fci_door",
+   "form": "ascii",
+   "faces": 14,
+   "nodes": 2,
+   "textures": [
+    "corev_door"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1024,
+     "label": "fci_Door_04"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "fcx_door_01",
+   "family": "fcx_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 3,
+   "textures": [
+    "jud_door02"
+   ],
+   "doortypes": [
+    {
+     "row": 261,
+     "label": "fcx01_door",
+     "tileset": "fcx01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "fcx01": 4
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door21",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 206,
+   "nodes": 38,
+   "textures": [
+    "tin01__metal01",
+    "tin01_post"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1011,
+     "label": "gao_PullGate"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door22",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 136,
+   "nodes": 5,
+   "textures": [
+    "plc_rck",
+    "tin01_door2"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1012,
+     "label": "gao_WoodCentre"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door23",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 200,
+   "nodes": 8,
+   "textures": [
+    "plc_rck",
+    "tti01_metl03",
+    "ttu01_stonespdr"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1013,
+     "label": "gao_StoneMech"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door24",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 226,
+   "nodes": 37,
+   "textures": [
+    "ttf01_plants",
+    "ttr01_leaf02"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1014,
+     "label": "gao_Mimosa"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door25",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 76,
+   "nodes": 7,
+   "textures": [
+    "tdc01_grate",
+    "tin01_post"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1015,
+     "label": "gao_FoldGrate"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door26",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 168,
+   "nodes": 11,
+   "textures": [
+    "ttu01_drkcrystl",
+    "ttu01_rock3",
+    "ttu01_stonegld"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1016,
+     "label": "gao_DrowCrys"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door27",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 214,
+   "nodes": 6,
+   "textures": [
+    "c_beholder2",
+    "tds01_metal03"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1017,
+     "label": "gao_Beholder"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door28",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 206,
+   "nodes": 19,
+   "textures": [
+    "shp01door03"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1018,
+     "label": "gao_Barrel"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door29",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 238,
+   "nodes": 7,
+   "textures": [
+    "plc_drow",
+    "ttr01_water01"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1019,
+     "label": "gao_Science"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door30",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 376,
+   "nodes": 10,
+   "textures": [
+    "plc_rck",
+    "tin01_black",
+    "ttu01_pillar"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1020,
+     "label": "gao_Lantern"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "gn_door31",
+   "family": "gn_door",
+   "form": "ascii",
+   "faces": 238,
+   "nodes": 7,
+   "textures": [
+    "glass",
+    "plc_drow"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1025,
+     "label": "gao_Science2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "shp_door01",
+   "family": "shp_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 7,
+   "textures": [
+    "shp01door01"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1000,
+     "label": "Ship_Door_01"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "shp_door02",
+   "family": "shp_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 7,
+   "textures": [
+    "shp01door02"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1001,
+     "label": "Ship_Door_02"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "shp_door03",
+   "family": "shp_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 7,
+   "textures": [
+    "shp01door03"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1002,
+     "label": "Ship_Door_03"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "shp_door04",
+   "family": "shp_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 7,
+   "textures": [
+    "shp01door04"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1003,
+     "label": "Ship_Door_04"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "shp_door05",
+   "family": "shp_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 7,
+   "textures": [
+    "shp01door05"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1004,
+     "label": "Ship_Door_05"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "sjm_udoor_01",
+   "family": "sjm_udoor",
+   "form": "ascii",
+   "faces": 430,
+   "nodes": 10,
+   "textures": [
+    "sjm_pck"
+   ],
+   "doortypes": [],
+   "genericdoors": [],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": false
+  },
+  {
+   "model": "sjm_udoor_02",
+   "family": "sjm_udoor",
+   "form": "ascii",
+   "faces": 170,
+   "nodes": 19,
+   "textures": [
+    "sjm02_grate",
+    "sjm_pugdmtlbrk"
+   ],
+   "doortypes": [],
+   "genericdoors": [],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": false
+  },
+  {
+   "model": "srn_dr_double",
+   "family": "srn_dr_double",
+   "form": "ascii",
+   "faces": 780,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1096,
+     "label": "srn_DoubleDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_gate",
+   "family": "srn_dr_gate",
+   "form": "ascii",
+   "faces": 924,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1101,
+     "label": "srn_Gate"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_inner",
+   "family": "srn_dr_inner",
+   "form": "ascii",
+   "faces": 96,
+   "nodes": 2,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1102,
+     "label": "srn_InteriorDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_load",
+   "family": "srn_dr_load",
+   "form": "ascii",
+   "faces": 108,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1100,
+     "label": "srn_LoadingShutter"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_shop",
+   "family": "srn_dr_shop",
+   "form": "ascii",
+   "faces": 216,
+   "nodes": 2,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1095,
+     "label": "srn_ShopDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_shut2",
+   "family": "srn_dr_shut",
+   "form": "ascii",
+   "faces": 96,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1098,
+     "label": "srn_Shutter2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_shut4",
+   "family": "srn_dr_shut",
+   "form": "ascii",
+   "faces": 96,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1099,
+     "label": "srn_Shutter4"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_steel",
+   "family": "srn_dr_steel",
+   "form": "ascii",
+   "faces": 680,
+   "nodes": 2,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1097,
+     "label": "srn_SteelDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_street",
+   "family": "srn_dr_street",
+   "form": "ascii",
+   "faces": 416,
+   "nodes": 2,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1094,
+     "label": "srn_StreetDoor"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "srn_dr_strip",
+   "family": "srn_dr_strip",
+   "form": "ascii",
+   "faces": 144,
+   "nodes": 3,
+   "textures": [
+    "srn_doors"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1103,
+     "label": "srn_StripCurtain"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "curtain",
+   "walkmesh": true
+  },
+  {
+   "model": "t1doora1",
+   "family": "t1doora",
+   "form": "ascii",
+   "faces": 36,
+   "nodes": 3,
+   "textures": [
+    "garagedoor"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1005,
+     "label": "Bay_Door"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t1doora2",
+   "family": "t1doora",
+   "form": "ascii",
+   "faces": 136,
+   "nodes": 6,
+   "textures": [
+    "chrome",
+    "glass"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1006,
+     "label": "Sliding_Glass_Door"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "glass",
+   "walkmesh": true
+  },
+  {
+   "model": "t1doora3",
+   "family": "t1doora",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 7,
+   "textures": [
+    "shiny_elevator"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1007,
+     "label": "Elevator_Doors"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t1doora4",
+   "family": "t1doora",
+   "form": "ascii",
+   "faces": 224,
+   "nodes": 6,
+   "textures": [
+    "glass",
+    "t1doora4"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1008,
+     "label": "Wood_Glass_Reflect"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "glass",
+   "walkmesh": true
+  },
+  {
+   "model": "t1doora5",
+   "family": "t1doora",
+   "form": "ascii",
+   "faces": 67,
+   "nodes": 1,
+   "textures": [
+    "manhole_tex2"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1009,
+     "label": "Manhole"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door05",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 14,
+   "nodes": 2,
+   "textures": [
+    "d4x3_1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 4,
+     "label": "Rusted"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door100",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 324,
+   "nodes": 7,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1-window3",
+    "udp2_p_blue"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1077,
+     "label": "udp1_intoff4"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door101",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 156,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1-pnt-wh4",
+    "udp1-window3"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1078,
+     "label": "udp1_intoff4d"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door102",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 260,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1-pnt-wh4"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1079,
+     "label": "udp1_intoff5"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door103",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 362,
+   "nodes": 14,
+   "textures": [
+    "udp1-mtl-plt",
+    "udp2-elev1",
+    "udp2-elev2"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1080,
+     "label": "udp1_elev"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door104",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 104,
+   "nodes": 6,
+   "textures": [
+    "dr_02"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1081,
+     "label": "Rusted-NWN"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door12",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 4,
+   "textures": [
+    "arcology_brkn_win",
+    "arcology_win02",
+    "dgt04_chrome",
+    "lab_win1"
+   ],
+   "doortypes": [
+    {
+     "row": 117,
+     "label": "GlassWindow",
+     "tileset": "dgt04"
+    }
+   ],
+   "genericdoors": [
+    {
+     "row": 1010,
+     "label": "Glass_Window"
+    }
+   ],
+   "tileHooks": {
+    "dgt04": 1
+   },
+   "kind": "window",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door50",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_st1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1027,
+     "label": "udp1_resgrn1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door51",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_st2"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1028,
+     "label": "udp1_resred1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door52",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 196,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_st1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1029,
+     "label": "udp1_resgrn2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door53",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 196,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_st2"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1030,
+     "label": "udp1_resred2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door54",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 76,
+   "nodes": 7,
+   "textures": [
+    "gg_black",
+    "udp1-mtl-alum",
+    "udp1_d_screen",
+    "udp1_d_sldgl"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1031,
+     "label": "udp1_screen"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door55",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 248,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-alum",
+    "udp1_d_sfront1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1032,
+     "label": "udp1_store1_1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door56",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 492,
+   "nodes": 9,
+   "textures": [
+    "udp1-mtl-alum",
+    "udp1_d_sfront1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1033,
+     "label": "udp1_store1_2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door57",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 312,
+   "nodes": 7,
+   "textures": [
+    "udp1-mtl-alum",
+    "udp1_d_keyh",
+    "udp1_d_sfront1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1034,
+     "label": "udp1_store2_1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door58",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 620,
+   "nodes": 13,
+   "textures": [
+    "udp1-mtl-alum",
+    "udp1_d_keyh",
+    "udp1_d_sfront1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1035,
+     "label": "udp1_store2_2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door59",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 572,
+   "nodes": 9,
+   "textures": [
+    "gg_black",
+    "udp1_d_sfront1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1036,
+     "label": "udp1_sliding"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door60",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 108,
+   "nodes": 2,
+   "textures": [
+    "udp1_d_manh"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1037,
+     "label": "udp1_manhole"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door61",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 56,
+   "nodes": 4,
+   "textures": [
+    "udp1-asph",
+    "udp1-wd-fnc"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1038,
+     "label": "udp1_fence"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door62",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 164,
+   "nodes": 4,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_old",
+    "udp1_d_wd1a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1039,
+     "label": "udp1_resold1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door63",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 324,
+   "nodes": 7,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_old",
+    "udp1_d_wd1a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1040,
+     "label": "udp1_resold2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door64",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 164,
+   "nodes": 4,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_wd1a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1041,
+     "label": "udp1_reswht1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door65",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 324,
+   "nodes": 7,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_wd1a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1042,
+     "label": "udp1_reswht2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door66",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 164,
+   "nodes": 4,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_sldgl",
+    "udp1_d_wd4"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1043,
+     "label": "udp1_resfr11"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door67",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 324,
+   "nodes": 7,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_sldgl",
+    "udp1_d_wd4"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1044,
+     "label": "udp1_resfr12"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door68",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 164,
+   "nodes": 4,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_sldgl",
+    "udp1_d_wd3"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1045,
+     "label": "udp1_resfr21"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door69",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 324,
+   "nodes": 7,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_sldgl",
+    "udp1_d_wd3"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1046,
+     "label": "udp1_resfr22"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door70",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 196,
+   "nodes": 11,
+   "textures": [
+    "udp1-mtl-plt",
+    "udp1_d_utl2"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1047,
+     "label": "udp1_ohfire"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door71",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 252,
+   "nodes": 12,
+   "textures": [
+    "udp1-h4-pnl",
+    "udp1-mtl-plt"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1048,
+     "label": "udp1_garwh2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door72",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 252,
+   "nodes": 12,
+   "textures": [
+    "udp1-h4-pnl",
+    "udp1-mtl-plt"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1049,
+     "label": "udp1_garwh1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door73",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 252,
+   "nodes": 12,
+   "textures": [
+    "gg2-wd-pnl",
+    "udp1-mtl-plt"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1050,
+     "label": "udp1_garol2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door74",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 252,
+   "nodes": 12,
+   "textures": [
+    "gg2-wd-pnl",
+    "udp1-mtl-plt"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1051,
+     "label": "udp1_garol1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door75",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 252,
+   "nodes": 12,
+   "textures": [
+    "udp1-mtl-plt",
+    "udp1_d_grpnl"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1052,
+     "label": "udp1_gargr2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door76",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 252,
+   "nodes": 12,
+   "textures": [
+    "udp1-mtl-plt",
+    "udp1_d_grpnl"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1053,
+     "label": "udp1_gargr1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door77",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 252,
+   "nodes": 12,
+   "textures": [
+    "udp1-mtl-plt",
+    "udp1_d_utl"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1054,
+     "label": "udp1_garut2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door78",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 252,
+   "nodes": 12,
+   "textures": [
+    "udp1-mtl-plt",
+    "udp1_d_utl"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1055,
+     "label": "udp1_garut1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door79",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 124,
+   "nodes": 5,
+   "textures": [
+    "udp1-metal",
+    "udp1-mtl-chrm",
+    "udp1-pnt-wh3"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1056,
+     "label": "udp1_rear1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door80",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 124,
+   "nodes": 5,
+   "textures": [
+    "udp1-dumpster",
+    "udp1-metal",
+    "udp1-mtl-chrm"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1057,
+     "label": "udp1_rear2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door81",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 124,
+   "nodes": 5,
+   "textures": [
+    "udp1-metal",
+    "udp1-mtl-chrm",
+    "udp1-pnt-wh4"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1058,
+     "label": "udp1_rear3"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door82",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-h3-2",
+    "gg2-h3-2a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1059,
+     "label": "IntGreen"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door83",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-h3-2a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1060,
+     "label": "IntGreen2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door84",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-dr-grn",
+    "gg2-h3-2a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1061,
+     "label": "House1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door85",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-dr-gry",
+    "gg2-h3-2a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1062,
+     "label": "House2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door86",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-dr-wht",
+    "gg2-h3-2a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1063,
+     "label": "House3"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door87",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-h3-2a",
+    "gi-h4"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1064,
+     "label": "IntBrown"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door88",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-h2-2",
+    "gg2-h3-2a"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1065,
+     "label": "IntWhite"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door89",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-h3-2a",
+    "gi-h1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1066,
+     "label": "IntRed"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door90",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 100,
+   "nodes": 3,
+   "textures": [
+    "gg2-h3-2a",
+    "gg2-wd-pnl"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1067,
+     "label": "IntOld"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door91",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 24,
+   "nodes": 2,
+   "textures": [
+    "gg-msc-pnl2",
+    "gg_black"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1068,
+     "label": "Green"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door92",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 92,
+   "nodes": 2,
+   "textures": [
+    "gg-msc-fence",
+    "gg_black"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1069,
+     "label": "GateMtlBlk"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door93",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 196,
+   "nodes": 11,
+   "textures": [
+    "udp1-mtl-plt",
+    "udp1_d_utl3"
+   ],
+   "doortypes": [],
+   "genericdoors": [],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": false
+  },
+  {
+   "model": "t_door94",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 336,
+   "nodes": 9,
+   "textures": [
+    "udp1-mtl-alum",
+    "udp1_d_keyh",
+    "udp1_d_sfront1",
+    "udp1_d_sldgl"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1071,
+     "label": "udp1_intoff"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door95",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 156,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_sldgl",
+    "udp1_d_wd3"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1072,
+     "label": "udp1_intoff1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door96",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 260,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_wd3"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1073,
+     "label": "udp1_intoff2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door97",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 156,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_sldgl",
+    "udp1_d_wd4"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1074,
+     "label": "udp1_intoff2d"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door98",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 260,
+   "nodes": 5,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1_d_wd4"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1075,
+     "label": "udp1_intoff3"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "t_door99",
+   "family": "t_door",
+   "form": "ascii",
+   "faces": 188,
+   "nodes": 6,
+   "textures": [
+    "udp1-mtl-chrm",
+    "udp1-window3",
+    "udp2_p_blue"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1076,
+     "label": "udp1_intoff3d"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "tfb_udoor_01",
+   "family": "tfb_udoor",
+   "form": "ascii",
+   "faces": 108,
+   "nodes": 7,
+   "textures": [
+    "tfb01_creats"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1088,
+     "label": "intoff_wide"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "tfb_udoor_02",
+   "family": "tfb_udoor",
+   "form": "ascii",
+   "faces": 176,
+   "nodes": 7,
+   "textures": [
+    "tfb01_door2",
+    "tfb01_metaldoor",
+    "tfb01_shpflr2"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1089,
+     "label": "intoff_wide"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "tfb_udoor_03",
+   "family": "tfb_udoor",
+   "form": "ascii",
+   "faces": 116,
+   "nodes": 3,
+   "textures": [
+    "tfb01_shpflr1"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1090,
+     "label": "fence"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "tmx_door_01",
+   "family": "tmx_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 5,
+   "textures": [
+    "standardmaterial",
+    "tbx78_door01"
+   ],
+   "doortypes": [
+    {
+     "row": 146,
+     "label": "facility",
+     "tileset": "tin01"
+    }
+   ],
+   "genericdoors": [
+    {
+     "row": 1026,
+     "label": "Elevator_Doors"
+    }
+   ],
+   "tileHooks": {
+    "tbx78": 38
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "tn_gdoor_06",
+   "family": "tn_gdoor",
+   "form": "ascii",
+   "faces": 372,
+   "nodes": 3,
+   "textures": [
+    "tn_gdoor06_01"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 16,
+     "label": "tndoor_05_st"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": false
+  },
+  {
+   "model": "ttd_door_010",
+   "family": "ttd_door",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 7,
+   "textures": [
+    "jud_door02"
+   ],
+   "doortypes": [
+    {
+     "row": 260,
+     "label": "Astroport_door",
+     "tileset": "fcx01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "fcx01": 4
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmp_udoor_01",
+   "family": "vmp_udoor",
+   "form": "ascii",
+   "faces": 76,
+   "nodes": 3,
+   "textures": [
+    "vmp_door01"
+   ],
+   "doortypes": [
+    {
+     "row": 252,
+     "label": "PlanetBldingD",
+     "tileset": "vmp01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmp01": 1
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmp_udoor_02",
+   "family": "vmp_udoor",
+   "form": "ascii",
+   "faces": 184,
+   "nodes": 16,
+   "textures": [
+    "vmp_door03"
+   ],
+   "doortypes": [
+    {
+     "row": 253,
+     "label": "PlanetAstropD",
+     "tileset": "vmp01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmp01": 1
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmp_udoor_03",
+   "family": "vmp_udoor",
+   "form": "ascii",
+   "faces": 286,
+   "nodes": 3,
+   "textures": [
+    "vmp_door03"
+   ],
+   "doortypes": [
+    {
+     "row": 250,
+     "label": "PlanetWallGte2",
+     "tileset": "vmp01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmp01": 1
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmp_udoor_04",
+   "family": "vmp_udoor",
+   "form": "ascii",
+   "faces": 14,
+   "nodes": 2,
+   "textures": [
+    "vmp_door04"
+   ],
+   "doortypes": [
+    {
+     "row": 251,
+     "label": "PlanetTempleD",
+     "tileset": "vmp01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmp01": 2
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmp_udoor_05",
+   "family": "vmp_udoor",
+   "form": "ascii",
+   "faces": 30,
+   "nodes": 2,
+   "textures": [
+    "vmp_door05"
+   ],
+   "doortypes": [
+    {
+     "row": 254,
+     "label": "PlanetBunkerD",
+     "tileset": "vmp01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmp01": 1
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmp_udoor_06",
+   "family": "vmp_udoor",
+   "form": "ascii",
+   "faces": 76,
+   "nodes": 7,
+   "textures": [
+    "tcn01_evil02",
+    "tcn01_fence02"
+   ],
+   "doortypes": [
+    {
+     "row": 265,
+     "label": "PlanetWallGte1",
+     "tileset": "vmp01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {},
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_gdoor01",
+   "family": "vmr_gdoor",
+   "form": "ascii",
+   "faces": 200,
+   "nodes": 7,
+   "textures": [
+    "standardmaterial",
+    "twc03_black",
+    "vmr_gdoor01_m",
+    "vmr_gdoor01_w"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1091,
+     "label": "alien_door1"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_gdoor02",
+   "family": "vmr_gdoor",
+   "form": "ascii",
+   "faces": 460,
+   "nodes": 5,
+   "textures": [
+    "standardmaterial",
+    "vmr_gdoor02"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1092,
+     "label": "alien_door2"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_gdoor03",
+   "family": "vmr_gdoor",
+   "form": "ascii",
+   "faces": 372,
+   "nodes": 3,
+   "textures": [
+    "vmr_gdoor03"
+   ],
+   "doortypes": [],
+   "genericdoors": [
+    {
+     "row": 1093,
+     "label": "alien_door3"
+    }
+   ],
+   "tileHooks": {},
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_udoor_01",
+   "family": "vmr_udoor",
+   "form": "ascii",
+   "faces": 192,
+   "nodes": 11,
+   "textures": [
+    "tdc01_black8_00",
+    "tdc01_grad_l",
+    "vmr01_i_fen01",
+    "vmr01_i_flr07",
+    "vmr01_i_wall01"
+   ],
+   "doortypes": [
+    {
+     "row": 245,
+     "label": "AlienCdrDoor1",
+     "tileset": "vmr01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmr01": 1
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_udoor_02",
+   "family": "vmr_udoor",
+   "form": "ascii",
+   "faces": 127,
+   "nodes": 14,
+   "textures": [
+    "vmr01_thron2"
+   ],
+   "doortypes": [
+    {
+     "row": 246,
+     "label": "AlienCdrDoor2",
+     "tileset": "vmr01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmr01": 1
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_udoor_03",
+   "family": "vmr_udoor",
+   "form": "ascii",
+   "faces": 176,
+   "nodes": 9,
+   "textures": [
+    "vmr01_i_cap01",
+    "vmr01_i_pill03"
+   ],
+   "doortypes": [
+    {
+     "row": 262,
+     "label": "AlienFenceDr1",
+     "tileset": "vmr01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmr01": 1
+   },
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_udoor_04",
+   "family": "vmr_udoor",
+   "form": "ascii",
+   "faces": 176,
+   "nodes": 9,
+   "textures": [
+    "vmr01_e_bed01",
+    "vmr01_e_flr03",
+    "vmr01_i_cap01"
+   ],
+   "doortypes": [
+    {
+     "row": 244,
+     "label": "AlienFenceDr2",
+     "tileset": "vmr01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmr01": 1
+   },
+   "kind": "gate",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_udoor_05",
+   "family": "vmr_udoor",
+   "form": "ascii",
+   "faces": 88,
+   "nodes": 5,
+   "textures": [
+    "vmr01_e_flr03",
+    "vmr01_i_brk01"
+   ],
+   "doortypes": [
+    {
+     "row": 249,
+     "label": "AlienTransDr1",
+     "tileset": "vmr01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmr01": 1
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_udoor_06",
+   "family": "vmr_udoor",
+   "form": "ascii",
+   "faces": 28,
+   "nodes": 3,
+   "textures": [
+    "vmr01_copper00"
+   ],
+   "doortypes": [
+    {
+     "row": 248,
+     "label": "AlienTransDr2",
+     "tileset": "vmr01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmr01": 1
+   },
+   "kind": "door",
+   "walkmesh": true
+  },
+  {
+   "model": "vmr_udoor_07",
+   "family": "vmr_udoor",
+   "form": "ascii",
+   "faces": 49,
+   "nodes": 6,
+   "textures": [
+    "vmr01_wallstn"
+   ],
+   "doortypes": [
+    {
+     "row": 247,
+     "label": "AlienBridgeG",
+     "tileset": "vmr01"
+    }
+   ],
+   "genericdoors": [],
+   "tileHooks": {
+    "vmr01": 2
+   },
+   "kind": "door",
+   "walkmesh": true
+  }
+ ]
+}

@@ -1,0 +1,635 @@
+{
+ "tileset": "dgt04",
+ "tiles": {
+  "dgt04_d18_01": [
+   {
+    "piece": "hydrant",
+    "at": [
+     -1.85,
+     -2.95,
+     0.2
+    ],
+    "turn": 0.0,
+    "obstacle": true
+   }
+  ],
+  "dgt04_d18_02": [
+   {
+    "piece": "drain",
+    "at": [
+     2.9,
+     2.5,
+     0.002
+    ],
+    "turn": 180.0
+   }
+  ],
+  "dgt04_d19_01": [
+   {
+    "piece": "drain",
+    "at": [
+     -2.5,
+     -2.85,
+     -14.998
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "manhole",
+    "at": [
+     2.5,
+     0.0,
+     -14.998
+    ],
+    "turn": 0
+   },
+   {
+    "piece": "steam",
+    "at": [
+     2.5,
+     0.0,
+     -14.95
+    ]
+   }
+  ],
+  "dgt04_d20_08": [
+   {
+    "piece": "bollard",
+    "at": [
+     0.6,
+     2.95,
+     0.2
+    ],
+    "turn": 180.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     2.1,
+     2.95,
+     0.2
+    ],
+    "turn": 180.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     3.6,
+     2.95,
+     0.2
+    ],
+    "turn": 180.0,
+    "obstacle": true
+   }
+  ],
+  "dgt05_f06_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     -1.5,
+     -3.5,
+     0.002
+    ],
+    "turn": 270
+   },
+   {
+    "piece": "steam",
+    "at": [
+     -1.5,
+     -3.5,
+     0.05
+    ]
+   }
+  ],
+  "dgt05_g06_01": [
+   {
+    "piece": "bollard",
+    "at": [
+     2.481,
+     -1.662,
+     0.0
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     2.481,
+     -0.162,
+     0.0
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     2.481,
+     1.338,
+     0.0
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   }
+  ],
+  "dgt05_r07_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     -2.0,
+     1.0,
+     0.002
+    ],
+    "turn": 90
+   }
+  ],
+  "dgt05_r07_13": [
+   {
+    "piece": "litter_bin",
+    "at": [
+     -2.95,
+     3.6,
+     0.2
+    ],
+    "turn": 270.0,
+    "obstacle": true
+   },
+   {
+    "piece": "manhole",
+    "at": [
+     -1.0,
+     -1.5,
+     0.002
+    ],
+    "turn": 270
+   }
+  ],
+  "dgt05_r07_14": [
+   {
+    "piece": "hydrant",
+    "at": [
+     2.95,
+     3.35,
+     0.2
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   }
+  ],
+  "dgt05_r07_31": [
+   {
+    "piece": "bollard",
+    "at": [
+     -2.95,
+     -3.6,
+     0.2
+    ],
+    "turn": 270.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     -2.95,
+     -2.1,
+     0.2
+    ],
+    "turn": 270.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     -2.95,
+     -0.6,
+     0.2
+    ],
+    "turn": 270.0,
+    "obstacle": true
+   }
+  ],
+  "dgt05_r07_32": [
+   {
+    "piece": "drain",
+    "at": [
+     2.5,
+     1.65,
+     0.002
+    ],
+    "turn": 90.0
+   }
+  ],
+  "dgt05_r07_34": [
+   {
+    "piece": "manhole",
+    "at": [
+     -1.5,
+     2.5,
+     -5.248
+    ],
+    "turn": 180
+   }
+  ],
+  "dgt05_t07_02": [
+   {
+    "piece": "drain",
+    "at": [
+     2.5,
+     -3.35,
+     -14.998
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     2.95,
+     0.15,
+     -14.8
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     2.95,
+     1.65,
+     -14.8
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     2.95,
+     3.15,
+     -14.8
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   }
+  ],
+  "rdt01_e15_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     -3.5,
+     -3.5,
+     0.202
+    ],
+    "turn": 180
+   }
+  ],
+  "rdt01_e16_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     -3.5,
+     1.5,
+     0.202
+    ],
+    "turn": 90
+   }
+  ],
+  "dgt04_d06_02": [
+   {
+    "piece": "drain",
+    "at": [
+     2.5,
+     0.1,
+     0.002
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "hydrant",
+    "at": [
+     2.95,
+     3.35,
+     0.2
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   }
+  ],
+  "dgt04_d06_03": [
+   {
+    "piece": "litter_bin",
+    "at": [
+     -3.6,
+     2.95,
+     0.2
+    ],
+    "turn": 180.0,
+    "obstacle": true
+   }
+  ],
+  "dgt04_d07_02": [
+   {
+    "piece": "drain",
+    "at": [
+     2.15,
+     -2.5,
+     0.002
+    ],
+    "turn": 0.0
+   }
+  ],
+  "dgt04_d07_03": [
+   {
+    "piece": "drain",
+    "at": [
+     -2.5,
+     3.1,
+     0.002
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "litter_bin",
+    "at": [
+     -2.95,
+     3.6,
+     0.2
+    ],
+    "turn": 270.0,
+    "obstacle": true
+   }
+  ],
+  "dgt04_d07_04": [
+   {
+    "piece": "manhole",
+    "at": [
+     -1.0,
+     -3.0,
+     0.002
+    ],
+    "turn": 270
+   },
+   {
+    "piece": "steam",
+    "at": [
+     -1.0,
+     -3.0,
+     0.05
+    ]
+   }
+  ],
+  "dgt04_d08_03": [
+   {
+    "piece": "manhole",
+    "at": [
+     0.5,
+     0.0,
+     0.002
+    ],
+    "turn": 0
+   }
+  ],
+  "dgt04_d09_02": [
+   {
+    "piece": "drain",
+    "at": [
+     2.5,
+     -2.35,
+     0.002
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "manhole",
+    "at": [
+     -1.0,
+     3.0,
+     0.002
+    ],
+    "turn": 180
+   }
+  ],
+  "dgt04_d10_02": [
+   {
+    "piece": "drain",
+    "at": [
+     2.5,
+     2.9,
+     0.002
+    ],
+    "turn": 90.0
+   },
+   {
+    "piece": "manhole",
+    "at": [
+     0.5,
+     -1.5,
+     0.002
+    ],
+    "turn": 180
+   }
+  ],
+  "dgt04_d11_02": [
+   {
+    "piece": "drain",
+    "at": [
+     2.5,
+     -0.35,
+     0.002
+    ],
+    "turn": 90.0
+   }
+  ],
+  "dgt04_d11_03": [
+   {
+    "piece": "manhole",
+    "at": [
+     -1.5,
+     -3.5,
+     0.002
+    ],
+    "turn": 0
+   }
+  ],
+  "dgt04_d11_04": [
+   {
+    "piece": "bollard",
+    "at": [
+     2.95,
+     -3.6,
+     0.2
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     2.95,
+     -2.1,
+     0.2
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   },
+   {
+    "piece": "bollard",
+    "at": [
+     2.95,
+     -0.6,
+     0.2
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   },
+   {
+    "piece": "hydrant",
+    "at": [
+     2.95,
+     1.15,
+     0.2
+    ],
+    "turn": 90.0,
+    "obstacle": true
+   }
+  ],
+  "dgt04_d36_02": [
+   {
+    "piece": "drain",
+    "at": [
+     -2.5,
+     -3.1,
+     0.002
+    ],
+    "turn": 270.0
+   }
+  ],
+  "dgt04_d37_01": [
+   {
+    "piece": "drain",
+    "at": [
+     -2.5,
+     -1.85,
+     0.002
+    ],
+    "turn": 270.0
+   },
+   {
+    "piece": "hydrant",
+    "at": [
+     -2.95,
+     2.65,
+     0.2
+    ],
+    "turn": 270.0,
+    "obstacle": true
+   }
+  ],
+  "dgt04_d37_02": [
+   {
+    "piece": "manhole",
+    "at": [
+     -3.5,
+     -3.0,
+     0.002
+    ],
+    "turn": 0
+   }
+  ],
+  "dgt04_l08_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     2.0,
+     1.0,
+     0.002
+    ],
+    "turn": 270
+   },
+   {
+    "piece": "steam",
+    "at": [
+     2.0,
+     1.0,
+     0.05
+    ]
+   }
+  ],
+  "dgt04_l11_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     -3.5,
+     -3.5,
+     0.202
+    ],
+    "turn": 270
+   }
+  ],
+  "dgt04_l12_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     -3.5,
+     -3.5,
+     0.202
+    ],
+    "turn": 0
+   }
+  ],
+  "dgw01_d32_02": [
+   {
+    "piece": "manhole",
+    "at": [
+     -3.5,
+     0.0,
+     0.002
+    ],
+    "turn": 180
+   },
+   {
+    "piece": "steam",
+    "at": [
+     -3.5,
+     0.0,
+     0.05
+    ]
+   }
+  ],
+  "rdt01_e21_02": [
+   {
+    "piece": "manhole",
+    "at": [
+     0.0,
+     -3.5,
+     0.202
+    ],
+    "turn": 90
+   }
+  ],
+  "srt04_a02_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     3.5,
+     1.5,
+     0.002
+    ],
+    "turn": 180
+   }
+  ],
+  "srt04_a04_01": [
+   {
+    "piece": "manhole",
+    "at": [
+     -2.0,
+     0.0,
+     0.002
+    ],
+    "turn": 0
+   }
+  ]
+ }
+}

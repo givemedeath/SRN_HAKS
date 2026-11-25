@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 ek_hs_hvac2
+texture1 ek_hs_hvac2_n
+texture2 ek_hs_hvac2_s
+texture3 ek_hs_hvac2_r
+texture4 null
+texture5 null

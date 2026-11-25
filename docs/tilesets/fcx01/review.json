@@ -1,0 +1,155 @@
+{
+  "tileset": "fcx01",
+  "haks": [
+    "srn_t_fcx01",
+    "srn_t_dgt04",
+    "srn_t_common",
+    "srn_door",
+    "srn_placeable",
+    "srn_2da"
+  ],
+  "block": {
+    "width": 11,
+    "height": 11,
+    "lights": [
+      "day",
+      "night"
+    ],
+    "patches": [
+      {
+        "terrain": "holes",
+        "at": [
+          2,
+          2
+        ],
+        "size": [
+          8,
+          2
+        ]
+      },
+      {
+        "terrain": "holes",
+        "at": [
+          2,
+          8
+        ],
+        "size": [
+          8,
+          2
+        ]
+      },
+      {
+        "terrain": "holes",
+        "at": [
+          2,
+          4
+        ],
+        "size": [
+          2,
+          4
+        ]
+      },
+      {
+        "terrain": "holes",
+        "at": [
+          8,
+          4
+        ],
+        "size": [
+          2,
+          4
+        ]
+      },
+      {
+        "terrain": "Cobble2",
+        "at": [
+          4,
+          4
+        ],
+        "size": [
+          4,
+          4
+        ]
+      }
+    ],
+    "runs": [
+      {
+        "crosser": "pont",
+        "cells": [
+          [
+            2,
+            2
+          ],
+          [
+            8,
+            2
+          ]
+        ]
+      },
+      {
+        "crosser": "murs",
+        "cells": [
+          [
+            0,
+            0
+          ],
+          [
+            10,
+            0
+          ]
+        ]
+      },
+      {
+        "crosser": "Routes",
+        "cells": [
+          [
+            0,
+            10
+          ],
+          [
+            10,
+            10
+          ]
+        ]
+      }
+    ],
+    "crossings": [
+      [
+        2,
+        2
+      ],
+      [
+        5,
+        5
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        5,
+        9
+      ]
+    ],
+    "views": [
+      "x02y02-ne",
+      "x05y05-ne",
+      "x08y08-sw",
+      "x05y01-sw",
+      "x05y01-se",
+      "x05y09-nw",
+      "x05y09-ne"
+    ]
+  },
+  "grid": {
+    "across": 32,
+    "lights": [
+      "day",
+      "night"
+    ]
+  }
+}

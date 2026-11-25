@@ -79,6 +79,18 @@ class ShadowTests(unittest.TestCase):
             (own / 't.set').write_text('[TILES]\nCount=1\n[TILE0]\nModel=t_a01\n', encoding='cp1252'); (own / 't_a01.mdl').write_text(MODEL, encoding='cp1252')
             (repo / 'srn_2da' / 'u_edge.2da').write_text('2da v2.0\n\n   corner1 edge corner2 height model\n0  a **** a 0 T_A01\n', encoding='cp1252')  # its words in lower case
             self.assertEqual(shadows.quiet(repo, 't', repo / 'out'), {})
+            self.assertEqual(shadows.quiet(repo, 't', repo / 'out', shared=['Other']), {})  # another set than the one named
+
+    def test_a_model_a_merged_set_draws_too_is_changed_when_the_set_is_named(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary); own = repo / 'srn_t_t'; merged = repo / 'srn_t_m'
+            for folder in (own, merged, repo / 'srn_t_common'):
+                folder.mkdir()
+            for folder, name in ((own, 't'), (merged, 'm')):
+                (folder / f'{name}.set').write_text('[TILES]\nCount=1\n[TILE0]\nModel=t_a01\n', encoding='cp1252')
+            (own / 't_a01.mdl').write_text(MODEL, encoding='cp1252')
+            self.assertEqual(shadows.quiet(repo, 't', repo / 'out'), {})
+            self.assertEqual(shadows.quiet(repo, 't', repo / 'out', shared=['M']), {'t_a01': 3})
 
     def test_quiet_changes_the_folder_s_copy_and_only_the_set_s_tiles(self):
         with tempfile.TemporaryDirectory() as temporary:

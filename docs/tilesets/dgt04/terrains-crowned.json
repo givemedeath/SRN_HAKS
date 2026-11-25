@@ -1,0 +1,24 @@
+{
+ "tileset": "dgt04",
+ "provenance": "Modern Exterior restyle, release 2, stage 4 (remeshing)",
+ "names": {},
+ "copies": [
+  {
+   "terrain": "Highrise_10",
+   "from": "Highrise_07",
+   "display": "Walled Compound, Glass, Crowned",
+   "models": {
+    "dgt04_e09_52": "srt04_c01_01",
+    "dgt04_e09_53": "srt04_c02_01",
+    "dgt04_e09_54": "srt04_c03_01",
+    "dgt04_e09_55": "srt04_c04_01",
+    "dgt04_e11_12": "srt04_c05_01",
+    "dgt04_e10_09": "srt04_c06_01",
+    "dgt04_e12_09": "srt04_c07_01"
+   },
+   "edges": {
+    "dgt05_z10_01": "srt04_c08_01"
+   }
+  }
+ ]
+}

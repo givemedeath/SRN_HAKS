@@ -97,10 +97,21 @@ def make(old, how, scan=None, *, enlarged=None):
 def glow(made, lit):
     """The glow map of a made texture (uint8 RGB): its own colour where it is lit, black elsewhere. lit: {gain (how
     bright, default 1), tint ([red, green, blue] multipliers), above (0-255: only pixels at least this bright are lit;
-    default 0)}. A picture with holes glows only where it is not a hole: a facade's lit windows are such a picture."""
-    unknown = set(lit) - {'gain', 'tint', 'above'}; require(not unknown, 'A glow has no ' + ', '.join(sorted(unknown)))
+    default 0), boxes ([{box: [left, top, right, bottom] in 0-1 of the picture, above: its own}]: lit only inside
+    them, a console's indicator lights and not its housing)}. A picture with holes glows only where it is not a hole:
+    a facade's lit windows are such a picture."""
+    unknown = set(lit) - {'gain', 'tint', 'above', 'boxes'}; require(not unknown, 'A glow has no ' + ', '.join(sorted(unknown)))
     colour = made['colour'].astype(np.float64); tint = np.asarray(lit.get('tint', (1.0, 1.0, 1.0)), np.float64); require(tint.shape == (3,), 'A glow\'s tint is red, green and blue')
     shown = colour.max(axis=2) >= float(lit.get('above', 0))
+    if lit.get('boxes') is not None:
+        height, width = shown.shape; inside = np.zeros_like(shown)
+        for one in lit['boxes']:
+            require(isinstance(one, dict) and set(one) <= {'box', 'above'} and len(one.get('box', ())) == 4 and 0 <= one['box'][0] < one['box'][2] <= 1 and 0 <= one['box'][1] < one['box'][3] <= 1,
+                    'A glow\'s box is {box: [left, top, right, bottom] in 0-1, above}')
+            left, top, right, bottom = one['box']; rows, columns = slice(round(top * height), round(bottom * height)), slice(round(left * width), round(right * width))
+            require(inside[rows, columns].size, f'The glow\'s box {one["box"]} holds no pixel of the picture')
+            inside[rows, columns] |= colour[rows, columns].max(axis=2) >= float(one.get('above', lit.get('above', 0)))
+        shown = inside
     if 'alpha' in made:
         shown &= made['alpha'] >= 128
     return np.uint8(np.clip(colour * float(lit.get('gain', 1.0)) * tint, 0, 255) * shown[..., None] + 0.5)
@@ -231,6 +242,12 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
     raise ValueError(f'No pack holds a picture of {name}' + ('' if stock else ' (a base-game texture needs --stock)'))
 
 
+def of_spec(spec):
+    """What `current` takes from a material spec: `before`, and `packs` where the spec names its own (a tileset whose
+    textures are not in the city set's packs: the first pack named that holds a texture gives its picture)."""
+    return {'before': spec.get('before'), **({'packs': tuple(spec['packs'])} if spec.get('packs') else {})}
+
+
 def _derived(folder, name, old, *, doubled=None):
     """Refuse a picture `redraw` or `enlarge` left in `folder` whose record says it was made from another original
     than `old` (the picture the spec starts from), another day picture (a lit one), or another enlargement; one with
@@ -270,7 +287,7 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             scan = scans[how['master']]
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
-        old = np.asarray(current(repo, how.get('copy', name), stock=stock, before=spec.get('before')))  # a copy starts from its source's picture
+        old = np.asarray(current(repo, how.get('copy', name), stock=stock, **of_spec(spec)))  # a copy starts from its source's picture
         if picture is not None:  # made from that picture, as its record says
             _derived(redrawn if how.get('redrawn') else enlarged, name, old, doubled=None if how.get('redrawn') else how['doubled'])
         made = make(old, how, scan, enlarged=picture)

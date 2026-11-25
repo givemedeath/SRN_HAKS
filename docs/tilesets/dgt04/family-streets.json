@@ -1,0 +1,12 @@
+{
+ "tileset": "dgt04",
+ "families": [
+  {
+   "terrains": [
+    "Concrete"
+   ],
+   "match": "all",
+   "placer": "propose_street"
+  }
+ ]
+}

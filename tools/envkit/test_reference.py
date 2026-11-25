@@ -155,6 +155,13 @@ class SetTests(unittest.TestCase):
         self.assertEqual(found['types']['trash-can'], {'original': ['shop/bin'], 'variant': ['depot/skip'], 'same': ['depot/bin']})
         self.assertEqual((found['make'], found['reuse']), (3, 1))
 
+    def test_a_closed_type_takes_no_more_made_props(self):
+        """The kit has dumpsters enough (user, 2026-11-24): a later sheet's is the same as one of them."""
+        self.assertIn('happenstance/dumpster', reference.CLOSED['dumpster'])
+        self.sheet('shop', skip={'type': 'dumpster'})
+        with self.assertRaisesRegex(ValueError, 'Type dumpster takes no more made props: state shop/skip the same as one of water-reclamation/sludge-container'):
+            reference.register(self.root)
+
     def test_same_names_a_made_prop_of_its_own_type(self):
         self.sheet('shop', bin={'type': 'trash-can'}, camera={'type': 'security-camera'})
         for target in ('shop/camera', 'shop/gone', 'yard/bin'):  # another type, no such prop, itself only a same

@@ -1,0 +1,3614 @@
+{
+  "schemaVersion": 1,
+  "tileset": "fcx01",
+  "set": {
+    "terrains": 3,
+    "crossers": 3,
+    "tiles": 239,
+    "models": 239,
+    "groups": 38
+  },
+  "edge": {
+    "rows": 14,
+    "models": 10,
+    "notInSet": 4
+  },
+  "forms": {
+    "uncompiled": 243,
+    "compiled": 0,
+    "absent": 0
+  },
+  "surface": 126422.69,
+  "coverage": {
+    "50": 6,
+    "80": 14,
+    "90": 20,
+    "95": 26,
+    "99": 39
+  },
+  "textures": [
+    {
+      "name": "bb1bottom",
+      "surface": 16569.09,
+      "share": 13.106,
+      "cumulative": 13.106,
+      "models": 50,
+      "terrains": [
+        "Cobble",
+        "holes"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 512,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 512,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "imp_modules_id2",
+      "surface": 12200.93,
+      "share": 9.651,
+      "cumulative": 22.757,
+      "models": 71,
+      "terrains": [
+        "Cobble",
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "cel04r2aol9",
+      "surface": 9647.68,
+      "share": 7.631,
+      "cumulative": 30.388,
+      "models": 108,
+      "terrains": [
+        "Cobble",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "black_window",
+      "surface": 9343.75,
+      "share": 7.391,
+      "cumulative": 37.779,
+      "models": 8,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "gris3",
+      "surface": 8117.4,
+      "share": 6.421,
+      "cumulative": 44.2,
+      "models": 88,
+      "terrains": [
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {
+        "srn_placeable": 1
+      }
+    },
+    {
+      "name": "d_ground03",
+      "surface": 7505.37,
+      "share": 5.937,
+      "cumulative": 50.137,
+      "models": 86,
+      "terrains": [
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "ctown_build1",
+      "surface": 7460.43,
+      "share": 5.901,
+      "cumulative": 56.038,
+      "models": 34,
+      "terrains": [
+        "Cobble",
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 1024,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "d_wall02",
+      "surface": 6858.84,
+      "share": 5.425,
+      "cumulative": 61.463,
+      "models": 12,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "c_metall",
+      "surface": 6699.19,
+      "share": 5.299,
+      "cumulative": 66.762,
+      "models": 37,
+      "terrains": [
+        "Cobble",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "glass",
+      "surface": 4052.91,
+      "share": 3.206,
+      "cumulative": 69.968,
+      "models": 32,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_door",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_door",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_placeable",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [
+        "dgt04",
+        "shp02",
+        "udp1"
+      ],
+      "otherPacks": {
+        "srn_door": 3,
+        "srn_placeable": 40,
+        "srn_t_dgt04": 1
+      }
+    },
+    {
+      "name": "imp_modules_id4",
+      "surface": 4021.17,
+      "share": 3.181,
+      "cumulative": 73.149,
+      "models": 28,
+      "terrains": [
+        "Cobble",
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "ctown_wal_id8",
+      "surface": 3614.98,
+      "share": 2.859,
+      "cumulative": 76.008,
+      "models": 33,
+      "terrains": [
+        "Cobble",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "imp_modules_id1",
+      "surface": 3243.16,
+      "share": 2.565,
+      "cumulative": 78.574,
+      "models": 34,
+      "terrains": [
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "window1",
+      "surface": 3215.21,
+      "share": 2.543,
+      "cumulative": 81.117,
+      "models": 43,
+      "terrains": [
+        "Cobble",
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [
+        "udp1",
+        "vmp01"
+      ],
+      "otherPacks": {
+        "srn_placeable": 1
+      }
+    },
+    {
+      "name": "floor00",
+      "surface": 2854.45,
+      "share": 2.258,
+      "cumulative": 83.375,
+      "models": 36,
+      "terrains": [
+        "Cobble",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "bb3bottom",
+      "surface": 2437.72,
+      "share": 1.928,
+      "cumulative": 85.303,
+      "models": 12,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "floor01",
+      "surface": 1993.39,
+      "share": 1.577,
+      "cumulative": 86.88,
+      "models": 16,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02",
+        "sjm01",
+        "tjsb0",
+        "udp1",
+        "udp2",
+        "vmp01"
+      ],
+      "otherPacks": {
+        "srn_placeable": 29
+      }
+    },
+    {
+      "name": "lab_win1",
+      "surface": 1611.14,
+      "share": 1.274,
+      "cumulative": 88.154,
+      "models": 6,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 64,
+      "copies": [
+        {
+          "pack": "srn_door",
+          "type": "dds",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "pack": "srn_door",
+          "type": "tga",
+          "width": 64,
+          "height": 64
+        }
+      ],
+      "otherSets": [
+        "dgt04"
+      ],
+      "otherPacks": {
+        "srn_door": 1,
+        "srn_t_dgt04": 3
+      }
+    },
+    {
+      "name": "dgt04_chrome",
+      "surface": 1602.85,
+      "share": 1.268,
+      "cumulative": 89.422,
+      "models": 6,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_door",
+          "type": "dds",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "pack": "srn_door",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "pack": "srn_placeable",
+          "type": "dds",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [
+        "dgt04"
+      ],
+      "otherPacks": {
+        "srn_door": 1,
+        "srn_placeable": 46,
+        "srn_t_dgt04": 8
+      }
+    },
+    {
+      "name": "arcology_win02",
+      "surface": 1598.05,
+      "share": 1.264,
+      "cumulative": 90.686,
+      "models": 6,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 64,
+      "copies": [
+        {
+          "pack": "srn_door",
+          "type": "dds",
+          "width": 64,
+          "height": 64
+        },
+        {
+          "pack": "srn_door",
+          "type": "tga",
+          "width": 64,
+          "height": 64
+        }
+      ],
+      "otherSets": [
+        "dgt04"
+      ],
+      "otherPacks": {
+        "srn_door": 1
+      }
+    },
+    {
+      "name": "tile013gs",
+      "surface": 1270.08,
+      "share": 1.005,
+      "cumulative": 91.691,
+      "models": 13,
+      "terrains": [
+        "Cobble",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tower_top",
+      "surface": 1040.0,
+      "share": 0.823,
+      "cumulative": 92.513,
+      "models": 4,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {
+        "srn_placeable": 1
+      }
+    },
+    {
+      "name": "d_wall",
+      "surface": 987.69,
+      "share": 0.781,
+      "cumulative": 93.295,
+      "models": 4,
+      "terrains": [
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "bb3_top",
+      "surface": 790.9,
+      "share": 0.626,
+      "cumulative": 93.92,
+      "models": 12,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "bb6_fassade",
+      "surface": 754.35,
+      "share": 0.597,
+      "cumulative": 94.517,
+      "models": 20,
+      "terrains": [
+        "Cobble",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "lights3",
+      "surface": 716.54,
+      "share": 0.567,
+      "cumulative": 95.084,
+      "models": 12,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 64
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "imp_modules_id3",
+      "surface": 710.73,
+      "share": 0.562,
+      "cumulative": 95.646,
+      "models": 14,
+      "terrains": [
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {
+        "srn_placeable": 5
+      }
+    },
+    {
+      "name": "floor2_l1_1a",
+      "surface": 612.1,
+      "share": 0.484,
+      "cumulative": 96.13,
+      "models": 7,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "arcology_floor02",
+      "surface": 567.5,
+      "share": 0.449,
+      "cumulative": 96.579,
+      "models": 6,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": null,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "mtr"
+        }
+      ],
+      "otherSets": [
+        "dgt04",
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "lsf_grate01",
+      "surface": 565.0,
+      "share": 0.447,
+      "cumulative": 97.026,
+      "models": 4,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_door",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_door",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {
+        "srn_door": 1
+      }
+    },
+    {
+      "name": "arcology_wall01",
+      "surface": 487.0,
+      "share": 0.385,
+      "cumulative": 97.411,
+      "models": 10,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": null,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "mtr"
+        }
+      ],
+      "otherSets": [
+        "dgt04",
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "d_ground04",
+      "surface": 450.21,
+      "share": 0.356,
+      "cumulative": 97.767,
+      "models": 6,
+      "terrains": [
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tcn01_watrstn02",
+      "surface": 288.0,
+      "share": 0.228,
+      "cumulative": 97.995,
+      "models": 2,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "bb4top2",
+      "surface": 273.92,
+      "share": 0.217,
+      "cumulative": 98.212,
+      "models": 7,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 128
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "arcology_wall04",
+      "surface": 222.99,
+      "share": 0.176,
+      "cumulative": 98.388,
+      "models": 6,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": null,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "mtr"
+        }
+      ],
+      "otherSets": [
+        "dgt04",
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "tcn01_water01",
+      "surface": 221.68,
+      "share": 0.175,
+      "cumulative": 98.563,
+      "models": 3,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_dgt04",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [
+        "dgt04"
+      ],
+      "otherPacks": {
+        "srn_t_dgt04": 4
+      }
+    },
+    {
+      "name": "noir",
+      "surface": 210.0,
+      "share": 0.166,
+      "cumulative": 98.729,
+      "models": 4,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "ttr01_grass02",
+      "surface": 200.0,
+      "share": 0.158,
+      "cumulative": 98.888,
+      "models": 2,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_dgt04",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_dgt04",
+          "type": "mtr"
+        }
+      ],
+      "otherSets": [
+        "dgt04"
+      ],
+      "otherPacks": {
+        "srn_t_dgt04": 2
+      }
+    },
+    {
+      "name": "imp_modules_id5",
+      "surface": 187.01,
+      "share": 0.148,
+      "cumulative": 99.036,
+      "models": 4,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 1024,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "ctown_build14",
+      "surface": 186.86,
+      "share": 0.148,
+      "cumulative": 99.183,
+      "models": 2,
+      "terrains": [
+        "holes"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "mc_ring",
+      "surface": 137.93,
+      "share": 0.109,
+      "cumulative": 99.292,
+      "models": 4,
+      "terrains": [
+        "holes"
+      ],
+      "largest": 64,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 64,
+          "height": 64
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "ctown_build11",
+      "surface": 129.16,
+      "share": 0.102,
+      "cumulative": 99.395,
+      "models": 3,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "mmc01_treefol02",
+      "surface": 113.92,
+      "share": 0.09,
+      "cumulative": 99.485,
+      "models": 2,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "balcon",
+      "surface": 105.02,
+      "share": 0.083,
+      "cumulative": 99.568,
+      "models": 2,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "ctown_build_id4",
+      "surface": 97.23,
+      "share": 0.077,
+      "cumulative": 99.645,
+      "models": 6,
+      "terrains": [
+        "Cobble",
+        "Cobble2",
+        "holes"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "ctown_build7",
+      "surface": 83.18,
+      "share": 0.066,
+      "cumulative": 99.711,
+      "models": 1,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "windows2",
+      "surface": 38.0,
+      "share": 0.03,
+      "cumulative": 99.741,
+      "models": 2,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 64
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {
+        "srn_placeable": 1
+      }
+    },
+    {
+      "name": "ventilo01",
+      "surface": 33.63,
+      "share": 0.027,
+      "cumulative": 99.767,
+      "models": 2,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "ttr01_splotch01",
+      "surface": 32.93,
+      "share": 0.026,
+      "cumulative": 99.793,
+      "models": 2,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "bespin_monument2",
+      "surface": 31.28,
+      "share": 0.025,
+      "cumulative": 99.818,
+      "models": 1,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "rebord1",
+      "surface": 30.46,
+      "share": 0.024,
+      "cumulative": 99.842,
+      "models": 6,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "rebord2",
+      "surface": 30.46,
+      "share": 0.024,
+      "cumulative": 99.866,
+      "models": 6,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "pub",
+      "surface": 26.21,
+      "share": 0.021,
+      "cumulative": 99.887,
+      "models": 2,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [
+        "dgt04",
+        "udp1"
+      ],
+      "otherPacks": {
+        "srn_armor": 2,
+        "srn_body": 4,
+        "srn_head": 14,
+        "srn_parts": 1,
+        "srn_placeable": 14,
+        "srn_weapon": 5
+      }
+    },
+    {
+      "name": "mmc01_bark02",
+      "surface": 21.28,
+      "share": 0.017,
+      "cumulative": 99.904,
+      "models": 2,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "lma_light06",
+      "surface": 19.84,
+      "share": 0.016,
+      "cumulative": 99.919,
+      "models": 6,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "ctown_build_id12",
+      "surface": 17.59,
+      "share": 0.014,
+      "cumulative": 99.933,
+      "models": 1,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "mmc01_black",
+      "surface": 16.97,
+      "share": 0.013,
+      "cumulative": 99.947,
+      "models": 1,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "rebord3",
+      "surface": 16.0,
+      "share": 0.013,
+      "cumulative": 99.959,
+      "models": 2,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "cable",
+      "surface": 10.88,
+      "share": 0.009,
+      "cumulative": 99.968,
+      "models": 2,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_common",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_common",
+          "type": "tga",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "shp02"
+      ],
+      "otherPacks": {
+        "srn_placeable": 1
+      }
+    },
+    {
+      "name": "kuhmu",
+      "surface": 10.24,
+      "share": 0.008,
+      "cumulative": 99.976,
+      "models": 2,
+      "terrains": [
+        "Cobble2"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 512,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tcn01_marbl01",
+      "surface": 10.14,
+      "share": 0.008,
+      "cumulative": 99.984,
+      "models": 1,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {
+        "srn_placeable": 1
+      }
+    },
+    {
+      "name": "mmc01_dir01t",
+      "surface": 6.97,
+      "share": 0.006,
+      "cumulative": 99.99,
+      "models": 2,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_fcx01",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tcn01_marbl05",
+      "surface": 6.34,
+      "share": 0.005,
+      "cumulative": 99.995,
+      "models": 1,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {
+        "srn_placeable": 1
+      }
+    },
+    {
+      "name": "tcn01_stone18",
+      "surface": 3.76,
+      "share": 0.003,
+      "cumulative": 99.998,
+      "models": 1,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_dgt04",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_dgt04",
+          "type": "mtr"
+        }
+      ],
+      "otherSets": [
+        "dgt04"
+      ],
+      "otherPacks": {
+        "srn_placeable": 7
+      }
+    },
+    {
+      "name": "ttr01_leaf01",
+      "surface": 1.68,
+      "share": 0.001,
+      "cumulative": 99.999,
+      "models": 2,
+      "terrains": [
+        "Cobble",
+        "Cobble2"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tcn01_stone20",
+      "surface": 1.32,
+      "share": 0.001,
+      "cumulative": 100.0,
+      "models": 1,
+      "terrains": [
+        "Cobble"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {
+        "srn_placeable": 1
+      }
+    }
+  ],
+  "models": {
+    "cor01_b01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        202
+      ],
+      "edge": false
+    },
+    "cor01_b01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        203
+      ],
+      "edge": false
+    },
+    "cor01_b01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        204
+      ],
+      "edge": false
+    },
+    "cor01_b01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        205
+      ],
+      "edge": false
+    },
+    "cor01_b01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        206
+      ],
+      "edge": false
+    },
+    "cor01_b01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        217
+      ],
+      "edge": false
+    },
+    "cor01_b01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        218
+      ],
+      "edge": false
+    },
+    "cor01_b01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        219
+      ],
+      "edge": false
+    },
+    "cor01_b01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        220
+      ],
+      "edge": false
+    },
+    "cor01_b01_10": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        221
+      ],
+      "edge": false
+    },
+    "cor01_b01_11": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        222
+      ],
+      "edge": false
+    },
+    "cor01_b01_12": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        237
+      ],
+      "edge": false
+    },
+    "cor01_b01_13": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        238
+      ],
+      "edge": false
+    },
+    "fcx01_a01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        8
+      ],
+      "edge": false
+    },
+    "fcx01_a01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        9
+      ],
+      "edge": false
+    },
+    "fcx01_a01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        10
+      ],
+      "edge": false
+    },
+    "fcx01_a01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        11
+      ],
+      "edge": false
+    },
+    "fcx01_b01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        12
+      ],
+      "edge": false
+    },
+    "fcx01_c01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        13
+      ],
+      "edge": false
+    },
+    "fcx01_c01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        14
+      ],
+      "edge": false
+    },
+    "fcx01_c01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        15
+      ],
+      "edge": false
+    },
+    "fcx01_c01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        16
+      ],
+      "edge": false
+    },
+    "fcx01_c01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        17
+      ],
+      "edge": false
+    },
+    "fcx01_c01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        18
+      ],
+      "edge": false
+    },
+    "fcx01_c01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        19
+      ],
+      "edge": false
+    },
+    "fcx01_c01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        20
+      ],
+      "edge": false
+    },
+    "fcx01_c01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        21
+      ],
+      "edge": false
+    },
+    "fcx01_d01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        22
+      ],
+      "edge": false
+    },
+    "fcx01_d01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        23
+      ],
+      "edge": false
+    },
+    "fcx01_d01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        24
+      ],
+      "edge": false
+    },
+    "fcx01_d01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        25
+      ],
+      "edge": false
+    },
+    "fcx01_d01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        26
+      ],
+      "edge": false
+    },
+    "fcx01_d01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        27
+      ],
+      "edge": false
+    },
+    "fcx01_d01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        28
+      ],
+      "edge": false
+    },
+    "fcx01_d01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        29
+      ],
+      "edge": false
+    },
+    "fcx01_d01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        30
+      ],
+      "edge": false
+    },
+    "fcx01_e01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        31
+      ],
+      "edge": false
+    },
+    "fcx01_e01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        32
+      ],
+      "edge": false
+    },
+    "fcx01_e01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        33
+      ],
+      "edge": false
+    },
+    "fcx01_e01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        34
+      ],
+      "edge": false
+    },
+    "fcx01_f01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        36
+      ],
+      "edge": false
+    },
+    "fcx01_f01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        37
+      ],
+      "edge": false
+    },
+    "fcx01_f01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        39
+      ],
+      "edge": false
+    },
+    "fcx01_f01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        38
+      ],
+      "edge": false
+    },
+    "fcx01_f01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        35
+      ],
+      "edge": false
+    },
+    "fcx01_f01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        40
+      ],
+      "edge": false
+    },
+    "fcx01_f01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        41
+      ],
+      "edge": false
+    },
+    "fcx01_f01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        42
+      ],
+      "edge": false
+    },
+    "fcx01_f01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        43
+      ],
+      "edge": false
+    },
+    "fcx01_f01_10": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        44
+      ],
+      "edge": false
+    },
+    "fcx01_f01_11": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        45
+      ],
+      "edge": false
+    },
+    "fcx01_f01_12": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        46
+      ],
+      "edge": false
+    },
+    "fcx01_g01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        47
+      ],
+      "edge": false
+    },
+    "fcx01_g01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        48
+      ],
+      "edge": false
+    },
+    "fcx01_g01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        49
+      ],
+      "edge": false
+    },
+    "fcx01_g01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        50
+      ],
+      "edge": false
+    },
+    "fcx01_g01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        51
+      ],
+      "edge": false
+    },
+    "fcx01_g01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        52
+      ],
+      "edge": false
+    },
+    "fcx01_g01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        53
+      ],
+      "edge": false
+    },
+    "fcx01_g01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        54
+      ],
+      "edge": false
+    },
+    "fcx01_g01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        55
+      ],
+      "edge": false
+    },
+    "fcx01_g01_10": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        56
+      ],
+      "edge": false
+    },
+    "fcx01_g01_11": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        57
+      ],
+      "edge": false
+    },
+    "fcx01_g01_12": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        58
+      ],
+      "edge": false
+    },
+    "fcx01_h01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        59
+      ],
+      "edge": false
+    },
+    "fcx01_h01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        60
+      ],
+      "edge": false
+    },
+    "fcx01_h01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        61
+      ],
+      "edge": false
+    },
+    "fcx01_h01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        62
+      ],
+      "edge": false
+    },
+    "fcx01_h01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        63
+      ],
+      "edge": false
+    },
+    "fcx01_h01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        64
+      ],
+      "edge": false
+    },
+    "fcx01_h01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        65
+      ],
+      "edge": false
+    },
+    "fcx01_h01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        66
+      ],
+      "edge": false
+    },
+    "fcx01_h01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        67
+      ],
+      "edge": false
+    },
+    "fcx01_h01_10": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        68
+      ],
+      "edge": false
+    },
+    "fcx01_h01_11": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        69
+      ],
+      "edge": false
+    },
+    "fcx01_h01_12": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        70
+      ],
+      "edge": false
+    },
+    "fcx01_h01_13": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        71
+      ],
+      "edge": false
+    },
+    "fcx01_h01_14": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        72
+      ],
+      "edge": false
+    },
+    "fcx01_h01_15": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        73
+      ],
+      "edge": false
+    },
+    "fcx01_h01_16": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        74
+      ],
+      "edge": false
+    },
+    "fcx01_h01_17": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        75
+      ],
+      "edge": false
+    },
+    "fcx01_h01_18": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        76
+      ],
+      "edge": false
+    },
+    "fcx01_h01_19": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        77
+      ],
+      "edge": false
+    },
+    "fcx01_h01_20": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        78
+      ],
+      "edge": false
+    },
+    "fcx01_h01_21": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        79
+      ],
+      "edge": false
+    },
+    "fcx01_h01_22": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        80
+      ],
+      "edge": false
+    },
+    "fcx01_h01_23": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        81
+      ],
+      "edge": false
+    },
+    "fcx01_h01_24": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        82
+      ],
+      "edge": false
+    },
+    "fcx01_h01_25": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        83
+      ],
+      "edge": false
+    },
+    "fcx01_h01_26": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        84
+      ],
+      "edge": false
+    },
+    "fcx01_h01_27": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        85
+      ],
+      "edge": false
+    },
+    "fcx01_h01_28": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        86
+      ],
+      "edge": false
+    },
+    "fcx01_h01_29": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        87
+      ],
+      "edge": false
+    },
+    "fcx01_h01_30": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        88
+      ],
+      "edge": false
+    },
+    "fcx01_h01_31": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        89
+      ],
+      "edge": false
+    },
+    "fcx01_h01_32": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        90
+      ],
+      "edge": false
+    },
+    "fcx01_h01_33": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        91
+      ],
+      "edge": false
+    },
+    "fcx01_h01_34": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        92
+      ],
+      "edge": false
+    },
+    "fcx01_h01_35": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        93
+      ],
+      "edge": false
+    },
+    "fcx01_h01_36": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        94
+      ],
+      "edge": false
+    },
+    "fcx01_i01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        0
+      ],
+      "edge": true
+    },
+    "fcx01_j01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        5
+      ],
+      "edge": false
+    },
+    "fcx01_j01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        119
+      ],
+      "edge": false
+    },
+    "fcx01_j02_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        6
+      ],
+      "edge": false
+    },
+    "fcx01_j02_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        120
+      ],
+      "edge": false
+    },
+    "fcx01_j03_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        7
+      ],
+      "edge": false
+    },
+    "fcx01_j03_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        121
+      ],
+      "edge": false
+    },
+    "fcx01_j04_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        96
+      ],
+      "edge": true
+    },
+    "fcx01_j04_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        122
+      ],
+      "edge": false
+    },
+    "fcx01_j05_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        97
+      ],
+      "edge": false
+    },
+    "fcx01_j05_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        123
+      ],
+      "edge": false
+    },
+    "fcx01_j06_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        98
+      ],
+      "edge": false
+    },
+    "fcx01_j06_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        124
+      ],
+      "edge": false
+    },
+    "fcx01_k05_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        95
+      ],
+      "edge": true
+    },
+    "fcx01_l01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        1
+      ],
+      "edge": false
+    },
+    "fcx01_l01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        115
+      ],
+      "edge": false
+    },
+    "fcx01_l02_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        2
+      ],
+      "edge": false
+    },
+    "fcx01_l02_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        116
+      ],
+      "edge": false
+    },
+    "fcx01_l04_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        3
+      ],
+      "edge": false
+    },
+    "fcx01_l04_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        117
+      ],
+      "edge": false
+    },
+    "fcx01_l05_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "fcx01_l05_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "fcx01_l20_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        4
+      ],
+      "edge": false
+    },
+    "fcx01_l20_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        118
+      ],
+      "edge": true
+    },
+    "fcx01_m01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        99
+      ],
+      "edge": false
+    },
+    "fcx01_m01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        100
+      ],
+      "edge": false
+    },
+    "fcx01_m01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        101
+      ],
+      "edge": false
+    },
+    "fcx01_m01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        102
+      ],
+      "edge": false
+    },
+    "fcx01_m01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        103
+      ],
+      "edge": false
+    },
+    "fcx01_m01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        104
+      ],
+      "edge": false
+    },
+    "fcx01_m01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        105
+      ],
+      "edge": false
+    },
+    "fcx01_m01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        106
+      ],
+      "edge": false
+    },
+    "fcx01_m01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        107
+      ],
+      "edge": false
+    },
+    "fcx01_m01_10": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        108
+      ],
+      "edge": false
+    },
+    "fcx01_m01_11": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        109
+      ],
+      "edge": false
+    },
+    "fcx01_m01_12": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        110
+      ],
+      "edge": false
+    },
+    "fcx01_n01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        111
+      ],
+      "edge": false
+    },
+    "fcx01_n01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        112
+      ],
+      "edge": false
+    },
+    "fcx01_n01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        113
+      ],
+      "edge": false
+    },
+    "fcx01_n01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        114
+      ],
+      "edge": false
+    },
+    "fcx01_o01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        125
+      ],
+      "edge": false
+    },
+    "fcx01_p01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        126
+      ],
+      "edge": false
+    },
+    "fcx01_q01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        127
+      ],
+      "edge": false
+    },
+    "fcx01_r01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        128
+      ],
+      "edge": false
+    },
+    "fcx01_s01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        129
+      ],
+      "edge": false
+    },
+    "fcx01_s01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        130
+      ],
+      "edge": false
+    },
+    "fcx01_s01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        131
+      ],
+      "edge": false
+    },
+    "fcx01_s01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        132
+      ],
+      "edge": false
+    },
+    "fcx01_s01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        133
+      ],
+      "edge": false
+    },
+    "fcx01_s01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        134
+      ],
+      "edge": false
+    },
+    "fcx01_s01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        135
+      ],
+      "edge": false
+    },
+    "fcx01_s01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        136
+      ],
+      "edge": false
+    },
+    "fcx01_s01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        137
+      ],
+      "edge": false
+    },
+    "fcx01_s01_10": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        138
+      ],
+      "edge": false
+    },
+    "fcx01_s01_11": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        139
+      ],
+      "edge": false
+    },
+    "fcx01_s01_12": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        140
+      ],
+      "edge": false
+    },
+    "fcx01_s01_13": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        141
+      ],
+      "edge": false
+    },
+    "fcx01_s01_14": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        142
+      ],
+      "edge": false
+    },
+    "fcx01_s01_15": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        143
+      ],
+      "edge": false
+    },
+    "fcx01_s01_16": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        144
+      ],
+      "edge": false
+    },
+    "fcx01_s01_17": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        145
+      ],
+      "edge": false
+    },
+    "fcx01_s01_18": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        146
+      ],
+      "edge": false
+    },
+    "fcx01_s01_19": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        147
+      ],
+      "edge": false
+    },
+    "fcx01_s01_20": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        148
+      ],
+      "edge": false
+    },
+    "fcx01_s01_21": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        149
+      ],
+      "edge": false
+    },
+    "fcx01_s01_22": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        150
+      ],
+      "edge": false
+    },
+    "fcx01_s01_23": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        151
+      ],
+      "edge": false
+    },
+    "fcx01_s01_24": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        152
+      ],
+      "edge": false
+    },
+    "fcx01_s01_25": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        153
+      ],
+      "edge": false
+    },
+    "fcx01_s01_26": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        154
+      ],
+      "edge": false
+    },
+    "fcx01_s01_27": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        155
+      ],
+      "edge": false
+    },
+    "fcx01_s01_28": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        156
+      ],
+      "edge": false
+    },
+    "fcx01_s01_29": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        157
+      ],
+      "edge": false
+    },
+    "fcx01_s01_30": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        158
+      ],
+      "edge": false
+    },
+    "fcx01_t01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        159
+      ],
+      "edge": false
+    },
+    "fcx01_t01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        160
+      ],
+      "edge": false
+    },
+    "fcx01_t01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        161
+      ],
+      "edge": false
+    },
+    "fcx01_t01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        162
+      ],
+      "edge": false
+    },
+    "fcx01_t01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        163
+      ],
+      "edge": false
+    },
+    "fcx01_t01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        164
+      ],
+      "edge": false
+    },
+    "fcx01_t01_07": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        165
+      ],
+      "edge": false
+    },
+    "fcx01_t01_08": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        166
+      ],
+      "edge": false
+    },
+    "fcx01_t01_09": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        167
+      ],
+      "edge": false
+    },
+    "fcx01_t01_10": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        168
+      ],
+      "edge": false
+    },
+    "fcx01_t01_11": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        169
+      ],
+      "edge": false
+    },
+    "fcx01_t01_12": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        170
+      ],
+      "edge": false
+    },
+    "fcx01_t01_13": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        171
+      ],
+      "edge": false
+    },
+    "fcx01_t01_14": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        172
+      ],
+      "edge": false
+    },
+    "fcx01_t01_15": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        173
+      ],
+      "edge": false
+    },
+    "fcx01_t01_16": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        174
+      ],
+      "edge": false
+    },
+    "fcx01_t01_17": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        175
+      ],
+      "edge": false
+    },
+    "fcx01_t01_18": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        176
+      ],
+      "edge": false
+    },
+    "fcx01_t01_19": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        177
+      ],
+      "edge": false
+    },
+    "fcx01_t01_20": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        178
+      ],
+      "edge": false
+    },
+    "fcx01_t01_21": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        179
+      ],
+      "edge": false
+    },
+    "fcx01_t01_22": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        180
+      ],
+      "edge": false
+    },
+    "fcx01_t01_23": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        181
+      ],
+      "edge": false
+    },
+    "fcx01_t01_24": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        182
+      ],
+      "edge": false
+    },
+    "fcx01_t01_25": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        183
+      ],
+      "edge": false
+    },
+    "fcx01_t01_26": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        184
+      ],
+      "edge": false
+    },
+    "fcx01_t01_27": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        185
+      ],
+      "edge": false
+    },
+    "fcx01_t01_28": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        186
+      ],
+      "edge": false
+    },
+    "fcx01_t01_29": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        187
+      ],
+      "edge": false
+    },
+    "fcx01_t01_30": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        188
+      ],
+      "edge": false
+    },
+    "fcx01_u01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        189
+      ],
+      "edge": false
+    },
+    "fcx01_v01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        190
+      ],
+      "edge": false
+    },
+    "fcx01_v02_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        191
+      ],
+      "edge": false
+    },
+    "fcx01_w01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        192
+      ],
+      "edge": false
+    },
+    "fcx01_w01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        193
+      ],
+      "edge": false
+    },
+    "fcx01_w01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        194
+      ],
+      "edge": false
+    },
+    "fcx01_w01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        195
+      ],
+      "edge": false
+    },
+    "fcx01_x01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        207
+      ],
+      "edge": false
+    },
+    "fcx01_x01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        212
+      ],
+      "edge": false
+    },
+    "fcx01_x02_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        208
+      ],
+      "edge": false
+    },
+    "fcx01_x02_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        213
+      ],
+      "edge": false
+    },
+    "fcx01_x03_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        209
+      ],
+      "edge": false
+    },
+    "fcx01_x03_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        214
+      ],
+      "edge": false
+    },
+    "fcx01_x04_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        210
+      ],
+      "edge": true
+    },
+    "fcx01_x04_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        215
+      ],
+      "edge": true
+    },
+    "fcx01_x05_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        211
+      ],
+      "edge": false
+    },
+    "fcx01_x05_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        216
+      ],
+      "edge": false
+    },
+    "fcx01_y01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        223
+      ],
+      "edge": false
+    },
+    "fcx01_y01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        228
+      ],
+      "edge": false
+    },
+    "fcx01_y02_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        224
+      ],
+      "edge": false
+    },
+    "fcx01_y02_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        229
+      ],
+      "edge": false
+    },
+    "fcx01_y03_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        225
+      ],
+      "edge": false
+    },
+    "fcx01_y03_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        230
+      ],
+      "edge": false
+    },
+    "fcx01_y04_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        226
+      ],
+      "edge": false
+    },
+    "fcx01_y04_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        231
+      ],
+      "edge": false
+    },
+    "fcx01_y05_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        227
+      ],
+      "edge": false
+    },
+    "fcx01_y05_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        232
+      ],
+      "edge": false
+    },
+    "fcx01_y06_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "fcx01_y06_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "fcx01_z01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        233
+      ],
+      "edge": false
+    },
+    "fcx01_z01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        234
+      ],
+      "edge": false
+    },
+    "fcx01_z02_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        235
+      ],
+      "edge": false
+    },
+    "fcx01_z02_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        236
+      ],
+      "edge": false
+    },
+    "nar01_a01_01": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        196
+      ],
+      "edge": false
+    },
+    "nar01_a01_02": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        197
+      ],
+      "edge": false
+    },
+    "nar01_a01_03": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        198
+      ],
+      "edge": false
+    },
+    "nar01_a01_04": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        199
+      ],
+      "edge": false
+    },
+    "nar01_a01_05": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        200
+      ],
+      "edge": false
+    },
+    "nar01_a01_06": {
+      "pack": "srn_t_fcx01",
+      "form": "uncompiled",
+      "tiles": [
+        201
+      ],
+      "edge": false
+    }
+  },
+  "unnamedModels": []
+}

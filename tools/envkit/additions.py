@@ -20,6 +20,9 @@ def _catalogued(args):
     return catalog.load(path), path, {'madeBy': 'envkit', 'source': source, 'provenance': args.provenance, 'added': datetime.date.today().isoformat()}
 
 
+PACK_ROOM = 1900 * 2 ** 20  # bytes a pack is filled to: nwn_erf refuses a hak past 2 GiB, and srn_placeable reached it on 2026-11-24
+
+
 def _home(args, path):
     """Where a built file goes: into its model's pack, but the dark halo every lit model shares into the one pack that
     holds it (`--dark-pack`): the same file in two packs fails repository verification."""
@@ -89,6 +92,9 @@ def command_install(args):
     prepared = {name: tile.prepare(repo / f'srn_t_{name}' / f'{name}.set', repo / f'srn_t_{name}' / f'{name}palstd.itp', made, terrain=terrain,
                                    group_name=tiles['group'], label=tiles['label']) for name, terrain in tiles['sets'].items()}
     from . import catalog
+    from tools.tilekit import merge  # a set that is part of a merged set: that set is made again, the new group in it (docs/tilesets/<set>/merge.json)
+    joined = {name: (tiles['group'], tiles['label']) for name in tiles['sets']}
+    merge.named(repo, joined, district=tiles.get('district'))  # refused here, before anything is copied, if a merged set has no such district
     data, record, origin = _catalogued(args)
     numbers = {name: (one['firstTile'], one['group']) for name, one in prepared.items()}
     for name, (first, number) in numbers.items():  # refused here too, before anything is copied, if the catalog says otherwise
@@ -110,7 +116,8 @@ def command_install(args):
     removed += _dropped_parts(shared, args.model, set(made.get('parts', {}).values()), models)
     placed = {name: tile.commit(one) for name, one in prepared.items()}
     catalog.save(record, data)
-    print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed}), flush=True)
+    merged = merge.refresh(repo, joined, district=tiles.get('district'))
+    print(json.dumps({'files': len(copied), 'removed': removed, 'sets': placed, 'merged': merged}), flush=True)
 
 
 def command_placeables(args):
@@ -138,12 +145,20 @@ def command_placeables(args):
     else:
         text, rows = placeables.register(text, [{'model': name, **placed} for name, placed in chosen.items()])
     written = game_bytes(text, table.name)  # refused here, not after the copying, if a label has a character the game lacks
+    coming = {_home(args, path): path.stat().st_size for name in chosen for path in [built / name / 'compiled' / f'{name}.mdl', *(built / name / 'source').iterdir()]
+              if path.suffix in ('.mdl', '.pwk', '.mtr', '.dds', '.txi') and (path.suffix != '.mdl' or path.parent.name == 'compiled')}
+    size = sum(path.stat().st_size for path in pack.iterdir() if path.is_file() and path not in coming) + sum(size for path, size in coming.items() if path.parent == pack)
+    require(size <= PACK_ROOM, f'{args.pack} would hold {size / 2 ** 20:,.0f} MiB with these models and a hak is not built past 2 GiB (nwn_erf): '
+            f'put them into another pack (--pack) or make room, {PACK_ROOM / 2 ** 20:,.0f} MiB being the most a pack is filled to')
     from . import catalog
     data, record, origin = _catalogued(args)
     for name, row in rows.items():  # refused here, before anything is copied, if the catalog says otherwise
         old = [entry for entry in data['placeables'] if entry['row'] == row]; label = placeables.PREFIX + chosen[name]['label']
         # Converting again leaves the table as it is, so the label it gave the row stands too.
         require(not old or old[0]['label'] == label, f'Row {row} is labelled otherwise in the catalog: a label is changed by hand, in the table and the catalog together')
+        # Converted again into another pack than its own, a model would have files in two and an entry naming the wrong one.
+        require(not old or old[0].get('pack', args.pack) == args.pack, f'{name} (row {row}) is in {old[0].get("pack") if old else None} in the catalog, not {args.pack}: '
+                'name its pack with --pack; a model changes pack by hand, its files and its entry together')
         core = _lit(old, {'row': row, 'model': name, 'label': label, 'pack': args.pack}, convert.lights(name, built / name / 'source'))
         catalog.put_placeable(data, _entry(old, core, origin, name))
     copied, removed = 0, []
@@ -158,14 +173,15 @@ def command_placeables(args):
 
 
 def command_blueprints(args):
-    """Give every envkit placeable of a game set a blueprint in its pack and rebuild the pack's standard palette, so
+    """Give every envkit placeable of a game set a blueprint in its pack and rebuild the standard palette (in `--palette-pack`), so
     the Toolset offers them on the Standard tab. Needs the game: the palette is the game's own with these added."""
     import subprocess
     import tempfile
     from tools.phenotypes import tool_runtime
     from . import blueprints, catalog, convert, placeables
     models = convert.load_models(args.models); repo = Path(args.repo); pack = repo / args.pack; record = repo / args.catalog
-    require(pack.is_dir() and record.is_file(), 'The pack or the additions catalog is missing: ' + str(pack) + ', ' + str(record))
+    shelf = repo / args.palette_pack  # never the blueprints' pack by default: a second palette there would be one too many; the palette is one file for every placeable of the module, so it stays in one pack
+    require(pack.is_dir() and shelf.is_dir() and record.is_file(), 'The pack, the palette\'s pack or the additions catalog is missing: ' + ', '.join(map(str, (pack, shelf, record))))
     data = catalog.load(record); gff = str(tool_runtime.tool('nwn_gff'))
     run = lambda arguments: subprocess.run([str(value) for value in arguments], capture_output=True, timeout=300, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     with tempfile.TemporaryDirectory() as scratch:
@@ -188,15 +204,17 @@ def command_blueprints(args):
             placed = models.get(entry['model'], {}).get('placeable')
             if placed is None or 'category' not in placed:
                 continue
+            require(entry.get('pack', args.pack) == args.pack, f'{entry["model"]} is in {entry.get("pack")} in the catalog, not {args.pack}: name its pack with --pack '
+                    '(a blueprint goes beside its model)')
             static = placed.get('static', not convert.scripted(models[entry['model']]))
             made[entry['model']] = blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
                                                         comment='envkit: ' + entry['source'])
             catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']})
         listed = [{'resref': entry['blueprint'], 'name': entry['label'].removeprefix(placeables.PREFIX), 'category': entry['category']}
                   for entry in data['placeables'] if entry.get('blueprint')]
-        palette = blueprints.palette(read(pack / blueprints.SKELETON), read(scratch / 'stock.itp'), listed)
+        palette = blueprints.palette(read(shelf / blueprints.SKELETON), read(scratch / 'stock.itp'), listed)
         for model, document in made.items():  # every blueprint and the palette are worked out before the first is written
             write(document, pack / f'{model}.utp')
-        write(palette, pack / blueprints.PALETTE)
+        write(palette, shelf / blueprints.PALETTE)
     catalog.save(record, data)
     print(json.dumps({'blueprints': list(made), 'palette': len(listed)}), flush=True)

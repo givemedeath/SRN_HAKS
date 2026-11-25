@@ -1,0 +1,64 @@
+{
+ "schemaVersion": 1,
+ "model": "pfo0_head013",
+ "head": "orc-female-a",
+ "defect": "client check 2026-11-04 (PR 86 heads): dark patch at hair edge behind ear",
+ "source": {
+  "plt": {
+   "path": "srn_head/pfo0_head013.plt",
+   "sha256": "95dff1f12ffab7954738d315549dff0884508fe7d230800de5c6936d10ea11d0"
+  },
+  "mdl": {
+   "path": "srn_head/pfo0_head013.mdl",
+   "sha256": "c044abfb680cfc69c0f6ca7bdd57d225f3e20fc62cabcee28b1ce8ce8b3686c4"
+  }
+ },
+ "previewRows": {
+  "0": 25,
+  "1": 101,
+  "8": 26,
+  "9": 120
+ },
+ "operations": [
+  {
+   "name": "skin-shadow-behind-ears",
+   "op": "fill",
+   "neighbours": 64,
+   "when": {
+    "all": [
+     {
+      "channel": 0
+     },
+     {
+      "of": "z",
+      "lt": 0.5
+     },
+     {
+      "of": "y",
+      "gt": 0.25
+     },
+     {
+      "of": "y",
+      "lt": 0.62
+     },
+     {
+      "of": "shade",
+      "lt": 45
+     }
+    ]
+   },
+   "donors": {
+    "all": [
+     {
+      "of": "shade",
+      "ge": 45
+     },
+     {
+      "of": "z",
+      "lt": 0.6
+     }
+    ]
+   }
+  }
+ ]
+}

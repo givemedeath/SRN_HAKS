@@ -402,7 +402,7 @@ def command_check(args):
 def command_toolset(args):
     from . import toolset
     if args.action == 'prepare':
-        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or tuple(toolset.AREAS), game=args.game, size=toolset.SIZE if args.size is None else args.size)
+        made = toolset.prepare(args.user, Path(args.repo) / 'output', tilesets=tuple(args.tileset) or toolset.GROUPS, game=args.game, size=toolset.SIZE if args.size is None else args.size)
     elif args.action == 'saved':
         made = toolset.saved(Path(args.user) / 'modules' / f'{toolset.MODULE}.mod', args.repo)
     else:
@@ -440,18 +440,19 @@ def main(argv=None):
     sub.add_argument('--models', required=True); sub.add_argument('--built', required=True, help='the folder `tiles` built into')
     sub.add_argument('--model', required=True); sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_t_common')
     sub.add_argument('--catalog', default=CATALOG); sub.add_argument('--provenance', help='PROVENANCE.md section of a group new to the catalog')
-    sub.add_argument('--dark-pack', default='srn_placeable', help='the one pack holding the dark halo lit models share')
+    sub.add_argument('--dark-pack', default='srn_envprop', help='the one pack holding the dark halo lit models share')
     sub.set_defaults(run=additions.command_install)
     sub = commands.add_parser('placeables', help='put converted models into the placeable pack and the placeables table')
     sub.add_argument('--models', required=True); sub.add_argument('--built', required=True, help='the folder `game` converted into')
-    sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_placeable'); sub.add_argument('--table', default='srn_2da/placeables.2da')
+    sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_envprop'); sub.add_argument('--table', default='srn_2da/placeables.2da')
     sub.add_argument('--model', action='append', default=[], help='limit to these models (repeatable)')
     sub.add_argument('--catalog', default=CATALOG); sub.add_argument('--provenance', help='PROVENANCE.md section of models new to the catalog')
-    sub.add_argument('--dark-pack', default='srn_placeable', help='the one pack holding the dark halo lit models share')
+    sub.add_argument('--dark-pack', default='srn_envprop', help='the one pack holding the dark halo lit models share')
     sub.set_defaults(run=additions.command_placeables)
     sub = commands.add_parser('blueprints', help='give catalogued placeables blueprints and list them in the standard palette')
     sub.add_argument('--models', required=True); sub.add_argument('--game', required=True, help='the game install folder (the one holding data/)')
-    sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_placeable'); sub.add_argument('--catalog', default=CATALOG)
+    sub.add_argument('--repo', default='.'); sub.add_argument('--pack', default='srn_envprop'); sub.add_argument('--catalog', default=CATALOG)
+    sub.add_argument('--palette-pack', default='srn_placeable', help='the one pack holding the standard placeable palette')
     sub.set_defaults(run=additions.command_blueprints)
     sub = commands.add_parser('contact', help='one picture of a reference run, each reference beside its crop')
     sub.add_argument('--references', required=True, help='a reference run folder, with its crops folder'); sub.add_argument('--output', required=True, help='the picture to write')
@@ -522,7 +523,7 @@ def main(argv=None):
     sub = commands.add_parser('toolset', help='prepare a Toolset check of tile groups, read what it saved, retire it')
     sub.add_argument('action', choices=['prepare', 'saved', 'retire']); sub.add_argument('--user', required=True, help='the Toolset user folder (fresh for prepare)')
     sub.add_argument('--repo', default='.'); sub.add_argument('--game', help='prepare: the game install folder, to say how the Toolset is started')
-    sub.add_argument('--tileset', action='append', default=[], choices=['dgt04', 'udp1'])
+    sub.add_argument('--tileset', action='append', default=[], choices=['dgt04', 'udp1', 'fcx01'])
     sub.add_argument('--size', type=int, help='prepare: tiles along each side of an area; wider than the group, for the start point')
     sub.set_defaults(run=command_toolset)
     sub = commands.add_parser('props', help='the props of every onboarded sheet by type; refuses undeclared duplicates')

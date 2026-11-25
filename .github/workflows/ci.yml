@@ -28,13 +28,20 @@ jobs:
         with:
           fetch-depth: 0
           # History for diffs without downloading every historical binary blob. Diffs need only trees; the
-          # catalog reads tools and Markdown outside packs and takes pack names from HEAD (testCheckout set).
+          # catalog reads tools and Markdown outside packs and takes pack names from HEAD (testCheckout set),
+          # and sources/compiled.json, which the test legs get only with the sources/<pack> folders they reach.
+          # Non-cone patterns: root files, the testCheckout folders and only the files directly in sources/.
           filter: blob:none
+          sparse-checkout-cone-mode: false
           sparse-checkout: |
-            .github
-            docs
-            test-modules
-            tools
+            /*
+            !/*/
+            /.github/
+            /docs/
+            /test-modules/
+            /tools/
+            /sources/*
+            !/sources/*/
       - uses: actions/setup-python@v6
         id: interpreter
         with:
