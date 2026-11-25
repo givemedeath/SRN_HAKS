@@ -295,17 +295,21 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.live is not None and not 1 <= args.live <= 255:
         parser.error('--live takes 1 to 255 minutes per hour')
+    if sum((args.play, args.transition, args.live is not None)) > 1:
+        parser.error('--play, --transition and --live are different modules: give one')
+    if args.build_only:
+        print(build(args.nwn_root, args.out, args.transition, args.play, args.live))
+        return
     if args.play or args.live:
         from tools.armorkit import client
+        from tools.tilekit import client_settings
         user, _ = build(args.nwn_root, args.out, play=args.play, live=args.live)
         if args.wait:
             client.wait_free(args.wait)
-        (user / 'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
+        # left running for a person: never without a frame limit
+        (user / 'settings.tml').write_text(client.settings_text(1600, 900, client_settings.settings()), encoding='utf-8')
         process = client.start(args.nwn_root, user, MODULE)
         print(json.dumps({'pid': process.pid, 'userDirectory': str(user)}))
-        return
-    if args.build_only:
-        print(build(args.nwn_root, args.out, args.transition))
         return
     captures, done, taken = capture(args.nwn_root, args.out, args.wait, args.transition)
     print(json.dumps({'captures': str(captures), 'finished': done, 'shots': len(taken)}))

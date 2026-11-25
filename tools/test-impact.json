@@ -5661,7 +5661,9 @@
     "tools/skykit/client_fixture.py": [
       "tools/armorkit/__init__.py",
       "tools/armorkit/client.py",
-      "tools/phenotypes/tool_runtime.py"
+      "tools/phenotypes/tool_runtime.py",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/client_settings.py"
     ],
     "tools/skykit/detail.py": [
       "tools/headkit/__init__.py",
@@ -5682,8 +5684,11 @@
     "tools/skykit/profiles.py": [],
     "tools/skykit/sphere.py": [],
     "tools/skykit/test_skykit.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
       "tools/skykit/__init__.py",
       "tools/skykit/__main__.py",
+      "tools/skykit/client_fixture.py",
       "tools/skykit/detail.py",
       "tools/skykit/panorama.py",
       "tools/skykit/preview.py",

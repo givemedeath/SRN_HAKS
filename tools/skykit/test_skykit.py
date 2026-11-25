@@ -240,5 +240,35 @@ class Render(unittest.TestCase):
         self.assertTrue(np.allclose(early[..., 3], 0.4, atol=0.01))  # the engine's fade passes through
 
 
+class LiveModule(unittest.TestCase):
+    def test_the_live_scripts_take_the_srn_sky_rows_only(self):
+        from tools.skykit import client_fixture
+        enter, chat = client_fixture.live_scripts()
+        self.assertIn('SetSkyBox(16,', enter)
+        self.assertIn('row < 16 || row > 23', chat)
+        self.assertEqual(set(client_fixture.SKY_ROWS), set(profiles.SKIES))
+        for text in (enter, chat):
+            self.assertEqual(text.count('{'), text.count('}'))
+
+    def test_one_kind_of_module_at_a_time(self):
+        import contextlib
+        import io
+        from tools.skykit import client_fixture
+        for given in (['--live', '0'], ['--live', '256'], ['--live', '8', '--play'], ['--live', '8', '--transition']):
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+                client_fixture.main(['--nwn-root', 'none', '--build-only', *given])
+
+    def test_a_module_left_running_has_a_frame_limit(self):
+        from unittest import mock
+        from tools.armorkit import client
+        from tools.skykit import client_fixture
+        for given in (['--live', '8'], ['--play']):
+            with tempfile.TemporaryDirectory() as temporary, mock.patch.object(client_fixture, 'build', return_value=(Path(temporary), 0)),                     mock.patch.object(client, 'start'), mock.patch.object(client_fixture.json, 'dumps', return_value=''), mock.patch('builtins.print'):
+                client_fixture.main(['--nwn-root', 'none', *given])
+                text = (Path(temporary) / 'settings.tml').read_text(encoding='utf-8')
+            self.assertRegex(text, r'target-fps = [1-9]')
+            self.assertEqual(text.count('[graphics.keyholing]'), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
