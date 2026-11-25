@@ -1,0 +1,77 @@
+{
+ "schemaVersion": 1,
+ "kind": "srn-armorkit-brief",
+ "model": "street-casual-male",
+ "bare": [
+  "hand"
+ ],
+ "construction": 3,
+ "wear": 0.5,
+ "materials": [
+  {
+   "name": "jacket",
+   "kind": "cloth",
+   "colour": [
+    120,
+    170,
+    230
+   ],
+   "suggested": [
+    40,
+    40,
+    44
+   ],
+   "look": "BRIGHT LIGHT SKY BLUE cloth, a saturated baby blue (hex #78AAE6)",
+   "wears": "the jacket: a casual waist-length bomber jacket, zipped closed up the front to a low stand-up collar, loose and a little boxy, with two long sleeves. Its hem is a broad plain band at the waist and each cuff a plain band at the wrist, all the same blue. Its zip is a flat blue seam."
+  },
+  {
+   "name": "trousers",
+   "kind": "cloth",
+   "colour": [
+    128,
+    128,
+    128
+   ],
+   "suggested": [
+    52,
+    48,
+    44
+   ],
+   "look": "MEDIUM NEUTRAL GREY cloth",
+   "wears": "the cargo trousers: straight loose legs with one large flat pocket on the outside of each thigh, ending at the ankle just above the shoes."
+  },
+  {
+   "name": "belt",
+   "kind": "leather",
+   "colour": [
+    196,
+    160,
+    110
+   ],
+   "suggested": [
+    46,
+    42,
+    38
+   ],
+   "look": "WARM TAN leather",
+   "wears": "the broad plain belt that shows at the top of the trousers just below the jacket's hem, with a plain tan buckle, and the two plain close-fitting gloves, tan all over."
+  },
+  {
+   "name": "shoes",
+   "kind": "leather",
+   "colour": [
+    140,
+    200,
+    130
+   ],
+   "suggested": [
+    140,
+    40,
+    36
+   ],
+   "look": "LIGHT LEAF GREEN, a clear soft green (hex #8CC882)",
+   "wears": "the two high-top sneakers, chunky, with thick soles, green all over: uppers, soles and laces."
+  }
+ ],
+ "prompt": "Product image of one set of everyday street clothes for a near-future city dweller, standing in an A-pose. Show the clothing only, as a hollow outfit floating in the air with nobody inside it: the collar is an empty opening.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two long sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, each running the whole length of the arm to the wrist and ending in a plain close cuff. A plain glove comes out of each cuff on the same straight line as its sleeve, open and flat with the fingers together, pointing along that line, at hip height. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit; the whole underside of each sleeve from armpit to cuff shows against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe blue jacket is clearly bluer and lighter than the grey trousers. The tan belt and gloves are clearly browner than both, and the green shoes are clearly greener than everything else. Every part of the outfit is one of these four colours.\n\n{construction}\n\nSmooth clean surfaces like a painted sculpt: plain colour on every part, clean and new, smooth cloth with only large soft folds, simple chunky shapes, clean edges between parts. The outfit is these five things and nothing else: the jacket, the trousers, the belt, the two gloves and the two shoes, every surface plain.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to shoe soles and from glove to glove with margin on all sides, plain white background."
+}

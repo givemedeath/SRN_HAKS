@@ -184,3 +184,10 @@ Not checked: the rest of a bake (layout, tint, the written models) with a part m
 forearm; `refit`, `bodies` and `publish` for an outfit with no chest or no pelvis, whose inventory icons are
 drawn from those two; any of it in the client. The image is still drawn as a whole figure, with a plain piece
 where a slot is left.
+
+2026-11-24, steps B1 and B2 done. Brief `tools/armorkit/briefs/street-casual-male.json`: a zipped bomber
+jacket (cloth 1), cargo trousers (cloth 2), a belt (leather 1) and high-top sneakers (leather 2), bare hands,
+wear 0.5. The jacket is drawn closed, with no shirt under it and no hood: two cloth channels hold the jacket
+and the trousers, and the T-shirt is its own variant, 3011. Sealed in the work folder as
+`street-casual-male/reference-v1`; one Qwen image, `run-1/image-0.png`, seed 20261124, on the shared ComfyUI
+(user: post it now). Next: stop 1, the user's review of that image.
