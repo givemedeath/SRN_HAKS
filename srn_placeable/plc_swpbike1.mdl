@@ -6188,7 +6188,7 @@ node trimesh dfghtr685590
   specular 0.0 0.0 0.0 
   shininess 1.0
   selfillumcolor 0.0 0.0 0.0 
-  bitmap PLC_spdrwin01
+  bitmap pkt_spdrwin01
   verts 44
     -4.92364e-005 -0.907191 0.879096
     0.1183 -0.867976 0.856608

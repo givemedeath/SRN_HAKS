@@ -23,7 +23,7 @@ node trimesh cylinder02
   diffuse 0.588235 0.588235 0.588235 
   specular 0.0 0.0 0.0 
   shininess 10.0
-  bitmap statue
+  bitmap nw2_es_walls1
   verts 11
     -0.119844 0.00977189 0.159116
     -0.118553 -2.38139 0.204472
@@ -76,7 +76,7 @@ node trimesh box01
   diffuse 0.588235 0.588235 0.588235 
   specular 0.0 0.0 0.0 
   shininess 10.0
-  bitmap statue
+  bitmap nw2_es_walls1
   verts 103
     -0.0908971 -2.32257 -0.0438813
     -0.0586314 -2.18189 0.0165937
