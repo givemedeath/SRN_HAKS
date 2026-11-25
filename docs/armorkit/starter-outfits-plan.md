@@ -333,3 +333,17 @@ accessory brief, `street-casual-belt.json` (belt slot, number 3010, tan leather 
 pouches, three-quarter view). Keeping the thigh straps on the trousers is my choice, not confirmed. Next:
 seal and draw `reference-v7` and the belt's reference on the shared ComfyUI once the user says to post, a
 stop at both images, then geometry attempt 2 of 5 for the outfit and attempt 1 for the belt.
+
+2026-11-24, the user: "Drop thigh straps too", so the outfit is T-shirt, trousers and boots (four colours;
+leather 1 is free for the belt piece). References drawn, one Qwen image each, neither accepted yet:
+
+* Outfit `reference-v7` (seed 20261128, elbow-length wording) and `reference-v8` (seed 20261130, the
+  `reference-v5` short-sleeve wording back): both show a long pink sleeve to the wrist under the short one and
+  a yellow pocket on each sleeve, neither asked for. `reference-v5` drew the short sleeves right with the two
+  gloves floating beyond them; without gloves in the image the long sleeves come back.
+* Belt `street-casual-belt/reference-v1` (seed 20261129) and `reference-v2` (seed 20261131, "one single
+  band"): band, buckle and two pouches as asked, but a second loop of strap hangs under the band, and v2 has
+  a second buckle at the back.
+
+Next: the user's choice of how to get the short sleeves (gloves back in the image as an anchor, cut off by
+the bare hands as in attempt 1, or the long undersleeve accepted and the forearm covered), then geometry.
