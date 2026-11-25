@@ -1728,8 +1728,8 @@ size, SHA-256, upstream git blob and the models that name it. Every SHA-256 is t
 bytes from the quarantined extraction of the archive; where the tile archive holds both a DDS and a TGA, the DDS is
 landed.
 
-The item archive's credits are under "MDRNEE item analysis" below. The archive belongs to the same Neverwinter Vault distribution as
-the placeables: the Version 2.1 project page
+The item archive's credits are under "MDRNEE item analysis" below. The archive belongs to the same Neverwinter Vault
+distribution as the placeables: the Version 2.1 project page
 (<https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>) offers `mdrn21_item.rar`
 beside `mdrn21_placeable.rar` under one permission, free and open when the consuming project is also open (read
 2026-11-25). The tile textures keep the
@@ -1778,6 +1778,9 @@ These models name another texture of the pack in place of a missing one, and are
 `plc_mirror2` and `plc_mirror3` (`newhang1`), `pcl_slight` (`tmi_metal01`), `plc_x50` to `plc_x52` (`plc_x50_cloth`),
 `plc_sith` (`nw2_es_walls1`), `plc_ghtroc` (`v_ghtroc_body` for `floor_car`), `jz_tractor01` and `jz_tractor02`
 (`jz_tractorp01`), `plc_swpbike1` (`pkt_spdrwin01`), `pkt_m09x08` (`lsi_lite01`) and `jr_tank` (`tank_lanterns`).
+
+`vos_awn2b_m` had black ambient light and drew black; its ambient and diffuse colours are now those of `vos_awn2b_l` and
+`vos_awn2b_s`.
 
 `plc_kruiz` flew a Nazi flag. Its flag mesh (`plane01`) and the texture only it used, `flag_nazi.dds`, are removed at the
 project owner's request. Import manifests are left as written.
