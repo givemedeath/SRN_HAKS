@@ -274,7 +274,7 @@ node trimesh Object02
   diffuse 1 1 1
   specular 0 0 0
   shininess 1
-  bitmap material01
+  bitmap plc_x50_cloth
   verts 174
     -0.558054 -1.25203 0.740214
     -0.469858 -1.31116 0.482255
@@ -851,7 +851,7 @@ node trimesh Object3
   diffuse 1 1 1
   specular 0 0 0
   shininess 1
-  bitmap material01
+  bitmap plc_x50_cloth
   verts 60
     0.429179 1.66465 0.398601
     0.389508 1.66679 0.395338

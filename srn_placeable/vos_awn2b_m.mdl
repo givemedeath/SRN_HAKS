@@ -18,8 +18,8 @@ node trimesh awning
   position 0.0 0.0 0.0
   orientation 1.0 0.0 0.0 0.0
   wirecolor 0.101961 0.694118 0.580392 
-  ambient 0.0 0.0 0.0 
-  diffuse 0.588 0.588 0.588 
+  ambient 0.705882 0.705882 0.705882 
+  diffuse 0.705882 0.705882 0.705882 
   specular 0.0 0.0 0.0 
   shininess 10.0
   bitmap qp_awning01

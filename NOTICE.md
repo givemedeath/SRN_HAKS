@@ -29,7 +29,11 @@ project is also open, and contributor acknowledgement is requested. The curated 
 terms and are not covered by this repository's default PolyForm license. The audio archive lacks
 per-track rights metadata; see `PROVENANCE.md` for the unresolved redistribution warning.
 
-The item archive is presently analysis-only: no item resource has been promoted. Its source credit
+Two placeable textures, `srn_placeable/v_snow.tga` and `srn_placeable/bark01f.dds`, come from the SWLOR HAK decomposition,
+which states no licence for its assets. They are not covered by the default PolyForm license; see `PROVENANCE.md`.
+
+From the item archive, 155 textures that published placeables name are included (see `PROVENANCE.md`); the rest of it is
+analysis-only. Its source credit
 file names the original D20 Modern team, Jezira, Prole, Xialya, Vanya Mia, Taina, JKA, Forestwolf,
 Shemsu-Heru, Aenea, The Barbarian, Zwerkule, and Den of Assassins. The companion project-source
 `d20modernupdate.erf` is used only to identify 669 item-blueprint consumers; its unrelated module

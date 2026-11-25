@@ -1043,7 +1043,7 @@ node trimesh Box01
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 4.2805 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 8
     -0.054 -0.027 0.0
     0.054 -0.027 0.0
@@ -1100,7 +1100,7 @@ node trimesh Box02
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 2.0 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 8
     -0.06 -0.03 0.0
     0.06 -0.03 0.0
@@ -1580,7 +1580,7 @@ node trimesh Object03
   Specular 0.0 0.0 0.0 
   shininess 50
   center -4.57764e-005 0.0 0.0 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 39
     -0.0397129 0.507827 0.0611061
     -0.449363 0.490509 0.24492
@@ -1766,7 +1766,7 @@ node trimesh Object04
   Specular 0.0 0.0 0.0 
   shininess 50
   center 0.6285 147.725 0.21915 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 31
     0.00628585 1.45102 -0.222034
     -0.152267 1.4511 -0.156361
@@ -1946,7 +1946,7 @@ node trimesh Object05
   Specular 0.0 0.0 0.0 
   shininess 50
   center -82.9736 -110.252 4.10135 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 74
     -0.367748 -0.323625 0.0821381
     -0.395701 -0.372908 0.207717
@@ -2365,7 +2365,7 @@ node trimesh Object06
   Specular 0.0 0.0 0.0 
   shininess 50
   center 82.9734 -110.252 4.10185 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 74
     0.367748 -0.323625 0.0821398
     0.395698 -0.372908 0.207719
@@ -2885,7 +2885,7 @@ node trimesh Object08
   Specular 0.0 0.0 0.0 
   shininess 50
   center 9.91821e-005 -111.805 -8.0493 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 98
     -0.228589 -1.47513 -0.297105
     -0.380978 -1.47532 -0.233986
@@ -3418,7 +3418,7 @@ node trimesh Object09
   Specular 0.0 0.0 0.0 
   shininess 50
   center 4.57764e-005 0.0 0.0 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 39
     0.039713 0.507827 0.0611059
     0.449363 0.490509 0.24492
@@ -3751,7 +3751,7 @@ node trimesh topMotor
   Specular 0.0 0.0 0.0 
   shininess 10
   center 1.47649 9.3535 -2.64855 
-  bitmap floor_car
+  bitmap v_ghtroc_body
   verts 218
     0.199888 -0.877492 0.195299
     0.199888 -0.449534 0.196636

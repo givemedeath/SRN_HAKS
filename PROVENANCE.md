@@ -1715,6 +1715,76 @@ and its placeable consumer close without a HAK-order duplicate. Final metadata r
 door slots to model hooks, corrects SJM/SRT/ZSF minimaps, normalizes invalid ZSF boolean flags,
 and binds the Planetscape palette to mp01.
 
+## Textures that published placeables name (2026-11-25)
+
+A scan of all `srn_placeable` model files found texture names that neither a pack nor the base game holds. The originals
+of 159 of them are landed unchanged in `srn_placeable`: 155 from `mdrnee_item.hak` (nearly all the
+VoS guns and gun racks) and 4 from `mdrnee_tile.hak` (`ceiling2_l3_2c`, `window3`, `window4`, `window6`). Models and
+table rows are unchanged. `docs/imports/mdrnee_placeable-dependency-textures.md` lists each file with its archive,
+size, SHA-256, upstream git blob and the models that name it. Every SHA-256 is the one `mdrnee_item-manifest.json` or
+`mdrnee_tile-manifest.json` in `docs/imports/` records, and every git blob is the one at commit
+`c01271d3ba053ada6d75bc070c5cf1ab94ec29c6` of the upstream project verified above
+(`https://gitea.raptio.us/Jaysyn/d20ModernEE`). The item bytes were read from a local clone of that project, the tile
+bytes from the quarantined extraction of the archive; where the tile archive holds both a DDS and a TGA, the DDS is
+landed.
+
+The item archive's credits are under "MDRNEE item analysis" below. The archive belongs to the same Neverwinter Vault
+distribution as the placeables: the Version 2.1 project page
+(<https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>) offers `mdrn21_item.rar`
+beside `mdrn21_placeable.rar` under one permission, free and open when the consuming project is also open (read
+2026-11-25). The tile textures keep the
+terms of the MDRNEE tileset import. None is relicensed under the repository's default PolyForm license. These are the
+only resources landed from `mdrnee_item.hak`, as dependencies of published placeables; the rest of that archive stays
+analysis-only, and both manifests are left as written.
+
+## Replacement textures for placeables (2026-11-25)
+
+No original is known for the remaining texture names of the section above. Those whose absence showed in the game client
+are replaced here, in `srn_placeable`, with the project owner's approval of client pictures; the rest are left.
+
+Drawn for this repository by a script from noise and plain shapes, without any source image, and compressed with NWN
+Crunch: three striped awning fabrics, an iron railing, a ship rail, plain stone (`nw2_es_walls1`; it is not the
+Neverwinter Nights 2 texture of that name), couch cloth and a speeder hull.
+
+| Texture | Bytes | SHA-256 |
+|---|---:|---|
+| `fence_c11b.dds` | 21892 | `2136afb472c7db14dd5c694de310ec57e2f47dc5c7cdab218010deaaf18e0c90` |
+| `nw2_es_walls1.dds` | 174796 | `01cbd704906d7867393c7ef6df863951646ee861a55b88c9922dae21e5913a7d` |
+| `plc_x50_cloth.dds` | 10956 | `23602b185abf8584e701e4e74b0e1744b0aeafd5ed145fc682d1a23bcf56d6fc` |
+| `qp_awning01.dds` | 43724 | `52d495b1ba177eac1e3e1557b86ac30b54df5badc6e2c436756a70de7b5fe8a9` |
+| `qp_awning02.dds` | 43724 | `9848db295084b4cc0ed8186717e6f74aea321990f7d5e29754bdcfbcce2bab9d` |
+| `qp_awning03.dds` | 43724 | `0f9b48b8e89187be17073b0f7f7b5a8e1c7c25a63187e92d837272e554ca69b9` |
+| `qp_railing.dds` | 349572 | `037f6229b05bf634727485e04bd3958b2749f895fb502b13938e1c40630639a0` |
+| `v_ghtroc_body.dds` | 43724 | `0eff2edfc26bf1d060c9f2590b90a9d5b4d059fa1d856d42ea3fa353ad404b78` |
+
+Made from textures this pack set already held, whose terms they keep: `vos_bldfronts_2.dds` is composed of two shops of
+`vos_bldfronts_1.dds`, and `window_tall_bars.dds` is an unchanged copy of `srn_t_common/window_tall_b.dds`.
+
+Copied unchanged from the SWLOR HAK decomposition at `SWLOR_Haks` commit `e349a8026ce226da1e2199295b0d9e34bc4e94f4`
+(`https://github.com/givemedeath/SWLOR_Haks`), as six of the door dependencies above were: `v_snow.tga`
+(`sw_plc/v_snow.tga`, git blob `d14f83dcf555e1432f2389a5a24a62fa86d34281`) and `bark01f.dds` (`sw_plc_cep/bark01f.dds`,
+git blob `d34633948ac1023149343b39c4e48c9fef1bccea`). That repository states no licence for its assets. They retain the
+provenance and permission terms of their respective upstream content and are not relicensed under the repository's
+default PolyForm license.
+
+| Texture | Bytes | SHA-256 |
+|---|---:|---|
+| `bark01f.dds` | 174796 | `e996f8339cbac365ec1c1201e24785f8ca0a4686aa59da6877e922325a9e4dd4` |
+| `v_snow.tga` | 196652 | `3fb859e328b5cc345d62f14a6f155d171c31389aca6dd9c4211b083fb4e97900` |
+| `vos_bldfronts_2.dds` | 699084 | `35a3093e5634de344c57ce515c15cd13f2726da78a4e5f9d7d1224de9f8b8af9` |
+| `window_tall_bars.dds` | 87528 | `6d7386463ca3ae7a097692d0fc3d7ebcd66fdd51d9c6915a5cf1ab0cf21e4a08` |
+
+These models name another texture of the pack in place of a missing one, and are otherwise unchanged:
+`plc_mirror2` and `plc_mirror3` (`newhang1`), `pcl_slight` (`tmi_metal01`), `plc_x50` to `plc_x52` (`plc_x50_cloth`),
+`plc_sith` (`nw2_es_walls1`), `plc_ghtroc` (`v_ghtroc_body` for `floor_car`), `jz_tractor01` and `jz_tractor02`
+(`jz_tractorp01`), `plc_swpbike1` (`pkt_spdrwin01`), `pkt_m09x08` (`lsi_lite01`) and `jr_tank` (`tank_lanterns`).
+
+`vos_awn2b_m` had black ambient light and drew black; its ambient and diffuse colours are now those of `vos_awn2b_l` and
+`vos_awn2b_s`.
+
+`plc_kruiz` flew a Nazi flag. Its flag mesh (`plane01`) and the texture only it used, `flag_nazi.dds`, are removed at the
+project owner's request. Import manifests are left as written.
+
 ## MDRNEE item analysis (2026-09-12)
 
 `mdrnee_item.hak` was decomposed in quarantine under the `mdrnee_item` analysis profile. Its

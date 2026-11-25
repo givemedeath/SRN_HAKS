@@ -350,7 +350,7 @@ node trimesh Object04
   diffuse 1.0 1.0 1.0 
   specular 0.0 0.0 0.0 
   shininess 0.0
-  bitmap LMI_lite01
+  bitmap lsi_lite01
   verts 4
     -6.07371e-007 -0.1125 0.075
     -6.07371e-007 -0.1125 -0.075
