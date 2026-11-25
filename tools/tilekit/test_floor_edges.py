@@ -12,10 +12,10 @@ from tools.tilekit import geometry
 REPO = Path(__file__).resolve().parents[2]
 PACKS = ('srn_t_common', 'srn_t_dgt04', 'srn_t_fcx01', 'srn_t_srx01', 'srn_t_udp1')  # the packs with sources: named so the test selector runs this when one changes
 ON = .008  # how far from an edge, in metres, another still lies along it
-SHORT = .3  # edges that run along each other for less than this, in metres, are narrower than a creature's way past them
-# Tiles with corners that miss each other by 1 to 30 mm along an edge, found 2026-11-25; never walked in the client, so not repaired.
-KNOWN = {'dgt04_e09_33', 'rdt01_e26_01', 'udp1_a01_08', 'udp1_a01_09', 'udp1_a01_13', 'udp1_a01_14', 'udp1_a01_15', 'udp1_a03_12', 'udp1_a14_14', 'udp1_a14_15',
-         'udp1_a14_16', 'udp1_a18_10', 'udp1_b06_02'}
+SHORT = .3  # an edge met along less than this, in metres, is narrower than a creature's way past it
+# Tiles with corners that miss each other by 1 to 30 mm along an edge, found 2026-11-25; never walked in the client, so not repaired: how many pairs each has.
+KNOWN = {'dgt04_e09_33': 1, 'rdt01_e26_01': 1, 'udp1_a01_08': 3, 'udp1_a01_09': 3, 'udp1_a01_13': 2, 'udp1_a01_14': 3, 'udp1_a01_15': 3, 'udp1_a03_12': 1,
+         'udp1_a14_14': 2, 'udp1_a14_15': 3, 'udp1_a14_16': 3, 'udp1_a18_10': 1, 'udp1_b06_02': 1}
 
 
 def walked(corners, faces):
@@ -49,7 +49,9 @@ def pieced(corners, faces):
         along = (q - p) / length; one, two = (starts - p) @ along, (ends - p) @ along
         off = np.maximum(*(np.linalg.norm(ends_ - p - np.outer(share, along), axis=1) for ends_, share in ((starts, one), (ends, two))))
         shared = np.minimum(np.maximum(one, two), length) - np.maximum(np.minimum(one, two), 0)
-        found += [(single[index], single[other]) for other in np.nonzero((off < ON) & (shared > SHORT))[0] if other != index]
+        met = [other for other in np.nonzero((off < ON) & (shared > ON))[0] if other != index]
+        if sum(shared[other] for other in met) > SHORT:
+            found += [(single[index], single[other]) for other in met]
     return sorted({tuple(sorted(pair)) for pair in found})
 
 
@@ -67,6 +69,9 @@ class FloorEdges(unittest.TestCase):
         lower = [(0, 4, 2, *TAIL), (2, 4, 1, *TAIL)]
         self.assertEqual(pieced(CORNERS, [(0, 1, 3, *TAIL), *lower]), [((0, 1), (0, 2)), ((0, 1), (1, 2))])
         self.assertEqual(pieced(CORNERS, [(0, 2, 3, *TAIL), (2, 1, 3, *TAIL), *lower]), [])
+
+    def test_an_edge_met_in_short_pieces_is_found(self):
+        self.assertEqual(len(pieced(CORNERS * .25, [(0, 1, 3, *TAIL), (0, 4, 2, *TAIL), (2, 4, 1, *TAIL)])), 2)
 
     def test_edges_that_only_partly_run_along_each_other_are_found(self):
         self.assertEqual(pieced(CORNERS, [(0, 1, 3, *TAIL), (2, 4, 5, *TAIL)]), [((0, 1), (2, 5))])
@@ -88,7 +93,8 @@ class FloorEdges(unittest.TestCase):
                             corners = np.array(node.verts, dtype=float); checked += 1
                             with self.subTest(file=path.name):
                                 self.assertEqual(doubled(corners, node.faces), [])
-                                self.assertEqual(bool(pieced(corners, node.faces)), source.stem in KNOWN, 'repaired tiles leave KNOWN' if source.stem in KNOWN else 'an edge is met in pieces')
+                                found = pieced(corners, node.faces)
+                                self.assertEqual(len(found), KNOWN.get(source.stem, 0), f'edges met in pieces (a repaired tile leaves KNOWN): {found}')
             self.assertTrue(checked, f'{pack} has no walkmesh to check')
 
 
