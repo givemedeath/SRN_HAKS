@@ -340,6 +340,9 @@ corner for the start point: the Rail Freight Depot's 8 by 8 was painted in 12-ti
 Toolset is started on it (working directory: the Toolset's own folder). The folder's `hak` is a junction to `output/`: run `retire` before deleting the folder, or the built
 packs go with it.
 
+To paint many groups of one tileset, use `python -m tools.envkit.toolset_paint` (its docstring says how): it arms each
+group, saves, keeps the module and undoes while computer use only clicks, and reads the results.
+
 By computer use (access is asked for `nwtoolset.exe` by that name):
 
 - `tools/envkit/Toolset.ps1 -Do front -Class TfrmFrame` before every batch of clicks; the opening dialogue is

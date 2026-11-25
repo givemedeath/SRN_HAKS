@@ -41,7 +41,7 @@ endnode
 endmodelgeom t_a01
 donemodel t_a01
 """
-SPEC = {'texture': 'Console', 'patch': [0.1, 0.1, 0.2, 0.2], 'period': 4.0, 'lift': 0.01,
+SPEC = {'texture': 'Console', 'lamp': 'Plain', 'patch': [0.1, 0.1, 0.2, 0.2], 'period': 4.0, 'lift': 0.01,
         'lights': {'red': {'boxes': [[0.25, 0.7, 0.5, 0.9]], 'colour': [1, 0.1, 0], 'on': [[0.0, 1.0], [2.0, 3.0]]},
                    'green': {'boxes': [[0.5, 0.1, 0.75, 0.3]], 'colour': [0, 1, 0.2], 'on': [[1.5, 3.5]]}}}
 
@@ -68,7 +68,7 @@ class Blink(unittest.TestCase):
         self.assertEqual(sorted(lamps), ['blink00', 'blink01'])
         for body, colour in zip(lamps.values(), ('1 0.1 0', '0 1 0.2')):
             self.assertEqual([daylight._field(body, word) for word in ('parent', 'position', 'alpha', 'selfillumcolor', 'diffuse', 'ambient', 'bitmap', 'shadow')],
-                             ['t_a01a', '1 2 3', '0.0', colour, '0 0 0', '0 0 0', 'console', '0'])
+                             ['t_a01a', '1 2 3', '0.0', colour, '0 0 0', '0 0 0', 'plain', '0'])
             self.assertIn('  tverts 4\n    0.100000 0.900000 0\n    0.200000 0.900000 0\n    0.200000 0.800000 0\n    0.100000 0.800000 0\n', body)
         loop = re.search(r'(?ms)^newanim animloop01 t_a01\n.*?^doneanim animloop01 t_a01', made).group(0)
         self.assertIn('  length 4.00000\n', loop); self.assertLess(loop.index('node dummy t_a01a\n    parent t_a01\n'), loop.index('node trimesh blink00'))
@@ -81,7 +81,7 @@ class Blink(unittest.TestCase):
         # an animation that keys nothing and blinked no lamp is the tile's own, and stays (review of PR 198)
         own = 'newanim tiledefault t_a01\n  node emitter spray\n    parent t_a01\n  endnode\ndoneanim tiledefault t_a01\n'
         kept = made.replace('newanim animloop01', own + 'newanim animloop01'); self.assertEqual(blink.without(kept), bare.replace('donemodel', own + 'donemodel'))
-        for lack in ('texture', 'patch', 'period', 'lights'):
+        for lack in ('texture', 'lamp', 'patch', 'period', 'lights'):
             with self.assertRaisesRegex(ValueError, 'A blink list has'):
                 blink.with_lights(MODEL, {key: value for key, value in SPEC.items() if key != lack})
         with self.assertRaisesRegex(ValueError, 'its boxes are'):
@@ -102,6 +102,17 @@ class Blink(unittest.TestCase):
                 (repo / folder).mkdir()
             (repo / 'srn_t_t' / 't.set').write_text('[TILES]\nCount=1\n[TILE0]\nModel=t_a01\n', encoding='cp1252')
             (repo / 'srn_t_t' / 't_a01.mdl').write_text(MODEL, encoding='cp1252')
+            with self.assertRaisesRegex(ValueError, 'A blink list has'):
+                blink.with_lights(MODEL, {**SPEC, 'lamp': ' '})
+            with self.assertRaisesRegex(ValueError, 'A blink list has'):  # and not that no pack has it
+                blink.write(repo, 't', out, {key: value for key, value in SPEC.items() if key != 'lamp'})
+            (repo / 'srn_t_common' / 'Plain.mtr').write_text('texture5 glow', encoding='ascii')  # through a material the lamps come out pale (review of PR 199)
+            with self.assertRaisesRegex(ValueError, 'has a material in srn_t_common'):
+                blink.write(repo, 't', out, SPEC)
+            (repo / 'srn_t_common' / 'Plain.mtr').unlink()
+            with self.assertRaisesRegex(ValueError, 'No pack has the lamp picture plain'):
+                blink.write(repo, 't', out, SPEC)
+            (repo / 'srn_t_common' / 'plain.dds').write_bytes(b'picture')
             self.assertEqual(blink.write(repo, 't', out, SPEC)['models'], {'t_a01': 2})
             self.assertEqual(blink.write(repo, 't', out, SPEC), {'models': {}, 'refused': {}, 'done': 1})  # it has them: left
             self.assertEqual(blink.write(repo, 't', out, SPEC, again=True)['models'], {})  # made anew, the same: not written
@@ -132,9 +143,13 @@ class Blink(unittest.TestCase):
                 for block in re.findall(rf'(?mis)^\[TILE\d+\]\s*\nModel={name}\s*\n.*?(?=^\[)', tile):
                     laid += 1; self.assertRegex(block, r'(?m)^AnimLoop1=1\s*$', f'{path.name}: {name}')
         self.assertGreaterEqual(laid, 4)  # fcx01 and srx01, two tiles each
-        # the lamp's patch is a lit place of the glow map: a lamp over a dark place would never show
-        stem = re.search(r'(?m)^texture5[ \t]+(\S+)', (pack / f'{spec["texture"]}.mtr').read_text(encoding='ascii')).group(1); self.assertNotEqual(stem, 'null')
-        glow = np.asarray(pictures.read(pack / f'{stem}.dds'))[::-1]; height, width = glow.shape[:2]  # stored bottom row first
+        # the steady lights: the console's material has its glow map
+        self.assertNotEqual(re.search(r'(?m)^texture5[ \t]+(\S+)', (pack / f'{spec["texture"]}.mtr').read_text(encoding='ascii')).group(1), 'null')
+        # the lamps draw the picture the material draws, plainly: no material of that name, or its glow map would pale them
+        self.assertEqual(re.search(r'(?m)^texture0[ \t]+(\S+)', (pack / f'{spec["texture"]}.mtr').read_text(encoding='ascii')).group(1), spec['lamp'])
+        self.assertEqual([path for path in REPO.glob(f'srn_*/{spec["lamp"]}.mtr')], [])
+        # and their patch is a pale place of it: a lamp over a dark place would never show
+        glow = np.asarray(pictures.read(pack / f'{spec["lamp"]}.dds'))[::-1]; height, width = glow.shape[:2]  # stored bottom row first
         left, top, right, bottom = spec['patch']; patch = glow[int(top * height):max(int(bottom * height), int(top * height) + 1), int(left * width):max(int(right * width), int(left * width) + 1), :3]
         self.assertGreater(float(patch.max(axis=2).min()) * (1 if patch.dtype == np.uint8 else 255), 150)  # every pixel of it bright
 

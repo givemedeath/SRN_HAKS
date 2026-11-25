@@ -13,5 +13,6 @@
   "udp1-logos3": "udp1-logos3",
   "udp1-gogas-z": "udp1-gogas-z"
  },
+ "inPlace": {"udp1_b07_29": "udp1-window1b"},
  "note": "The shop signs and logos are their own day textures (2026-11-24): drawn without their glow by day, glowing at night, as the standard has it. Not listed, and lit at every hour: the signals. Every glowing mesh on udp1-allsigns is a traffic-light lens and udp1-msc-red is the emergency lights and the hospital crosses; a builder chooses their state by the tile's loops (a one-second red, the twenty-second cycle), so those loops stay as the set ships them."
 }

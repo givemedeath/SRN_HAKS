@@ -115,7 +115,7 @@ def daylight_command(chosen):
         print(json.dumps({'turned on': len(told), 'models': told}))
         return 0
     require(chosen.out, 'daylight writes its models into --out')
-    spec = _json(chosen.spec); told = daylight.write(chosen.repo, chosen.tileset, chosen.out, spec['lit'], chosen.shared, again=chosen.again, mapped=daylight.mapped(spec))
+    spec = _json(chosen.spec); told = daylight.write(chosen.repo, chosen.tileset, chosen.out, spec['lit'], chosen.shared, again=chosen.again, mapped=daylight.mapped(spec), in_place=spec.get('inPlace'))
     print(json.dumps({'models': len(told['models']), 'lit': sum(told['models'].values()), 'panes': told['panes'], 'done': told['done'], 'refused': told['refused'], 'parked': told['parked']}, indent=1))
     return 0
 
@@ -124,6 +124,13 @@ def blink_command(chosen):
     from . import blink
     told = blink.write(chosen.repo, chosen.tileset, chosen.out, _json(chosen.spec), chosen.shared, again=chosen.again)
     print(json.dumps({'models': told['models'], 'done': told['done'], 'refused': told['refused']}, indent=1))
+    return 0
+
+
+def finish_command(chosen):
+    from . import finish
+    told = finish.write(_json(chosen.spec), chosen.redrawn, chosen.out, only=chosen.only.split(',') if chosen.only else None)
+    print(json.dumps({'finished': told}))
     return 0
 
 
@@ -291,6 +298,9 @@ def main(arguments=None):
     eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     eight.add_argument('--repo', type=Path, default=REPO); eight.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
+    hand = commands.add_parser('finish', help='lay the recorded finishes of a redraw list over its redrawn pictures, into another folder: lay them over a copy of the redraws for `material --redrawn`')
+    hand.add_argument('--spec', required=True, type=Path, help='the redraw list (docs/tilesets/<set>/redraw.json)'); hand.add_argument('--redrawn', required=True, type=Path, help='the folder `redraw` filled')
+    hand.add_argument('--out', required=True, type=Path, help='the folder the finished pictures are written to'); hand.add_argument('--only', help='only these textures, comma separated')
     lamp = commands.add_parser('blink', help='lay blinking lamp panes over a fixture\'s indicator lights, in model copies (a copy already in --out is changed)')
     lamp.add_argument('--tileset', required=True); lamp.add_argument('--spec', required=True, type=Path, help='the list of lights (docs/tilesets/<set>/blink.json)')
     lamp.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); lamp.add_argument('--repo', type=Path, default=REPO)
@@ -375,6 +385,8 @@ def main(arguments=None):
             return compile_command(chosen)
         if chosen.command == 'daylight':
             return daylight_command(chosen)
+        if chosen.command == 'finish':
+            return finish_command(chosen)
         if chosen.command == 'blink':
             return blink_command(chosen)
         if chosen.command == 'unique':

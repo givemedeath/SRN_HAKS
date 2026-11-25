@@ -616,6 +616,12 @@
       "tools/armorkit/client_fixture.py",
       "tools/envkit/toolset.py"
     ],
+    "tools/envkit/test_toolset_paint.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/toolset_paint.py",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py"
+    ],
     "tools/envkit/test_track.py": [
       "tools/envkit/convert.py",
       "tools/envkit/local.py",
@@ -637,6 +643,11 @@
       "tools/armorkit/__init__.py",
       "tools/armorkit/client_fixture.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/envkit/toolset_paint.py": [
+      "tools/envkit/toolset.py",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py"
     ],
     "tools/envkit/track.py": [
       "tools/envkit/convert.py",
@@ -5734,6 +5745,7 @@
       "tools/tilekit/detail.py",
       "tools/tilekit/doors.py",
       "tools/tilekit/enlarge.py",
+      "tools/tilekit/finish.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
       "tools/tilekit/lamps.py",
@@ -5857,6 +5869,7 @@
       "tools/tilekit/placer.py",
       "tools/tilekit/review.py"
     ],
+    "tools/tilekit/finish.py": [],
     "tools/tilekit/geometry.py": [],
     "tools/tilekit/inventory.py": [
       "tools/tilekit/compiled.py",
@@ -6055,6 +6068,10 @@
       "tools/tilekit/review.py",
       "tools/tilekit/test_openings.py"
     ],
+    "tools/tilekit/test_finish.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/finish.py"
+    ],
     "tools/tilekit/test_inventory.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/inventory.py"
@@ -6215,6 +6232,9 @@
     "tools/envkit/test_toolset.py": [
       "srn_2da",
       "srn_t_dgt04"
+    ],
+    "tools/envkit/test_toolset_paint.py": [
+      "srn_t_srx01"
     ],
     "tools/envkit/toolset.py": [
       "srn_2da",
@@ -6589,6 +6609,7 @@
     "tools/envkit/test_study.py",
     "tools/envkit/test_tile.py",
     "tools/envkit/test_toolset.py",
+    "tools/envkit/test_toolset_paint.py",
     "tools/envkit/test_track.py",
     "tools/envkit/test_view.py",
     "tools/headbatch/test_client_capture.py",
@@ -6880,6 +6901,7 @@
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_family.py",
     "tools/tilekit/test_family_review.py",
+    "tools/tilekit/test_finish.py",
     "tools/tilekit/test_inventory.py",
     "tools/tilekit/test_joins.py",
     "tools/tilekit/test_kit.py",

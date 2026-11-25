@@ -645,7 +645,7 @@ The four textures it shares with dgt04 keep dgt04's look.
   the restyled paving; Dark City painted from the Terrain palette lays the void and its cyan rim glass around it;
   the Control Tower group places and draws with the new materials. The saved area holds the 3x3 tower
   (`fcx01_d01_01` to `_09`), 20 void edge tiles and the plain plaza, with nothing missing or black. The palette shows
-  the groups' display names. Not tried: every group, doors, tile light settings.
+  the groups' display names.
 
 **Parked items taken up after Release C (2026-11-24):**
 - **Applied (user passed the look):** the arcology's lit panes and lamp lenses follow the hour
@@ -670,23 +670,24 @@ The four textures it shares with dgt04 keep dgt04's look.
   Left lit at every hour in the arcology: the signs and the monument, the water, and the glowing metal trims
   (`c_metall`, `bb1bottom`, `dgt04_chrome`, `lsf_grate01`). Checks clean, a test holds the arcology's list; seen
   from the built packs by day and at night.
-- **Applied (user, from the before and after pictures):** hand finishes of three redrawn pictures, noted in
-  `redraw.json` (`placed`): the sign strip as an even row of lit segments, a clean "ARCOLOGY LIVING" caption,
-  brighter marker lamps. The caption and the marker lamps were not seen in game; the strip still reads small there.
+- **Applied (user, from the before and after pictures):** hand finishes of three redrawn pictures: the sign strip as
+  an even row of lit segments, a clean "ARCOLOGY LIVING" caption, brighter marker lamps. They had been done by hand
+  with no record; each is now a `finish` in `fcx01/redraw.json`, laid by `tilekit finish`, and gives the shipped maps
+  byte for byte. The redraws are in the archive `fcx01-redraws-2026-11-24-v1`. The caption and the marker lamps are
+  seen in game and read well; the strip still reads small there.
 - **Console lights (user, 2026-11-24: "this panel needs a few glowing and blinking lights"):** the arcology's wall
   console (`imp_modules_id5`, two in each of `fcx01_m01_02` and `fcx01_m01_11`) has a glow map for its steady lights
   (the cream readout bars, the cyan rack lines, the blue keys: `glow.boxes` in `fcx01/materials.json`) and eleven
   blinking lamps (`fcx01/blink.json`, `tilekit blink`): small panes over the status squares, six strip indicators and
   the dial's hub, under the tile's animated node, blinked by the first tile loop, which the set has on. A lamp draws
-  a lit patch of the console's own glow map tinted by its glow colour, so no texture is added. Seen in game on
-  `fcx01_m01_02` by day and at night; the lamps come out paler than their colours (cream and pale green).
-- **School 3, not solved:** 28 of the 47 windows of `udp1_b07_29` were given lit panes (`udp1-window1b`) and day
-  panes through `daylight`. In game they stayed unlit at night, and one stayed lit by day. The cause is found
-  (the lit panes hung from the tile's root, not its animated node: see the arcology above) and `daylight` now
-  hangs them right; the tile is left as it was until its windows are tried again.
-- **Suburb `detail` kit, not started:** `placer.propose` finds almost nothing on the houses and strip malls (thin
-  box windows, models wider than their cell); only mall roofs take pieces. The kit's atlas also lives in
-  `srn_t_dgt04`, which a suburb-only module does not load. Both need work before a pilot.
+  a pale patch of the console's plain picture in its own glow colour, so no texture is added (through the console's
+  material the lamps came out pale: cream for red). Seen in game on both tiles by day and at night.
+- **School 3 (solved 2026-11-24):** 28 of the 47 windows of `udp1_b07_29` have lit panes (`udp1-window1b`) and day
+  panes, under the tile's animated node (they had hung from the root before). Seen in game: lit at night, unlit by day. How they were chosen,
+  to make them again: each mesh `window<n>` drawing `udp1-window1` with `n * 7 mod 5` of 0 to 2 was given
+  `udp1-window1b` and `selfillumcolor 0.698039 0.698039 0.698039`, then `tilekit daylight --again`.
+- **Suburb `detail` kit: dropped (user, 2026-11-24).** `placer.propose` finds almost nothing on the houses and strip
+  malls (thin box windows, models wider than their cell); only mall roofs take pieces.
 
 ### 7. Cohesion
 
@@ -700,6 +701,21 @@ The four textures it shares with dgt04 keep dgt04's look.
   test's 175; 180 in run 1, 173 over 12 s). Area load, night from day: 0.8 s and 1.0 s (1.4–1.8 s at stage 2). The
   block has the tile lamps off, as a newly built area has: the city streets and the arcology plaza are nearly
   unlit at night there, the suburb houses are lit.
+- **Measured again (2026-11-24, three runs, suburb / city / void):** day 180 179 179, 178 178 179, 179 178 180; night
+  179 177 179, 179 180 179, 179 177 180. The 171 did not repeat. Area loads 0.9 to 1.4 s.
+- **Night lights:** the dark streets and plaza are the new area's tile lamps being off, not a defect: with main light
+  2 set the plaza, lawns and buildings light properly (`review` lamp views). Every udp1 (676) and fcx01 (239) tile
+  with a source has main lights; 186 dgt04 tiles have none (plain concrete, bridges, water, fences, walls, the
+  aqueduct, 7 Street tiles), so they stay dark whatever a builder sets. Left as it is.
+- **Seen in game since:** the remade `dgt05_s05_12`, both mall entrances, the garage and the second console.
+- **Toolset, groups, doors and light (2026-11-24, by computer use on the built packs):** the palette lists all 213
+  groups (104 features, 109 groups) and 59 terrains by their names. Thirty groups of different kinds and grounds (the
+  user chose thirty over all 213) were painted on plain ground of their own, saved and read back: every one has all its
+  tiles, and the Toolset retiles round them. Every hook of a keyed door type made its door (58, 266, 267, 268); hooks
+  of the generic type 0 (110 groups) make none, and the builder places one. A tile's main light set in Tile
+  Properties is saved. The other 183 groups were not painted; the driver is
+  `tools/envkit/toolset_paint.py`. A group is refused on ground its edges cannot meet
+  (the Hospital on Concrete), and the Toolset does not paint over another group's tiles.
 - **Old sets:** whether to retire them is the user's call later. This plan keeps them.
 
 ## Verification (each stage)

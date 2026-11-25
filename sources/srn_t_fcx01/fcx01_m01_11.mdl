@@ -3278,7 +3278,7 @@ node trimesh blink00
   diffuse 0 0 0
   specular 0 0 0
   shininess 1
-  bitmap imp_modules_id5
+  bitmap impmodulesid5
   verts 16
     -2.71580 0.65114 0.29782
     -2.71580 0.69386 0.29782
@@ -3325,7 +3325,7 @@ node trimesh blink01
   diffuse 0 0 0
   specular 0 0 0
   shininess 1
-  bitmap imp_modules_id5
+  bitmap impmodulesid5
   verts 8
     -2.71580 0.70663 0.29782
     -2.71580 0.75420 0.29782
@@ -3360,7 +3360,7 @@ node trimesh blink02
   diffuse 0 0 0
   specular 0 0 0
   shininess 1
-  bitmap imp_modules_id5
+  bitmap impmodulesid5
   verts 8
     -2.71580 0.82731 0.29782
     -2.71580 0.87048 0.29782
@@ -3395,7 +3395,7 @@ node trimesh blink03
   diffuse 0 0 0
   specular 0 0 0
   shininess 1
-  bitmap imp_modules_id5
+  bitmap impmodulesid5
   verts 16
     -2.48418 -0.64376 -0.25945
     -2.48418 -0.61777 -0.25945
@@ -3442,7 +3442,7 @@ node trimesh blink04
   diffuse 0 0 0
   specular 0 0 0
   shininess 1
-  bitmap imp_modules_id5
+  bitmap impmodulesid5
   verts 16
     -2.45005 -0.55787 -0.32367
     -2.45005 -0.53188 -0.32367
@@ -3489,7 +3489,7 @@ node trimesh blink05
   diffuse 0 0 0
   specular 0 0 0
   shininess 1
-  bitmap imp_modules_id5
+  bitmap impmodulesid5
   verts 16
     -2.39107 -0.55787 -0.43462
     -2.39107 -0.53188 -0.43462
@@ -3536,7 +3536,7 @@ node trimesh blink06
   diffuse 0 0 0
   specular 0 0 0
   shininess 1
-  bitmap imp_modules_id5
+  bitmap impmodulesid5
   verts 8
     -2.46816 0.69827 -0.28960
     -2.46816 0.72822 -0.28960

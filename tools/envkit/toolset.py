@@ -70,9 +70,10 @@ def _tools():
     return run
 
 
-def prepare(user, built, *, tilesets=GROUPS, haks=HAKS, tlk=TLK, game=None, size=SIZE):
+def prepare(user, built, *, tilesets=GROUPS, haks=HAKS, tlk=TLK, game=None, size=SIZE, made=None):
     """Make the fresh user folder `user` for the Toolset: the module, the talk table from `built` (the folder the packs
-    were built into) and `hak` as a junction to it. Returns {module, user, launch}; `launch` starts the Toolset on the
+    were built into) and `hak` as a junction to it. `made` gives the
+    module's documents in place of the plain areas. Returns {module, user, launch}; `launch` starts the Toolset on the
     folder where the game install folder is given."""
     user, built = Path(user).resolve(), Path(built).resolve()
     require(not user.exists(), 'A fresh user folder is required: ' + str(user))
@@ -84,7 +85,7 @@ def prepare(user, built, *, tilesets=GROUPS, haks=HAKS, tlk=TLK, game=None, size
     for folder in (user / 'modules', user / 'tlk', work / 'json', work / 'module'):
         folder.mkdir(parents=True)
     shutil.copyfile(built / f'{tlk}.tlk', user / 'tlk' / f'{tlk}.tlk')
-    for name, document in documents(tilesets, haks, tlk, size).items():
+    for name, document in (documents(tilesets, haks, tlk, size) if made is None else made).items():
         path = work / 'json' / (name + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
         run('nwn_gff', ['-i', path, '-o', work / 'module' / name])
     module = user / 'modules' / f'{MODULE}.mod'; run('nwn_erf', ['-c', '-f', module, '-e', 'MOD', work / 'module'])
