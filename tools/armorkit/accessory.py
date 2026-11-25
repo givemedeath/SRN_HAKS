@@ -36,6 +36,8 @@ BUDGET = {'triangles': 8000, 'texture': 1024}  # docs/armorkit/plan.md, Budgets:
 DIRECTIONS = 96  # a belt is fitted in this many directions round the body's axis
 LEVELS = 0.01  # metres: and in bands this tall along it
 CLEARANCE = 0.004  # metres a belt's inner face stands outside what is worn under it
+HANGS_IN = 0.02  # metres what hangs below a belt's strap may stand inside what is worn under it as the body stands: an accessory may
+# clip a little at rest and a lot in motion (user, 2026-11-25), and pushed clear of baggy trousers its pouches stood wide of the belt
 INSIDE = 0.002  # metres a point of a fitted belt may still stand inside what is worn under it (`gates`)
 WORN_UNDER = ('pelvis', 'legl', 'legr')  # the parts a belt lies on: the trousers. A shirt's hem hangs over its top edge and is not gone
 # round (put round Street Casual's blousing hem the strap stood 4 cm off the trousers a side; user, 2026-11-25: "still too large"); the arms hang beside it
@@ -175,7 +177,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     circle and never less than a direction asks. What hangs below the strap, a pouch or a holster down the thigh,
     does not move the strap: where the trousers under it are wider than the strap was moved for, it is pushed out
     level by level, by what lies under it at each and no less than at the level above, as a pouch leans over a
-    thigh. Swung out as one from the strap's lower edge by the most any level asked, the pouches stood 10 cm
+    thigh, and only as far as leaves it `HANGS_IN` inside: it keeps the shape it was drawn in before it clears cloth. Swung out as one from the strap's lower edge by the most any level asked, the pouches stood 10 cm
     wider than the belt was drawn (user, 2026-11-25: "the belt pouches were not scaled down with the rest"). Moved as one column by the widest under any of it, a belt over baggy trousers stood off the waistband
     by as much as their thigh pockets bulge (Street Casual in the client, user, 2026-11-25: "belt still seems
     too large"). Before it, a
@@ -244,7 +246,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
         # thigh and is not folded back in under it
         swing = np.zeros((DIRECTIONS, rows))
         for (direction, row), need in hung.items():
-            swing[direction, row] = max(swing[direction, row], need - move[direction])
+            swing[direction, row] = max(swing[direction, row], need - clearance - HANGS_IN - move[direction])  # no farther in than it may be
         swing = np.maximum.accumulate(swing, axis=1)
         swing = np.stack([_evened(swing[:, row]) for row in range(rows)], axis=1)
         shift = (1 - share) * (move[first % DIRECTIONS] + swing[first % DIRECTIONS, below]) + share * (move[(first + 1) % DIRECTIONS] + swing[(first + 1) % DIRECTIONS, below])
@@ -253,7 +255,8 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
         placed = np.stack([placed[:, 0] * grown, placed[:, 1] * grown, placed[:, 2]], axis=1)
         moved = moved + move
     move, placed = moved, placed + centre
-    return placed, {'scale': round(scale, 4), 'taller': round(taller, 3), 'moved': [round(float(move.min()), 4), round(float(move.max()), 4)]}
+    return placed, {'scale': round(scale, 4), 'taller': round(taller, 3), 'moved': [round(float(move.min()), 4), round(float(move.max()), 4)],
+                    'strap': [round(band_low + float(centre[2]), 4), round(band_high + float(centre[2]), 4)]}
 
 
 def calm(relief, least, whole):
@@ -389,12 +392,13 @@ def surface_failures(whole):
             + [f'the generated piece: a piece of {loose * 1e4:.1f} cm² standing apart from the rest' for loose in whole['debris']])
 
 
-def gates(part, under, model, resources, packs=(), whole=None):
+def gates(part, under, model, resources, packs=(), whole=None, hangs=None):
     """The automatic gates of one fitted accessory: a report as `bake.gates` writes one.
 
     Budgets (`BUDGET`), no triangle the model compiler drops, no name a pack holds, texture closure, the
     generated piece whole (`whole`, what `bake.surface` found), and clearance: no point of the piece more than
-    `INSIDE` inside what is worn under it at rest, which is what would show cloth or skin through it."""
+    `INSIDE` inside what is worn under it at rest, which is what would show cloth or skin through it. Below
+    the height `hangs` (the lower edge of a belt's strap) a point may stand `HANGS_IN` inside: a pouch may clip."""
     resources, failures = Path(resources), []
     faces = int(len(part['f']))
     if faces > BUDGET['triangles']:
@@ -418,7 +422,8 @@ def gates(part, under, model, resources, packs=(), whole=None):
         failures += [f'{model}: its material file names {image}, which is not there' for image in named if not (resources / (image + '.tga')).is_file()]
     failures += surface_failures(whole)
     points = measure.surface_points(np.asarray(part['v'], float), np.asarray(part['f'], int), SURFACE)
-    deepest, where = 0.0, None
+    deepest, where, sunk = 0.0, None, 0.0
+    low = np.zeros(len(points), bool) if hangs is None else points[:, 2] < hangs
     for name, (v, f) in under.items():
         v, f = np.asarray(v, float), np.asarray(f, int)
         # only a point no farther from the part's own axis than its surface reaches at that height and direction
@@ -435,14 +440,19 @@ def gates(part, under, model, resources, packs=(), whole=None):
         inside = np.zeros(len(points), bool)
         if near.any():
             inside[near] = np.abs(measure.winding(points[near], v, f)) >= 0.5
+        if (inside & low).any():
+            sunk = max(sunk, float(baking._off(points[inside & low], [(v, f)], near=0.08).max()))
+        inside &= ~low
         if inside.any():
             depth = float(baking._off(points[inside], [(v, f)], near=0.08).max())
             if depth > deepest:
                 deepest, where = depth, name
     if deepest > INSIDE:
         failures.append(f'{model}: up to {deepest * 100:.1f} cm inside the {where} worn under it')
+    if sunk > HANGS_IN + INSIDE:
+        failures.append(f'{model}: what hangs from it is up to {sunk * 100:.1f} cm inside what is worn under it, over the {HANGS_IN * 100:.0f} cm it may clip')
     return {'passed': not failures, 'failures': failures, 'triangles': faces, 'texels': int(len(part['rgb'])),
-            'inside': {'deepest': round(deepest, 4), 'part': where}, **({} if whole is None else {'surface': whole})}
+            'inside': {'deepest': round(deepest, 4), 'part': where, 'hanging': round(sunk, 4)}, **({} if whole is None else {'surface': whole})}
 
 
 def fit(document, kept, output, body_pack, number, *, body='pmh0', outfit=None, drop=DROP, turn=0.0, tier=2, packs=(), game=None, resources=(),
@@ -475,7 +485,7 @@ def fit(document, kept, output, body_pack, number, *, body='pmh0', outfit=None, 
     shutil.copyfile(ascii_dir / (model + '.plt'), written / (model + '.plt'))
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': {'belt': model}, **colours, 'fit': record,
               'over': None if outfit is None else {'pack': Path(outfit[0]).name, 'number': outfit[1]},
-              'gates': gates(part, under, model, written, packs, whole)}
+              'gates': gates(part, under, model, written, packs, whole, hangs=record['strap'][0])}
     if game is not None:
         compiled = export.compile_models([ascii_dir / (model + '.mdl')], written, game=game, resources=list(resources))
         record['compiled'] = len(compiled)
