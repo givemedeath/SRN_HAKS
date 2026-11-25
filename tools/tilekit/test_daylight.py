@@ -73,6 +73,11 @@ class Daylight(unittest.TestCase):
         self.assertIn('node trimesh day00_0\n    parent lights\n    alphakey 2\n      0.00000 1\n      0.56667 0\n', turn)
         self.assertNotIn('dull', day)
         self.assertTrue(made.rstrip().endswith('donemodel t_a01'))
+        # a translucent pane shows at its own alpha, its day pane too: the arcology's half-clear glass was keyed solid (review of PR 198)
+        glass, _, _ = daylight.with_daylight(MODEL.replace('  selfillumcolor 0.7 0.7 0.7\n', '  alpha 0.5\n  selfillumcolor 0.7 0.7 0.7\n'), LIT)
+        self.assertIn('node trimesh pane\n    parent lights\n    alphakey 2\n      0.00000 0\n      0.56667 0.5\n', anim(glass, 'day2night'))
+        self.assertIn('node trimesh day00_0\n    parent lights\n    alphakey 2\n      0.00000 0.5\n      0.03333 0.5\n', anim(glass, 'day'))
+        self.assertIn('    alphakey 2\n      0.00000 1\n      0.03333 1\n', anim(glass, 'night'))
 
     def test_an_animation_names_the_parents_and_a_spaced_name_is_replaced(self):
         # Without the parents in the animation the client fell over as the area loaded (pilot, 2026-11-23).
@@ -172,6 +177,21 @@ class Daylight(unittest.TestCase):
                     both.append(keys['Model'])
             self.assertEqual(both, [], tileset)
         self.assertGreaterEqual(seen, 20)  # the signal tiles were read, in both sets
+        # and the same of every set's own list: no tile has two loops on that move one of its lit or switched meshes
+        from tools.tilekit import lamps
+        for tileset in ('udp1', 'dgt04', 'fcx01'):
+            spec = json.loads((REPO / 'docs' / 'tilesets' / tileset / 'daylight.json').read_text(encoding='utf-8'))
+            textures = list(spec['lit']) + list(spec.get('switched', ()))
+            with tempfile.TemporaryDirectory() as temporary:
+                models = {name: text for name, file, text, others, source in inventory.drawn_copies(REPO, tileset, Path(temporary), lamps.PACKS)}
+            both = []
+            for name, keys in inventory.sections((REPO / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252')):
+                text = models.get(keys.get('Model', '').lower())
+                if re.fullmatch(r'TILE\d+', name) and text:
+                    moved = [set(daylight._switched(text, textures, f'animloop0{loop}')) for loop in daylight.LOOPS if keys.get(f'AnimLoop{loop}') == '1']
+                    if any(one & other for index, one in enumerate(moved) for other in moved[index + 1:]):
+                        both.append(keys['Model'])
+            self.assertEqual(both, [], tileset)
 
     def test_line_ends_are_kept(self):
         made = daylight.with_daylight(MODEL.replace('\n', '\r\n'), LIT)[0]

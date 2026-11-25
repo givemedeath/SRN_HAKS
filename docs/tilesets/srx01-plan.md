@@ -649,8 +649,12 @@ The four textures it shares with dgt04 keep dgt04's look.
 
 **Parked items taken up after Release C (2026-11-24):**
 - **Applied (user passed the look):** the arcology's lit panes and lamp lenses follow the hour
-  (`docs/tilesets/fcx01/daylight.json`, 98 tiles: each is its own day texture, drawn without its glow by day), and
-  so do the suburb's shop signs and logos (`udp1/daylight.json`, 29 models). The suburb's signals are not
+  (`docs/tilesets/fcx01/daylight.json`, 98 tiles: each is its own day texture). By day only the glass is really
+  unlit: six of the eight textures (the cyan windows, the lit blocks, the marker and wall lamps) still glow through
+  their materials' glow maps, so the arcology by day looks nearly as before; a day material without the glow map
+  would change the day look the user passed and is not made. A translucent pane keeps its own alpha (the tool
+  keyed it solid at first; found in review of PR 198, 75 models remade). The suburb's part:
+  the suburb's shop signs and logos follow the hour (`udp1/daylight.json`, 29 models). The suburb's signals are not
   listed and stay lit at every hour: traffic-light lenses (`udp1-allsigns`), emergency lights and hospital crosses
   (`udp1-msc-red`). They were listed at first as signs; `daylight --lights-on` then turned on both states of six
   traffic lights at once and the emergency lights' flash, and the lenses went clear by day (found in review of

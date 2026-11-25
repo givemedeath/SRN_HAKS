@@ -2143,8 +2143,8 @@ newanim day FCX01_G01_11
   node trimesh day01_0
     parent FCX01_G01_11
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh Box17_11
@@ -2157,8 +2157,8 @@ newanim day FCX01_G01_11
   node trimesh day02_0
     parent FCX01_G01_11
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.9
+      0.03333 0.9
     endlist
   endnode
   node dummy FCX01_G01_11a
@@ -2174,8 +2174,8 @@ newanim day FCX01_G01_11
   node trimesh day03_0
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh Box22_11
@@ -2188,8 +2188,8 @@ newanim day FCX01_G01_11
   node trimesh day04_0
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh Box25_11
@@ -2202,8 +2202,8 @@ newanim day FCX01_G01_11
   node trimesh day05_0
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
 doneanim day FCX01_G01_11
@@ -2232,13 +2232,13 @@ newanim day2night FCX01_G01_11
     parent FCX01_G01_11
     alphakey 2
       0.00000 0
-      0.56667 1
+      0.56667 0.5
     endlist
   endnode
   node trimesh day01_0
     parent FCX01_G01_11
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.56667 0
     endlist
   endnode
@@ -2246,13 +2246,13 @@ newanim day2night FCX01_G01_11
     parent FCX01_G01_11
     alphakey 2
       0.00000 0
-      0.56667 1
+      0.56667 0.9
     endlist
   endnode
   node trimesh day02_0
     parent FCX01_G01_11
     alphakey 2
-      0.00000 1
+      0.00000 0.9
       0.56667 0
     endlist
   endnode
@@ -2263,13 +2263,13 @@ newanim day2night FCX01_G01_11
     parent FCX01_G01_11a
     alphakey 2
       0.00000 0
-      0.56667 1
+      0.56667 0.5
     endlist
   endnode
   node trimesh day03_0
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.56667 0
     endlist
   endnode
@@ -2277,13 +2277,13 @@ newanim day2night FCX01_G01_11
     parent FCX01_G01_11a
     alphakey 2
       0.00000 0
-      0.56667 1
+      0.56667 0.5
     endlist
   endnode
   node trimesh day04_0
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.56667 0
     endlist
   endnode
@@ -2291,13 +2291,13 @@ newanim day2night FCX01_G01_11
     parent FCX01_G01_11a
     alphakey 2
       0.00000 0
-      0.56667 1
+      0.56667 0.5
     endlist
   endnode
   node trimesh day05_0
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.56667 0
     endlist
   endnode
@@ -2326,8 +2326,8 @@ newanim night FCX01_G01_11
   node trimesh Box15_11
     parent FCX01_G01_11
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh day01_0
@@ -2340,8 +2340,8 @@ newanim night FCX01_G01_11
   node trimesh Box17_11
     parent FCX01_G01_11
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.9
+      0.03333 0.9
     endlist
   endnode
   node trimesh day02_0
@@ -2357,8 +2357,8 @@ newanim night FCX01_G01_11
   node trimesh Box24_11
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh day03_0
@@ -2371,8 +2371,8 @@ newanim night FCX01_G01_11
   node trimesh Box22_11
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh day04_0
@@ -2385,8 +2385,8 @@ newanim night FCX01_G01_11
   node trimesh Box25_11
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh day05_0
@@ -2421,7 +2421,7 @@ newanim night2day FCX01_G01_11
   node trimesh Box15_11
     parent FCX01_G01_11
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.60000 0
     endlist
   endnode
@@ -2429,13 +2429,13 @@ newanim night2day FCX01_G01_11
     parent FCX01_G01_11
     alphakey 2
       0.00000 0
-      0.60000 1
+      0.60000 0.5
     endlist
   endnode
   node trimesh Box17_11
     parent FCX01_G01_11
     alphakey 2
-      0.00000 1
+      0.00000 0.9
       0.60000 0
     endlist
   endnode
@@ -2443,7 +2443,7 @@ newanim night2day FCX01_G01_11
     parent FCX01_G01_11
     alphakey 2
       0.00000 0
-      0.60000 1
+      0.60000 0.9
     endlist
   endnode
   node dummy FCX01_G01_11a
@@ -2452,7 +2452,7 @@ newanim night2day FCX01_G01_11
   node trimesh Box24_11
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.60000 0
     endlist
   endnode
@@ -2460,13 +2460,13 @@ newanim night2day FCX01_G01_11
     parent FCX01_G01_11a
     alphakey 2
       0.00000 0
-      0.60000 1
+      0.60000 0.5
     endlist
   endnode
   node trimesh Box22_11
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.60000 0
     endlist
   endnode
@@ -2474,13 +2474,13 @@ newanim night2day FCX01_G01_11
     parent FCX01_G01_11a
     alphakey 2
       0.00000 0
-      0.60000 1
+      0.60000 0.5
     endlist
   endnode
   node trimesh Box25_11
     parent FCX01_G01_11a
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.60000 0
     endlist
   endnode
@@ -2488,7 +2488,7 @@ newanim night2day FCX01_G01_11
     parent FCX01_G01_11a
     alphakey 2
       0.00000 0
-      0.60000 1
+      0.60000 0.5
     endlist
   endnode
 doneanim night2day FCX01_G01_11

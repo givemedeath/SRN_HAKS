@@ -74,7 +74,10 @@ def with_daylight(text, lit):
             new = fresh('lit', index); parts = re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)
             text = ''.join(line.sub(lambda at: at.group(1) + new + at.group(2), part, count=1) for part in parts); node = new
         parent = parent.split()[0]  # a parent is read to its first space, as a name is
-        faded.append((node, parent, 0, 1))
+        # a translucent pane keeps its own alpha where it shows: keyed 1, the arcology's half-clear glass was drawn solid (review of PR 198, 2026-11-24)
+        own = next((_field(at.group(3), 'alpha') for at in NODE.finditer(_geometry(text)) if at.group(2) == node), None)
+        full = own if own is not None and float(own) != 1 else 1
+        faded.append((node, parent, 0, full))
         day = lit[texture]
         if day:
             block = next((at for at in NODE.finditer(_geometry(text)) if at.group(2) == node), None)
@@ -85,7 +88,7 @@ def with_daylight(text, lit):
             pane = re.sub(r'(?mi)^([ \t]*bitmap[ \t]+)\S+', lambda at: at.group(1) + day, pane)
             pane = re.sub(r'(?mi)^([ \t]*selfillumcolor[ \t]+)[^\r\n]*?(\r?)$', lambda at: at.group(1) + '0 0 0' + at.group(2), pane)
             pane = re.sub(r'(?mi)^([ \t]*shadow[ \t]+)\S+', lambda at: at.group(1) + '0', pane)  # the lit pane casts the one shadow of the outline
-            text = text[:block.end()] + pane + text[block.end():]; faded.append((new, parent, 1, 0))
+            text = text[:block.end()] + pane + text[block.end():]; faded.append((new, parent, full, 0))
             # the pane goes where its lit pane goes: a tile loop that lifts the lit pane into place from where it is parked
             # lifts the day pane with it (the Modern Exterior windows that lit at night were bare wall by day, 2026-11-24)
             parts = re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)

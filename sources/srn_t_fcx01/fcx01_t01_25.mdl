@@ -606,8 +606,8 @@ newanim day FCX01_T01_25
   node trimesh day00_0
     parent FCX01_T01_25
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.9
+      0.03333 0.9
     endlist
   endnode
 doneanim day FCX01_T01_25
@@ -622,13 +622,13 @@ newanim day2night FCX01_T01_25
     parent FCX01_T01_25
     alphakey 2
       0.00000 0
-      0.56667 1
+      0.56667 0.9
     endlist
   endnode
   node trimesh day00_0
     parent FCX01_T01_25
     alphakey 2
-      0.00000 1
+      0.00000 0.9
       0.56667 0
     endlist
   endnode
@@ -643,8 +643,8 @@ newanim night FCX01_T01_25
   node trimesh Window10_25
     parent FCX01_T01_25
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.9
+      0.03333 0.9
     endlist
   endnode
   node trimesh day00_0
@@ -665,7 +665,7 @@ newanim night2day FCX01_T01_25
   node trimesh Window10_25
     parent FCX01_T01_25
     alphakey 2
-      0.00000 1
+      0.00000 0.9
       0.60000 0
     endlist
   endnode
@@ -673,7 +673,7 @@ newanim night2day FCX01_T01_25
     parent FCX01_T01_25
     alphakey 2
       0.00000 0
-      0.60000 1
+      0.60000 0.9
     endlist
   endnode
 doneanim night2day FCX01_T01_25

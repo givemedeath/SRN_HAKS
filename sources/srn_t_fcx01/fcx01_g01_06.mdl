@@ -3001,8 +3001,8 @@ newanim day FCX01_G01_06
   node trimesh day02_0
     parent FCX01_G01_06
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh Box15_06
@@ -3015,8 +3015,8 @@ newanim day FCX01_G01_06
   node trimesh day03_0
     parent FCX01_G01_06
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
 doneanim day FCX01_G01_06
@@ -3059,13 +3059,13 @@ newanim day2night FCX01_G01_06
     parent FCX01_G01_06
     alphakey 2
       0.00000 0
-      0.56667 1
+      0.56667 0.5
     endlist
   endnode
   node trimesh day02_0
     parent FCX01_G01_06
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.56667 0
     endlist
   endnode
@@ -3073,13 +3073,13 @@ newanim day2night FCX01_G01_06
     parent FCX01_G01_06
     alphakey 2
       0.00000 0
-      0.56667 1
+      0.56667 0.5
     endlist
   endnode
   node trimesh day03_0
     parent FCX01_G01_06
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.56667 0
     endlist
   endnode
@@ -3122,8 +3122,8 @@ newanim night FCX01_G01_06
   node trimesh Box14_06
     parent FCX01_G01_06
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh day02_0
@@ -3136,8 +3136,8 @@ newanim night FCX01_G01_06
   node trimesh Box15_06
     parent FCX01_G01_06
     alphakey 2
-      0.00000 1
-      0.03333 1
+      0.00000 0.5
+      0.03333 0.5
     endlist
   endnode
   node trimesh day03_0
@@ -3186,7 +3186,7 @@ newanim night2day FCX01_G01_06
   node trimesh Box14_06
     parent FCX01_G01_06
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.60000 0
     endlist
   endnode
@@ -3194,13 +3194,13 @@ newanim night2day FCX01_G01_06
     parent FCX01_G01_06
     alphakey 2
       0.00000 0
-      0.60000 1
+      0.60000 0.5
     endlist
   endnode
   node trimesh Box15_06
     parent FCX01_G01_06
     alphakey 2
-      0.00000 1
+      0.00000 0.5
       0.60000 0
     endlist
   endnode
@@ -3208,7 +3208,7 @@ newanim night2day FCX01_G01_06
     parent FCX01_G01_06
     alphakey 2
       0.00000 0
-      0.60000 1
+      0.60000 0.5
     endlist
   endnode
 doneanim night2day FCX01_G01_06

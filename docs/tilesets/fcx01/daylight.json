@@ -1,7 +1,7 @@
 {
  "schemaVersion": 1,
  "kind": "tilekit-daylight",
- "note": "The arcology's lit panes and lamp lenses, each its own day texture: the pane is drawn without its glow by day and glows at night. Left lit at every hour: the signs and the monument (fcx_pub, kuhmu, bespin_monument2), the water (tcn01_watrstn02) and the glowing metal trims (c_metall, bb1bottom, dgt04_chrome, lsf_grate01).",
+ "note": "The arcology's lit panes and lamp lenses, each its own day texture: by day the pane is drawn without its mesh's glow, at night with it, at the mesh's own alpha. Six of them still glow by day through their materials' glow maps (fcx_window1, black_window, windows2, ctown_build_id4, lights3, lma_light06): only glass and arcology_win02 are really unlit by day. A day material without the glow map for each would change the day look the user passed (2026-11-24) and is not made. Left lit at every hour: the signs and the monument (fcx_pub, kuhmu, bespin_monument2), the water (tcn01_watrstn02) and the glowing metal trims (c_metall, bb1bottom, dgt04_chrome, lsf_grate01).",
  "switched": [],
  "lit": {
   "fcx_window1": "fcx_window1",
