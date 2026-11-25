@@ -277,3 +277,9 @@ panels, shin pockets, belt pouches, a strap round each thigh and buckled boots. 
 `street-casual-male/reference-v4`; one Qwen image, `run-1/image-0.png`, seed 20261127. Seen in it and not yet
 judged by a split: the thigh straps sit high, near the line the hips are cut on, and the leg pockets came out
 yellow whole, not their flaps alone. Next: the user's review of the `reference-v4` image.
+
+2026-11-24, the chest pocket dropped (user), the chest drawn broad, flat and smooth. No spot for the chest
+print is drawn: the print is a badge mesh of its own that the kit lays on the chest's front, as the brassard's
+badge is laid on its band, and a patch drawn in the image would be baked into the shirt's tint. Sealed as
+`street-casual-male/reference-v5`; one Qwen image, `run-1/image-0.png`, seed 20261127 as for v4. In it only the
+leg pockets' flaps are yellow, with a thin yellow edge round each pocket. Next: the user's review.
