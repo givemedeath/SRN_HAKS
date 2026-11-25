@@ -80,6 +80,13 @@ def command_brief(args):
                       'pads': document.get('pads', []), 'sealed': args.seal or args.adopt}))
 
 
+# The faces an outfit's mesh is exported with. An outfit is worn at 40,000 triangles at most, and the bake brings each part to its
+# budget by taking out the vertices whose loss changes its surface least (`reduce`): cut from a mesh of 200,000 faces a part keeps
+# its pockets, straps and seams where the generator's own reduction to 17,000 over the whole figure had flattened them (Facility
+# Security's male, 2026-11-13; the default by the user's word, 2026-11-24)
+EXPORT_FACES = 200000
+
+
 def command_image(args):
     from . import reference
     images = reference.generate(args.brief, args.folder, args.seed, args.batch, args.reference, args.url, args.profile, args.deadline)
@@ -323,7 +330,8 @@ def main(argv=None):
     p.add_argument('model'); p.add_argument('source', help='the image, or for export the generated mesh')
     p.add_argument('--models', help="the engine's models folder (from the local runtime binding)")
     p.add_argument('--fov', type=float); p.add_argument('--shape', help='the saved shape of a geometry attempt')
-    p.add_argument('--faces', type=int); p.add_argument('--fill', type=float, help='export a solid with its outside surface only')
+    p.add_argument('--faces', type=int, default=EXPORT_FACES, help='faces of the exported mesh: far more than an outfit is worn at, the bake reduces each part to its budget')
+    p.add_argument('--fill', type=float, help='export a solid with its outside surface only')
     p.add_argument('--url', default='http://127.0.0.1:8188')
     p.set_defaults(handler=command_generate)
     p = commands.add_parser('register', help='record images as made from a sealed reference folder (another image route, a derived image)')

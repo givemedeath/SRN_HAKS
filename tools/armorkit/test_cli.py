@@ -121,15 +121,18 @@ class CommandLineTests(unittest.TestCase):
             run('generate', 'geometry', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5)
             run('generate', 'appearance', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5, '--shape', 'shape.npz')
             run('generate', 'export', 'work', 'outfit', 'mesh.glb', '--faces', 12000, '--fill', 0.5)
+            run('generate', 'export', 'work', 'outfit', 'mesh.glb')  # no count: far more faces than are worn, for the bake to reduce part by part
+            self.assertEqual([given[3] for name, given in calls if name == 'export'], [12000, 200000])
             for missing in (('geometry', 'work', 'outfit', 'image.png', '--models', 'models'),  # no field of view
-                            ('calibrate', 'work', 'outfit', 'image.png'), ('export', 'work', 'outfit', 'mesh.glb'),
+                            ('calibrate', 'work', 'outfit', 'image.png'),
                             ('appearance', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5)):
                 with self.assertRaises(ValueError):
                     run('generate', *missing)
         self.assertEqual(calls, [('calibrate', ('work', 'outfit', 'image.png', 'models', url)),
                                  ('geometry', ('work', 'outfit', 'image.png', 36.5, 'models', url)),
                                  ('appearance', ('work', 'outfit', 'image.png', 36.5, 'shape.npz', 'models', url)),
-                                 ('export', ('work', 'outfit', 'mesh.glb', 12000, 0.5, url))])
+                                 ('export', ('work', 'outfit', 'mesh.glb', 12000, 0.5, url)),
+                                 ('export', ('work', 'outfit', 'mesh.glb', 200000, None, url))])
 
     def test_bake_routes_a_fresh_bake_and_a_second_tint_and_fails_on_a_gate(self):
         from . import bake

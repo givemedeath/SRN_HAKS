@@ -283,3 +283,31 @@ print is drawn: the print is a badge mesh of its own that the kit lays on the ch
 badge is laid on its band, and a patch drawn in the image would be baked into the shirt's tint. Sealed as
 `street-casual-male/reference-v5`; one Qwen image, `run-1/image-0.png`, seed 20261127 as for v4. In it only the
 leg pockets' flaps are yellow, with a thin yellow edge round each pocket. Next: the user's review.
+
+2026-11-24, export at 200,000 faces by default (user: implement it now, the outfit in progress included).
+`generate export` without `--faces` now exports 200,000, and the bake reduces each part to its budget
+(`reduce`), as Facility Security's male was cut; step B4's "about 17,000 faces" is superseded. Street Casual
+has both exports of its first geometry: `export-1` at 17,000 and `export-2` at 200,000, and is baked from
+`export-2`.
+
+A larger reference image, asked for with it, is not built, because it would change nothing: `calibrate` crops
+every reference to its subject at 1,024 by 1,024 pixels (`ImageCropToMask`, in the engine's shared graph)
+before geometry or appearance sees it, and a 1,024-pixel reference already fills that crop. More pixels would
+have to come from the graph's own crop size, which headkit and itemkit share, and from what the engine's
+image encoder takes; neither is looked at here.
+
+2026-11-24, step B3 to B5, geometry attempt 1 of 5 (from `reference-v5`): calibrated (field of view 41.4
+degrees), generated, exported (`export-1` 17,000 faces, `export-2` 200,000) and given its appearance. The mesh
+looks right in clay views (`geometry-1/views.jpg`): pockets, belt pouches, thigh straps and boots are there;
+the shirt's back has a fold the generator invented. **It does not bake.** From either export the fit refuses
+the sleeves ("the sleeve is one surface with the torso down to the elbow"): the T-shirt is boxy with a low
+armpit, each sleeve ends about 5 cm of sections past where it starts, still joined to the torso, and the
+outfit's shoulder joint is estimated 8 to 10 cm outside its surface. A fallback in `split.sleeve` for a sleeve
+that ends while joined was tried: the fit then passed and the split refused the sleeve at the shoulder plane
+("does not cross the sleeve as it was cut"), so the fallback was taken out again and is not in the kit.
+
+The brief now asks for sleeves set in at the shoulder and reaching just above the elbow; sealed as
+`reference-v6`, one Qwen image, seed 20261127. The image shows a short sleeve over a long one to the wrist,
+which was not asked for. Next: the user chooses between that layered sleeve (the brief then covers the
+forearm and leaves only the hands bare) and a redraw with a plain elbow-length sleeve, before geometry
+attempt 2.
