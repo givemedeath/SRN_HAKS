@@ -29,8 +29,8 @@ project is also open, and contributor acknowledgement is requested. The curated 
 terms and are not covered by this repository's default PolyForm license. The audio archive lacks
 per-track rights metadata; see `PROVENANCE.md` for the unresolved redistribution warning.
 
-The item archive is presently analysis-only: one texture (`jzg_m4a1.dds`, the dependency of two placeables, see
-`PROVENANCE.md`) has been promoted and no other item resource. Its source credit
+The item archive is presently analysis-only: 155 textures that published placeables name (see `PROVENANCE.md`) have
+been promoted and no other item resource. Its source credit
 file names the original D20 Modern team, Jezira, Prole, Xialya, Vanya Mia, Taina, JKA, Forestwolf,
 Shemsu-Heru, Aenea, The Barbarian, Zwerkule, and Den of Assassins. The companion project-source
 `d20modernupdate.erf` is used only to identify 669 item-blueprint consumers; its unrelated module
