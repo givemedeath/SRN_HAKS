@@ -192,6 +192,12 @@ def build(nwn_root, out, transition=False, play=False, live=None):
     from tool_runtime import tool
     out = Path(out).resolve()
     staging, user = out / 'staging', out / 'user'
+    hak, module = user / 'hak' / (HAK + '.hak'), user / 'modules' / (MODULE + '.mod')
+    for held in (hak, module):  # before anything else is taken away
+        try:
+            held.unlink(missing_ok=True)
+        except PermissionError as error:
+            raise RuntimeError(f'{held} is in use: close the client that was left running on it') from error
     if staging.exists():
         shutil.rmtree(staging)
     resources, binary = staging / 'hak', staging / 'module'
@@ -208,8 +214,6 @@ def build(nwn_root, out, transition=False, play=False, live=None):
         if done.returncode != 0:
             raise RuntimeError(f'{Path(executable).name} failed: ' + (done.stdout + done.stderr).decode(errors='replace')[-800:])
 
-    hak = user / 'hak' / (HAK + '.hak')
-    hak.unlink(missing_ok=True)
     run(erf, '-c', '-f', hak, '-e', 'HAK', resources)
     tiles = [{'__struct_id': 1, 'Tile_ID': field('int', 120), 'Tile_Height': field('int', 0), 'Tile_Orientation': field('int', 0),
               **{k: field('byte', v) for k, v in {'Tile_AnimLoop1': 1, 'Tile_AnimLoop2': 1, 'Tile_AnimLoop3': 1, 'Tile_MainLight1': 0,
@@ -259,14 +263,13 @@ def build(nwn_root, out, transition=False, play=False, live=None):
         run(compiler, '--root', nwn_root, '--userdirectory', user, source)
         if not source.with_suffix('.ncs').exists():
             raise RuntimeError(f'the script compiler wrote no {name}.ncs')
-    module = user / 'modules' / (MODULE + '.mod')
-    module.unlink(missing_ok=True)
     run(erf, '-c', '-f', module, '-e', 'MOD', binary)
     return user, count
 
 
 def wait_for_client(wait):
-    """Before anything is built: a client left running (`--play`, `--live`) holds its HAK and its settings."""
+    """Before anything is built, as a client left running (`--play`, `--live`) holds its HAK and its settings; and again
+    before the start, as another session may have opened one during the build."""
     from tools.armorkit import client
     if wait:
         client.wait_free(wait)
@@ -280,6 +283,7 @@ def capture(nwn_root, out, wait=0, transition=False):
     from PIL import ImageGrab  # noqa: F401  (the capture needs Pillow's grabber)
     wait_for_client(wait)
     user, count = build(nwn_root, out, transition)
+    wait_for_client(wait)
     captures = Path(out).resolve() / 'captures'
     if captures.exists():
         shutil.rmtree(captures)
@@ -327,8 +331,8 @@ def main(argv=None):
     parser.add_argument('--live', type=int, metavar='MINUTES', help='leave a module running for a person, its clock at MINUTES real '
                         'minutes per game hour (8: a day in 3.2 hours), with chat commands /sky, /time, /rain and /clear')
     args = parser.parse_args(argv)
-    if args.live is not None and not 1 <= args.live <= 255:
-        parser.error('--live takes 1 to 255 minutes per hour')
+    if args.live is not None and not 1 <= args.live <= 60:
+        parser.error('--live takes 1 to 60 minutes per hour: 60 is real time, and SetTime takes no minute over 59')
     if sum((args.play, args.transition, args.live is not None)) > 1:
         parser.error('--play, --transition and --live are different modules: give one')
     if args.build_only:
@@ -339,6 +343,7 @@ def main(argv=None):
         from tools.tilekit import client_settings
         wait_for_client(args.wait)
         user, _ = build(args.nwn_root, args.out, play=args.play, live=args.live)
+        wait_for_client(args.wait)
         # left running for a person: never without a frame limit
         (user / 'settings.tml').write_text(client.settings_text(1600, 900, client_settings.settings()), encoding='utf-8')
         process = client.start(args.nwn_root, user, MODULE)

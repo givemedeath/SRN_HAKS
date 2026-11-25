@@ -273,11 +273,34 @@ class LiveModule(unittest.TestCase):
                     client_fixture.main(['--nwn-root', 'none', '--wait', '1', *given])
             built.assert_not_called()
 
+    def test_a_client_opened_during_the_build_is_waited_for(self):
+        from unittest import mock
+        from tools.armorkit import client
+        from tools.skykit import client_fixture
+        for given in (['--live', '8'], ['--play'], ['--transition'], []):
+            order = []
+            with tempfile.TemporaryDirectory() as temporary, \
+                    mock.patch.object(client_fixture, 'build', side_effect=lambda *_, **__: order.append('build') or (Path(temporary), 0)), \
+                    mock.patch.object(client, 'wait_free', side_effect=lambda wait: order.append('wait')), \
+                    mock.patch.object(client, 'start', side_effect=InterruptedError):
+                with self.assertRaises(InterruptedError):
+                    client_fixture.main(['--nwn-root', 'none', '--out', temporary, '--wait', '1', *given])
+            self.assertEqual(order, ['wait', 'build', 'wait'])
+
+    def test_a_held_hak_stops_the_build_before_it_takes_anything_away(self):
+        from unittest import mock
+        from tools.skykit import client_fixture
+        with tempfile.TemporaryDirectory() as temporary:
+            (Path(temporary) / 'staging').mkdir()
+            with mock.patch.object(Path, 'unlink', side_effect=PermissionError), self.assertRaisesRegex(RuntimeError, 'in use'):
+                client_fixture.build('none', temporary)
+            self.assertTrue((Path(temporary) / 'staging').is_dir())
+
     def test_one_kind_of_module_at_a_time(self):
         import contextlib
         import io
         from tools.skykit import client_fixture
-        for given in (['--live', '0'], ['--live', '256'], ['--live', '8', '--play'], ['--live', '8', '--transition']):
+        for given in (['--live', '0'], ['--live', '61'], ['--live', '8', '--play'], ['--live', '8', '--transition']):
             with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
                 client_fixture.main(['--nwn-root', 'none', '--build-only', *given])
 
