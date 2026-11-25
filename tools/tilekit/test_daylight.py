@@ -234,6 +234,11 @@ class Daylight(unittest.TestCase):
         names = re.findall(r'(?m)^  node \w+ (\S+)', anim(moved, 'animloop01')); self.assertEqual(names, ['t_a01', 't_a01a', 'lights'])
         with self.assertRaisesRegex(ValueError, 'not placed as'):  # the loop moves it in its old parent's frame
             daylight.animated(arm.replace('donemodel', loop.replace('node dummy lights\n    parent t_a01\n', 'node trimesh pane\n    parent lights\n') + 'donemodel'), 'pane')
+        # a plain place in an animation is a key too (review of PR 198): the mesh it places is refused, the parent it places keeps its meshes
+        with self.assertRaisesRegex(ValueError, 'not placed as'):
+            daylight.animated(arm.replace('donemodel', 'newanim animloop01 t_a01\n  node trimesh pane\n    parent lights\n    position 0 0 5\n  endnode\ndoneanim animloop01 t_a01\ndonemodel'), 'pane')
+        plain = MODEL.replace('donemodel', 'newanim animloop01 t_a01\n  node dummy lights\n    parent t_a01\n    position 0 0 5\n  endnode\ndoneanim animloop01 t_a01\ndonemodel')
+        self.assertEqual(daylight.animated(plain, 'pane')[1], 'lights')
         # the sets: every mesh the hour fades is under its tile's animated node
         loose = []
         for pack in ('srn_t_fcx01', 'srn_t_udp1', 'srn_t_dgt04', 'srn_t_common'):
@@ -254,6 +259,12 @@ class Daylight(unittest.TestCase):
         self.assertIn('node trimesh pane\n  parent t_a01a\n  selfillumcolor 0 0 0\n  bitmap win_b\n', made)
         self.assertIn('node trimesh lit01_0\n  parent t_a01a\n  selfillumcolor 1 1 1\n  bitmap lens\n', made)  # not one of them: its glow is its own
         self.assertEqual(daylight.with_daylight(daylight.without(made), LIT, {'win_b'})[0], made)
+        # the loop checks know such a mesh too (review of PR 198): left no glow of its own, it was not seen parked or raised
+        raised = made.replace('donemodel', 'newanim animloop01 t_a01\n  node trimesh pane\n    parent t_a01a\n    positionkey 1\n      0 0 0 10\n    endlist\n  endnode\ndoneanim animloop01 t_a01\ndonemodel')
+        self.assertFalse(daylight.switched(raised, {'win_b': 'win'})); self.assertTrue(daylight.switched(raised, {'win_b': 'win'}, mapped={'win_b'}))
+        self.assertEqual(daylight.never(raised, {'win_b': 'win'}, {'win_b'}), ['dull'])
+        with self.assertRaisesRegex(ValueError, 'texture0'):  # under another name it would draw no picture
+            daylight.unlit('renderhint NormalAndSpecMapped\ntexture5 win_i\n')
         spec = json.loads((REPO / 'docs' / 'tilesets' / 'fcx01' / 'daylight.json').read_text(encoding='utf-8')); glowing = daylight.mapped(spec); left = []
         self.assertEqual(len(glowing), 6)
         for path in sorted((REPO / 'sources' / 'srn_t_fcx01').glob('*.mdl')):

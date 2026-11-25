@@ -79,23 +79,26 @@ def panes(body, boxes, lift):
             quad = [tuple(p + lift * n for p, n in zip(place(*corner)[0], normal)) for corner in corners]
             if sum(a * b for a, b in zip(_cross(_minus(quad[1], quad[0]), _minus(quad[2], quad[0])), normal)) < 0:
                 quad.reverse()  # facing as the face under it does
-            found.append(quad)
+            if not any(max(abs(a - b) for one, other in zip(quad, had) for a, b in zip(one, other)) < 1e-6 for had in found):
+                found.append(quad)  # a middle on the edge two faces share is in both: one pane for the place
     return found
 
 
 def without(text):
-    """The model's text without its lamp panes, and without a loop that keyed nothing else."""
-    had = any(LAMP.match(at.group(2).split()[0]) for at in daylight.NODE.finditer(daylight._geometry(text)))
-    text = daylight.NODE.sub(lambda at: '' if LAMP.match(at.group(2).split()[0]) else at.group(0), text)
-    if not had:
-        return text
-    return re.sub(r'(?mis)^[ \t]*newanim[ \t]+\S+[ \t].*?^[ \t]*doneanim[^\n]*\n', lambda at: at.group(0) if re.search(r'(?i)key\b', at.group(0)) else '', text)
+    """The model's text without its lamp panes, and without an animation that blinked them and keyed nothing else.
+    Another animation is left though it keys nothing: a tile's own `tiledefault` names its emitters alone."""
+    bare = lambda block: daylight.NODE.sub(lambda at: '' if LAMP.match(at.group(2).split()[0]) else at.group(0), block)
+    text = re.sub(r'(?mis)^[ \t]*newanim[ \t]+\S+[ \t].*?^[ \t]*doneanim[^\n]*\n',
+                  lambda at: '' if bare(at.group(0)) != at.group(0) and not re.search(r'(?i)key\b', bare(at.group(0))) else at.group(0), text)
+    return bare(text)
 
 
 def with_lights(text, spec):
     """(the model's text with the lamp panes of `spec` over its meshes that draw the fixture, and the loop that blinks
     them; how many panes). A model that draws none of the fixture's lights is given back as it is; one that has the
     loop already, or lamp panes, is refused."""
+    require(isinstance(spec.get('lights'), dict) and isinstance(spec.get('texture'), str) and len(spec.get('patch', ())) == 4 and isinstance(spec.get('period'), (int, float)),
+            'A blink list has a texture, a patch of four numbers, a period and its lights')
     texture = spec['texture'].lower(); loop = spec.get('loop', 'animloop01'); period = float(spec['period']); lift = float(spec.get('lift', 0.005))
     name = re.search(r'(?mi)^[ \t]*newmodel[ \t]+(\S+)', text).group(1); ending = '\r\n' if '\r\n' in text else '\n'
     left, top, right, bottom = spec['patch']; require(0 <= left < right <= 1 and 0 <= top < bottom <= 1, 'A patch is [left, top, right, bottom] in 0-1')
@@ -104,7 +107,8 @@ def with_lights(text, spec):
     made = []  # (light, the mesh's block, its panes)
     for light, how in spec['lights'].items():
         require(len(how.get('colour', ())) == 3 and all(0 <= value <= 1 for value in how['colour']), f'{light}: a colour is red, green and blue in 0-1')
-        require(how.get('on') and all(0 <= start < finish <= period - EDGE for start, finish in how['on']) and all(a[1] + 2 * EDGE <= b[0] for a, b in zip(how['on'], how['on'][1:])),
+        require(how.get('boxes') and all(len(box) == 4 for box in how['boxes']), f'{light}: its boxes are [left, top, right, bottom]')
+        require(how.get('on') and all(len(span) == 2 for span in how['on']) and all(0 <= start < finish <= period - EDGE for start, finish in how['on']) and all(a[1] + 2 * EDGE <= b[0] for a, b in zip(how['on'], how['on'][1:])),
                 f'{light}: its times on are [from, to] seconds in turn, within the period')
         for mesh in meshes:
             quads = panes(mesh.group(3), how['boxes'], lift)

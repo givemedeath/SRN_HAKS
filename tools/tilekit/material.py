@@ -106,7 +106,7 @@ def glow(made, lit):
     if lit.get('boxes') is not None:
         height, width = shown.shape; inside = np.zeros_like(shown)
         for one in lit['boxes']:
-            require(set(one) <= {'box', 'above'} and len(one.get('box', ())) == 4 and 0 <= one['box'][0] < one['box'][2] <= 1 and 0 <= one['box'][1] < one['box'][3] <= 1,
+            require(isinstance(one, dict) and set(one) <= {'box', 'above'} and len(one.get('box', ())) == 4 and 0 <= one['box'][0] < one['box'][2] <= 1 and 0 <= one['box'][1] < one['box'][3] <= 1,
                     'A glow\'s box is {box: [left, top, right, bottom] in 0-1, above}')
             left, top, right, bottom = one['box']; rows, columns = slice(round(top * height), round(bottom * height)), slice(round(left * width), round(right * width))
             inside[rows, columns] |= colour[rows, columns].max(axis=2) >= float(one.get('above', lit.get('above', 0)))

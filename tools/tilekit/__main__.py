@@ -111,7 +111,7 @@ def daylight_command(chosen):
         print(json.dumps({'written': told}))
         return 0
     if chosen.lights_on:
-        told = daylight.lights_on(chosen.repo, chosen.tileset, daylight.switches(_json(chosen.spec)))
+        told = daylight.lights_on(chosen.repo, chosen.tileset, daylight.switches(_json(chosen.spec)), mapped=daylight.mapped(_json(chosen.spec)))
         print(json.dumps({'turned on': len(told), 'models': told}))
         return 0
     require(chosen.out, 'daylight writes its models into --out')

@@ -24,6 +24,7 @@ ANIMS = {'day': (0, 0, 1 / 30), 'day2night': (0, 1, 0.56667), 'night': (1, 1, 1 
 NODE = re.compile(r'(?ms)^[ \t]*node[ \t]+(\w+)[ \t]+([^\r\n]+?)[ \t]*\r?\n(.*?)^[ \t]*endnode[ \t]*\r?\n')
 GLOW = 0.05  # a self-illumination under this is no light
 LOOPS = (1, 2, 3)  # a tile's loops: AnimLoop1 to 3 in a set file, animloop01 to 03 in a model
+PLACED = re.compile(r'(?mi)^[ \t]*(?:position|orientation|scale)(?:key)?\b')  # an animation placing a node: keyed, or a plain place, which is its one key (dgt04_e09_21)
 PANE = re.compile(r'(?i)^day\d{2,}_\d+$')  # a day pane's name, as `with_daylight` gives it
 
 
@@ -116,7 +117,7 @@ def animated(text, node, keep=()):
         return text, placed[placed[key][1]][0]
     require(under != key and key not in _line(placed, under)[1:], f'{name}: the mesh {node!r} holds the animated node')
     root = line[-1]
-    keyed = {at.group(2).split()[0].lower() for part in re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)[1:] for at in NODE.finditer(part) if re.search(r'(?i)key\b', at.group(3))}
+    keyed = {at.group(2).split()[0].lower() for part in re.split(r'(?mi)(?=^[ \t]*newanim[ \t])', text)[1:] for at in NODE.finditer(part) if re.search(r'(?i)key\b', at.group(3)) or PLACED.search(at.group(3))}
     held = next((one for one in reversed(line[1:-1]) if one in keyed or one in keep), None)
     if held:
         return animated(text, placed[line[-2] if keyed & set(line[1:-1]) else held][0], keep)[0], placed[placed[key][1]][0]
@@ -146,7 +147,7 @@ def animated(text, node, keep=()):
         own = next((one for one in NODE.finditer(part) if one.group(2).split()[0].lower() == key), None)
         if not own:
             continue
-        require(alike or not re.search(r'(?i)\b(?:position|orientation|scale)key\b', own.group(0)), f'{name}: an animation moves the mesh {node!r}, whose parent is not placed as the animated node is')
+        require(alike or not PLACED.search(own.group(3)), f'{name}: an animation moves the mesh {node!r}, whose parent is not placed as the animated node is')
         named = next((one for one in NODE.finditer(part) if one.group(2).split()[0].lower() == under), None)
         if named and named.start() > own.start():  # named after the mesh, which hung from the root: the animated node is named first, where the mesh is
             parts[at] = part[:own.start()] + named.group(0) + hung(own.group(0)) + part[own.end():named.start()] + part[named.end():]; continue
@@ -266,6 +267,7 @@ def unlit(material):
     its material had one: the arcology's windows were as bright at noon as at night (review of PR 198, 2026-11-24)."""
     found = GLOW_MAP.search(material)
     require(found and found.group(2).lower() != 'null', 'The material has no glow map to leave out')
+    require(re.search(r'(?mi)^[ \t]*texture0[ \t]+\S', material), 'The material names no texture0: under another name it would draw no picture')
     return GLOW_MAP.sub(lambda at: at.group(1) + 'null', material, count=1)
 
 
@@ -286,23 +288,24 @@ def day_materials(repo, spec, packs, *, check=False):
     return told
 
 
-def switched(text, textures, loop='animloop01'):
+def switched(text, textures, loop='animloop01', mapped=()):
     """Whether a model's lit meshes are switched by a tile loop: one of them, or one of their parents, is moved in
     `loop`. The suburb tiles keep their lit panes parked under the tile and their unlit ones in place, and `animloop01`
     changes them over, so a tile whose AnimLoop1 is off is dark at every hour (found 2026-11-24). The Modern Exterior
     tiles move the lit mesh itself (found the same day, in the review of PR 194)."""
-    return bool(_switched(text, textures, loop))
+    return bool(_switched(text, textures, loop, mapped))
 
 
-def never(text, textures):
+def never(text, textures, mapped=()):
     """The lit meshes of a model that no tile loop moves, where a loop moves any of them: parked and never raised,
     such a pane never lights (the pawn shop window of dgt04_e09_06, 2026-11-24). A model no loop switches is not told:
-    its lit panes are in place."""
-    moved = {node for loop in LOOPS for node in _switched(text, textures, f'animloop0{loop}')}
-    return [node for node, parent, texture in lit_nodes(text, textures) if moved and node not in moved]
+    its lit panes are in place. mapped: as `lit_nodes`, here and in `switched` and `lights_on`: a pane lit by its
+    material alone is parked and raised as any other."""
+    moved = {node for loop in LOOPS for node in _switched(text, textures, f'animloop0{loop}', mapped)}
+    return [node for node, parent, texture in lit_nodes(text, textures, mapped=mapped) if moved and node not in moved]
 
 
-def _switched(text, textures, loop):
+def _switched(text, textures, loop, mapped=()):
     at = re.search(rf'(?mis)^[ \t]*newanim[ \t]+{loop}[ \t].*?^[ \t]*doneanim[ \t]+{loop}[ \t]', text)
     if not at:
         return []
@@ -317,7 +320,7 @@ def _switched(text, textures, loop):
     moved = {name.split()[0].lower() for kind, name, body in NODE.findall(at.group(0)) if away(name.split()[0].lower(), body)}
     above = {name.split()[0].lower(): (_field(body, 'parent') or 'NULL').split()[0].lower() for kind, name, body in nodes}
     told = []
-    for node, parent, texture in lit_nodes(text, textures):
+    for node, parent, texture in lit_nodes(text, textures, mapped=mapped):
         seen, one = set(), node.split()[0].lower()
         while one in above and one not in seen:
             if one in moved:
@@ -333,7 +336,7 @@ def switches(spec):
     return {**spec['lit'], **dict.fromkeys(spec.get('switched', ()))}
 
 
-def lights_on(repo, tileset, lit, pack=None):
+def lights_on(repo, tileset, lit, pack=None, mapped=()):
     """Turn each of AnimLoop1 to 3 on in a tileset's set file for every tile whose model's lit meshes are switched by
     it, and tell the models turned on. The standard (user, 2026-11-24): the hour drives the lights, through the day and
     night animations; a tile loop is the builder's switch for a building that stands dark, and is on unless turned off.
@@ -352,7 +355,7 @@ def lights_on(repo, tileset, lit, pack=None):
     def one(at):
         name = re.search(r'(?mi)^Model=(\S+)', at.group(0)); tile = at.group(0)
         for loop in LOOPS:
-            if name and re.search(rf'(?m)^AnimLoop{loop}=0[ \t]*\r?$', tile) and switched(model(name.group(1).lower()), lit, f'animloop0{loop}'):
+            if name and re.search(rf'(?m)^AnimLoop{loop}=0[ \t]*\r?$', tile) and switched(model(name.group(1).lower()), lit, f'animloop0{loop}', mapped):
                 told.append(name.group(1).lower()); tile = re.sub(rf'(?m)^AnimLoop{loop}=0([ \t]*\r?)$', rf'AnimLoop{loop}=1\1', tile)
         return tile
     new = re.sub(r'(?ms)^\[TILE\d+\][^\[]*', one, text)
@@ -374,8 +377,8 @@ def write(repo, tileset, folder, lit, shared=(), again=False, mapped=()):
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):
         if set(others) - {one.lower() for one in shared}:  # another tileset draws it too
             continue
-        if never(text, lit):
-            told['parked'][name] = never(text, lit)
+        if never(text, lit, mapped):
+            told['parked'][name] = never(text, lit, mapped)
         if lit_nodes(text, lit, mapped=mapped) and {one.lower() for one in re.findall(r'(?mi)^[ \t]*newanim[ \t]+(\S+)', text)} >= set(ANIMS):
             told['done'] += 1
             if not again:

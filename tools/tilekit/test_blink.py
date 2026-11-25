@@ -57,6 +57,7 @@ class Blink(unittest.TestCase):
             facing = blink._cross(blink._minus(quad[1], quad[0]), blink._minus(quad[2], quad[0]))
             self.assertGreater(sum(a * b for a, b in zip(facing, normal)), 0)
         self.assertEqual(blink.panes(body, [[1.2, 0.1, 1.4, 0.3]], 0.01), [])  # nothing of the mesh draws it
+        self.assertEqual(len(blink.panes(body, [[0.4, 0.7, 0.6, 0.8]], 0.01)), 1)  # its middle on the edge two faces share: one pane (review of PR 198)
         with self.assertRaisesRegex(ValueError, 'runs off the flat'):
             blink.panes(body, [[0.25, 0.4, 0.5, 0.6]], 0.01)  # over the fold
 
@@ -75,6 +76,14 @@ class Blink(unittest.TestCase):
         self.assertIn('  node trimesh blink01\n    parent t_a01a\n    alphakey 6\n      0.00000 0\n      1.48000 0\n      1.50000 1\n      3.50000 1\n      3.52000 0\n      4.00000 0\n    endlist\n', loop)
         bare = blink.without(made); self.assertNotIn('blink', bare); self.assertNotIn('newanim', bare); self.assertEqual(blink.with_lights(bare, SPEC)[0], made)
         self.assertEqual(blink.without(MODEL), MODEL)
+        # an animation that keys nothing and blinked no lamp is the tile's own, and stays (review of PR 198)
+        own = 'newanim tiledefault t_a01\n  node emitter spray\n    parent t_a01\n  endnode\ndoneanim tiledefault t_a01\n'
+        kept = made.replace('newanim animloop01', own + 'newanim animloop01'); self.assertEqual(blink.without(kept), bare.replace('donemodel', own + 'donemodel'))
+        for lack in ('texture', 'patch', 'period', 'lights'):
+            with self.assertRaisesRegex(ValueError, 'A blink list has'):
+                blink.with_lights(MODEL, {key: value for key, value in SPEC.items() if key != lack})
+        with self.assertRaisesRegex(ValueError, 'its boxes are'):
+            blink.with_lights(MODEL, {**SPEC, 'lights': {'red': {**SPEC['lights']['red'], 'boxes': [[0.25, 0.7, 0.5]]}}})
         for wrong, told in ((made, 'lamp panes already'), (MODEL.replace('donemodel', 'newanim animloop01 t_a01\ndoneanim animloop01 t_a01\ndonemodel'), 'has the loop')):
             with self.assertRaisesRegex(ValueError, told):
                 blink.with_lights(wrong, SPEC)
@@ -87,7 +96,7 @@ class Blink(unittest.TestCase):
         lit = material.glow({'colour': colour}, {'boxes': [{'box': [0, 0, 0.5, 0.5]}, {'box': [0.5, 0.5, 1, 1], 'above': 100}]})
         self.assertTrue((lit[:4, :4] == 200).all()); self.assertEqual(int(lit.sum()), 16 * 3 * 200)  # the second box's pixels are under its own threshold
         self.assertEqual(int(material.glow({'colour': colour}, {'above': 250, 'boxes': [{'box': [0, 0, 1, 1], 'above': 50}]}).min()), 90)
-        for wrong in ([{'box': [0.5, 0, 0.5, 1]}], [{'box': [0, 0, 1, 1.5]}], [{'box': [0, 0, 1, 1], 'gain': 2}]):
+        for wrong in ([{'box': [0.5, 0, 0.5, 1]}], [{'box': [0, 0, 1, 1.5]}], [{'box': [0, 0, 1, 1], 'gain': 2}], [[0, 0, 1, 1]]):
             with self.assertRaises(ValueError):
                 material.glow({'colour': colour}, {'boxes': wrong})
 
