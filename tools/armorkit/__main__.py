@@ -9,7 +9,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     __package__ = 'tools.armorkit'
 
-from . import registry, tables
+from . import registry, seams, tables
 
 
 def listed(text):
@@ -131,13 +131,26 @@ def layout_library(folder):
     return importlib.import_module('xatlas')
 
 
+def tiers(tier, at):
+    """The tier a bake is cut at: `tier`, or with `at` (JOINT=TIER, each) a mapping of those joints and `default`."""
+    if not at:
+        return tier
+    found = {'default': tier}
+    for entry in at:
+        joint, _, value = entry.partition('=')
+        registry.require(joint in seams.JOINTS and value.isdigit() and int(value) in registry.TIERS,
+                         f'--tier-at takes JOINT=TIER, a joint of {sorted(seams.JOINTS)} and a tier of {list(registry.TIERS)}: {entry}')
+        found[joint] = int(value)
+    return found
+
+
 def command_bake(args):
     from . import bake, brief
     sources = (args.mesh, args.colours, args.raw, args.xatlas)
     registry.require(all(sources) or (args.kept and not any(sources)),
                      'bake needs --mesh, --colours, --raw and --xatlas together, or --kept alone to tint stored parts again')
     record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
-                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=args.tier, tint_cache=args.tint_cache,
+                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=tiers(args.tier, args.tier_at), tint_cache=args.tint_cache,
                       packs=args.pack, game=args.nwn_root, resources=args.resources, body_textures=args.body_textures,
                       capture=args.capture, say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
@@ -344,6 +357,7 @@ def main(argv=None):
     p.add_argument('brief'); p.add_argument('output'); p.add_argument('--number', type=int, required=True, help='the part number the models are written as')
     p.add_argument('--body-pack', required=True, help="folder holding the body's models"); p.add_argument('--body', default='pmh0')
     p.add_argument('--tier', type=int, default=2, choices=registry.TIERS, help='the seam tier the outfit is cut at')
+    p.add_argument('--tier-at', action='append', default=[], metavar='JOINT=TIER', help='a joint the outfit is cut at another tier at (shoulder=1); may be repeated')
     p.add_argument('--body-textures', help="folder holding the body's material files and maps, for an outfit that shows the body's skin")
     p.add_argument('--mesh', help='the exported mesh'); p.add_argument('--colours', help='the saved colour field of the appearance job')
     p.add_argument('--raw', help="the generator's own high-detail mesh, for the normal maps")

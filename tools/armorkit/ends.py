@@ -34,6 +34,8 @@ DEEPER = 0.005  # a cap at a tube joint runs this much deeper than the overlap: 
 BARE = 0  # the tier an under end is brought to where the body's own skin lies over it: a glove's cuff under a bare forearm
 # stood at the outfit's padded tier, 2.5 cm off the skin, and its cap ran 6 cm up the arm as a band (Facility Security, 2026-11-13)
 TUCK = 0.25  # and its cap starts this share inside its rim, under the skin at once: from the rim, it crossed the skin 1.5 cm up as a grey band
+OPEN = 1.1  # an under end's ring is read no farther out than this many times its opening on the plane (`opening`)
+ROUND = 0.75  # the edges a part is open on at a plane are its opening when they come round this share of the turn
 BINS = 64  # directions about the axis the end's ring is read in
 FAR = 1.3  # what stands this many times farther from the axis than the ring and the envelope moves less, the farther the less
 STEP = 0.002  # the plane section is sampled this densely
@@ -60,11 +62,55 @@ def _around(values, angles):
     return seams.around(values, np.asarray(angles, float) - np.pi / len(values))
 
 
-def ring(vertices, faces, point, normal, under):
+def opening(vertices, faces, weld, point, normal):
+    """An under end's opening on its plane in `BINS` directions: how far from the axis the edges the part has
+    on one face only lie on the plane, kept as wide across neighbouring directions as `ring` is; None unless
+    they come round `ROUND` of the turn.
+
+    An ankle plane tilts forward and down through a heavy boot's toe box, and the sections `ring` reads just
+    past it hold the toe box, 20 cm out in front where the boot's shaft is 9: Street Casual's boots, brought to
+    the envelope from that ring, had their toe caps drawn in by 10 cm and crushed to a wedge of sawteeth (user,
+    2026-11-25: "the feet are still looking very rough"). The end is what the part is open on, and `ring`
+    reads no farther out than `OPEN` times this."""
+    faces = np.asarray(faces, int)
+    edges = np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]])
+    key = np.sort(weld[edges], axis=1)
+    edges, key = edges[key[:, 0] != key[:, 1]], key[key[:, 0] != key[:, 1]]
+    if not len(edges):
+        return None
+    _, inverse, count = np.unique(key, axis=0, return_inverse=True, return_counts=True)
+    edges = edges[count[inverse.reshape(-1)] == 1]
+    normal = seams.unit(normal)
+    relative = np.asarray(vertices, float) - point
+    height = relative @ normal
+    edges = edges[(np.abs(height[edges]) < AT_PLANE).all(axis=1)]
+    if not len(edges):
+        return None
+    u, v = seams.frame(normal)
+    flat = np.stack([relative @ u, relative @ v], axis=1)
+    points = []
+    for start, stop in zip(flat[edges[:, 0]], flat[edges[:, 1]]):
+        points.append(start + np.linspace(0, 1, max(2, int(np.linalg.norm(stop - start) / STEP) + 2))[:, None] * (stop - start))
+    points = np.concatenate(points)
+    at = np.floor((np.arctan2(points[:, 1], points[:, 0]) % (2 * np.pi)) / (2 * np.pi / BINS)).astype(int) % BINS
+    radius = np.linalg.norm(points, axis=1)
+    found = np.full(BINS, np.nan)
+    for k in np.unique(at):
+        found[k] = radius[at == k].max()
+    have = np.flatnonzero(~np.isnan(found))
+    if len(have) < ROUND * BINS:
+        return None
+    if len(have) < BINS:
+        found = np.interp(np.arange(BINS), np.concatenate([have - BINS, have, have + BINS]), np.tile(found[have], 3))
+    return np.maximum(np.maximum(np.roll(found, 1), found), np.roll(found, -1))
+
+
+def ring(vertices, faces, point, normal, under, within=None):
     """The end's ring at the plane in `BINS` directions: its widest (an under end) or nearest (an over end) radius
     over the sections `BAND` lists, kept as wide or as near across each pair of neighbouring directions, so that
     read between them it still holds every point of the sections; directions it has no point in are read across
-    from the nearest that do. None when the faces do not reach the plane."""
+    from the nearest that do. None when the faces do not reach the plane. `within` is an under end's `opening`:
+    the ring is read no farther out than `OPEN` times it."""
     normal = seams.unit(normal)
     points = np.concatenate([_sampled(vertices, faces, point + offset * normal, normal) for offset in BAND[under]])
     if not len(points):
@@ -79,7 +125,8 @@ def ring(vertices, faces, point, normal, under):
     if len(have) < BINS:  # across the gaps, round the circle
         found = np.interp(np.arange(BINS), np.concatenate([have - BINS, have, have + BINS]), np.tile(found[have], 3))
     pick = np.maximum if under else np.minimum
-    return pick(pick(np.roll(found, 1), found), np.roll(found, -1))
+    found = pick(pick(np.roll(found, 1), found), np.roll(found, -1))
+    return found if within is None else np.minimum(found, OPEN * np.asarray(within, float))
 
 
 def spread(vertices, faces, point, normal, under, rim):
@@ -192,7 +239,7 @@ def ends_of(name, bones, contract, body, tier, joints=TUBES, bare=()):
                 if name == (tokens[0] if len(tokens) == 1 else tokens['lr'.index(letter)]):
                     point, normal = seams.plane(bones, joint, letter)
                     skin = key == 'under' and (joint, side) in bare
-                    level = BARE if skin else tier
+                    level = BARE if skin else seams.at(tier, joint)
                     envelope = np.asarray(seams.envelope(contract, joint, body, level, paired), float)
                     found.append((point, seams.unit(normal), envelope, envelope if skin else envelope - contract['tierOffsets'][str(level)],
                                   key == 'under', skin))
@@ -218,7 +265,7 @@ def shaped(vertices, faces, measured, part_ends, inward=False):
         # to the Dwarf Large female's waist, a slit along the seam (Facility Security, 2026-11-14)
         whole = np.isin(weld, weld[mine[crossed]])
         for _ in range(PASSES):
-            rim = ring(vertices, mine, point, normal, under)
+            rim = ring(vertices, mine, point, normal, under, opening(vertices, faces, weld, point, normal) if under else None)
             if rim is None:
                 break
             vertices = end(vertices, point, normal, rim, envelope, body_ring, under, length, spread(vertices, mine, point, normal, under, rim), whole, skin,

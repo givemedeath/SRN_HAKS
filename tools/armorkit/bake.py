@@ -36,6 +36,7 @@ ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
 TUCKED = ('shoulder',)  # the joints whose closings are brought in under the part beside them (`tucked`): where a sleeve is cut from the torso
 TUCK = 0.002  # metres under that part's surface
+ANKLE_TUCK = 0.15  # a foot's cap starts this share inside its rim: as wide as a boot's shaft, it came out through the front of the trousers above it
 ELSEWHERE = 0.01  # of a part's own surface in the colour of a material its slot does not wear: reported from here
 BUDGET = {'chest': 16000, 'slot': 5800, 'outfit': 80000, 'texture': 1024}  # doubled 2026-11-25 (user); triangles a chest, another part and a whole outfit may have; texels a side
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
@@ -222,6 +223,7 @@ def ends(parts, bones, body, tier, contract=None):
             point, normal = seams.plane(bones, joint, letter)
             envelope = {t: np.array(seams.envelope(contract, joint, body, t, paired)) for t in registry.TIERS}
             offset = {t: contract['tierOffsets'][str(t)] for t in registry.TIERS}
+            here = seams.at(tier, joint)
             ring = envelope[0] - offset[0]
             overlap = {t: seams.overlap(contract, joint, body, t) for t in registry.TIERS}
             limit = REACH * envelope[registry.TIERS[-1]].max()
@@ -233,19 +235,26 @@ def ends(parts, bones, body, tier, contract=None):
             if under in parts:
                 vertices, faces, shared = _outfit(parts[under])
                 widest = seams.standoff(seams.section(vertices, faces, point, normal), ring, limit=limit)[0]
+                # the end is what the part is open on at the plane before the split closed it, not what else of it the plane
+                # passes through: a heavy boot's toe box, 11.7 cm outside the envelope before its shaft (`shaping.opening`)
+                own = np.asarray(parts[under]['f'])[~_added(parts[under])] if 'added' in parts[under] or 'made' in parts[under] else None
+                opened = None if own is None else shaping.opening(vertices, own, mesh_ops.weld_ids(vertices, split.WELD), point, normal)
+                if opened is not None:
+                    turns = np.arange(len(ring)) * 2 * np.pi / len(ring)
+                    widest = np.minimum(widest, shaping._around(opened, turns) - ring)
                 found = ~np.isnan(widest)
                 if found.any():
                     past = _past(*_outfit(parts[under], pads=True)[:2], point, normal, limit)[found]  # a pad's cap runs past the plane too
                     fits = [t for t in registry.TIERS if (widest[found] <= offset[t]).all() and (past >= overlap[t]).all()]
-                    outside = widest[found] - offset[tier]
+                    outside = widest[found] - offset[here]
                     row['under'] = {'part': under, 'tier': fits[0] if fits else None, 'outside': round(float(outside.max()), 4),
-                                    'past': round(float(past.min()), 4), 'overlap': round(float(overlap[tier]), 4)}
+                                    'past': round(float(past.min()), 4), 'overlap': round(float(overlap[here]), 4)}
                     if (outside > 0).any():
-                        failures.append(f'{under} at the {joint}: up to {outside.max() * 100:.1f} cm outside the tier {tier} envelope, '
+                        failures.append(f'{under} at the {joint}: up to {outside.max() * 100:.1f} cm outside the tier {here} envelope, '
                                         f'in {int((outside > 0).sum())} of {seams.DIRECTIONS} directions')
-                    if (past < overlap[tier]).any():
-                        failures.append(f'{under} at the {joint}: {past.min() * 100:.1f} cm past the plane, short of the tier {tier} '
-                                        f'overlap of {overlap[tier] * 100:.1f} cm')
+                    if (past < overlap[here]).any():
+                        failures.append(f'{under} at the {joint}: {past.min() * 100:.1f} cm past the plane, short of the tier {here} '
+                                        f'overlap of {overlap[here] * 100:.1f} cm')
                 elif not shared:
                     row['under'] = {'part': under, 'tier': None}
                     failures.append(f'{under} does not reach the {joint} plane')
@@ -255,10 +264,10 @@ def ends(parts, bones, body, tier, contract=None):
                 found = ~np.isnan(nearest)
                 if found.any():
                     opens = [t for t in registry.TIERS if (nearest[found] >= offset[t]).all()]
-                    inside = offset[tier] - nearest[found]
+                    inside = offset[here] - nearest[found]
                     row['over'] = {'part': over, 'tier': opens[-1] if opens else None, 'inside': round(float(inside.max()), 4)}
                     if (inside > 0).any():
-                        failures.append(f'{over} at the {joint}: up to {inside.max() * 100:.1f} cm inside the tier {tier} envelope, '
+                        failures.append(f'{over} at the {joint}: up to {inside.max() * 100:.1f} cm inside the tier {here} envelope, '
                                         f'in {int((inside > 0).sum())} of {seams.DIRECTIONS} directions')
                 elif not shared:
                     row['over'] = {'part': over, 'tier': None}
@@ -691,7 +700,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     keys = [(joint, side) for joint in seams.JOINTS for side in seams.sides(joint)]
     radii = {key: float(np.max(seams.envelope(contract, key[0], body, tier, None if key[1] == 'c' else key[1]))) for key in keys}
     # the seat stays on the pelvis, cut where the body's own pelvis ends, and each thigh ends just inside its envelope
-    seat = {('hip', side): {'reach': measure.seat(skin, *seams.plane(bones, 'hip', side), side),
+    seat = {('hip', side): {'reach': measure.seat(skin, *seams.plane(bones, 'hip', side), side), 'briefs': True,
                             'ring': np.asarray(seams.envelope(contract, 'hip', body, tier, side), float) - shaping.MARGIN,
                             'bend': float(contract['joints']['hip']['bodies'][body]['bend'][contract['designBend']])} for side in 'lr'}
     # the upper arm leaves the chest where the body's own does, and ends just inside its envelope
@@ -790,7 +799,7 @@ def cut(given, contract=None):
     result = split.split(given['vertices'], given['faces'], given['columns'], given['joints'], given['radii'], given['overlaps'],
                          reaches=given['reaches'], whole=UNCUT, made=made, sleeves=given['sleeves'], guards=given['guards'],
                          origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'], bare=bare),
-                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={key: shaping.TUCK for key in bare},
+                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={**{('ankle', side): ANKLE_TUCK for side in 'lr'}, **{key: shaping.TUCK for key in bare}},
                          ends=contract.get('ends'))
     return result, made, origins
 

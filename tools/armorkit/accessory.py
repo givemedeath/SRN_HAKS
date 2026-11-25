@@ -26,6 +26,8 @@ from . import brief, export, measure, registry, repose, seams, texture
 from .registry import require
 
 KIND = 'srn-armorkit-accessory'
+STRAP_ROUNDS = 8  # times a hoop is levelled again by its strap alone (`level`)
+STRAP_DEPTH = 1.08  # the strap: what lies within this many times the hoop's least radius in its direction
 BODY_SIDE = 0.2  # of a belt's face normal toward the hoop's axis: past this the face lies against the body and is no metal's
 BUDGET = {'triangles': 8000, 'texture': 1024}  # docs/armorkit/plan.md, Budgets: an accessory (user decision 2026-11-25, from 4,000)
 DIRECTIONS = 96  # a belt is fitted in this many directions round the body's axis
@@ -43,6 +45,10 @@ GRID = 4  # a face of the hoop is read at the points of a grid this many steps a
 EVEN = 2.0  # directions: the fit is evened over this many each way, so that a pouch is not bent to a fold of cloth
 CALM = {'neck': (8.0, 20.0)}  # degrees: on a hard shell, relief tilted less than the first is laid flat, and from the second on kept whole
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'src')  # what `store` keeps of a prepared piece
+
+
+def _unit(vector):
+    return vector / np.linalg.norm(vector)
 
 
 def level(vertices, faces, rounds=30):
@@ -63,7 +69,26 @@ def level(vertices, faces, rounds=30):
         normal = np.linalg.eigh(spread)[1][:, 0]
         weight = area / np.maximum(np.abs((middle - centre) @ normal), 1e-3)
     normal = normal if normal[2] > 0 else -normal
-    turn = repose.turn(normal, np.array([0.0, 0.0, 1.0]))
+    up = np.array([0.0, 0.0, 1.0])
+    turn = repose.turn(normal, up)
+    # Then by its strap alone: in each direction round the axis the hoop's innermost surface, which is the strap's
+    # inner face whatever hangs off it. Two pouches at the front of Street Casual's belt, most of its surface, tipped
+    # the fit above 18 degrees: its buckle sat 14 cm higher than its back and it was wrapped wide round the shirt's
+    # hem (2026-11-25).
+    for _ in range(STRAP_ROUNDS):
+        stood = (points - centre) @ turn.T
+        radius = np.hypot(stood[:, 0], stood[:, 1])
+        way = np.floor((np.arctan2(stood[:, 1], stood[:, 0]) + np.pi) / (2 * np.pi) * DIRECTIONS).astype(int) % DIRECTIONS
+        least = np.full(DIRECTIONS, np.inf)
+        np.minimum.at(least, way, radius)
+        strap = radius <= STRAP_DEPTH * least[way]
+        count = np.bincount(way[strap], minlength=DIRECTIONS)
+        if (count > 0).sum() < DIRECTIONS // 2:
+            break  # no hoop to speak of: left as its surface lies
+        mean = np.stack([np.bincount(way[strap], weights=stood[strap][:, k], minlength=DIRECTIONS) for k in range(3)], axis=1)[count > 0] / count[count > 0, None]
+        slope = np.linalg.lstsq(np.c_[mean[:, :2], np.ones(len(mean))], mean[:, 2], rcond=None)[0]
+        centre = centre + turn.T @ np.append(mean[:, :2].mean(axis=0), mean[:, 2].mean())  # the strap's own middle, not the pouches'
+        turn = repose.turn(_unit(np.array([-slope[0], -slope[1], 1.0])), up) @ turn
     return (points - centre) @ turn.T, turn
 
 

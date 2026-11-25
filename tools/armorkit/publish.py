@@ -910,7 +910,7 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
                                                        'bake the outfit at its registry number, and list the slot'))
                 continue
             # The bake shaped and gated the part's ends at its own tier; the registry's tiers decide what it mixes with.
-            other = {joint: tier for joint, tier in wanted[model][0]['tiers'].items() if tier != record.get('tier')}
+            other = {joint: tier for joint, tier in wanted[model][0]['tiers'].items() if tier != seams.at(record.get('tier'), joint)}
             if other:
                 failures.append(failure('bake', model, f'it was baked at tier {record.get("tier")} and the registry gives {TOKEN_SLOT[token]} {record["number"]} '
                                                        + ', '.join(f'{joint} tier {tier}' for joint, tier in sorted(other.items()))))

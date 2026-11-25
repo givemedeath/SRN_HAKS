@@ -268,6 +268,13 @@ def load_contract(path=CONTRACT):
         return validate_contract(json.load(stream))
 
 
+def at(tier, joint):
+    """The tier an outfit is cut at at `joint`: `tier` itself, or, of a mapping, what it gives the joint and
+    its `default` everywhere else. Street Casual's trousers and boots are heavier than cloth at the hips, knees
+    and ankles while its sleeves pass the shoulder as cloth only (2026-11-25): {'default': 3, 'shoulder': 1}."""
+    return tier.get(joint, tier['default']) if isinstance(tier, dict) else tier
+
+
 def envelope(contract, joint, body, tier, side=None):
     """Per-direction envelope radii of a tier at a joint: the body's ring pushed out by the tier's offset.
 
@@ -275,12 +282,12 @@ def envelope(contract, joint, body, tier, side=None):
     rows = contract['joints'][joint]['bodies'][body]['sides']
     side = 'c' if side is None and set(rows) == {'c'} else side
     require(side in rows, f'{joint}: side must be one of {sorted(rows)}')
-    return [radius + contract['tierOffsets'][str(tier)] for radius in rows[side]['bodyRing']]
+    return [radius + contract['tierOffsets'][str(at(tier, joint))] for radius in rows[side]['bodyRing']]
 
 
 def overlap(contract, joint, body, tier):
     """How far an under end of this tier continues past the joint plane, at the least."""
-    return contract['joints'][joint]['bodies'][body]['tiers'][str(tier)]['minimumOverlap']
+    return contract['joints'][joint]['bodies'][body]['tiers'][str(at(tier, joint))]['minimumOverlap']
 
 
 def mixes(over_part, under_part, joint):
