@@ -61,6 +61,11 @@ to one convention give parts that are coloured alike when worn together (user, 2
 tinted on a kind all name one, each its own, or none does; without, the channels are told as before
 (`texture.channels`).
 
+Where every material of an outfit names its channel, two may name the same one (user, 2026-11-25, a trial:
+reference images coloured by material type and accent, not by garment). The channel then says what a material
+is, a kind's main (1) or its accent (2), and the colour it is drawn in only tells it from the others: a
+shirt and trousers are both the main cloth, drawn in two colours so that the cut can tell top from bottom.
+
 `"slots": ["shin", "foot"]` on an outfit's material lists the slots it is worn on, of `SLOTS`; without, it may
 be on any. A part is tinted in the materials worn on its slot and no other (`bake.tints`,
 `texture.tint_maps`' `among`): colour alone gave most of a boot to the pocket flaps, whose tone in shadow is
@@ -206,13 +211,15 @@ def validate(document):
     require(len(set(names)) == len(names), 'Material names are unique')
     materials = [material for material in materials if not material.get('unworn')]  # what takes a channel
     kinds = [tinted(material) for material in materials]
-    require(all(kinds.count(kind) <= 2 for kind in kinds), 'The game tints two channels of a kind: at most two materials are tinted on one')
+    shared = piece is None and all('channel' in material for material in materials)  # drawn by type and accent: garments may share a channel
+    require(shared or all(kinds.count(kind) <= 2 for kind in kinds), 'The game tints two channels of a kind: at most two materials are tinted on one, '
+            'unless every material names its channel')
     taken = [(tinted(material), material.get('channel', 1)) for material in materials]
     require(piece is None or len(set(taken)) == len(taken), 'Two materials of an accessory are not tinted on one channel')
     if piece is None:  # an outfit's materials name their channels kind by kind: all tinted on a kind, each its own, or none
         for kind in set(kinds):
             named = [material['channel'] for material in materials if tinted(material) == kind and 'channel' in material]
-            require(not named or (len(named) == kinds.count(kind) and len(set(named)) == len(named)),
+            require(not named or (len(named) == kinds.count(kind) and (shared or len(set(named)) == len(named))),
                     f'The materials tinted on {kind} each name a channel of their own, or none of them names one')
     return document
 
@@ -233,6 +240,8 @@ def channels(materials):
     it is worn. Left to `texture.channels`, the commoner of two materials takes a kind's first channel and a
     single one is split between torso and legs, which differs from outfit to outfit; a named channel is the
     same on every outfit drawn to one convention, so their parts can be worn together and coloured as one."""
+    if materials and all('channel' in material for material in materials):  # every one named: two garments may be tinted on one
+        return [(tinted(material) + str(material['channel']),) * 2 for material in materials]
     found = texture.channels([tinted(material) for material in materials])
     return [(tinted(material) + str(material['channel']),) * 2 if 'channel' in material else pair for material, pair in zip(materials, found)]
 
