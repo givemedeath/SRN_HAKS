@@ -37,7 +37,8 @@ DIRECTIONS = 96  # a belt is fitted in this many directions round the body's axi
 LEVELS = 0.01  # metres: and in bands this tall along it
 CLEARANCE = 0.004  # metres a belt's inner face stands outside what is worn under it
 INSIDE = 0.002  # metres a point of a fitted belt may still stand inside what is worn under it (`gates`)
-WORN_UNDER = ('pelvis', 'chest', 'legl', 'legr')  # the parts a belt lies on: the arms hang beside it and are not
+WORN_UNDER = ('pelvis', 'legl', 'legr')  # the parts a belt lies on: the trousers. A shirt's hem hangs over its top edge and is not gone
+# round (put round Street Casual's blousing hem the strap stood 4 cm off the trousers a side; user, 2026-11-25: "still too large"); the arms hang beside it
 DROP = 0.03  # metres below the waist joint a belt's band is centred by default: the trousers' waistband
 SURFACE = 0.004  # metres: what is worn under a belt is sampled this densely
 SPAN = {'belt': 0.42, 'neck': 0.26}  # metres across, about, as a Human wears the piece: what its texture is sized for
@@ -110,7 +111,17 @@ def level(vertices, faces, rounds=30):
             break
         axis = np.linalg.eigh((looks[strap] * area[strap, None]).T @ looks[strap])[1][:, 0]
         turn = repose.turn(axis if axis[2] > 0 else -axis, up) @ turn
-    return (points - centre) @ turn.T, turn
+    # Its middle is the middle of its band: where the hoop spans least from top to bottom, pouches apart (`wrap`).
+    # Set by its surface, Street Casual's band stood 2.5 cm above where the fit put the hoop, round the shirt's hem.
+    stood = (points - centre) @ turn.T
+    way = np.floor((np.arctan2(stood[:, 1], stood[:, 0]) + np.pi) / (2 * np.pi) * DIRECTIONS).astype(int) % DIRECTIONS
+    low, high = np.full(DIRECTIONS, np.inf), np.full(DIRECTIONS, -np.inf)
+    np.minimum.at(low, way, stood[:, 2])
+    np.maximum.at(high, way, stood[:, 2])
+    held = np.isfinite(low)
+    band = held & (high - low <= np.percentile((high - low)[held], 20))
+    stood[:, 2] -= float(np.median(((low + high) / 2)[band]))
+    return stood, turn
 
 
 def _cells(points, directions=DIRECTIONS, levels=LEVELS):

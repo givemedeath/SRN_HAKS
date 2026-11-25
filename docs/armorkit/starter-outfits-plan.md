@@ -256,6 +256,30 @@ the first design's image. Not run: a bake with a tinted or named channel (`bake.
   cache, 530 s with only the waist's tier changed; from the capture with nothing changed, 179 s and the same
   models byte for byte.
 
+* **Second round in the client (`male-22`), user, 2026-11-25:** "The feet still have major issues", the skin
+  in the biceps "should probably be at least a little more centered", the belt "still looks a little tilted
+  backwards" and "is still too large", and "there is pants painting on the bottom of the shirt". What changed:
+  * *Ankles as drawn* (`bake --as-drawn ankle`). Any tier's envelope moved the boots' rims by 9 cm and more at
+    the plane (a collar round the ankle). The two ends are cut on the rig's plane and left as drawn; the seam
+    gate reads nothing there, and the registry entry will need to say so. The foot's cap starts 25% inside its
+    rim (`ANKLE_TUCK`).
+  * *Brief.* Trim is worn on the pelvis and thighs only (its red had been read on the boots' shafts, whose
+    brown is the colour the trim shows in the reference), trousers on the pelvis, thighs and shins only (the
+    dark underside of the shirt's hem, 370 cm² of the chest, had been drawn as trousers).
+  * *Sleeves* (`repose.centred`). Each sleeve is set round its arm, by all of its offset from the hem up to
+    40% of the way from the shoulder and by less nearer the shoulder: it had stood 2.5 cm off the arm's line at
+    the hem and 5 to 7 cm higher up.
+  * *Belt.* Stood by the way its strap's inner faces look (it had still leaned back 9 degrees), its middle the
+    middle of its band, and put round the trousers alone (`WORN_UNDER` without the chest). Fitted with
+    `--drop 0`, on the waistband: 3 cm lower the trousers widen over the hip pockets and the strap stood 3.3 cm
+    farther out a side. The shirt's hem hangs over the top of the band.
+* **Bake `male-25`** (from the mesh, 565 s): all gates pass. Belt `belt-12-drop-0.0` over it, gates pass. Seen
+  in the client in realistic colours (`male-25b-poses-real`, 48 shots) and, with the earlier belt, in the six
+  contrasting ones (`male-25-poses`). Not yet judged by the user.
+* **Open, asked of the user:** to keep a few centimetres of the outfit's own surface past each tube joint on the
+  under part and fit that hidden leftover to the envelope, in place of the grown dome and the reshaped rims
+  (the user's suggestion, 2026-11-25).
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
