@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from . import material, screens
+from . import material, pictures, screens
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -42,6 +42,12 @@ class ScreenTests(unittest.TestCase):
             Image.new('RGB', (16, 16)).save(root / 'srn_placeable' / 'tv-1.tga')
             with self.assertRaisesRegex(ValueError, 'made from another picture'):
                 material.build(spec, root, root, root / 'out', 'crunch', compress=fake_compress, redrawn=root / 'made')
+
+    def test_a_redrawn_picture_gets_its_colours_and_its_edges_back(self):
+        rng = np.random.default_rng(2); old = np.zeros((64, 64, 3), np.uint8); old[:32] = (150, 60, 40); old[32:] = (60, 60, 60); new = np.uint8(np.full((128, 128, 3), (60, 90, 150)) + rng.integers(-20, 20, (128, 128, 1)))
+        made = pictures.recoloured(new, old).astype(int); self.assertLess(np.abs(made[40:56].mean((0, 1)) - (150, 60, 40)).max(), 12); self.assertGreater(made[40:56].std(), 5)
+        slope = np.repeat(np.linspace(40, 200, 128)[None, :, None], 128, 0).repeat(3, 2).astype(np.uint8); joined = pictures.joined(slope).astype(int)
+        self.assertLess(np.abs(joined[:, 0] - joined[:, -1]).max(), 6); np.testing.assert_array_equal(joined[64, 40:88], slope[64, 40:88])
 
     def test_the_lists_of_the_placeables_do_not_overlap(self):
         lists = {name: json.loads((ROOT / 'docs' / 'placeables' / f'{name}.json').read_text(encoding='utf-8')) for name in ('materials', 'enlarged', 'screens')}
