@@ -31,6 +31,32 @@ class RedrawFixture(unittest.TestCase):
 
 
 class RedrawTests(RedrawFixture):
+    def test_a_banded_reference_keeps_the_bands_and_loses_the_pattern(self):
+        old = np.zeros((8, 8, 3), np.uint8); old[:4, ::2] = 200; old[4:] = 60
+        made = redraw.banded(old)
+        self.assertEqual((made[0, 0, 0], made[0, 1, 0], made[7, 3, 0]), (100, 100, 60))
+
+    def test_a_blank_box_is_filled_and_the_rest_kept(self):
+        made = redraw.blanked(np.full((10, 10, 3), 9, np.uint8), [[0.2, 0.4, 0.6, 0.8]])
+        self.assertEqual((tuple(made[5, 3]), tuple(made[5, 7]), tuple(made[2, 3])), (redraw.BLANK, (9, 9, 9), (9, 9, 9)))
+        self.assertEqual(tuple(redraw.blanked(np.zeros((4, 4, 3), np.uint8), [[0, 0, 1, 1, [1, 2, 3]]])[2, 2]), (1, 2, 3))
+        self.assertEqual(redraw.unfilled(made, [[0.2, 0.4, 0.6, 0.8], [0.7, 0, 1, 0.3]]), [[0.2, 0.4, 0.6, 0.8]])  # a generator that copies the fill is caught
+        with self.assertRaises(ValueError):
+            redraw.blanked(np.zeros((4, 4, 3), np.uint8), [[0.5, 0, 0.5, 1]])
+
+    def test_levelling_takes_a_side_to_side_shade_out_and_keeps_the_bands(self):
+        from PIL import Image
+        ramp = np.linspace(0.8, 1.0, 256)[None, :, None] * np.ones((256, 256, 3)) * 200; ramp[160:] *= 0.5
+        made = np.asarray(redraw.levelled(Image.fromarray(np.uint8(ramp)), 'across')).astype(float)
+        self.assertGreater(abs(ramp[80, 2, 0] - ramp[80, -3, 0]), 35); self.assertLess(abs(made[80, :6].mean() - made[80, -6:].mean()), 6)
+        self.assertAlmostEqual(made[220].mean() / made[80].mean(), 0.5, delta=0.02)
+        with self.assertRaises(ValueError):
+            redraw.levelled(Image.fromarray(np.uint8(ramp)), 'down')
+
+    def test_a_texture_without_openings_is_not_told_to_keep_its_black(self):
+        how = {'kind': 'wall', 'district': 'home'}
+        self.assertIn(redraw.KEEP_BLACK, redraw.prompt('w', how, (64, 64))); self.assertNotIn(redraw.KEEP_BLACK, redraw.prompt('w', {**how, 'opening': 'none'}, (64, 64)))
+
     def test_an_interior_texture_is_asked_for_as_furniture_of_a_home(self):
         text = redraw.prompt('tfb01_books', {'kind': 'furniture', 'district': 'home', 'note': 'The blue rectangle is a screen.'}, (1024, 1024), tool=False)
         self.assertIn('built-in furniture seen straight on', text); self.assertIn('the inside of an ordinary apartment', text); self.assertIn('The blue rectangle is a screen.', text)

@@ -60,6 +60,60 @@ GLASS = (34, 42, 52)  # a glazed texture's black openings are filled with this b
 MOSTLY_BLACK = 0.5  # a window texture more pure black than this says what its openings are (`glazed` or `opening`: 'door')
 
 
+BLANK = (60, 110, 170)  # what a `blank` box of a reference is filled with; the note says what is drawn there instead
+
+
+def banded(old):
+    """Every row of `old` its own mean colour: a wall's bands at their heights with the pattern on them gone. Shown the
+    old wallpaper, a generator asked for plain plaster draws the wallpaper again (2026-11-24)."""
+    rows = np.asarray(old)[..., :3].astype(np.float64).mean(axis=1, keepdims=True)
+    return np.uint8(np.broadcast_to(rows, np.asarray(old)[..., :3].shape) + 0.5)
+
+
+def blanked(picture, boxes):
+    """`picture` (an RGB array) with each box [left, top, right, bottom], in shares of its width and height, filled with
+    `BLANK`, or with the colour given as a fifth value: what stood there (a portrait, an old print) is not copied."""
+    shown = np.asarray(picture)[..., :3].copy(); height, width = shown.shape[:2]
+    for box in boxes:
+        require(len(box) in (4, 5) and 0 <= box[0] < box[2] <= 1 and 0 <= box[1] < box[3] <= 1, 'A blank box is [left, top, right, bottom] in shares of the picture')
+        shown[round(box[1] * height):round(box[3] * height), round(box[0] * width):round(box[2] * width)] = box[4] if len(box) == 5 else BLANK
+    return shown
+
+
+def unfilled(picture, boxes, near=30.0):
+    """The blank boxes of a drawn picture that are still `BLANK`: the generator copied the fill (2026-11-24)."""
+    values = np.asarray(picture)[..., :3].astype(np.float64); height, width = values.shape[:2]; left = []
+    for box in boxes:
+        part = values[round(box[1] * height):round(box[3] * height), round(box[0] * width):round(box[2] * width)].reshape(-1, 3)
+        if len(box) == 4 and np.abs(np.median(part, axis=0) - BLANK).mean() < near and part.std(axis=0).mean() < near:
+            left.append(box)
+    return left
+
+
+def _broad(values, axis, radius):
+    """`values` smoothed along one axis, mirrored at its ends (a wrapping blur would average the very step sought)."""
+    for _ in range(3):
+        size = values.shape[axis]; place = np.abs(np.arange(-radius - 1, size + radius)); place = np.where(place >= size, 2 * size - 2 - place, place)
+        total = np.cumsum(np.take(values, place, axis=axis), axis=axis); wide = 2 * radius + 1
+        values = (np.take(total, np.arange(wide, wide + size), axis=axis) - np.take(total, np.arange(size), axis=axis)) / wide
+    return values
+
+
+def levelled(picture, way):
+    """`picture` (an RGB image) with its broad light and shade taken out, so that it meets itself where it repeats: a
+    generator shades a plain wall darker at one side, which showed as a step in tone from panel to panel (2026-11-24).
+    way: 'across' (each row to its own mean: a wall, its bands kept) or 'both' (a plain material)."""
+    from PIL import Image
+    require(way in ('across', 'both'), 'A texture is levelled across or both')
+    values = np.asarray(picture.convert('RGB')).astype(np.float64); radius = max(1, max(values.shape[:2]) // 16)
+    broad = _broad(values, 1, radius)
+    if way == 'both':
+        broad = _broad(broad, 0, radius); mean = values.mean(axis=(0, 1), keepdims=True)
+    else:
+        broad = _broad(broad, 0, max(1, radius // 16)); mean = broad.mean(axis=1, keepdims=True)
+    return Image.fromarray(np.uint8(np.clip(values * mean / np.maximum(broad, 1.0), 0, 255) + 0.5))
+
+
 def mostly_black(old, below=8):
     """The share of a picture that is pure black (each channel under `below`)."""
     return float((np.asarray(old)[..., :3].max(axis=2) < below).mean())
@@ -95,6 +149,8 @@ def prompt(name, how, size, tiles=False, tool=True):
     rules = RULES.rstrip()
     if how.get('glazed'):  # the black is a window's empty opening, not a door's: it is drawn as glass
         rules = rules.replace(KEEP_BLACK, GLAZED)
+    if how.get('opening') == 'none':  # its dark parts are drawn, not openings
+        rules = rules.replace(KEEP_BLACK + '\n', '')
     lines += ['', rules]
     if tiles:
         lines.append('- It must tile seamlessly: what leaves the right edge continues at the left edge, and the top continues at the bottom.')
@@ -295,6 +351,10 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         reference = _opened(better) if better is not None and better.is_file() else Image.fromarray(old)
         if how.get('glazed'):
             reference = Image.fromarray(glass_filled(np.asarray(reference.convert('RGB'))))
+        if how.get('bands'):
+            reference = Image.fromarray(banded(np.asarray(reference.convert('RGB'))))
+        if how.get('blank'):
+            reference = Image.fromarray(blanked(np.asarray(reference.convert('RGB')), how['blank']))
         reference.resize(size, Image.LANCZOS).save(work / 'ref.png')
         if day is not None:
             require(day.is_file(), f'its day picture {how["of"]} was not redrawn')
@@ -304,7 +364,10 @@ def redraw(spec, repo, folder, run, *, only=None, enlarged=None, workers=3, say=
         require((work / 'out.png').is_file(), 'the generator left no out.png')
         with Image.open(work / 'out.png') as made:
             picture = made.convert('RGB').resize(size, Image.LANCZOS)
-        if not how.get('glazed'):
+        require(not unfilled(np.asarray(picture), how.get('blank', ())), 'the generator left a blank box as it was: give the box the colour of what belongs there')
+        if how.get('level'):
+            picture = levelled(picture, how['level'])
+        if not how.get('glazed') and how.get('opening') != 'none':
             picture = black_kept(old, picture)  # a generator paints over black openings (doors are hooked up there), by day or night: they are put back
         picture.save(target)
         record.write_text(json.dumps({'kind': 'tilekit-redrawn', 'texture': name, 'source': _sha(old), 'prompt': text, 'size': list(size),

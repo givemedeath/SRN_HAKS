@@ -10,7 +10,10 @@
   "tfb01_lwalls": {
    "kind": "wall",
    "district": "home",
-   "note": "It is an interior wall in three bands, and the old patterned wallpaper, red rail and green boards go. The upper half becomes smooth, warm off-white painted plaster with only the faintest roller texture. The narrow band across the middle becomes a simple flat pale grey rail. The lower part becomes plain light grey wall panelling with a slim dark grey skirting board along the very bottom edge. The bands stay at the same heights."
+   "note": "It is an interior wall in three bands, and the old patterned wallpaper, red rail and green boards go. The upper half becomes smooth, warm off-white painted plaster with only the faintest roller texture. The narrow band across the middle becomes a simple flat pale grey rail. The lower part becomes plain light grey wall panelling with a slim dark grey skirting board along the very bottom edge. The bands stay at the same heights.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
   },
   "tfb01_furnish2": {
    "kind": "furniture",
@@ -31,23 +34,31 @@
   "tfb01_wallcord": {
    "kind": "wall",
    "district": "home",
-   "note": "The old-fashioned look goes: no scrolling wallpaper pattern. The large upper area becomes smooth pale warm-grey painted plaster; the dark band along the bottom becomes a plain dark charcoal skirting board. The band stays at the same height."
+   "note": "A plain modern interior wall. The large upper area is smooth pale warm-grey painted plaster, no pattern at all; the dark band along the bottom is a plain dark charcoal skirting board. The band stays at the same height.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
   },
   "tfb01_wallbrick": {
    "kind": "wall",
    "district": "home",
-   "note": "The old-fashioned look goes: no scrolling wallpaper pattern. The large lower area becomes smooth pale warm-grey painted plaster; the dark band along the top becomes a plain dark charcoal cornice strip. The band stays at the same height."
+   "note": "A plain modern interior wall. The large middle area is smooth pale warm-grey painted plaster, no pattern at all; the dark band along the top is a plain dark charcoal cornice strip and the dark band along the bottom a plain dark charcoal skirting board. The bands stay at the same heights.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
   },
   "tfb01_seat": {
    "kind": "furniture",
    "district": "home",
-   "note": "The old-fashioned look goes: no carved antique panelling. The large upper area becomes a flat modern cabinet front in dark walnut veneer with two plain recessed panels where the carved ones are; the narrow striped band near the bottom becomes a row of folded fabric in muted colours; the strip under it plain walnut."
+   "note": "The old-fashioned look goes: no carved antique panelling. The large upper area becomes a flat modern cabinet front in dark walnut veneer with two plain recessed panels where the carved ones are; the narrow striped band near the bottom becomes a row of folded fabric in muted colours; the strip under it plain walnut.",
+   "opening": "none"
   },
   "tfb01_door065": {
    "kind": "material",
    "district": "home",
    "tiles": true,
-   "note": "Dark walnut wood boards with a fine grain, the boards running top to bottom, satin finish."
+   "note": "Dark walnut wood boards with a fine grain, the boards running top to bottom, satin finish.",
+   "level": "both"
   },
   "tfb01_deco": {
    "kind": "furniture",
@@ -58,24 +69,30 @@
    "kind": "material",
    "district": "home",
    "tiles": true,
-   "note": "Smooth pale grey plaster with a fine even texture."
+   "note": "Smooth pale grey plaster with a fine even texture.",
+   "level": "both"
   },
   "tfb01_marbl05": {
    "kind": "material",
    "district": "home",
    "tiles": true,
-   "note": "Polished cream marble with soft gold and pale green veining."
+   "note": "Polished cream marble with soft gold and pale green veining.",
+   "level": "both"
   },
   "tfb01_wall_iinn": {
    "kind": "wall",
    "district": "home",
-   "note": "The old-fashioned look goes: no timber framing and no diagonal brace. It becomes a modern interior wall of pale birch veneer panels with fine vertical grain, divided by slim flat aluminium strips where the old frame members run (the horizontal ones and the upright ones only), so the layout of the panels stays."
+   "note": "A modern interior wall of pale birch veneer panelling with a fine grain. Each of the horizontal brown bands is a slim flat brushed aluminium strip at its upper and lower edge with birch between. No diagonal and no upright members. The bands stay at the same heights.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
   },
   "tfb01_plank": {
    "kind": "floor",
    "district": "home",
    "tiles": true,
-   "note": "Modern large-format stone floor tiles in warm grey, laid in the same pattern of joints."
+   "note": "Modern large-format stone floor tiles in warm grey, laid in the same pattern of joints.",
+   "level": "both"
   },
   "tfb01_burlap": {
    "kind": "floor",
@@ -87,7 +104,8 @@
    "kind": "material",
    "district": "home",
    "tiles": true,
-   "note": "Warm cherry wood veneer with a fine grain running top to bottom, satin finish."
+   "note": "Warm cherry wood veneer with a fine grain running top to bottom, satin finish.",
+   "level": "both"
   },
   "tfb01_metaldoor": {
    "kind": "material",
@@ -109,18 +127,36 @@
   "tfb01_shpwal": {
    "kind": "wall",
    "district": "home",
-   "note": "The old-fashioned look goes: no damask wallpaper. The upper part becomes smooth pale blue-grey painted plaster; the narrow band across the middle a simple flat white rail; the lower part a deeper matte blue painted panel. The bands stay at the same heights."
+   "note": "The old-fashioned look goes: no damask wallpaper. The upper part becomes smooth pale blue-grey painted plaster; the narrow band across the middle a simple flat white rail; the lower part a deeper matte blue painted panel. The bands stay at the same heights.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
   },
   "tfb01_sac": {
    "kind": "furniture",
    "district": "home",
-   "note": "An atlas, each part staying in its own rectangle: on the left a tall panel of dark blue denim with stitched seams and a rope trim across the top; on the right a cream-white fridge door or appliance front with a small printed decal near the top and a faint ring mark near the bottom; along the bottom edge a strip of twisted rope."
+   "note": "An atlas, each part staying in its own rectangle: on the left a tall panel of dark blue denim with stitched seams and a rope trim across it; on the right a plain cream-white modern appliance door in a thin brass-coloured frame, nothing printed on it; along the bottom edge a strip of twisted rope.",
+   "blank": [
+    [
+     0.525,
+     0.03,
+     0.975,
+     0.92,
+     [
+      236,
+      229,
+      214
+     ]
+    ]
+   ],
+   "opening": "none"
   },
   "tfb01__metal01": {
    "kind": "material",
    "district": "home",
    "tiles": true,
-   "note": "Brushed stainless steel with fine random scratches."
+   "note": "Brushed stainless steel with fine random scratches.",
+   "level": "both"
   },
   "tfb01_shelf2": {
    "kind": "furniture",
@@ -131,7 +167,8 @@
    "kind": "material",
    "district": "home",
    "tiles": true,
-   "note": "Worn galvanised steel sheet with fine scratches and a few small rust flecks."
+   "note": "Worn galvanised steel sheet with fine scratches and a few small rust flecks.",
+   "level": "both"
   },
   "tfb01_bed02": {
    "kind": "furniture",
@@ -142,7 +179,8 @@
    "kind": "material",
    "district": "home",
    "tiles": true,
-   "note": "Warm cherry wood veneer with a broad flowing grain running top to bottom, satin finish."
+   "note": "Warm cherry wood veneer with a broad flowing grain running top to bottom, satin finish.",
+   "level": "both"
   },
   "tfb01_rock1": {
    "kind": "wall",
@@ -192,12 +230,34 @@
   "tfb01_paint04": {
    "kind": "furniture",
    "district": "home",
-   "note": "Four framed pictures in a two by two grid, each frame staying where it is, dark metal frames. Their subjects change: top left an abstract painting in warm tones, top right a city street at sunset, bottom left an abstract painting in muted reds, bottom right a glowing teal screen showing a rainy neon city. No people in any of them."
+   "note": "Four framed pictures in a two by two grid, each frame staying where it is. The plain blue rectangles in the two left frames are blank and are filled in: the upper one with an abstract painting in warm ochre and brown, the lower one with an abstract painting in muted reds. The two right-hand pictures stay as they are. No people in any of them.",
+   "blank": [
+    [
+     0.06,
+     0.07,
+     0.45,
+     0.43
+    ],
+    [
+     0.06,
+     0.57,
+     0.45,
+     0.94
+    ]
+   ]
   },
   "tfb01_book2": {
    "kind": "furniture",
    "district": "home",
-   "note": "An atlas, each part staying in its own rectangle: top left a sheet of printed newspaper with columns of unreadable text and a grey photograph of a building (no person); top right screens showing blue interface windows; the bottom half yellowed paper with a small dark electronic device with a green bar display set into it on the left."
+   "note": "An atlas, each part staying in its own rectangle: top left a sheet of printed newspaper with columns of unreadable text; the plain blue rectangle on it is blank and is filled in with a grey newspaper photograph of a city tower block, no person. Top right, screens showing blue interface windows; the bottom half yellowed paper with a small dark electronic device with a green bar display set into it on the left.",
+   "blank": [
+    [
+     0.2,
+     0.06,
+     0.48,
+     0.34
+    ]
+   ]
   },
   "tfb01_velvet": {
    "kind": "material",

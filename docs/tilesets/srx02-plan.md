@@ -289,16 +289,27 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   (`output/_boom.py`: the blast on the central tower, the fireball, the tower burning under smoke); the buildings
   stayed where they were, so the frames blend between them: skyline, flash, fireball, smoke, and the footage begins
   again. Seen in the client.
-- **Ghost shapes on the walls (user, 2026-11-24)** were not from the removed bed and chair (the unfurnished room has
-  none): they were the baked placeables' own stencil shadows, and a glass lamp that drew almost clear. Baked
-  furniture now has `shadow 0`, as the set's own furniture has, and the lamp is `pkt_slamp01`. A rule for the room
-  tooling. The wall's panels still differ a little in tone from face to face: the wall mesh's own shading.
+- **Ghost shapes on the walls (user, 2026-11-24)** were the baked placeables' stencil shadows. A node with no `shadow`
+  line casts one, and nearly all of the set's own furniture has none (1,793 parts of 1,893), so it casts too. A first
+  fix rewrote only explicit `shadow 1` lines and changed nothing, though it was reported as done; `shadow 0` is now
+  written into every baked piece and built-in part of the trial tile, seen at full size in `output/tilekit/trial12-c`.
+  A rule for the room tooling. The lamp is `pkt_slamp01`.
+- **Steps in tone between wall panels** were the redrawn wall, not the mesh's shading as first recorded: its left and
+  right edges differed by 20 levels (old picture 0.6). `redraw` now levels a texture (`level`: `across`, `both`).
 - **Watched in a recording (user, 2026-11-24).** The client's window recorded with ffmpeg's screen capture at 30
   frames a second (`output/_clip.py`) showed the footage out of order: **the game plays a frame sheet's rows from
   the bottom up**, each left to right, so the first frames go in the bottom row. Also fixed: the flash is at the
   tower, not over the whole picture; a fourth key picture (the fireball dying into smoke) sits between the fireball
   and the burning tower, and the blend keeps what burns bright, so it no longer goes green; the loop ends on a cut
   to black instead of the tower un-burning. Checked again frame by frame in a second recording.
+- **The set's textures drawn again (user, 2026-11-24).** `docs/tilesets/tfb01/redraw.json`: 43 of the 68 the tiles draw,
+  local Qwen, none failed; 25 are left as they are, each with its reason (`left`: black, cut-outs, under 128 px, the
+  512 px subway set). Eight came out wrong at first and were done again with new entry keys, tested: `bands` (the
+  reference is each row's mean colour: shown the old wallpaper, Qwen drew it again), `blank` (a part of the reference
+  filled over, so a portrait or an old print is not copied; a fill left standing is refused), `opening: none` (black
+  is not put back: it left specks on dark bands). Pictures in `output/tilekit/tfb01-redrawn`, first pass in
+  `tfb01-first`, old beside new in `output/trial/pairs`, six rooms in the client in `output/tilekit/set1`. The shapes
+  stay period (cauldrons, urns, barrels, banners, timber braces) and the rooms have no ceilings yet. Not in a pack.
 - **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
   other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
 
