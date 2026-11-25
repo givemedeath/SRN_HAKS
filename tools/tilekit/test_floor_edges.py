@@ -11,17 +11,14 @@ from tools.tilekit import geometry
 
 REPO = Path(__file__).resolve().parents[2]
 PACKS = ('srn_t_common', 'srn_t_dgt04', 'srn_t_fcx01', 'srn_t_srx01', 'srn_t_udp1')  # the packs with sources: named so the test selector runs this when one changes
-ON = .008  # how far from an edge, in metres, another still lies along it
+ON = .04  # how far from an edge, in metres, another still lies along it
 SHORT = .3  # an edge met along less than this, in metres, is narrower than a creature's way past it
-# Tiles with corners that miss each other by 1 to 30 mm along an edge, found 2026-11-25; never walked in the client, so not repaired: how many pairs each has.
-KNOWN = {'dgt04_e09_33': 1, 'rdt01_e26_01': 1, 'udp1_a01_08': 3, 'udp1_a01_09': 3, 'udp1_a01_13': 2, 'udp1_a01_14': 3, 'udp1_a01_15': 3, 'udp1_a03_12': 1,
-         'udp1_a14_14': 2, 'udp1_a14_15': 3, 'udp1_a14_16': 3, 'udp1_a18_10': 1, 'udp1_b06_02': 1}
 
 
-def walked(corners, faces):
-    """The walked faces as corner numbers; corners at one place have one number."""
+def numbered(corners, faces, floor=True):
+    """The walked faces (or the others) as corner numbers; corners at one place have one number."""
     place = {}; same = [place.setdefault(tuple(np.round(corner, 3)), index) for index, corner in enumerate(corners)]
-    return [[same[index] for index in face[:3]] for face in faces if face[7] in geometry.WALKABLE]
+    return [[same[index] for index in face[:3]] for face in faces if (face[7] in geometry.WALKABLE) == floor]
 
 
 def flat(corners, face):
@@ -33,10 +30,11 @@ def flat(corners, face):
 def pieced(corners, faces):
     """The pairs of unmatched inner edges of the walked `faces` that run along each other: the floor either side meets in pieces."""
     beside = collections.defaultdict(list)
-    for face in walked(corners, faces):
+    for face in numbered(corners, faces):
         for j in range(3):
             beside[frozenset((face[j], face[(j + 1) % 3]))].append(face)
-    single = sorted(tuple(sorted(edge)) for edge, held in beside.items() if len(held) == 1 and len(edge) == 2 and not flat(corners, held[0]))
+    walls = {frozenset((face[j], face[(j + 1) % 3])) for face in numbered(corners, faces, floor=False) for j in range(3)}  # an edge a wall stands on is meant to stop
+    single = sorted(tuple(sorted(edge)) for edge, held in beside.items() if len(held) == 1 and len(edge) == 2 and edge not in walls and not flat(corners, held[0]))
     # the tile's side is the neighbour tile's to meet
     single = [(a, b) for a, b in single if not any(abs(corners[a][axis]) > 4.995 and abs(corners[a][axis] - corners[b][axis]) < .005 for axis in (0, 1))]
     if not single:
@@ -49,7 +47,7 @@ def pieced(corners, faces):
         along = (q - p) / length; one, two = (starts - p) @ along, (ends - p) @ along
         off = np.maximum(*(np.linalg.norm(ends_ - p - np.outer(share, along), axis=1) for ends_, share in ((starts, one), (ends, two))))
         shared = np.minimum(np.maximum(one, two), length) - np.maximum(np.minimum(one, two), 0)
-        met = [other for other in np.nonzero((off < ON) & (shared > ON))[0] if other != index]
+        met = [other for other in np.nonzero((off < ON) & (shared > ON))[0] if beside[frozenset(single[index])] != beside[frozenset(single[other])]]  # a sliver's own two sides join nothing
         if sum(shared[other] for other in met) > SHORT:
             found += [(single[index], single[other]) for other in met]
     return sorted({tuple(sorted(pair)) for pair in found})
@@ -57,7 +55,7 @@ def pieced(corners, faces):
 
 def doubled(corners, faces):
     """The walked faces held more than once."""
-    return sorted(face for face, times in collections.Counter(tuple(sorted(face)) for face in walked(corners, faces)).items() if times > 1)
+    return sorted(face for face, times in collections.Counter(tuple(sorted(face)) for face in numbered(corners, faces)).items() if times > 1)
 
 
 TAIL = (0, 0, 0, 0, 4)
@@ -76,6 +74,10 @@ class FloorEdges(unittest.TestCase):
     def test_edges_that_only_partly_run_along_each_other_are_found(self):
         self.assertEqual(pieced(CORNERS, [(0, 1, 3, *TAIL), (2, 4, 5, *TAIL)]), [((0, 1), (2, 5))])
 
+    def test_an_edge_a_wall_stands_on_is_meant_to_stop(self):
+        wall = (0, 1, 5, 0, 0, 0, 0, 7)
+        self.assertEqual(pieced(CORNERS, [(0, 1, 3, *TAIL), (0, 4, 2, *TAIL), (2, 4, 1, *TAIL), wall]), [])
+
     def test_a_face_held_twice_is_found(self):
         self.assertEqual(doubled(CORNERS, [(0, 1, 3, *TAIL), (1, 3, 0, *TAIL), (0, 4, 1, *TAIL)]), [(0, 1, 3)])
 
@@ -93,8 +95,7 @@ class FloorEdges(unittest.TestCase):
                             corners = np.array(node.verts, dtype=float); checked += 1
                             with self.subTest(file=path.name):
                                 self.assertEqual(doubled(corners, node.faces), [])
-                                found = pieced(corners, node.faces)
-                                self.assertEqual(len(found), KNOWN.get(source.stem, 0), f'edges met in pieces (a repaired tile leaves KNOWN): {found}')
+                                self.assertEqual(pieced(corners, node.faces), [])
             self.assertTrue(checked, f'{pack} has no walkmesh to check')
 
 
