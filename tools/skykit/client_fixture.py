@@ -1,11 +1,12 @@
 """Look at the dynamic skies in the game client: build an isolated test module, run it, capture each scripted view.
 
     python -m tools.skykit.client_fixture --nwn-root GAME_INSTALL [--out output/skykit/client] [--wait SECONDS]
+        [--transition | --play | --live MINUTES] [--build-only]
 
 Builds a HAK of the sky resources (srn_skybox's srn_sky* files and srn_2da's skyboxes.2da) and a one-area module in
 an isolated user directory, starts the client on it (tools/armorkit/client.py: a client that is already running
 blocks the run and is never closed), saves a window capture for every `SKYKIT shot=` line the module's script logs,
-then stops the client it started. Captures are evidence to look at, not an approval.
+then stops the client it started. `--play` and `--live` leave the client running for a person. Captures are evidence to look at, not an approval.
 """
 import argparse
 import hashlib
@@ -123,38 +124,62 @@ void main()
 SKY_ROWS = range(16, 24)  # the SRN skybox rows a live module's /sky command accepts
 
 
-def live_scripts(start_row=16, start_hour=17):
-    """A live module: the game's own clock runs (the module's minutes per hour) and chat commands change the sky, the
-    time and the weather. Returns (enter script, chat script)."""
+def live_scripts(minutes, start_row=16, start_hour=17):
+    """A live module: the game's own clock runs, `minutes` real minutes to a game hour, and chat commands change the
+    sky, the time and the weather. The game counts an hour as that many minutes, so a clock's minute is `minutes`
+    seconds of it. Returns (enter script, chat script)."""
+    rows = f'{SKY_ROWS.start}-{SKY_ROWS.stop - 1}'
+    commands = f'/sky {rows}, /time HH:MM, /rain, /clear, /help'
     enter = f"""void main()
 {{
   object pc = GetEnteringObject(); if (!GetIsPC(pc)) return;
   SetSkyBox({start_row}, GetArea(pc)); SetWeather(GetArea(pc), WEATHER_CLEAR); SetTime({start_hour}, 0, 0, 0);
-  DelayCommand(3.0, SendMessageToPC(pc, "Sky test: /sky 16-23, /time HH [MM], /rain, /clear, /help"));
+  DelayCommand(3.0, SendMessageToPC(pc, "Sky test: {commands}"));
 }}
 """
-    chat = f"""void main()
+    chat = f"""string Trim(string s)
 {{
-  object pc = GetPCChatSpeaker(); string m = GetStringLowerCase(GetPCChatMessage());
+  while (GetStringLeft(s, 1) == " ") s = GetStringRight(s, GetStringLength(s) - 1);
+  while (GetStringRight(s, 1) == " ") s = GetStringLeft(s, GetStringLength(s) - 1);
+  return s;
+}}
+int Number(string s, int most)
+{{
+  int length = GetStringLength(s); int i;
+  if (length < 1 || length > 2) return -1;
+  for (i = 0; i < length; i++) if (FindSubString("0123456789", GetSubString(s, i, 1)) < 0) return -1;
+  int n = StringToInt(s);
+  return n > most ? -1 : n;
+}}
+string Two(int n) {{ return n < 10 ? "0" + IntToString(n) : IntToString(n); }}
+string Clock() {{ return Two(GetTimeHour()) + ":" + Two((GetTimeMinute() * 60 + GetTimeSecond()) / {minutes}); }}
+void main()
+{{
+  object pc = GetPCChatSpeaker(); string m = Trim(GetStringLowerCase(GetPCChatMessage()));
   if (GetStringLeft(m, 1) != "/") return;
   SetPCChatMessage("");
   object area = GetArea(pc);
-  string arg = GetStringRight(m, GetStringLength(m) - FindSubString(m + " ", " ") - 1);
-  if (GetStringLeft(m, 5) == "/sky ")
+  int space = FindSubString(m, " ");
+  string word = space < 0 ? m : GetStringLeft(m, space);
+  string arg = space < 0 ? "" : Trim(GetStringRight(m, GetStringLength(m) - space - 1));
+  if (word == "/sky")
   {{
-    int row = StringToInt(arg);
-    if (row < {SKY_ROWS.start} || row > {SKY_ROWS.stop - 1}) {{ SendMessageToPC(pc, "Sky rows are {SKY_ROWS.start} to {SKY_ROWS.stop - 1}"); return; }}
+    int row = Number(arg, {SKY_ROWS.stop - 1});
+    if (row < {SKY_ROWS.start}) {{ SendMessageToPC(pc, "Sky rows are {rows}"); return; }}
     SetSkyBox(row, area); SendMessageToPC(pc, "Sky row " + IntToString(row));
   }}
-  else if (GetStringLeft(m, 6) == "/time ")
+  else if (word == "/time")
   {{
-    int hour = StringToInt(arg); int split = FindSubString(arg, " ");
-    int minute = split < 0 ? 0 : StringToInt(GetStringRight(arg, GetStringLength(arg) - split - 1));
-    SetTime(hour, minute, 0, 0); SendMessageToPC(pc, "Time " + IntToString(hour) + ":" + IntToString(minute));
+    int split = FindSubString(arg, ":"); if (split < 0) split = FindSubString(arg, " ");
+    int hour = Number(split < 0 ? arg : Trim(GetStringLeft(arg, split)), 23);
+    int minute = split < 0 ? 0 : Number(Trim(GetStringRight(arg, GetStringLength(arg) - split - 1)), 59);
+    if (hour < 0 || minute < 0) {{ SendMessageToPC(pc, "Times are 0:00 to 23:59"); return; }}
+    int seconds = minute * {minutes};
+    SetTime(hour, seconds / 60, seconds % 60, 0); SendMessageToPC(pc, "Time " + Two(hour) + ":" + Two(minute));
   }}
-  else if (m == "/rain") {{ SetWeather(area, WEATHER_RAIN); SendMessageToPC(pc, "Rain"); }}
-  else if (m == "/clear") {{ SetWeather(area, WEATHER_CLEAR); SendMessageToPC(pc, "Clear"); }}
-  else SendMessageToPC(pc, "/sky 16-23, /time HH [MM], /rain, /clear; now " + IntToString(GetTimeHour()) + ":" + IntToString(GetTimeMinute()));
+  else if (word == "/rain") {{ SetWeather(area, WEATHER_RAIN); SendMessageToPC(pc, "Rain"); }}
+  else if (word == "/clear") {{ SetWeather(area, WEATHER_CLEAR); SendMessageToPC(pc, "Clear"); }}
+  else SendMessageToPC(pc, "{commands}; now " + Clock());
 }}
 """
     return enter, chat
@@ -223,7 +248,7 @@ def build(nwn_root, out, transition=False, play=False, live=None):
         path.write_text(json.dumps(document), encoding='utf-8')
         run(gff, '-i', path, '-o', binary / filename)
     if live:
-        enter, chat = live_scripts()
+        enter, chat = live_scripts(live)
         scripts, count = {'sk_enter': enter, 'sk_chat': chat}, 0
     else:
         text, count = play_script() if play else transition_script() if transition else script(SHOTS)
@@ -240,17 +265,25 @@ def build(nwn_root, out, transition=False, play=False, live=None):
     return user, count
 
 
+def wait_for_client(wait):
+    """Before anything is built: a client left running (`--play`, `--live`) holds its HAK and its settings."""
+    from tools.armorkit import client
+    if wait:
+        client.wait_free(wait)
+    elif client.running():
+        raise RuntimeError('A game client is already running; close it, or give --wait')
+
+
 def capture(nwn_root, out, wait=0, transition=False):
     from tools.armorkit import client
     from tools.tilekit import client_settings
     from PIL import ImageGrab  # noqa: F401  (the capture needs Pillow's grabber)
+    wait_for_client(wait)
     user, count = build(nwn_root, out, transition)
     captures = Path(out).resolve() / 'captures'
     if captures.exists():
         shutil.rmtree(captures)
     captures.mkdir(parents=True)
-    if wait:
-        client.wait_free(wait)
     (user / 'settings.tml').write_text(client.settings_text(1600, 900, client_settings.settings()), encoding='utf-8')
     process = client.start(nwn_root, user, MODULE)
     tail = client.LogTail(user, PREFIX)
@@ -304,9 +337,8 @@ def main(argv=None):
     if args.play or args.live:
         from tools.armorkit import client
         from tools.tilekit import client_settings
+        wait_for_client(args.wait)
         user, _ = build(args.nwn_root, args.out, play=args.play, live=args.live)
-        if args.wait:
-            client.wait_free(args.wait)
         # left running for a person: never without a frame limit
         (user / 'settings.tml').write_text(client.settings_text(1600, 900, client_settings.settings()), encoding='utf-8')
         process = client.start(args.nwn_root, user, MODULE)

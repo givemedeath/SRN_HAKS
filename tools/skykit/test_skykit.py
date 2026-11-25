@@ -243,12 +243,35 @@ class Render(unittest.TestCase):
 class LiveModule(unittest.TestCase):
     def test_the_live_scripts_take_the_srn_sky_rows_only(self):
         from tools.skykit import client_fixture
-        enter, chat = client_fixture.live_scripts()
+        enter, chat = client_fixture.live_scripts(8)
         self.assertIn('SetSkyBox(16,', enter)
-        self.assertIn('row < 16 || row > 23', chat)
+        self.assertIn('Number(arg, 23);\n    if (row < 16)', chat)
+        self.assertEqual((enter + chat).count('/sky 16-23'), 2)
         self.assertEqual(set(client_fixture.SKY_ROWS), set(profiles.SKIES))
         for text in (enter, chat):
             self.assertEqual(text.count('{'), text.count('}'))
+
+    def test_the_live_clock_is_told_in_the_module_s_own_minutes(self):
+        # an hour is the module's minutes: 17:30 at 8 to the hour landed near 21:00 (review of PR 200)
+        from tools.skykit import client_fixture
+        for minutes in (1, 8, 60):
+            _, chat = client_fixture.live_scripts(minutes)
+            self.assertIn(f'int seconds = minute * {minutes};', chat)
+            self.assertIn(f'(GetTimeMinute() * 60 + GetTimeSecond()) / {minutes})', chat)
+            self.assertIn('SetTime(hour, seconds / 60, seconds % 60, 0)', chat)
+            self.assertIn('if (hour < 0 || minute < 0)', chat)
+
+    def test_a_running_client_stops_a_run_before_it_builds(self):
+        from unittest import mock
+        from tools.armorkit import client
+        from tools.skykit import client_fixture
+        for given in (['--live', '8'], ['--play'], ['--transition'], []):
+            with mock.patch.object(client_fixture, 'build') as built, mock.patch.object(client, 'running', return_value=[1]):
+                with self.assertRaisesRegex(RuntimeError, 'already running'):
+                    client_fixture.main(['--nwn-root', 'none', *given])
+                with mock.patch.object(client, 'wait_free', side_effect=ValueError('still there')), self.assertRaisesRegex(ValueError, 'still there'):
+                    client_fixture.main(['--nwn-root', 'none', '--wait', '1', *given])
+            built.assert_not_called()
 
     def test_one_kind_of_module_at_a_time(self):
         import contextlib
@@ -263,7 +286,8 @@ class LiveModule(unittest.TestCase):
         from tools.armorkit import client
         from tools.skykit import client_fixture
         for given in (['--live', '8'], ['--play']):
-            with tempfile.TemporaryDirectory() as temporary, mock.patch.object(client_fixture, 'build', return_value=(Path(temporary), 0)),                     mock.patch.object(client, 'start'), mock.patch.object(client_fixture.json, 'dumps', return_value=''), mock.patch('builtins.print'):
+            with tempfile.TemporaryDirectory() as temporary, mock.patch.object(client_fixture, 'build', return_value=(Path(temporary), 0)), mock.patch.object(client, 'running', return_value=[]), \
+                    mock.patch.object(client, 'start'), mock.patch.object(client_fixture.json, 'dumps', return_value=''), mock.patch('builtins.print'):
                 client_fixture.main(['--nwn-root', 'none', *given])
                 text = (Path(temporary) / 'settings.tml').read_text(encoding='utf-8')
             self.assertRegex(text, r'target-fps = [1-9]')
