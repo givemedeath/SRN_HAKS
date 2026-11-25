@@ -191,3 +191,32 @@ wear 0.5. The jacket is drawn closed, with no shirt under it and no hood: two cl
 and the trousers, and the T-shirt is its own variant, 3011. Sealed in the work folder as
 `street-casual-male/reference-v1`; one Qwen image, `run-1/image-0.png`, seed 20261124, on the shared ComfyUI
 (user: post it now). Next: stop 1, the user's review of that image.
+
+2026-11-24, stop 1: the user asked for a redraw with more street character, and said that the leather and
+metal channels a part has no use for may be used, so that the reference image's colours say what is coloured
+on which channel and parts can be coordinated where needed. Two additions to a brief's material, both in
+`brief.py`:
+
+* `"tint": "metal"` tints a material on another kind's channels. Its `kind` stays what it is: how it is cut,
+  what counts as a plate, how it wears.
+* `"channel": 1` or `2` on an outfit's material names its channel, wherever it is worn. Until now only an
+  accessory's could; an outfit's channels were told by which material covers more, and a single material of a
+  kind was split between torso and legs, which differs from outfit to outfit.
+
+**Colour convention for the starter sets** (proposed here, not yet confirmed by the user). A reference image
+uses these colours for these channels, so that parts of different sets worn together are coloured alike:
+
+| Channel | Drawn in | Holds | Facility Security 6020 |
+|---|---|---|---|
+| cloth 1 | sky blue | the outer garment on the torso and arms | shirt |
+| cloth 2 | grey | the garment on the legs | trousers |
+| leather 1 | tan | belt, straps, gear | vest and pouches |
+| leather 2 | green | footwear | boots and gloves |
+| metal 1 | pink | the inner layer: a shirt under a jacket | — |
+| metal 2 | yellow | accent panels and trim | plates |
+
+The Street Casual brief was rewritten to it: a thick jacket worn open over a T-shirt, baggy cargo trousers
+gathered into heavy boots, a band of the accent round each upper sleeve and a patch over each knee. Sealed as
+`street-casual-male/reference-v2`; one Qwen image, `run-1/image-0.png`, seed 20261125. `reference-v1` keeps
+the first design's image. Not run: a bake with a tinted or named channel (`bake.tints` reads them through
+`brief.channels`; the brief's side is tested). Next: the user's review of the redraw.

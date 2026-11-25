@@ -1172,8 +1172,9 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     size = lambda part: len(part['rgb'])
     found = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
     worn = brief.worn(document, found)  # the brief's material for each the colours show: its kind is the brief's to say
-    kinds = [material['kind'] for material in worn]
-    channel = texture.channels(kinds)  # two channels per material: its garments are told apart by where they are worn
+    kinds = [material['kind'] for material in worn]  # what each is: how it wears
+    tints = [brief.tinted(material) for material in worn]  # and the kind whose channels it is tinted on, another's where the brief says so
+    channel = brief.channels(worn)  # two channels per material: its garments are told apart by where they are worn, or the one it names
     slot_of = {token: slot for slot in SLOTS for token in registry.SLOTS[slot]['tokens']}
     own = {name: ~part['added'] & ~part.get('skin', np.zeros(len(part['f']), bool)) for name, part in parts.items()}  # the outfit's own surface: not the split's, not the body's
     start = np.cumsum([0] + [len(part['src']) for part in parts.values()])
@@ -1181,7 +1182,7 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     second = texture.worn_second(np.concatenate([part['src'] for part in parts.values()]),
                                  np.concatenate([part['f'][own[name]] + start[i] for i, (name, part) in enumerate(parts.items())]),
                                  np.concatenate([seen[name][own[name]] for name in parts]),
-                                 np.concatenate([[slot_of[name]] * int(own[name].sum()) for name in parts]), kinds)
+                                 np.concatenate([[slot_of[name]] * int(own[name].sum()) for name in parts]), tints)
     at = np.cumsum([0] + [int(own[name].sum()) for name in parts])
     listed = [material['name'] for material in document['materials']]
     here = {listed.index(material['name']): k for k, material in enumerate(worn)}  # the brief's material, as the texels number it
@@ -1217,6 +1218,7 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
         tinted[name] = bodyskin.tinted(part, tinted[name])  # the body's skin keeps its own shade and layer
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1),
+                             **({'tint': material['tint']} if 'tint' in material else {}),
                              **({'suggested': material['suggested']} if 'suggested' in material else {})}
                             for k, material in enumerate(worn)], **({'wear': amount} if amount else {})}
     return tinted, record

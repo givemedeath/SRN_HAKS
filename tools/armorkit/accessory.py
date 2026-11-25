@@ -234,7 +234,7 @@ def tints(piece, document):
     found = texture.materials(piece['rgb'][piece['covered']], count)
     worn = brief.worn(document, found)
     kinds = [material['kind'] for material in worn]
-    channel = [material['kind'] + str(material.get('channel', 1)) for material in worn]
+    channel = [brief.tinted(material) + str(material.get('channel', 1)) for material in worn]
     size, amount = len(piece['rgb']), float(document.get('wear', 0))
     lit = texture.lit_shades(piece['rgb'][piece['covered']], found)
     span = float(np.ptp(piece['src'], axis=0).max())

@@ -72,9 +72,8 @@ class AccessoryBriefTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 brief.validate(made)
         outfit = document()
-        outfit['materials'][0]['channel'] = 2  # an outfit's channels are sorted by where its materials are worn
-        with self.assertRaises(ValueError):
-            brief.validate(outfit)
+        outfit['materials'][0]['channel'] = 2  # an outfit's material may name its channel too (2026-11-24): it has it wherever it is worn
+        self.assertEqual(brief.channels(brief.validate(outfit)['materials'])[0], ('cloth2', 'cloth2'))
 
 
 class BeltTests(unittest.TestCase):

@@ -59,6 +59,28 @@ class BriefTests(unittest.TestCase):
                          [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('leather1', 'leather2')])
         with self.assertRaises(ValueError):
             brief.validate(document(('a', 'cloth', GREY), ('b', 'cloth', BLUE), ('c', 'cloth', TAN)))
+        # a third cloth tinted on a kind the outfit has no use for: it stays cloth, and takes that kind's channels
+        three = document(('jacket', 'cloth', GREY), ('trousers', 'cloth', BLUE), ('shirt', 'cloth', TAN))
+        three['materials'][2]['tint'] = 'metal'
+        self.assertEqual([brief.tinted(material) for material in brief.validate(three)['materials']], ['cloth', 'cloth', 'metal'])
+        self.assertEqual(texture.channels([brief.tinted(material) for material in three['materials']]),
+                         [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('metal1', 'metal2')])
+        self.assertEqual(brief.composed(three), brief.composed({**three, 'materials': [{k: v for k, v in m.items() if k != 'tint'} for m in three['materials']]}))
+        for wrong in ('cloth', 'silk', 1):  # its own kind, no kind
+            with self.assertRaises(ValueError):
+                brief.validate({**three, 'materials': three['materials'][:2] + [{**three['materials'][2], 'tint': wrong}]})
+        self.assertEqual(brief.channels(three['materials']), [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('metal1', 'metal2')])
+        # named channels: the reference image's colours say what is tinted where, the same on every outfit of a convention
+        named = [{**m, 'channel': n} for m, n in zip(three['materials'], (2, 1, 2))]
+        self.assertEqual(brief.channels(brief.validate({**three, 'materials': named})['materials']),
+                         [('cloth2', 'cloth2'), ('cloth1', 'cloth1'), ('metal2', 'metal2')])
+        for channels in ((1, 1, 2), (1, None, 2), (3, 1, 2)):  # two on one channel, one of a kind unnamed, no such channel
+            with self.assertRaises(ValueError):
+                brief.validate({**three, 'materials': [{**m, **({} if n is None else {'channel': n})} for m, n in zip(three['materials'], channels)]})
+        crowded = document(('a', 'cloth', GREY), ('b', 'metal', BLUE), ('c', 'metal', TAN), ('d', 'cloth', [200, 90, 90]))
+        crowded['materials'][3]['tint'] = 'metal'
+        with self.assertRaises(ValueError):  # three tinted on metal
+            brief.validate(crowded)
         with self.assertRaises(ValueError):  # seven materials: the game has six channels
             brief.validate(document(*[(str(k), texture.KINDS[k % 3], [30 * k, 200 - 20 * k, 90]) for k in range(7)]))
 
