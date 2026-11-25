@@ -645,7 +645,7 @@ The four textures it shares with dgt04 keep dgt04's look.
   the restyled paving; Dark City painted from the Terrain palette lays the void and its cyan rim glass around it;
   the Control Tower group places and draws with the new materials. The saved area holds the 3x3 tower
   (`fcx01_d01_01` to `_09`), 20 void edge tiles and the plain plaza, with nothing missing or black. The palette shows
-  the groups' display names. Not tried: every group, doors, tile light settings.
+  the groups' display names.
 
 **Parked items taken up after Release C (2026-11-24):**
 - **Applied (user passed the look):** the arcology's lit panes and lamp lenses follow the hour
@@ -706,6 +706,13 @@ The four textures it shares with dgt04 keep dgt04's look.
   with a source has main lights; 186 dgt04 tiles have none (plain concrete, bridges, water, fences, walls, the
   aqueduct, 7 Street tiles), so they stay dark whatever a builder sets. Left as it is.
 - **Seen in game since:** the remade `dgt05_s05_12`, both mall entrances, the garage and the second console.
+- **Toolset, groups, doors and light (2026-11-24, by computer use on the built packs):** the palette lists all 213
+  groups (104 features, 109 groups) and 59 terrains by their names. Thirty groups, chosen by the user over all 213, one
+  for each kind of group, were painted on plain ground of their own, saved and read back: every one has all its
+  tiles, and the Toolset retiles round them. Every hook of a keyed door type made its door (58, 266, 267, 268); hooks
+  of the generic type 0 (110 groups) make none, and the builder places one. A tile's main light set in Tile
+  Properties is saved. The other 183 groups were not painted. A group is refused on ground its edges cannot meet
+  (the Hospital on Concrete), and the Toolset does not paint over another group's tiles.
 - **Old sets:** whether to retire them is the user's call later. This plan keeps them.
 
 ## Verification (each stage)
