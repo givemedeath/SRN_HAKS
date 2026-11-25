@@ -645,7 +645,7 @@ node trimesh top_02
 endnode
 #Tile trimesh node
 node trimesh glass_02
-  parent FCX01_W01_02
+  parent FCX01_W01_02a
   position 1.88 2.93 16.15
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.776471 0.87451 0.337255 
@@ -697,7 +697,7 @@ node trimesh glass_02
     0.701335 0.650025 0
 endnode
 node trimesh day00_0
-  parent FCX01_W01_02
+  parent FCX01_W01_02a
   position 1.88 2.93 16.15
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.776471 0.87451 0.337255 
@@ -1219,15 +1219,18 @@ newanim day FCX01_W01_02
   node dummy FCX01_W01_02
     parent NULL
   endnode
-  node trimesh glass_02
+  node dummy FCX01_W01_02a
     parent FCX01_W01_02
+  endnode
+  node trimesh glass_02
+    parent FCX01_W01_02a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_W01_02
+    parent FCX01_W01_02a
     alphakey 2
       0.00000 0.5
       0.03333 0.5
@@ -1241,15 +1244,18 @@ newanim day2night FCX01_W01_02
   node dummy FCX01_W01_02
     parent NULL
   endnode
-  node trimesh glass_02
+  node dummy FCX01_W01_02a
     parent FCX01_W01_02
+  endnode
+  node trimesh glass_02
+    parent FCX01_W01_02a
     alphakey 2
       0.00000 0
       0.56667 0.5
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_W01_02
+    parent FCX01_W01_02a
     alphakey 2
       0.00000 0.5
       0.56667 0
@@ -1263,15 +1269,18 @@ newanim night FCX01_W01_02
   node dummy FCX01_W01_02
     parent NULL
   endnode
-  node trimesh glass_02
+  node dummy FCX01_W01_02a
     parent FCX01_W01_02
+  endnode
+  node trimesh glass_02
+    parent FCX01_W01_02a
     alphakey 2
       0.00000 0.5
       0.03333 0.5
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_W01_02
+    parent FCX01_W01_02a
     alphakey 2
       0.00000 0
       0.03333 0
@@ -1285,15 +1294,18 @@ newanim night2day FCX01_W01_02
   node dummy FCX01_W01_02
     parent NULL
   endnode
-  node trimesh glass_02
+  node dummy FCX01_W01_02a
     parent FCX01_W01_02
+  endnode
+  node trimesh glass_02
+    parent FCX01_W01_02a
     alphakey 2
       0.00000 0.5
       0.60000 0
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_W01_02
+    parent FCX01_W01_02a
     alphakey 2
       0.00000 0
       0.60000 0.5

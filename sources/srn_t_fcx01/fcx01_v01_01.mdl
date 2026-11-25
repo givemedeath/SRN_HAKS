@@ -3599,7 +3599,7 @@ node trimesh middle_01
 endnode
 #Tile trimesh node
 node trimesh windows_01
-  parent FCX01_V01_01
+  parent FCX01_V01_01a
   position 0.0 0.0 12.84
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.694118 0.576471 0.101961 
@@ -3612,7 +3612,7 @@ node trimesh windows_01
   rotatetexture 0
   alpha 1.0
   transparencyhint 0
-  selfillumcolor 1.0 1.0 1.0 
+  selfillumcolor 0 0 0
   ambient 1.0 1.0 1.0 
   Diffuse 1.0 1.0 1.0 
   Specular 0.0 0.0 0.0 
@@ -4484,7 +4484,7 @@ node trimesh windows_01
     -0.120672 -0.493989 0
 endnode
 node trimesh day00_0
-  parent FCX01_V01_01
+  parent FCX01_V01_01a
   position 0.0 0.0 12.84
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.694118 0.576471 0.101961 
@@ -4503,7 +4503,7 @@ node trimesh day00_0
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.5 
-  bitmap ctown_build_id4
+  bitmap ctown_build_id4d
   verts 268
     0.71 0.23 3.0
     0.55 0.52 3.0
@@ -9220,15 +9220,18 @@ newanim day FCX01_V01_01
   node dummy FCX01_V01_01
     parent NULL
   endnode
-  node trimesh windows_01
+  node dummy FCX01_V01_01a
     parent FCX01_V01_01
+  endnode
+  node trimesh windows_01
+    parent FCX01_V01_01a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_V01_01
+    parent FCX01_V01_01a
     alphakey 2
       0.00000 1
       0.03333 1
@@ -9242,15 +9245,18 @@ newanim day2night FCX01_V01_01
   node dummy FCX01_V01_01
     parent NULL
   endnode
-  node trimesh windows_01
+  node dummy FCX01_V01_01a
     parent FCX01_V01_01
+  endnode
+  node trimesh windows_01
+    parent FCX01_V01_01a
     alphakey 2
       0.00000 0
       0.56667 1
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_V01_01
+    parent FCX01_V01_01a
     alphakey 2
       0.00000 1
       0.56667 0
@@ -9264,15 +9270,18 @@ newanim night FCX01_V01_01
   node dummy FCX01_V01_01
     parent NULL
   endnode
-  node trimesh windows_01
+  node dummy FCX01_V01_01a
     parent FCX01_V01_01
+  endnode
+  node trimesh windows_01
+    parent FCX01_V01_01a
     alphakey 2
       0.00000 1
       0.03333 1
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_V01_01
+    parent FCX01_V01_01a
     alphakey 2
       0.00000 0
       0.03333 0
@@ -9286,15 +9295,18 @@ newanim night2day FCX01_V01_01
   node dummy FCX01_V01_01
     parent NULL
   endnode
-  node trimesh windows_01
+  node dummy FCX01_V01_01a
     parent FCX01_V01_01
+  endnode
+  node trimesh windows_01
+    parent FCX01_V01_01a
     alphakey 2
       0.00000 1
       0.60000 0
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_V01_01
+    parent FCX01_V01_01a
     alphakey 2
       0.00000 0
       0.60000 1

@@ -13,6 +13,9 @@ beginmodelgeom FCX01_G01_04
 node dummy FCX01_G01_04
   parent NULL
 endnode
+node dummy FCX01_G01_04a
+  parent FCX01_G01_04
+endnode
 node light FCX01_G01_04ml1
   parent FCX01_G01_04
   position 0.0 0.0 5.0
@@ -335,7 +338,7 @@ node trimesh Box13_04
 endnode
 #Tile trimesh node
 node trimesh Box20_04
-  parent FCX01_G01_04
+  parent FCX01_G01_04a
   position -1.6 2.0 8.5
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.337255 0.694118 0.101961 
@@ -348,7 +351,7 @@ node trimesh Box20_04
   rotatetexture 0
   alpha 1.0
   transparencyhint 0
-  selfillumcolor 1.0 1.0 1.0 
+  selfillumcolor 0 0 0
   ambient 0.588 0.588 0.588 
   Diffuse 0.588 0.588 0.588 
   Specular 0.0 0.0 0.0 
@@ -416,7 +419,7 @@ node trimesh Box20_04
     0.0 0.0 0
 endnode
 node trimesh day00_0
-  parent FCX01_G01_04
+  parent FCX01_G01_04a
   position -1.6 2.0 8.5
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.337255 0.694118 0.101961 
@@ -435,7 +438,7 @@ node trimesh day00_0
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap lma_light06
+  bitmap lma_light06_d
   verts 8
     0.25 -0.5 -0.5
     0.25 0.5 -0.5
@@ -662,15 +665,18 @@ newanim day FCX01_G01_04
   node dummy FCX01_G01_04
     parent NULL
   endnode
-  node trimesh Box20_04
+  node dummy FCX01_G01_04a
     parent FCX01_G01_04
+  endnode
+  node trimesh Box20_04
+    parent FCX01_G01_04a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_G01_04
+    parent FCX01_G01_04a
     alphakey 2
       0.00000 1
       0.03333 1
@@ -684,15 +690,18 @@ newanim day2night FCX01_G01_04
   node dummy FCX01_G01_04
     parent NULL
   endnode
-  node trimesh Box20_04
+  node dummy FCX01_G01_04a
     parent FCX01_G01_04
+  endnode
+  node trimesh Box20_04
+    parent FCX01_G01_04a
     alphakey 2
       0.00000 0
       0.56667 1
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_G01_04
+    parent FCX01_G01_04a
     alphakey 2
       0.00000 1
       0.56667 0
@@ -706,15 +715,18 @@ newanim night FCX01_G01_04
   node dummy FCX01_G01_04
     parent NULL
   endnode
-  node trimesh Box20_04
+  node dummy FCX01_G01_04a
     parent FCX01_G01_04
+  endnode
+  node trimesh Box20_04
+    parent FCX01_G01_04a
     alphakey 2
       0.00000 1
       0.03333 1
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_G01_04
+    parent FCX01_G01_04a
     alphakey 2
       0.00000 0
       0.03333 0
@@ -728,15 +740,18 @@ newanim night2day FCX01_G01_04
   node dummy FCX01_G01_04
     parent NULL
   endnode
-  node trimesh Box20_04
+  node dummy FCX01_G01_04a
     parent FCX01_G01_04
+  endnode
+  node trimesh Box20_04
+    parent FCX01_G01_04a
     alphakey 2
       0.00000 1
       0.60000 0
     endlist
   endnode
   node trimesh day00_0
-    parent FCX01_G01_04
+    parent FCX01_G01_04a
     alphakey 2
       0.00000 0
       0.60000 1

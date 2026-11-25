@@ -13,6 +13,9 @@ beginmodelgeom fcx01_f01_10
 node dummy fcx01_f01_10
   parent NULL
 endnode
+node dummy fcx01_f01_10a
+  parent fcx01_f01_10
+endnode
 node light fcx01_f01_10ml1
   parent fcx01_f01_10
   position 0.0 0.0 5.0
@@ -473,7 +476,7 @@ node trimesh Linie08_12
 endnode
 #Tile trimesh node
 node trimesh Linie12_12
-  parent fcx01_f01_10
+  parent fcx01_f01_10a
   position -4.66 -3.1 18.45
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.337255 0.556863 0.882353 
@@ -486,7 +489,7 @@ node trimesh Linie12_12
   rotatetexture 0
   alpha 1.0
   transparencyhint 0
-  selfillumcolor 0.0 0.0 0.976471 
+  selfillumcolor 0 0 0
   ambient 0.588 0.588 0.588 
   Diffuse 0.588 0.588 0.588 
   Specular 0.0 0.0 0.0 
@@ -558,7 +561,7 @@ node trimesh Linie12_12
     -0.346326 0.617754 0
 endnode
 node trimesh day00_0
-  parent fcx01_f01_10
+  parent fcx01_f01_10a
   position -4.66 -3.1 18.45
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.337255 0.556863 0.882353 
@@ -577,7 +580,7 @@ node trimesh day00_0
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.5 
-  bitmap lights3
+  bitmap lights3_d
   verts 18
     0.15 1.38 -0.24
     0.25 0.0 0.25
@@ -644,7 +647,7 @@ node trimesh day00_0
 endnode
 #Tile trimesh node
 node trimesh Objekt01_12
-  parent fcx01_f01_10
+  parent fcx01_f01_10a
   position -4.52 -2.93 17.06
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.337255 0.556863 0.882353 
@@ -657,7 +660,7 @@ node trimesh Objekt01_12
   rotatetexture 0
   alpha 1.0
   transparencyhint 0
-  selfillumcolor 0.0 0.0 0.976471 
+  selfillumcolor 0 0 0
   ambient 0.588 0.588 0.588 
   Diffuse 0.588 0.588 0.588 
   Specular 0.0 0.0 0.0 
@@ -709,7 +712,7 @@ node trimesh Objekt01_12
     2.50154 0.442314 0
 endnode
 node trimesh day01_0
-  parent fcx01_f01_10
+  parent fcx01_f01_10a
   position -4.52 -2.93 17.06
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.337255 0.556863 0.882353 
@@ -728,7 +731,7 @@ node trimesh day01_0
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap lights3
+  bitmap lights3_d
   verts 14
     -0.11 1.2 -0.24
     0.17 1.35 0.24
@@ -1139,29 +1142,32 @@ newanim day fcx01_f01_10
   node dummy fcx01_f01_10
     parent NULL
   endnode
-  node trimesh Linie12_12
+  node dummy fcx01_f01_10a
     parent fcx01_f01_10
+  endnode
+  node trimesh Linie12_12
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 1
       0.03333 1
     endlist
   endnode
   node trimesh Objekt01_12
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day01_0
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 1
       0.03333 1
@@ -1175,29 +1181,32 @@ newanim day2night fcx01_f01_10
   node dummy fcx01_f01_10
     parent NULL
   endnode
-  node trimesh Linie12_12
+  node dummy fcx01_f01_10a
     parent fcx01_f01_10
+  endnode
+  node trimesh Linie12_12
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 0
       0.56667 1
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 1
       0.56667 0
     endlist
   endnode
   node trimesh Objekt01_12
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 0
       0.56667 1
     endlist
   endnode
   node trimesh day01_0
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 1
       0.56667 0
@@ -1211,29 +1220,32 @@ newanim night fcx01_f01_10
   node dummy fcx01_f01_10
     parent NULL
   endnode
-  node trimesh Linie12_12
+  node dummy fcx01_f01_10a
     parent fcx01_f01_10
+  endnode
+  node trimesh Linie12_12
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 1
       0.03333 1
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh Objekt01_12
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 1
       0.03333 1
     endlist
   endnode
   node trimesh day01_0
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 0
       0.03333 0
@@ -1247,29 +1259,32 @@ newanim night2day fcx01_f01_10
   node dummy fcx01_f01_10
     parent NULL
   endnode
-  node trimesh Linie12_12
+  node dummy fcx01_f01_10a
     parent fcx01_f01_10
+  endnode
+  node trimesh Linie12_12
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 1
       0.60000 0
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 0
       0.60000 1
     endlist
   endnode
   node trimesh Objekt01_12
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 1
       0.60000 0
     endlist
   endnode
   node trimesh day01_0
-    parent fcx01_f01_10
+    parent fcx01_f01_10a
     alphakey 2
       0.00000 0
       0.60000 1

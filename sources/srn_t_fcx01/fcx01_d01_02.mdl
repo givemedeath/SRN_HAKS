@@ -13,6 +13,9 @@ beginmodelgeom fcx01_d01_02
 node dummy fcx01_d01_02
   parent NULL
 endnode
+node dummy fcx01_d01_02a
+  parent fcx01_d01_02
+endnode
 node light fcx01_d01_02ml1
   parent fcx01_d01_02
   position 0.0 0.0 5.0
@@ -422,7 +425,7 @@ node trimesh Cone03_04
 endnode
 #Tile trimesh node
 node trimesh Cylinder03_04
-  parent fcx01_d01_02
+  parent fcx01_d01_02a
   position 0.51 0.0 22.44
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.721569 0.603922 0.894118 
@@ -435,7 +438,7 @@ node trimesh Cylinder03_04
   rotatetexture 0
   alpha 0.9
   transparencyhint 0
-  selfillumcolor 0.0 0.0 0.980392 
+  selfillumcolor 0 0 0
   ambient 1.0 1.0 1.0 
   Diffuse 0.454902 0.384314 1.0 
   Specular 0.0 0.733333 0.972549 
@@ -580,7 +583,7 @@ node trimesh Cylinder03_04
     -3.28153 0.926201 0
 endnode
 node trimesh day00_0
-  parent fcx01_d01_02
+  parent fcx01_d01_02a
   position 0.51 0.0 22.44
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.721569 0.603922 0.894118 
@@ -599,7 +602,7 @@ node trimesh day00_0
   Specular 0.0 0.733333 0.972549 
   shininess 5
   center 0.499985 0.0 0.0 
-  bitmap fcx_window1
+  bitmap fcx_window1_d
   verts 37
     -3.6 4.73 -0.34
     -4.48 0.0 -0.34
@@ -1490,15 +1493,18 @@ newanim day fcx01_d01_02
   node dummy fcx01_d01_02
     parent NULL
   endnode
-  node trimesh Cylinder03_04
+  node dummy fcx01_d01_02a
     parent fcx01_d01_02
+  endnode
+  node trimesh Cylinder03_04
+    parent fcx01_d01_02a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_d01_02
+    parent fcx01_d01_02a
     alphakey 2
       0.00000 0.9
       0.03333 0.9
@@ -1512,15 +1518,18 @@ newanim day2night fcx01_d01_02
   node dummy fcx01_d01_02
     parent NULL
   endnode
-  node trimesh Cylinder03_04
+  node dummy fcx01_d01_02a
     parent fcx01_d01_02
+  endnode
+  node trimesh Cylinder03_04
+    parent fcx01_d01_02a
     alphakey 2
       0.00000 0
       0.56667 0.9
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_d01_02
+    parent fcx01_d01_02a
     alphakey 2
       0.00000 0.9
       0.56667 0
@@ -1534,15 +1543,18 @@ newanim night fcx01_d01_02
   node dummy fcx01_d01_02
     parent NULL
   endnode
-  node trimesh Cylinder03_04
+  node dummy fcx01_d01_02a
     parent fcx01_d01_02
+  endnode
+  node trimesh Cylinder03_04
+    parent fcx01_d01_02a
     alphakey 2
       0.00000 0.9
       0.03333 0.9
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_d01_02
+    parent fcx01_d01_02a
     alphakey 2
       0.00000 0
       0.03333 0
@@ -1556,15 +1568,18 @@ newanim night2day fcx01_d01_02
   node dummy fcx01_d01_02
     parent NULL
   endnode
-  node trimesh Cylinder03_04
+  node dummy fcx01_d01_02a
     parent fcx01_d01_02
+  endnode
+  node trimesh Cylinder03_04
+    parent fcx01_d01_02a
     alphakey 2
       0.00000 0.9
       0.60000 0
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_d01_02
+    parent fcx01_d01_02a
     alphakey 2
       0.00000 0
       0.60000 0.9

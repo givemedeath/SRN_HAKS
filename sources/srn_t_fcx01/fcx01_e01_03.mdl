@@ -656,7 +656,7 @@ node trimesh back_door_03
 endnode
 #Tile trimesh node
 node trimesh window_03
-  parent fcx01_e01_03
+  parent fcx01_e01_03a
   position 1.83 2.52 13.0
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.603922 0.839216 0.894118 
@@ -669,7 +669,7 @@ node trimesh window_03
   rotatetexture 0
   alpha 0.9
   transparencyhint 0
-  selfillumcolor 0.0470588 0.0 1.0 
+  selfillumcolor 0 0 0
   ambient 0.407843 0.407843 0.980392 
   Diffuse 0.027451 0.0 0.619608 
   Specular 0.0 0.760784 0.94902 
@@ -739,7 +739,7 @@ node trimesh window_03
     2.00025 -4.03515 0
 endnode
 node trimesh day00_0
-  parent fcx01_e01_03
+  parent fcx01_e01_03a
   position 1.83 2.52 13.0
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.603922 0.839216 0.894118 
@@ -758,7 +758,7 @@ node trimesh day00_0
   Specular 0.0 0.760784 0.94902 
   shininess 5
   center 0.5 0.0 0.0 
-  bitmap fcx_window1
+  bitmap fcx_window1_d
   verts 19
     -3.16 0.0 6.93
     0.01 0.0 6.93
@@ -1863,7 +1863,7 @@ node trimesh armature09_03
 endnode
 #Tile trimesh node
 node trimesh window01_03
-  parent fcx01_e01_03
+  parent fcx01_e01_03a
   position -2.51 -1.82 13.0
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.603922 0.839216 0.894118 
@@ -1876,7 +1876,7 @@ node trimesh window01_03
   rotatetexture 0
   alpha 0.9
   transparencyhint 0
-  selfillumcolor 0.0705882 0.0 1.0 
+  selfillumcolor 0 0 0
   ambient 0.407843 0.407843 0.980392 
   Diffuse 0.027451 0.0 0.619608 
   Specular 0.0 0.760784 0.94902 
@@ -1964,7 +1964,7 @@ node trimesh window01_03
     2.00025 -4.03515 0
 endnode
 node trimesh day01_0
-  parent fcx01_e01_03
+  parent fcx01_e01_03a
   position -2.51 -1.82 13.0
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.603922 0.839216 0.894118 
@@ -1983,7 +1983,7 @@ node trimesh day01_0
   Specular 0.0 0.760784 0.94902 
   shininess 5
   center 0.0 0.5 0.0 
-  bitmap fcx_window1
+  bitmap fcx_window1_d
   verts 24
     0.0 -3.16 6.93
     0.0 0.02 6.93
@@ -2348,7 +2348,7 @@ node trimesh Box10_03
 endnode
 #Tile trimesh node
 node trimesh Box02_03
-  parent fcx01_e01_03
+  parent fcx01_e01_03a
   position 0.0 2.62 4.2
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.686275 0.101961 0.101961 
@@ -2361,7 +2361,7 @@ node trimesh Box02_03
   rotatetexture 0
   alpha 0.8
   transparencyhint 0
-  selfillumcolor 0.901961 0.901961 0.901961 
+  selfillumcolor 0 0 0
   ambient 1.0 1.0 1.0 
   Diffuse 1.0 1.0 1.0 
   Specular 0.0 0.0 0.0 
@@ -2405,7 +2405,7 @@ node trimesh Box02_03
     1.0 1.0 0
 endnode
 node trimesh day02_0
-  parent fcx01_e01_03
+  parent fcx01_e01_03a
   position 0.0 2.62 4.2
   orientation  0.0 0.0 0.0  0.0
   wirecolor 0.686275 0.101961 0.101961 
@@ -2424,7 +2424,7 @@ node trimesh day02_0
   Specular 0.0 0.0 0.0 
   shininess 10
   center 0.0 0.0 0.0 
-  bitmap lma_light06
+  bitmap lma_light06_d
   verts 8
     -0.4 -0.1 -0.4
     0.4 -0.1 -0.4
@@ -2863,43 +2863,46 @@ newanim day fcx01_e01_03
   node dummy fcx01_e01_03
     parent NULL
   endnode
-  node trimesh window_03
+  node dummy fcx01_e01_03a
     parent fcx01_e01_03
+  endnode
+  node trimesh window_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.9
       0.03333 0.9
     endlist
   endnode
   node trimesh window01_03
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day01_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.9
       0.03333 0.9
     endlist
   endnode
   node trimesh Box02_03
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day02_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.8
       0.03333 0.8
@@ -2913,43 +2916,46 @@ newanim day2night fcx01_e01_03
   node dummy fcx01_e01_03
     parent NULL
   endnode
-  node trimesh window_03
+  node dummy fcx01_e01_03a
     parent fcx01_e01_03
+  endnode
+  node trimesh window_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.56667 0.9
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.9
       0.56667 0
     endlist
   endnode
   node trimesh window01_03
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.56667 0.9
     endlist
   endnode
   node trimesh day01_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.9
       0.56667 0
     endlist
   endnode
   node trimesh Box02_03
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.56667 0.8
     endlist
   endnode
   node trimesh day02_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.8
       0.56667 0
@@ -2963,43 +2969,46 @@ newanim night fcx01_e01_03
   node dummy fcx01_e01_03
     parent NULL
   endnode
-  node trimesh window_03
+  node dummy fcx01_e01_03a
     parent fcx01_e01_03
+  endnode
+  node trimesh window_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.9
       0.03333 0.9
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh window01_03
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.9
       0.03333 0.9
     endlist
   endnode
   node trimesh day01_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh Box02_03
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.8
       0.03333 0.8
     endlist
   endnode
   node trimesh day02_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.03333 0
@@ -3013,43 +3022,46 @@ newanim night2day fcx01_e01_03
   node dummy fcx01_e01_03
     parent NULL
   endnode
-  node trimesh window_03
+  node dummy fcx01_e01_03a
     parent fcx01_e01_03
+  endnode
+  node trimesh window_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.9
       0.60000 0
     endlist
   endnode
   node trimesh day00_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.60000 0.9
     endlist
   endnode
   node trimesh window01_03
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.9
       0.60000 0
     endlist
   endnode
   node trimesh day01_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.60000 0.9
     endlist
   endnode
   node trimesh Box02_03
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0.8
       0.60000 0
     endlist
   endnode
   node trimesh day02_0
-    parent fcx01_e01_03
+    parent fcx01_e01_03a
     alphakey 2
       0.00000 0
       0.60000 0.8

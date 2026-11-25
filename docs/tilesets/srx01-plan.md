@@ -649,10 +649,18 @@ The four textures it shares with dgt04 keep dgt04's look.
 
 **Parked items taken up after Release C (2026-11-24):**
 - **Applied (user passed the look):** the arcology's lit panes and lamp lenses follow the hour
-  (`docs/tilesets/fcx01/daylight.json`, 98 tiles: each is its own day texture). By day only the glass is really
-  unlit: six of the eight textures (the cyan windows, the lit blocks, the marker and wall lamps) still glow through
-  their materials' glow maps, so the arcology by day looks nearly as before; a day material without the glow map
-  would change the day look the user passed and is not made. A translucent pane keeps its own alpha (the tool
+  (`docs/tilesets/fcx01/daylight.json`, 98 tiles). Six of the eight textures (the cyan windows, the lit blocks,
+  the marker and wall lamps) glow through their materials' glow maps, and as their own day textures were as bright
+  at noon as at night. Each now has a day material, the same material without its glow map (`dayMaterials`,
+  written by `tilekit daylight --materials`; user asked 2026-11-24); the glass and `arcology_win02` have no
+  material and stay their own day textures. Making them showed that the arcology had never changed with the hour:
+  the game plays a tile's animations only under its animated node (the model's name with an `a`), and 230 of the
+  arcology's lit meshes hung from the root, so the day pane was drawn over the lit one at every hour and the look
+  the user passed was the day pane's glow map. `daylight` now hangs every lit mesh from that node where it stands
+  (`animated`; 74 arcology models, three suburb sign tiles and one city tile remade). Two more things came with it:
+  a mesh that draws a glow-mapped texture is lit whatever its own glow (the wall bands have none), and is left
+  none, since the game tints a glow map by the mesh's glow colour and the cyan bands came out blue at night. Seen
+  from the built packs: bands and tower windows unlit by day, lit at night as passed. A translucent pane keeps its own alpha (the tool
   keyed it solid at first; found in review of PR 198, 75 models remade). The suburb's part:
   the suburb's shop signs and logos follow the hour (`udp1/daylight.json`, 29 models). The suburb's signals are not
   listed and stay lit at every hour: traffic-light lenses (`udp1-allsigns`), emergency lights and hospital crosses
@@ -666,8 +674,9 @@ The four textures it shares with dgt04 keep dgt04's look.
   `redraw.json` (`placed`): the sign strip as an even row of lit segments, a clean "ARCOLOGY LIVING" caption,
   brighter marker lamps. The caption and the marker lamps were not seen in game; the strip still reads small there.
 - **School 3, not solved:** 28 of the 47 windows of `udp1_b07_29` were given lit panes (`udp1-window1b`) and day
-  panes through `daylight`. In game they stay unlit at night, and one stays lit by day: the fade does not take on
-  that tile though its animations are written like a working house's. Left as it was.
+  panes through `daylight`. In game they stayed unlit at night, and one stayed lit by day. The cause is found
+  (the lit panes hung from the tile's root, not its animated node: see the arcology above) and `daylight` now
+  hangs them right; the tile is left as it was until its windows are tried again.
 - **Suburb `detail` kit, not started:** `placer.propose` finds almost nothing on the houses and strip malls (thin
   box windows, models wider than their cell); only mall roofs take pieces. The kit's atlas also lives in
   `srn_t_dgt04`, which a suburb-only module does not load. Both need work before a pilot.

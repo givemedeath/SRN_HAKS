@@ -8,6 +8,9 @@ beginmodelgeom dgt05_s05_12
 node dummy dgt05_s05_12
   parent null
 endnode
+node dummy dgt05_s05_12a
+  parent dgt05_s05_12
+endnode
 node trimesh Box3205.023
   parent dgt05_s05_12
   position  4.02499  2.50002  5.80000
@@ -2256,7 +2259,7 @@ node trimesh window_fixed.018
      0.999  0.000  0
 endnode
 node trimesh window_lit.019
-  parent dgt05_s05_12
+  parent dgt05_s05_12a
   position  0.00000  0.00002 -7.00000
   orientation  1.00000  0.00000  0.00000  0.00000
   wirecolor  0.03  0.03  0.53
@@ -2297,7 +2300,7 @@ node trimesh window_lit.019
      0.999  0.000  0
 endnode
 node trimesh day00_0
-  parent dgt05_s05_12
+  parent dgt05_s05_12a
   position  0.00000  0.00002 -7.00000
   orientation  1.00000  0.00000  0.00000  0.00000
   wirecolor  0.03  0.03  0.53
@@ -23885,14 +23888,17 @@ newanim tiledefault dgt05_s05_12
   node trimesh window_fixed.018
     parent dgt05_s05_12
   endnode
-  node trimesh window_lit.019
+  node dummy dgt05_s05_12a
     parent dgt05_s05_12
+  endnode
+  node trimesh window_lit.019
+    parent dgt05_s05_12a
     positionkey 2
       0.00000 -0.00000  0.00002 -7.00000
       0.03333 -0.00000  0.00002 -7.00000
   endnode
   node trimesh day00_0
-    parent dgt05_s05_12
+    parent dgt05_s05_12a
     positionkey 2
       0.00000 -0.00000  0.00002 -7.00000
       0.03333 -0.00000  0.00002 -7.00000
@@ -24023,14 +24029,17 @@ newanim animloop01 dgt05_s05_12
   node trimesh window_fixed.018
     parent dgt05_s05_12
   endnode
-  node trimesh window_lit.019
+  node dummy dgt05_s05_12a
     parent dgt05_s05_12
+  endnode
+  node trimesh window_lit.019
+    parent dgt05_s05_12a
     positionkey 2
       0.00000 -0.00000  0.00002  12.00000
       0.03333 -0.00000  0.00002  12.00000
   endnode
   node trimesh day00_0
-    parent dgt05_s05_12
+    parent dgt05_s05_12a
     positionkey 2
       0.00000 -0.00000  0.00002  12.00000
       0.03333 -0.00000  0.00002  12.00000
@@ -24056,15 +24065,18 @@ newanim day dgt05_s05_12
   node dummy dgt05_s05_12
     parent NULL
   endnode
-  node trimesh window_lit.019
+  node dummy dgt05_s05_12a
     parent dgt05_s05_12
+  endnode
+  node trimesh window_lit.019
+    parent dgt05_s05_12a
     alphakey 2
       0.00000 0
       0.03333 0
     endlist
   endnode
   node trimesh day00_0
-    parent dgt05_s05_12
+    parent dgt05_s05_12a
     alphakey 2
       0.00000 1
       0.03333 1
@@ -24078,15 +24090,18 @@ newanim day2night dgt05_s05_12
   node dummy dgt05_s05_12
     parent NULL
   endnode
-  node trimesh window_lit.019
+  node dummy dgt05_s05_12a
     parent dgt05_s05_12
+  endnode
+  node trimesh window_lit.019
+    parent dgt05_s05_12a
     alphakey 2
       0.00000 0
       0.56667 1
     endlist
   endnode
   node trimesh day00_0
-    parent dgt05_s05_12
+    parent dgt05_s05_12a
     alphakey 2
       0.00000 1
       0.56667 0
@@ -24100,15 +24115,18 @@ newanim night dgt05_s05_12
   node dummy dgt05_s05_12
     parent NULL
   endnode
-  node trimesh window_lit.019
+  node dummy dgt05_s05_12a
     parent dgt05_s05_12
+  endnode
+  node trimesh window_lit.019
+    parent dgt05_s05_12a
     alphakey 2
       0.00000 1
       0.03333 1
     endlist
   endnode
   node trimesh day00_0
-    parent dgt05_s05_12
+    parent dgt05_s05_12a
     alphakey 2
       0.00000 0
       0.03333 0
@@ -24122,15 +24140,18 @@ newanim night2day dgt05_s05_12
   node dummy dgt05_s05_12
     parent NULL
   endnode
-  node trimesh window_lit.019
+  node dummy dgt05_s05_12a
     parent dgt05_s05_12
+  endnode
+  node trimesh window_lit.019
+    parent dgt05_s05_12a
     alphakey 2
       0.00000 1
       0.60000 0
     endlist
   endnode
   node trimesh day00_0
-    parent dgt05_s05_12
+    parent dgt05_s05_12a
     alphakey 2
       0.00000 0
       0.60000 1
