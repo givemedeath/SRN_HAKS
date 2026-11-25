@@ -231,6 +231,36 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   a tile edge with walls of different thickness. Rooms of two families join through a passage. A creature has not
   been walked through the joins in the client, and painting a join in the Toolset is not tried.
 
+## Stage 4b: Modern Interior built-in furniture, survey and trial (2026-11-24, brought forward by the user)
+
+- **Survey.** 333 of tfb01's 338 tiles have models, about 7,000 drawn parts. Texture names do not tell a room from
+  its furniture (a table and a door frame share `tfb01_door2`, a bookcase and the floor `tfb01_shpflr1`), nor does
+  the walkmesh (a bookcase is walked as wall). Where a part stands does: `tools/tilekit/strip.py` sorts each part as
+  floor, rug, top, shell, built-in or furniture.
+- **User rule: what would leave a hole stays and is given a new look in place.** The walls behind most of the
+  set's furniture were never drawn (the living room's bookcase and desk both stand in front of nothing), so
+  removing them opens the room to the sky. `strip.sort` looks through the room from its floor toward each standing
+  part; one with nothing of the room behind it is `builtin`, as is what touches it (a bed's mattress on its frame)
+  and what reaches the walls' top (a partition, a chimney breast). Set-wide: built-in 1,501, furniture 301, rugs
+  102, shell 2,290, floor 520, tops 2,242; 150 tiles have something that comes out.
+- **Stripping** (`strip.shell`): the furniture and rugs are left out, and the walkmesh faces not walked that they
+  stood on become the room's walked floor. This changes a tile's walkmesh, so each stripped tile's baseline changes
+  with it: **needs the user's approval** before it reaches a pack.
+- **Trial room:** group `Livingroom` (tile `tfb01_e01_01`, "Home: Living Room"). Out: the bed and a chair. Kept:
+  the bookcase (east wall) and the dresser (south wall). Added: a ceiling over the whole tile at the walls' top
+  (3.0 m, seen from below only, Office's `udp2_msc_clg`), a new `tfb01_lwalls` picture (Office's off-white vinyl;
+  the walls map the picture in bands, so one picture restyles every tile that draws it), and, furnished, a couch,
+  armchair, coffee table, plant and standing lamp from `[mdrn]` placeables baked with `detail.place` as obstacles,
+  with a television on the dresser (user). Pictures: `output/tilekit/trial4-b` (unfurnished) and `trial4-c`.
+- **Found:** these `[mdrn]` placeables front on -y, not +y (the first bake had them facing the wall). The wall has a
+  ledge at the old rail's height, which is geometry and stays. The door frame is still pale timber. The review lays
+  no door in the doorway.
+- **Textures (user, 2026-11-24): the kept furniture's pictures need upscaling at least, better replacement.** The
+  tiles draw 68 textures: 22 at 128 px, 23 at 256, 7 at 512, the rest smaller. The cabinet, bookcase (books and
+  electronics), floor and bedding pictures are modern in subject but 128 to 256 px. How they are remade is open.
+- **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
+  other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
+
 ## Decisions for the user (defaults used unless changed)
 
 1. **Families.** Default: the draft's four. Secret Base `tjsb0` (174 tiles), SciFi Base `zsf01` (73), Bunker `fifi`
