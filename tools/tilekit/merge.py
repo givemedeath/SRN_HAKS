@@ -200,6 +200,7 @@ def merged_set(sets, names, spec, joined=(), numbers=()):
             keys[corner] = record['corners'][corner]; keys[corner + 'Height'] = 0
         keys.update({side: record['crossers'][side] for side in ('Top', 'Right', 'Bottom', 'Left')})
         keys.update(dict.fromkeys(('MainLight1', 'MainLight2', 'SourceLight1', 'SourceLight2', 'AnimLoop1', 'AnimLoop2', 'AnimLoop3', 'Doors', 'Sounds'), 0))
+        keys.update(dict.fromkeys(('MainLight1', 'MainLight2'), record.get('lights', 0)))  # a passage join has a main light over each half
         node, turned = record.get('path', ('A', 0))  # a passage join's is a straight passage's
         keys.update({'PathNode': node, 'Orientation': turned, 'ImageMap2D': record['minimap']})
         tiles[number[(JOIN, record['model'])]] = [f'[TILE{number[(JOIN, record["model"])]}]{END}' + ''.join(f'{key}={value}{END}' for key, value in keys.items())]

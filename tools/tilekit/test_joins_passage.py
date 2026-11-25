@@ -23,7 +23,8 @@ def quad(a, b, c, d, scale=1.0):
 def passage(half_width, ceiling=None, rise=0.0):
     """A baked passage tile running north to south: walls at ±half_width, a ceiling where one is given, and a floor that
     is `rise` higher at its sides than along its middle."""
-    w = half_width; drawn = {WALL: quad((-w, -5, 0), (-w, 5, 0), (-w, 5, 3), (-w, -5, 3), 0.5) + quad((w, 5, 0), (w, -5, 0), (w, -5, 3), (w, 5, 3), 0.5),
+    w = half_width; h = ceiling or 3
+    drawn = {WALL: quad((-w, -5, 0), (-w, 5, 0), (-w, 5, h), (-w, -5, h), 0.5) + quad((w, 5, 0), (w, -5, 0), (w, -5, h), (w, 5, h), 0.5),
                              FLOOR: quad((-w, -5, 0), (w, -5, 0), (w, 5, 0), (-w, 5, 0))}
     if ceiling:
         drawn[ROOF] = quad((-w, 5, ceiling), (w, 5, ceiling), (w, -5, ceiling), (-w, -5, ceiling))
@@ -74,11 +75,33 @@ class Cutting(unittest.TestCase):
         made = joins.bulkhead(north, south); self.assertEqual(set(made), {WALL, ('bitmap other',)})
         facing = lambda triangle: np.cross(triangle[1, :3] - triangle[0, :3], triangle[2, :3] - triangle[0, :3])
         self.assertTrue(all(facing(triangle)[1] < 0 and triangle[:, 1].max() < 0 for triangle in made[('bitmap other',)]))  # the south faces, seen from the south
-        outer = [triangle for triangle in made[WALL] if abs(facing(triangle)[1]) > 1e-9]
+        outer = [triangle for triangle in made[WALL] if abs(facing(triangle)[1]) > 1e-6 and abs(facing(triangle)[2]) < 1e-9]
         self.assertTrue(all(facing(triangle)[1] > 0 for triangle in outer))
         for triangle in made[WALL] + made[('bitmap other',)]:  # nothing of it stands in the opening
-            middle = triangle[:, :3].mean(0); self.assertFalse(abs(middle[0]) < 2.2 and middle[2] < 3.5, middle)
-        self.assertAlmostEqual(sum(joins._space(triangle) for triangle in outer), 10 * 4.0 - 4.5 * 3.6, places=6)
+            middle = triangle[:, :3].mean(0); self.assertFalse(abs(middle[0]) < 2.0 and 0.2 < middle[2] < 3.4, middle)
+        self.assertAlmostEqual(sum(joins._space(triangle) for triangle in outer), 10 * 4.0 - 4.5 * 3.6, delta=0.1)  # the wall less the opening both leave (a spoke cuts each of its corners a little)
+
+    def test_the_opening_is_what_both_passages_leave_open(self):
+        # a rectangle's corners stood outside a round duct and showed black behind it (2026-11-24)
+        ring = lambda radius, look: {look: [triangle for index in range(24) for triangle in quad(
+            *[(radius * np.cos(angle), y, 1.0 + radius * np.sin(angle)) for angle, y in ((index * np.pi / 12, -5), ((index + 1) * np.pi / 12, -5), ((index + 1) * np.pi / 12, 5), (index * np.pi / 12, 5))])]}
+        pipe = (ring(0.9, ('bitmap pipe',)), passage(0.9)[1]); hall = passage(4.5, 4.0)
+        centre, angles, reach, edge, looks = joins.hole(hall, pipe)
+        self.assertEqual(centre, (0.0, 1.0)); self.assertTrue(all(0.86 < far < 0.9 + 1e-6 for far in reach), (min(reach), max(reach)))
+        self.assertEqual([look for look, _ in looks], [WALL, ('bitmap pipe',)])  # the wall beside a walker, and a look the rays met though none of it is upright
+        centre, angles, reach, edge, looks = joins.hole(passage(3.3), hall)  # open above: the opening goes as high as the other side's ceiling
+        up = min(range(len(angles)), key=lambda index: abs(angles[index] - np.pi / 2)); self.assertAlmostEqual(reach[up], 3.0, places=6)
+        # a section is taken off the seam: a ring of corners exactly on it cuts no triangle
+        split = {WALL: [triangle for half in (joins.NORTH, joins.SOUTH) for triangle in joins.inside(hall[0][WALL], half, solid=True)]}
+        level = [0.0, float(np.pi)]; met = lambda drawn: [round(hit[0], 6) for hit in joins.rays(joins.section(drawn), (0.0, 1.0), level)]
+        self.assertEqual(met(split), [4.5, 4.5]); self.assertEqual(met({WALL: hall[0][WALL]}), [4.5, 4.5])
+
+    def test_a_join_has_a_main_light_over_each_half(self):
+        text, _ = joins.passage_model('tst_jax_01', passage(4.5, 4.0), passage(2.25))
+        lines = text.split('\n')
+        for node, where in (('tst_jax_01ml1', '  position 0.0 2.5 3.7'), ('tst_jax_01ml2', '  position 0.0 -2.5 2.7')):  # open above: under its walls' top
+            at = lines.index(f'node light {node}'); self.assertEqual(lines[at + 1:at + 3], ['  parent tst_jax_01', where])
+        self.assertTrue(all(record['lights'] == 1 for record in joins.tiles(SPEC)))
 
     def test_a_floor_that_is_not_level_at_the_seam_is_walked_level_there(self):
         level, round_ = passage(4.5, 4.0), passage(1.3, 2.8, rise=1.8)
@@ -112,11 +135,11 @@ class Built(unittest.TestCase):
                 self.assertTrue(crosses(*joins.conformed(walk)), 'no walked way from north to south')
                 self.assertLessEqual(max(abs(triangle[:, :2]).max() for triangle in walk), 5.05)
 
-    def test_a_join_tile_takes_a_straight_passage_s_path_node(self):
+    def test_a_join_tile_takes_a_straight_passage_s_path_node_and_its_lights(self):
         text = (REPO / 'srn_t_srx02' / 'srx02.set').read_bytes().decode('cp1252'); keyed = dict(inventory.sections(text))
         found = [keys for keys in keyed.values() if keys.get('Model', '').startswith(SPEC['prefix'])]
         self.assertEqual(len(found), len(SPEC['passages']))
-        self.assertEqual({(keys['PathNode'], keys['Orientation']) for keys in found}, {('L', '0')})
+        self.assertEqual({(keys['PathNode'], keys['Orientation'], keys['MainLight1'], keys['MainLight2']) for keys in found}, {('L', '0', '1', '1')})
 
 
 if __name__ == '__main__':

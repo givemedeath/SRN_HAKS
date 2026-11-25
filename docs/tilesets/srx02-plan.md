@@ -209,8 +209,8 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
 | f | Facility corridor | Duct | 2.7 x 2.85 |
 
 - **How one is made** (`joins.passage_model`): the north half of one family's straight passage tile and the south
-  half of the other's, and across the seam a bulkhead 0.2 m thick, open where both passages are walked and as high as
-  the lower ceiling. Each face of the bulkhead wears the wall material of the family it faces (the look with the most
+  half of the other's, and across the seam a bulkhead 0.2 m thick, open where both passages are open (see the look
+  fixes below). Each face of the bulkhead wears the wall material of the family it faces (the look with the most
   upright surface), so a later restyle carries. The walkmesh is the two halves' own; the duct's round floor is walked
   level over the last 2 m before the seam.
 - **Found on the way:** the ground cut left out every face that is exactly upright, so a hallway lost a wall; a
@@ -218,9 +218,15 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   walked floor and gets plain non-walk ground either side.
 - **Checked:** every join's walkmesh leads from its north edge to its south edge (test); in the client, 24 eye-level
   views through all nine (`docs/tilesets/srx02/review-joins.json`, `output/tilekit/s3-joins-eye2`), none late.
-- **Known look faults, for the release A look pass:** black shows between the round duct and its square opening; the
-  Facility face of a bulkhead is nearly black (its largest upright surface is a dark trim); join tiles carry no tile
-  lights.
+- **Look faults fixed the same day (user: fix join looks first):** the bulkhead's opening is no longer a rectangle
+  but what both passages leave open where the seam cuts them (`joins.hole`: 72 rays from the middle of the walked
+  floor, each as far as the nearer passage's surface), so a duct gives a round opening and the Facility tunnel an
+  eight-sided one, with nothing black behind. A face's wall material is the one the level rays meet, which is what
+  stands beside a walker (the Facility's largest upright surface is a black trim; its face is now rusted plate). Each
+  join has a main light over each half (`MainLight1`, `MainLight2` on). Views: `output/tilekit/s3-joins-eye3`.
+- **Still open for the release A look pass:** a section is taken 14 mm off the seam, since a ring of corners exactly
+  on it cuts no triangle; a lamp or banner hanging in a passage's middle at the seam would dent the opening (none of
+  the nine has one).
 - **Not done:** doors. The plan's fold of tfb01 `Doorway` with tbx78 `doorway2` is left out: two rooms would meet at
   a tile edge with walls of different thickness. Rooms of two families join through a passage. A creature has not
   been walked through the joins in the client, and painting a join in the Toolset is not tried.
