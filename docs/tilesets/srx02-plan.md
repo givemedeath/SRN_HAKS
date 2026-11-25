@@ -367,9 +367,9 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   - Walkmesh: furniture cut out of the triangles left cracks a Troll and a Human stopped at. A furnished floor is now laid
     again in rectangles round squared footprints; `cracks` refuses a cracked one. A tile's floor is one piece and is open to
     each next tile in one place only: the first house had three rooms across one seam, and creatures took the wrong one.
-  - Walked in the client by a Human and a Troll (`output/_walk.py`): 54 of 55 points reached by each on the house as first
-    re-laid (its study then moved), by the Troll alone on the last build. The one that fails asks for a way out of the
-    study straight through its wall; the next order succeeds. That is the game's own path search.
+  - Walked in the client by a Human and a Troll on the final build (`output/_walk.py`): each reached 54 of 55 points. The
+    one that fails for both asks for a way out of the house's study straight through its wall; the creature stops and the
+    next order succeeds. That is taken for the game's own path search; builds before this one left it stuck there.
   - Triangles: at most 39,600 a tile (store), 20,100 (armory), 12,500 (apartment). Props over 2,500 triangles are baked
     reduced: a store of whole envkit racks passed the engine's 65,535 vertices a mesh. Frame rate on a block of
     furnished rooms 174-178 against 174-178 unfurnished, cap 200 (before the last placement changes).
