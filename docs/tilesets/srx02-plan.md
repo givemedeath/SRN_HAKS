@@ -258,6 +258,12 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
 - **Textures (user, 2026-11-24): the kept furniture's pictures need upscaling at least, better replacement.** The
   tiles draw 68 textures: 22 at 128 px, 23 at 256, 7 at 512, the rest smaller. The cabinet, bookcase (books and
   electronics), floor and bedding pictures are modern in subject but 128 to 256 px. How they are remade is open.
+- **Bookcase with a built-in screen (user, 2026-11-24):** the television is out; the bookcase's face is drawn once
+  across a picture of its own (`tfb01_bookscr`, 1024 px, shelves of books round a screen), so no other tile changes.
+  The picture is a procedural stand-in. A quad on the screen with the animated `fxpa_screen` (the `[mdrn]`
+  television's own, additive, 4 x 4 frames) drew nothing in the client: **the screen is dark, nothing plays yet.**
+  Codex image generation is out of quota until 2026-11-28; the user allows local Qwen. `tilekit redraw` is the tool
+  for drawn-again textures and takes any generator; a local Qwen runner for it is the next step.
 - **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
   other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
 
