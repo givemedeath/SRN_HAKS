@@ -5858,7 +5858,8 @@
       "tools/envkit/__init__.py",
       "tools/envkit/tile.py",
       "tools/tilekit/geometry.py",
-      "tools/tilekit/kit.py"
+      "tools/tilekit/kit.py",
+      "tools/tilekit/pictures.py"
     ],
     "tools/tilekit/kit.py": [
       "tools/tilekit/material.py"
@@ -6042,6 +6043,11 @@
     "tools/tilekit/test_joins.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/joins.py"
+    ],
+    "tools/tilekit/test_joins_passage.py": [
+      "tools/tilekit/__init__.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py"
     ],
@@ -6436,6 +6442,7 @@
       "srn_t_common",
       "srn_t_dgt04",
       "srn_t_srx01",
+      "srn_t_srx02",
       "srn_t_udp1"
     ],
     "tools/tilekit/test_crown.py": [
@@ -6477,6 +6484,13 @@
       "srn_t_fcx01",
       "srn_t_srx01",
       "srn_t_udp1"
+    ],
+    "tools/tilekit/test_joins_passage.py": [
+      "srn_t_nac01",
+      "srn_t_srx02",
+      "srn_t_tbx78",
+      "srn_t_tfb01",
+      "srn_t_udp2"
     ],
     "tools/tilekit/test_lamps.py": [
       "srn_2da",
@@ -6865,6 +6879,7 @@
     "tools/tilekit/test_family_review.py",
     "tools/tilekit/test_inventory.py",
     "tools/tilekit/test_joins.py",
+    "tools/tilekit/test_joins_passage.py",
     "tools/tilekit/test_kit.py",
     "tools/tilekit/test_lamps.py",
     "tools/tilekit/test_material.py",

@@ -5,6 +5,15 @@
   ["udp2", 0, 229],
   ["tfb01", 0, 338],
   ["tbx78", 0, 84],
-  ["nac01", 0, 17]
+  ["nac01", 0, 17],
+  ["join", "srx02_jax_01"],
+  ["join", "srx02_jbx_01"],
+  ["join", "srx02_jcx_01"],
+  ["join", "srx02_jdx_01"],
+  ["join", "srx02_jex_01"],
+  ["join", "srx02_jfx_01"],
+  ["join", "srx02_jgx_01"],
+  ["join", "srx02_jhx_01"],
+  ["join", "srx02_jix_01"]
  ]
 }

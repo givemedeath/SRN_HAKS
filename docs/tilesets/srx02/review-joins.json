@@ -1,0 +1,26 @@
+{
+ "tileset": "srx02",
+ "haks": ["srn_t_srx02", "srn_t_udp2", "srn_t_tfb01", "srn_t_tbx78", "srn_t_nac01", "srn_t_common", "srn_door", "srn_placeable", "srn_2da"],
+ "block": {
+  "width": 19,
+  "height": 11,
+  "lights": ["day"],
+  "patches": [],
+  "runs": [
+   {"crosser": "Hallway1", "cells": [[0, 2], [6, 2]]},
+   {"crosser": "Corridor", "cells": [[6, 2], [12, 2]]},
+   {"crosser": "Fac_Corridor", "cells": [[12, 2], [18, 2]]},
+   {"crosser": "Hallway1", "cells": [[0, 5], [6, 5]]},
+   {"crosser": "Fac_Corridor", "cells": [[6, 5], [12, 5]]},
+   {"crosser": "Duct", "cells": [[12, 5], [18, 5]]},
+   {"crosser": "Hallway1", "cells": [[0, 8], [6, 8]]},
+   {"crosser": "Duct", "cells": [[6, 8], [12, 8]]},
+   {"crosser": "Corridor", "cells": [[12, 8], [18, 8]]}
+  ],
+  "crossings": [[6, 2], [12, 2], [6, 5], [12, 5], [6, 8], [12, 8]],
+  "views": ["none"],
+  "near": {"distance": 20.0, "pitch": 40.0},
+  "eye": {"crossings": [[5, 2], [7, 2], [11, 2], [13, 2], [5, 5], [7, 5], [11, 5], [13, 5], [5, 8], [7, 8], [11, 8], [13, 8]], "turns": [0, 180], "pitches": [95]},
+  "lamps": [{"name": "main", "main": 3, "source": 3, "lights": ["day"]}]
+ }
+}

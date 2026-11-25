@@ -193,6 +193,38 @@ them there), 164 groups, 130 rules, shown as "SRN City Interior". `tools/tilekit
 - **Open:** one EnvMap for the set (udp2's `tdc01__ref01` is kept; tfb01 and nac01 named others) is judged at the
   release A look check. Crosser joins are stage 3.
 
+## Stage 3: passage joins (2026-11-24)
+
+`docs/tilesets/srx02/joins.json` and `tilekit joins` build nine join tiles (`srx02_j[a-i]x_01`, tiles 668-676), each
+between walls with one family's passage at the top and another's at the bottom. One tile serves both ways, since the
+Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
+
+| Tile | North | South | Opening (wide x high, m) |
+|---|---|---|---|
+| a, g | Hallway A, B (udp2) | Corridor (tfb01) | 6.7 x 4.0 |
+| b, h | Hallway A, B | Facility corridor (tbx78) | 4.5 x 3.6 |
+| c | Corridor | Facility corridor | 4.5 x 3.6 |
+| d, i | Hallway A, B | Duct (nac01) | 2.7 x 2.85 |
+| e | Corridor | Duct | 2.7 x 2.85 |
+| f | Facility corridor | Duct | 2.7 x 2.85 |
+
+- **How one is made** (`joins.passage_model`): the north half of one family's straight passage tile and the south
+  half of the other's, and across the seam a bulkhead 0.2 m thick, open where both passages are walked and as high as
+  the lower ceiling. Each face of the bulkhead wears the wall material of the family it faces (the look with the most
+  upright surface), so a later restyle carries. The walkmesh is the two halves' own; the duct's round floor is walked
+  level over the last 2 m before the seam.
+- **Found on the way:** the ground cut left out every face that is exactly upright, so a hallway lost a wall; a
+  passage is cut with `solid=True`. The duct walkmesh folds back under its own wall, so a levelled side keeps its
+  walked floor and gets plain non-walk ground either side.
+- **Checked:** every join's walkmesh leads from its north edge to its south edge (test); in the client, 24 eye-level
+  views through all nine (`docs/tilesets/srx02/review-joins.json`, `output/tilekit/s3-joins-eye2`), none late.
+- **Known look faults, for the release A look pass:** black shows between the round duct and its square opening; the
+  Facility face of a bulkhead is nearly black (its largest upright surface is a dark trim); join tiles carry no tile
+  lights.
+- **Not done:** doors. The plan's fold of tfb01 `Doorway` with tbx78 `doorway2` is left out: two rooms would meet at
+  a tile edge with walls of different thickness. Rooms of two families join through a passage. A creature has not
+  been walked through the joins in the client, and painting a join in the Toolset is not tried.
+
 ## Decisions for the user (defaults used unless changed)
 
 1. **Families.** Default: the draft's four. Secret Base `tjsb0` (174 tiles), SciFi Base `zsf01` (73), Bunker `fifi`

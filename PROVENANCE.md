@@ -2517,3 +2517,9 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
   2026-11-24. `docs/tilesets/srx02/merged.json` pins what each merge read and wrote.
 - `srn_2da/doortypes.2da` rows 269-273 are copies of the base game's rows 24, 42, 43, 54 and 146 keyed to `SRX02`.
 - `srn_t_nac01/nac01.set`: one door hook's `X==-4.75` corrected to `X=-4.75` (a typing error of the source).
+- The join tiles `srn_t_srx02/srx02_j*.mdl` (sources in `sources/srn_t_srx02/`), their walkmeshes and
+  `mi_srx02_j*.tga` minimaps are written by `tools/tilekit/joins.py` (`docs/tilesets/srx02/joins.json`): each is cut
+  from the straight passage tiles of two of the four source packs and draws their textures by name; the bulkhead
+  between them is generated geometry in the same textures. Original work of the SRN project operator with Claude.
+  `docs/tilesets/srx02/joins-built.json` pins what a build read and wrote; the models are compiled as the other tile
+  packs' are (`sources/compiled.json`).

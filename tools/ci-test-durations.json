@@ -342,6 +342,7 @@
   "tools/tilekit/test_perf.py": 0.5,
   "tools/tilekit/test_merge.py": 0.6,
   "tools/tilekit/test_merge_interior.py": 0.6,
+  "tools/tilekit/test_joins_passage.py": 1.5,
   "tools/tilekit/test_names.py": 0.6,
   "tools/tilekit/test_redraw.py": 0.8,
   "tools/tilekit/test_remesh.py": 0.6,

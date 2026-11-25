@@ -1,0 +1,139 @@
+{
+ "pack": "srn_t_srx02",
+ "prefix": "srx02_j",
+ "note": "Passage joins: the wider passage at the north. One tile serves both ways, since the Toolset turns it.",
+ "passages": [
+  {
+   "letter": "a",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Hallway1",
+    "model": "udp2_a02_08",
+    "minimap": "udp2_a02_08",
+    "turn": 1
+   },
+   "south": {
+    "crosser": "Corridor",
+    "model": "tfb01_a02_01",
+    "minimap": "mi_tfb01_a02_01"
+   }
+  },
+  {
+   "letter": "b",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Hallway1",
+    "model": "udp2_a02_08",
+    "minimap": "udp2_a02_08",
+    "turn": 1
+   },
+   "south": {
+    "crosser": "Fac_Corridor",
+    "model": "tbx78_a01_01",
+    "minimap": "mi_tbx78_a01_01"
+   }
+  },
+  {
+   "letter": "c",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Corridor",
+    "model": "tfb01_a02_01",
+    "minimap": "mi_tfb01_a02_01"
+   },
+   "south": {
+    "crosser": "Fac_Corridor",
+    "model": "tbx78_a01_01",
+    "minimap": "mi_tbx78_a01_01"
+   }
+  },
+  {
+   "letter": "d",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Hallway1",
+    "model": "udp2_a02_08",
+    "minimap": "udp2_a02_08",
+    "turn": 1
+   },
+   "south": {
+    "crosser": "Duct",
+    "model": "nac01_d01_02",
+    "minimap": "mi_nac01_d02"
+   }
+  },
+  {
+   "letter": "e",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Corridor",
+    "model": "tfb01_a02_01",
+    "minimap": "mi_tfb01_a02_01"
+   },
+   "south": {
+    "crosser": "Duct",
+    "model": "nac01_d01_02",
+    "minimap": "mi_nac01_d02"
+   }
+  },
+  {
+   "letter": "f",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Fac_Corridor",
+    "model": "tbx78_a01_01",
+    "minimap": "mi_tbx78_a01_01"
+   },
+   "south": {
+    "crosser": "Duct",
+    "model": "nac01_d01_02",
+    "minimap": "mi_nac01_d02"
+   }
+  },
+  {
+   "letter": "g",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Hallway2",
+    "model": "udp2_a02_09",
+    "minimap": "udp2_a02_09",
+    "turn": 1
+   },
+   "south": {
+    "crosser": "Corridor",
+    "model": "tfb01_a02_01",
+    "minimap": "mi_tfb01_a02_01"
+   }
+  },
+  {
+   "letter": "h",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Hallway2",
+    "model": "udp2_a02_09",
+    "minimap": "udp2_a02_09",
+    "turn": 1
+   },
+   "south": {
+    "crosser": "Fac_Corridor",
+    "model": "tbx78_a01_01",
+    "minimap": "mi_tbx78_a01_01"
+   }
+  },
+  {
+   "letter": "i",
+   "wall": "Wall",
+   "north": {
+    "crosser": "Hallway2",
+    "model": "udp2_a02_09",
+    "minimap": "udp2_a02_09",
+    "turn": 1
+   },
+   "south": {
+    "crosser": "Duct",
+    "model": "nac01_d01_02",
+    "minimap": "mi_nac01_d02"
+   }
+  }
+ ]
+}
