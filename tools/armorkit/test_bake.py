@@ -413,6 +413,15 @@ class BakeTests(unittest.TestCase):
         self.assertEqual(report['elbow']['l']['rest'], 0.0)
         self.assertEqual(len(failures), 1)
         self.assertTrue(failures[0].startswith("forel at the elbow: turned forward by 90 degrees of the design bend's 90, its end stands up to 2."), failures)
+        # a hand left to the body: the forearm's end at the wrist is closed and domed as any over end, with no part under it
+        long = closed(0.3, 0.55, 0.04, near='cap', far='dome')
+        report, failures = gate({'bicepl': sleeve, 'forel': long}, left={'handl'})
+        self.assertEqual(failures, [])
+        wrist = report['wrist']['l']
+        self.assertEqual((wrist['over'], wrist['under'], wrist['open'], wrist['rest'], wrist['bent']), ('forel', 'handl', {'forel': 0.0}, None, None))
+        self.assertGreater(wrist['rise'], 0.0)
+        self.assertEqual(gate({'bicepl': sleeve, 'forel': closed(0.3, 0.55, 0.04, near='cap', far=None)}, left={'handl'})[1][0][:38],
+                         'forel at the wrist: open on its plane,')
         # under a slot left to the body, an end is measured against the body's own skin, when it is given
         glove = {'handl': closed(0.55, 0.7, 0.03, near='cap', far=None)}
         self.assertIsNone(gate(glove, left={'forel'})[0]['wrist']['l']['rest'])
@@ -487,6 +496,10 @@ class BakeTests(unittest.TestCase):
         parts = {'chest': part(), 'bicepl': part(), 'handl': part()}
         document, said = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}, []
         self.assertEqual((bake.left_to_body(document), bake.shared_with_body(document)), ({'forel', 'forer'}, {'bicepl', 'bicepr'}))
+        # bare hands: no hand part, and no end is laid under the body's skin for them (the forearm is over the hand)
+        self.assertEqual(bake.left_to_body({'bare': ['hand']}), {'handl', 'handr'})
+        self.assertEqual(bake.bare_joints({'left': ['handl', 'handr']}), set())
+        self.assertEqual(bake.bare_joints({'left': ['forel', 'forer', 'handl', 'handr']}), {('wrist', 'l'), ('wrist', 'r')})
         with mock.patch.object(bodyskin, 'body_part', lambda pack, maps, body, name, rig: arm()):
             out = bake.skinned(parts, document, 'pack', 'maps', 'pmh0', bones, say=said.append)
             self.assertEqual(bake.skinned(parts, {'model': 'outfit', 'materials': []}, 'pack', None, 'pmh0', bones), parts)  # a brief that names neither

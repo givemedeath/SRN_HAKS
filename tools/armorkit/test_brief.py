@@ -126,7 +126,10 @@ class BriefTests(unittest.TestCase):
         given = {**document(), 'bare': ['forearm'], 'skin': ['bicep']}
         self.assertEqual(brief.validate(given), given)
         self.assertEqual(brief.composed(given), brief.composed(document()))  # a fact for the bake: the prompt's words are the prompt's
-        for wrong in ({'bare': ['bicep']}, {'skin': ['forearm']}, {'bare': 'forearm'}, {'bare': ['forearm', 'forearm']}, {'skin': [1]}, {'skin': ['chest']}):
+        for bare in (['hand'], ['forearm', 'hand']):  # bare hands, below a long sleeve or a short one
+            self.assertEqual(brief.validate({**document(), 'bare': bare})['bare'], bare)
+        for wrong in ({'bare': ['bicep']}, {'skin': ['forearm']}, {'bare': 'forearm'}, {'bare': ['forearm', 'forearm']}, {'skin': [1]}, {'skin': ['chest']},
+                      {'bare': ['foot']}, {'skin': ['hand']}):
             with self.assertRaises(ValueError):
                 brief.validate({**document(), **wrong})
 

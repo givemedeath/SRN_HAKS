@@ -72,7 +72,8 @@ shared ledger.
 | `badge-lanyard` | neck | — |
 
 Every brief has `wear` (0.5 for street and vendor clothes, 0.3 for the office) and suggested colours, a dark
-base and one accent. Bags, headphones, chains and gloves are not drawn.
+base and one accent. Bags, headphones and chains are not drawn. Each arm is still drawn with a plain glove at
+its end, which the bake cuts off: the fit finds the wrist by the palm beyond it (step A, done).
 
 ## The work in order
 
@@ -153,4 +154,11 @@ a heavier-worn Barrens variant, carried gear (bags, headphones), prints on anyth
 ## State
 
 2026-11-24: plan written and committed on `claude/armorkit-starter-outfits-849d10`. Nothing is generated.
-Next: step A1.
+
+2026-11-24, step A done. `brief.BARE` takes `hand`. Nothing else in the kit needed changing: the bake already
+makes no part for a slot left to the body, cuts what the outfit has there off on the joint's plane, and closes
+and domes the forearm's end at the wrist with no part under it (`bake.hidden`, tested with `left={'handl'}`).
+What the kit cannot do is fit an arm that ends at a hem or a cuff with nothing beyond it
+(`repose.outfit_joints` refuses it), so a bare-handed outfit's image keeps a plain glove on each arm as the
+fit's landmark. Tested on the kit's test tubes only; a real sleeve closed round the body's hand is first seen
+in step B6. Next: step B1, the Street Casual brief.
