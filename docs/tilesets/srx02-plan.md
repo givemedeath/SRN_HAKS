@@ -264,6 +264,14 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   television's own, additive, 4 x 4 frames) drew nothing in the client: **the screen is dark, nothing plays yet.**
   Codex image generation is out of quota until 2026-11-28; the user allows local Qwen. `tilekit redraw` is the tool
   for drawn-again textures and takes any generator; a local Qwen runner for it is the next step.
+- **Local Qwen (user, 2026-11-24: "you can use local qwen if needed").** `tilekit redraw --bindings` already draws
+  with the local Qwen edit model on the shared ComfyUI; it lacked interior kinds, now `furniture` and `floor`, and a
+  district `home`. Its bindings file is local: absolute `comfyInput` and `comfyOutput` (the shared ComfyUI's
+  `ComfyUI-Shared/input` and `output`) and the three Qwen model files with their hashes. One job drew the bookcase
+  from the procedural stand-in (screen marked as a plain blue rectangle, said in the note to be a screen showing a
+  news broadcast): a walnut bookcase of real books round a lit city-news screen, about two minutes. On the tile the
+  screen's part of the picture is drawn again on a quad lit by itself, so it glows in a dark room. It does not move:
+  a playing picture would need a frame sheet and is not made.
 - **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
   other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
 

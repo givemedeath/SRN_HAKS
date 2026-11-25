@@ -25,7 +25,8 @@ DISTRICTS = {
     'industrial': 'a working industrial district of a 2070s cyberpunk city (Shadowrun): dark steel, stained cement, warm rust, functional and worn',
     'civic': 'a public building of a 2070s cyberpunk city (Shadowrun): sturdy, institutional, maintained on a small budget, some wear and grime',
     'residential': 'an ordinary residential district of a 2070s cyberpunk city (Shadowrun): a lived-in apartment block, modest upkeep, people\'s own things in the windows',
-    'derelict': 'an abandoned district of a 2070s cyberpunk city (Shadowrun Barrens): a gutted, empty building, long left to decay'}
+    'derelict': 'an abandoned district of a 2070s cyberpunk city (Shadowrun Barrens): a gutted, empty building, long left to decay',
+    'home': 'the inside of an ordinary apartment in a 2070s cyberpunk city (Shadowrun): lived in, modest, modern materials, clean enough'}
 KINDS = {
     'window': 'a window. Daytime, the room behind unlit: dark, slightly reflective glass with some dirt; the frame worn as its district suggests',
     'facade': 'a section of a building facade with its grid of windows. Daytime, glass dark and slightly reflective, no lit windows, no visible interiors',
@@ -35,6 +36,9 @@ KINDS = {
     'poster': 'a wall of layered, torn, weathered posters and flyers. Invented bands, events and products only',
     'fixture': 'a piece of building hardware seen straight on (a grille, vent, fan, meter, drain or the like). The same object, in the same place and size',
     'trim': 'a strip or panel of architectural trim. The same mouldings and pattern, in the same places',
+    'furniture': 'the front of a piece of built-in furniture seen straight on (a cabinet, a dresser, shelves, a bookcase). The same piece, its doors, drawers, '
+                 'shelves, handles and what stands on it in the same places',
+    'floor': 'a floor covering seen from straight above',
     'cloth': 'washing hung out to dry. The same garments in the same places and colours; the plain background around them stays exactly as it is'}
 LIT = ('Make its night version: the very same picture, with the frame, mullions, panels, lettering and every mark in the same positions. Only what is behind the glass '
        'or is a lamp or neon tube changes: it is lit from inside, uneven from pane to pane, dirt still visible against the light. Everything that is not glass or a '

@@ -31,6 +31,11 @@ class RedrawFixture(unittest.TestCase):
 
 
 class RedrawTests(RedrawFixture):
+    def test_an_interior_texture_is_asked_for_as_furniture_of_a_home(self):
+        text = redraw.prompt('tfb01_books', {'kind': 'furniture', 'district': 'home', 'note': 'The blue rectangle is a screen.'}, (1024, 1024), tool=False)
+        self.assertIn('built-in furniture seen straight on', text); self.assertIn('the inside of an ordinary apartment', text); self.assertIn('The blue rectangle is a screen.', text)
+        self.assertIn('a floor covering', redraw.prompt('tfb01_floor', {'kind': 'floor', 'district': 'home'}, (1024, 1024), tiles=True))
+
     def test_a_prompt_names_the_thing_its_district_and_the_layout_to_keep(self):
         text = redraw.prompt('pane', self.spec['textures']['pane'], (512, 1024), tiles=True)
         for part in ('exactly 512x1024 pixels', 'game texture of a window', 'Shadowrun Barrens', 'A sash window.', 'stays in the same position', 'pure black', 'tile seamlessly'):
