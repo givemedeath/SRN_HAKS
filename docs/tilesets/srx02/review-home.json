@@ -1,0 +1,532 @@
+{
+ "tileset": "srx02",
+ "haks": [
+  "srn_t_srx02",
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 19,
+  "height": 4,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "r01_f",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r03_f",
+    "at": [
+     3,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r05_f",
+    "at": [
+     6,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r06_f",
+    "at": [
+     8,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r07_f",
+    "at": [
+     11,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r01_u",
+    "at": [
+     14,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r06_u",
+    "at": [
+     16,
+     1
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    1,
+    1
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    6,
+    1
+   ],
+   [
+    8,
+    1
+   ],
+   [
+    11,
+    1
+   ],
+   [
+    14,
+    1
+   ],
+   [
+    16,
+    1
+   ],
+   [
+    9,
+    2
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "bird-r01f",
+     "at": [
+      1.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r03f",
+     "at": [
+      4.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 24,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r05f",
+     "at": [
+      6.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r06f",
+     "at": [
+      9.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r07f",
+     "at": [
+      12.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 24,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r01u",
+     "at": [
+      14.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "bird-r06u",
+     "at": [
+      17.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "r01-live",
+     "at": [
+      1.5,
+      1.14
+     ],
+     "turns": [
+      125
+     ]
+    },
+    {
+     "name": "r01-bed",
+     "at": [
+      1.52,
+      1.36
+     ],
+     "turns": [
+      30
+     ]
+    },
+    {
+     "name": "r01-kit",
+     "at": [
+      1.6,
+      1.66
+     ],
+     "turns": [
+      100
+     ]
+    },
+    {
+     "name": "r01-bath",
+     "at": [
+      1.25,
+      1.76
+     ],
+     "turns": [
+      130
+     ],
+     "pitches": [
+      78
+     ]
+    },
+    {
+     "name": "r03-live",
+     "at": [
+      3.46,
+      1.14
+     ],
+     "turns": [
+      35,
+      125
+     ]
+    },
+    {
+     "name": "r03-hall",
+     "at": [
+      4.08,
+      1.5
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "r03-bed1",
+     "at": [
+      4.5,
+      1.32
+     ],
+     "turns": [
+      215,
+      330
+     ]
+    },
+    {
+     "name": "r03-bed2",
+     "at": [
+      4.64,
+      1.67
+     ],
+     "turns": [
+      75
+     ],
+     "pitches": [
+      78
+     ]
+    },
+    {
+     "name": "r03-bath",
+     "at": [
+      4.18,
+      1.67
+     ],
+     "turns": [
+      60
+     ],
+     "pitches": [
+      78
+     ]
+    },
+    {
+     "name": "r05-in",
+     "at": [
+      6.5,
+      1.13
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "r05-main",
+     "at": [
+      6.76,
+      1.34
+     ],
+     "turns": [
+      130
+     ]
+    },
+    {
+     "name": "r05-main2",
+     "at": [
+      6.26,
+      1.64
+     ],
+     "turns": [
+      330
+     ]
+    },
+    {
+     "name": "r05-store",
+     "at": [
+      6.73,
+      1.82
+     ],
+     "turns": [
+      10
+     ],
+     "pitches": [
+      78
+     ]
+    },
+    {
+     "name": "r06-lounge",
+     "at": [
+      8.56,
+      1.24
+     ],
+     "turns": [
+      130
+     ]
+    },
+    {
+     "name": "r06-dine",
+     "at": [
+      9.04,
+      1.46
+     ],
+     "turns": [
+      20
+     ]
+    },
+    {
+     "name": "r06-lib",
+     "at": [
+      8.5,
+      2.07
+     ],
+     "turns": [
+      150,
+      30
+     ]
+    },
+    {
+     "name": "r06-main",
+     "at": [
+      9.5,
+      2.08
+     ],
+     "turns": [
+      140
+     ]
+    },
+    {
+     "name": "r06-bath",
+     "at": [
+      9.3,
+      2.66
+     ],
+     "turns": [
+      60
+     ],
+     "pitches": [
+      78
+     ]
+    },
+    {
+     "name": "r06-dress",
+     "at": [
+      9.76,
+      2.66
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      78
+     ]
+    },
+    {
+     "name": "r06-guest",
+     "at": [
+      8.32,
+      2.52
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "r06-piano",
+     "at": [
+      8.46,
+      1.54
+     ],
+     "turns": [
+      320
+     ]
+    },
+    {
+     "name": "r06-kit",
+     "at": [
+      9.46,
+      1.32
+     ],
+     "turns": [
+      40
+     ]
+    },
+    {
+     "name": "r07-live",
+     "at": [
+      11.46,
+      1.16
+     ],
+     "turns": [
+      20,
+      140
+     ]
+    },
+    {
+     "name": "r07-hall",
+     "at": [
+      12.06,
+      1.5
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "r07-cub",
+     "at": [
+      12.25,
+      1.65
+     ],
+     "turns": [
+      110
+     ]
+    },
+    {
+     "name": "r07-wash",
+     "at": [
+      11.4,
+      1.72
+     ],
+     "turns": [
+      140
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

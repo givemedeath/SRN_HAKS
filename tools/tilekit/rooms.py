@@ -27,7 +27,7 @@ taken for those of props that were gone (user, 2026-11-24). A node with no `shad
 (a couch, armchairs, dressers and wardrobes stood back to front: user, 2026-11-25).
 
 Refused: a piece that is no row of placeables.2da, or that names a texture no pack holds; a piece whose front is not
-recorded, or a seat recorded back to front; a seat out of line with the table it faces (`misplaced`); a walkmesh with cracks; a tile whose own floor is in parts, or that is
+recorded, or a seat or a cabinet recorded back to front (`leaning`, `bare`); a seat out of line with the table it faces (`misplaced`); a walkmesh with cracks; a tile whose own floor is in parts, or that is
 open to the room's next tile in two places; a piece that `faces` a wall (two were put in backwards,
 2026-11-24); furniture that cuts the room in two or stands in its doorway (`_lanes`); a furnished room whose
 walkmesh differs from the unfurnished one anywhere but under its furniture, or at its sides (`_rim`)."""
@@ -209,6 +209,7 @@ def placement(prop, nodes, walk):
     parts = geometry.baked(nodes, detail.turned(at, turn, scale)); points = [vertex for _, verts, _, _ in parts for vertex in verts]; require(points, f'{piece} draws nothing')
     if 'faces' in prop:
         seat = leaning(nodes, prop.get('front', 's')); require(seat is None or seat > -0.1, f'{piece}: its back is at its recorded front, {prop.get("front", "s")}')
+        require(bare(nodes, prop.get('front', 's')) > 1 / 3, f'{piece}: its back has far more on it than its recorded front, {prop.get("front", "s")}')
         way = direction(COMPASS[prop['faces']]); middle = [(min(point[axis] for point in points) + max(point[axis] for point in points)) / 2 for axis in range(2)]
         reach = max((point[0] - middle[0]) * way[0] + (point[1] - middle[1]) * way[1] for point in points) + AHEAD
         require(geometry.cell((middle[0] + way[0] * reach, middle[1] + way[1] * reach), STEP) in walk, f'{piece} at {prop["at"]} faces {prop["faces"]}, and there is no floor before it: it stands back to front')
@@ -228,6 +229,17 @@ def leaning(nodes, front):
         if middle[2] > low + 0.65 * (high - low):
             area = float(np.linalg.norm(np.cross(b - a, c - a))); total += area; weighed += area * (middle[0] * way[0] + middle[1] * way[1])
     return ((min(along) + max(along)) / 2 - weighed / total) / (max(along) - min(along)) if total else None
+
+
+def bare(nodes, front):
+    """The triangles that look a piece's way against those that look back: a bookcase's shelves and doors are at its
+    front (one was recorded by its plain back, 0.15; the least of 94 right ones is 0.50: 2026-11-25)."""
+    way = direction(COMPASS[front]); seen = [0, 0]
+    for triangle in geometry.faces_of(geometry.baked(nodes)):
+        a, b, c = (np.array(point, float) for point in triangle); normal = np.cross(b - a, c - a); size = float(np.linalg.norm(normal))
+        if size > 1e-9 and abs(look := (normal[0] * way[0] + normal[1] * way[1]) / size) > 0.7:
+            seen[0 if look > 0 else 1] += 1
+    return seen[0] / max(seen[1], 1) if max(seen) >= 12 else 1.0
 
 
 def misplaced(props, pieces):

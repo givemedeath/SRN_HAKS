@@ -1,0 +1,725 @@
+{
+ "id": "r06",
+ "category": "Home",
+ "name": "Penthouse",
+ "note": "Floorplan R06: one open living, dining and kitchen floor; private rooms behind, each reached through one doorway in the wall between the tiles.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 2,
+   "columns": 2,
+   "like": [
+    63,
+    64,
+    64,
+    64
+   ],
+   "height": 3.8,
+   "repeat": {
+    "floor": 4.0,
+    "wall": [
+     3.8,
+     3.8
+    ],
+    "ceiling": 3.0
+   },
+   "look": {
+    "floor": "udp2-marble2",
+    "wall": "tfb01_wallcord",
+    "ceiling": "srx02_clgplas",
+    "base": "tfb01_floor01",
+    "crown": "srx02_clgplas",
+    "trim": "tfb01_floor01",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      10
+     ],
+     "to": [
+      20,
+      10
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 1.8
+      },
+      {
+       "at": 15.0,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      10.1
+     ],
+     "to": [
+      10,
+      20
+     ]
+    },
+    {
+     "from": [
+      0,
+      14.6
+     ],
+     "to": [
+      10,
+      14.6
+     ],
+     "doors": [
+      {
+       "at": 3.0,
+       "width": 1.3
+      },
+      {
+       "at": 8.0,
+       "width": 1.2
+      }
+     ]
+    },
+    {
+     "from": [
+      6.0,
+      14.6
+     ],
+     "to": [
+      6.0,
+      20
+     ]
+    },
+    {
+     "from": [
+      10,
+      16
+     ],
+     "to": [
+      20,
+      16
+     ],
+     "doors": [
+      {
+       "at": 3.0,
+       "width": 1.4
+      },
+      {
+       "at": 7.6,
+       "width": 1.3
+      }
+     ]
+    },
+    {
+     "from": [
+      15.6,
+      16
+     ],
+     "to": [
+      15.6,
+      20
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      10,
+      10,
+      14.6
+     ],
+     "floor": "tfb01_shpflr1",
+     "repeat": {
+      "floor": 2.5
+     }
+    },
+    {
+     "rect": [
+      0,
+      14.6,
+      6,
+      20
+     ],
+     "floor": "tfb01_shpflr1",
+     "repeat": {
+      "floor": 2.5
+     }
+    },
+    {
+     "rect": [
+      10,
+      10,
+      20,
+      16
+     ],
+     "floor": "tfb01_shpflr1",
+     "repeat": {
+      "floor": 2.5
+     }
+    },
+    {
+     "rect": [
+      15.6,
+      16,
+      20,
+      20
+     ],
+     "floor": "tfb01_shpflr1",
+     "repeat": {
+      "floor": 2.5
+     }
+    },
+    {
+     "rect": [
+      6,
+      14.6,
+      10,
+      20
+     ],
+     "floor": "tfb01_marbl05",
+     "wall": "tfb01_marbl05",
+     "repeat": {
+      "floor": 2.5,
+      "wall": [
+       2.5,
+       2.5
+      ]
+     }
+    },
+    {
+     "rect": [
+      10,
+      16,
+      15.6,
+      20
+     ],
+     "floor": "tfb01_marbl05",
+     "wall": "tfb01_marbl05",
+     "repeat": {
+      "floor": 2.5,
+      "wall": [
+       2.5,
+       2.5
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "beams": [
+  {
+   "rect": [
+    0.3,
+    2.45,
+    10.0,
+    2.75
+   ],
+   "z": [
+    3.58,
+    3.8
+   ],
+   "texture": "srx02_clgplas"
+  },
+  {
+   "rect": [
+    0.3,
+    4.85,
+    10.0,
+    5.15
+   ],
+   "z": [
+    3.58,
+    3.8
+   ],
+   "texture": "srx02_clgplas"
+  },
+  {
+   "rect": [
+    0.3,
+    7.25,
+    10.0,
+    7.550000000000001
+   ],
+   "z": [
+    3.58,
+    3.8
+   ],
+   "texture": "srx02_clgplas"
+  },
+  {
+   "rect": [
+    10.0,
+    2.45,
+    19.7,
+    2.75
+   ],
+   "z": [
+    3.58,
+    3.8
+   ],
+   "texture": "srx02_clgplas"
+  },
+  {
+   "rect": [
+    10.0,
+    4.85,
+    19.7,
+    5.15
+   ],
+   "z": [
+    3.58,
+    3.8
+   ],
+   "texture": "srx02_clgplas"
+  },
+  {
+   "rect": [
+    10.0,
+    7.25,
+    19.7,
+    7.550000000000001
+   ],
+   "z": [
+    3.58,
+    3.8
+   ],
+   "texture": "srx02_clgplas"
+  }
+ ],
+ "lamps": [
+  {
+   "kind": "spot",
+   "at": [
+    1.6,
+    1.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    1.6,
+    3.8
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    1.6,
+    6.2
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    1.6,
+    8.6
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.8,
+    1.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.8,
+    3.8
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.8,
+    6.2
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.8,
+    8.6
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.2,
+    1.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.2,
+    3.8
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.2,
+    6.2
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.2,
+    8.6
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    8.4,
+    1.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    8.4,
+    3.8
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    8.4,
+    6.2
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    8.4,
+    8.6
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    11.6,
+    1.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    11.6,
+    3.8
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    11.6,
+    6.2
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    11.6,
+    8.6
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    13.8,
+    1.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    13.8,
+    3.8
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    13.8,
+    6.2
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    13.8,
+    8.6
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    16.2,
+    1.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    16.2,
+    3.8
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    16.2,
+    6.2
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    16.2,
+    8.6
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    18.4,
+    1.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    18.4,
+    3.8
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    18.4,
+    6.2
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    18.4,
+    8.6
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "strip",
+   "at": [
+    13.2,
+    7.0
+   ],
+   "under": 3.8,
+   "size": [
+    2.6,
+    0.14
+   ],
+   "drop": 1.1
+  },
+  {
+   "kind": "strip",
+   "at": [
+    17.2,
+    5.0
+   ],
+   "under": 3.8,
+   "size": [
+    0.14,
+    2.6
+   ],
+   "drop": 1.1
+  },
+  {
+   "kind": "dome",
+   "at": [
+    2.4,
+    12.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "dome",
+   "at": [
+    7.4,
+    12.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "dome",
+   "at": [
+    3,
+    17.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "dome",
+   "at": [
+    8,
+    17.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "dome",
+   "at": [
+    12.2,
+    13.1
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "dome",
+   "at": [
+    17.4,
+    13.1
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "dome",
+   "at": [
+    13,
+    18
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "dome",
+   "at": [
+    17.7,
+    17.8
+   ],
+   "under": 3.8
+  }
+ ],
+ "props": [
+  {"piece": "jvb_carpt01", "at": [2.6, 5.6, 0.0], "turn": 0, "obstacle": false, "scale": 0.8},
+  {"piece": "jz_sfp050", "at": [2.6, 7.3, 0.0], "faces": "s"},
+  {"piece": "jz_sfp072", "at": [2.6, 5.6, 0.0], "turn": 0},
+  {"piece": "jz_sfp087", "at": [1.0, 5.6, 0.0], "faces": "e"},
+  {"piece": "jz_sfp087", "at": [4.2, 5.6, 0.0], "faces": "w"},
+  {"piece": "jz_sfp118", "at": [2.6, 3.0, 0.0], "faces": "n"},
+  {"piece": "udp2-p-42", "at": [2.6, 3.0, 0.86], "faces": "n"},
+  {"piece": "jz_sfp079", "at": [0.75, 8.9, 0.0], "turn": 0},
+  {"piece": "jhb_pplant01", "at": [1.15, 1.1, 0.0], "turn": 0, "scale": 0.6},
+  {"piece": "jvb_astat01", "at": [9.0, 9.4, 0.0], "turn": 0},
+  {"piece": "jz_sfp085", "at": [8.0, 9.52, 0.0], "faces": "s"},
+  {"piece": "grandpiano", "at": [8.2, 2.1, 0.0], "faces": "n"},
+  {"piece": "jvb_sit01", "at": [8.2, 4.0, 0.0], "turn": 0},
+  {"piece": "bar_empty", "at": [17.2, 5.0, 0.0], "faces": "w"},
+  {"piece": "pkt_kttable", "at": [13.2, 7.0, 0.0], "turn": 0},
+  {"piece": "udp2-p-01", "at": [12.2, 5.55, 0.0], "faces": "n"},
+  {"piece": "udp2-p-01", "at": [12.2, 8.45, 0.0], "faces": "s"},
+  {"piece": "udp2-p-01", "at": [13.2, 5.55, 0.0], "faces": "n"},
+  {"piece": "udp2-p-01", "at": [13.2, 8.45, 0.0], "faces": "s"},
+  {"piece": "udp2-p-01", "at": [14.2, 5.55, 0.0], "faces": "n"},
+  {"piece": "udp2-p-01", "at": [14.2, 8.45, 0.0], "faces": "s"},
+  {"piece": "jz_sfp107", "at": [10.9, 9.2, 0.0], "turn": 0, "scale": 0.7},
+  {"piece": "jz_fridgebig01", "at": [19.25, 8.4, 0.0], "faces": "w"},
+  {"piece": "udp2-p-106", "at": [19.37, 7.48, 0.0], "faces": "w"},
+  {"piece": "udp2-p-108", "at": [19.37, 6.72, 0.0], "faces": "w"},
+  {"piece": "udp2-p-107", "at": [19.37, 5.96, 0.0], "faces": "w"},
+  {"piece": "udp2-p-109", "at": [19.37, 5.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-106", "at": [19.37, 4.44, 0.0], "faces": "w"},
+  {"piece": "udp2-p-106", "at": [19.37, 3.68, 0.0], "faces": "w"},
+  {"piece": "udp2-p-106", "at": [19.37, 2.92, 0.0], "faces": "w"},
+  {"piece": "purp_bar", "at": [13.4, 1.2, 0.0], "faces": "n"},
+  {"piece": "jvb_statue05", "at": [10.9, 0.6, 0.0], "faces": "n"},
+  {"piece": "jz_sfp079", "at": [18.9, 0.9, 0.0], "turn": 0},
+  {"piece": "purp_bookcase1", "at": [1.279, 14.16, 0.0], "faces": "s"},
+  {"piece": "purp_bookcase1", "at": [5.4, 14.16, 0.0], "faces": "s"},
+  {"piece": "jvb_desk01", "at": [1.3, 12.2, 0.0], "faces": "e"},
+  {"piece": "jz_sfp087", "at": [2.5, 12.2, 0.0], "faces": "w"},
+  {"piece": "jvb_ncomp01", "at": [1.2, 12.2, 0.95], "faces": "e"},
+  {"piece": "jhb_armch01", "at": [8.9, 11.0, 0.0], "faces": "w"},
+  {"piece": "jhb_armch01", "at": [8.9, 13.4, 0.0], "faces": "w"},
+  {"piece": "jvb_guerri01", "at": [9.3, 12.2, 0.0], "turn": 0},
+  {"piece": "jz_sfp066", "at": [7.2, 10.449, 0.0], "faces": "n"},
+  {"piece": "jvb_bed05", "at": [3.0, 18.7, 0.0], "faces": "s"},
+  {"piece": "jhb_chev01", "at": [1.8, 19.491, 0.0], "faces": "s"},
+  {"piece": "jhb_chev01", "at": [4.2, 19.491, 0.0], "faces": "s"},
+  {"piece": "jz_sfp063", "at": [0.62, 17.0, 0.0], "faces": "e"},
+  {"piece": "jvb_dress03", "at": [5.47, 17.4, 0.0], "faces": "w"},
+  {"piece": "xiashowerd_01", "at": [6.88, 19.03, 0.0], "turn": 0, "obstacle": false},
+  {"piece": "xiashower_01", "at": [6.88, 19.718, 0.0], "faces": "s"},
+  {"piece": "udp2-p-47", "at": [9.0, 19.403, 0.0], "faces": "s"},
+  {"piece": "udp2-p-111", "at": [9.46, 16.9, 0.0], "faces": "w"},
+  {"piece": "udp2-p-113", "at": [9.86, 16.9, 0.0], "turn": -90, "obstacle": false},
+  {"piece": "jz_sfp018", "at": [12.2, 13.1, 0.0], "faces": "e"},
+  {"piece": "jvb_tab07", "at": [10.515, 11.1, 0.0], "turn": 0},
+  {"piece": "jhb_lamp01", "at": [10.515, 11.1, 0.43], "turn": 0},
+  {"piece": "jvb_tab07", "at": [10.515, 15.1, 0.0], "turn": 0},
+  {"piece": "jhb_lamp01", "at": [10.515, 15.1, 0.43], "turn": 0},
+  {"piece": "jz_sfp118", "at": [19.397, 13.1, 0.0], "faces": "w"},
+  {"piece": "udp2-p-42", "at": [19.397, 13.1, 0.86], "faces": "w"},
+  {"piece": "jz_sfp087", "at": [19.1, 15.2, 0.0], "faces": "w"},
+  {"piece": "jvb_guerri01", "at": [19.3, 14.3, 0.0], "turn": 0},
+  {"piece": "jz_sfp107", "at": [19.2, 10.8, 0.0], "turn": 0, "scale": 0.6},
+  {"piece": "p_bathtubclner01", "at": [13.4, 19.2, 0.0], "turn": 90},
+  {"piece": "udp2-p-111", "at": [10.54, 17.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-113", "at": [10.14, 17.2, 0.0], "turn": 90, "obstacle": false},
+  {"piece": "udp2-p-111", "at": [10.54, 18.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-113", "at": [10.14, 18.2, 0.0], "turn": 90, "obstacle": false},
+  {"piece": "udp2-p-47", "at": [15.1, 17.6, 0.0], "faces": "w"},
+  {"piece": "jz_sfp107", "at": [15.0, 19.2, 0.0], "turn": 0, "scale": 0.5},
+  {"piece": "jhb_armoir01", "at": [16.155, 18.4, 0.0], "faces": "e"},
+  {"piece": "jhb_armoir01", "at": [19.3, 18.4, 0.0], "faces": "w"},
+  {"piece": "jvb_couch05", "at": [17.7, 19.2, 0.0], "faces": "s"}
+ ],
+ "placeLater": [{"what": "inner doors: the doorways are open"}, {"what": "bar, wardrobes, desk and fridge as containers"}, {"what": "the piano as a thing to use"}]
+}

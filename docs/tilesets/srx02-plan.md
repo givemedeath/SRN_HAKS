@@ -388,6 +388,30 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   - **Gate passed (user, 2026-11-25: "Approve pilots"):** look, prop mix (old placeables beside envkit props) and the
     triangle counts above. They are the standard for the 34 other rooms (stage 8).
 
+## Stage 8, Home batch (user, 2026-11-25: "Yes, Home batch")
+
+R01 studio, R03 two-bedroom apartment, R05 safehouse, R06 penthouse and R07 flophouse, unfurnished and furnished, all
+drawn shells on Office lights; 20 tiles numbered after the pilots', no earlier number moved. With R02 and R04 the Home
+floorplans are done.
+- **Pieces** were picked from pictures of 150 candidates. Pieces the pilots called gaps exist after all: a coffee table
+  (`jvb_tab05`, `jz_sfp072`), nightstands (`jhb_chev01`, `jvb_tab07`), a modern bed (`jvb_bed06`), a white wardrobe
+  (`jhb_armoir01`). Still missing: a modern wardrobe that is not of another style, a white bathtub, a TV stand, a counter
+  without an upper cabinet, a white shower tray, a wall mirror whose texture is in a pack (`plc_reflect` is in none;
+  `purp_mirror`, `plc_mirror2`/`3` draw white), a flat TV for a wall. `drb_h01`, `plc_x52` and `tv` name absent textures too.
+- **Back to front again:** a bookcase (`jz_sfp066`) was recorded by its plain back, and the piano's stool stood at its side.
+  Guard: `bare` refuses a piece whose recorded front has under a third of its back's triangles (0.15 for that one; the least
+  of the other pieces is 0.50). It cannot tell for a piano: its keys are looked at.
+- **Walls:** a piece must stand 0.075 m clear of a wall (baseboard and crown). Block walls repeat at 4 m; at 2 m their
+  shading drew a band at head height.
+- **Walked** by a Human and a Troll on the final build: 88 of 88 points each. The Troll first stopped between the studio's
+  couch and its wall and beside a chair of the safehouse's table; both were moved. The lane check lets through gaps that
+  stop a Troll, so the walk stays the check.
+- **Triangles** a furnished tile: studio 12.9k, two-bedroom 8.6k and 8.5k, safehouse 17.6k, penthouse 4.4-10.4k, flophouse
+  14.2k and 3.2k, all under the approved pilots' 39.6k; frame rate not measured again.
+- **Toolset:** each furnished room laid a quarter turn, saved and read back. A group is refused where its door would open
+  on a wall that cannot change, over another group, and at the area's edge. Not reopened.
+- **Views:** `review-home.json` (bird's eye and eye level; `output/tilekit/home3`).
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record

@@ -64,6 +64,14 @@ class Furnished(unittest.TestCase):
     def test_a_seat_s_back_is_behind_its_front(self):
         self.assertGreater(rooms.leaning(SEAT, 's'), 0.1); self.assertLess(rooms.leaning(SEAT, 'n'), -0.1); self.assertIsNone(rooms.leaning(PIECES['rug'], 's'))
 
+    def test_a_bookcase_s_shelves_are_at_its_front(self):  # one was recorded by its plain back, 2026-11-25
+        case = piece('case', block('body', -0.8, 0.8, -0.2, 0.2, 0, 2.0), *[block(f'shelf{step}', -0.7, 0.7, -0.3, -0.2, 0.2 * step, 0.2 * step + 0.05) for step in range(9)])
+        self.assertEqual(rooms.bare(case, 's'), rooms.bare(case, 'n')); shown = [node for node in case]
+        for node in shown:
+            if node.name.startswith('shelf'):  # drawn from before only
+                node.faces = [face for face in node.faces if all(node.verts[corner][1] < -0.25 for corner in face[:3])]
+        self.assertGreater(rooms.bare(shown, 's'), 1); self.assertLess(rooms.bare(shown, 'n'), 1 / 3)
+
     def test_a_seat_out_of_line_with_the_table_it_faces(self):  # an armchair stood beside its coffee table, 2026-11-25
         seat = lambda x: {'piece': 'seat', 'at': [x, 1.5, 0.0], 'faces': 's', 'front': 's'}; table = {'piece': 'table', 'at': [0.0, 0.4, 0.0], 'turn': 0}; pieces = {'seat': SEAT, 'table': TABLE}
         self.assertEqual(rooms.misplaced([seat(0.05), table], pieces), []); self.assertRegex(rooms.misplaced([seat(0.5), table], pieces)[0], '0.50 m off its middle')
