@@ -1715,6 +1715,28 @@ and its placeable consumer close without a HAK-order duplicate. Final metadata r
 door slots to model hooks, corrects SJM/SRT/ZSF minimaps, normalizes invalid ZSF boolean flags,
 and binds the Planetscape palette to mp01.
 
+## Textures that published placeables name (2026-11-25)
+
+A scan of all `srn_placeable` model files found texture names that neither a pack nor the base game holds. The originals
+of 159 of them are landed unchanged in `srn_placeable`: 155 from `mdrnee_item.hak` (nearly all the
+VoS guns and gun racks) and 4 from `mdrnee_tile.hak` (`ceiling2_l3_2c`, `window3`, `window4`, `window6`). Models and
+table rows are unchanged. `docs/imports/mdrnee_placeable-dependency-textures.md` lists each file with its archive,
+size, SHA-256, upstream git blob and the models that name it. Every SHA-256 is the one `mdrnee_item-manifest.json` or
+`mdrnee_tile-manifest.json` in `docs/imports/` records, and every git blob is the one at commit
+`c01271d3ba053ada6d75bc070c5cf1ab94ec29c6` of the upstream project verified above
+(`https://gitea.raptio.us/Jaysyn/d20ModernEE`). The item bytes were read from a local clone of that project, the tile
+bytes from the quarantined extraction of the archive; where the tile archive holds both a DDS and a TGA, the DDS is
+landed.
+
+The item archive's credits are in the next section. The archive belongs to the same Neverwinter Vault distribution as
+the placeables: the Version 2.1 project page
+(<https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>) offers `mdrn21_item.rar`
+beside `mdrn21_placeable.rar` under one permission, free and open when the consuming project is also open (read
+2026-11-25). The tile textures keep the
+terms of the MDRNEE tileset import. None is relicensed under the repository's default PolyForm license. These are the
+only resources landed from `mdrnee_item.hak`, as dependencies of published placeables; the rest of that archive stays
+analysis-only, and both manifests are left as written.
+
 ## MDRNEE item analysis (2026-09-12)
 
 `mdrnee_item.hak` was decomposed in quarantine under the `mdrnee_item` analysis profile. Its
