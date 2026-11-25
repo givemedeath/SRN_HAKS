@@ -616,6 +616,12 @@
       "tools/armorkit/client_fixture.py",
       "tools/envkit/toolset.py"
     ],
+    "tools/envkit/test_toolset_paint.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/toolset_paint.py",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py"
+    ],
     "tools/envkit/test_track.py": [
       "tools/envkit/convert.py",
       "tools/envkit/local.py",
@@ -637,6 +643,11 @@
       "tools/armorkit/__init__.py",
       "tools/armorkit/client_fixture.py",
       "tools/phenotypes/tool_runtime.py"
+    ],
+    "tools/envkit/toolset_paint.py": [
+      "tools/envkit/toolset.py",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/inventory.py"
     ],
     "tools/envkit/track.py": [
       "tools/envkit/convert.py",
@@ -6222,6 +6233,9 @@
       "srn_2da",
       "srn_t_dgt04"
     ],
+    "tools/envkit/test_toolset_paint.py": [
+      "srn_t_srx01"
+    ],
     "tools/envkit/toolset.py": [
       "srn_2da",
       "srn_door",
@@ -6231,6 +6245,9 @@
       "srn_t_dgt04",
       "srn_t_fcx01",
       "srn_t_udp1"
+    ],
+    "tools/envkit/toolset_paint.py": [
+      "srn_t_srx01"
     ],
     "tools/headbatch/publish_library.py": [
       "srn_body",
@@ -6595,6 +6612,7 @@
     "tools/envkit/test_study.py",
     "tools/envkit/test_tile.py",
     "tools/envkit/test_toolset.py",
+    "tools/envkit/test_toolset_paint.py",
     "tools/envkit/test_track.py",
     "tools/envkit/test_view.py",
     "tools/headbatch/test_client_capture.py",

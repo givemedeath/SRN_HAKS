@@ -43,6 +43,7 @@
   "tools/envkit/test_study.py": 0.15,
   "tools/envkit/test_tile.py": 6.7,
   "tools/envkit/test_toolset.py": 0.03,
+  "tools/envkit/test_toolset_paint.py": 0.3,
   "tools/envkit/test_track.py": 21.45,
   "tools/envkit/test_view.py": 1.78,
   "tools/headbatch/test_client_capture.py": 0.76,

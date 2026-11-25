@@ -711,7 +711,8 @@ The four textures it shares with dgt04 keep dgt04's look.
   for each kind of group, were painted on plain ground of their own, saved and read back: every one has all its
   tiles, and the Toolset retiles round them. Every hook of a keyed door type made its door (58, 266, 267, 268); hooks
   of the generic type 0 (110 groups) make none, and the builder places one. A tile's main light set in Tile
-  Properties is saved. The other 183 groups were not painted. A group is refused on ground its edges cannot meet
+  Properties is saved. The other 183 groups were not painted; the driver is
+  `tools/envkit/toolset_paint.py`. A group is refused on ground its edges cannot meet
   (the Hospital on Concrete), and the Toolset does not paint over another group's tiles.
 - **Old sets:** whether to retire them is the user's call later. This plan keeps them.
 
