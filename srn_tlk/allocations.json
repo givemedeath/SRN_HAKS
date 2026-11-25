@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "nextId": 166,
+  "nextId": 236,
   "allocations": [
     {
       "id": 0,
@@ -1025,6 +1025,426 @@
     {
       "id": 165,
       "key": "srx01.door.strip",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 166,
+      "key": "placeable.category.billboards-and-adverts",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 167,
+      "key": "placeable.category.road-signs-and-markings",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 168,
+      "key": "placeable.category.street-furniture",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 169,
+      "key": "placeable.category.market-and-street-food",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 170,
+      "key": "placeable.category.playground-and-sport",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 171,
+      "key": "placeable.category.ground-stains-and-litter",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 172,
+      "key": "placeable.category.graffiti-and-bullet-holes",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 173,
+      "key": "placeable.category.buildings-and-ruins",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 174,
+      "key": "placeable.branch.shadowrun-furniture",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 175,
+      "key": "placeable.category.chairs-and-stools",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 176,
+      "key": "placeable.category.sofas-and-benches",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 177,
+      "key": "placeable.category.tables",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 178,
+      "key": "placeable.category.desks-and-office",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 179,
+      "key": "placeable.category.beds",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 180,
+      "key": "placeable.category.wardrobes-cabinets-and-drawers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 181,
+      "key": "placeable.category.shelves-and-bookcases",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 182,
+      "key": "placeable.category.counters-and-bars",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 183,
+      "key": "placeable.category.cubicles-and-partitions",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 184,
+      "key": "placeable.branch.shadowrun-interior",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 185,
+      "key": "placeable.category.kitchen",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 186,
+      "key": "placeable.category.food-and-drink",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 187,
+      "key": "placeable.category.bathroom-and-cleaning",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 188,
+      "key": "placeable.category.rugs-and-carpets",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 189,
+      "key": "placeable.category.lamps",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 190,
+      "key": "placeable.category.posters",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 191,
+      "key": "placeable.category.paintings-notices-and-mirrors",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 192,
+      "key": "placeable.category.statues-and-ornaments",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 193,
+      "key": "placeable.category.books-and-papers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 194,
+      "key": "placeable.category.table-and-personal-items",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 195,
+      "key": "placeable.category.games-music-and-toys",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 196,
+      "key": "placeable.category.planters-and-house-plants",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 197,
+      "key": "placeable.branch.shadowrun-technology",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 198,
+      "key": "placeable.category.computers-and-office-machines",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 199,
+      "key": "placeable.category.televisions-and-screens",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 200,
+      "key": "placeable.category.consoles-and-controls",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 201,
+      "key": "placeable.category.terminals-and-phones",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 202,
+      "key": "placeable.category.medical-and-laboratory",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 203,
+      "key": "placeable.category.industrial-machines-and-tools",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 204,
+      "key": "placeable.category.robots-and-droids",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 205,
+      "key": "placeable.category.parts-and-components",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 206,
+      "key": "placeable.category.holograms-and-force-fields",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 207,
+      "key": "placeable.branch.shadowrun-containers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 208,
+      "key": "placeable.category.lockers-and-safes",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 209,
+      "key": "placeable.category.crates-and-chests",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 210,
+      "key": "placeable.category.boxes-and-cartons",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 211,
+      "key": "placeable.category.drums-barrels-and-tanks",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 212,
+      "key": "placeable.category.bags-and-small-containers",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 213,
+      "key": "placeable.branch.shadowrun-structure",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 214,
+      "key": "placeable.category.walls-and-panels",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 215,
+      "key": "placeable.category.floors-and-platforms",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 216,
+      "key": "placeable.category.ceilings-canopies-and-awnings",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 217,
+      "key": "placeable.category.pillars-towers-and-supports",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 218,
+      "key": "placeable.category.doors-hatches-and-windows",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 219,
+      "key": "placeable.category.stairs-ladders-and-lifts",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 220,
+      "key": "placeable.category.pipes-ducts-and-vents",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 221,
+      "key": "placeable.branch.shadowrun-vehicles",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 222,
+      "key": "placeable.category.cars-and-vans",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 223,
+      "key": "placeable.category.trucks-buses-and-work-vehicles",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 224,
+      "key": "placeable.category.bikes-and-hover-vehicles",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 225,
+      "key": "placeable.category.military-vehicles-and-mechs",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 226,
+      "key": "placeable.category.aircraft-and-boats",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 227,
+      "key": "placeable.category.starships-and-shuttles",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 228,
+      "key": "placeable.category.planets-and-stations",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 229,
+      "key": "placeable.branch.shadowrun-weapons-and-bodies",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 230,
+      "key": "placeable.category.weapons-and-ammunition",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 231,
+      "key": "placeable.category.turrets-and-explosives",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 232,
+      "key": "placeable.category.bodies-and-remains",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 233,
+      "key": "placeable.branch.shadowrun-nature",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 234,
+      "key": "placeable.category.trees-and-plants",
+      "owner": "shared",
+      "status": "active"
+    },
+    {
+      "id": 235,
+      "key": "placeable.category.rocks-fire-and-smoke",
       "owner": "shared",
       "status": "active"
     }

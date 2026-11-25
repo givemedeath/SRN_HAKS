@@ -9769,9 +9769,9 @@
   ],
   "tlk": {
     "resource": "srn_tlk/srn.tlk.json",
-    "sha256": "bd1a100bf200963a20dc2f83229f456977517ccf0f1ab5bbe80539ed6a7f2ba9",
-    "allocationsSha256": "fef2ef499fa190f69b63fe767c8c9446ef44147b4a06f3264c43df68cf33563f",
-    "nextId": 166,
+    "sha256": "4bef4b3fa56fdc509bdb4ecb88797015ee7222bd46798a066fafa76bade2aaed",
+    "allocationsSha256": "1f0a2a90782e930aba1137144654c0dd2ff6e9c662c02a9c8443cc63b160a375",
+    "nextId": 236,
     "weaponEntries": [],
     "combatKeys": [],
     "srNwnOwnedKeys": [

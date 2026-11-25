@@ -172,34 +172,54 @@ def command_placeables(args):
     print(json.dumps({'rows': rows, 'files': copied, 'removed': removed}), flush=True)
 
 
+def _run(arguments):
+    import subprocess
+    return subprocess.run([str(value) for value in arguments], capture_output=True, timeout=300, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+
+
+def _tool(name):
+    from tools.phenotypes import tool_runtime
+    return tool_runtime.tool(name)
+
+
+def _gff(scratch):
+    """(read, write) of GFF files as nwn_gff's JSON; `scratch` holds what is being written."""
+    gff = str(_tool('nwn_gff'))
+
+    def read(source):
+        result = _run([gff, '-i', source, '-k', 'json'])
+        require(result.returncode == 0, f'{Path(source).name} could not be read: ' + result.stderr.decode(errors='replace')[-300:])
+        return json.loads(result.stdout)
+
+    def write(document, target):
+        staged = Path(scratch) / (Path(target).name + '.json'); staged.write_text(json.dumps(document), encoding='utf-8')
+        result = _run([gff, '-i', staged, '-l', 'json', '-o', target, '-k', 'gff'])
+        require(result.returncode == 0, f'{Path(target).name} could not be written: ' + result.stderr.decode(errors='replace')[-300:])
+    return read, write
+
+
+def _palette(game, shelf, data, named, scratch, read):
+    """The standard palette: the game's own, the catalogued placeables' blueprints and the library's (`named`)."""
+    from . import blueprints, library, placeables
+    stock = _run([_tool('nwn_resman_cat'), '--root', game, blueprints.PALETTE])
+    require(stock.returncode == 0 and stock.stdout, "The game's own placeable palette could not be read from " + str(game))
+    (Path(scratch) / 'stock.itp').write_bytes(stock.stdout)
+    ours = [{'resref': entry['blueprint'], 'name': entry['label'].removeprefix(placeables.PREFIX), 'category': entry['category']}
+            for entry in data['placeables'] if entry.get('blueprint')]
+    return blueprints.palette(read(shelf / blueprints.SKELETON), read(Path(scratch) / 'stock.itp'), ours + library.listed(named))
+
+
 def command_blueprints(args):
     """Give every envkit placeable of a game set a blueprint in its pack and rebuild the standard palette (in `--palette-pack`), so
     the Toolset offers them on the Standard tab. Needs the game: the palette is the game's own with these added."""
-    import subprocess
     import tempfile
-    from tools.phenotypes import tool_runtime
-    from . import blueprints, catalog, convert, placeables
+    from . import blueprints, catalog, convert, library, placeables
     models = convert.load_models(args.models); repo = Path(args.repo); pack = repo / args.pack; record = repo / args.catalog
     shelf = repo / args.palette_pack  # never the blueprints' pack by default: a second palette there would be one too many; the palette is one file for every placeable of the module, so it stays in one pack
     require(pack.is_dir() and shelf.is_dir() and record.is_file(), 'The pack, the palette\'s pack or the additions catalog is missing: ' + ', '.join(map(str, (pack, shelf, record))))
-    data = catalog.load(record); gff = str(tool_runtime.tool('nwn_gff'))
-    run = lambda arguments: subprocess.run([str(value) for value in arguments], capture_output=True, timeout=300, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+    data = catalog.load(record)
     with tempfile.TemporaryDirectory() as scratch:
-        scratch = Path(scratch)
-
-        def read(source):
-            result = run([gff, '-i', source, '-k', 'json'])
-            require(result.returncode == 0, f'{Path(source).name} could not be read: ' + result.stderr.decode(errors='replace')[-300:])
-            return json.loads(result.stdout)
-
-        def write(document, target):
-            staged = scratch / (Path(target).name + '.json'); staged.write_text(json.dumps(document), encoding='utf-8')
-            result = run([gff, '-i', staged, '-l', 'json', '-o', target, '-k', 'gff'])
-            require(result.returncode == 0, f'{Path(target).name} could not be written: ' + result.stderr.decode(errors='replace')[-300:])
-        stock = run([tool_runtime.tool('nwn_resman_cat'), '--root', args.game, blueprints.PALETTE])
-        require(stock.returncode == 0 and stock.stdout, 'The game\'s own placeable palette could not be read from ' + str(args.game))
-        (scratch / 'stock.itp').write_bytes(stock.stdout)
-        made = {}
+        read, write = _gff(scratch); made = {}
         for entry in data['placeables']:
             placed = models.get(entry['model'], {}).get('placeable')
             if placed is None or 'category' not in placed:
@@ -210,11 +230,39 @@ def command_blueprints(args):
             made[entry['model']] = blueprints.blueprint(entry['model'], entry['row'], entry['label'].removeprefix(placeables.PREFIX), placed['category'], static=static,
                                                         comment='envkit: ' + entry['source'])
             catalog.put_placeable(data, {**entry, 'blueprint': entry['model'], 'category': placed['category']})
-        listed = [{'resref': entry['blueprint'], 'name': entry['label'].removeprefix(placeables.PREFIX), 'category': entry['category']}
-                  for entry in data['placeables'] if entry.get('blueprint')]
-        palette = blueprints.palette(read(shelf / blueprints.SKELETON), read(scratch / 'stock.itp'), listed)
+        named = library.load(repo / library.PATH) if (repo / library.PATH).is_file() else []
+        palette = _palette(args.game, shelf, data, named, scratch, read)
         for model, document in made.items():  # every blueprint and the palette are worked out before the first is written
             write(document, pack / f'{model}.utp')
         write(palette, shelf / blueprints.PALETTE)
     catalog.save(record, data)
-    print(json.dumps({'blueprints': list(made), 'palette': len(listed)}), flush=True)
+    print(json.dumps({'blueprints': list(made), 'palette': len(blueprints.listing(palette))}), flush=True)
+
+
+def command_library(args):
+    """Write what the placeable library says: the labels of the placeables table, a blueprint for each entry and the
+    standard palette (`library`). Everything is worked out before the first file is written."""
+    import tempfile
+    from concurrent.futures import ThreadPoolExecutor
+    from . import blueprints, catalog, library
+    repo = Path(args.repo); shelf = repo / args.palette_pack; table = repo / args.table; entries = library.load(repo / library.PATH); data = catalog.load(repo / args.catalog)
+    text = library.relabelled(table.read_bytes().decode('cp1252'), entries).encode('cp1252'); names = {entry['blueprint'] for entry in entries}
+    taken = names & {path.stem.lower() for folder in repo.glob('srn_*') if folder != shelf for path in folder.glob('*.utp')}
+    require(not taken, 'Other packs hold blueprints of these names: ' + ', '.join(sorted(taken)[:5]))
+    with tempfile.TemporaryDirectory() as scratch:
+        read, write = _gff(scratch); palette = _palette(args.game, shelf, data, entries, scratch, read)
+        found = _run([_tool('nwn_resman_grep'), '--root', args.game, '--no-ovr', '-p', '.utp']).stdout.decode(errors='replace').split()
+        own = {Path(one).stem.lower() for one in found if one.lower().endswith('.utp')}; require(own, 'The blueprints of the game could not be listed from ' + str(args.game))
+        require(not own & names, 'The game has blueprints of these names: ' + ', '.join(sorted(own & names)[:5]))
+
+        def one(entry):
+            staged = Path(scratch) / f'{entry["blueprint"]}.utp'; write(blueprints.blueprint(entry['blueprint'], entry['row'], entry['name'], entry['category']), staged)
+            return staged.name, staged.read_bytes()
+        with ThreadPoolExecutor(6) as pool:
+            made = dict(pool.map(one, entries))
+        for name, content in made.items():
+            if not (shelf / name).is_file() or (shelf / name).read_bytes() != content:
+                (shelf / name).write_bytes(content)
+        write(palette, shelf / blueprints.PALETTE)
+    table.write_bytes(text)
+    print(json.dumps({'named': len(entries), 'palette': len(blueprints.listing(palette))}), flush=True)
