@@ -876,6 +876,7 @@ def read_field(field, levels, points):
 TURN = 75.0  # degrees the fine surface may turn from the simplified one; past that the reading is of another surface nearby
 MADE = 0.2  # a face this much smaller on the generated mesh than its part's faces are on average was made by the split
 FLAT = (0.5, 0.5, 1.0)  # the colour of a texel with no relief
+EVEN = 4  # texels a side of a roughness map that is one roughness all over (`write_relief`)
 ROUGHNESS = 0.8  # of an outfit's own surface, as a constant in its material file or as the texels of a roughness map
 MATERIAL = 'renderhint NormalTangents\ntexture1 {}\nparameter float Roughness {:g}\nparameter float Specularity 0.04\nparameter float Metallicness 0.001\n'
 # with a roughness map: the constant is 0, or it overrides the map (docs/phenotype-body-material-process.md)
@@ -993,13 +994,13 @@ def write_relief(folder, model, image, roughness=ROUGHNESS, rough=None):
     require(len(name) <= 16 and name == name.lower(), 'A normal map name is a lowercase resref: ' + name)
     folder = Path(folder)
     (folder / (name + '.tga')).write_bytes(tga(image))
-    if rough is None:
-        (folder / (model + '.mtr')).write_text(MATERIAL.format(name, roughness), encoding='ascii', newline='\n')
-    else:
-        rough = np.asarray(rough, float)
-        require(rough.ndim == 2 and rough.size, 'A roughness map is rows of texels')
-        (folder / (model + 'r.tga')).write_bytes(tga(np.repeat(rough[:, :, None], 3, axis=2)))
-        (folder / (model + '.mtr')).write_text(MAPPED.format(name, model + 'r'), encoding='ascii', newline='\n')
+    # Without a map, the one roughness is written as a map of `EVEN` texels a side, all the same: the game draws a
+    # tinted part by its roughness map and not by the material file's number. With the number at 1 and at 0.8
+    # Street Casual's black boots came out alike and wet in the client; with a map they were leather (2026-11-25).
+    rough = np.full((EVEN, EVEN), float(roughness)) if rough is None else np.asarray(rough, float)
+    require(rough.ndim == 2 and rough.size, 'A roughness map is rows of texels')
+    (folder / (model + 'r.tga')).write_bytes(tga(np.repeat(rough[:, :, None], 3, axis=2)))
+    (folder / (model + '.mtr')).write_text(MAPPED.format(name, model + 'r'), encoding='ascii', newline='\n')
     return name
 
 

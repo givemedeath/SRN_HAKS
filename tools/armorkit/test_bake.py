@@ -11,7 +11,7 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, bodyskin, export, measure, registry, seams, split
+from . import bake, bodyskin, export, measure, registry, seams, split, texture
 from .test_split import tube
 
 
@@ -201,7 +201,8 @@ class BakeTests(unittest.TestCase):
             self.assertEqual(sorted(path.name for path in (Path(folder) / 'ascii').iterdir()),
                              ['pmh0_chest332.mdl', 'pmh0_chest332.plt', 'pmh0_pelvis332.mdl', 'pmh0_pelvis332.plt'])
             self.assertEqual(sorted(path.name for path in (Path(folder) / 'resources').iterdir()),
-                             ['pmh0_chest332.mtr', 'pmh0_chest332.plt', 'pmh0_chest332n.tga', 'pmh0_pelvis332.mtr', 'pmh0_pelvis332.plt', 'pmh0_pelvis332n.tga'])
+                             ['pmh0_chest332.mtr', 'pmh0_chest332.plt', 'pmh0_chest332n.tga', 'pmh0_chest332r.tga', 'pmh0_pelvis332.mtr', 'pmh0_pelvis332.plt', 'pmh0_pelvis332n.tga',
+                              'pmh0_pelvis332r.tga'])  # a roughness map each: the game draws a tinted part by it, not by a number
             shades, layers = export.read_tint((Path(folder) / 'resources' / 'pmh0_chest332.plt').read_bytes())
             self.assertTrue((shades == 170).all() and (layers == export.LAYERS['cloth1']).all())
 
@@ -533,7 +534,8 @@ class BakeTests(unittest.TestCase):
             self.assertTrue(np.allclose(rough, arm_part['skin_rough'] / 255, atol=1 / 255))
             self.assertEqual(bodyskin.material(resources, 'pmh0_bicepl332'), {'normal': 'pmh0_bicepl332n', 'rough': 'pmh0_bicepl332r', 'roughness': 0.0})
             self.assertIn('Roughness 0\n', (resources / 'pmh0_bicepl332.mtr').read_text())
-            self.assertFalse((resources / 'pmh0_chest332r.tga').exists())
+            even = bodyskin.image((resources / 'pmh0_chest332r.tga').read_bytes())[..., 0]  # a part with no skin: one roughness, as a map
+            self.assertTrue(even.shape == (texture.EVEN, texture.EVEN) and np.allclose(even, texture.ROUGHNESS, atol=1 / 255))
             self.assertTrue(bake.gates(out, models, resources)['passed'])
             (resources / 'pmh0_bicepl332r.tga').unlink()
             self.assertEqual(bake.gates(out, models, resources)['failures'], ['pmh0_bicepl332: its material file names pmh0_bicepl332r, which is not there'])
