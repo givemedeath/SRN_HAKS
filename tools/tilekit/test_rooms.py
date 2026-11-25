@@ -11,7 +11,7 @@ from tools.tilekit import cuts, geometry, inventory, joins, merge, rooms
 from tools.tilekit.test_strip import box, room
 
 REPO = Path(__file__).resolve().parents[2]
-PACKS = ('srn_t_srx02', 'srn_t_udp2', 'srn_t_tfb01', 'srn_t_tbx78', 'srn_t_nac01', 'srn_t_common', 'srn_placeable', 'srn_envprop', 'srn_2da')  # what this reads: named so the test selector runs it when one changes
+PACKS = ('srn_t_srx02', 'srn_t_udp2', 'srn_t_tfb01', 'srn_t_tbx78', 'srn_t_nac01', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_envprop', 'srn_2da')  # what this reads: named so the test selector runs it when one changes
 SPEC_PATH = REPO / 'docs' / 'tilesets' / 'srx02' / 'merge.json'
 SPEC = json.loads(SPEC_PATH.read_text(encoding='utf-8'))
 SET = ('[TILES]\r\nCount=1\r\n\r\n[TILE0]\r\nModel=tst\r\nTopLeft=Wall\r\nTopRight=Wall\r\nBottomLeft=Wall\r\nBottomRight=Wall\r\nTop=\r\nRight=\r\nBottom=\r\nLeft=\r\n\r\n'
@@ -77,10 +77,10 @@ class Refused(unittest.TestCase):
     def test_a_piece_that_faces_a_wall_stands_back_to_front(self):
         with self.assertRaisesRegex(ValueError, 'stands back to front'):  # the couch and the chair of the trial room, 2026-11-24
             made({**CHAIR, 'at': [-3.0, 0.5, 0.0], 'faces': 'w'})
-        made({**CHAIR, 'at': [-3.0, 0.5, 0.0], 'faces': 'w', 'front': 'n', 'turn': 0} | {'faces': 'e'})
+        made({**CHAIR, 'at': [-3.0, 0.5, 0.0], 'front': 'n'})
 
     def test_furniture_that_cuts_the_room_in_two(self):
-        with self.assertRaisesRegex(ValueError, 'denf: of \\d+ places to stand only'):
+        with self.assertRaisesRegex(ValueError, 'denf_01: within the tile, of .* places to stand only'):
             made({'piece': 'screen', 'at': [0.0, 0.0, 0.0], 'turn': 0})
         cells = {(x, y) for x in range(40) for y in range(20) if x not in (19, 20)}
         self.assertRegex(rooms._lanes(cells, [])[0], r'only 2\d\d can be reached'); self.assertEqual(rooms._lanes(cells | {(x, y) for x in (19, 20) for y in range(8, 13)}, []), [])

@@ -220,6 +220,7 @@
   {"piece": "ek_ss_drinks", "at": [9.34, 8.7, 0.0], "faces": "w"},
   {"piece": "ek_ss_drinks", "at": [9.34, 11.4, 0.0], "faces": "w"},
   {"piece": "ek_ss_drinks", "at": [9.34, 13.5, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [0.55, 7.15, 0.0], "faces": "e"},
   {"piece": "ek_ss_snacks", "at": [0.55, 8.4, 0.0], "faces": "e"},
   {"piece": "ek_ss_snacks", "at": [0.55, 11.6, 0.0], "faces": "e"},
   {"piece": "ek_ss_snacks", "at": [0.55, 12.9, 0.0], "faces": "e"},

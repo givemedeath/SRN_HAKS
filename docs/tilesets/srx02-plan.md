@@ -352,6 +352,36 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
 5. **Name.** `srx02`, shown as "SRN City Interior"; confirmed at the names review.
 6. **Meshy.** Nothing is generated until the stage 0 prop census names the real gaps and the user raises the cap.
 
+- **Stage 6, the six pilots (user, 2026-11-24: "Yes, start pilots"; 2026-11-25).** R02, R04, O04, S01, S03 and C01 are in
+  the pack unfurnished and furnished (specs in `rooms/`, tiles `srx02_<id>u_NN` and `srx02_<id>f_NN`).
+  - Shells: O04, S01 and S03 furnish existing rooms. R02, R04 and C01 are drawn (`tools/tilekit/walls.py`): outer and inner
+    walls, doorways, floor zones, in the sets' textures. Modern Interior's house is mostly furniture fused to its walls.
+  - Ceilings (user: "more appropriate ceilings"): plaster with a moulding, dome lamps and spots in homes; acoustic tile with
+    light panels and a hung strip in the office; strip lights in the store; concrete with beams in the barracks; concrete in
+    the armory (`tools/tilekit/ceilings.py`, also on `liv01`).
+  - Facings (user: a couch faced its wall): couch, armchairs, dressers, wardrobes, candy rack, desk and all envkit pieces
+    had been taken for front -y. Guards: `fronts.json` records each piece's front after it is looked at; a seat recorded
+    back to front is refused; a seat out of line with the table it faces is refused (user: a chair not lined up).
+  - A rifle rack's rifles drew white (user): `vos_rfl_stand1` names `jzg_m4a1`, which no pack holds (nor for `vos_ar_gun4`).
+    It is out of the room; a piece with a missing texture is refused. The placeables themselves are not repaired.
+  - Walkmesh: furniture cut out of the triangles left cracks a Troll and a Human stopped at. A furnished floor is now laid
+    again in rectangles round squared footprints; `cracks` refuses a cracked one. A tile's floor is one piece and is open to
+    each next tile in one place only: the first house had three rooms across one seam, and creatures took the wrong one.
+  - Walked in the client by a Human and a Troll (`output/_walk.py`): 54 of 55 points reached by each on the house as first
+    re-laid (its study then moved), by the Troll alone on the last build. The one that fails asks for a way out of the
+    study straight through its wall; the next order succeeds. That is the game's own path search.
+  - Triangles: at most 39,600 a tile (store), 20,100 (armory), 12,500 (apartment). Props over 2,500 triangles are baked
+    reduced: a store of whole envkit racks passed the engine's 65,535 vertices a mesh. Frame rate on a block of
+    furnished rooms 174-178 against 174-178 unfurnished, cap 200 (before the last placement changes).
+  - Views: bird's eye (user asked), and eye level, `review-pilots.json`; `review` takes named places with a height, distance
+    and pitch of their own.
+  - Gaps the pilots could not fill: a low-poly store gondola, a reach-in chiller, checkout with a scanner, a modern
+    wardrobe, a bathtub that is not yellow, a coffee table, a TV stand, a nightstand, a kitchen counter top with no upper
+    cabinet, a working rifle rack.
+  - Not done: laying and turning the groups in the Toolset; doors in the inner doorways; eye-level views tilted far up.
+  - Seen beside this: the same crack test finds a few in exterior tiles (`dgt05_b07_06`, `dgt05_r07_31`, `dgt05_r07_32`,
+    `rdt02_a01_03`; the `dgt05_w25` tiles look like levels over one another). Not looked into.
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record

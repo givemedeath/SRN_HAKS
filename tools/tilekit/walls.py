@@ -55,7 +55,6 @@ class Plan:
             for door in wall.get('doors', ()):
                 door = {**DOOR, **door}; low, high = (start[along] + door['at'] + way * door['width'] / 2 for way in (-1, 1))
                 require(low - CASING >= start[along] - 1e-9 and high + CASING <= end[along] + 1e-9, f'{self.name}: a doorway at {door["at"]} leaves the wall from {start} to {end}')
-                require(int(low - CASING_OUT) // int(TILE) == int(high + CASING_OUT) // int(TILE), f'{self.name}: a doorway at {door["at"]} of the wall from {start} lies on a tile\'s side')
                 self.gaps.append((rect(low, high), door['high']))
         rects = self.solid + [rect for rect, _ in self.gaps] + [tuple(zone['rect']) for zone in self.zones]
         lines = lambda axis, size, count: np.unique(np.round([0, size] + [index * TILE for index in range(count)] + [min(max(rect[side], 0), size) for rect in rects for side in (axis, axis + 2)], 4))
@@ -203,15 +202,16 @@ def drawn(plan, index):
                     out.wall(look, way, line + sign * proud, first, second, foot, head, (1.0, 1.0))
                     out.flat(look, (sides[0], first, sides[1], second) if way in 'ew' else (first, sides[0], second, sides[1]), head if foot == 0.0 else foot, up=foot == 0.0)
     for (a, b, c, d), lintel in plan.gaps:  # a casing round each doorway, proud of its wall on both sides
-        if x0 <= (a + c) / 2 < x0 + TILE and y0 <= (b + d) / 2 < y0 + TILE:
+        if a - CASING < x0 + TILE and c + CASING > x0 and b - CASING < y0 + TILE and d + CASING > y0:  # one on a tile's side is drawn by both tiles, each its own part
             held = lambda *rect: (max(rect[0], x0), max(rect[1], y0), min(rect[2], x0 + TILE), min(rect[3], y0 + TILE)); over, by = CASING_OUT, CASING
             if c - a > d - b:
                 posts = held(a - by, b - over, a, d + over), held(c, b - over, c + by, d + over); head = held(a - by, b - over, c + by, d + over)
             else:
                 posts = held(a - over, b - by, c + over, b), held(a - over, d, c + over, d + by); head = held(a - over, b - by, c + over, d + by)
-            for post in posts:
+            for post in (post for post in posts if post[0] < post[2] - 1e-6 and post[1] < post[3] - 1e-6):
                 out.block(plan.box['look']['trim'], post, 0.0, lintel)
-            out.block(plan.box['look']['trim'], head, lintel, lintel + CASING, lid=True)
+            if head[0] < head[2] - 1e-6 and head[1] < head[3] - 1e-6:
+                out.block(plan.box['look']['trim'], head, lintel, lintel + CASING, lid=True)
     return out
 
 

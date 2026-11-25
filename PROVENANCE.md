@@ -2545,3 +2545,7 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
   were drawn locally with Qwen-Image 2.1 from a layout drawn in code and, for the frames, from that picture itself, and
   put together by the SRN project operator with Claude. No third-party picture was used. The operator approved the
   room on 2026-11-24.
+- `srx02_clgplas.dds`, `srx02_clgconc.dds`, `srx02_clgtile.dds` (ceilings), `srx02_lampdif.dds` and `srx02_lamphous.dds` (lamps)
+  are drawn in code by `tools/tilekit/ceilings.py` (2026-11-25); no picture of anyone's went into them. The shells of `r02`,
+  `r04` and `c01` are drawn by `tools/tilekit/walls.py` with the source sets' textures. Props of more than 2,500 triangles
+  are baked from copies reduced in Blender; the placeables themselves are unchanged.

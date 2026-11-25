@@ -27,7 +27,8 @@ taken for those of props that were gone (user, 2026-11-24). A node with no `shad
 (a couch, armchairs, dressers and wardrobes stood back to front: user, 2026-11-25).
 
 Refused: a piece that is no row of placeables.2da, or that names a texture no pack holds; a piece whose front is not
-recorded, or a seat recorded back to front; a piece that `faces` a wall (two were put in backwards,
+recorded, or a seat recorded back to front; a seat out of line with the table it faces (`misplaced`); a walkmesh with cracks; a tile whose own floor is in parts, or that is
+open to the room's next tile in two places; a piece that `faces` a wall (two were put in backwards,
 2026-11-24); furniture that cuts the room in two or stands in its doorway (`_lanes`); a furnished room whose
 walkmesh differs from the unfurnished one anywhere but under its furniture, or at its sides (`_rim`)."""
 import hashlib
@@ -54,6 +55,9 @@ ROUND = 2  # cells all round a place that must be walked for a player to stand t
 DOORWAY = 6  # cells: how near a doorway the room's own floor must come
 TOGETHER = 0.85  # the share of the floor a player can stand on that must be one piece
 MOST = 2500  # triangles of one baked prop: envkit's run to 12,000, and a store of them passed the 65,535 vertices a mesh may have (2026-11-25)
+WHOLE = 0.93  # and of one tile's alone: a creature finds its way from tile to tile, then within each
+REACH, ALIGNED = 1.2, 0.12  # metres: how far before a seat its table is, and how far off its middle the seat may stand
+SNAP, NEAR = 0.05, 0.12  # metres: what a footprint's box is squared to, and how near a wall it is taken out to it
 FLOOR = 0.05  # metres: what stands no higher stands on the floor
 
 
@@ -226,6 +230,30 @@ def leaning(nodes, front):
     return ((min(along) + max(along)) / 2 - weighed / total) / (max(along) - min(along)) if total else None
 
 
+def misplaced(props, pieces):
+    """[what is wrong] with the seats of a tile: one that faces a table, a desk or a coffee table within `REACH` stands
+    before its middle, or before some of it where it is long enough for several, and not in it (an armchair stood beside
+    the coffee table it faced: user, 2026-11-25)."""
+    boxes = []
+    for prop in props:
+        points = [vertex for _, verts, _, _ in geometry.baked(pieces[prop['piece']], detail.turned(prop['at'], (COMPASS[prop['faces']] - COMPASS[prop.get('front', 's')]) % 360 if 'faces' in prop else prop['turn'], prop.get('scale', 1.0))) for vertex in verts]
+        low, high = ([pick(point[axis] for point in points) for axis in range(3)] for pick in (min, max)); boxes.append((prop, low, high))
+    wrong = []
+    for prop, low, high in boxes:
+        if prop.get('faces') not in ('n', 'e', 's', 'w') or (leaning(pieces[prop['piece']], prop.get('front', 's')) or 0) < 0.1:
+            continue
+        axis = 0 if prop['faces'] in 'ew' else 1; ahead = prop['faces'] in 'en'; edge = (high if ahead else low)[axis]; across = 1 - axis; middle, half = (low[across] + high[across]) / 2, (high[across] - low[across]) / 2
+        for other, start, end in boxes:
+            if other is prop or other['at'][2] > FLOOR or not 0.3 <= end[2] <= 0.95 or (leaning(pieces[other['piece']], other.get('front', 's')) or 0) >= 0.1:
+                continue
+            gap = start[axis] - edge if ahead else edge - end[axis]; wide = end[across] - start[across]; off = abs(middle - (start[across] + end[across]) / 2)
+            if not -0.3 <= gap <= REACH or off > half + wide / 2 or (start[axis] + end[axis]) / 2 < (low[axis] + high[axis]) / 2 and ahead or (start[axis] + end[axis]) / 2 > (low[axis] + high[axis]) / 2 and not ahead:
+                continue
+            if gap < 0.02 or (off > ALIGNED if wide < 1.4 else off + min(half, wide / 2) > wide / 2 + ALIGNED):
+                wrong.append(f'{prop["piece"]} at {prop["at"][:2]} faces {other["piece"]} at {other["at"][:2]}, ' + ('and stands in it' if gap < 0.02 else f'{off:.2f} m off its middle'))
+    return wrong
+
+
 # --- what a room must hold to ----------------------------------------------------------------------------------------
 
 def _floor(text, slack=0.0):
@@ -267,10 +295,102 @@ def crossed(set_text, number):
     return {side for side, key in (('n', 'Top'), ('e', 'Right'), ('s', 'Bottom'), ('w', 'Left')) if keys.get(key)}
 
 
-def _lanes(cells, openings):
+def _walk(text):
+    """[(three corners, surface)] of a tile's walkmesh."""
+    _, _, nodes = geometry.parse(text)
+    return [(np.round(np.array(triangle, float), 5), face[7]) for node in nodes if node.kind == 'aabb' for triangle, face in zip(geometry._corners(node, nodes), node.faces) if len(face) > 7]
+
+
+def squared(polygon, lines):
+    """The box round a footprint, out to the grid of `SNAP` and to a wall (`lines`: the floor's own along x and y) it
+    nearly touches."""
+    out = []
+    for axis, (low, high) in enumerate((min(point[axis] for point in polygon), max(point[axis] for point in polygon)) for axis in (0, 1)):
+        low, high = math.floor(low / SNAP + 1e-6) * SNAP, math.ceil(high / SNAP - 1e-6) * SNAP
+        out.append([next((line for line in lines[axis] if abs(line - edge) <= NEAR), round(edge, 4)) for edge in (low, high)])
+    return out[0][0], out[1][0], out[0][1], out[1][1]
+
+
+def furnished_walk(text, name, footprints):
+    """(the model, its walkmesh file, [the boxes nothing walks on]) with the floor of `text` laid again in rectangles
+    round the footprints' boxes. Furniture cut out of the triangles there were left splinters and cracks a hair wide,
+    and a creature stopped dead at them (a Troll in the apartment's middle, client, 2026-11-25). None for a floor
+    whose sides run askew (its cut is kept, where `cracks` finds none)."""
+    from types import SimpleNamespace
+    from tools.envkit import tile
+    from . import joins
+    triangles = _walk(text); floor = [corners for corners, surface in triangles if surface in geometry.WALKABLE]; surface = next(surface for _, surface in triangles if surface in geometry.WALKABLE); edges = {}
+    require(np.ptp(np.vstack(floor)[:, 2]) < 1e-3, f'{name}: its floor is not level'); high = float(np.vstack(floor)[0, 2])
+    for corners in floor:
+        for index in range(3):
+            edges.setdefault(frozenset((tuple(corners[index]), tuple(corners[(index + 1) % 3]))), []).append(1)
+    sides = [tuple(edge) for edge, owners in edges.items() if len(owners) == 1 and len(edge) == 2]
+    if not all(abs(a[0] - b[0]) < 2e-3 or abs(a[1] - b[1]) < 2e-3 for a, b in sides):
+        return None
+    lines = [sorted({round(point[axis], 4) for side in sides for point in side if abs(side[0][axis] - side[1][axis]) < 2e-3}) for axis in (0, 1)]
+    for axis in (0, 1):  # two lines a hair apart are one
+        lines[axis] = [line for at, line in enumerate(lines[axis]) if not at or line - lines[axis][at - 1] > 2e-3]
+    boxes = [squared(polygon, lines) for polygon, _, _ in footprints]
+    xs, ys = (np.unique(np.round([*lines[axis], *(min(max(box[side], lines[axis][0]), lines[axis][-1]) for box in boxes for side in (axis, axis + 2))], 4)) for axis in (0, 1))
+    flat = np.array(floor)[:, :, :2]; a, b, c = flat[:, 0], flat[:, 1], flat[:, 2]; whole = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (b[:, 1] - a[:, 1]) * (c[:, 0] - a[:, 0])
+    a, b, c, whole = (one[np.abs(whole) > 1e-9] for one in (a, b, c, whole))
+
+    def kind(cell):
+        x, y = (xs[cell[0]] + xs[cell[0] + 1]) / 2, (ys[cell[1]] + ys[cell[1] + 1]) / 2
+        first = ((b[:, 0] - x) * (c[:, 1] - y) - (b[:, 1] - y) * (c[:, 0] - x)) / whole; second = ((c[:, 0] - x) * (a[:, 1] - y) - (c[:, 1] - y) * (a[:, 0] - x)) / whole
+        if not ((first >= -1e-6) & (second >= -1e-6) & (first + second <= 1 + 1e-6)).any():
+            return None
+        return any(box[0] < x < box[2] and box[1] < y < box[3] for box in boxes)
+    laid = walls.merged(SimpleNamespace(xs=xs, ys=ys), [(i, j) for i in range(len(xs) - 1) for j in range(len(ys) - 1)], kind); made = []
+    for (x0, y0, x1, y1), taken in laid:
+        for ring in (((x0, y0), (x1, y0), (x1, y1)), ((x0, y0), (x1, y1), (x0, y1))):
+            made.append(np.array([[x, y, high, walls.SOLID if taken else surface, 0.0] for x, y in ring], float))
+    near = lambda value, axis: next((line for line in lines[axis] if abs(line - value) <= 2e-3), value)
+    for corners, of in triangles:
+        if of not in geometry.WALKABLE:
+            moved = np.array([[near(x, 0), near(y, 1), z, of, 0.0] for x, y, z in corners], float)
+            if np.linalg.norm(np.cross(moved[1, :3] - moved[0, :3], moved[2, :3] - moved[0, :3])) > 1e-7:
+                made.append(moved)
+    mesh = joins.conformed(made); rows, _, nodes = geometry.parse(text); old = [node for node in nodes if node.kind == 'aabb']; require(len(old) == 1, f'{name} has one walkmesh')
+    rows[old[0].start:old[0].end + 1] = tile._walk_node(old[0].name[:-3] if old[0].name.endswith('_wm') else name, name, *mesh)
+    return '\n'.join(rows), tile.walk_text(name, mesh), boxes
+
+
+def cracks(text):
+    """[[x, y] of its middle] of each edge of a walked face that meets no other face's while there is floor on both sides,
+    where a player can stand: behind a couch it stops nobody; and of each that more than two faces meet at."""
+    floor = [corners for corners, surface in _walk(text) if surface in geometry.WALKABLE]; edges = {}
+    for corners in floor:
+        for index in range(3):
+            edges.setdefault(frozenset((tuple(corners[index]), tuple(corners[(index + 1) % 3]))), []).append(corners)
+    flat = np.array([corners for corners in floor if cuts._area(*corners) > 1e-6])[:, :, :2]; a, b, c = flat[:, 0], flat[:, 1], flat[:, 2]; whole = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (b[:, 1] - a[:, 1]) * (c[:, 0] - a[:, 0])
+
+    def covered(point):
+        first = ((b[:, 0] - point[0]) * (c[:, 1] - point[1]) - (b[:, 1] - point[1]) * (c[:, 0] - point[0])) / whole; second = ((c[:, 0] - point[0]) * (a[:, 1] - point[1]) - (c[:, 1] - point[1]) * (a[:, 0] - point[0])) / whole
+        return bool(((first >= -1e-7) & (second >= -1e-7) & (first + second <= 1 + 1e-7)).any())
+    found, stands = [], _stands(_floor(text))
+    for edge, owners in edges.items():
+        if len(owners) > 2 or len(edge) < 2:
+            found.append(np.array(list(edge))[:, :2].mean(0).round(2).tolist())
+        elif len(owners) == 1:
+            p, q = (np.array(point[:2]) for point in edge); length = np.hypot(*(q - p))
+            if length > 0.02:
+                across = np.array([p[1] - q[1], q[0] - p[0]]) / length * 0.01
+                at = [(p + (q - p) * share) for share in (0.1, 0.5, 0.9)]; stood = any(geometry.cell(spot, STEP) in stands for spot in at)
+                if stood and covered((p + q) / 2 + across) and covered((p + q) / 2 - across):
+                    found.append(((p + q) / 2).round(2).tolist())
+    return found
+
+
+def _stands(cells):
+    """The cells a player can stand on: those all round are walked too."""
+    return {cell for cell in cells if all((cell[0] + x, cell[1] + y) in cells for x in range(-ROUND, ROUND + 1) for y in range(-ROUND, ROUND + 1))}
+
+
+def _lanes(cells, openings, together=TOGETHER):
     """What is wrong with a room's walked floor: `cells` {(column, row)} of the grid over the whole room, `openings`
     the cells at its sides. A player stands where the cells all round are walked too. [] when nothing is."""
-    stands = {cell for cell in cells if all((cell[0] + x, cell[1] + y) in cells for x in range(-ROUND, ROUND + 1) for y in range(-ROUND, ROUND + 1))}; left = set(stands); biggest = set()
+    stands = _stands(cells); left = set(stands); biggest = set()
     while left:
         queue = [left.pop()]; piece = set(queue)
         while queue:
@@ -279,7 +399,7 @@ def _lanes(cells, openings):
                 if there in left:
                     left.discard(there); piece.add(there); queue.append(there)
         biggest = max(biggest, piece, key=len)
-    if not stands or len(biggest) < TOGETHER * len(stands):
+    if not stands or len(biggest) < together * len(stands):
         return [f'of {len(stands)} places to stand only {len(biggest)} can be reached from one another']
     near = {(x + dx, y + dy) for x, y in biggest for dx in range(-DOORWAY, DOORWAY + 1) for dy in range(-DOORWAY, DOORWAY + 1)}
     shut = sorted(set(openings) - near)
@@ -311,15 +431,26 @@ def made(room, spec, set_text, text_of, pieces, prefix):
         bare = _floor(text); props = [prop for prop in spec.get('props', ()) if prop.get('tile', 0) == index]
         full, cut = (terrain.renamed(one, {names['u']: names['f']}) for one in (text, wok))
         if props:
-            known = {prop['piece']: pieces[prop['piece']] for prop in props}
+            known = {prop['piece']: pieces[prop['piece']] for prop in props}; wrong = misplaced(props, known); require(not wrong, f'{names["f"]}: ' + '; '.join(wrong))
             full, _, walked, footprints = detail.place(full, names['f'], [placement(prop, known[prop['piece']], bare) for prop in props], None, dict(known), wok=cut)
-            cut = walked or cut; full = unshadowed(full, {node.name.lower() for node in geometry.parse(full)[2] if not detail.is_kit(node.name)} - _quiet(full))
-            floor = _floor(full); lost = sorted(bare - _floor(full, SLACK)); gained = sorted(floor - _floor(text, SLACK))
-            stray = [cell for cell in lost if not any(cuts.covers(polygon, ((cell[0] + 0.5) * STEP, (cell[1] + 0.5) * STEP), 0.02) for polygon, _, _ in footprints)]
+            boxes = []
+            if walked:  # its floor is laid again round the furniture, from the unfurnished tile's
+                laid = furnished_walk(terrain.renamed(text, {names['u']: names['f']}), names['f'], footprints)
+                if laid:
+                    lined, cut, boxes = laid; full = detail.with_walkmesh_of(full, lined)
+                else:
+                    cut, boxes = walked, [tuple(pick(point[axis] for point in polygon) for pick in (min, max) for axis in (0, 1)) for polygon, _, _ in footprints]
+            full = unshadowed(full, {node.name.lower() for node in geometry.parse(full)[2] if not detail.is_kit(node.name)} - _quiet(full))
+            torn = cracks(full); require(not torn, f'{names["f"]}: its walkmesh is cracked at {torn[:2]}, and nothing walks over a crack'); floor = _floor(full); lost = sorted(bare - _floor(full, SLACK)); gained = sorted(floor - _floor(text, SLACK))
+            stray = [cell for cell in lost if not any(box[0] - 0.02 <= (cell[0] + 0.5) * STEP <= box[2] + 0.02 and box[1] - 0.02 <= (cell[1] + 0.5) * STEP <= box[3] + 0.02 for box in boxes)]
             require(not stray and not gained, f'{names["f"]}: its walkmesh differs from the unfurnished room\'s elsewhere than under its furniture, at {(stray or gained)[:2]}')
             require(_rim(full) == rim, f'{names["f"]}: furniture stands at the tile\'s side')
         else:
             floor = bare
+        for name, one in ((names['u'], bare), (names['f'], floor)):
+            wrong = _lanes(one, (), WHOLE); require(not wrong, f'{name}: within the tile, ' + '; '.join(wrong))
+        for side in sorted({one[0] for one in rim} - outer):  # the game finds its way from tile to tile by whether they are open to one another at all
+            along = sorted(step for way, step in rim if way == side); require(all(b - a <= 2 for a, b in zip(along, along[1:])), f'{names["u"]}: it is open to the next tile at its {side} side in two places, and a creature would take the wrong one')
         floors['u'] |= _moved(bare, column, row); floors['f'] |= _moved(floor, column, row)
         place = {'w': lambda a: (-CELLS // 2, a), 'e': lambda a: (CELLS // 2 - 1, a), 's': lambda a: (a, -CELLS // 2), 'n': lambda a: (a, CELLS // 2 - 1)}
         openings |= _moved({place[side](along) for side, along in rim if side in outer}, column, row)

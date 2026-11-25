@@ -5762,6 +5762,10 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/merged.py"
     ],
+    "tools/tilekit/ceilings.py": [
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/material.py"
+    ],
     "tools/tilekit/client_settings.py": [],
     "tools/tilekit/commands.py": [
       "tools/shared_tools.py",
@@ -5913,6 +5917,7 @@
       "tools/headkit/design.py",
       "tools/tilekit/material.py"
     ],
+    "tools/tilekit/reduce_blender.py": [],
     "tools/tilekit/remesh.py": [
       "tools/tilekit/apply.py",
       "tools/tilekit/detail.py",
@@ -5938,14 +5943,20 @@
       "tools/tilekit/inventory.py"
     ],
     "tools/tilekit/rooms.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/tile.py",
+      "tools/tilekit/ceilings.py",
       "tools/tilekit/compiled.py",
       "tools/tilekit/cuts.py",
       "tools/tilekit/detail.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
+      "tools/tilekit/joins.py",
+      "tools/tilekit/reduce_blender.py",
       "tools/tilekit/strip.py",
       "tools/tilekit/terrain.py",
-      "tools/tilekit/unique.py"
+      "tools/tilekit/unique.py",
+      "tools/tilekit/walls.py"
     ],
     "tools/tilekit/shadows.py": [
       "tools/tilekit/apply.py",
@@ -6171,9 +6182,27 @@
       "tools/tilekit/__init__.py",
       "tools/tilekit/unique.py"
     ],
+    "tools/tilekit/test_walls.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/ceilings.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/joins.py",
+      "tools/tilekit/rooms.py",
+      "tools/tilekit/test_rooms.py",
+      "tools/tilekit/test_strip.py",
+      "tools/tilekit/walls.py"
+    ],
     "tools/tilekit/unique.py": [
       "tools/tilekit/compiled.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/walls.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/tile.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/joins.py",
+      "tools/tilekit/terrain.py",
+      "tools/tilekit/unique.py"
     ]
   },
   "unresolved": [],
@@ -6455,6 +6484,7 @@
     ],
     "tools/tilekit/rooms.py": [
       "srn_2da",
+      "srn_door",
       "srn_envprop",
       "srn_placeable",
       "srn_t_common"
@@ -6583,6 +6613,7 @@
     ],
     "tools/tilekit/test_rooms.py": [
       "srn_2da",
+      "srn_door",
       "srn_envprop",
       "srn_placeable",
       "srn_t_common",
@@ -6957,6 +6988,7 @@
     "tools/tilekit/test_sketch.py",
     "tools/tilekit/test_strip.py",
     "tools/tilekit/test_terrain.py",
-    "tools/tilekit/test_unique.py"
+    "tools/tilekit/test_unique.py",
+    "tools/tilekit/test_walls.py"
   ]
 }
