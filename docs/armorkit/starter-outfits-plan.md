@@ -302,6 +302,14 @@ the first design's image. Not run: a bake with a tinted or named channel (`bake.
   roughness map on one boot and a flat normal map on the other (`male-27-rough`) is prepared but not seen: the
   client's screen could not be grabbed twice ("screen grab failed").
 
+* **Boot gloss found (`male-28`, `belt-14`), 2026-11-25:** the game draws a tinted part by its roughness map and
+  ignores the material file's roughness number. Of two boots in one client run, the one given a map of
+  roughness 1 came out matte and the one with a flat normal map stayed wet. Every part's one roughness (0.8) is
+  now written as a small map (`texture.write_relief`); in the client the boots are leather and the trousers
+  calmer (`output/armorkit/street-casual/review/male-28.jpg`, realistic colours). Outfits baked before this
+  have the number alone and are glossier than meant until rebaked; accessories written through the same
+  function get the map on their next fit.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
