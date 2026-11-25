@@ -1,0 +1,8 @@
+// screens move: tools/tilekit/motion.py
+customshaderVS vslit
+customshaderFS srn_screen_fs
+texture0 moby_tankskinv2
+parameter float ScreenBox0 0.0000 0.4950 0.1950 0.6550
+parameter float ScreenHow0 2.0 0.91 48.0 0.85
+parameter float ScreenBox1 0.2000 0.4950 0.3950 0.6550
+parameter float ScreenHow1 1.0 1.00 55.3 0.85

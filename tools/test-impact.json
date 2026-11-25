@@ -5748,6 +5748,7 @@
       "tools/tilekit/lamps.py",
       "tools/tilekit/material.py",
       "tools/tilekit/merge.py",
+      "tools/tilekit/motion.py",
       "tools/tilekit/redraw.py",
       "tools/tilekit/remesh.py",
       "tools/tilekit/review.py",
@@ -5900,6 +5901,10 @@
     ],
     "tools/tilekit/merged.py": [
       "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/motion.py": [
+      "docs/placeables/screen-motion.json",
+      "docs/placeables/screens.json"
     ],
     "tools/tilekit/openings.py": [
       "tools/tilekit/detail.py",
@@ -6131,6 +6136,10 @@
       "tools/tilekit/__init__.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/merge.py"
+    ],
+    "tools/tilekit/test_motion.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/motion.py"
     ],
     "tools/tilekit/test_names.py": [
       "srn_tlk/allocations.json",
@@ -6520,6 +6529,12 @@
     "tools/tilekit/merge.py": [
       "srn_2da"
     ],
+    "tools/tilekit/motion.py": [
+      "srn_envprop",
+      "srn_placeable",
+      "srn_t_udp1",
+      "srn_t_udp2"
+    ],
     "tools/tilekit/review.py": [
       "srn_2da",
       "srn_door",
@@ -6638,6 +6653,9 @@
       "srn_t_tbx78",
       "srn_t_tfb01",
       "srn_t_udp2"
+    ],
+    "tools/tilekit/test_motion.py": [
+      "srn_placeable"
     ],
     "tools/tilekit/test_names.py": [
       "srn_2da",
@@ -7036,6 +7054,7 @@
     "tools/tilekit/test_material.py",
     "tools/tilekit/test_merge.py",
     "tools/tilekit/test_merge_interior.py",
+    "tools/tilekit/test_motion.py",
     "tools/tilekit/test_names.py",
     "tools/tilekit/test_openings.py",
     "tools/tilekit/test_perf.py",

@@ -798,6 +798,7 @@
   "plateox2": {"route": "upscale", "size": [1024, 512], "plain": true, "doubled": 1},
   "plc_bed1": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
   "plc_chair1": {"route": "upscale", "size": [256, 256], "plain": true, "doubled": 1},
+  "plc_desk1": {"route": "upscale", "size": [1024, 1024], "plain": true, "doubled": 2},
   "plc_hypersc01": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
   "plc_mantab1": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
   "plc_mantab2": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},

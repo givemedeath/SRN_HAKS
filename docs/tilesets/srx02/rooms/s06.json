@@ -1,0 +1,172 @@
+{
+ "id": "s06",
+ "category": "Security",
+ "name": "Security Operations Center",
+ "note": "Floorplan S06: monitoring stations down both sides, a dispatch console before the wall display, servers.",
+ "textures": {
+  "shp02_wall03": "tbx78_ceiling"
+ },
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.8,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     3.8,
+     3.8
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tbx78_floor01",
+    "wall": "nac_sheet5",
+    "ceiling": "srx02_clgtile",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [],
+   "zones": [
+    {
+     "rect": [
+      0,
+      9.0,
+      10,
+      10
+     ],
+     "wall": "udp2_w_sid2",
+     "repeat": {
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    3.4,
+    2.6
+   ],
+   "under": 3.8,
+   "size": [
+    0.16,
+    2.0
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    3.4,
+    5.4
+   ],
+   "under": 3.8,
+   "size": [
+    0.16,
+    2.0
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    6.6,
+    2.6
+   ],
+   "under": 3.8,
+   "size": [
+    0.16,
+    2.0
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    6.6,
+    5.4
+   ],
+   "under": 3.8,
+   "size": [
+    0.16,
+    2.0
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "spot",
+   "at": [
+    2.6,
+    8.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.0,
+    8.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "spot",
+   "at": [
+    7.4,
+    8.4
+   ],
+   "under": 3.8
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    1.4
+   ],
+   "under": 3.8,
+   "size": [
+    2.0,
+    0.16
+   ],
+   "drop": 0.3
+  }
+ ],
+ "props": [
+  {"piece": "phod_screen02", "at": [5.0, 9.665, 0.0], "faces": "s"},
+  {"piece": "p_computerrack01", "at": [0.8, 9.277, 0.0], "faces": "s"},
+  {"piece": "p_computerrack01", "at": [9.2, 9.277, 0.0], "faces": "s"},
+  {"piece": "ek_ad_console", "at": [1.054, 6.598, 0.0], "faces": "e"},
+  {"piece": "ek_ad_console", "at": [1.054, 3.498, 0.0], "faces": "e"},
+  {"piece": "ek_ad_console", "at": [8.946, 6.601, 0.0], "faces": "w"},
+  {"piece": "ek_ad_console", "at": [8.946, 3.502, 0.0], "faces": "w"},
+  {"piece": "plc_desk2", "at": [4.999, 5.613, 0.0], "faces": "s"},
+  {"piece": "udp2-p-06", "at": [4.5, 5.55, 0.0], "faces": "n"},
+  {"piece": "udp2-p-06", "at": [5.5, 5.55, 0.0], "faces": "n"},
+  {"piece": "udp2-p-40", "at": [7.94, 0.81, 0.0], "faces": "n"},
+  {"piece": "udp2-p-40", "at": [8.64, 0.81, 0.0], "faces": "n"},
+  {"piece": "udp2-p-40", "at": [9.34, 0.81, 0.0], "faces": "n"},
+  {"piece": "ek_pt_rack", "at": [0.801, 0.87, 0.0], "faces": "n"},
+  {"piece": "ek_pt_rack", "at": [1.901, 0.87, 0.0], "faces": "n"}
+ ],
+ "placeLater": [{"what": "the stations and the dispatch console as terminals"}, {"what": "server racks as things to use"}, {"what": "a camera over the way in"}]
+}

@@ -47,6 +47,11 @@ name were redrawn for the 2070s.
 - `screens.json`: the twenty device pictures with a screen in them, and `screen-pictures.json`: what those screens show,
   each drawn alone by the Qwen model from a blank picture (`tilekit screens --draw`) and laid into its device (`tilekit
   screens`). Screens drawn in code, and device pictures redrawn whole, were tried first and were not good enough.
+- `screen-motion.json`: what moves on the lit screens (user: animate all the display screens if possible). `tilekit motion`
+  writes a material of the picture's own name beside it, and `srn_screen_fs.shd` moves what the still picture shows: an
+  interface's cells and scan bar, a trace's sweep, a broadcast's drift and tears, a map's rings, a menu's chosen row.
+  Envkit props move the blue and green light of their illumination map (`srn_screenp_fs.shd`); amber, white and red are lamps.
+  A flipbook of each would not fit the pack. Dark screens (`udp2_p_tv`, `monitor`, `monitor2`) are off and stay still.
 - The game plays a flipbook (`proceduretype cycle` in its TXI) only from a TGA; eight were DDS and stood still, so they are
   TGAs now. Two are television screens, made of eight of the contents (`rooms.flipbook`): `display`, whose televisions
   show it upside down, so each frame is turned over, and `fxpa_screen`. Both play when the placeable is switched on.

@@ -1,0 +1,188 @@
+{
+ "id": "s08",
+ "category": "Security",
+ "name": "Holding Cells",
+ "note": "Floorplan S08: three barred cells and the guard's desk before them.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     3.4,
+     3.4
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "nac_sheet5",
+    "wall": "tfb_subwayf1",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      5.2
+     ],
+     "to": [
+      10,
+      5.2
+     ],
+     "doors": [
+      {
+       "at": 1.7,
+       "width": 1.2
+      },
+      {
+       "at": 5.0,
+       "width": 1.2
+      },
+      {
+       "at": 8.3,
+       "width": 1.2
+      }
+     ],
+     "bars": "tfb01__metal01"
+    },
+    {
+     "from": [
+      3.4,
+      5.1
+     ],
+     "to": [
+      3.4,
+      10
+     ]
+    },
+    {
+     "from": [
+      6.6,
+      5.1
+     ],
+     "to": [
+      6.6,
+      10
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      5.2,
+      10,
+      10
+     ],
+     "floor": "tfb_subwayf1",
+     "repeat": {
+      "floor": 2.5
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    2.0,
+    2.7
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.16
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    2.7
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.16
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    8.0,
+    2.7
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.16
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "dome",
+   "at": [
+    1.7,
+    7.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    5.0,
+    7.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    8.3,
+    7.6
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "shp_cot", "at": [0.686, 8.404, 0.0], "faces": "s"},
+  {"piece": "p_toiletmtl01", "at": [2.65, 9.253, 0.0], "faces": "s"},
+  {"piece": "p_sinkmtl01", "at": [2.93, 7.6, 0.0], "faces": "w"},
+  {"piece": "shp_cot", "at": [3.986, 8.404, 0.0], "faces": "s"},
+  {"piece": "p_toiletmtl01", "at": [5.85, 9.253, 0.0], "faces": "s"},
+  {"piece": "p_sinkmtl01", "at": [6.13, 7.6, 0.0], "faces": "w"},
+  {"piece": "shp_cot", "at": [7.186, 8.404, 0.0], "faces": "s"},
+  {"piece": "p_toiletmtl01", "at": [9.15, 9.253, 0.0], "faces": "s"},
+  {"piece": "p_sinkmtl01", "at": [9.43, 7.6, 0.0], "faces": "w"},
+  {"piece": "udp2-p-79", "at": [1.531, 2.19, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [0.68, 2.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-12", "at": [0.574, 3.599, 0.0], "faces": "e"},
+  {"piece": "udp2-p-12", "at": [0.574, 4.05, 0.0], "faces": "e"},
+  {"piece": "ek_isa_cabinet", "at": [9.224, 1.2, 0.0], "faces": "w"},
+  {"piece": "purp_bench", "at": [9.385, 3.4, 0.0], "faces": "w"},
+  {"piece": "udp2-p-17", "at": [1.601, 0.254, 0.0], "faces": "n"},
+  {"piece": "ek_ad_terminal", "at": [8.199, 0.633, 0.0], "faces": "n"}
+ ],
+ "placeLater": [{"what": "barred doors of the cells"}, {"what": "the desk and cabinet as containers; the terminal as a terminal"}, {"what": "a camera before the cells"}]
+}

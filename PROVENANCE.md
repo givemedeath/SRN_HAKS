@@ -2569,3 +2569,8 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
   `tools/tilekit/screens.py` lays them in. They replace screenshots of real desktops, programs and broadcasts; makers'
   logos beside them are painted out. The imported pictures stay in the history (`before` in each list).
 - The operator asked for the pass and for all placeables to be in it.
+- Screens that move (2026-11-25, the operator asked for all display screens to be animated): the shaders
+  `srn_placeable/srn_screen.shd`, `srn_screen_fs.shd` and `srn_screenp_fs.shd` are this project's, written with Claude
+  from the game's own `fslit` and `fslit_sm_nm`; the materials beside the pictures (`<picture>.mtr`) and the lines added
+  to five `srn_envprop` materials are written by `tools/tilekit/motion.py` from `docs/placeables/screen-motion.json`.
+  No picture changes.

@@ -444,11 +444,34 @@ Home batch's, no earlier number moved.
   boards, wall TVs and showers 8 to 20 cm off their walls, two server racks 8 cm over the floor, a shelf, a piano and three lamps
   2 to 4 cm in it and a bed 2 cm over it. `rooms.unrested` and `rooms.unhung` now refuse such props.
 - **Views:** `review-office.json` (bird's eye and eye level; `output/tilekit/office4`).
+- **Gate passed (user, 2026-11-25: "Yes, do Security").**
 - **When main is merged (PR 203, from the walkmesh session, 2026-11-25):** that branch is repairing cracked walkmeshes of
   borrowed tiles (flagged: tfb01 n01_09, n01_13, n01_14, r03_02, r06_01, r07_01, u17_01, v17_01; udp2 a04_06, a04_07, a05_06,
   a05_07; nac01 d01_05). Keep the repaired walkmeshes, refresh `docs/tilesets/{tfb01,udp2,nac01}/walkmesh.json` and the
   other pinned hashes of those tiles, and name `srn_t_srx02` in `test_floor_edges.py` PACKS. 19 tfb01 tiles (TILE548-566)
   are reported to have floor in the model and no .wok in the pack.
+
+## Stage 8, Security batch (user, 2026-11-25)
+
+S02 barracks block, S04 secured armory (2x1 each), S05 guardroom checkpoint, S06 security operations center, S07 locker
+room and S08 holding cells; S01 and S03 were pilots, so the Security floorplans are done. 16 tiles numbered after the
+Office batch's, no earlier number moved.
+- **Bars:** a drawn wall with `bars` (a texture) is a row of bars with rails and posts: seen through, walked through
+  nowhere but at its doorways (`walls.barred`). The cells' fronts are.
+- **One way to a tile:** two doorways in a wall on a tile seam are refused (a creature would take the wrong one), so the
+  armory's bays lead one into the next instead of two ways out of the vestibule.
+- **Not as their names say:** `pkt_mdetect` (a metal detector) is a post with no way through, `ek_ad_desk` is a company's
+  reception, `shp_view08` is blank. The checkpoint has ropes and a scanner terminal before its portal, the operations
+  center `phod_screen02`, a floor plan. Still missing: a walk-through scanner, a cell door, a security camera whose mount is known.
+- **Screens move (user: animate all the display screens if possible):** `docs/placeables/README.md`, `screen-motion.json`.
+- **Walked** by a Human and a Troll, 112 points each through every room, doorway and aisle: all reached. (One point first
+  stood on the locker room's lockers and was moved; the move to it was refused, not the room.)
+- **A prop's weak picture:** the operations center's floor-plan display (`phod_screen02`) is housed in `shp02_wall03`, too
+  coarse and shared by name with `srn_t_shp02`, so the room draws `tbx78_ceiling` there instead (a spec's `textures` now
+  reach its baked props).
+- **Triangles** a furnished tile: 8.7k to 36.6k, under the pilots' 39.6k (the vault bays had 41.6k; a crate and a shelf came out).
+- **Toolset:** all six furnished rooms laid a quarter turn, saved and read back.
+- **Views:** `review-security.json` (bird's eye and eye level; `output/tilekit/sec2`).
 
 ## Work order
 

@@ -9,8 +9,8 @@ models go to `sources/<pack>/` and are compiled as the other tiles are; `merge` 
 A room's spec, `docs/tilesets/<set>/rooms/<id>.json`:
 {id, category, name: what the palette shows, "Prefab: <category>: <name>" and the same with ", furnished"
   (`SHOWN`: user, 2026-11-25);
- shell: {set, group}, or {set, box} for one drawn here (`walls`); textures: {a texture of the shell: what it draws
-   instead}; ceiling: {texture, height, repeat (metres a picture covers)};
+ shell: {set, group}, or {set, box} for one drawn here (`walls`); textures: {a texture of the shell or of a
+   baked prop: what it draws instead}; ceiling: {texture, height, repeat (metres a picture covers)};
  unshadowed: [textures of the room itself that cast no shadow];
  faces: [{tile, node, texture, corners: [bottom left, bottom right, top right, top left, as seen from the room],
    screen: {texture, box: [left, top, right, bottom] of the picture, of: the picture's size}}] a built-in piece's face
@@ -515,6 +515,7 @@ def made(room, spec, set_text, text_of, pieces, prefix):
                     boxes.extend(tuple(pick(point[axis] for point in polygon) for pick in (min, max) for axis in (0, 1)) for polygon, _, _ in footprints); return cuts.cut_walkmesh(new, uncut, footprints)
                 boxes.extend(laid[2]); return detail.with_walkmesh_of(new, laid[0]), laid[1]
             full, _, walked, _ = detail.place(full, names['f'], [placement(prop, known[prop['piece']], bare) for prop in props], None, dict(known), wok=cut, lay=lay); cut = walked or cut
+            full = terrain.retextured(full, {old.lower(): new for old, new in spec.get('textures', {}).items()})  # a prop's weak picture swapped
             full = unshadowed(full, {node.name.lower() for node in geometry.parse(full)[2] if not detail.is_kit(node.name)} - _quiet(full))
             torn = cracks(full); require(not torn, f'{names["f"]}: its walkmesh is cracked at {torn[:2]}, and nothing walks over a crack'); floor = _floor(full); lost = sorted(bare - _floor(full, SLACK)); gained = sorted(floor - _floor(text, SLACK))
             stray = [cell for cell in lost if not any(box[0] - 0.02 <= (cell[0] + 0.5) * STEP <= box[2] + 0.02 and box[1] - 0.02 <= (cell[1] + 0.5) * STEP <= box[3] + 0.02 for box in boxes)]
@@ -625,7 +626,7 @@ def drawn_by(spec):
     """The textures a room drawn here (`box`) names, and those of its lamps and beams."""
     box = spec['shell'].get('box', {}); said = [value for looks in [box.get('look', {})] + box.get('zones', []) for value in looks.values()]
     lamps = {ceilings.HOUSING, ceilings.DIFFUSER} if spec.get('lamps') else set()
-    return {value for value in said if isinstance(value, str)} | lamps | {beam['texture'] for beam in spec.get('beams', ())}
+    return {value for value in said if isinstance(value, str)} | lamps | {beam['texture'] for beam in spec.get('beams', ())} | {wall['bars'] for wall in box.get('walls', ()) if 'bars' in wall}
 
 
 def textured(repo, room, spec):

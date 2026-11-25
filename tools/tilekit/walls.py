@@ -5,11 +5,13 @@ apartment, a house). `rooms` uses it where a spec's shell says `box` in place of
    takes, row by row from the south-west], height (of the ceiling), repeat: {floor, wall, ceiling},
    look: {floor, wall, ceiling, base, crown, trim, top: textures},
    openings: [{side: n, e, s or w, at: metres along that side, width, high}],
-   walls: [{from: [x, y], to: [x, y], doors: [{at: metres from `from` to the doorway's middle, width, high}]}],
+   walls: [{from: [x, y], to: [x, y], doors: [{at: metres from `from` to the doorway's middle, width, high}],
+           bars: the texture of bars that stand there in the wall's place}],
    zones: [{rect: [x0, y0, x1, y1], floor, wall, base, crown, repeat: {floor, wall: [across, up]}}]}}
 
 in metres from the room's south-west corner. Inner walls run along x or y and stand on their line's middle. A zone's
-looks take the place of the box's own on the floor it covers and on the walls that face it."""
+looks take the place of the box's own on the floor it covers and on the walls that face it. Bars run from floor to
+ceiling, are seen through, stop whoever walks as a wall does, and have no lintel or casing at their doorways."""
 import numpy as np
 
 from . import geometry, joins, require, terrain
@@ -20,10 +22,12 @@ OUTER = INNER = 0.2  # metres: the outer walls stand where the office's rooms ha
 TOP = 4.0  # metres: the walls' black tops, level with the source sets' own
 SOLID, BLOCK = 7, 5.0  # the walk surface of a wall, and how high it stands in the walkmesh (the office's)
 BASE, BASE_OUT, CROWN, CROWN_OUT, CASING, CASING_OUT = 0.14, 0.03, 0.12, 0.05, 0.1, 0.05
+BAR, APART, RAIL, RAILS, POST = 0.03, 0.13, 0.05, (0.1, 1.15, 2.2), 0.08  # metres: bars, from one to the next, the rails across them and their heights, the posts at their ends
 SPAN = 2.5  # metres: no drawn quad is wider
 WAYS = {'e': (1, 0), 'n': (0, 1), 'w': (-1, 0), 's': (0, -1)}
 BACK = {'e': 'w', 'w': 'e', 'n': 's', 's': 'n'}
 GROUP = {'e': 1, 'n': 2, 'w': 4, 's': 8, 'u': 16, 'd': 32}  # a smoothing group each way, so no corner is rounded
+SEEN, SHUT = ('open', 'bars'), ('wall', 'bars')  # what is drawn as room, and what nobody walks through
 DOOR = {'high': 2.4, 'width': 1.4}
 PATHS = {'': ('T', 0), 'n': ('N', 0), 'e': ('N', 270), 's': ('N', 180), 'w': ('N', 90), 'ns': ('L', 0), 'ew': ('L', 90), 'sw': ('H', 0), 'es': ('H', 90), 'en': ('H', 180), 'nw': ('H', 270),
          'nsw': ('I', 0), 'esw': ('I', 90), 'ens': ('I', 180), 'enw': ('I', 270), 'ensw': ('A', 0)}
@@ -42,7 +46,7 @@ class Plan:
         require(len(box['like']) == self.rows * self.columns, f'{self.name}: `like` names a source tile for each tile of the room')
         wide, deep = self.wide, self.deep = self.columns * TILE, self.rows * TILE; self.height = box.get('height', TOP); self.zones = box.get('zones', [])
         require(self.height <= TOP, f'{self.name}: its ceiling is over its walls')
-        self.solid = [(0, 0, wide, OUTER), (0, deep - OUTER, wide, deep), (0, 0, OUTER, deep), (wide - OUTER, 0, wide, deep)]; self.gaps = []
+        self.solid = [(0, 0, wide, OUTER), (0, deep - OUTER, wide, deep), (0, 0, OUTER, deep), (wide - OUTER, 0, wide, deep)]; self.gaps = []; self.bars = []
         for one in box.get('openings', ()):
             low, high = one['at'] - one['width'] / 2, one['at'] + one['width'] / 2
             rect = {'s': (low, 0, high, OUTER), 'n': (low, deep - OUTER, high, deep), 'w': (0, low, OUTER, high), 'e': (wide - OUTER, low, wide, high)}[one['side']]
@@ -51,21 +55,29 @@ class Plan:
             start, end = tuple(wall['from']), tuple(wall['to']); along = 0 if start[1] == end[1] else 1
             require(start[1 - along] == end[1 - along] and start[along] < end[along], f'{self.name}: the wall from {start} to {end} runs along neither x nor y, or backwards')
             across = start[1 - along]; rect = lambda low, high: (low, across - INNER / 2, high, across + INNER / 2) if along == 0 else (across - INNER / 2, low, across + INNER / 2, high)
-            self.solid.append(rect(start[along], end[along]))
+            ways_in = []
             for door in wall.get('doors', ()):
                 door = {**DOOR, **door}; low, high = (start[along] + door['at'] + way * door['width'] / 2 for way in (-1, 1))
                 require(low - CASING >= start[along] - 1e-9 and high + CASING <= end[along] + 1e-9, f'{self.name}: a doorway at {door["at"]} leaves the wall from {start} to {end}')
-                self.gaps.append((rect(low, high), door['high']))
-        rects = self.solid + [rect for rect, _ in self.gaps] + [tuple(zone['rect']) for zone in self.zones]
+                ways_in.append((low, high, door['high']))
+            if wall.get('bars'):
+                for low, high in zip([start[along], *sorted(high for _, high, _ in ways_in)], [*sorted(low for low, _, _ in ways_in), end[along]]):
+                    self.bars.append((rect(low, high), wall['bars']))
+            else:
+                self.solid.append(rect(start[along], end[along])); self.gaps += [(rect(low, high), top) for low, high, top in ways_in]
+        rects = self.solid + [rect for rect, _ in self.gaps + self.bars] + [tuple(zone['rect']) for zone in self.zones]
         lines = lambda axis, size, count: np.unique(np.round([0, size] + [index * TILE for index in range(count)] + [min(max(rect[side], 0), size) for rect in rects for side in (axis, axis + 2)], 4))
         self.xs, self.ys = lines(0, wide, self.columns), lines(1, deep, self.rows)
         self.cells = {(i, j): self.at((self.xs[i] + self.xs[i + 1]) / 2, (self.ys[j] + self.ys[j + 1]) / 2) for i in range(len(self.xs) - 1) for j in range(len(self.ys) - 1)}
 
     def at(self, x, y):
-        """('gap', its lintel), ('wall', None) or ('open', None) of a point."""
+        """('gap', its lintel), ('wall', None), ('bars', their texture) or ('open', None) of a point."""
         inside = lambda rect: rect[0] < x < rect[2] and rect[1] < y < rect[3]
         lintel = next((high for rect, high in self.gaps if inside(rect)), None)
-        return ('gap', lintel) if lintel else ('wall' if any(map(inside, self.solid)) else 'open', None)
+        if lintel or any(map(inside, self.solid)):
+            return ('gap', lintel) if lintel else ('wall', None)
+        bars = next((texture for rect, texture in self.bars if inside(rect)), None)
+        return ('bars', bars) if bars else ('open', None)
 
     def looks(self, cell):
         """The looks at a cell: the last zone's over the box's own."""
@@ -167,18 +179,31 @@ def merged(plan, cells, key):
     return [((plan.xs[i0], plan.ys[j0], plan.xs[i1], plan.ys[j1]), value) for i0, j0, i1, j1, value in out]
 
 
+def barred(out, texture, rect, height):
+    """Bars, the rails across them and the posts at their ends, along the middle of a rectangle."""
+    along = 0 if rect[2] - rect[0] > rect[3] - rect[1] else 1; low, high, middle = rect[along], rect[along + 2], (rect[1 - along] + rect[3 - along]) / 2
+    part = lambda first, last, thick: (first, middle - thick / 2, last, middle + thick / 2) if along == 0 else (middle - thick / 2, first, middle + thick / 2, last)
+    for start in (low, high - POST):
+        out.block(texture, part(start, start + POST, POST), 0.0, height)
+    count = max(1, round((high - low - 2 * POST) / APART)); step = (high - low - 2 * POST) / count
+    for number in range(1, count):
+        at = low + POST + number * step; out.block(texture, part(at - BAR / 2, at + BAR / 2, BAR), 0.0, height)
+    for foot in (*RAILS, height - 0.1 - RAIL):
+        out.block(texture, part(low + POST, high - POST, RAIL), foot, foot + RAIL, lid=True); out.flat(texture, part(low + POST, high - POST, RAIL), foot + RAIL)
+
+
 def drawn(plan, index):
     """What the tile draws."""
     x0, y0 = plan.corner(index); out = Drawn((x0, y0)); cells = plan.of_tile(index); repeat = lambda cell, what: plan.looks(cell)['repeat'][what]; kind = lambda cell: plan.kind(cell)[0]
     for rect, (texture, across) in merged(plan, cells, lambda cell: None if kind(cell) == 'wall' else (plan.looks(cell)['floor'], repeat(cell, 'floor'))):
         out.flat(texture, rect, 0.0, repeat=across)
-    for rect, (texture, across) in merged(plan, cells, lambda cell: (plan.looks(cell)['ceiling'], repeat(cell, 'ceiling')) if kind(cell) == 'open' else None):
+    for rect, (texture, across) in merged(plan, cells, lambda cell: (plan.looks(cell)['ceiling'], repeat(cell, 'ceiling')) if kind(cell) in SEEN else None):
         out.flat(texture, rect, plan.height, up=False, repeat=across)
-    for rect, texture in merged(plan, cells, lambda cell: None if kind(cell) == 'open' else plan.box['look']['top']):
+    for rect, texture in merged(plan, cells, lambda cell: None if kind(cell) in SEEN else plan.box['look']['top']):
         out.flat(texture, rect, TOP, span=TILE)
     runs = {}  # the faces that look the same way on one line and are drawn alike
     for cell in cells:
-        if kind(cell) == 'open':
+        if kind(cell) in SEEN:
             a, b, c, d = plan.span(cell); looks = plan.looks(cell)
             for way in WAYS:
                 there, lintel = plan.kind(cell, way)
@@ -201,6 +226,8 @@ def drawn(plan, index):
                     origin = y0 if way in 'ew' else x0; first, second = max(low - proud * round_[0], origin), min(high + proud * round_[1], origin + TILE); sides = sorted((line, line + sign * proud))
                     out.wall(look, way, line + sign * proud, first, second, foot, head, (1.0, 1.0))
                     out.flat(look, (sides[0], first, sides[1], second) if way in 'ew' else (first, sides[0], second, sides[1]), head if foot == 0.0 else foot, up=foot == 0.0)
+    for rect, texture in merged(plan, cells, lambda cell: plan.kind(cell)[1] if kind(cell) == 'bars' else None):
+        barred(out, texture, rect, plan.height)
     for (a, b, c, d), lintel in plan.gaps:  # a casing round each doorway, proud of its wall on both sides
         if a - CASING < x0 + TILE and c + CASING > x0 and b - CASING < y0 + TILE and d + CASING > y0:  # one on a tile's side is drawn by both tiles, each its own part
             held = lambda *rect: (max(rect[0], x0), max(rect[1], y0), min(rect[2], x0 + TILE), min(rect[3], y0 + TILE)); over, by = CASING_OUT, CASING
@@ -225,13 +252,13 @@ def walked(plan, index, surface):
 
     def key(cell):  # cells on a seam keep their corners: the next tile's has the same
         a, b, c, d = plan.span(cell); seam = lambda low, high, origin, size: (low == origin and origin > 0) or (high == origin + TILE and high < size)
-        return plan.kind(cell)[0] == 'wall', cell[1] if seam(a, c, x0, plan.wide) else None, cell[0] if seam(b, d, y0, plan.deep) else None
+        return plan.kind(cell)[0] in SHUT, cell[1] if seam(a, c, x0, plan.wide) else None, cell[0] if seam(b, d, y0, plan.deep) else None
     for (a, b, c, d), (solid, *_) in merged(plan, cells, key):
         quad([(x, y, BLOCK if solid else 0.0) for x, y in ((a, b), (c, b), (c, d), (a, d))], SOLID if solid else surface)
     for cell in cells:
         a, b, c, d = plan.span(cell)
         for way, (p, q) in (('e', ((c, b), (c, d))), ('w', ((a, d), (a, b))), ('n', ((c, d), (a, d))), ('s', ((a, b), (c, b)))):
-            if plan.kind(cell)[0] != 'wall' and plan.kind(cell, way)[0] == 'wall':
+            if plan.kind(cell)[0] not in SHUT and plan.kind(cell, way)[0] in SHUT:
                 quad([(*q, 0.0), (*p, 0.0), (*p, BLOCK), (*q, BLOCK)], SOLID)
     return joins.conformed(triangles)
 

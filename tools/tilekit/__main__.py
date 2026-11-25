@@ -275,6 +275,7 @@ def main(arguments=None):
     drawn.add_argument('--out', type=Path, help='the folder the pictures are kept in; `material` takes it as --redrawn')
     drawn.add_argument('--enlarged', type=Path, help='the folder `enlarge` filled'); drawn.add_argument('--redrawn', type=Path, help='the folder `redraw` filled, for those laid over a redrawn picture')
     drawn.add_argument('--only', help='only these textures, comma separated'); drawn.add_argument('--stock', type=Path); drawn.add_argument('--repo', type=Path, default=REPO)
+    moved = commands.add_parser('motion', help='write the materials that move the lit screens of docs/placeables/screen-motion.json'); moved.add_argument('--repo', type=Path, default=REPO)
     six = commands.add_parser('redraw', help='draw the textures of a redraw list again with an image generator, on the layout they have')
     six.add_argument('--spec', required=True, type=Path, help='the tileset\'s redraw list (docs/tilesets/<tileset>/redraw.json)')
     six.add_argument('--out', required=True, type=Path, help='the folder the redrawn pictures are kept in')
@@ -378,6 +379,9 @@ def main(arguments=None):
             return lamps_command(chosen)
         if chosen.command == 'screens':
             return screens_command(chosen)
+        if chosen.command == 'motion':
+            from . import motion
+            print(json.dumps({'materials': motion.build(chosen.repo)})); return 0
         if chosen.command == 'enlarge':
             return enlarge_command(chosen)
         if chosen.command == 'redraw':

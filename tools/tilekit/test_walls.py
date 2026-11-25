@@ -4,6 +4,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import numpy as np
+
 from tools.tilekit import ceilings, geometry, joins, rooms, walls
 from tools.tilekit.test_rooms import PIECES, piece
 from tools.tilekit.test_strip import box as block
@@ -33,6 +35,19 @@ class Walls(unittest.TestCase):
 
     def test_a_zone_s_look_is_on_its_own_floor(self):
         plan = walls.Plan(SPEC); self.assertIn('tiles', walls.drawn(plan, 1).by); self.assertNotIn('wood', walls.drawn(plan, 1).by); self.assertIn('wood', walls.drawn(plan, 0).by)
+
+    def test_bars_are_seen_through_and_not_walked_through(self):
+        wall = {'from': [0, 5], 'to': [10, 5], 'doors': [{'at': 2.0, 'width': 1.2}]}; made = {}
+        for kind in ('wall', 'bars'):
+            spec = {**SPEC, 'shell': {'set': 'a', 'box': {**BOX, 'rows': 1, 'columns': 1, 'like': [1], 'zones': [], 'walls': [wall if kind == 'wall' else {**wall, 'bars': 'iron'}]}}}
+            text = walls.shell(LIKE, 'm_cell_0', spec, 0)[0]; plan = walls.Plan(spec); made[kind] = sum(abs(joins.flat_area(one)) for one in joins.bake(text)[1] if int(one[0, 3]) == 9), walls.drawn(plan, 0).by
+            self.assertEqual(rooms.cracks(text), []); self.assertEqual('iron' in rooms.drawn_by(spec), kind == 'bars'); self.assertEqual(plan.at(1.0, 5.0)[0], kind); self.assertEqual(plan.at(2.0, 5.0)[0], 'gap' if kind == 'wall' else 'open')
+        self.assertAlmostEqual(made['wall'][0], made['bars'][0], places=6); self.assertIn('iron', made['bars'][1]); self.assertNotIn('iron', made['wall'][1])
+
+        def area(drawn):
+            verts, faces = drawn['wood']; points = [np.array(point) for point, _ in verts]
+            return sum(abs(np.cross(points[b] - points[a], points[c] - points[a])[2]) / 2 for a, b, c in (face[:3] for face in faces))
+        self.assertAlmostEqual(area(made['bars'][1]) - area(made['wall'][1]), 0.2 * (9.6 - 1.2), places=4)  # the floor runs under them
 
     def test_a_doorway_that_leaves_its_wall_and_a_wall_askew(self):
         for wall, wanted in (({'from': [0, 5], 'to': [4, 5], 'doors': [{'at': 3.9}]}, 'leaves the wall'), ({'from': [0, 5], 'to': [4, 6]}, 'neither x nor y')):
