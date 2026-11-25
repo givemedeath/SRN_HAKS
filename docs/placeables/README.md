@@ -33,14 +33,22 @@ named one of those now shows under the new category of that number.
 
 ## Pictures made anew
 
-The rooms draw old placeables at eye level, so the pictures too coarse for that were made anew (user, 2026-11-25), and
-the computer screens that showed a real desktop, program or maker's name were redrawn for the 2070s.
+The rooms draw old placeables at eye level, so the pictures too coarse for that were made anew, first those of the rooms,
+then every one a named placeable draws (user, 2026-11-25), and the screens that showed a real desktop, program or maker's
+name were redrawn for the 2070s.
 - `redraw.json`: what the local Qwen edit model drew, on the layout each picture had (`tilekit redraw --bindings`). A
-  `blank` box is filled before the model sees it, so an old screen or logo is not copied.
+  `blank` box is filled before the model sees it, so an old screen or logo is not copied. A redraw that came back in other
+  colours has `recolour` (the old picture's broad colours), one whose sides no longer met has `join` (`pictures.py`); nine
+  whose pattern changed are enlarged instead.
 - `materials.json`: the size each goes into its pack at, and the pictures enlarged only (`tilekit enlarge`): atlases of
   small parts, where a redraw would move the parts. `left` says which weak ones stay and why.
-- They go in as plain DDS pictures under their own names, at 512 or 1024 pixels, so every placeable that uses one is
-  changed, not only the rooms.
+- `enlarged.json`: the rest of the weak pictures, enlarged on shared sheets (`tilekit enlarge --sheets`, `sheets.py`), and
+  under `left` those that are not touched (drawn by a tile pack, a material of the same name, fine enough) and why.
+- `screens.json`: the twenty device pictures with a screen in them, and `screen-pictures.json`: what those screens show,
+  each drawn alone by the Qwen model from a blank picture (`tilekit screens --draw`) and laid into its device (`tilekit
+  screens`). Screens drawn in code, and device pictures redrawn whole, were tried first and were not good enough.
+- They go in as plain DDS pictures under their own names, so every placeable that uses one is changed, not only the rooms.
+  A standard DDS holds its bottom row first, as the game reads it: a viewer shows it upside down.
 
-`python -B -m tools.tilekit material --spec docs/placeables/materials.json --out <folder> --enlarged <folder> --redrawn
+`python -B -m tools.tilekit material --spec docs/placeables/<list>.json --out <folder> --enlarged <folder> --redrawn
 <folder> ...` makes them again; `tools/tilekit/texels.py` finds the weak ones.

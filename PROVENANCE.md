@@ -2559,3 +2559,13 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
   there were named by the project from the row's label and a picture of the piece. The categories
   (`docs/placeables/categories.json`, `srn_placeable/placeablepal.itp`, 70 strings of `srn_tlk`) are this project's.
   No model, texture or row number changes. The operator asked for the names, the blueprints and the categories.
+
+## Pictures of imported placeables made anew (`srn_placeable`, `srn_t_udp2`, `srn_t_tbx78`; 2026-11-25)
+
+- Pictures of the d20 Modern and UDP placeables too coarse for eye level, under their own names. Enlarged ones
+  (`docs/placeables/enlarged.json`, `materials.json`) are the imported pictures, enlarged on the operator's ComfyUI by the upscaler named in
+  each record. Redrawn ones (`redraw.json`) were drawn by the local Qwen image edit model on the imported picture's layout.
+- What twenty screens show (`screen-pictures.json`) was drawn by the same model from a blank picture and the prompts there;
+  `tools/tilekit/screens.py` lays them in. They replace screenshots of real desktops, programs and broadcasts; makers'
+  logos beside them are painted out. The imported pictures stay in the history (`before` in each list).
+- The operator asked for the pass and for all placeables to be in it.

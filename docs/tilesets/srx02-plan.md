@@ -435,8 +435,15 @@ Home batch's, no earlier number moved.
   saved and read back.
 - **Textures (user: upscale or redraw any low-quality texture met; redraw computer screens to match the setting):**
   `tools/tilekit/texels.py` measures the pixels a metre of what the rooms draw. What was too coarse was enlarged or
-  redrawn: `docs/placeables/README.md`, "Pictures made anew". A test refuses a weak picture that is neither.
-- **Views:** `review-office.json` (bird's eye and eye level; `output/tilekit/office3`).
+  redrawn: `docs/placeables/README.md`, "Pictures made anew". A test refuses a weak picture that is neither. The user then
+  asked for all placeables, and for better screens than those drawn in code.
+- **Props checked (user: a phone hung half off a desk; double check all facings and positions):** all 693 props of the 18
+  rooms were measured for what they rest on, stand in and hang on, and every piece that faces somewhere, and every phone,
+  monitor and laptop that only had a turn, was looked at. Put right: O07's phone (half off, back to front), R05's radio
+  (beside its console's top), O08's two laptops (back to front) and a box, a fridge in a dishwasher, a shelf in a safe, 22 posters, white
+  boards, wall TVs and showers 8 to 20 cm off their walls, two server racks 8 cm over the floor, a shelf, a piano and three lamps
+  2 to 4 cm in it and a bed 2 cm over it. `rooms.unrested` and `rooms.unhung` now refuse such props.
+- **Views:** `review-office.json` (bird's eye and eye level; `output/tilekit/office4`).
 
 ## Work order
 
