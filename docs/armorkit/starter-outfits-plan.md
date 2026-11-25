@@ -381,3 +381,21 @@ channel".
   unchanged. Then the split refuses it (bake `male-6`): "The l sleeve stays joined to the torso: 0% of it goes
   with the arm". The trough gives the arm 13,883 faces, so a strip still joins sleeve and chest after the
   cuts; a wider shoulder cut (radius up to 20 cm) does not part it. Where the strip is has not been found.
+
+2026-11-25, the user: "Keep on the split". What was found on attempt 2, with nothing new committed in code:
+
+* The strip that joins sleeve and chest is at the back of the left shoulder: the wall behind the arm ends
+  2.3 cm under the shoulder plane (traced as the shortest path from sleeve to chest across the cuts). The
+  gloves of this mesh hang 12 cm in front of its sleeves, so an arm line run toward the glove leans forward,
+  the trough leans with it, and its back wall drops.
+* Tried and taken out again: a trough reaching higher for a sleeve whose seam is far from the arm's line (this
+  seam is 7.5 cm away, so it never applied); the arm line kept at the sleeve's own depth (the fit then refuses
+  the sleeve again, "one surface with the torso down to the elbow").
+* A sweep of the upper arm's angle from the body's shoulder, in the sleeve's own depth: the sleeve cut is found
+  at 30, 65 and 75 degrees from vertical and refused at 40 to 60 and at 70 on attempt 2; on attempt 1 at 30
+  only. So `split.sleeve`, which sections the arm along an estimated line and looks for where the sections
+  come clear of the torso, is not steady on a short sleeve whose shoulder joint lies well inside a boxy shirt:
+  small changes of the line flip it. A fix is a different way to find where such a sleeve leaves the torso
+  (from its hem ring inward, say), not another adjustment of the line.
+* As committed (`51c6b8dfd`), attempt 1 and attempt 2 pass the fit; attempt 2 fails the split; attempt 1 has
+  not been split again since the arm line was changed to run toward the glove.
