@@ -61,26 +61,46 @@ class BriefTests(unittest.TestCase):
             brief.validate(document(('a', 'cloth', GREY), ('b', 'cloth', BLUE), ('c', 'cloth', TAN)))
         # a third cloth tinted on a kind the outfit has no use for: it stays cloth, and takes that kind's channels
         three = document(('jacket', 'cloth', GREY), ('trousers', 'cloth', BLUE), ('shirt', 'cloth', TAN))
-        three['materials'][2]['tint'] = 'metal'
-        self.assertEqual([brief.tinted(material) for material in brief.validate(three)['materials']], ['cloth', 'cloth', 'metal'])
+        three['materials'][2]['tint'] = 'leather'
+        self.assertEqual([brief.tinted(material) for material in brief.validate(three)['materials']], ['cloth', 'cloth', 'leather'])
         self.assertEqual(texture.channels([brief.tinted(material) for material in three['materials']]),
-                         [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('metal1', 'metal2')])
+                         [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('leather1', 'leather2')])
         self.assertEqual(brief.composed(three), brief.composed({**three, 'materials': [{k: v for k, v in m.items() if k != 'tint'} for m in three['materials']]}))
         for wrong in ('cloth', 'silk', 1):  # its own kind, no kind
             with self.assertRaises(ValueError):
                 brief.validate({**three, 'materials': three['materials'][:2] + [{**three['materials'][2], 'tint': wrong}]})
-        self.assertEqual(brief.channels(three['materials']), [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('metal1', 'metal2')])
+        self.assertEqual(brief.channels(three['materials']), [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('leather1', 'leather2')])
         # named channels: the reference image's colours say what is tinted where, the same on every outfit of a convention
         named = [{**m, 'channel': n} for m, n in zip(three['materials'], (2, 1, 2))]
         self.assertEqual(brief.channels(brief.validate({**three, 'materials': named})['materials']),
-                         [('cloth2', 'cloth2'), ('cloth1', 'cloth1'), ('metal2', 'metal2')])
+                         [('cloth2', 'cloth2'), ('cloth1', 'cloth1'), ('leather2', 'leather2')])
         for channels in ((1, 1, 2), (1, None, 2), (3, 1, 2)):  # two on one channel, one of a kind unnamed, no such channel
             with self.assertRaises(ValueError):
                 brief.validate({**three, 'materials': [{**m, **({} if n is None else {'channel': n})} for m, n in zip(three['materials'], channels)]})
-        crowded = document(('a', 'cloth', GREY), ('b', 'metal', BLUE), ('c', 'metal', TAN), ('d', 'cloth', [200, 90, 90]))
-        crowded['materials'][3]['tint'] = 'metal'
-        with self.assertRaises(ValueError):  # three tinted on metal
+        crowded = document(('a', 'cloth', GREY), ('b', 'leather', BLUE), ('c', 'leather', TAN), ('d', 'cloth', [200, 90, 90]))
+        crowded['materials'][3]['tint'] = 'leather'
+        with self.assertRaises(ValueError):  # three tinted on leather
             brief.validate(crowded)
+        crowded['materials'][2]['unworn'] = True  # gloves cut off with the bare hands take no channel
+        brief.validate(crowded)
+        for key, value in (('channel', 1), ('tint', 'cloth')):
+            with self.assertRaisesRegex(ValueError, 'names no channel or tint'):
+                brief.validate({**crowded, 'materials': crowded['materials'][:2] + [{**crowded['materials'][2], key: value}] + crowded['materials'][3:]})
+
+    def test_the_metal_channels_are_for_metal_and_for_what_is_marked_shiny(self):
+        given = document(('shirt', 'cloth', GREY), ('coat', 'leather', BLUE), ('plates', 'metal', TAN))
+        brief.validate(given)
+        with_coat = lambda **how: {**given, 'materials': [given['materials'][0], {**given['materials'][1], **how}, given['materials'][2]]}
+        with self.assertRaisesRegex(ValueError, 'for metal and for what is shiny'):  # a T-shirt on metal 1 came out glossy in the client
+            brief.validate(with_coat(tint='metal'))
+        shiny = brief.validate(with_coat(tint='metal', shiny=True))  # patent leather says so itself
+        self.assertEqual(brief.channels(shiny['materials']), [('cloth1', 'cloth2'), ('metal1', 'metal1'), ('metal2', 'metal2')])
+        for wrong in (with_coat(shiny=True), with_coat(tint='cloth', shiny=True), with_coat(tint='metal', shiny=False)):
+            with self.assertRaises(ValueError):
+                brief.validate(wrong)
+        for path in sorted(SITEGUARD.parent.glob('*.json')):  # no brief of the kit's own tints a dull material on metal
+            for material in brief.load(path)['materials']:
+                self.assertTrue(brief.tinted(material) != 'metal' or material['kind'] == 'metal' or material.get('shiny'), path.name)
         with self.assertRaises(ValueError):  # seven materials: the game has six channels
             brief.validate(document(*[(str(k), texture.KINDS[k % 3], [30 * k, 200 - 20 * k, 90]) for k in range(7)]))
 

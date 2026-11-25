@@ -128,8 +128,11 @@ the registry into `srn_2da`: stock rows unchanged, padded with no gaps, live row
 SR_NWN swaps it per wearer. Logo textures are plain (not tintable) and their names are at most 16 characters.
 This is the accepted exception to "one PLT per part" (decision 13).
 
-**Budgets (starting values, tuned in the pilot).** Chest up to 8,000 triangles, other body slots up to 2,900,
-accessories up to 2,000, a whole worn outfit up to 40,000 (user decision 2026-11-13, raised from 30,000 so that
+**Budgets.** Chest up to 16,000 triangles, other body slots up to 5,800, a whole worn outfit up to 80,000
+(user decision 2026-11-25: "increase our poly counts further ... Double them", after Street Casual's pockets,
+seat and boot tops came out coarse in the client); accessories up to 4,000 (2026-11-17, unchanged). Before
+that: chest 8,000, other body slots 2,900, accessories 2,000, a whole worn outfit 40,000 (user decision
+2026-11-13, raised from 30,000 so that
 the rounded ends at every joint fit; a chest and eleven parts at their budgets come to 39,900). Before that
 the chest had 6,000, the other slots 2,250 and the outfit 30,000 (user decision 2026-11-11, raised from the robe
 trial's 20,000 with the body slots in proportion, to make the needed quality easier to reach on the next

@@ -203,7 +203,8 @@ on which channel and parts can be coordinated where needed. Two additions to a b
   accessory's could; an outfit's channels were told by which material covers more, and a single material of a
   kind was split between torso and legs, which differs from outfit to outfit.
 
-**Colour convention for the starter sets** (proposed here, not yet confirmed by the user). A reference image
+**Colour convention for the starter sets** (proposed here; its two metal rows were replaced on 2026-11-25, see
+the end of this log: the metal channels hold only metal and what is shiny). A reference image
 uses these colours for these channels, so that parts of different sets worn together are coloured alike:
 
 | Channel | Drawn in | Holds | Facility Security 6020 |
@@ -429,3 +430,36 @@ channel".
   Stop 2: the user's review.
 * The stock parts tables the pose check reads were gone from the main checkout's `.tmp`; copied from the
   worktree `head-generation-options-5b1c4b` into this one's ignored `.tmp/armorkit-phase0/stock`.
+
+2026-11-25, the user, on the client sheet: "we need to reserve metal channels for metal or otherwise shiny
+parts". This replaces the metal rows of the colour convention above and the use of a metal channel for a
+shirt or trim anywhere in this plan.
+
+| Channel | Drawn in | Holds |
+|---|---|---|
+| cloth 1 | sky blue or the brief's own | the garment on the torso and arms |
+| cloth 2 | grey | the garment on the legs |
+| leather 1 | tan | belt, straps, gear; a cloth accent where the outfit has no gear of its own |
+| leather 2 | green | footwear and gloves |
+| metal 1 | — | metal and shiny parts only: plates |
+| metal 2 | — | metal and shiny parts only: buckles, studs, hardware |
+
+* **Guard** (`brief.validate`): a material of another kind tinted on metal is refused unless it is marked
+  `"shiny": true`. A material marked `unworn` takes no channel and names none, so the gloves cut off with
+  the bare hands leave leather 1 free.
+* **Street Casual:** shirt cloth 1, trousers cloth 2, pocket flaps leather 1 (`"tint": "leather"`), boots
+  leather 2. The belt's strap is leather 1 too, so the flaps take the belt's colour; its buckle stays metal 2.
+* **Open:** a jacket on the robe slot is coloured by the same six channels as the shirt under it, and both
+  were to differ (jacket cloth 1, shirt metal 1). With metal reserved, the jacket and the shirt share cloth 1
+  unless the jacket takes leather 1. To settle at step J.
+
+2026-11-25, the user: "we are going to need to increase our poly counts further as well. Double them please".
+`bake.BUDGET`: chest 16,000, other slots 5,800, a whole outfit 80,000 (plan.md, Budgets). The accessory's
+4,000 is not changed; whether it doubles too is asked.
+
+* **Bake `male-14`** (attempt 2, solid export, new budgets and channels): 68,197 triangles, every part at its
+  budget, ten models compiled. Channels as above, nothing on metal. The flaps' `shown` colour is now the
+  whole mesh's ([156, 120, 70]): with the cut parts' it could not be told from the gloves there. The shoulder
+  gate still fails (1.1 cm each side). Offline view `review/street-casual-male-14-render.png`.
+* Not done: the client view of `male-14` (another session's client was running), the belt's fit.
+

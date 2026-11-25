@@ -15,7 +15,6 @@
   {
    "name": "shirt",
    "kind": "cloth",
-   "tint": "metal",
    "channel": 1,
    "colour": [
     240,
@@ -60,8 +59,8 @@
   {
    "name": "trim",
    "kind": "cloth",
-   "tint": "metal",
-   "channel": 2,
+   "tint": "leather",
+   "channel": 1,
    "colour": [
     240,
     210,
@@ -75,15 +74,14 @@
    "look": "BRIGHT LEMON YELLOW cloth (hex #F0D246)",
    "wears": "the trim, which is small: only the flap of each of the four leg pockets, each flap one solid yellow rectangle.",
    "shown": [
-    137,
-    123,
-    56
+    156,
+    120,
+    70
    ]
   },
   {
    "name": "gloves",
    "kind": "leather",
-   "channel": 1,
    "colour": [
     196,
     160,

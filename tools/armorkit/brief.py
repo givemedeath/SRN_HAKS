@@ -44,10 +44,16 @@ version 2's list of where straps may go and of guards it forbade came back as st
 brief's own words follow the same rule. No new reference folder is sealed without the current paragraph
 (`seal`); a folder sealed before keeps the prompt it was sealed with.
 
-`"tint": "metal"` on a material tints it on another kind's colour channels (user, 2026-11-24: the leather and
-metal channels a part has no use for may be used). `kind` stays what the material is: how it is cut, what
-counts as a plate and how it wears. An outfit of three cloths and no plates has its third cloth, a shirt under
-a jacket, coloured on a metal channel. At most two materials are tinted on one kind's channels.
+`"tint": "leather"` on a material tints it on another kind's colour channels (user, 2026-11-24: the channels
+a part has no use for may be used). `kind` stays what the material is: how it is cut, what counts as a plate
+and how it wears. An outfit of three cloths has its third, the flaps of its pockets, coloured on a leather
+channel. At most two materials the baked outfit shows are tinted on one kind's channels; a material marked
+`unworn` takes none, and names no `channel` or `tint`.
+
+The metal channels are kept for metal and for what is otherwise shiny (user, 2026-11-25): the game draws them
+with a metal's sheen, and a T-shirt tinted on one came out glossy in the client. A material of another kind
+tinted on metal says so itself, `"shiny": true` beside `"tint": "metal"` (patent leather, wet-look vinyl), and
+is refused without.
 
 `"channel": 1` or `2` on an outfit's material names the channel of that kind it is tinted on, wherever it is
 worn (`channels`). The reference image's colours then say what is coloured on which channel, and briefs drawn
@@ -127,8 +133,8 @@ SKIN = ('bicep',)  # and those it may share with the body's skin
 # A limb's end at the torso is grown to lie inside the outfit's own chest or pelvis. With the torso slot left to the body and the limb
 # kept, that end stood 2.2 to 2.8 cm out of the body's skin (Facility Security split again, 2026-11-24): the limb goes with it
 WITH = {'chest': 'bicep', 'pelvis': 'thigh'}
-MATERIAL_KEYS = {'name', 'kind', 'colour', 'look', 'wears', 'shown', 'suggested', 'channel', 'tint', 'unworn'}
-OPTIONAL = {'shown', 'suggested', 'channel', 'tint', 'unworn'}  # what a material may hold beside what it must
+MATERIAL_KEYS = {'name', 'kind', 'colour', 'look', 'wears', 'shown', 'suggested', 'channel', 'tint', 'unworn', 'shiny'}
+OPTIONAL = {'shown', 'suggested', 'channel', 'tint', 'unworn', 'shiny'}  # what a material may hold beside what it must
 SEAL, SEAL_KIND, PROMPT = 'brief-seal.json', 'srn-armorkit-brief-seal', 'PROMPT.txt'
 
 
@@ -181,8 +187,16 @@ def validate(document):
         require(material.get('unworn', True) is True, f'{material["name"]}: unworn is true or left out')
         require('tint' not in material or (material['tint'] in texture.KINDS and material['tint'] != material['kind']),
                 f'{material["name"]}: tint names another kind of {texture.KINDS}, whose colour channels the material is tinted on')
-    names, kinds = [material['name'] for material in materials], [tinted(material) for material in materials]
+        require(material.get('shiny', True) is True, f'{material["name"]}: shiny is true or left out')
+        require(('shiny' in material) == (material.get('tint') == 'metal'),
+                f'{material["name"]}: the metal channels are for metal and for what is shiny. A material of another kind '
+                'tinted on them is marked "shiny": true, and nothing else is')
+        require('unworn' not in material or not {'channel', 'tint'} & set(material),
+                f'{material["name"]}: an unworn material is on no baked part, and names no channel or tint')
+    names = [material['name'] for material in materials]
     require(len(set(names)) == len(names), 'Material names are unique')
+    materials = [material for material in materials if not material.get('unworn')]  # what takes a channel
+    kinds = [tinted(material) for material in materials]
     require(all(kinds.count(kind) <= 2 for kind in kinds), 'The game tints two channels of a kind: at most two materials are tinted on one')
     taken = [(tinted(material), material.get('channel', 1)) for material in materials]
     require(piece is None or len(set(taken)) == len(taken), 'Two materials of an accessory are not tinted on one channel')

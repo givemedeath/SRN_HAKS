@@ -34,7 +34,7 @@ UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelv
          'chest': (split.CLOSING,), 'handl': (split.CAP,), 'handr': (split.CAP,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
-BUDGET = {'chest': 8000, 'slot': 2900, 'outfit': 40000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
+BUDGET = {'chest': 16000, 'slot': 5800, 'outfit': 80000, 'texture': 1024}  # doubled 2026-11-25 (user); triangles a chest, another part and a whole outfit may have; texels a side
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
 # their budgets come to 39,900)
 END_BAND = 0.02  # metres: a part over its budget keeps every vertex this near a joint's plane, where its end is measured
