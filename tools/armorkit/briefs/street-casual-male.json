@@ -28,7 +28,7 @@
     76
    ],
    "look": "SOFT ROSE PINK cloth, a clear light pink (hex #F096A0)",
-   "wears": "the T-shirt: thick, loose and boxy, with a round crew neck and two wide short sleeves, tucked into the trousers. Pink all over but for its yellow panels."
+   "wears": "the T-shirt: thick, loose and boxy, with a ribbed round crew neck, a raised seam running over each shoulder, a square patch pocket with a flap on the left of the chest, and two wide short sleeves each turned up once into a thick rolled hem. Tucked into the trousers. Pink all over."
   },
   {
    "name": "trousers",
@@ -45,10 +45,10 @@
     42
    ],
    "look": "MEDIUM NEUTRAL GREY cloth",
-   "wears": "the baggy cargo trousers: wide straight legs, a big bellows pocket with a flap on the outside of each thigh, gathered close at the ankle into the tops of the boots. Grey all over but for their yellow panels."
+   "wears": "the baggy cargo trousers: wide straight legs with heavy raised seams, a big bellows pocket on the outside of each thigh, a second smaller pocket below it on the outside of each shin, a padded, stitched knee panel on the front of each knee in the same grey, and thick gathered cuffs at the ankle tucked into the tops of the boots. Grey all over but for their yellow pocket flaps."
   },
   {
-   "name": "panels",
+   "name": "trim",
    "kind": "cloth",
    "tint": "metal",
    "channel": 2,
@@ -63,7 +63,7 @@
     32
    ],
    "look": "BRIGHT LEMON YELLOW cloth (hex #F0D246)",
-   "wears": "the bold colour blocks: one broad band, a hand tall, right across the chest of the T-shirt from side to side, and one large square patch on the front of each trouser leg over the knee."
+   "wears": "the trim, which is small: only the flap of each of the four leg pockets, each flap one solid yellow rectangle."
   },
   {
    "name": "belt",
@@ -80,7 +80,7 @@
     34
    ],
    "look": "WARM TAN leather",
-   "wears": "the broad plain belt through the top of the trousers, with a plain tan buckle, and the two plain close-fitting gloves, tan all over."
+   "wears": "the gear: a broad belt through the top of the trousers with a heavy square buckle, a chunky closed pouch on the belt at each hip, one broad strap right round the middle of each thigh with a square buckle on its front, and the two close-fitting gloves. All of it tan."
   },
   {
    "name": "boots",
@@ -97,8 +97,8 @@
     50
    ],
    "look": "LIGHT LEAF GREEN, a clear soft green (hex #8CC882)",
-   "wears": "the two heavy ankle boots, chunky, with thick ridged soles and a broad toe, green all over: uppers, soles and laces."
+   "wears": "the two heavy ankle boots, chunky, with thick deeply ridged soles, a broad capped toe, laces up the front and one broad buckled strap across the ankle, green all over: uppers, soles, laces and straps."
   }
  ],
- "prompt": "Product image of one set of rugged street clothes for a near-future city dweller, standing in an A-pose. Show the clothing only, as a hollow outfit floating in the air with nobody inside it: the collar and the hems of the two short sleeves are empty openings, and the two gloves float on their own, apart from the sleeves.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two short sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, each ending in a straight clean hem halfway down the upper arm. Each glove floats far out to the side at hip height, on the same straight line as its sleeve, open and flat with the fingers together, pointing along that line. Between the hem of each sleeve and its glove is a long stretch of plain white background, as long as the sleeve and the glove together. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit; the whole underside of each sleeve from armpit to hem shows against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe five colours are easy to tell apart at a glance: pink T-shirt, yellow panels, grey trousers, tan belt and gloves, green boots. Every part of the outfit is one of these five colours.\n\n{construction}\n\nThe look is heavy streetwear: thick, oversized, hard-wearing clothes with big simple shapes, deep pockets and bold blocks of colour. Smooth clean surfaces like a painted sculpt: plain colour on every part, clean and new, smooth cloth with only large soft folds, chunky shapes, clean edges between parts. The outfit is these things and nothing else: the T-shirt, the trousers, the belt, the two gloves and the two boots, every surface plain.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to boot soles and from glove to glove with margin on all sides, plain white background."
+ "prompt": "Product image of one set of rugged street clothes for a near-future city dweller, standing in an A-pose. Show the clothing only, as a hollow outfit floating in the air with nobody inside it: the collar and the hems of the two short sleeves are empty openings, and the two gloves float on their own, apart from the sleeves.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two short sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, each ending in a straight clean hem halfway down the upper arm. Each glove floats far out to the side at hip height, on the same straight line as its sleeve, open and flat with the fingers together, pointing along that line. Between the hem of each sleeve and its glove is a long stretch of plain white background, as long as the sleeve and the glove together. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit; the whole underside of each sleeve from armpit to hem shows against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe five colours are easy to tell apart at a glance: pink T-shirt, grey trousers, small yellow pocket flaps, tan belt, pouches, straps and gloves, green boots. Every part of the outfit is one of these five colours.\n\n{construction}\n\nThe look is heavy, practical streetwear, busy with detail: thick, oversized, hard-wearing clothes covered in pockets, flaps, raised seams, stitched panels, buckles and straps. Every detail is thick and chunky, sculpted in relief and big enough to see from across a street. Smooth clean surfaces like a painted sculpt: each part one flat colour, clean and new, cloth with large soft folds, clean edges between parts. The outfit is these things and nothing else: the T-shirt, the trousers, the belt with its pouches, the thigh straps, the two gloves and the two boots, with no lettering.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to boot soles and from glove to glove with margin on all sides, plain white background."
 }

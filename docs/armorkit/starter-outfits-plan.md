@@ -270,3 +270,10 @@ easier case, but nothing about it is proven until step J4.
 State: brief rewritten without the jacket and sealed as `street-casual-male/reference-v3`; one Qwen image,
 `run-1/image-0.png`, seed 20261126. `reference-v2` keeps the image with the jacket, `reference-v1` the first
 design. Next: the user's review of the `reference-v3` image.
+
+2026-11-24, redraw asked for again: less colour blocking, more detail and gear (user). The brief now has the
+accent only on the leg pockets' flaps, and adds a chest pocket, rolled sleeve hems, raised seams, stitched knee
+panels, shin pockets, belt pouches, a strap round each thigh and buckled boots. Sealed as
+`street-casual-male/reference-v4`; one Qwen image, `run-1/image-0.png`, seed 20261127. Seen in it and not yet
+judged by a split: the thigh straps sit high, near the line the hips are cut on, and the leg pockets came out
+yellow whole, not their flaps alone. Next: the user's review of the `reference-v4` image.
