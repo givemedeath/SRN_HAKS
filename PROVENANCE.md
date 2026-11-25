@@ -1729,8 +1729,10 @@ bytes from the quarantined extraction of the archive; where the tile archive hol
 landed.
 
 The item archive's credits are in the next section. The archive belongs to the same Neverwinter Vault distribution as
-the placeables: the Version 2.1 project page cited above offers `mdrn21_item.rar` beside `mdrn21_placeable.rar` under
-one permission, free and open when the consuming project is also open (read 2026-11-25). The tile textures keep the
+the placeables: the Version 2.1 project page
+(<https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>) offers `mdrn21_item.rar`
+beside `mdrn21_placeable.rar` under one permission, free and open when the consuming project is also open (read
+2026-11-25). The tile textures keep the
 terms of the MDRNEE tileset import. None is relicensed under the repository's default PolyForm license. These are the
 only resources landed from `mdrnee_item.hak`, as dependencies of published placeables; the rest of that archive stays
 analysis-only, and both manifests are left as written.

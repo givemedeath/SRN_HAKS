@@ -4,6 +4,9 @@ Unchanged files from `mdrnee_item.hak` and `mdrnee_tile.hak`, in `srn_placeable`
 placeables name". Git blobs are those of commit `c01271d3ba053ada6d75bc070c5cf1ab94ec29c6` of
 https://gitea.raptio.us/Jaysyn/d20ModernEE.
 
+The scan (2026-11-25) left 91 texture names for which no upstream HAK holds an original. Two models below each still name
+one of them: `vos_boltgun` (`01`) and `vos_scifigun27` (`rsw`).
+
 | Texture | Archive | Bytes | SHA-256 | Git blob | Models |
 |---|---|---:|---|---|---|
 | `1911_1.dds` | `mdrnee_item.hak` | 87428 | `3f9ad26b4155ef998a98180cb34337c894ca81cc23c1bbd3b89980a1f2791d13` | `8f3d2a5adeab76f5c97a029f707fad84d5a56fda` | `vos_gun9` |
