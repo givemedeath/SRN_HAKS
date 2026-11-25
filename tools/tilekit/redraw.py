@@ -39,6 +39,7 @@ KINDS = {
     'furniture': 'the front of a piece of built-in furniture seen straight on (a cabinet, a dresser, shelves, a bookcase). The same piece, its doors, drawers, '
                  'shelves, handles and what stands on it in the same places',
     'floor': 'a floor covering seen from straight above',
+    'material': 'a plain surface material seen straight on (wood, metal, stone, plaster, cloth)',
     'cloth': 'washing hung out to dry. The same garments in the same places and colours; the plain background around them stays exactly as it is'}
 LIT = ('Make its night version: the very same picture, with the frame, mullions, panels, lettering and every mark in the same positions. Only what is behind the glass '
        'or is a lamp or neon tube changes: it is lit from inside, uneven from pane to pane, dirt still visible against the light. Everything that is not glass or a '
