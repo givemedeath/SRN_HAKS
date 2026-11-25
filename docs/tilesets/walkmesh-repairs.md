@@ -38,5 +38,8 @@ overlaps the welds close, and so do the tile's sides (`udp1_a03_16` loses a 10 m
 - `udp1_a08_07`: routes lengthwise over the ends of its boards bend.
 - `udp1_a08_06`: a 2 x 9 cm hole at each end of a kerb.
 - `fcx01_h01_20`: one crossing near a corner bends; cause not found.
+- Other packs (`fifi`, `nac01`, `net01`, `shp02`, `sjm01`, `tfb01`, `udp2`, `vmp01`, `zsf01`): 26 walkmeshes have such edges
+  or faces. Not walked, not repaired.
 
-`tools/tilekit/test_floor_edges.py` looks for unmatched edges, doubled faces and faces of no area in every tile's model and `.wok`.
+`tools/tilekit/test_floor_edges.py` looks for unmatched edges, doubled faces and faces of no area in the models and `.wok`
+files of the packs with sources.

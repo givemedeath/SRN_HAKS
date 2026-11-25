@@ -1,6 +1,6 @@
-"""No tile's floor has an edge its neighbours meet in pieces (a T-junction), a face it holds twice or a face of no area on
-an edge between two others: the game joins faces edge by edge, so a creature walks round such a place instead of across it (reproduced in the client with a Human
-and a Troll, 2026-11-25)."""
+"""No floor of the packs with sources has an edge its neighbours meet in pieces (a T-junction), a face it holds twice or a
+face of no area on an edge between two others: the game joins faces edge by edge, so a creature walks round such a place
+instead of across it (reproduced in the client with a Human and a Troll, 2026-11-25)."""
 import collections
 import unittest
 from pathlib import Path
@@ -45,7 +45,7 @@ def pieced(corners, faces):
     """The pairs of unmatched inner edges of the walked `faces` that run along each other: the floor either side meets in pieces."""
     beside = edges(corners, faces)
     walls = {frozenset((face[j], face[(j + 1) % 3])) for face in numbered(corners, faces, floor=False) for j in range(3)}  # an edge a wall stands on is meant to stop
-    single = sorted(tuple(sorted(edge)) for edge, held in beside.items() if len(held) == 1 and len(edge) == 2 and edge not in walls and not flat(corners, held[0]))
+    single = sorted(tuple(sorted(edge)) for edge, held in beside.items() if len(held) == 1 and len(edge) == 2 and edge not in walls)
     # the tile's side is the neighbour tile's to meet
     single = [(a, b) for a, b in single if not any(abs(corners[a][axis]) > 4.995 and abs(corners[a][axis] - corners[b][axis]) < .005 for axis in (0, 1))]
     if not single:
@@ -91,6 +91,10 @@ class FloorEdges(unittest.TestCase):
     def test_edges_that_only_partly_run_along_each_other_are_found(self):
         self.assertEqual(pieced(CORNERS, [(0, 1, 3, *TAIL), (2, 4, 5, *TAIL)]), [((0, 1), (2, 5))])
 
+    def test_a_sliver_that_joins_one_side_hides_no_miss_on_the_other(self):
+        corners = np.array([(0, 0, 0), (2, 0, 0), (1, 2, 0), (1, -1e-5, 0), (0, -8e-6, 0), (2, -8e-6, 0), (1, -2, 0)])
+        self.assertEqual(pieced(corners, [(0, 1, 2, *TAIL), (0, 3, 1, *TAIL), (4, 6, 5, *TAIL)]), [((0, 3), (4, 5)), ((1, 3), (4, 5))])
+
     def test_an_edge_a_wall_stands_on_is_meant_to_stop(self):
         wall = (0, 1, 5, 0, 0, 0, 0, 7)
         self.assertEqual(pieced(CORNERS, [(0, 1, 3, *TAIL), (0, 4, 2, *TAIL), (2, 4, 1, *TAIL), wall]), [])
@@ -105,13 +109,14 @@ class FloorEdges(unittest.TestCase):
         self.assertEqual(pinched(CORNERS, sides), [])
         self.assertEqual(pinched(CORNERS, [(0, 1, 3, *TAIL), (0, 2, 1, *TAIL), (0, 4, 2, *TAIL), (2, 4, 1, *TAIL)]), [])  # it joins the pieces to the edge
 
-    def test_every_tiles_floor_is_matched_in_its_model_and_its_wok(self):
+    def test_every_pack_with_sources_is_named(self):
+        self.assertEqual(sorted(folder.name for folder in (REPO / 'sources').iterdir() if any(folder.glob('*.mdl'))), sorted(PACKS))
+
+    def test_every_floor_is_matched_in_the_sources_and_in_the_woks(self):
         for pack in PACKS:
-            checked = 0
-            for source in sorted((REPO / 'sources' / pack).glob('*.mdl')):
-                for path in (source, REPO / pack / f'{source.stem}.wok'):  # the game walks the .wok
-                    if not path.is_file():
-                        continue
+            for paths in ((REPO / 'sources' / pack).glob('*.mdl'), (REPO / pack).glob('*.wok')):  # the game walks the .wok; some (ek_) have no source
+                checked = 0
+                for path in sorted(paths):
                     text = path.read_bytes().decode('cp1252')
                     _, _, nodes = geometry.parse(text if 'beginmodelgeom' in text.lower() else 'beginmodelgeom wok\n' + text)
                     for node in nodes:
@@ -120,8 +125,8 @@ class FloorEdges(unittest.TestCase):
                             with self.subTest(file=path.name):
                                 self.assertEqual(doubled(corners, node.faces), [])
                                 self.assertEqual(pieced(corners, node.faces), [])
-                                self.assertEqual(len(pinched(corners, node.faces)), STRAIGHT.get(source.stem, 0))
-            self.assertTrue(checked, f'{pack} has no walkmesh to check')
+                                self.assertEqual(len(pinched(corners, node.faces)), STRAIGHT.get(path.stem, 0))
+                self.assertTrue(checked, f'{pack} has no walkmesh to check')
 
 
 if __name__ == '__main__':
