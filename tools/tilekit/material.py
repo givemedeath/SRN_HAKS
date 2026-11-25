@@ -97,10 +97,20 @@ def make(old, how, scan=None, *, enlarged=None):
 def glow(made, lit):
     """The glow map of a made texture (uint8 RGB): its own colour where it is lit, black elsewhere. lit: {gain (how
     bright, default 1), tint ([red, green, blue] multipliers), above (0-255: only pixels at least this bright are lit;
-    default 0)}. A picture with holes glows only where it is not a hole: a facade's lit windows are such a picture."""
-    unknown = set(lit) - {'gain', 'tint', 'above'}; require(not unknown, 'A glow has no ' + ', '.join(sorted(unknown)))
+    default 0), boxes ([{box: [left, top, right, bottom] in 0-1 of the picture, above: its own}]: lit only inside
+    them, a console's indicator lights and not its housing)}. A picture with holes glows only where it is not a hole:
+    a facade's lit windows are such a picture."""
+    unknown = set(lit) - {'gain', 'tint', 'above', 'boxes'}; require(not unknown, 'A glow has no ' + ', '.join(sorted(unknown)))
     colour = made['colour'].astype(np.float64); tint = np.asarray(lit.get('tint', (1.0, 1.0, 1.0)), np.float64); require(tint.shape == (3,), 'A glow\'s tint is red, green and blue')
     shown = colour.max(axis=2) >= float(lit.get('above', 0))
+    if lit.get('boxes') is not None:
+        height, width = shown.shape; inside = np.zeros_like(shown)
+        for one in lit['boxes']:
+            require(set(one) <= {'box', 'above'} and len(one.get('box', ())) == 4 and 0 <= one['box'][0] < one['box'][2] <= 1 and 0 <= one['box'][1] < one['box'][3] <= 1,
+                    'A glow\'s box is {box: [left, top, right, bottom] in 0-1, above}')
+            left, top, right, bottom = one['box']; rows, columns = slice(round(top * height), round(bottom * height)), slice(round(left * width), round(right * width))
+            inside[rows, columns] |= colour[rows, columns].max(axis=2) >= float(one.get('above', lit.get('above', 0)))
+        shown = inside
     if 'alpha' in made:
         shown &= made['alpha'] >= 128
     return np.uint8(np.clip(colour * float(lit.get('gain', 1.0)) * tint, 0, 255) * shown[..., None] + 0.5)

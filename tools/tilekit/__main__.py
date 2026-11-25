@@ -2,7 +2,7 @@
 its walkmeshes (walkmesh.json); `walkmesh` holds the tileset's walkmeshes against such a baseline and fails on any
 that changed; `review` builds a module of the tileset on the built packs and captures the same views of it in the
 game client each time, with an overlay folder shown instead of the packs' own files. `material` makes restyled
-textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps`, `shadows` and `daylight` (lit panes clear by day) write changed tile
+textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps`, `shadows`, `daylight` (lit panes clear by day) and `blink` (blinking lamp panes) write changed tile
 models into it, `detail` adds kit pieces to tiles there and `remesh` replaces a tile's visible meshes there; `count`
 says what each tile costs to draw (faces, mesh nodes, materials) against a budget; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
 `apply` moves an overlay whose look the user passed into the packs; `compile` makes the packs' tile models from their
@@ -117,6 +117,13 @@ def daylight_command(chosen):
     require(chosen.out, 'daylight writes its models into --out')
     spec = _json(chosen.spec); told = daylight.write(chosen.repo, chosen.tileset, chosen.out, spec['lit'], chosen.shared, again=chosen.again, mapped=daylight.mapped(spec))
     print(json.dumps({'models': len(told['models']), 'lit': sum(told['models'].values()), 'panes': told['panes'], 'done': told['done'], 'refused': told['refused'], 'parked': told['parked']}, indent=1))
+    return 0
+
+
+def blink_command(chosen):
+    from . import blink
+    told = blink.write(chosen.repo, chosen.tileset, chosen.out, _json(chosen.spec), chosen.shared, again=chosen.again)
+    print(json.dumps({'models': told['models'], 'done': told['done'], 'refused': told['refused']}, indent=1))
     return 0
 
 
@@ -284,6 +291,11 @@ def main(arguments=None):
     eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     eight.add_argument('--repo', type=Path, default=REPO); eight.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
+    lamp = commands.add_parser('blink', help='lay blinking lamp panes over a fixture\'s indicator lights, in model copies (a copy already in --out is changed)')
+    lamp.add_argument('--tileset', required=True); lamp.add_argument('--spec', required=True, type=Path, help='the list of lights (docs/tilesets/<set>/blink.json)')
+    lamp.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); lamp.add_argument('--repo', type=Path, default=REPO)
+    lamp.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set); repeat for more')
+    lamp.add_argument('--again', action='store_true', help='make the lamp panes of models that have them anew from the list')
     lit = commands.add_parser('daylight', help='make the lit panes of a tileset\'s tiles clear by day and full by night, in model copies (a copy already in --out is changed)')
     lit.add_argument('--tileset', required=True); lit.add_argument('--spec', required=True, type=Path, help='the list of lit textures (docs/tilesets/<set>/daylight.json)')
     lit.add_argument('--out', type=Path, help='the folder the changed models are written to: a review\'s overlay'); lit.add_argument('--repo', type=Path, default=REPO)
@@ -363,6 +375,8 @@ def main(arguments=None):
             return compile_command(chosen)
         if chosen.command == 'daylight':
             return daylight_command(chosen)
+        if chosen.command == 'blink':
+            return blink_command(chosen)
         if chosen.command == 'unique':
             return unique_command(chosen)
         if chosen.command == 'shadows':

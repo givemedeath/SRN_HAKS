@@ -4378,10 +4378,10 @@
    "compiled": "2026-11-24"
   },
   "srn_t_fcx01/fcx01_m01_02.mdl": {
-   "source": "55dd308801aa8515e69b6a5b9dc2909bf52ca486cc0dc8b13ae3602e9940e552",
-   "binary": "05b6953b66c5a74179dd6aa78224148efb7c115b2e2bebf3683c6268f836e7af",
-   "bytes": 74300,
-   "audit": "rig",
+   "source": "423226cdef2bf5bfd17166d9a64ddf4dcb522720159aa7f8d2e2575a4a7c6e67",
+   "binary": "40d27de450fe80b84f7745b0b7572da45235a02929ebb1c6fd5e803486e5d388",
+   "bytes": 91028,
+   "audit": "round trip",
    "compiled": "2026-11-24"
   },
   "srn_t_fcx01/fcx01_m01_03.mdl": {
@@ -4441,10 +4441,10 @@
    "compiled": "2026-11-24"
   },
   "srn_t_fcx01/fcx01_m01_11.mdl": {
-   "source": "e1a041abef4d254363353a904c70fd23322577e3a66580efa6ce51d82f769d8d",
-   "binary": "2cbe0ac63e940d545e7f8d1b0a2416d74fddc5d535d6256b871183cb01f69a85",
-   "bytes": 74344,
-   "audit": "rig",
+   "source": "1e7a113121a281975a34435a0b494ba5bffdddf4c44034a6b4a4d2c36d34d675",
+   "binary": "ef6c0057fbae2dae735c53e1d14ec516fa540cfe9dd37eea2176f6cf79908832",
+   "bytes": 91072,
+   "audit": "round trip",
    "compiled": "2026-11-24"
   },
   "srn_t_fcx01/fcx01_m01_12.mdl": {
@@ -10061,5 +10061,5 @@
   "blender": "5.2.1 LTS",
   "compilerSha256": "d2c6aaf4620db0415417ee88fb251e18b0b4204b06190a228267e9e115665214"
  },
- "materials": "323ba960e1d7f96d459b297aa4615f5ea9a3d3184c74c77436c8fdd696a73dbc"
+ "materials": "f72afd35330d0d37497af545e0681cc071521919986f481d62537d0e95ab0950"
 }

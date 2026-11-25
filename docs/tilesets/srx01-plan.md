@@ -673,6 +673,13 @@ The four textures it shares with dgt04 keep dgt04's look.
 - **Applied (user, from the before and after pictures):** hand finishes of three redrawn pictures, noted in
   `redraw.json` (`placed`): the sign strip as an even row of lit segments, a clean "ARCOLOGY LIVING" caption,
   brighter marker lamps. The caption and the marker lamps were not seen in game; the strip still reads small there.
+- **Console lights (user, 2026-11-24: "this panel needs a few glowing and blinking lights"):** the arcology's wall
+  console (`imp_modules_id5`, two in each of `fcx01_m01_02` and `fcx01_m01_11`) has a glow map for its steady lights
+  (the cream readout bars, the cyan rack lines, the blue keys: `glow.boxes` in `fcx01/materials.json`) and eleven
+  blinking lamps (`fcx01/blink.json`, `tilekit blink`): small panes over the status squares, six strip indicators and
+  the dial's hub, under the tile's animated node, blinked by the first tile loop, which the set has on. A lamp draws
+  a lit patch of the console's own glow map tinted by its glow colour, so no texture is added. Seen in game on
+  `fcx01_m01_02` by day and at night; the lamps come out paler than their colours (cream and pale green).
 - **School 3, not solved:** 28 of the 47 windows of `udp1_b07_29` were given lit panes (`udp1-window1b`) and day
   panes through `daylight`. In game they stayed unlit at night, and one stayed lit by day. The cause is found
   (the lit panes hung from the tile's root, not its animated node: see the arcology above) and `daylight` now
