@@ -399,3 +399,33 @@ channel".
   (from its hem ring inward, say), not another adjustment of the line.
 * As committed (`51c6b8dfd`), attempt 1 and attempt 2 pass the fit; attempt 2 fails the split; attempt 1 has
   not been split again since the arm line was changed to run toward the glove.
+
+2026-11-25, the user: "Rework sleeve finding", then "put the buckle on metal 2".
+
+* **My export mistake.** Attempt 2 (`export-3`, `export-4`) and the belt (`export-1`, `export-2`) were exported
+  without `--fill 40`, which every earlier outfit used: a hollow, double-walled shell instead of a solid. That
+  left every part over its triangle budget, the 20,000-face export full of holes, and the split's own surfaces
+  5 cm outside the outfit at every joint; it very likely caused the split's refusal of the sleeves too. Solid
+  exports: outfit `export-5` (200,000 faces), belt `export-3` (4,000 faces). **Always pass `--fill 40` to
+  `generate export`**; a default for it is not built.
+* **Sleeve finding** (`split.sleeve`, committed `75410a3a5`): a section short of the body's middle is the web
+  under the armpit for `SLEEVE_WEB` sections at most, then the sleeve is free; up to `SLEEVE_LOST` sections
+  with no curve round the arm are passed over. `repose`: a loose sleeve's arm keeps the sleeve's depth. The
+  sleeve is found at every upper-arm angle from 25 to 75 degrees on attempts 1 and 2 (attempt 1, a solid, was
+  found at 30 only before); the cuts of Facility Security (male, female) and Site Guard are identical.
+* **Unworn materials** (`brief.baked`, `unworn`): the gloves beyond the short sleeves are generated and cut
+  off with the bare hands, and are not counted among the baked outfit's materials. The brief also records the
+  colours as generated (`shown`): flaps ochre, boots olive.
+* **Belt:** buckle and studs on metal 2; adopted as `street-casual-belt/reference-v5` (same image, colours
+  as drawn on record); prepared from the solid export, one piece, no holes, 3,998 triangles
+  (`output/armorkit/street-casual/belt-4-prepared`). Not fitted yet.
+* **Bake `male-12`** (attempt 2, solid): every part within budget (34,094 triangles); trousers cloth 2, shirt
+  metal 1, flaps metal 2, boots leather 2. One gate fails: at each shoulder what the split added stands 1.0
+  and 1.1 cm outside the outfit at rest (the sleeve's closing shows at the front of the shoulder).
+* **Client pose check, Human male** (`male-12-poses/sheet.jpg`, 48 shots): the outfit loads and follows the
+  body. Seen: the shirt and the flaps, on metal channels, are drawn with a metal's shine; a thin sliver stands
+  out of each boot at the ankle; dark gaps under the thigh pocket flaps; a brown patch on each sleeve (the
+  shoulder tab the image added); the seat tears open sitting; the crouching shots are framed off the body.
+  Stop 2: the user's review.
+* The stock parts tables the pose check reads were gone from the main checkout's `.tmp`; copied from the
+  worktree `head-generation-options-5b1c4b` into this one's ignored `.tmp/armorkit-phase0/stock`.
