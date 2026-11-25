@@ -34,6 +34,7 @@ UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelv
          'chest': (split.CLOSING,), 'handl': (split.CAP,), 'handr': (split.CAP,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
+ELSEWHERE = 0.01  # of a part's own surface in the colour of a material its slot does not wear: reported from here
 BUDGET = {'chest': 16000, 'slot': 5800, 'outfit': 80000, 'texture': 1024}  # doubled 2026-11-25 (user); triangles a chest, another part and a whole outfit may have; texels a side
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
 # their budgets come to 39,900)
@@ -1183,6 +1184,12 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     (`texture.wear_fields`, `texture.tint_maps`), in patches read on the generated outfit, so they run on from
     part to part of one generation and are the same on every body the outfit is carried to.
 
+    A part is tinted in the materials its slot wears and no other, where the brief's materials list their
+    `slots` (`brief.on`, `texture.tint_maps`' `among`). Where `ELSEWHERE` or more of a part's own surface has the
+    colour of a material its slot leaves out, the part is named with that share in the material's record
+    (`elsewhere`) and said: a tab the image added, or a slot missing from the list (the flaps of Street
+    Casual's hip pockets were drawn as shirt until the pelvis was listed, 2026-11-25).
+
     The parts are taken in the order of their names, whatever order they are given in: the materials are
     found on a sample of the texels as they come, and a fresh bake and its stored parts tinted again would
     else differ by a shade here and there.
@@ -1215,7 +1222,7 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     written = hashlib.sha256(Path(texture.__file__).read_bytes()).hexdigest() if cache is not None else None  # how textures are drawn
     amount = float(document.get('wear', 0))
     span = float(np.ptp(np.concatenate([part['src'] for part in parts.values()]), axis=0).max()) if amount else None  # the outfit's height, as generated
-    tinted = {}
+    tinted, elsewhere = {}, {}
     for i, (name, part) in enumerate(parts.items()):
         rows = np.zeros((len(part['f']), count), bool)
         rows[own[name]] = second[at[i]:at[i + 1]]
@@ -1223,15 +1230,23 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
         trim = np.full(part['covered'].shape, -1)
         for material in (material for material in np.unique(part['trimmed'][part['trimmed'] >= 0]) if int(material) in here):  # none of an unworn material's
             trim[texture.face_texels(part['uv'], part['f'], part['trimmed'] == material, size(part))] = here[int(material)]
-        draw = lambda part=part, twice=twice, trim=trim, name=name: texture.tint_maps(
+        among = np.array([brief.on(material, slot_of[name]) for material in worn])  # the materials worn on this part's slot
+        require(among.any(), f'{name}: no material of the brief is worn on the {slot_of[name]}; the slots of its materials leave it out')
+        if not among.all():  # what the colours alone would have read there: a slot left out of a list by mistake shows here
+            surface = part['covered'] & ~part['closing'] & ~part['cap']
+            read = np.bincount(texture.labels(part['rgb'][surface], found['tones']), minlength=count) / max(int(surface.sum()), 1)
+            for k in np.flatnonzero(~among & (read >= ELSEWHERE)):
+                elsewhere.setdefault(worn[k]['name'], {})[name] = round(float(read[k]), 3)
+                say(f'{name}: {read[k]:.0%} of it has the colour of {worn[k]["name"]}, which is not worn on the {slot_of[name]} and is drawn as what is')
+        draw = lambda part=part, twice=twice, trim=trim, name=name, among=among: texture.tint_maps(
             part['rgb'], part['covered'], found, channel, relief=part['relief'],
             charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=part['closing'], second=twice,
             cap=part['cap'], padded=part['padded'], lit=lit, trim=trim,
-            shadow=part['closing'] if name in ARMHOLE else None, speck=speck, sharpen=texture.SHARPEN,
+            shadow=part['closing'] if name in ARMHOLE else None, speck=speck, sharpen=texture.SHARPEN, among=among,
             wear=(amount, kinds, *texture.wear_fields(part['uv'], part['f'], part['src'], size(part), span)) if amount else None)
         key = None if cache is None else digest(
             written, export.LAYERS, part['rgb'], part['covered'], found, channel, part['relief'], part['uv'], part['f'], part['closing'], twice,
-            part['cap'], part['padded'], lit, trim, name in ARMHOLE, speck, texture.SHARPEN, amount, kinds, part['src'] if amount else None, span)
+            part['cap'], part['padded'], lit, trim, name in ARMHOLE, speck, texture.SHARPEN, amount, kinds, part['src'] if amount else None, span, among)
         fresh = []  # whether it was drawn: `drawn` reads it where the cache holds it whole
 
         def drawing(draw=draw, fresh=fresh):
@@ -1244,6 +1259,7 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1),
                              **({'tint': material['tint']} if 'tint' in material else {}),
+                             **({'elsewhere': elsewhere[material['name']]} if material['name'] in elsewhere else {}),
                              **({'suggested': material['suggested']} if 'suggested' in material else {})}
                             for k, material in enumerate(worn)], **({'wear': amount} if amount else {})}
     return tinted, record

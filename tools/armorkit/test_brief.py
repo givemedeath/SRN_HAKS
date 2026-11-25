@@ -84,8 +84,20 @@ class BriefTests(unittest.TestCase):
         crowded['materials'][2]['unworn'] = True  # gloves cut off with the bare hands take no channel
         brief.validate(crowded)
         for key, value in (('channel', 1), ('tint', 'cloth')):
-            with self.assertRaisesRegex(ValueError, 'names no channel or tint'):
+            with self.assertRaisesRegex(ValueError, 'names no channel, tint or slots'):
                 brief.validate({**crowded, 'materials': crowded['materials'][:2] + [{**crowded['materials'][2], key: value}] + crowded['materials'][3:]})
+
+    def test_a_material_may_list_the_slots_it_is_worn_on(self):
+        given = document(('shirt', 'cloth', GREY), ('boots', 'leather', TAN))
+        self.assertTrue(all(brief.on(given['materials'][1], slot) for slot in brief.SLOTS))  # anywhere, unless it says
+        boots = lambda slots: {**given, 'materials': [given['materials'][0], {**given['materials'][1], 'slots': slots}]}
+        worn = brief.validate(boots(['shin', 'foot']))['materials'][1]
+        self.assertEqual([slot for slot in brief.SLOTS if brief.on(worn, slot)], ['shin', 'foot'])
+        for wrong in ([], ['foot', 'foot'], ['toe'], 'foot'):
+            with self.assertRaisesRegex(ValueError, 'slots lists the slots'):
+                brief.validate(boots(wrong))
+        from . import bake
+        self.assertEqual(brief.SLOTS, bake.SLOTS)
 
     def test_the_metal_channels_are_for_metal_and_for_what_is_marked_shiny(self):
         given = document(('shirt', 'cloth', GREY), ('coat', 'leather', BLUE), ('plates', 'metal', TAN))

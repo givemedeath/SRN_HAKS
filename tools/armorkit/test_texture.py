@@ -157,6 +157,30 @@ class MaterialTests(unittest.TestCase):
         filled, value = texture.spread(np.zeros((4, 4), bool), np.ones((4, 4)), passes=None)
         self.assertFalse(filled.any())  # nothing to spread from: it stops
 
+    def test_a_part_is_tinted_in_the_materials_its_slot_wears_and_no_other(self):
+        which = texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'])
+        channels = [None] * 3
+        for k, name in zip(which, ('cloth1', 'leather1', 'metal1')):
+            channels[k] = name
+        fabric, tan, plate = which.tolist()
+        among = np.ones(3, bool)
+        among[tan] = False  # a boot: no tan flap is worn there, though its dark leather has a flap's tone
+        self.assertEqual(texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'], among)[1] in (fabric, plate), True)
+        colour, covered = np.zeros((16, 16, 3)), np.ones((16, 16), bool)
+        colour[:, :8], colour[:, 8:] = TAN, FABRIC
+        layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, among=among)[1]
+        self.assertFalse((layers == export.LAYERS['leather1']).any())
+        self.assertTrue((layers[:, 8:] == export.LAYERS['cloth1']).all())
+        only = np.zeros(3, bool)
+        only[tan] = True  # a closing takes the first material the part wears, not the outfit's commonest
+        closing = np.zeros((16, 16), bool)
+        closing[4:8, 10:14] = True
+        layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, closing=closing, among=only)[1]
+        self.assertTrue((layers == export.LAYERS['leather1']).all())
+        for wrong in (np.zeros(3, bool), np.ones(2, bool)):
+            with self.assertRaises(ValueError):
+                texture.tint_maps(colour, covered, self.found, channels, among=wrong)
+
     def test_a_source_with_fewer_materials_than_asked_for_is_refused(self):
         with self.assertRaises(ValueError):
             texture.materials(self.colours[self.truth < 2], 3)

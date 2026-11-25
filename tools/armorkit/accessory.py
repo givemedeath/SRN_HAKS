@@ -26,6 +26,7 @@ from . import brief, export, measure, registry, repose, seams, texture
 from .registry import require
 
 KIND = 'srn-armorkit-accessory'
+BODY_SIDE = 0.2  # of a belt's face normal toward the hoop's axis: past this the face lies against the body and is no metal's
 BUDGET = {'triangles': 8000, 'texture': 1024}  # docs/armorkit/plan.md, Budgets: an accessory (user decision 2026-11-25, from 4,000)
 DIRECTIONS = 96  # a belt is fitted in this many directions round the body's axis
 LEVELS = 0.01  # metres: and in bands this tall along it
@@ -228,18 +229,42 @@ def stored(folder):
         return {key: held[key] for key in KEYS}, record.get('surface')
 
 
+def body_side(piece, document, tinted_on, size):
+    """Per texel, the material a belt's faces turned toward the body are drawn in where their colours show a
+    metal, and -1 elsewhere (`texture.tint_maps`' `trim`); None for a piece that has no such faces or no
+    material to give them.
+
+    A belt is drawn in one view, from the front and a little above. What that view never shows, the strap's
+    inner face and the backs of its pouches, the generator paints near-black, and so it paints the buckle
+    and the studs: Street Casual's belt showed two materials, and a fifth of it, leather lying against the
+    body, was tinted on the buckle's metal channel (2026-11-25; the metal channels are for metal, and draw
+    shiny). No metal lies between a belt and its wearer: a face whose normal points more than `BODY_SIDE`
+    toward the hoop's axis takes the commonest material tinted on no metal."""
+    plain = [k for k, kind in enumerate(tinted_on) if kind != 'metal']
+    if document.get('accessory') != 'belt' or not plain or len(plain) == len(tinted_on):
+        return None
+    v, f = np.asarray(piece['v'], float), np.asarray(piece['f'], int)
+    corners = v[f]
+    normal = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+    out = (corners.mean(axis=1) - (v.min(axis=0) + v.max(axis=0)) / 2) * [1.0, 1.0, 0.0]
+    toward = -(normal * out).sum(axis=1) / np.maximum(np.linalg.norm(normal, axis=1) * np.linalg.norm(out, axis=1), 1e-12)
+    return np.where(texture.face_texels(piece['uv'], f, toward > BODY_SIDE, size), plain[0], -1)
+
+
 def tints(piece, document):
-    """((shades, layers), record): a prepared piece's tint texture, each material on the channel its brief names."""
+    """((shades, layers), record): a prepared piece's tint texture, each material on the channel its brief names.
+    A belt's faces turned toward the body are no metal's (`body_side`)."""
     count = len(document['materials'])
     found = texture.materials(piece['rgb'][piece['covered']], count)
     worn = brief.worn(document, found)
     kinds = [material['kind'] for material in worn]
     channel = [brief.tinted(material) + str(material.get('channel', 1)) for material in worn]
     size, amount = len(piece['rgb']), float(document.get('wear', 0))
+    hidden = body_side(piece, document, [brief.tinted(material) for material in worn], size)
     lit = texture.lit_shades(piece['rgb'][piece['covered']], found)
     span = float(np.ptp(piece['src'], axis=0).max())
     tinted = texture.tint_maps(
-        piece['rgb'], piece['covered'], found, channel, relief=piece['relief'], charts=texture.chart_map(piece['uv'], piece['f'], size), lit=lit,
+        piece['rgb'], piece['covered'], found, channel, relief=piece['relief'], charts=texture.chart_map(piece['uv'], piece['f'], size), lit=lit, trim=hidden,
         sharpen=texture.SHARPEN, wear=(amount, kinds, *texture.wear_fields(piece['uv'], piece['f'], piece['src'], size, span)) if amount else None)
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': [channel[k]],
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1),

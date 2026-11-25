@@ -472,3 +472,27 @@ shirt or trim anywhere in this plan.
   which the generator painted dark. So those leather faces are on metal 2 and will draw shiny where they
   show (`review/belt-5-channels.png`). Colour alone cannot part them from the buckle. Not seen in the client.
 
+2026-11-25, the user: "Yes, fix it" (the belt's unseen faces), then "please check for other issues with the plt
+painter and fix them". Every tint texture of `male-14` and the belt was looked at beside its colours.
+
+* **A belt's faces turned toward the body are no metal's** (`accessory.body_side`, `BODY_SIDE`): they take the
+  commonest material tinted on no metal, at their own shade. Belt `belt-6`: metal 2 on 5% of the texture
+  (studs, buckle, and thin lines along the strap's dark edges, which face up and down and are left), from 20%.
+* **Found: a boot was two thirds pocket flap.** A texel's material was the nearest in colour among all the
+  outfit's materials, and a boot's dark leather has the tone of the flaps in shadow: 67% of each foot was on
+  the flaps' channel (two-coloured boots in the client), as were the tan tab on each sleeve (22% and 13% of
+  the upper arms, the brown patches of the first client sheet) and 2% of the chest.
+* **Fix: a material lists the slots it is worn on** (`"slots"` in the brief, `brief.on`; `texture.labels` and
+  `tint_maps` take `among`): a part is tinted in the materials its slot wears and no other, and a closing takes
+  the first of those. Street Casual: shirt chest, upper arms, pelvis; trousers chest, pelvis, thighs, shins;
+  flaps pelvis, thighs, shins; boots shins, feet.
+* **Guard:** where 1% or more of a part's own surface has the colour of a material its slot leaves out, the
+  bake says so and records the share (`elsewhere` in `bake.json`). My first list left the pelvis out of the
+  flaps' slots and the hip pockets' flaps were drawn as shirt; that line is what shows such a slip.
+* **Looked at and left:** shades run from about 96 to the ceiling of 240, with 0.4% to 5% of a part's texels at
+  the ceiling (most on the shins); layers are clean inside charts after the fix; padding between charts is
+  filled.
+* **Bake `male-15`** (the kept parts of `male-14`, tinted again): boots all leather 2, sleeves all cloth 1,
+  flaps leather 1 on pelvis, thighs and shins. Belt fitted over it. Neither seen in the client. The shoulder
+  gate still fails.
+

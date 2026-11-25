@@ -628,6 +628,34 @@ class BakeTests(unittest.TestCase):
             bake.store({'chest': part()}, Path(folder) / 'kept')  # stored without its brief, or before the list held the slots: none
             self.assertEqual(bake.declared(Path(folder) / 'kept'), {'bare': set(), 'skin': set()})
 
+    def test_a_part_is_tinted_in_what_its_slot_wears_and_a_colour_drawn_as_another_is_reported(self):
+        from .test_brief import BLUE, GREY, TAN, document
+        given = document(('shirt', 'cloth', GREY), ('flaps', 'cloth', BLUE), ('boots', 'leather', TAN))
+        for material, channel in zip(given['materials'], (1, 2, 1)):
+            material['channel'] = channel
+        chest, foot = part(2, size=16), part(2, size=16)
+        chest['rgb'] = np.tile(np.array(GREY) / 255, (16, 16, 1))
+        chest['rgb'][:, 10:] = np.array(BLUE) / 255
+        foot['rgb'] = np.tile(np.array(TAN) / 255, (16, 16, 1))
+        foot['rgb'][:, :4] = np.array(BLUE) / 255  # a boot's sole in the flaps' colour
+        parts = {'chest': chest, 'footl': foot}
+        layers = lambda tinted, name: set(np.unique(tinted[name][1]).tolist())
+        tinted, record = bake.tints(parts, given, speck=0)
+        self.assertEqual(layers(tinted, 'footl'), {export.LAYERS['leather1'], export.LAYERS['cloth2']})  # as the colours read
+        self.assertNotIn('elsewhere', record['materials'][1])
+        for material, slots in zip(given['materials'], (['chest'], ['chest', 'thigh'], ['foot'])):
+            material['slots'] = slots
+        said = []
+        tinted, record = bake.tints(parts, given, speck=0, say=said.append)
+        self.assertEqual(layers(tinted, 'footl'), {export.LAYERS['leather1']})  # all boot
+        self.assertEqual(layers(tinted, 'chest'), {export.LAYERS['cloth1'], export.LAYERS['cloth2']})
+        flaps = next(material for material in record['materials'] if material['name'] == 'flaps')
+        self.assertEqual(flaps['elsewhere'], {'footl': 0.25})
+        self.assertTrue(any('footl: 25% of it has the colour of flaps' in line for line in said))
+        given['materials'][2]['slots'] = ['shin']
+        with self.assertRaisesRegex(ValueError, 'footl: no material of the brief is worn on the foot'):
+            bake.tints(parts, given, speck=0)
+
     def test_a_run_is_a_fresh_bake_or_a_second_tint_of_kept_parts(self):
         document = {'model': 'outfit', 'materials': []}
         for wrong in ({}, {'mesh': 'mesh.glb'}, {'mesh': 'mesh.glb', 'colours': 'field.npz', 'raw': 'raw.glb'},

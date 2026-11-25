@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import accessory, brassard, brief, headgear, logo
+from . import accessory, brassard, brief, export, headgear, logo
 from .test_brief import BLUE, GREY, TAN, document
 
 
@@ -119,6 +119,32 @@ class BeltTests(unittest.TestCase):
         self.assertLess(off.max(), 0.03)
         self.assertAlmostEqual(float(placed[:, 2].mean()), 1.0, places=2)
         self.assertLess(record['scale'], 0.5)
+
+    def test_a_belts_faces_turned_toward_the_body_are_no_metals(self):
+        # four walls of a hoop, each on a quarter of the texture: outside and inside at the front, outside and inside at the back
+        def wall(x, out, u, v):  # a square across the x axis at `x`, its normal along +x if `out`
+            corners = np.array([(x, -0.1, 0.0), (x, 0.1, 0.0), (x, 0.1, 0.1), (x, -0.1, 0.1)])
+            uv = np.array([(u, v), (u + 0.5, v), (u + 0.5, v + 0.5), (u, v + 0.5)]) * 0.98 + 0.01
+            return corners, uv, np.array([(0, 1, 2), (0, 2, 3)] if out else [(0, 2, 1), (0, 3, 2)])
+        walls = [wall(0.5, True, 0.0, 0.0), wall(0.45, False, 0.5, 0.0), wall(-0.5, False, 0.0, 0.5), wall(-0.45, True, 0.5, 0.5)]
+        v, uv = np.concatenate([w[0] for w in walls]), np.concatenate([w[1] for w in walls])
+        f = np.concatenate([w[2] + 4 * k for k, w in enumerate(walls)])
+        size, tan, black = 64, np.array(TAN) / 255, np.array([34, 34, 32]) / 255
+        rgb = np.tile(tan, (size, size, 1))
+        rgb[:32, 16:32] = black  # the buckle, on the outside at the front
+        rgb[:32, 32:] = black  # the strap's inner face there, which the one view never showed
+        piece = {'v': v, 'f': f, 'uv': uv, 'n': np.zeros_like(v), 'rgb': rgb, 'covered': np.ones((size, size), bool),
+                 'relief': np.tile([0.5, 0.5, 1.0], (size, size, 1)), 'src': v}
+        given = accessory_brief('belt', ('gear', 'leather', TAN), ('buckles', 'metal', [40, 40, 40]))
+        given['materials'][1]['channel'] = 2
+        (shades, layers), record = accessory.tints(piece, given)
+        leather, metal = export.LAYERS['leather1'], export.LAYERS['metal2']
+        self.assertTrue((layers[4:28, 20:28] == metal).all())  # the buckle stays metal
+        self.assertTrue((layers[4:28, 36:60] == leather).all())  # the inner face is the strap's leather
+        self.assertTrue((layers[36:60, :] == leather).all())
+        self.assertGreater(float(shades[4:28, 36:60].mean()), float(shades[4:28, 20:28].mean()) - 40)  # at a shade of its own, not black
+        self.assertIsNone(accessory.body_side(piece, {**given, 'accessory': 'head'}, ['leather', 'metal'], size))  # a belt's rule
+        self.assertIsNone(accessory.body_side(piece, given, ['leather', 'leather'], size))  # no metal, nothing to move
 
     def test_slight_relief_is_laid_flat_and_a_rim_kept(self):
         tilt = lambda degrees: [(np.sin(np.radians(degrees)) + 1) / 2, 0.5, (np.cos(np.radians(degrees)) + 1) / 2]
