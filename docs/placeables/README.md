@@ -28,3 +28,17 @@ Nine branches, Shadowrun City (envkit's, with city pieces added), Furniture, Int
 Structure, Vehicles, Weapons and Bodies, Nature. They took the place of Modern Exterior, Interior and Space and
 Futuristic Interior and Exterior, whose category numbers (155 to 207) most of them reuse: a module's own blueprint that
 named one of those now shows under the new category of that number.
+
+## Pictures made anew
+
+The rooms draw old placeables at eye level, so the pictures too coarse for that were made anew (user, 2026-11-25), and
+the computer screens that showed a real desktop, program or maker's name were redrawn for the 2070s.
+- `redraw.json`: what the local Qwen edit model drew, on the layout each picture had (`tilekit redraw --bindings`). A
+  `blank` box is filled before the model sees it, so an old screen or logo is not copied.
+- `materials.json`: the size each goes into its pack at, and the pictures enlarged only (`tilekit enlarge`): atlases of
+  small parts, where a redraw would move the parts. `left` says which weak ones stay and why.
+- They go in as plain DDS pictures under their own names, at 512 or 1024 pixels, so every placeable that uses one is
+  changed, not only the rooms.
+
+`python -B -m tools.tilekit material --spec docs/placeables/materials.json --out <folder> --enlarged <folder> --redrawn
+<folder> ...` makes them again; `tools/tilekit/texels.py` finds the weak ones.

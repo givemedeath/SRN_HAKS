@@ -412,6 +412,32 @@ floorplans are done.
   on a wall that cannot change, over another group, and at the area's edge. Not reopened.
 - **Views:** `review-home.json` (bird's eye and eye level; `output/tilekit/home3`).
 
+  - **Gate passed (user, 2026-11-25: "Approve, do Office").**
+
+## Stage 8, Office batch (user, 2026-11-25)
+
+O01 private offices, O02 open-plan office, O03 cubicle farm, O05 executive boardroom, O06 office lobby, O07 executive
+suite and O08 departmental suite (2x2); O04 was a pilot, so the Office floorplans are done. 24 tiles numbered after the
+Home batch's, no earlier number moved.
+- **Palette:** every room's entry reads "Prefab: <category>: <name>" (user); `rooms.records` writes it for all rooms.
+- **Build time:** a room's floor is laid directly (`detail.place(lay=...)`) instead of cut out of the shell's: 9 seconds a
+  tile against a minute and a half.
+- **Guards:** `leaning` takes a piece thinner than 0.3 m (a wall TV) for no seat. A projector screen is taller than O08's
+  ceiling; a wall TV stands there.
+- **Found in the pictures:** coral couches, an over-bright white table and a pale cabinet were replaced; eye cameras that
+  stood in walls were moved.
+- **Walked** by a Human and a Troll: 137 of 138 points each. The miss was beside the lobby guard's chair, which was then
+  moved to its console.
+- **Triangles** a furnished tile: 7.6k to 18.2k, under the pilots' 39.6k; frame rate not measured again.
+- **Toolset:** the rooms are listed as Prefab; all seven furnished rooms laid a quarter turn, saved and read back.
+- **Placeables (user):** the rows the rooms are furnished from, and the rest, were named, given blueprints and put in a
+  new palette tree: `docs/placeables/README.md`. In the Toolset the nine branches show, and a bed blueprint was placed,
+  saved and read back.
+- **Textures (user: upscale or redraw any low-quality texture met; redraw computer screens to match the setting):**
+  `tools/tilekit/texels.py` measures the pixels a metre of what the rooms draw. What was too coarse was enlarged or
+  redrawn: `docs/placeables/README.md`, "Pictures made anew". A test refuses a weak picture that is neither.
+- **Views:** `review-office.json` (bird's eye and eye level; `output/tilekit/office3`).
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record

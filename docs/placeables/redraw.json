@@ -1,0 +1,410 @@
+{
+ "tileset": "srx02",
+ "before": "d7a633e18",
+ "packs": [
+  "srn_placeable",
+  "srn_t_udp2",
+  "srn_t_tbx78"
+ ],
+ "textures": {
+  "bunkrust": {
+   "kind": "material",
+   "district": "barrens",
+   "note": "It is rusty orange-brown steel, streaked and grainy along its length. The same colours.",
+   "tiles": true
+  },
+  "d20_light2": {
+   "kind": "material",
+   "district": "industrial",
+   "note": "It is off-white painted steel with small scattered patches of rust coming through. The same colours.",
+   "tiles": true,
+   "level": "both"
+  },
+  "dirtyblanket": {
+   "kind": "material",
+   "district": "barrens",
+   "note": "It is a worn dark grey-brown wool blanket lying flat, coarse weave, soft small creases.",
+   "tiles": true,
+   "level": "both"
+  },
+  "dirtyblanket2": {
+   "kind": "material",
+   "district": "barrens",
+   "note": "It is a worn dark grey-brown wool blanket lying flat, coarse weave, soft small creases.",
+   "tiles": true,
+   "level": "both"
+  },
+  "jhb_wwood": {
+   "kind": "material",
+   "district": "home",
+   "note": "It is pale cream painted wood, the paint finely crackled. The same colour, straight even wood grain under the paint.",
+   "tiles": true,
+   "level": "both"
+  },
+  "jr_maple_door": {
+   "kind": "material",
+   "district": "home",
+   "note": "It is a maple wood cabinet door panel with a burl centre and a softly rounded edge. The same warm colours.",
+   "opening": "none"
+  },
+  "jvb_bedwood": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "It is a reddish brown mahogany bed end with a curved top edge and a row of beads.",
+   "opening": "none"
+  },
+  "jvb_carpt01": {
+   "kind": "floor",
+   "district": "home",
+   "note": "It is a whole oriental rug with its border, cream field and black ornament: fine woven wool. The same ornament and border.",
+   "opening": "none"
+  },
+  "jvb_carpt02": {
+   "kind": "floor",
+   "district": "home",
+   "note": "It is a whole oriental rug with its border, dark field and rust, gold and green ornament: fine woven wool. The same ornament and border.",
+   "opening": "none"
+  },
+  "jvb_dress03": {
+   "kind": "material",
+   "district": "home",
+   "note": "It is polished reddish brown mahogany veneer with one thin row of small beads across it near the top. The beads stay where they are.",
+   "opening": "none"
+  },
+  "jz_sfp063": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. It is a cream painted wardrobe with raised oblong panels and two small dark knobs.",
+   "opening": "none"
+  },
+  "jz_sfp065": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. It is a brown plank wardrobe with raised oblong woven panels and two small dark knobs.",
+   "opening": "none"
+  },
+  "jz_sfp115": {
+   "kind": "furniture",
+   "district": "corporate",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. It is a brushed pale blue-grey metal cabinet: panel joints, a slim handle, a louvred vent.",
+   "opening": "none"
+  },
+  "jz_sfp118": {
+   "kind": "furniture",
+   "district": "corporate",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. It is a brushed pale blue-grey metal cabinet: panel joints, a slim handle, a louvred vent.",
+   "opening": "none"
+  },
+  "laptex3": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. They are the parts of a black portable computer, its keyboard turned a quarter turn. The plain blue rectangle is its screen, switched on: an abstract 2070s Matrix view, a glowing cyan and amber lattice of connected nodes on near-black. No symbol, no readable words.",
+   "opening": "none",
+   "blank": [
+    [
+     0.01,
+     0.512,
+     0.366,
+     0.985
+    ]
+   ]
+  },
+  "laptop_01": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. They are the parts of a black portable computer: its lid, its underside, its screen at the upper right and its keyboard below the screen. The plain blue rectangle is the screen. It is switched on and shows a 2070s Matrix work desktop, the kind a megacorporation wage slave uses: near-black graphite background, thin cyan and amber outlines, floating translucent windows with a node network graph, a wireframe city block, small bar charts and columns of tiny abstract unreadable text, and a slim bar of plain geometric icons along the bottom edge. No landscape photo, no operating system logo, no readable words.",
+   "opening": "none",
+   "blank": [
+    [
+     0.516,
+     0.094,
+     0.934,
+     0.394
+    ],
+    [
+     0.2,
+     0.16,
+     0.275,
+     0.225,
+     [
+      44,
+      44,
+      47
+     ]
+    ]
+   ]
+  },
+  "lts_rwall01": {
+   "kind": "wall",
+   "district": "corporate",
+   "note": "It is a partition panel covered in plain dark red woven acoustic fabric; the thin lines along the bottom edge stay.",
+   "opening": "none"
+  },
+  "mdrnw2wcp_06": {
+   "kind": "floor",
+   "district": "corporate",
+   "note": "It is a dark navy blue office carpet, short dense loop pile in small rectangular woven courses. Plain, even, no logo.",
+   "tiles": true,
+   "level": "both"
+  },
+  "mdrnw2wcp_08": {
+   "kind": "floor",
+   "district": "corporate",
+   "note": "It is a warm sand-coloured short loop pile office carpet, finely flecked. Plain, even.",
+   "tiles": true,
+   "level": "both"
+  },
+  "mdrnw2wcp_12": {
+   "kind": "floor",
+   "district": "corporate",
+   "note": "It is a muted teal green office carpet with a woven basket pattern of crossing bands of parallel ribs. The same pattern in the same places.",
+   "tiles": true,
+   "level": "both"
+  },
+  "metalbedblanket": {
+   "kind": "material",
+   "district": "industrial",
+   "note": "It is a plain army blanket lying flat, dense wool weave. The same colour.",
+   "tiles": true,
+   "level": "both"
+  },
+  "metalbedblanket2": {
+   "kind": "material",
+   "district": "industrial",
+   "note": "It is a plain army blanket lying flat, dense wool weave. The same colour.",
+   "tiles": true,
+   "level": "both"
+  },
+  "military_black": {
+   "kind": "material",
+   "district": "industrial",
+   "note": "It is dark grey matt powder-coated steel with faint brushed wear. The same dark grey.",
+   "tiles": true,
+   "level": "both"
+  },
+  "monitor_01": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. They are the parts of a dark flat monitor: its back, its side, a plain panel, its foot, and its front at the lower right. The plain blue rectangle is the screen of the front. It is switched on and shows a 2070s tactical map: dark background, a cyan wireframe city district seen from above, thin amber sensor sweeps and small markers. No readable words.",
+   "opening": "none",
+   "blank": [
+    [
+     0.524,
+     0.522,
+     0.978,
+     0.904
+    ]
+   ]
+  },
+  "pkt_shelf": {
+   "kind": "furniture",
+   "district": "residential",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. It is the parts of a shop shelf: a dark metal shelf unit, a few plain unmarked packets in white, orange, yellow and green, wooden edges.",
+   "opening": "none"
+  },
+  "screen": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a whole screen, edge to edge, with no bezel: a 2070s diagnostic display. Near-black background, a large waveform and a bar spectrum in green and amber on a fine dark grid, a thin cyan frame, a narrow column of small round status lights. No readable words.",
+   "opening": "none",
+   "blank": [
+    [
+     0,
+     0,
+     1,
+     1
+    ]
+   ]
+  },
+  "screen1": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a whole screen, edge to edge, with no bezel. It is switched on and shows a 2070s Matrix work desktop, the kind a megacorporation wage slave uses: near-black graphite background, thin cyan and amber outlines, floating translucent windows with a node network graph, a wireframe city block, small bar charts and columns of tiny abstract unreadable text, and a slim bar of plain geometric icons along the bottom edge. No landscape photo, no operating system logo, no readable words.",
+   "opening": "none",
+   "blank": [
+    [
+     0,
+     0,
+     1,
+     1
+    ]
+   ]
+  },
+  "serverfront": {
+   "kind": "furniture",
+   "district": "corporate",
+   "note": "It is the dark grey front of a computer server: a drive slot, vents, a small button panel.",
+   "opening": "none"
+  },
+  "serverscreen": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a whole screen, edge to edge, with no bezel: a 2070s server console. Near-black background; a tall pane of tiny abstract green terminal lines, two small amber load graphs, a grid of small green and amber status lights, thin cyan outlines. No window title bars, no desktop icons, no taskbar, no readable words.",
+   "opening": "none",
+   "blank": [
+    [
+     0,
+     0,
+     1,
+     1
+    ]
+   ]
+  },
+  "shp_metwall": {
+   "kind": "material",
+   "district": "industrial",
+   "note": "It is very dark green-grey painted sheet metal, faintly scuffed. The same darkness.",
+   "tiles": true,
+   "level": "both"
+  },
+  "shpv5_lckr": {
+   "kind": "furniture",
+   "district": "industrial",
+   "note": "It is two steel locker doors side by side, louvres at top and bottom, a handle on each, scuffed grey-brown paint.",
+   "opening": "none"
+  },
+  "t_footlkr01": {
+   "kind": "furniture",
+   "district": "industrial",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. It is a grey-green metal foot locker with brass latches.",
+   "opening": "none"
+  },
+  "tbx78_floor01": {
+   "kind": "floor",
+   "district": "industrial",
+   "note": "It is a dark grey metal floor of sixteen square plates, four by four, with a fine anti-slip pattern and thin dark joints. The joints stay where they are.",
+   "tiles": true,
+   "opening": "none"
+  },
+  "udp2-marble2": {
+   "kind": "material",
+   "district": "corporate",
+   "note": "It is pale grey-green polished marble with soft veins. The same colour.",
+   "tiles": true,
+   "level": "both"
+  },
+  "udp2_p_kybd": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. At the top is the front of a flat monitor with a thin black bezel; below it on plain white are a black keyboard and a pale mouse. The plain blue rectangle is the monitor's screen. It is switched on and shows a 2070s Matrix work desktop, the kind a megacorporation wage slave uses: near-black graphite background, thin cyan and amber outlines, floating translucent windows with a node network graph, a wireframe city block, small bar charts and columns of tiny abstract unreadable text, and a slim bar of plain geometric icons along the bottom edge. No landscape photo, no operating system logo, no readable words.",
+   "opening": "none",
+   "blank": [
+    [
+     0.056,
+     0.057,
+     0.947,
+     0.557
+    ],
+    [
+     0.44,
+     0.565,
+     0.58,
+     0.597,
+     [
+      30,
+      30,
+      32
+     ]
+    ]
+   ]
+  },
+  "udp2_p_laptop": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. They are the parts of a grey portable computer: its plain lid with no logo, its keyboard with touchpad, its two sides.",
+   "opening": "none",
+   "blank": [
+    [
+     0.305,
+     0.175,
+     0.435,
+     0.28,
+     [
+      125,
+      125,
+      127
+     ]
+    ],
+    [
+     0.04,
+     0.513,
+     0.17,
+     0.533,
+     [
+      128,
+      128,
+      130
+     ]
+    ]
+   ]
+  },
+  "udp2_p_pc": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is a texture atlas: separate parts of one object laid side by side on one sheet. Every part stays exactly where it is, with its outline, size and colour. They are the front of a black and silver computer tower, with no logo, and its back with sockets.",
+   "opening": "none",
+   "blank": [
+    [
+     0.135,
+     0.56,
+     0.25,
+     0.67,
+     [
+      178,
+      178,
+      182
+     ]
+    ],
+    [
+     0.03,
+     0,
+     0.36,
+     0.027,
+     [
+      150,
+      150,
+      154
+     ]
+    ]
+   ]
+  },
+  "udp2_p_tv": {
+   "kind": "fixture",
+   "district": "corporate",
+   "note": "It is the front of a wide flat wall screen, switched off: dark blue-grey glass with a soft sheen, a black bezel with no maker's name.",
+   "opening": "none",
+   "blank": [
+    [
+     0.45,
+     0.915,
+     0.56,
+     0.95,
+     [
+      12,
+      13,
+      15
+     ]
+    ],
+    [
+     0.04,
+     0.035,
+     0.1,
+     0.06,
+     [
+      22,
+      25,
+      28
+     ]
+    ]
+   ]
+  },
+  "wall_dwood4": {
+   "kind": "wall",
+   "district": "corporate",
+   "note": "It is a reddish brown wood wall: the upper half smooth wood veneer, the lower half two rows of four square raised wood panels with mouldings. The same panels in the same places.",
+   "tiles": true,
+   "opening": "none",
+   "level": "across"
+  }
+ }
+}
