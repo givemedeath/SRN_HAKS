@@ -27,6 +27,7 @@ SLEEVE = 4  # sections in a row with something beside the torso, above a stretch
 JOINED = 1.15  # above a short sleeve the torso's curve is at least this much wider than beside it: the sleeves have joined it
 GAP = 0.05  # a glove lies at least this share of the height below its sleeve's hem: less is a section missing from a whole arm
 SHOULDER_OFF = 0.04  # of the outfit's height: a shoulder the sleeve's line puts farther than this from where the body's would lie is not the sleeve's to say
+SHOULDER_BEHIND = 0.06  # of the outfit's height: a sleeve's line that reaches the shoulder's height this far in front of the sleeve's middle or behind it is no arm's either
 ARM = 0.6  # an outfit's arm, as far as it is followed, is at least this share of the body's from shoulder to fingertips
 STRAY = 0.008  # a sleeve's ring lies this share of the height from the line through the others at most, or it is left out
 ROUND, WIDE = 0.06, 0.45  # a short sleeve's ring has its middle within this share of the height of the line through its glove,
@@ -375,12 +376,15 @@ def outfit_joints(vertices, faces, body):
             shoulder = middle + straight * (height - middle[2]) / straight[2] if straight[2] < -0.2 else None
             # where the body's own shoulder would lie on this outfit: as far from its middle as the body's is from its own
             own = np.array([marks['middle'] + body['shoulder' + side][0] / scale, middle[1], height])
-            if shoulder is None or np.linalg.norm((shoulder - own)[[0, 2]]) > SHOULDER_OFF * marks['height']:
+            off = None if shoulder is None else np.abs(shoulder - own) / marks['height']
+            if off is None or np.hypot(off[0], off[2]) > SHOULDER_OFF or off[1] > SHOULDER_BEHIND:
                 # a short, loose sleeve is wider than it is long, and the line through its few rings is no arm's: on a
                 # boxy T-shirt it pointed in toward the torso, and put the shoulder 10 cm outside the shirt and the
                 # elbow in its flank (Street Casual, 2026-11-24). The upper arm then runs from the body's shoulder
-                # through the sleeve's middle
-                shoulder, straight = own, seams.unit(middle - own)
+                # toward the glove: through the middle of a sleeve standing out wide of the arm, on the next mesh,
+                # it put the elbow 5 cm outside the arm and no section of the sleeve came clear of the torso. The
+                # shoulder is read front to back too: that sleeve's line reached the shoulder's height 7 cm behind it
+                shoulder, straight = own, seams.unit(start - own)
             require(straight[2] < -0.2, f'The {"left" if sign < 0 else "right"} sleeve does not point down the arm')
         arm = np.concatenate([glove, arm])
         path = np.concatenate([shoulder[None], arm[::-1][:, [1, 2, 0]]])  # from the shoulder down the arm

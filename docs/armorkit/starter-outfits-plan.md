@@ -356,3 +356,28 @@ patch or pocket on each sleeve, the two sleeves unlike. Belt `street-casual-belt
 20261133) is the candidate: one ring, one front buckle, a pouch at each hip; the buckle is drawn grey and a
 small buckle sits at each side. Next: the user's word on both images, then geometry attempt 2 of 5 for the
 outfit and attempt 1 for the belt.
+
+2026-11-25, the user: "Yes, generate both", and "make sure the grey parts of the belt get mapped to a metal
+channel".
+
+* Belt brief: a second material, `buckles` (metal 1, grey steel: the buckle and the pouch studs). Redrawn and
+  sealed as `street-casual-belt/reference-v4` (seed 20261133): one ring, one buckle, two pouches; the band's
+  inner face is drawn near-black. Metal 1 is also the shirt's channel on this outfit; which metal channel the
+  buckle takes is the user's to confirm.
+* The shared ComfyUI refused a job after `comfy.settings.json` changed (UI preferences only). Captured as
+  `capture-20261125-010040.json` and approved on the user's "Approve snapshot" (`approved-cbea00c79d4d`).
+* Outfit, geometry attempt 2 of 5 (`calibrate-2`, field of view 34.0; `geometry-2`, `export-3` at 200,000
+  faces, `appearance-2`): short rolled sleeves standing clear of the torso, plain waistband, two gloves apart,
+  no belt (`geometry-2/views.jpg`).
+* Belt, geometry attempt 1 of 5 (`calibrate-2`, field of view 28.4; `geometry-1`, `export-2` at 4,000 faces,
+  `appearance-2`), prepared: `output/armorkit/street-casual/belt-1-prepared`, 3,386 triangles. Not fitted yet:
+  `accessory fit` wants the outfit compiled.
+* **Attempt 2 does not bake yet.** Its sleeves are wider and shorter than attempt 1's and stand out from the
+  arm. First the fit refused them ("one surface with the torso down to the elbow"): the arm line through the
+  sleeve's middle put the left elbow 5 cm outside the arm, and the right sleeve's own line reached the
+  shoulder's height 7 cm behind it. `repose.outfit_joints` now runs a loose sleeve's arm from the body's
+  shoulder toward the glove and reads the shoulder front to back too (`SHOULDER_BEHIND`); both attempts then
+  pass the fit and the sleeve cut, and the joints of Facility Security (male, female) and Site Guard are
+  unchanged. Then the split refuses it (bake `male-6`): "The l sleeve stays joined to the torso: 0% of it goes
+  with the arm". The trough gives the arm 13,883 faces, so a strip still joins sleeve and chest after the
+  cuts; a wider shoulder cut (radius up to 20 cm) does not part it. Where the strip is has not been found.
