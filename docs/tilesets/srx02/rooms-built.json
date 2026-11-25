@@ -1,0 +1,19 @@
+{
+ "schemaVersion": 1,
+ "kind": "tilekit-rooms",
+ "inputs": {
+  "piece:jz_sfp029": "ce056738260e27e728bad800b29d7d1a50f59afc654835ed617fc3fb70dc6e4f",
+  "piece:jz_sfp050": "2be8c1c75a959616e79366709a0be88827b1631217396c8f277cc3b71ee0a6dc",
+  "piece:jz_sfp074": "038884da7a3b84e5fdd87daf331c12af33a7acf8c7828860c9e86e88f7cb813c",
+  "piece:pkt_pplant01": "5b6e768f196c4fba4ebd7cca0f209e13e20b5602946a9590b0e7a8a95ce7e2e8",
+  "piece:pkt_slamp01": "de2eef948b9ed1da8633de166e155e316f01f9ab5a393c39324be0e31231b9f8",
+  "room:liv01": "ff8faea147aa3790de82aa1674e4ff853fe024b693e1391b061eba6f6a8ff1fd",
+  "shell:tfb01_e01_01": "5d24243a2b7cb9e28ca3ca6b6b2d1d9b9a646e38519f2e28ed026f424cbfb0c3"
+ },
+ "outputs": {
+  "sources/srn_t_srx02/srx02_liv01f_01.mdl": "4fd2c1a0b350b8d93cbd2767a7f00abb925188b1b4ba6b1d9ae4732e77375ead",
+  "sources/srn_t_srx02/srx02_liv01u_01.mdl": "b868c6582a13dd492bebb72c4c061a8b8cbe5e7367bd39d8483c7e98573f4443",
+  "srn_t_srx02/srx02_liv01f_01.wok": "720dfbdd9155d34add1d167f4c03216e5534f642091883244bbb7bd195df6c89",
+  "srn_t_srx02/srx02_liv01u_01.wok": "fea39678ac14a618fe702e30f19a175cfea1a4ad41a78c812ac4d3f20d61c863"
+ }
+}

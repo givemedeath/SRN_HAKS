@@ -26,6 +26,7 @@
  "grass": "udp2",
  "joins": [],
  "joinTiles": "docs/tilesets/srx02/joins.json",
+ "rooms": "docs/tilesets/srx02/rooms",
  "numbers": "docs/tilesets/srx02/numbers.json",
  "doors": {
   "24": 269,

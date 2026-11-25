@@ -23,6 +23,7 @@ NONWALK = 7  # surfacemat.2da NonWalk: a street obstacle's footprint stops walki
 BLOCK = 2  # surfacemat.2da Obscuring: no walking, and it blocks sight; envkit's raised building masses are made of it
 WALK_CUTS = 'walk-cuts.json'  # {tileset, models: {model: {aabbFrom, aabbTo, wokFrom, wokTo, footprints}}}
 NEAR = 1e-4
+LOST = 1e-3  # square metres of ground a cut triangle's parts may differ from the whole by
 MENDS = 20000  # splits mending a cut walkmesh may take before it is called stuck
 STOREY = 1.0  # metres: a face this close to a piece's base, over its footprint, is the roof it stands on
 
@@ -187,6 +188,27 @@ def _rest(triangle, inside):
     return rings
 
 
+def outside(triangle, inside, footprint):
+    """Triangles of what is left of a triangle (3-D points) without `inside`, the part of it in `footprint`: all of it.
+    The rings' own triangles (`_rest`, `_ears`) add fewest corners, and lose the whole triangle where the footprint only
+    nicks it by a centimetre: a coffee table took 7 square metres of a room's floor with it (2026-11-24). Where theirs
+    do not hold the whole rest, it is cut off along each of the footprint's lines in turn."""
+    area = lambda ring: abs(_area_signed(ring)); rest = area(triangle) - area(inside)
+    try:
+        found = [part for ring in _rest(triangle, inside) for part in _ears(ring)]
+    except ValueError:  # a ring `_ears` could not take apart
+        found = []
+    if abs(sum(map(area, found)) - rest) > LOST:
+        left, found = list(triangle) if _area_signed(triangle) > 0 else list(reversed(triangle)), []
+        for index, a in enumerate(footprint):
+            left, off = _split(left, a, footprint[(index + 1) % len(footprint)]); off = _distinct(off)
+            found += [part for part in _fan(off) if _area(*part) > 1e-7] if len(off) >= 3 else []
+            if len(left) < 3:
+                break
+        require(abs(sum(map(area, found)) - rest) <= LOST, f'A cut at {footprint[0]} loses walkable ground: move the piece a little')
+    return found
+
+
 def _on_rim(a, b, rim):
     return any(_on_edge(a, rim[index], rim[(index + 1) % len(rim)]) and _on_edge(b, rim[index], rim[(index + 1) % len(rim)]) for index in range(len(rim)))
 
@@ -261,8 +283,7 @@ class Walkmesh:
                 kept.append(face); continue
             covered += 1; inside = _clip(triangle, footprint)
             raised += [self._face(part, face, material) for part in _fan(inside)]
-            for ring in _rest(triangle, inside):
-                kept += [self._face(part, face, face[7]) for part in _ears(ring)]
+            kept += [self._face(part, face, face[7]) for part in outside(triangle, inside, footprint)]
         self.faces = kept + (self._raised(raised, top) if top is not None else raised)  # an obstacle's footprint stays flat on the street
         return covered
 

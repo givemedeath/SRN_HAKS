@@ -15,6 +15,7 @@ lists its arguments. They read a tile's ASCII source where the pack ships a comp
 | `shared` | Models outside the tileset that name its restyled textures | Release 1, shared textures |
 | `placements` | Wall pieces of applied specs that run into their tile's own geometry | Batches 2 to 4, after the new guard |
 | `sketch` | Tile models drawn from the top, front and side, without the game | Crowns, doors |
+| `rooms` | Rooms of a merged interior set, unfurnished and furnished, as tiles of their own (srx02; `tools/tilekit/rooms.py` has the spec) | srx02, stage 5 |
 | `props` | Every kit piece rendered in Blender (four threads), by day and night | Kit rework |
 
 ## Specs

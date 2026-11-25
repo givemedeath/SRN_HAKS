@@ -2533,3 +2533,15 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
   kept of each picture are in `docs/tilesets/tfb01/redraw.json`, which also names the commit that holds the pictures
   replaced and the 25 textures left as they were. No third-party picture was used. The source pack's terms, recorded
   above, still hold for its models and the textures left. The operator approved the pictures on 2026-11-24.
+
+## Interior rooms (`srn_t_srx02`; 2026-11-24)
+
+- The room tiles `srn_t_srx02/srx02_<id>u_NN.mdl` and `srx02_<id>f_NN.mdl` (sources in `sources/srn_t_srx02/`) and their
+  walkmeshes are written by `tools/tilekit/rooms.py` from the specs in `docs/tilesets/srx02/rooms/`. Each is a copy of a
+  source set's tile without its furniture, with a generated ceiling and, where furnished, placeables of `srn_placeable`
+  and `srn_envprop` baked in; they draw the textures of those packs by name. `docs/tilesets/srx02/rooms-built.json` lists
+  the tiles and placeables each was made from, whose provenance and terms are recorded above.
+- `srx02_bookscr.dds` (a bookcase round a screen) and `srx02_scrnews.tga` (the screen's frames, with `srx02_scrnews.txi`)
+  were drawn locally with Qwen-Image 2.1 from a layout drawn in code and, for the frames, from that picture itself, and
+  put together by the SRN project operator with Claude. No third-party picture was used. The operator approved the
+  room on 2026-11-24.

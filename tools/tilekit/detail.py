@@ -14,6 +14,8 @@ a player would walk through it. A piece marked `blocks` is cover instead: it sta
 footprint is raised out of the roof's walkmesh to the piece's top (`cuts`), so nothing walks through it or sees past it.
 A piece marked `obstacle` is street furniture (a bollard, a bin): it stands on the street, and its footprint is cut
 out of the street's walkmesh flat, as NonWalk, so nothing walks through it and the street is seen past it.
+A piece marked `rests` lies on a room's floor (a rug) or stands on its furniture, the tile's own or an obstacle placed
+before it (a vase on a table): it is fixed to no wall, and no player walks where its obstacle stands.
 The walkmesh is hashed before and after. Changed models are written into a review's
 overlay, with `models-from.json`, as the lamps and shadows are, and a model there already (the lamps') is the one
 changed; a tile's earlier pieces there are replaced, so the spec can be run again as it changes. The kit's atlas
@@ -269,6 +271,7 @@ def _place(text, name, placements, kit, cache, pack_text, wok, progress):
                 f'{name} #{number}: `scale` is a positive number, or three: [across, out, up]')
         blocks = placement.get('blocks', False); require(isinstance(blocks, bool), f'{name} #{number}: `blocks` is true or false')
         obstacle = placement.get('obstacle', False); require(isinstance(obstacle, bool) and not (blocks and obstacle), f'{name} #{number}: `obstacle` is true or false, and not with `blocks`')
+        rests = placement.get('rests', False); require(isinstance(rests, bool) and not (rests and (blocks or obstacle)), f'{name} #{number}: `rests` is true or false, and not with `blocks` or `obstacle`')
         mine = geometry.baked(piece_parts(kit, piece, cache), turned(at, placement.get('turn', 0.0), scale))
         require(mine, f'{piece} draws nothing'); faces = geometry.faces_of(mine)
         out = geometry.overhanging(faces); require(not out, f'{name} #{number} ({piece}) leaves the cell, other than flush to its side or over the street above {geometry.OVER} m, at ' + ', '.join(map(str, out[:3])))
@@ -296,6 +299,10 @@ def _place(text, name, placements, kit, cache, pack_text, wok, progress):
                               and roof + 0.05 < point[2] <= high[2]})
                 require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
             against = ()
+        elif rests:
+            against = ()
+            _clear(name, number, piece, faces, fixtures, {key: heights for key, heights in walk.items() if not any(
+                top is None and cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP) for polygon, _, top in footprints)})
         else:
             facing = math.radians(placement.get('turn', 0.0)); out = (-math.sin(facing), math.cos(facing))
             against = ((out, at[0] * out[0] + at[1] * out[1]), drawn()) if piece not in CLIMBERS else ()  # the wall it is fixed to, for its head's sweep too

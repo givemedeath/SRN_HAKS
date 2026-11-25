@@ -3677,6 +3677,20 @@
    "audit": "rig",
    "compiled": "2026-11-24"
   },
+  "srn_t_srx02/srx02_liv01f_01.mdl": {
+   "source": "4fd2c1a0b350b8d93cbd2767a7f00abb925188b1b4ba6b1d9ae4732e77375ead",
+   "binary": "cf1b77c23c21c3b6452633b9ddec25bd27b339951ac65e973e726883dbaeacc0",
+   "bytes": 184244,
+   "audit": "rig",
+   "compiled": "2026-11-24"
+  },
+  "srn_t_srx02/srx02_liv01u_01.mdl": {
+   "source": "b868c6582a13dd492bebb72c4c061a8b8cbe5e7367bd39d8483c7e98573f4443",
+   "binary": "28b2f76270818b973b07d11f07dd58c316e1740cdf92579a0eee69afe6866c44",
+   "bytes": 63516,
+   "audit": "rig",
+   "compiled": "2026-11-24"
+  },
   "srn_t_udp1/udp1_a01_01.mdl": {
    "source": "27e8e2d7bba6c0e9ac528554ea6297ca700f62613340f10519fe655167c7fe6d",
    "binary": "4ccc2b207c5c5717c6b089ccfd574d93d9efa105f60af2e6abbd1d64c38ee3f5",

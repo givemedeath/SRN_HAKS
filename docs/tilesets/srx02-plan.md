@@ -317,8 +317,25 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   (`output/tilekit/set3`) match the approved views but for flames and clouds. The five door textures were not seen on
   their doors. Known flaws kept: `tfb01_sac`'s cream panel overlaps the bottom of its frame, `tfb01_rock1` has a small
   step in tone.
-- **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
-  other tile is stripped; of the trial room only its textures are in a pack; 4 m walls to match Office were not tried.
+- **The room tool (stage 5; user, 2026-11-24: "Yes, build room tool").** `tools/tilekit/rooms.py`, command `tilekit
+  rooms --spec docs/tilesets/srx02/merge.json` (then `merge`, `compile`), reads `docs/tilesets/srx02/rooms/<id>.json`
+  and writes each room unfurnished and furnished as tiles of their own (`srx02_<id>u_NN`, `srx02_<id>f_NN`). The source
+  sets' tiles and their walkmeshes are left as they are, so no baseline changes. Merge numbers the rooms after the joins
+  (`["room", model]` in `numbers.json`) and shows both groups. `rooms-built.json` pins what a build read and wrote.
+- **The trial room through the tool:** `liv01`, "Home: Living Room, media wall" and "..., furnished" (tiles 677, 678;
+  398 and 1,868 triangles; 46.1 and 40.4 square metres walked), in `srn_t_srx02` with its bookcase picture
+  (`srx02_bookscr.dds`) and its screen (`srx02_scrnews.tga`, 12 MB, with its TXI). Seen in the client from the packs:
+  both rooms in `output/tilekit/rooms1`, the screen playing in `output/trial/liv01-screen-30fps.mp4`. The screen's key
+  pictures and scripts are kept in the shared tool root, `.tools/tilekit/art/srx02-liv01`.
+- **Found by the tool's checks, with a guard each:** `cuts` took a whole walkmesh triangle where a footprint only nicked
+  it, so the trial room lost 7 square metres of floor round its coffee table (fixed, `cuts.outside`; of the 106 changed
+  walkmeshes of the exterior packs none lost any); a flipbook in a DDS, standard or BioWare, draws as a pale film and
+  does not play (`rooms.textured` wants a TGA and its TXI); a thing that lies on the floor or stands on furniture was
+  taken for a wall fixture (`detail` `rests`); a piece that faces a wall, a room cut in two, a shut doorway are refused.
+- **Changed from the plan:** a room keeps its shell's minimap; a baked lamp gets no tile light of its own; the triangle
+  count is told, not held to a budget (the pilots set it).
+- **Not done:** a room's groups are not laid or turned in the Toolset, and no creature has walked one (pilots); nothing
+  has been made of a shell of several tiles but in code; 4 m walls to match Office were not tried.
 
 ## Decisions for the user (defaults used unless changed)
 

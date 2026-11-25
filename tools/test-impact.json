@@ -5771,6 +5771,7 @@
       "tools/tilekit/openings.py",
       "tools/tilekit/perf.py",
       "tools/tilekit/repair.py",
+      "tools/tilekit/rooms.py",
       "tools/tilekit/sketch.py"
     ],
     "tools/tilekit/compiled.py": [
@@ -5878,6 +5879,7 @@
     "tools/tilekit/merge.py": [
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
+      "tools/tilekit/rooms.py",
       "tools/tilekit/terrain.py"
     ],
     "tools/tilekit/merged.py": [
@@ -5934,6 +5936,16 @@
       "tools/tilekit/apply.py",
       "tools/tilekit/client_settings.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/rooms.py": [
+      "tools/tilekit/compiled.py",
+      "tools/tilekit/cuts.py",
+      "tools/tilekit/detail.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/strip.py",
+      "tools/tilekit/terrain.py",
+      "tools/tilekit/unique.py"
     ],
     "tools/tilekit/shadows.py": [
       "tools/tilekit/apply.py",
@@ -6119,6 +6131,16 @@
     "tools/tilekit/test_review.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/review.py"
+    ],
+    "tools/tilekit/test_rooms.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/cuts.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/joins.py",
+      "tools/tilekit/merge.py",
+      "tools/tilekit/rooms.py",
+      "tools/tilekit/test_strip.py"
     ],
     "tools/tilekit/test_shadows.py": [
       "tools/tilekit/__init__.py",
@@ -6392,6 +6414,7 @@
     ],
     "tools/tilekit/compiled.py": [
       "srn_door",
+      "srn_envprop",
       "srn_placeable"
     ],
     "tools/tilekit/crown.py": [
@@ -6430,6 +6453,12 @@
       "srn_t_dgt04",
       "srn_t_udp1"
     ],
+    "tools/tilekit/rooms.py": [
+      "srn_2da",
+      "srn_envprop",
+      "srn_placeable",
+      "srn_t_common"
+    ],
     "tools/tilekit/terrain.py": [
       "srn_2da",
       "srn_t_common"
@@ -6454,6 +6483,7 @@
     ],
     "tools/tilekit/test_compiled.py": [
       "srn_door",
+      "srn_envprop",
       "srn_placeable",
       "srn_t_common",
       "srn_t_dgt04",
@@ -6550,6 +6580,17 @@
     ],
     "tools/tilekit/test_review.py": [
       "srn_2da"
+    ],
+    "tools/tilekit/test_rooms.py": [
+      "srn_2da",
+      "srn_envprop",
+      "srn_placeable",
+      "srn_t_common",
+      "srn_t_nac01",
+      "srn_t_srx02",
+      "srn_t_tbx78",
+      "srn_t_tfb01",
+      "srn_t_udp2"
     ],
     "tools/tilekit/test_shadows.py": [
       "srn_2da",
@@ -6911,6 +6952,7 @@
     "tools/tilekit/test_remesh.py",
     "tools/tilekit/test_repair.py",
     "tools/tilekit/test_review.py",
+    "tools/tilekit/test_rooms.py",
     "tools/tilekit/test_shadows.py",
     "tools/tilekit/test_sketch.py",
     "tools/tilekit/test_strip.py",

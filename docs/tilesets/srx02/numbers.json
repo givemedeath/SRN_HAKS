@@ -14,6 +14,8 @@
   ["join", "srx02_jfx_01"],
   ["join", "srx02_jgx_01"],
   ["join", "srx02_jhx_01"],
-  ["join", "srx02_jix_01"]
+  ["join", "srx02_jix_01"],
+  ["room", "srx02_liv01u_01"],
+  ["room", "srx02_liv01f_01"]
  ]
 }
