@@ -146,13 +146,14 @@ def tiers(tier, at):
 
 def command_bake(args):
     from . import bake, brief
-    sources = (args.mesh, args.colours, args.raw, args.xatlas)
-    registry.require(all(sources) or (args.kept and not any(sources)),
-                     'bake needs --mesh, --colours, --raw and --xatlas together, or --kept alone to tint stored parts again')
+    sources = (args.colours, args.raw, args.xatlas) if args.resume else (args.mesh, args.colours, args.raw, args.xatlas)
+    registry.require(all(sources) or (args.kept and not args.resume and not any(sources)),
+                     'bake needs --mesh, --colours, --raw and --xatlas together (--resume in place of --mesh), or --kept alone to tint stored parts again')
     record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
                       xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=tiers(args.tier, args.tier_at), tint_cache=args.tint_cache,
                       packs=args.pack, game=args.nwn_root, resources=args.resources, body_textures=args.body_textures,
-                      capture=args.capture, say=lambda *words: print(*words, file=sys.stderr, flush=True))
+                      capture=args.capture, workers=args.workers, cache=args.cache, resume=args.resume,
+                      say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
     if not record['gates']['passed']:
         sys.exit(1)
@@ -367,6 +368,9 @@ def main(argv=None):
     p.add_argument('--nwn-root', help='game install folder: with it the models are compiled')
     p.add_argument('--resources', action='append', default=[], help='folder the compiler looks animations up in')
     p.add_argument('--capture', help='file to keep what the split is given in, for `split` to run it again')
+    p.add_argument('--resume', help='a file an earlier bake of this mesh kept with --capture: go on from the split, without --mesh')
+    p.add_argument('--workers', type=int, default=4, help='processes the parts are reduced, laid out and tinted in side by side')
+    p.add_argument('--cache', help="folder that keeps each part's reduction, maps and texture, read again while nothing they are made from has changed")
     p.add_argument('--tint-cache', help='folder that keeps each part\'s tint texture, read again while nothing it is drawn from has changed')
     p.set_defaults(handler=command_bake)
     p = commands.add_parser('accessory', help='prepare a generated accessory piece once, then fit it on a body over an outfit')

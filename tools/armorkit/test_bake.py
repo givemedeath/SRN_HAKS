@@ -563,7 +563,7 @@ class BakeTests(unittest.TestCase):
         parts = {'chest': part()}
         tinted = {name: (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1'])) for name in parts}
 
-        def baked(*given, mark=None):
+        def baked(*given, mark=None, **more):
             mark('split')
             return parts, {'torso_g': np.eye(4)}, None
         with tempfile.TemporaryDirectory() as folder, mock.patch.object(bake, 'bake', baked), \
