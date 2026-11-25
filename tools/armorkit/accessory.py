@@ -173,9 +173,10 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     the axis is moved in or out as one column, by as much as brings the hoop's inner face there `clearance`
     outside the widest of what lies under it at the heights of its strap (`strap`). The move is evened round the
     circle and never less than a direction asks. What hangs below the strap, a pouch or a holster down the thigh,
-    does not move the strap: where the trousers under it are wider than the strap was moved for, it is swung out
-    from the strap's lower edge, nothing there and the most at the hoop's lowest point, as a pouch hangs over a
-    thigh. Moved as one column by the widest under any of it, a belt over baggy trousers stood off the waistband
+    does not move the strap: where the trousers under it are wider than the strap was moved for, it is pushed out
+    level by level, by what lies under it at each and no less than at the level above, as a pouch leans over a
+    thigh. Swung out as one from the strap's lower edge by the most any level asked, the pouches stood 10 cm
+    wider than the belt was drawn (user, 2026-11-25: "the belt pouches were not scaled down with the rest"). Moved as one column by the widest under any of it, a belt over baggy trousers stood off the waistband
     by as much as their thigh pockets bulge (Street Casual in the client, user, 2026-11-25: "belt still seems
     too large"). Before it, a
     hoop whose band is less than `BAND` tall is made taller to it (`TALLER` at most) and deeper (`DEEPER` at most):
@@ -218,8 +219,9 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     faces = np.asarray(faces, int)
     moved = np.zeros(DIRECTIONS)
     band_low, band_high = strap(placed)
-    hang = max(band_low - float(placed[:, 2].min()), 1e-6)  # how far the hoop hangs below its strap
-    below = np.clip((band_low - placed[:, 2]) / hang, 0.0, 1.0)  # per point: its share of that
+    top = int(np.floor(band_low / LEVELS))  # the strap's lowest level
+    rows = top - int(np.floor(float(placed[:, 2].min()) / LEVELS)) + 1  # the levels from there down to the hoop's lowest point
+    below = np.clip(top - np.floor(placed[:, 2] / LEVELS).astype(int), 0, rows - 1)  # per point: how many levels below the strap it hangs
     for again in range(3):  # a move changes which level a slanting face lies over what: read again until nothing is left inside
         over = np.einsum('gk,fkc->fgc', grid, placed[faces]).reshape(-1, 3)  # the hoop's surface, not its corners alone
         hoop_way, hoop_level, hoop_radius = _cells(over)
@@ -233,16 +235,19 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
                 need = table[(direction, band_level)] + clearance - value
                 if (band_level + 1) * LEVELS > band_low:  # the strap's
                     move[direction] = max(move[direction], need)
-                else:  # what hangs below it, by its share of the swing
-                    hung.setdefault(direction, []).append((need, min(max((band_low - (band_level + 0.5) * LEVELS) / hang, 0.2), 1.0)))
+                else:  # what hangs below it, at its own level
+                    hung[(direction, min(top - band_level, rows - 1))] = need
         move = _filled(np.where(np.isfinite(move), move, np.nan))
         move = _evened(np.maximum(move, 0.0) if again else move)  # after the first, only outward
-        swing = np.zeros(DIRECTIONS)
-        for direction, needs in hung.items():
-            swing[direction] = max(0.0, max((need - move[direction]) / part for need, part in needs))
-        swing = _evened(swing)
-        shift = (1 - share) * move[first % DIRECTIONS] + share * move[(first + 1) % DIRECTIONS]
-        shift = shift + below * ((1 - share) * swing[first % DIRECTIONS] + share * swing[(first + 1) % DIRECTIONS])
+        # per direction and level below the strap: how much farther out than the strap what hangs there is pushed, by
+        # what lies under it at that level and no less than the level above it was, so that a pouch leans out over a
+        # thigh and is not folded back in under it
+        swing = np.zeros((DIRECTIONS, rows))
+        for (direction, row), need in hung.items():
+            swing[direction, row] = max(swing[direction, row], need - move[direction])
+        swing = np.maximum.accumulate(swing, axis=1)
+        swing = np.stack([_evened(swing[:, row]) for row in range(rows)], axis=1)
+        shift = (1 - share) * (move[first % DIRECTIONS] + swing[first % DIRECTIONS, below]) + share * (move[(first + 1) % DIRECTIONS] + swing[(first + 1) % DIRECTIONS, below])
         radius = np.hypot(placed[:, 0], placed[:, 1])
         grown = np.maximum(radius + shift, 1e-6) / np.maximum(radius, 1e-6)
         placed = np.stack([placed[:, 0] * grown, placed[:, 1] * grown, placed[:, 2]], axis=1)
