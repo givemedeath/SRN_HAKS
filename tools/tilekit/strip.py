@@ -10,9 +10,12 @@ A drawn part (`sort`) is
 - `rug`: flat, a finger above the floor it lies on and smaller than it;
 - `top`: at or above the walls' top (the black lid over a wall, a lintel, a roof beam);
 - `shell`: off the floor (a wall, a door frame), at the tile's very edge (a door leaf), or reaching from wall to wall;
+- `builtin`: stands on the floor and reaches the walls' top, or lies within one that does (a bookcase, its shelves
+  and books; a partition; a chimney breast), or would leave a hole in the room were it gone (`_holes`: the wall or
+  the floor behind it was never drawn), or touches one that would (a bed's mattress on its frame): part of the room, kept and given a new look in place (user rule 2026-11-24);
 - `furniture`: everything else, which stands on the floor inside the room.
 
-Stripped (`stripped`), a tile keeps its floor, shell and tops. A face of its walkmesh that is not walked and lay under
+Stripped (`stripped`), a tile keeps its floor, shell, tops and what is built in. A face of its walkmesh that is not walked and lay under
 furniture becomes the room's own walked surface, on the ground; one no furniture stood on stays (a stair's void, a
 wall). `shell` writes the stripped tile whole: its model with the new walkmesh in it, and its walkmesh file."""
 import numpy as np
@@ -25,7 +28,12 @@ LID = 2.9  # metres: the walls' top (3.0 in tfb01) less a little
 REACH = 6.5  # metres: a part this long runs from wall to wall
 EDGE = 4.4  # metres from the tile's middle: what lies wholly beyond is in a doorway or the tile's rim
 ON = 0.5  # the share of a part's footprint on the floor that puts it in the room
-KINDS = ('floor', 'rug', 'top', 'shell', 'furniture')
+TALL = 2.85  # metres: what stands on the floor and reaches this high is built in
+WITHIN = 0.05  # metres of slack for a part lying within a built-in one's box
+EYE = 1.5  # metres: the height a room is looked through from, to find what would leave a hole
+SEEN = 12  # places on the floor it is looked from
+HOLE = 0.15  # the share of a part's seen points with nothing behind them that makes it built in
+KINDS = ('floor', 'rug', 'top', 'shell', 'builtin', 'furniture')
 
 
 def _plan(points, faces):
@@ -57,6 +65,60 @@ def _share(plan, points, ground):
     return sum(area for middle, area in weighed if _within(ground, *middle)) / sum(area for _, area in weighed)
 
 
+def _hits(origins, ways, triangles):
+    """How far along each ray (origin, way) the nearest of `triangles` [n, 3, 3] is met, from either side; inf where none."""
+    if not len(triangles):
+        return np.full(len(origins), np.inf)
+    first, second = triangles[:, 1] - triangles[:, 0], triangles[:, 2] - triangles[:, 0]
+    cross = np.cross(ways[:, None, :], second[None]); det = (first[None] * cross).sum(-1)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        inverse = np.where(np.abs(det) > 1e-12, 1.0 / det, 0.0); off = origins[:, None, :] - triangles[None, :, 0]
+        u = (off * cross).sum(-1) * inverse; other = np.cross(off, first[None]); v = (ways[:, None, :] * other).sum(-1) * inverse
+        far = (second[None] * other).sum(-1) * inverse
+    met = (np.abs(det) > 1e-12) & (u >= -1e-6) & (v >= -1e-6) & (u + v <= 1 + 1e-6) & (far > 1e-6)
+    return np.where(met, far, np.inf).min(1)
+
+
+def _solid(part):
+    return np.array([part['points'][list(face[:3])] for face in part['faces']], float).reshape(-1, 3, 3)
+
+
+def _holes(parts, floor, half=5.0):
+    """The names of the standing parts (kind furniture or rug) that would leave a hole in the room were they all
+    gone. The room is looked through from places on its floor, at eye height and level with the part, toward each part's faces: where a part is
+    seen and nothing of the room is behind it before the tile's side or under its floor, the room was never drawn
+    there. A look that leaves over the walls' top is at the sky, not through a hole."""
+    standing = [part for part in parts if part['kind'] in ('furniture', 'rug')]
+    if not standing or not floor:
+        return set()
+    spots = sorted(((corners.mean(0), area) for part in floor for corners, area in part['plan'] if area > 0.05), key=lambda spot: -spot[1])
+    spots = spots[::max(1, len(spots) // SEEN)][:SEEN]; eyes = np.array([(x, y, EYE) for (x, y), _ in spots], float)
+    if not len(eyes):
+        return set()
+    kept = np.concatenate([_solid(part) for part in parts if part['kind'] not in ('furniture', 'rug')] or [np.zeros((0, 3, 3))])
+    theirs = {part['name']: _solid(part) for part in standing}; found = set()
+    for part in standing:
+        mine = theirs[part['name']]; aims = mine.mean(1); aims = aims[::max(1, len(aims) // 40)][:40]
+        origins = np.repeat(eyes, len(aims), axis=0); aimed = np.tile(aims, (len(eyes), 1))
+        level = origins.copy(); level[:, 2] = np.maximum(aimed[:, 2], 0.05)  # and level with the part: a low bed hides the wall's foot, which a look from eye height passes over
+        if part['kind'] == 'furniture':  # a rug is looked down on only: a level look skims the floor it lies on
+            origins = np.concatenate([origins, level]); aimed = np.concatenate([aimed, aimed])
+        ways = aimed - origins
+        reach = np.linalg.norm(ways, axis=1); ways = ways / np.maximum(reach, 1e-9)[:, None]
+        others = np.concatenate([theirs[name] for name in theirs if name != part['name']] or [np.zeros((0, 3, 3))])
+        seen = (reach > 1e-6) & (_hits(origins, ways, kept) > reach - 1e-3)  # nothing of the room stands before the part
+        if not seen.any():
+            continue
+        origins, ways, reach = origins[seen], ways[seen], reach[seen]; behind = _hits(origins, ways, kept)
+        with np.errstate(divide='ignore', invalid='ignore'):  # where the look leaves the tile: its side, under its floor, or over its walls
+            side = np.min(np.where(np.abs(ways[:, :2]) > 1e-9, (np.sign(ways[:, :2]) * half - origins[:, :2]) / ways[:, :2], np.inf), axis=1)
+            under = np.where(ways[:, 2] < -1e-9, (-0.05 - origins[:, 2]) / ways[:, 2], np.inf); over = np.where(ways[:, 2] > 1e-9, (LID - origins[:, 2]) / ways[:, 2], np.inf)
+        out = np.minimum(side, under); through = (behind > out) & (out < over)
+        if through.sum() >= 2 and through.mean() >= HOLE:
+            found.add(part['name'])
+    return found
+
+
 def sort(nodes, moves=None):
     """{node name: (kind, {low, high, span, area, onFloor})} of a tile's drawn parts (`KINDS`)."""
     moves = moves or geometry.placed(nodes); parts = []
@@ -64,7 +126,7 @@ def sort(nodes, moves=None):
         if node.kind == 'aabb' or not node.rendered or not node.verts or not node.faces:
             continue
         points = np.array([moves[id(node)](vertex) for vertex in node.verts], float); plan = _plan(points, node.faces)
-        parts.append({'name': node.name, 'points': points, 'plan': plan, 'low': float(points[:, 2].min()), 'high': float(points[:, 2].max()),
+        parts.append({'name': node.name, 'points': points, 'plan': plan, 'faces': node.faces, 'low': float(points[:, 2].min()), 'high': float(points[:, 2].max()),
                       'span': float(max(np.ptp(points[:, 0]), np.ptp(points[:, 1]))), 'area': float(sum(area for _, area in plan))})
     flat = sorted((part for part in parts if part['high'] <= LOW and part['area'] > 1e-3), key=lambda part: (part['low'], -part['area']))
     floor = []
@@ -87,6 +149,23 @@ def sort(nodes, moves=None):
             kind = 'shell'
         else:
             kind = 'furniture'
+        part['kind'] = kind; part['on'] = on
+    standing = [part for part in parts if part['kind'] == 'furniture']; tall = [(part['points'].min(0) - WITHIN, part['points'].max(0) + WITHIN) for part in standing if part['high'] >= TALL]
+    for part in standing:  # a bookcase's shelves and books are the bookcase's
+        if any((part['points'].min(0) >= low).all() and (part['points'].max(0) <= high).all() for low, high in tall):
+            part['kind'] = 'builtin'
+    holed = _holes(parts, floor)
+    for part in parts:
+        if part['name'] in holed:
+            part['kind'] = 'builtin'
+    grew = True  # a bed's mattress stays with its frame: what touches a built-in part is of the same piece
+    while grew:
+        grew = False; built = [(part['points'].min(0) - WITHIN, part['points'].max(0) + WITHIN) for part in parts if part['kind'] == 'builtin']
+        for part in parts:
+            if part['kind'] == 'furniture' and any((part['points'].max(0) >= low).all() and (part['points'].min(0) <= high).all() for low, high in built):
+                part['kind'] = 'builtin'; grew = True
+    for part in parts:
+        kind, on = part['kind'], part['on']
         found[part['name']] = (kind, {'low': round(part['low'], 2), 'high': round(part['high'], 2), 'span': round(part['span'], 2), 'area': round(part['area'], 2), 'onFloor': round(on, 2)})
     return found
 
