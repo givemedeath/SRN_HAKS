@@ -1717,8 +1717,8 @@ and binds the Planetscape palette to mp01.
 
 ## Textures that published placeables name (2026-11-25)
 
-A scan of all `srn_placeable` models found textures that no pack and not the base game holds, so their meshes drew
-white. The originals of 159 of them are landed unchanged in `srn_placeable`: 155 from `mdrnee_item.hak` (nearly all the
+A scan of all `srn_placeable` model files found texture names that neither a pack nor the base game holds. The originals
+of 159 of them are landed unchanged in `srn_placeable`: 155 from `mdrnee_item.hak` (nearly all the
 VoS guns and gun racks) and 4 from `mdrnee_tile.hak` (`ceiling2_l3_2c`, `window3`, `window4`, `window6`). Models and
 table rows are unchanged. `docs/imports/mdrnee_placeable-dependency-textures.md` lists each file with its archive,
 size, SHA-256, upstream git blob and the models that name it. Every SHA-256 is the one `mdrnee_item-manifest.json` or
