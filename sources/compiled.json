@@ -4070,9 +4070,9 @@
    "compiled": "2026-11-24"
   },
   "srn_t_fcx01/fcx01_h01_18.mdl": {
-   "source": "c3033ad33ca57dc412b2cc3e69c94f8fac4eb14fa9d645699c670abcafcfa7bb",
-   "binary": "6f769e0df3be6766b3d686a00a134cf7e76b2c7314c1ac21bdc8312e269e9b6d",
-   "bytes": 30464,
+   "source": "e3b57f82f995d8b4ba877cd15e731e226eccbe4ab663794fc7fe5d3e62b9c9e0",
+   "binary": "acb545468b9352bdf938e4183b3a8b877b294d1769ce8b2baa9c86ff5532e158",
+   "bytes": 30784,
    "audit": "round trip",
    "compiled": "2026-11-25"
   },
