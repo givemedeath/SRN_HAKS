@@ -345,6 +345,7 @@
   "tools/tilekit/test_joins_passage.py": 1.5,
   "tools/tilekit/test_names.py": 0.6,
   "tools/tilekit/test_redraw.py": 0.8,
+  "tools/tilekit/test_strip.py": 65.0,
   "tools/tilekit/test_remesh.py": 0.6,
   "tools/tilekit/test_repair.py": 0.1,
   "tools/tilekit/test_review.py": 0.1,

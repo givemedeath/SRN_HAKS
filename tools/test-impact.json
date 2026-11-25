@@ -5945,6 +5945,13 @@
       "tools/tilekit/kit.py",
       "tools/tilekit/props_blender.py"
     ],
+    "tools/tilekit/strip.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/tile.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/joins.py",
+      "tools/tilekit/terrain.py"
+    ],
     "tools/tilekit/terrain.py": [
       "tools/tilekit/apply.py",
       "tools/tilekit/compiled.py",
@@ -6122,6 +6129,15 @@
       "tools/tilekit/kit.py",
       "tools/tilekit/sketch.py",
       "tools/tilekit/test_openings.py"
+    ],
+    "tools/tilekit/test_strip.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/tile.py",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/joins.py",
+      "tools/tilekit/strip.py"
     ],
     "tools/tilekit/test_terrain.py": [
       "tools/tilekit/__init__.py",
@@ -6539,6 +6555,9 @@
       "srn_2da",
       "srn_t_common"
     ],
+    "tools/tilekit/test_strip.py": [
+      "srn_t_tfb01"
+    ],
     "tools/tilekit/test_terrain.py": [
       "srn_2da",
       "srn_t_common"
@@ -6894,6 +6913,7 @@
     "tools/tilekit/test_review.py",
     "tools/tilekit/test_shadows.py",
     "tools/tilekit/test_sketch.py",
+    "tools/tilekit/test_strip.py",
     "tools/tilekit/test_terrain.py",
     "tools/tilekit/test_unique.py"
   ]
