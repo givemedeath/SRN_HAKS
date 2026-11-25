@@ -1,0 +1,460 @@
+{
+ "tileset": "srx02",
+ "haks": [
+  "srn_t_srx02",
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 19,
+  "height": 4,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "r02_f",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r04_f",
+    "at": [
+     3,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "o04_f",
+    "at": [
+     6,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s01_f",
+    "at": [
+     8,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s03_f",
+    "at": [
+     10,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "c01_f",
+    "at": [
+     12,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r02_u",
+    "at": [
+     14,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r04_u",
+    "at": [
+     16,
+     1
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    1,
+    1
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    6,
+    1
+   ],
+   [
+    8,
+    1
+   ],
+   [
+    10,
+    1
+   ],
+   [
+    12,
+    1
+   ],
+   [
+    14,
+    1
+   ],
+   [
+    16,
+    1
+   ],
+   [
+    4,
+    2
+   ],
+   [
+    12,
+    2
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "bird-r02f",
+     "at": [
+      1.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r04f",
+     "at": [
+      4.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-o04f",
+     "at": [
+      6.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-s01f",
+     "at": [
+      8.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-s03f",
+     "at": [
+      10.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-c01f",
+     "at": [
+      12.5,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r04u",
+     "at": [
+      17.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "r02-lounge",
+     "at": [
+      1.48,
+      1.14
+     ],
+     "turns": [
+      90,
+      140
+     ]
+    },
+    {
+     "name": "r02-kit",
+     "at": [
+      1.58,
+      1.6
+     ],
+     "turns": [
+      320
+     ]
+    },
+    {
+     "name": "r02-bed",
+     "at": [
+      1.36,
+      1.67
+     ],
+     "turns": [
+      125
+     ]
+    },
+    {
+     "name": "r02-bath",
+     "at": [
+      1.62,
+      1.8
+     ],
+     "turns": [
+      20
+     ]
+    },
+    {
+     "name": "r04-live",
+     "at": [
+      3.9,
+      1.15
+     ],
+     "turns": [
+      145
+     ]
+    },
+    {
+     "name": "r04-kit",
+     "at": [
+      4.26,
+      1.82
+     ],
+     "turns": [
+      315
+     ]
+    },
+    {
+     "name": "r04-hall",
+     "at": [
+      3.16,
+      2.04
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "r04-bed1",
+     "at": [
+      3.59,
+      2.28
+     ],
+     "turns": [
+      125
+     ]
+    },
+    {
+     "name": "r04-bath",
+     "at": [
+      4.08,
+      2.24
+     ],
+     "turns": [
+      130
+     ]
+    },
+    {
+     "name": "r04-study",
+     "at": [
+      4.13,
+      2.68
+     ],
+     "turns": [
+      140
+     ]
+    },
+    {
+     "name": "r04-bed2",
+     "at": [
+      4.36,
+      2.28
+     ],
+     "turns": [
+      50
+     ]
+    },
+    {
+     "name": "o04-a",
+     "at": [
+      6.36,
+      1.13
+     ],
+     "turns": [
+      75
+     ]
+    },
+    {
+     "name": "s01-a",
+     "at": [
+      8.5,
+      1.12
+     ],
+     "turns": [
+      70
+     ]
+    },
+    {
+     "name": "s01-b",
+     "at": [
+      8.5,
+      1.69
+     ],
+     "turns": [
+      250
+     ]
+    },
+    {
+     "name": "s03-a",
+     "at": [
+      10.22,
+      1.5
+     ],
+     "turns": [
+      0,
+      40
+     ]
+    },
+    {
+     "name": "s03-c",
+     "at": [
+      10.68,
+      1.36
+     ],
+     "turns": [
+      140
+     ]
+    },
+    {
+     "name": "c01-a",
+     "at": [
+      12.66,
+      1.12
+     ],
+     "turns": [
+      60,
+      110
+     ]
+    },
+    {
+     "name": "c01-b",
+     "at": [
+      12.83,
+      1.9
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "c01-c",
+     "at": [
+      12.74,
+      2.68
+     ],
+     "turns": [
+      150
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

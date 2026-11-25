@@ -208,11 +208,14 @@ def merged_set(sets, names, spec, joined=(), numbers=(), roomed=()):
         keys.update({'PathNode': node, 'Orientation': turned, 'ImageMap2D': record['minimap']})
         tiles[number[(JOIN, record['model'])]] = [f'[TILE{number[(JOIN, record["model"])]}]{END}' + ''.join(f'{key}={value}{END}' for key, value in keys.items())]
     for room in roomed:  # a tile of a room is its shell's tile under a model of its own: the same corners, crossers, lights and doors
-        name = room['set']; models = dict(filter(None, room['tiles']))
-        for section, raw in _sections(sets[name]):
+        name = room['set']; members = [(*one, path) for one, path in zip(room['tiles'], room['paths']) if one]
+        for section, said in _sections(sets[name]):
             found = re.fullmatch(r'TILE(\d+)(DOOR\d+)?', section); source = int(found.group(1)) if found else None
-            if source in models:
-                at = number[(ROOM, models[source])]; raw = re.sub(r'(?m)^Model=[^\r\n]*', lambda _: f'Model={models[source]}', raw)
+            for model, path in ((model, path) for member, model, path in members if member == source):  # a room drawn here may take several tiles from one
+                at = number[(ROOM, model)]; raw = re.sub(r'(?m)^Model=[^\r\n]*', lambda _: f'Model={model}', said)
+                if path and not found.group(2):  # and it is open where its own walls say
+                    for key, value in (('PathNode', path[0]), ('VisibilityNode', path[0]), ('Orientation', path[1]), ('VisibilityOrientation', path[1])):
+                        raw = re.sub(rf'(?m)^{key}=[^\r\n]*', f'{key}={value}', raw)
                 if found.group(2):
                     raw = re.sub(r'(?m)^Type=(\d+)', lambda said: f'Type={doors.get(said.group(1), said.group(1))}', raw)
                 tiles.setdefault(at, []).append(_crlf(_tile(raw, at, terrains.get(name, {}), crossers.get(name, {}), f'{name} tile {source}')).rstrip(END) + END)

@@ -4,7 +4,8 @@
  "name": "Living Room, media wall",
  "note": "The trial room of stage 4b (user, 2026-11-24). The bookcase on the east wall and the desk on the south wall are built in: the wall behind them was never drawn.",
  "shell": {"set": "tfb01", "group": "Livingroom"},
- "ceiling": {"texture": "udp2_msc_clg", "height": 3.0, "repeat": 2.5},
+ "ceiling": {"texture": "srx02_clgplas", "height": 3.0, "repeat": 3.0},
+ "lamps": [{"kind": "dome", "at": [0.0, 1.6], "under": 3.0}, {"kind": "dome", "at": [0.0, -1.6], "under": 3.0}],
  "unshadowed": ["tfb01_door2"],
  "faces": [
   {"node": "Mesh1539", "texture": "srx02_bookscr", "corners": [[2.6, 1.43, 0.25], [2.6, -1.48, 0.25], [2.6, -1.48, 2.9], [2.6, 1.43, 2.9]],

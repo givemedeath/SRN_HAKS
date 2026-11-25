@@ -8,32 +8,39 @@ models go to `sources/<pack>/` and are compiled as the other tiles are; `merge` 
 
 A room's spec, `docs/tilesets/<set>/rooms/<id>.json`:
 {id, category, name: what the palette shows, "<category>: <name>" and "<category>: <name>, furnished";
- shell: {set, group}; ceiling: {texture, height, repeat (metres a picture covers)};
+ shell: {set, group}, or {set, box} for one drawn here (`walls`); textures: {a texture of the shell: what it draws
+   instead}; ceiling: {texture, height, repeat (metres a picture covers)};
  unshadowed: [textures of the room itself that cast no shadow];
  faces: [{tile, node, texture, corners: [bottom left, bottom right, top right, top left, as seen from the room],
    screen: {texture, box: [left, top, right, bottom] of the picture, of: the picture's size}}] a built-in piece's face
    drawn once across a picture of its own, and a screen on it lit by itself;
- props, what stands on another after it: [{tile, piece, at: [x, y, z], faces: a compass point or turn: degrees, front: the compass point the piece
-   faces unturned (s without it, as nearly all do), scale, obstacle}];
+ lamps, beams: what hangs from the ceiling (`ceilings`), each on its `tile`;
+ props, what stands on another after it: [{tile, piece, at: [x, y, z], faces: a compass point or turn: degrees, scale, obstacle}];
  placeLater: [what a builder places as a blueprint: containers, terminals, cameras]}.
 `tile` counts the group's tiles from 0 as the set file does, from the south-west; it may be left out of a room of one.
+A spec that says `"inRoom": true` gives `at` in metres from the room's south-west corner, and no `tile`.
 
 What is baked or built in casts no shadow: a placeable's stencil shadow is hard, and a room's furniture shadows were
 taken for those of props that were gone (user, 2026-11-24). A node with no `shadow` line casts one, so each is written.
 
-Refused: a piece that is no row of placeables.2da; a piece that `faces` a wall (two were put in backwards,
+`fronts.json` beside the folder says which way every piece that `faces` somewhere looks unturned, each seen in a picture
+(a couch, armchairs, dressers and wardrobes stood back to front: user, 2026-11-25).
+
+Refused: a piece that is no row of placeables.2da, or that names a texture no pack holds; a piece whose front is not
+recorded, or a seat recorded back to front; a piece that `faces` a wall (two were put in backwards,
 2026-11-24); furniture that cuts the room in two or stands in its doorway (`_lanes`); a furnished room whose
 walkmesh differs from the unfurnished one anywhere but under its furniture, or at its sides (`_rim`)."""
 import hashlib
 import json
 import math
 import re
+import subprocess
 import tempfile
 from pathlib import Path
 
 import numpy as np
 
-from . import cuts, detail, geometry, inventory, require, strip, terrain
+from . import ceilings, cuts, detail, geometry, inventory, require, strip, terrain, walls
 from .unique import unique
 
 VARIANTS = (('u', ''), ('f', ', furnished'))
@@ -41,10 +48,12 @@ COMPASS = {name: angle for name, angle in zip(('e', 'ne', 'n', 'nw', 'w', 'sw', 
 PROPS = ('srn_placeable', 'srn_envprop')  # the packs whose placeables are baked: a module loads both
 AHEAD = 0.4  # metres in front of a piece that must be floor
 STEP = 0.125  # metres: the walk grid's cells, finer than geometry's, which a partition a hand thick slips through
+SLACK = 5e-4  # metres: a cell's middle may lie in the crack between two faces of a cut floor
 CELLS = int(round(2 * geometry.HALF / STEP))  # walk grid cells across a tile
 ROUND = 2  # cells all round a place that must be walked for a player to stand there: a lane is 0.6 m at least
 DOORWAY = 6  # cells: how near a doorway the room's own floor must come
 TOGETHER = 0.85  # the share of the floor a player can stand on that must be one piece
+MOST = 2500  # triangles of one baked prop: envkit's run to 12,000, and a store of them passed the 65,535 vertices a mesh may have (2026-11-25)
 FLOOR = 0.05  # metres: what stands no higher stands on the floor
 
 
@@ -54,26 +63,48 @@ def read(path):
     require(isinstance(spec, dict) and spec.get('id') == path.stem and re.fullmatch(r'[a-z0-9]{1,6}', path.stem), f'{path.name}: a room is kept under its id, at most 6 lower case letters and digits')
     for key in ('category', 'name'):
         require(isinstance(spec.get(key), str) and spec[key].strip(), f'{path.name}: a room has a {key}')
-    require(isinstance(spec.get('shell'), dict) and {'set', 'group'} <= set(spec['shell']), f'{path.name}: `shell` is {{set, group}}')
+    require(isinstance(spec.get('shell'), dict) and 'set' in spec['shell'] and ('group' in spec['shell']) != ('box' in spec['shell']), f'{path.name}: `shell` is {{set, group}} or {{set, box}}')
     for prop in spec.get('props', ()):
         require(('faces' in prop) != ('turn' in prop), f'{path.name}: {prop.get("piece")} has one of `faces` and `turn`')
     for prop in spec.get('placeLater', ()):
         require(isinstance(prop, dict) and prop.get('what'), f'{path.name}: `placeLater` lists {{what, ...}}')
+    if spec.get('inRoom'):
+        columns, rows = columns_rows = (spec['shell'].get('box') or spec)['columns'], (spec['shell'].get('box') or spec)['rows']
+        for prop in [*spec.get('props', ()), *spec.get('lamps', ()), *spec.get('beams', ())]:
+            middle = prop['at'] if 'at' in prop else [(prop['rect'][axis] + prop['rect'][axis + 2]) / 2 for axis in (0, 1)]
+            column, row = (int(middle[axis] // walls.TILE) for axis in range(2)); require('tile' not in prop and column in range(columns) and row in range(rows), f'{path.name}: what is at {middle} is not in the room of {columns_rows}')
+            prop['tile'] = row * columns + column; corner = (column * walls.TILE + geometry.HALF, row * walls.TILE + geometry.HALF)
+            for key in ('at', 'rect'):
+                if key in prop:
+                    prop[key] = [round(value - corner[axis % 2], 4) if key == 'rect' or axis < 2 else value for axis, value in enumerate(prop[key])]
     return spec
 
 
+def fronts_path(folder):
+    return Path(folder).parent / 'fronts.json'
+
+
 def specs(folder):
-    """{id: spec} of a folder's rooms, in the order of their ids."""
-    return {path.stem: read(path) for path in sorted(Path(folder).glob('*.json'))} if folder and Path(folder).is_dir() else {}
+    """{id: spec} of a folder's rooms, in the order of their ids, each piece with its recorded front."""
+    found = {path.stem: read(path) for path in sorted(Path(folder).glob('*.json'))} if folder and Path(folder).is_dir() else {}
+    fronts = json.loads(fronts_path(folder).read_text(encoding='utf-8')) if found else {}
+    for room, spec in found.items():
+        for prop in spec.get('props', ()):
+            if 'faces' in prop:
+                require(prop['piece'] in fronts, f'{room}: {prop["piece"]} faces {prop["faces"]}, and fronts.json does not say which way it looks: look at it first'); prop['front'] = fronts[prop['piece']]
+    return found
 
 
 def shell_of(spec, set_text):
     """(rows, columns, [the group's tile numbers, -1 where it has none], [their models]) of a room's shell."""
+    models = {tile['number']: tile['model'] for tile in inventory.read_set(set_text)['tiles']}
+    if 'box' in spec['shell']:
+        box = spec['shell']['box']; require(all(member in models for member in box['like']), f'{spec["id"]}: `like` names a tile the set lacks')
+        return box['rows'], box['columns'], list(box['like']), [models[member] for member in box['like']]
     group = spec['shell']['group']
     keys = next((keys for name, keys in inventory.sections(set_text) if re.fullmatch(r'GROUP\d+', name) and keys['Name'] == group), None)
     require(keys, f'{spec["id"]}: {spec["shell"]["set"]} has no group {group}')
     rows, columns = int(keys['Rows']), int(keys['Columns']); members = [int(keys[f'Tile{index}']) for index in range(rows * columns)]
-    models = {tile['number']: tile['model'] for tile in inventory.read_set(set_text)['tiles']}
     return rows, columns, members, [models.get(member) for member in members]
 
 
@@ -87,9 +118,9 @@ def records(rooms, sets, prefix):
     made = []
     for room, spec in rooms.items():
         require(spec['shell']['set'] in sets, f'{room}: {spec["shell"]["set"]} is no family of the set')
-        rows, columns, members, _ = shell_of(spec, sets[spec['shell']['set']])
+        rows, columns, members, _ = shell_of(spec, sets[spec['shell']['set']]); plan = walls.Plan(spec) if 'box' in spec['shell'] else None
         for variant, said in VARIANTS:
-            made.append({'room': room, 'name': f'{room}_{variant}', 'display': f'{spec["category"]}: {spec["name"]}{said}', 'set': spec['shell']['set'], 'rows': rows, 'columns': columns,
+            made.append({'room': room, 'name': f'{room}_{variant}', 'display': f'{spec["category"]}: {spec["name"]}{said}', 'set': spec['shell']['set'], 'rows': rows, 'columns': columns, 'paths': [walls.path(plan.sides(index)) for index in range(len(members))] if plan else [None] * len(members),
                          'tiles': [(member, model_name(prefix, room, variant, index)) if member >= 0 else None for index, member in enumerate(members)]})
     return made
 
@@ -145,6 +176,10 @@ def unfurnished(text, name, spec, index):
     text = unique(text.replace('\r\n', '\n'))[0]; lines, root, nodes = geometry.parse(text); kinds = strip.sort(nodes)
     quiet = {texture.lower() for texture in spec.get('unshadowed', ())}
     casting = {terrain.renamed(node.name, {root: name}).lower() for node in nodes if kinds.get(node.name, ('',))[0] in ('floor', 'shell', 'top') and node.material not in quiet}
+    here = lambda key: [one for one in spec.get(key, ()) if one.get('tile', 0) == index]; hung = ceilings.overhead(name, here('lamps'), here('beams'))
+    if 'box' in spec['shell']:
+        made, wok, out = walls.shell(text, name, spec, index)
+        return _into(made, hung), wok, out
     made, wok, out = strip.shell(text, name)
     if 'ceiling' in spec:
         floor = next((node for node in nodes if kinds.get(node.name, ('',))[0] == 'floor'), None); require(floor, f'{name}: the shell draws no floor, whose look its ceiling takes')
@@ -152,7 +187,7 @@ def unfurnished(text, name, spec, index):
         made = ceiled(made, name, look, ceiling['height'], ceiling['repeat'])
     faces = [face for face in spec.get('faces', ()) if face.get('tile', 0) == index]
     made = faced(made, name, [{**face, 'node': terrain.renamed(face['node'], {root: name})} for face in faces])
-    return unshadowed(made, casting), wok, out
+    return _into(terrain.retextured(unshadowed(made, casting), {old.lower(): new for old, new in spec.get('textures', {}).items()}), hung), wok, out
 
 
 def direction(angle):
@@ -169,6 +204,7 @@ def placement(prop, nodes, walk):
         turn = prop['turn']
     parts = geometry.baked(nodes, detail.turned(at, turn, scale)); points = [vertex for _, verts, _, _ in parts for vertex in verts]; require(points, f'{piece} draws nothing')
     if 'faces' in prop:
+        seat = leaning(nodes, prop.get('front', 's')); require(seat is None or seat > -0.1, f'{piece}: its back is at its recorded front, {prop.get("front", "s")}')
         way = direction(COMPASS[prop['faces']]); middle = [(min(point[axis] for point in points) + max(point[axis] for point in points)) / 2 for axis in range(2)]
         reach = max((point[0] - middle[0]) * way[0] + (point[1] - middle[1]) * way[1] for point in points) + AHEAD
         require(geometry.cell((middle[0] + way[0] * reach, middle[1] + way[1] * reach), STEP) in walk, f'{piece} at {prop["at"]} faces {prop["faces"]}, and there is no floor before it: it stands back to front')
@@ -176,11 +212,25 @@ def placement(prop, nodes, walk):
     return {'piece': piece, 'at': at, 'turn': turn, 'scale': scale, ('obstacle' if obstacle else 'rests'): True}
 
 
+def leaning(nodes, front):
+    """How far back from a seat's middle its upper third lies, as a share of its depth: a chair's or a couch's is at its
+    back. None of a piece of another height than a seat's."""
+    points = [vertex for _, verts, _, _ in geometry.baked(nodes) for vertex in verts]; low, high = min(point[2] for point in points), max(point[2] for point in points)
+    if not 0.6 <= high - low <= 1.25:
+        return None
+    way = direction(COMPASS[front]); along = [point[0] * way[0] + point[1] * way[1] for point in points]; total = weighed = 0.0
+    for triangle in geometry.faces_of(geometry.baked(nodes)):
+        a, b, c = (np.array(point) for point in triangle); middle = (a + b + c) / 3
+        if middle[2] > low + 0.65 * (high - low):
+            area = float(np.linalg.norm(np.cross(b - a, c - a))); total += area; weighed += area * (middle[0] * way[0] + middle[1] * way[1])
+    return ((min(along) + max(along)) / 2 - weighed / total) / (max(along) - min(along)) if total else None
+
+
 # --- what a room must hold to ----------------------------------------------------------------------------------------
 
-def _floor(text):
+def _floor(text, slack=0.0):
     """{grid cell} of a tile whose middle is walked floor. Middles, not samples over each face: a face cut in many is
-    sampled elsewhere, and cells at its sides came and went."""
+    sampled elsewhere, and cells at its sides came and went. slack: metres by which a face reaches past its sides."""
     _, _, nodes = geometry.parse(text); at = (np.arange(CELLS) - CELLS // 2 + 0.5) * STEP + 1e-4; xs, ys = np.meshgrid(at, at, indexing='ij'); on = np.zeros_like(xs, bool)
     for node in nodes:
         if node.kind == 'aabb':
@@ -188,7 +238,8 @@ def _floor(text):
                 whole = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
                 if len(face) > 7 and face[7] in geometry.WALKABLE and abs(whole) > 1e-9:
                     first = ((bx - xs) * (cy - ys) - (by - ys) * (cx - xs)) / whole; second = ((cx - xs) * (ay - ys) - (cy - ys) * (ax - xs)) / whole
-                    on |= (first >= -1e-9) & (second >= -1e-9) & (first + second <= 1 + 1e-9)
+                    off = [1e-9 + slack * math.hypot(q[0] - p[0], q[1] - p[1]) / abs(whole) for p, q in (((ax, ay), (cx, cy)), ((ax, ay), (bx, by)), ((bx, by), (cx, cy)))]
+                    on |= (first >= -off[0]) & (second >= -off[1]) & (first + second <= 1 + off[2])
     return {(int(x) - CELLS // 2, int(y) - CELLS // 2) for x, y in np.argwhere(on)}
 
 
@@ -202,6 +253,18 @@ def _rim(text):
                 if len(face) > 7 and face[7] in geometry.WALKABLE:
                     found |= {(side, along) for side, along, _ in geometry.sides([triangle], STEP)}
     return found
+
+
+def _alike(first, second):
+    """Whether two rims are one, but for a cell at either end: a doorway's side on a cell's side falls to one or the other."""
+    near = lambda one, others: any((one[0], one[1] + step) in others for step in (-1, 0, 1))
+    return all(near(one, second) for one in first) and all(near(one, first) for one in second)
+
+
+def crossed(set_text, number):
+    """The sides (n, e, s, w) of a source tile a crosser lies on."""
+    keys = dict(inventory.sections(set_text))[f'TILE{number}']
+    return {side for side, key in (('n', 'Top'), ('e', 'Right'), ('s', 'Bottom'), ('w', 'Left')) if keys.get(key)}
 
 
 def _lanes(cells, openings):
@@ -243,14 +306,15 @@ def made(room, spec, set_text, text_of, pieces, prefix):
         source = text_of(model); text, wok, left = unfurnished(source, names['u'], spec, index); told['left'][names['u']] = sorted(left)
         outer = {side for side, edge in (('w', column == 0), ('e', column == columns - 1), ('s', row == 0), ('n', row == rows - 1)) if edge}
         rim = _rim(text)
-        require({one for one in rim if one[0] in outer} == {one for one in _rim(source) if one[0] in outer}, f'{names["u"]}: stripped, its floor meets the room\'s sides elsewhere than {model}\'s')
+        ways = outer if 'box' not in spec['shell'] else outer & crossed(set_text, member)  # a tile a drawn room is like may itself be open to its group's next tile
+        require(_alike({one for one in rim if one[0] in outer}, {one for one in _rim(source) if one[0] in ways}), f'{names["u"]}: its floor meets the room\'s sides elsewhere than {model}\'s')
         bare = _floor(text); props = [prop for prop in spec.get('props', ()) if prop.get('tile', 0) == index]
         full, cut = (terrain.renamed(one, {names['u']: names['f']}) for one in (text, wok))
         if props:
             known = {prop['piece']: pieces[prop['piece']] for prop in props}
             full, _, walked, footprints = detail.place(full, names['f'], [placement(prop, known[prop['piece']], bare) for prop in props], None, dict(known), wok=cut)
             cut = walked or cut; full = unshadowed(full, {node.name.lower() for node in geometry.parse(full)[2] if not detail.is_kit(node.name)} - _quiet(full))
-            floor = _floor(full); lost = sorted(bare - floor); gained = sorted(floor - bare)
+            floor = _floor(full); lost = sorted(bare - _floor(full, SLACK)); gained = sorted(floor - _floor(text, SLACK))
             stray = [cell for cell in lost if not any(cuts.covers(polygon, ((cell[0] + 0.5) * STEP, (cell[1] + 0.5) * STEP), 0.02) for polygon, _, _ in footprints)]
             require(not stray and not gained, f'{names["f"]}: its walkmesh differs from the unfurnished room\'s elsewhere than under its furniture, at {(stray or gained)[:2]}')
             require(_rim(full) == rim, f'{names["f"]}: furniture stands at the tile\'s side')
@@ -319,7 +383,31 @@ def pieces_of(repo, rooms, blender=None, addon=None):
     if binary:
         require(blender and addon, 'These props are compiled, and only Blender with NeverBlender reads them (--blender, --addon): ' + ', '.join(sorted(binary)))
         texts.update(_decompiled(binary, blender, addon))
-    return {piece: without_halos(geometry.parse(text)[2]) for piece, text in texts.items()}
+    return lighter({piece: without_halos(geometry.parse(text)[2]) for piece, text in texts.items()}, blender)
+
+
+def lighter(pieces, blender):
+    """{piece: nodes} with every piece of more than `MOST` triangles brought down to about that many (Blender); its
+    drawn parts are then one mesh for each look, under its root."""
+    heavy = {piece: geometry.merged(geometry.baked(nodes)) for piece, nodes in pieces.items() if sum(len(node.faces) for node in nodes if node.rendered) > MOST}
+    if not heavy:
+        return pieces
+    require(blender, 'These props are baked with fewer triangles, and Blender does that (--blender): ' + ', '.join(sorted(heavy))); jobs = []
+    for piece in sorted(heavy):
+        whole = sum(len(faces) for _, _, _, faces in heavy[piece])
+        jobs += [{'verts': [list(vertex) for vertex in verts], 'faces': [list(face[:3]) for face in faces], 'uvs': [list((tverts[corner] if tverts else (0, 0))[:2]) for face in faces for corner in face[4:7]],
+                  'most': max(1, round(MOST * len(faces) / whole))} for _, verts, tverts, faces in heavy[piece]]
+    with tempfile.TemporaryDirectory(prefix='tilekit-reduce-') as work_:
+        source, target = Path(work_) / 'in.json', Path(work_) / 'out.json'; source.write_text(json.dumps(jobs), encoding='utf-8')
+        ran = subprocess.run([str(blender), '-b', '-t', '4', '--factory-startup', '--python', str(Path(__file__).with_name('reduce_blender.py')), '--', str(source), str(target)], capture_output=True, text=True)
+        require(ran.returncode == 0 and target.is_file(), 'Blender could not reduce the props: ' + (ran.stderr or ran.stdout).strip()[-400:]); done = iter(json.loads(target.read_text(encoding='utf-8')))
+    out = dict(pieces)
+    for piece in sorted(heavy):
+        lines = [f'newmodel {piece}', f'beginmodelgeom {piece}', f'node dummy {piece}', '  parent null', 'endnode']
+        for number, (look, *_) in enumerate(heavy[piece]):
+            part = next(done); lines += geometry.mesh_text(f'{piece}_{number:02d}', piece, look, part['verts'], part['uvs'], [(*face, 1, 3 * at, 3 * at + 1, 3 * at + 2, 0) for at, face in enumerate(part['faces'])])
+        out[piece] = geometry.parse('\n'.join(lines + [f'endmodelgeom {piece}', f'donemodel {piece}']))[2]
+    return out
 
 
 def without_halos(nodes):
@@ -327,15 +415,31 @@ def without_halos(nodes):
     return [node for node in nodes if not re.fullmatch(r'ek_.*_h', node.material or '')]
 
 
+def drawn_by(spec):
+    """The textures a room drawn here (`box`) names, and those of its lamps and beams."""
+    box = spec['shell'].get('box', {}); said = [value for looks in [box.get('look', {})] + box.get('zones', []) for value in looks.values()]
+    lamps = {ceilings.HOUSING, ceilings.DIFFUSER} if spec.get('lamps') else set()
+    return {value for value in said if isinstance(value, str)} | lamps | {beam['texture'] for beam in spec.get('beams', ())}
+
+
 def textured(repo, room, spec):
     """Refuse a room whose pictures no tile pack holds, or whose screen would not play: a flipbook is a TGA with a TXI
     that says `cycle`. In a DDS of either kind it drew as a pale film over what is behind it (client, 2026-11-24)."""
-    held = lambda name, *ends: [path for end in ends for path in sorted(Path(repo).glob(f'srn_t_*/{name}{end}'))]
-    for texture in {spec.get('ceiling', {}).get('texture')} | {face['texture'] for face in spec.get('faces', ())} - {None}:
+    held = lambda name, *ends: [path for end in ends for pack in ('srn_t_*', 'srn_door', *PROPS) for path in sorted(Path(repo).glob(f'{pack}/{name}{end}'))]  # a tile draws what any pack of the module holds: the sets' black is a placeable's too
+    for texture in {spec.get('ceiling', {}).get('texture')} | set(spec.get('textures', {}).values()) | drawn_by(spec) | {face['texture'] for face in spec.get('faces', ())} - {None}:
         require(texture is None or held(texture, '.dds', '.tga', '.mtr'), f'{room}: no tile pack holds the texture {texture}')
     for texture in {face['screen']['texture'] for face in spec.get('faces', ()) if 'screen' in face}:
         require(held(texture, '.tga') and not held(texture, '.dds'), f'{room}: the screen {texture} is a TGA alone, with no DDS beside it: the game plays no other')
         require(any('proceduretype cycle' in path.read_text(encoding='ascii') for path in held(texture, '.txi')), f'{room}: the screen {texture} has no TXI that says cycle (`flipbook_txi`)')
+
+
+def untextured(repo, pieces):
+    """Refuse a piece that names a texture no pack holds (the rifle stand's white rifles, user 2026-11-25). A name is
+    cut to a resref's 16 characters, as the game cuts it."""
+    held = {path.stem.lower() for pack in Path(repo).glob('srn_*') for path in pack.iterdir() if path.suffix.lower() in ('.dds', '.tga', '.plt', '.mtr')}
+    for piece, nodes in pieces.items():
+        missing = sorted({node.material for node in nodes if node.rendered and node.material and node.material.lower()[:16] not in held})
+        require(not missing, f'{piece} draws {", ".join(missing)}, which no pack holds')
 
 
 def work(repo, merge_spec, blender=None, addon=None):
@@ -343,7 +447,7 @@ def work(repo, merge_spec, blender=None, addon=None):
     repo = Path(repo); folder, sets = paths(repo, merge_spec); rooms = specs(folder); pack = f'srn_t_{merge_spec["set"]}'; files, told = {}, {}
     for room, spec in rooms.items():
         textured(repo, room, spec)
-    pieces = pieces_of(repo, rooms, blender, addon)
+    pieces = pieces_of(repo, rooms, blender, addon); untextured(repo, pieces)
     for room, spec in rooms.items():
         require(spec['shell']['set'] in sets, f'{room}: {spec["shell"]["set"]} is no family of the set')
         text_of = lambda name: _model(repo, name, spec['shell']['set']).read_bytes().decode('cp1252')
@@ -359,7 +463,7 @@ def _hash(data):
 
 def inputs(repo, merge_spec):
     """{what: its hash} of everything the rooms are made from."""
-    repo = Path(repo); folder, sets = paths(repo, merge_spec); rooms = specs(folder); found = {f'room:{room}': _hash((folder / f'{room}.json').read_bytes()) for room in rooms}
+    repo = Path(repo); folder, sets = paths(repo, merge_spec); rooms = specs(folder); found = {'fronts': _hash(fronts_path(folder).read_bytes()), **{f'room:{room}': _hash((folder / f'{room}.json').read_bytes()) for room in rooms}}
     for room, spec in rooms.items():
         name = spec['shell']['set']
         for model in filter(None, shell_of(spec, sets[name].read_bytes().decode('cp1252'))[3]):

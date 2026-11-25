@@ -1,0 +1,132 @@
+{
+ "id": "s01",
+ "category": "Security",
+ "name": "Squad Barracks",
+ "note": "Floorplan S01: bunk rows, personal lockers, open central circulation.",
+ "shell": {
+  "set": "udp2",
+  "group": "Service_SmRm1"
+ },
+ "textures": {
+  "udp2_msc_clg": "srx02_clgconc",
+  "udp2_w_vent": "udp2_w_sid3"
+ },
+ "beams": [
+  {
+   "rect": [
+    -4.75,
+    -2.54,
+    4.75,
+    -2.26
+   ],
+   "z": [
+    3.78,
+    4.0
+   ],
+   "texture": "srx02_clgconc",
+   "repeat": 2.4
+  },
+  {
+   "rect": [
+    -4.75,
+    -0.14,
+    4.75,
+    0.14
+   ],
+   "z": [
+    3.78,
+    4.0
+   ],
+   "texture": "srx02_clgconc",
+   "repeat": 2.4
+  },
+  {
+   "rect": [
+    -4.75,
+    2.26,
+    4.75,
+    2.54
+   ],
+   "z": [
+    3.78,
+    4.0
+   ],
+   "texture": "srx02_clgconc",
+   "repeat": 2.4
+  }
+ ],
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    0,
+    -3.6
+   ],
+   "under": 4.0,
+   "size": [
+    1.5,
+    0.2
+   ],
+   "drop": 0.35
+  },
+  {
+   "kind": "strip",
+   "at": [
+    0,
+    -1.2
+   ],
+   "under": 4.0,
+   "size": [
+    1.5,
+    0.2
+   ],
+   "drop": 0.35
+  },
+  {
+   "kind": "strip",
+   "at": [
+    0,
+    1.2
+   ],
+   "under": 4.0,
+   "size": [
+    1.5,
+    0.2
+   ],
+   "drop": 0.35
+  },
+  {
+   "kind": "strip",
+   "at": [
+    0,
+    3.6
+   ],
+   "under": 4.0,
+   "size": [
+    1.5,
+    0.2
+   ],
+   "drop": 0.35
+  }
+ ],
+ "props": [
+  {"piece": "purp_bunk1", "at": [-3.2, -3.3, 0.0], "faces": "e"},
+  {"piece": "purp_bunk1", "at": [-3.2, -1.1, 0.0], "faces": "e"},
+  {"piece": "purp_bunk1", "at": [-3.2, 1.1, 0.0], "faces": "e"},
+  {"piece": "purp_bunk1", "at": [3.2, -3.3, 0.0], "faces": "w"},
+  {"piece": "purp_bunk1", "at": [3.2, -1.1, 0.0], "faces": "w"},
+  {"piece": "purp_bunk1", "at": [3.2, 1.1, 0.0], "faces": "w"},
+  {"piece": "p_footlkr01", "at": [-1.5, -3.3, 0.0], "turn": 0},
+  {"piece": "p_footlkr01", "at": [-1.5, -1.1, 0.0], "turn": 0},
+  {"piece": "p_footlkr01", "at": [-1.5, 1.1, 0.0], "turn": 0},
+  {"piece": "p_footlkr01", "at": [1.5, -3.3, 0.0], "turn": 0},
+  {"piece": "p_footlkr01", "at": [1.5, -1.1, 0.0], "turn": 0},
+  {"piece": "p_footlkr01", "at": [1.5, 1.1, 0.0], "turn": 0},
+  {"piece": "ek_ad_lockers", "at": [-1.8, 4.15, 0.0], "faces": "s"},
+  {"piece": "ek_ad_lockers", "at": [0, 4.15, 0.0], "faces": "s"},
+  {"piece": "ek_ad_lockers", "at": [1.8, 4.15, 0.0], "faces": "s"},
+  {"piece": "purp_bench", "at": [0, 2.6, 0.0], "faces": "n"},
+  {"piece": "udp2-p-98", "at": [4.35, 4.35, 0.0], "turn": 0}
+ ],
+ "placeLater": [{"what": "lockers and foot lockers as containers"}]
+}

@@ -16,6 +16,26 @@
   ["join", "srx02_jhx_01"],
   ["join", "srx02_jix_01"],
   ["room", "srx02_liv01u_01"],
-  ["room", "srx02_liv01f_01"]
+  ["room", "srx02_liv01f_01"],
+  ["room", "srx02_c01u_01"],
+  ["room", "srx02_c01u_02"],
+  ["room", "srx02_c01f_01"],
+  ["room", "srx02_c01f_02"],
+  ["room", "srx02_o04u_01"],
+  ["room", "srx02_o04f_01"],
+  ["room", "srx02_r02u_01"],
+  ["room", "srx02_r02f_01"],
+  ["room", "srx02_r04u_01"],
+  ["room", "srx02_r04u_02"],
+  ["room", "srx02_r04u_03"],
+  ["room", "srx02_r04u_04"],
+  ["room", "srx02_r04f_01"],
+  ["room", "srx02_r04f_02"],
+  ["room", "srx02_r04f_03"],
+  ["room", "srx02_r04f_04"],
+  ["room", "srx02_s01u_01"],
+  ["room", "srx02_s01f_01"],
+  ["room", "srx02_s03u_01"],
+  ["room", "srx02_s03f_01"]
  ]
 }

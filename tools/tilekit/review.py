@@ -204,12 +204,16 @@ def corner_shots(area, prefix, crossings, *, distance=34.0, pitch=58.0):
 EYE = {'height': 1.7, 'distance': 1.0, 'turns': (45, 135, 225, 315), 'pitches': (90, 105)}  # a standing person's eye; pitch 90 is level, more looks up
 
 
-def eye_shots(area, prefix, crossings, *, height=EYE['height'], distance=EYE['distance'], turns=EYE['turns'], pitches=EYE['pitches']):
+def eye_shots(area, prefix, crossings, *, height=EYE['height'], distance=EYE['distance'], turns=EYE['turns'], pitches=EYE['pitches'], places=()):
     """Views from inside a room, at eye level: from the middle of each crossing's cell, turned each of `turns` degrees,
     once for each of `pitches` (90 level, more than 90 looking up). A view from above never shows a ceiling, nor how a
-    room stands round a person; an interior is judged from these. Named x03y03-045-090: the turn, then the pitch."""
+    room stands round a person; an interior is judged from these. Named x03y03-045-090: the turn, then the pitch. places:
+    [{name, at: [column, row], parts of a cell too, turns, and distance, height or pitches of its own (pitch 10 looks down)}] for
+    rooms a wall parts the middle of the cell from; named by their names."""
     return [_shot(area, f'{prefix}-x{column:02d}y{row:02d}-{int(turn):03d}-{int(pitch):03d}', (column + 0.5) * TILE, (row + 0.5) * TILE, turn, distance, pitch, height)
-            for column, row in crossings for pitch in pitches for turn in turns]
+            for column, row in crossings for pitch in pitches for turn in turns] + [
+            _shot(area, f'{prefix}-{place["name"]}-{int(turn):03d}-{int(pitch):03d}', place['at'][0] * TILE, place['at'][1] * TILE, turn, place.get('distance', distance), pitch, place.get('height', height))
+            for place in places for turn in place['turns'] for pitch in place.get('pitches', pitches)]
 
 
 def lattice_shots(area, prefix, width, height, *, step=4, distance=30.0, pitch=58.0):
@@ -445,8 +449,8 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
         # Of the four views of each crossing, some stand inside a roof or face a wall: a spec names the ones worth taking.
         # A view is the label's last two parts (x03y03-ne), however many parts its prefix has (lamp-main-night).
         chosen = lambda made, views: [shot for shot in made if not views or '-'.join(shot['label'].rsplit('-', 2)[-2:]) in views]
-        eye = block.get('eye'); require(eye is None or set(eye) <= {'crossings', *EYE}, 'The eye views of a block take crossings, ' + ', '.join(EYE))
-        eyes = lambda tag, prefix: eye_shots(tag, prefix, [tuple(cell) for cell in eye.get('crossings', block['crossings'])], **{key: eye[key] for key in EYE if key in eye}) if eye is not None else []
+        eye = block.get('eye'); require(eye is None or set(eye) <= {'crossings', 'places', *EYE}, 'The eye views of a block take crossings, places, ' + ', '.join(EYE))
+        eyes = lambda tag, prefix: eye_shots(tag, prefix, [tuple(cell) for cell in eye.get('crossings', block['crossings'])], **{key: eye[key] for key in (*EYE, 'places') if key in eye}) if eye is not None else []
         cells = solve(tiles, laid['default'], block['width'], block['height'], block['patches'], block.get('runs', ()), avoid=grouped | envkit)
         if block.get('groups'):  # whole buildings, as a builder lays them
             cells = stamped(cells, tiles, set_text, block['groups'], block['width'], block['height'])
