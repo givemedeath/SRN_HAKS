@@ -29,7 +29,7 @@ class Finish(unittest.TestCase):
     def test_a_malformed_step_is_refused(self):
         from PIL import Image
         picture = Image.new('RGB', (8, 8))
-        for steps in ([], {}, [{'glow': {}}], [{'lift': {}}], [{'lift': {'above': 1, 'over': 0, 'to': [1, 1, 1]}}], [{'segments': {'band': [0, 0, 1, 1]}}], [{'caption': {'text': 'A'}}],
+        for steps in ([], {}, [{'glow': {}}], [{'lift': {}}], [{'lift': 3}], [{'segments': {'band': [0, 0, 7, 7], 'fill': [0, 0, 0], 'row': [1, 2], 'from': 0, 'to': 7, 'end': 7, 'widths': [4], 'colours': [[1, 1, 1]], 'gap': -4, 'seed': 1}}], [{'lift': {'above': 1, 'over': 0, 'to': [1, 1, 1]}}], [{'segments': {'band': [0, 0, 1, 1]}}], [{'caption': {'text': 'A'}}],
                       [{'caption': {'band': [0, 0, 8, 8], 'fill': [0, 0, 0], 'text': 'A', 'font': '../a.ttf', 'size': 8, 'colour': [1, 1, 1], 'middle': 4}}],
                       [{'caption': {'band': [0, 0, 8, 8], 'fill': [0, 0, 0], 'text': 'A', 'font': 'no-such-font-here.ttf', 'size': 8, 'colour': [1, 1, 1], 'middle': 4}}]):
             with self.assertRaises(ValueError):
@@ -45,7 +45,9 @@ class Finish(unittest.TestCase):
             Image.new('RGB', (2, 2), (50, 50, 50)).save(redrawn / 'a.png'); (redrawn / 'a.json').write_text('{"seed": 1}')
             self.assertEqual(finish.write(spec, redrawn, out), ['a']); self.assertEqual((out / 'a.json').read_text(), '{"seed": 1}')
             self.assertEqual(Image.open(out / 'a.png').getpixel((0, 0))[:3], (9, 9, 9)); self.assertEqual(Image.open(redrawn / 'a.png').getpixel((0, 0)), (50, 50, 50))
-            self.assertEqual(finish.write(spec, redrawn, out, only=['b']), [])
+            for name in ('b', 'aa'):  # no finish, not in the list: nothing was finished, and nothing said so (review of PR 199)
+                with self.assertRaisesRegex(ValueError, 'No finish'):
+                    finish.write(spec, redrawn, out, only=[name])
             with self.assertRaisesRegex(ValueError, 'another folder'):
                 finish.write(spec, redrawn, redrawn)
 

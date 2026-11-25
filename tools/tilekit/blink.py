@@ -99,7 +99,7 @@ def with_lights(text, spec):
     """(the model's text with the lamp panes of `spec` over its meshes that draw the fixture, and the loop that blinks
     them; how many panes). A model that draws none of the fixture's lights is given back as it is; one that has the
     loop already, or lamp panes, is refused."""
-    require(isinstance(spec.get('lights'), dict) and isinstance(spec.get('texture'), str) and isinstance(spec.get('lamp'), str) and len(spec.get('patch', ())) == 4 and isinstance(spec.get('period'), (int, float)),
+    require(isinstance(spec.get('lights'), dict) and isinstance(spec.get('texture'), str) and isinstance(spec.get('lamp'), str) and spec['lamp'].strip() and len(spec.get('patch', ())) == 4 and isinstance(spec.get('period'), (int, float)),
             'A blink list has a texture, a lamp picture, a patch of four numbers, a period and its lights')
     texture = spec['texture'].lower(); loop = spec.get('loop', 'animloop01'); period = float(spec['period']); lift = float(spec.get('lift', 0.005))
     name = re.search(r'(?mi)^[ \t]*newmodel[ \t]+(\S+)', text).group(1); ending = '\r\n' if '\r\n' in text else '\n'
@@ -152,6 +152,8 @@ def write(repo, tileset, folder, spec, shared=(), again=False):
     """Write the models of a tileset that draw the fixture's lights, with their lamp panes, into `folder` (a review's
     overlay) and tell {'models': {model: panes}, 'refused': {model: why}, 'done': how many had them already}. again:
     a model that has its lamp panes is made anew from the list. shared: as `daylight.write`."""
+    lamp = str(spec.get('lamp', '')).lower(); made = sorted(path.parent.name for path in Path(repo).glob('srn_*/*.mtr') if path.stem.lower() == lamp)
+    require(not made, f'The lamp picture {lamp} has a material in {", ".join(made)}: its lamps would come out pale')
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'refused': {}, 'done': 0}
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):

@@ -12,7 +12,10 @@ redrawn picture (pixels of the picture, the top first):
 - {"caption": {"band": [...], "fill": [r, g, b], "text": words, "font": a font file's name, "size": points, "colour":
   [r, g, b], "middle": y}}: the band painted over and lettered, centred;
 - {"lift": {"above": 0-255, "over": 0-255, "to": [r, g, b]}}: every pixel brighter than `above` moved towards `to`,
-  wholly so from `above + over` up; the dark left as it is."""
+  wholly so from `above + over` up; the dark left as it is.
+
+The finished pictures alone are written: lay them over a copy of the redraw folder for `material --redrawn`. A finish
+is done on the redraw itself, never on a picture finished before (a second lift brightens again)."""
 import random
 from pathlib import Path
 
@@ -26,10 +29,11 @@ def finished(picture, steps):
     from PIL import ImageDraw, ImageFont
     picture = picture.convert('RGBA'); require(isinstance(steps, list) and steps, 'A finish is a list of steps')
     for step in steps:
-        require(isinstance(step, dict) and len(step) == 1 and next(iter(step)) in STEPS, 'A finish step is one of ' + ', '.join(STEPS)); kind, how = next(iter(step.items()))
+        require(isinstance(step, dict) and len(step) == 1 and next(iter(step)) in STEPS and isinstance(step[next(iter(step))], dict), 'A finish step is one of ' + ', '.join(STEPS)); kind, how = next(iter(step.items()))
         draw = ImageDraw.Draw(picture)
         if kind == 'segments':
             require(set(how) == {'band', 'fill', 'row', 'from', 'to', 'end', 'widths', 'colours', 'gap', 'seed'}, 'Segments have a band, fill, row, from, to, end, widths, colours, gap and seed')
+            require(how['widths'] and min(how['widths']) + how['gap'] > 0, 'A segment and its gap are wider than nothing')
             chance = random.Random(how['seed']); draw.rectangle(tuple(how['band']), fill=tuple(how['fill']) + (255,)); x = how['from']
             while x < how['to']:
                 wide = chance.choice(how['widths']); colour = chance.choice(how['colours'])
@@ -64,6 +68,7 @@ def write(spec, redrawn, out, only=None):
     is refused."""
     from PIL import Image
     redrawn, out = Path(redrawn), Path(out); require(redrawn.resolve() != out.resolve(), 'A finish is written to another folder than the redraws'); out.mkdir(parents=True, exist_ok=True); told = []
+    unknown = sorted(set(only or ()) - {name for name, how in spec['textures'].items() if how.get('finish')}); require(not unknown, 'No finish in the list for: ' + ', '.join(unknown))
     for name, how in spec['textures'].items():
         if not how.get('finish') or (only and name not in only):
             continue

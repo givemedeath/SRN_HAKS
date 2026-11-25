@@ -298,7 +298,7 @@ def main(arguments=None):
     eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     eight.add_argument('--repo', type=Path, default=REPO); eight.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
-    hand = commands.add_parser('finish', help='lay the recorded finishes of a redraw list over its redrawn pictures, into another folder for `material --redrawn`')
+    hand = commands.add_parser('finish', help='lay the recorded finishes of a redraw list over its redrawn pictures, into another folder: lay them over a copy of the redraws for `material --redrawn`')
     hand.add_argument('--spec', required=True, type=Path, help='the redraw list (docs/tilesets/<set>/redraw.json)'); hand.add_argument('--redrawn', required=True, type=Path, help='the folder `redraw` filled')
     hand.add_argument('--out', required=True, type=Path, help='the folder the finished pictures are written to'); hand.add_argument('--only', help='only these textures, comma separated')
     lamp = commands.add_parser('blink', help='lay blinking lamp panes over a fixture\'s indicator lights, in model copies (a copy already in --out is changed)')

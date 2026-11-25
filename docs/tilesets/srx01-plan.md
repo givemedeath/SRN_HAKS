@@ -683,7 +683,9 @@ The four textures it shares with dgt04 keep dgt04's look.
   a pale patch of the console's plain picture in its own glow colour, so no texture is added (through the console's
   material the lamps came out pale: cream for red). Seen in game on both tiles by day and at night.
 - **School 3 (solved 2026-11-24):** 28 of the 47 windows of `udp1_b07_29` have lit panes (`udp1-window1b`) and day
-  panes, under the tile's animated node (it had hung from the root before). Seen in game: lit at night, unlit by day.
+  panes, under the tile's animated node (they had hung from the root before). Seen in game: lit at night, unlit by day. How they were chosen,
+  to make them again: each mesh `window<n>` drawing `udp1-window1` with `n * 7 mod 5` of 0 to 2 was given
+  `udp1-window1b` and `selfillumcolor 0.698039 0.698039 0.698039`, then `tilekit daylight --again`.
 - **Suburb `detail` kit: dropped (user, 2026-11-24).** `placer.propose` finds almost nothing on the houses and strip
   malls (thin box windows, models wider than their cell); only mall roofs take pieces.
 

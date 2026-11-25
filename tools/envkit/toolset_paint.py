@@ -11,7 +11,8 @@ Start the Toolset as it says, size it (`Toolset.ps1 -Do move`), open the module,
 the background: it opens each area, arms each group from the palette, waits for one click, saves, keeps the module and
 undoes. **The clicks are real ones**, by computer use, on an empty tile of the area view, one about every four seconds
 (posted clicks are not painted); a click at another time only selects a tile. Run it only while no game client is up:
-computer use hides other windows. `run` goes on where it stopped. `read` says what each saved module holds.
+computer use hides other windows. `run` tries again what was not
+whole, and stops at tiles an undo left. `read` says what each saved module holds.
 
 What the Toolset does, found by trying: File > Save has no shortcut, but Save and Undo answer their menu messages; a
 feature of one tile stays armed after it is painted, so the saved file is what is judged, not the mode; another
@@ -31,6 +32,7 @@ from . import require, toolset
 
 OPEN = ('Grass', 'Concrete', 'Harbor', 'Arcology_Void')  # the ground a group of mixed ground is tried on, the first it has
 SAVE, UNDO = 47, 56  # the Toolset's menu commands (v89.8193.37-17)
+OTHERS = 'tiles of another group: '
 CLICK = ((0x200, 0), (0x201, 1), (0x202, 0))  # move, down, up
 
 
@@ -52,6 +54,8 @@ def plan(set_text, palette, only=None):
         plain = len(set(tile['corners'])) == 1 and len(set(tile['heights'])) == 1 and not any(tile['crossers']) and not tile['doors']
         if plain and tile['number'] not in own:
             fills.setdefault(tile['corners'][0], tile['number'])
+    unknown = sorted(set(only or ()) - set(range(len(read['groups']))))
+    require(not unknown and (only is None or only), 'The set has no group ' + (', '.join(map(str, unknown)) or 'chosen'))
     groups = []
     for number, group in enumerate(read['groups']):
         if only is not None and number not in only:
@@ -84,7 +88,7 @@ def judge(planned, group, laid, doors):
     strangers = {tile for other in planned['groups'] if other['number'] != group['number'] for tile in other['tiles']} - set(group['tiles'])
     left = sorted(strangers & set(laid))
     if left:
-        wrong.append('tiles of another group: ' + ', '.join(map(str, left)))
+        wrong.append(OTHERS + ', '.join(map(str, left)))
     return wrong
 
 
@@ -117,6 +121,25 @@ def prepare(repo, tileset, user, haks, *, game=None, only=None, size=16):
     return {**told, 'groups': len(planned['groups']), 'areas': len(planned['grounds'])}
 
 
+def judged(planned, group, module):
+    """What is wrong with a group in a module the Toolset saved."""
+    with tempfile.TemporaryDirectory() as out:
+        toolset._tools()('nwn_erf', ['-x', '-f', Path(module).resolve()], cwd=out)
+        base = Path(out) / (area_name(planned, group['ground']) + '_a')
+        are, git = _gff(base.with_suffix('.are')), _gff(base.with_suffix('.git'))
+    return judge(planned, group, [tile['Tile_ID']['value'] for tile in are['Tile_List']['value']], [door['Appearance']['value'] for door in git['Door List']['value']])
+
+
+def keep(planned, group, module, out):
+    """Keep a saved module if its group is whole, so that another is tried again when `run` is; what is wrong with it.
+    Another group's tiles stop the run: an undo did nothing, or a paint was left by a run that was stopped."""
+    wrong = judged(planned, group, module)
+    require(not any(word.startswith(OTHERS) for word in wrong), f'{group["name"]}: {"; ".join(wrong)}: an earlier paint was not undone. Undo it in the Toolset, then run again')
+    if not wrong:
+        shutil.copyfile(module, Path(out) / f'{group["number"]}.mod')
+    return wrong
+
+
 def read(user):
     """[{number, name, wrong: [words]}] of the saved modules, and the groups with none."""
     user = Path(user).resolve()
@@ -124,11 +147,7 @@ def read(user):
     for group in planned['groups']:
         module, wrong = user / 'painted' / f'{group["number"]}.mod', ['not painted']
         if module.is_file():
-            with tempfile.TemporaryDirectory() as out:
-                toolset._tools()('nwn_erf', ['-x', '-f', module], cwd=out)
-                base = Path(out) / (area_name(planned, group['ground']) + '_a')
-                are, git = _gff(base.with_suffix('.are')), _gff(base.with_suffix('.git'))
-            wrong = judge(planned, group, [tile['Tile_ID']['value'] for tile in are['Tile_List']['value']], [door['Appearance']['value'] for door in git['Door List']['value']])
+            wrong = judged(planned, group, module)
         told.append({'number': group['number'], 'name': group['name'], 'wrong': wrong})
     return told
 
@@ -253,7 +272,8 @@ class Window:
         return [(self.cls(one), self.text(one)) for one in shown if self.cls(one) not in ('TfrmFrame', 'TApplication', 'THintWindow')]
 
     def disarm(self):
-        bar = next(one for one in self.visible('TToolBar') if abs(self.rect(one)[2] - self.rect(one)[0] - 80) < 4)  # the selection modes
+        bar = next((one for one in self.visible('TToolBar') if abs(self.rect(one)[2] - self.rect(one)[0] - 80) < 4), None)  # the selection modes
+        require(bar, 'The Toolset shows no selection mode buttons')
         for _ in range(6):
             if self.status() == 'Select':
                 return
@@ -335,10 +355,10 @@ def run(user):
             require(not window.others(), f'A window is up in the Toolset: {window.others()}')
             if done:
                 time.sleep(0.3)
-                shutil.copyfile(module, out / f'{group["number"]}.mod')
+            wrong = keep(planned, group, module, out) if done else ['not saved']
             window.command(UNDO)
             time.sleep(0.5)
-            print(group['number'], group['name'], 'saved' if done else 'not saved', flush=True)
+            print(group['number'], group['name'], '; '.join(wrong) or 'whole', flush=True)
 
 
 def main(arguments=None):
@@ -356,7 +376,7 @@ def main(arguments=None):
     chosen = parser.parse_args(arguments)
     if chosen.command == 'prepare':
         only = {int(part) for part in chosen.only.split(',')} if chosen.only else None
-        print(json.dumps(prepare(chosen.repo, chosen.tileset, chosen.user, tuple(chosen.haks) + toolset.HAKS, game=chosen.game, only=only)))
+        print(json.dumps(prepare(chosen.repo, chosen.tileset, chosen.user, tuple(dict.fromkeys((*chosen.haks, *toolset.HAKS))), game=chosen.game, only=only)))
         return 0
     if chosen.command == 'run':
         run(chosen.user)

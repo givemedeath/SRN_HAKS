@@ -1,5 +1,7 @@
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tools.envkit import toolset_paint
 
@@ -38,6 +40,27 @@ class Paint(unittest.TestCase):
             toolset_paint.plan(SET, {'a_hall': 'X: Hall'})
         with self.assertRaisesRegex(ValueError, 'twice'):
             toolset_paint.plan(SET, {**PALETTE, 'a_hut': 'X: Hall'})
+
+    def test_a_number_the_set_has_no_group_of_is_refused(self):
+        # an empty plan built the plain areas of other tilesets (review of PR 199)
+        for only in ({9}, {1, 9}, set()):
+            with self.assertRaisesRegex(ValueError, 'no group'):
+                toolset_paint.plan(SET, PALETTE, only)
+
+    def test_run_keeps_whole_groups_only_and_stops_at_a_paint_left(self):
+        planned = toolset_paint.plan(SET, PALETTE)
+        hall = planned['groups'][1]
+        with tempfile.TemporaryDirectory() as temporary:
+            module = Path(temporary) / 'saved.mod'
+            module.write_bytes(b'module')
+            for laid, doors, kept in (([2, 2], [], False), ([2, 1], [268], True)):
+                wrong = toolset_paint.judge(planned, hall, laid, doors)
+                with mock.patch.object(toolset_paint, 'judged', return_value=wrong):
+                    toolset_paint.keep(planned, hall, module, temporary)
+                self.assertEqual((Path(temporary) / '1.mod').is_file(), kept)
+            wrong = toolset_paint.judge(planned, hall, [1, 0], [268])
+            with mock.patch.object(toolset_paint, 'judged', return_value=wrong), self.assertRaisesRegex(ValueError, 'not undone'):
+                toolset_paint.keep(planned, hall, module, temporary)
 
     def test_judge_holds_a_saved_area_to_its_group(self):
         planned = toolset_paint.plan(SET, PALETTE)

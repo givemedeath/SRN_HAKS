@@ -102,6 +102,12 @@ class Blink(unittest.TestCase):
                 (repo / folder).mkdir()
             (repo / 'srn_t_t' / 't.set').write_text('[TILES]\nCount=1\n[TILE0]\nModel=t_a01\n', encoding='cp1252')
             (repo / 'srn_t_t' / 't_a01.mdl').write_text(MODEL, encoding='cp1252')
+            with self.assertRaisesRegex(ValueError, 'A blink list has'):
+                blink.with_lights(MODEL, {**SPEC, 'lamp': ' '})
+            (repo / 'srn_t_common' / 'Plain.mtr').write_text('texture5 glow', encoding='ascii')  # through a material the lamps come out pale (review of PR 199)
+            with self.assertRaisesRegex(ValueError, 'has a material in srn_t_common'):
+                blink.write(repo, 't', out, SPEC)
+            (repo / 'srn_t_common' / 'Plain.mtr').unlink()
             self.assertEqual(blink.write(repo, 't', out, SPEC)['models'], {'t_a01': 2})
             self.assertEqual(blink.write(repo, 't', out, SPEC), {'models': {}, 'refused': {}, 'done': 1})  # it has them: left
             self.assertEqual(blink.write(repo, 't', out, SPEC, again=True)['models'], {})  # made anew, the same: not written

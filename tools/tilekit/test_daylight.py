@@ -362,6 +362,14 @@ class Daylight(unittest.TestCase):
                         twice.append((path.stem, part.split()[0]))
         self.assertEqual(twice, [])
 
+    def test_school_3_has_its_lit_windows(self):
+        # chosen by a script that was in no list: the rule is in srx01-plan.md, and this holds the tile to it (review of PR 199)
+        text = (REPO / 'sources' / 'srn_t_udp1' / 'udp1_b07_29.mdl').read_bytes().decode('cp1252')
+        drawn = {int(name.split()[0][6:]): daylight._field(body, 'bitmap').lower() for _, name, body in daylight.NODE.findall(daylight._geometry(text))
+                 if re.fullmatch(r'(?i)window\d+', name.split()[0]) and (daylight._field(body, 'bitmap') or '').lower().startswith('udp1-window1')}
+        self.assertEqual(sum(picture == 'udp1-window1b' for picture in drawn.values()), 28); self.assertEqual(len(drawn), 47)
+        self.assertEqual({number: picture == 'udp1-window1b' for number, picture in drawn.items()}, {number: number * 7 % 5 <= 2 for number in drawn})
+
     def test_a_day_pane_goes_where_a_loop_moves_its_lit_pane(self):
         loop = 'newanim animloop01 t_a01\n  node dummy t_a01\n    parent NULL\n  endnode\n  node trimesh pane\n    parent lights\n    positionkey 1\n      0 0 0 10\n    endlist\n  endnode\ndoneanim animloop01 t_a01\n'
         moving = MODEL.replace('donemodel', loop + 'donemodel')
