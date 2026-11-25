@@ -220,3 +220,53 @@ gathered into heavy boots, a band of the accent round each upper sleeve and a pa
 `street-casual-male/reference-v2`; one Qwen image, `run-1/image-0.png`, seed 20261125. `reference-v1` keeps
 the first design's image. Not run: a bake with a tinted or named channel (`bake.tints` reads them through
 `brief.channels`; the brief's side is tested). Next: the user's review of the redraw.
+
+## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
+
+The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
+arm slots or one skinned mesh with its sleeves, chose the fully skinned jacket. This replaces the Street Casual
+of decision 3 and the model table above where they differ, and supersedes plan.md's deferral of robe-slot
+garments for jackets.
+
+What it changes:
+
+* **Street Casual 3010 is the outfit without a jacket:** T-shirt, cargo trousers, belt and boots, bare forearms
+  and hands, the upper arms sharing the body's skin. The T-shirt variant 3011 is dropped: 3010 is it. The
+  street vendor 4020 and the office 5010 are likewise drawn without a jacket.
+* **A jacket is one skinned model with its sleeves, on the robe slot,** worn over whatever fills the fitted
+  slots. It bends at the shoulders and elbows. Its row in `parts_robe` hides the upper-arm and forearm parts
+  under its sleeves; the chest stays, since an open jacket shows the shirt.
+* **One robe to a character.** A jacket and a long coat are not worn together.
+* **Numbers.** A set's jacket takes the set's number on the robe slot (robe 3010), a jacket of no set a
+  standalone number. Proposed, not confirmed.
+* **Channels.** The jacket is tinted by the item's six colours like every part, so the convention holds: the
+  jacket on cloth 1, the shirt under it on metal 1.
+
+The citizen's recipe: chest, upper arms, pelvis, legs and feet 3010; forearms and hands the body's (part 1);
+robe 3010 for a citizen in a jacket, none without.
+
+Step B for the base outfit is as before. The jacket is a track of its own, **step J**, started once the base
+outfit has been seen on the Human male in the client:
+
+1. **Brief and reference for a piece worn on the robe slot.** `brief.ACCESSORIES` takes belt, shoulder and
+   neck; a robe piece is added. Drawn alone, in an A-pose, front view.
+2. **Fit and weights.** `tools/robes` has the pieces from the Meshy workwear trial (fit to the body, weight
+   transfer, an A-pose rest skeleton, a deformation review over the stock clips, a skinned ASCII model).
+   Weights are transferred in the A-pose, never the arms-down bind pose. Which of it Armorkit calls and which
+   it rebuilds is decided when the step starts.
+3. **Gates before the client:** no unbound vertices, at most four influences, every bone in the skeleton
+   (cleanmodels); the deformation review's stretch and penetration over the clips the bodies play, with limits
+   set from this jacket's first build and the user's client review.
+4. **Human male in the client** over 3010: standing, idle, walk, run, combat, the arms raised and forward.
+   **A stop for the user.**
+5. Then the female, the other 18 bodies (`cleanmodels variants` makes robe versions; unproven here), the
+   `parts_robe` rows with their hide columns, publication with approval.
+
+The risk is stated plainly: the one robe built here, the trial's workwear, measured a worst stretch of 26.4
+times and 16.7 cm of penetration walking when its review was rerun on fixed code (docs/robes/results.md), and
+was approved in the client all the same. A jacket is shorter than that outfit and has no legs, which is the
+easier case, but nothing about it is proven until step J4.
+
+State: brief rewritten without the jacket and sealed as `street-casual-male/reference-v3`; one Qwen image,
+`run-1/image-0.png`, seed 20261126. `reference-v2` keeps the image with the jacket, `reference-v1` the first
+design. Next: the user's review of the `reference-v3` image.

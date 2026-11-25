@@ -3,27 +3,32 @@
  "kind": "srn-armorkit-brief",
  "model": "street-casual-male",
  "bare": [
+  "forearm",
   "hand"
+ ],
+ "skin": [
+  "bicep"
  ],
  "construction": 3,
  "wear": 0.5,
  "materials": [
   {
-   "name": "jacket",
+   "name": "shirt",
    "kind": "cloth",
+   "tint": "metal",
    "channel": 1,
    "colour": [
-    120,
-    170,
-    230
+    240,
+    150,
+    160
    ],
    "suggested": [
-    38,
-    38,
-    42
+    72,
+    72,
+    76
    ],
-   "look": "BRIGHT LIGHT SKY BLUE cloth, a saturated baby blue (hex #78AAE6)",
-   "wears": "the jacket: a thick, oversized, hip-length street jacket worn open down the front, its two front edges hanging straight and a hand apart, with a broad turned-down collar, a large flap pocket low on each front, and two long, wide sleeves ending in close cuffs. Blue all over but for its yellow panels."
+   "look": "SOFT ROSE PINK cloth, a clear light pink (hex #F096A0)",
+   "wears": "the T-shirt: thick, loose and boxy, with a round crew neck and two wide short sleeves, tucked into the trousers. Pink all over but for its yellow panels."
   },
   {
    "name": "trousers",
@@ -43,24 +48,6 @@
    "wears": "the baggy cargo trousers: wide straight legs, a big bellows pocket with a flap on the outside of each thigh, gathered close at the ankle into the tops of the boots. Grey all over but for their yellow panels."
   },
   {
-   "name": "shirt",
-   "kind": "cloth",
-   "tint": "metal",
-   "channel": 1,
-   "colour": [
-    240,
-    150,
-    160
-   ],
-   "suggested": [
-    72,
-    72,
-    76
-   ],
-   "look": "SOFT ROSE PINK cloth, a clear light pink (hex #F096A0)",
-   "wears": "the plain crew-neck T-shirt under the jacket, showing between the jacket's open fronts from the collar down to the belt, tucked into the trousers."
-  },
-  {
    "name": "panels",
    "kind": "cloth",
    "tint": "metal",
@@ -76,7 +63,7 @@
     32
    ],
    "look": "BRIGHT LEMON YELLOW cloth (hex #F0D246)",
-   "wears": "the bold colour blocks: one broad band, a hand wide, right round the middle of each upper sleeve of the jacket, and one large square patch on the front of each trouser leg over the knee."
+   "wears": "the bold colour blocks: one broad band, a hand tall, right across the chest of the T-shirt from side to side, and one large square patch on the front of each trouser leg over the knee."
   },
   {
    "name": "belt",
@@ -113,5 +100,5 @@
    "wears": "the two heavy ankle boots, chunky, with thick ridged soles and a broad toe, green all over: uppers, soles and laces."
   }
  ],
- "prompt": "Product image of one set of rugged street clothes for a near-future city dweller, standing in an A-pose. Show the clothing only, as a hollow outfit floating in the air with nobody inside it: the collar of the T-shirt is an empty opening.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two long jacket sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, each running the whole length of the arm to the wrist and ending in a plain close cuff. A plain glove comes out of each cuff on the same straight line as its sleeve, open and flat with the fingers together, pointing along that line, at hip height. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit; the whole underside of each sleeve from armpit to cuff shows against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe six colours are easy to tell apart at a glance: blue jacket, pink T-shirt, yellow panels, grey trousers, tan belt and gloves, green boots. Every part of the outfit is one of these six colours.\n\n{construction}\n\nThe look is heavy, layered streetwear: thick, oversized, hard-wearing clothes with big simple shapes, deep pockets and bold blocks of colour. Smooth clean surfaces like a painted sculpt: plain colour on every part, clean and new, smooth cloth with only large soft folds, chunky shapes, clean edges between parts. The outfit is these things and nothing else: the jacket, the T-shirt, the trousers, the belt, the two gloves and the two boots, every surface plain.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to boot soles and from glove to glove with margin on all sides, plain white background."
+ "prompt": "Product image of one set of rugged street clothes for a near-future city dweller, standing in an A-pose. Show the clothing only, as a hollow outfit floating in the air with nobody inside it: the collar and the hems of the two short sleeves are empty openings, and the two gloves float on their own, apart from the sleeves.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two short sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, each ending in a straight clean hem halfway down the upper arm. Each glove floats far out to the side at hip height, on the same straight line as its sleeve, open and flat with the fingers together, pointing along that line. Between the hem of each sleeve and its glove is a long stretch of plain white background, as long as the sleeve and the glove together. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit; the whole underside of each sleeve from armpit to hem shows against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe five colours are easy to tell apart at a glance: pink T-shirt, yellow panels, grey trousers, tan belt and gloves, green boots. Every part of the outfit is one of these five colours.\n\n{construction}\n\nThe look is heavy streetwear: thick, oversized, hard-wearing clothes with big simple shapes, deep pockets and bold blocks of colour. Smooth clean surfaces like a painted sculpt: plain colour on every part, clean and new, smooth cloth with only large soft folds, chunky shapes, clean edges between parts. The outfit is these things and nothing else: the T-shirt, the trousers, the belt, the two gloves and the two boots, every surface plain.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to boot soles and from glove to glove with margin on all sides, plain white background."
 }
