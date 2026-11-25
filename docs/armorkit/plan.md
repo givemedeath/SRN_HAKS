@@ -130,7 +130,7 @@ This is the accepted exception to "one PLT per part" (decision 13).
 
 **Budgets.** Chest up to 16,000 triangles, other body slots up to 5,800, a whole worn outfit up to 80,000
 (user decision 2026-11-25: "increase our poly counts further ... Double them", after Street Casual's pockets,
-seat and boot tops came out coarse in the client); accessories up to 4,000 (2026-11-17, unchanged). Before
+seat and boot tops came out coarse in the client); accessories up to 8,000 (same day, from the 4,000 of 2026-11-17). Before
 that: chest 8,000, other body slots 2,900, accessories 2,000, a whole worn outfit 40,000 (user decision
 2026-11-13, raised from 30,000 so that
 the rounded ends at every joint fit; a chest and eleven parts at their budgets come to 39,900). Before that
@@ -859,7 +859,7 @@ the hak did not. The user chose plain git, no LFS, and to make those copies at b
 Made for corporate security and looked at in the client on the Human pair, worn with Facility Security 6020.
 Nothing here is published; the other 18 bodies, the registry entries and the packs are separate steps.
 
-* **Budget (user decision).** An accessory has up to 4,000 triangles and a texture of up to 1,024 texels
+* **Budget (user decision; 8,000 since 2026-11-25, Budgets above).** An accessory has up to 4,000 triangles and a texture of up to 1,024 texels
   (`accessory.BUDGET`), twice the 2,000 of the part rules. A whole worn outfit's 40,000 is unchanged.
 * **Numbers (user decision).** The duty belt takes its outfit's number, 6020, on the belt slot. The brassard is
   shoulder 1000 and the respirator neck 1000, the first of the standalone numbers.

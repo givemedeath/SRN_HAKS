@@ -26,7 +26,7 @@ from . import brief, export, measure, registry, repose, seams, texture
 from .registry import require
 
 KIND = 'srn-armorkit-accessory'
-BUDGET = {'triangles': 4000, 'texture': 1024}  # docs/armorkit/plan.md, Budgets: an accessory (user decision 2026-11-17, from 2,000)
+BUDGET = {'triangles': 8000, 'texture': 1024}  # docs/armorkit/plan.md, Budgets: an accessory (user decision 2026-11-25, from 4,000)
 DIRECTIONS = 96  # a belt is fitted in this many directions round the body's axis
 LEVELS = 0.01  # metres: and in bands this tall along it
 CLEARANCE = 0.004  # metres a belt's inner face stands outside what is worn under it

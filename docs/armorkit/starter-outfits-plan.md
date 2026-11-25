@@ -455,7 +455,8 @@ shirt or trim anywhere in this plan.
 
 2026-11-25, the user: "we are going to need to increase our poly counts further as well. Double them please".
 `bake.BUDGET`: chest 16,000, other slots 5,800, a whole outfit 80,000 (plan.md, Budgets). The accessory's
-4,000 is not changed; whether it doubles too is asked.
+4,000 doubles too, to 8,000 (user, same day: "Yes, 8,000"; `accessory.BUDGET`, `brassard.BUDGET`). The belt's
+4,000-face export (`export-3`) and `belt-4-prepared` predate it.
 
 * **Bake `male-14`** (attempt 2, solid export, new budgets and channels): 68,197 triangles, every part at its
   budget, ten models compiled. Channels as above, nothing on metal. The flaps' `shown` colour is now the
