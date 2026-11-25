@@ -524,6 +524,21 @@ class RefitTests(unittest.TestCase):
                 refit.over_skin(near, start, end)
         clear = worn(0.05)
         self.assertIs(refit.over_skin(clear, start, end), clear)  # a sleeve clear of the arm is not touched
+        # what is flagged stays where it is: an end the seam contract measures
+        near = worn(0.035)
+        fixed = near['v'][:, 0] < 0.1
+        out = refit.over_skin(near, start, end, fixed=fixed)
+        self.assertTrue(fixed.any() and np.array_equal(out['v'][fixed], near['v'][fixed]))
+        self.assertEqual(bake.through({'bicepl': out}, bones), ({'bicepl': 0.0}, []))
+        # a bake holds its own sleeve so where its skin gate would fail, and leaves one that passes as it is
+        with mock.patch.object(bake, 'END_BAND', 0.0):
+            out, moved = bake.over_own_skin(near, 'bicepl', bones)
+        self.assertEqual(bake.through({'bicepl': out}, bones), ({'bicepl': 0.0}, []))
+        self.assertGreater(moved, 0.005)
+        self.assertEqual(bake.facing({'bicepl': out}, bones)[1], [])
+        kept, moved = bake.over_own_skin(clear, 'bicepl', bones)
+        self.assertIs(kept, clear)
+        self.assertEqual(moved, 0.0)
         bare = closed(0.05, 0.3, 0.035, near=None, far=None)
         self.assertIs(refit.over_skin(bare, start, end), bare)  # nor a part with no skin beside it
         with self.assertRaisesRegex(Exception, 'would move 4.8 cm, past 3 cm'):  # an arm far fuller than the sleeve fails

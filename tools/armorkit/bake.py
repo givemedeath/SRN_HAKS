@@ -995,6 +995,29 @@ def shared_with_body(document):
     return {name for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens']}
 
 
+def over_own_skin(part, name, bones):
+    """(part, moved): `part`, holding the body's own skin beside the outfit's (`bodyskin.worn`), with the outfit
+    pushed out over that skin where the skin stands out through it by more than the gate lets it (`through`,
+    `THROUGH`), as a refit pushes a sleeve out over another body's arm (`refit.over_skin`), and how far it
+    moved at most, in metres: 0 for a part that passes as it is, which is left as it is. Nothing within
+    `END_BAND` of either end of the part's bone moves, where the seam contract measures its ends: pushed out
+    whole, the sleeves stood up to 4 mm outside the shoulder's envelope. Faces the push bared from behind are
+    turned out (`faced_out`). A loose short sleeve hangs off the arm on its outside and lies against it on
+    the side toward the torso, where the cut from the torso leaves it: the arm kept beside Street Casual's
+    sleeves stood 1.7 and 2.4 cm out through them under the armpit (2026-11-24)."""
+    if not through({name: part}, bones)[1]:
+        return part, 0.0
+    from . import refit  # refit reads this module
+    start, end = split.bone_line(bones, name)
+    v, axis = np.asarray(part['v'], float), seams.unit(end - start)
+    along = (v - start) @ axis
+    held = refit.over_skin(part, start, end, fixed=(along < END_BAND) | (along > float((end - start) @ axis) - END_BAND))
+    cloth = ~np.asarray(held['skin'], bool)
+    faces, normals = np.asarray(held['f'], int).copy(), held['n']
+    faces[cloth], normals, _ = faced_out(name, held['v'], faces[cloth], normals, bones)
+    return {**held, 'f': faces.astype(np.asarray(part['f']).dtype), 'n': normals}, float(np.linalg.norm(np.asarray(held['v'], float) - v, axis=1).max())
+
+
 def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None, own_part=None):
     """The baked parts with the body's own part beside the outfit's in each slot the brief shares with the
     body's skin (`skin`, `bodyskin.worn`). `own_part(name)`, if given, is the body's part as already read."""
@@ -1004,7 +1027,9 @@ def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *
             if name in parts:
                 own = own_part(name) if own_part else bodyskin.body_part(body_pack, body_textures, body, name, bones)
                 start, end = split.bone_line(bones, name)
-                parts[name] = bodyskin.worn(parts[name], own, start, end, BUDGET['texture'])
+                parts[name], moved = over_own_skin(bodyskin.worn(parts[name], own, start, end, BUDGET['texture']), name, bones)
+                if moved:
+                    say(f'{name}: pushed out up to {moved * 100:.1f} cm over the body\'s own skin beside it')
                 say(f'{name}: {int(parts[name]["skin"].sum())} of the body\'s {len(own["f"])} faces beside the outfit\'s, {len(parts[name]["rgb"])} px')
     return parts
 

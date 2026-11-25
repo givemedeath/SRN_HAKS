@@ -571,14 +571,14 @@ def _spread(need, free, rings, rounds):
     return push
 
 
-def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
+def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None):
     """`part`, holding the other body's own skin beside the outfit's (`bake.skinned`), with everything drawn
     over that skin (the sleeve's cloth, and the dome closing it at the armpit) held `gap` outside it. Each
     vertex of the skin is read along the ray square out from the part's bone (`start` to `end`) through it
     (`measure.beyond`): where it stands less than `gap` inside, the corners of the last face the ray crosses
     that faces out (the client draws no face from behind) are pushed out from the bone by the difference, the push spread over `rounds` rings of their
     neighbours, never less than a point needs, so the cloth moves as one and creases nowhere, and read again
-    until it settles. The skin and a pad are not moved; a push past `OVER_MOST` in all, over every pass, fails, rather than ship a
+    until it settles. The skin and a pad are not moved, nor a vertex `fixed` flags; a push past `OVER_MOST` in all, over every pass, fails, rather than ship a
     spike where a fold is read as the outside. After the last pass the cloth is read once more
     (`short_of_skin`), and a sleeve the skin still stands out through by more than a bake lets it
     (`bake.THROUGH`) fails here: the passes used to end without a word, whatever they left
@@ -597,6 +597,8 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     free = np.zeros(count, bool)
     free[ids[f[~skin & ~pad].ravel()]] = True
     free[ids[f[skin].ravel()]] = False
+    if fixed is not None:  # per vertex: what stays where it is, an end the seam contract measures
+        free[ids[np.asarray(fixed, bool)]] = False
     cloth, points = f[~skin], np.unique(f[skin])
     start, axis = np.asarray(start, float), seams.unit(np.asarray(end, float) - np.asarray(start, float))
     rings = _rings(f, ids, count)
