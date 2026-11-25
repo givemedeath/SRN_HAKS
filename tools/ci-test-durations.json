@@ -334,6 +334,7 @@
   "tools/tilekit/test_enlarge.py": 0.2,
   "tools/tilekit/test_family.py": 0.5,
   "tools/tilekit/test_family_review.py": 0.5,
+  "tools/tilekit/test_finish.py": 1.0,
   "tools/tilekit/test_inventory.py": 0.2,
   "tools/tilekit/test_joins.py": 0.6,
   "tools/tilekit/test_kit.py": 0.7,

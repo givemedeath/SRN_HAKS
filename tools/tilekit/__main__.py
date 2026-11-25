@@ -127,6 +127,13 @@ def blink_command(chosen):
     return 0
 
 
+def finish_command(chosen):
+    from . import finish
+    told = finish.write(_json(chosen.spec), chosen.redrawn, chosen.out, only=chosen.only.split(',') if chosen.only else None)
+    print(json.dumps({'finished': told}))
+    return 0
+
+
 def unique_command(chosen):
     from . import unique
     told = unique.write(chosen.repo, chosen.pack)
@@ -291,6 +298,9 @@ def main(arguments=None):
     eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     eight.add_argument('--repo', type=Path, default=REPO); eight.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
+    hand = commands.add_parser('finish', help='lay the recorded finishes of a redraw list over its redrawn pictures, into another folder for `material --redrawn`')
+    hand.add_argument('--spec', required=True, type=Path, help='the redraw list (docs/tilesets/<set>/redraw.json)'); hand.add_argument('--redrawn', required=True, type=Path, help='the folder `redraw` filled')
+    hand.add_argument('--out', required=True, type=Path, help='the folder the finished pictures are written to'); hand.add_argument('--only', help='only these textures, comma separated')
     lamp = commands.add_parser('blink', help='lay blinking lamp panes over a fixture\'s indicator lights, in model copies (a copy already in --out is changed)')
     lamp.add_argument('--tileset', required=True); lamp.add_argument('--spec', required=True, type=Path, help='the list of lights (docs/tilesets/<set>/blink.json)')
     lamp.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); lamp.add_argument('--repo', type=Path, default=REPO)
@@ -375,6 +385,8 @@ def main(arguments=None):
             return compile_command(chosen)
         if chosen.command == 'daylight':
             return daylight_command(chosen)
+        if chosen.command == 'finish':
+            return finish_command(chosen)
         if chosen.command == 'blink':
             return blink_command(chosen)
         if chosen.command == 'unique':

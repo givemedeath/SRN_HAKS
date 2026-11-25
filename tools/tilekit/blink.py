@@ -1,13 +1,15 @@
 """Blinking indicator lights on a fixture a texture draws (user, 2026-11-24: the arcology's wall console "needs a
 few glowing and blinking lights"). The steady lights are the texture's glow map (`material.glow`, its `boxes`). A
 blinking one is a small lamp pane laid just over the mesh where the texture draws the indicator, shown and hidden by
-a tile loop. The pane draws the fixture's own material at a lit patch of its glow map, with no surface colour and a
-glow colour of its own: the game tints a glow map by a mesh's glow colour, so one near-white patch gives a lamp of
-any colour and no texture is added. The panes hang from the tile's animated node (`daylight.animated`), where the
+a tile loop. The pane draws the fixture's plain picture (`lamp`: the picture its material draws, which has no
+material file of its own name) at a pale patch of it, with no surface colour and a glow colour of its own: a plain
+picture glows in its own colours times the mesh's glow colour, so one near-white patch gives a lamp of any colour and
+no texture is added. Drawn through the fixture's material at a lit patch of its glow map the lamps came out pale,
+cream for red (seen in game, 2026-11-24). The panes hang from the tile's animated node (`daylight.animated`), where the
 game plays a tile's animations, and rest clear, so a tile whose loop is off has its steady lights alone.
 
-The list (`docs/tilesets/<set>/blink.json`): {"texture": the fixture's texture, "patch": [left, top, right, bottom]
-of a lit place of its glow map (0-1 of the picture, the top first), "loop": the tile loop, "period": its seconds,
+The list (`docs/tilesets/<set>/blink.json`): {"texture": the fixture's texture, "lamp": the plain picture the lamps draw, "patch":
+[left, top, right, bottom] of a pale place of it (0-1 of the picture, the top first), "loop": the tile loop, "period": its seconds,
 "lift": metres over the mesh, "lights": {name: {"boxes": [[left, top, right, bottom]], "colour": [red, green, blue],
 "on": [[from, to] seconds]}}}."""
 import re
@@ -97,8 +99,8 @@ def with_lights(text, spec):
     """(the model's text with the lamp panes of `spec` over its meshes that draw the fixture, and the loop that blinks
     them; how many panes). A model that draws none of the fixture's lights is given back as it is; one that has the
     loop already, or lamp panes, is refused."""
-    require(isinstance(spec.get('lights'), dict) and isinstance(spec.get('texture'), str) and len(spec.get('patch', ())) == 4 and isinstance(spec.get('period'), (int, float)),
-            'A blink list has a texture, a patch of four numbers, a period and its lights')
+    require(isinstance(spec.get('lights'), dict) and isinstance(spec.get('texture'), str) and isinstance(spec.get('lamp'), str) and len(spec.get('patch', ())) == 4 and isinstance(spec.get('period'), (int, float)),
+            'A blink list has a texture, a lamp picture, a patch of four numbers, a period and its lights')
     texture = spec['texture'].lower(); loop = spec.get('loop', 'animloop01'); period = float(spec['period']); lift = float(spec.get('lift', 0.005))
     name = re.search(r'(?mi)^[ \t]*newmodel[ \t]+(\S+)', text).group(1); ending = '\r\n' if '\r\n' in text else '\n'
     left, top, right, bottom = spec['patch']; require(0 <= left < right <= 1 and 0 <= top < bottom <= 1, 'A patch is [left, top, right, bottom] in 0-1')
@@ -124,7 +126,7 @@ def with_lights(text, spec):
         how = spec['lights'][light]; node = f'blink{index:02d}'; body = mesh.group(3)
         lines = [f'node trimesh {node}'] + [f'  {word} {daylight._field(body, word)}' for word in ('parent', 'position', 'orientation', 'scale') if daylight._field(body, word)]
         lines += ['  render 1', '  shadow 0', '  alpha 0.0', '  transparencyhint 1', '  selfillumcolor ' + ' '.join(f'{value:g}' for value in how['colour']),
-                  '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1', f'  bitmap {texture}', f'  verts {4 * len(quads)}']
+                  '  ambient 0 0 0', '  diffuse 0 0 0', '  specular 0 0 0', '  shininess 1', f'  bitmap {spec["lamp"].lower()}', f'  verts {4 * len(quads)}']
         lines += ['    ' + ' '.join(f'{value:.5f}' for value in corner) for quad in quads for corner in quad]
         lines += [f'  faces {2 * len(quads)}'] + [f'    {4 * at + a} {4 * at + b} {4 * at + c}  1  {a} {b} {c}  1' for at in range(len(quads)) for a, b, c in ((0, 1, 2), (0, 2, 3))]
         lines += ['  tverts 4'] + [f'    {u:.6f} {v:.6f} 0' for u, v in patch] + ['endnode']
