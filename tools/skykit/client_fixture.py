@@ -242,6 +242,7 @@ def build(nwn_root, out, transition=False, play=False, live=None):
 
 def capture(nwn_root, out, wait=0, transition=False):
     from tools.armorkit import client
+    from tools.tilekit import client_settings
     from PIL import ImageGrab  # noqa: F401  (the capture needs Pillow's grabber)
     user, count = build(nwn_root, out, transition)
     captures = Path(out).resolve() / 'captures'
@@ -250,7 +251,7 @@ def capture(nwn_root, out, wait=0, transition=False):
     captures.mkdir(parents=True)
     if wait:
         client.wait_free(wait)
-    (user / 'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
+    (user / 'settings.tml').write_text(client.settings_text(1600, 900, client_settings.settings()), encoding='utf-8')
     process = client.start(nwn_root, user, MODULE)
     tail = client.LogTail(user, PREFIX)
     taken, done = [], False

@@ -269,6 +269,11 @@ class LiveModule(unittest.TestCase):
             self.assertRegex(text, r'target-fps = [1-9]')
             self.assertEqual(text.count('[graphics.keyholing]'), 1)
 
+    def test_no_client_run_takes_the_settings_without_a_frame_limit(self):
+        text = (ROOT / 'tools' / 'skykit' / 'client_fixture.py').read_text(encoding='utf-8')
+        self.assertNotIn('client.SETTINGS', text)
+        self.assertEqual(text.count("'settings.tml').write_text("), text.count('client_settings.settings()'))
+
 
 if __name__ == '__main__':
     unittest.main()
