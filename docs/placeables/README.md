@@ -14,10 +14,12 @@ imported later is named by adding an entry.
 
 ## Where the names come from
 
-All but some sixty of the 3,481 names are those of the blueprints in the d20 Modern update module (`_mdrn_pl_*.utp`, its palette
+Some 3,420 of the 4,226 names are those of the blueprints in the d20 Modern update module (`_mdrn_pl_*.utp`, its palette
 categories used as a hint only), with spelling put right and names that stood twice numbered. A picture sheet of 112
 rows taken at random matched their names, and so did the 400 or so pieces looked at for the srx02 rooms. The rest were
-looked at and named here. 745 `[mdrn]` rows have no blueprint in that module and keep their labels and no blueprint.
+looked at and named here. The 745 `[mdrn]` rows
+with no blueprint in that module were named from their labels and from a picture of each piece (user, 2026-11-25), so every
+`[mdrn]` row has a name and a blueprint. 22310 and 22314 share one model: both are the blue dome awning.
 
 A blueprint is named as its model, with `_` for `-`; `mdrn_<row>` where that name is the game's, envkit's or another
 row's.

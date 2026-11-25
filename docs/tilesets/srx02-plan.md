@@ -430,7 +430,7 @@ Home batch's, no earlier number moved.
   moved to its console.
 - **Triangles** a furnished tile: 7.6k to 18.2k, under the pilots' 39.6k; frame rate not measured again.
 - **Toolset:** the rooms are listed as Prefab; all seven furnished rooms laid a quarter turn, saved and read back.
-- **Placeables (user):** the rows the rooms are furnished from, and the rest, were named, given blueprints and put in a
+- **Placeables (user):** all 4,226 `[mdrn]` rows, those the rooms are furnished from among them, were named, given blueprints and put in a
   new palette tree: `docs/placeables/README.md`. In the Toolset the nine branches show, and a bed blueprint was placed,
   saved and read back.
 - **Textures (user: upscale or redraw any low-quality texture met; redraw computer screens to match the setting):**

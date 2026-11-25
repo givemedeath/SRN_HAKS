@@ -2552,9 +2552,10 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
 
 ## Names and blueprints of the imported placeables (`srn_placeable`, `srn_2da`, `srn_tlk`; 2026-11-25)
 
-- 3,481 blueprints (`srn_placeable/*.utp`) and the labels of their rows in `srn_2da/placeables.2da` are written by
+- 4,226 blueprints (`srn_placeable/*.utp`) and the labels of their rows in `srn_2da/placeables.2da` are written by
   `tools/envkit` (`envkit library`) from `docs/placeables/library.json`. The blueprints are this project's, made of the
   game's fields for a plain placeable. Their names are for the most part those of the blueprints of the d20 Modern
-  update module, a local copy in SR_NWN's old assets, tidied; no file of that module is copied. The categories
+  update module, a local copy in SR_NWN's old assets, tidied; no file of that module is copied. 745 without one
+  there were named by the project from the row's label and a picture of the piece. The categories
   (`docs/placeables/categories.json`, `srn_placeable/placeablepal.itp`, 70 strings of `srn_tlk`) are this project's.
   No model, texture or row number changes. The operator asked for the names, the blueprints and the categories.
