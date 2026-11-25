@@ -463,4 +463,12 @@ shirt or trim anywhere in this plan.
   whole mesh's ([156, 120, 70]): with the cut parts' it could not be told from the gloves there. The shoulder
   gate still fails (1.1 cm each side). Offline view `review/street-casual-male-14-render.png`.
 * Not done: the client view of `male-14` (another session's client was running), the belt's fit.
+* **Belt at 8,000** (user: "Yes, re-export"): `export-4` (solid, 8,000 faces), prepared as `belt-5-prepared`
+  (7,992 triangles, one piece, no holes), fitted over `male-14` as `belt-5` (`pmh0_belt310`): gates pass,
+  nothing inside the outfit, compiled. No geometry attempt used.
+* **Belt channels, not right yet:** the generated colours show two materials only, tan (leather 1, 80% of
+  the texture) and near-black [34, 34, 32] (metal 2, 20%). The near-black is the buckle and studs together
+  with what the single reference view never showed: the strap's inner face and the backs of the pouches,
+  which the generator painted dark. So those leather faces are on metal 2 and will draw shiny where they
+  show (`review/belt-5-channels.png`). Colour alone cannot part them from the buckle. Not seen in the client.
 
