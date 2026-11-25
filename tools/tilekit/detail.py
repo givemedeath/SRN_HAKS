@@ -226,21 +226,22 @@ def with_walkmesh_of(text, pack_text):
     return _ending(text).join(lines[:mine[0].start] + theirs[pack[0].start:pack[0].end + 1] + lines[mine[0].end + 1:])
 
 
-def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
+def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None, lay=None):
     """(new text, {pieces, faces, nodes, cuts}, new .wok text or None, footprints [(polygon, roof, top)]) of a tile model with its placements added,
     refused where a piece leaves the cell or stands where a player walks. A piece that `blocks` stands on a walkable
     roof instead, and its footprint is cut out of the roof's walkmesh (`cuts`): `wok`, the tile's .wok, is cut with it.
-    A refusal of one placement is a `Refused` with its number."""
+    A refusal of one placement is a `Refused` with its number. lay: what makes the walkmesh in place of the cut, from
+    (the new text, the footprints) to (the text, the .wok)."""
     at = [None]  # the placement being worked on
     try:
-        return _place(text, name, placements, kit, cache, pack_text, wok, at)
+        return _place(text, name, placements, kit, cache, pack_text, wok, lay, at)
     except ValueError as error:
         if at[0] is None or not str(error).startswith(f'{name} #{at[0]}'):  # a fault of the kit's is no refusal of a placement
             raise
         raise Refused(at[0], str(error)) from error
 
 
-def _place(text, name, placements, kit, cache, pack_text, wok, progress):
+def _place(text, name, placements, kit, cache, pack_text, wok, lay, progress):
     from .kit import SWEEPS
     cache = {} if cache is None else cache; text = effects.without_fx(without_kit(text)); turning = []
     if pack_text is not None:  # an applied batch: its walkmesh is cut already, and cut again it refuses its own roof clutter
@@ -324,7 +325,7 @@ def _place(text, name, placements, kit, cache, pack_text, wok, progress):
     require(not taken & {one.lower() for one in named}, f'{name} already has a node named like its turning heads')
     new, loop = heads(new, root, [(node, *head) for node, head in zip(named, turning)]); count += len(turning)
     if footprints:
-        require(wok is not None, f'{name} has no .wok to cut'); new, cut = cuts.cut_walkmesh(new, wok, footprints)
+        require(wok is not None, f'{name} has no .wok to cut'); new, cut = lay(new, footprints) if lay else cuts.cut_walkmesh(new, wok, footprints)
     else:
         require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
     return new, {'pieces': len(placements) - emitters, 'faces': sum(len(part[3]) for part in parts), 'nodes': count, 'effects': emitters, 'cuts': len(footprints), **({'loop': loop} if loop else {})}, cut, footprints

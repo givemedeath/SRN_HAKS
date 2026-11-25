@@ -451,6 +451,7 @@
       "tools/envkit/blueprints.py",
       "tools/envkit/catalog.py",
       "tools/envkit/convert.py",
+      "tools/envkit/library.py",
       "tools/envkit/placeables.py",
       "tools/envkit/tile.py",
       "tools/phenotypes/tool_runtime.py",
@@ -484,6 +485,11 @@
     ],
     "tools/envkit/glow.py": [
       "tools/envkit/cache.py"
+    ],
+    "tools/envkit/library.py": [
+      "docs/placeables/categories.json",
+      "docs/placeables/library.json",
+      "tools/envkit/placeables.py"
     ],
     "tools/envkit/local.py": [
       "tools/headkit/__init__.py",
@@ -554,6 +560,10 @@
       "tools/envkit/glow.py",
       "tools/envkit/sets/ares-depot-game.json",
       "tools/envkit/sets/stuffer-shack-game.json"
+    ],
+    "tools/envkit/test_library.py": [
+      "tools/envkit/library.py",
+      "tools/envkit/placeables.py"
     ],
     "tools/envkit/test_local.py": [
       "tools/envkit/local.py"
@@ -6256,6 +6266,11 @@
       "srn_envprop",
       "srn_t_common"
     ],
+    "tools/envkit/library.py": [
+      "srn_2da",
+      "srn_envprop",
+      "srn_placeable"
+    ],
     "tools/envkit/study.py": [
       "srn_t_common"
     ],
@@ -6666,6 +6681,7 @@
     "tools/envkit/test_checks.py",
     "tools/envkit/test_convert.py",
     "tools/envkit/test_glow.py",
+    "tools/envkit/test_library.py",
     "tools/envkit/test_local.py",
     "tools/envkit/test_measure.py",
     "tools/envkit/test_meshy.py",

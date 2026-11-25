@@ -63,6 +63,7 @@ TABLE = piece('table', block('table', -0.4, 0.4, -0.4, 0.4, 0, 0.5))
 class Furnished(unittest.TestCase):
     def test_a_seat_s_back_is_behind_its_front(self):
         self.assertGreater(rooms.leaning(SEAT, 's'), 0.1); self.assertLess(rooms.leaning(SEAT, 'n'), -0.1); self.assertIsNone(rooms.leaning(PIECES['rug'], 's'))
+        self.assertIsNone(rooms.leaning(piece('tv', block('foot', -0.5, 0.5, -0.05, 0.05, 0, 0.4), block('top', -0.5, 0.5, -0.05, 0.0, 0.4, 0.9)), 's'))  # thin
 
     def test_a_bookcase_s_shelves_are_at_its_front(self):  # one was recorded by its plain back, 2026-11-25
         case = piece('case', block('body', -0.8, 0.8, -0.2, 0.2, 0, 2.0), *[block(f'shelf{step}', -0.7, 0.7, -0.3, -0.2, 0.2 * step, 0.2 * step + 0.05) for step in range(9)])

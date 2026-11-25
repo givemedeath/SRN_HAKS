@@ -135,7 +135,7 @@ class Merged(unittest.TestCase):
         head = '[GENERAL]\r\nName=a\r\nBorder=Wall\r\nDefault=Wall\r\nFloor=Wall\r\n\r\n'; text, _, groups = merge.merged_set({'a': head + SET}, self.names, self.spec, roomed=rooms.records({'den': ROOM}, {'a': SET}, 'm'))
         self.assertEqual([tile['model'] for tile in inventory.read_set(text)['tiles']], ['tst', 'm_denu_01', 'm_denf_01'])
         read = dict(inventory.sections(text)); self.assertEqual([read[f'TILE{at}DOOR0']['Type'] for at in range(3)], ['269'] * 3)
-        self.assertEqual([(group['display'], group['tiles'], group['model']) for group in groups], [('Home: Old Den', [0], 'tst'), ('Home: Den', [1], 'm_denu_01'), ('Home: Den, furnished', [2], 'm_denf_01')])
+        self.assertEqual([(group['display'], group['tiles'], group['model']) for group in groups], [('Home: Old Den', [0], 'tst'), ('Prefab: Home: Den', [1], 'm_denu_01'), ('Prefab: Home: Den, furnished', [2], 'm_denf_01')])
 
     def test_a_room_s_number_is_kept_and_a_room_taken_away_is_refused(self):
         number, record = merge.numbered({'a': 1}, [], [['a', 0, 1], ['room', 'm_x_01']], ['m_w_01', 'm_x_01'])

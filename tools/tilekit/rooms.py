@@ -7,7 +7,8 @@ furnishing is a placeable too. The source set's own tiles are left as they are: 
 models go to `sources/<pack>/` and are compiled as the other tiles are; `merge` numbers them and lays out both groups.
 
 A room's spec, `docs/tilesets/<set>/rooms/<id>.json`:
-{id, category, name: what the palette shows, "<category>: <name>" and "<category>: <name>, furnished";
+{id, category, name: what the palette shows, "Prefab: <category>: <name>" and the same with ", furnished"
+  (`SHOWN`: user, 2026-11-25);
  shell: {set, group}, or {set, box} for one drawn here (`walls`); textures: {a texture of the shell: what it draws
    instead}; ceiling: {texture, height, repeat (metres a picture covers)};
  unshadowed: [textures of the room itself that cast no shadow];
@@ -45,6 +46,7 @@ from . import ceilings, cuts, detail, geometry, inventory, require, strip, terra
 from .unique import unique
 
 VARIANTS = (('u', ''), ('f', ', furnished'))
+SHOWN = 'Prefab: {category}: {name}'  # what the palette calls a room
 COMPASS = {name: angle for name, angle in zip(('e', 'ne', 'n', 'nw', 'w', 'sw', 's', 'se'), range(0, 360, 45))}
 PROPS = ('srn_placeable', 'srn_envprop')  # the packs whose placeables are baked: a module loads both
 AHEAD = 0.4  # metres in front of a piece that must be floor
@@ -56,6 +58,7 @@ DOORWAY = 6  # cells: how near a doorway the room's own floor must come
 TOGETHER = 0.85  # the share of the floor a player can stand on that must be one piece
 MOST = 2500  # triangles of one baked prop: envkit's run to 12,000, and a store of them passed the 65,535 vertices a mesh may have (2026-11-25)
 WHOLE = 0.93  # and of one tile's alone: a creature finds its way from tile to tile, then within each
+THIN = 0.3  # metres: a seat is deeper
 REACH, ALIGNED = 1.2, 0.12  # metres: how far before a seat its table is, and how far off its middle the seat may stand
 SNAP, NEAR = 0.05, 0.12  # metres: what a footprint's box is squared to, and how near a wall it is taken out to it
 FLOOR = 0.05  # metres: what stands no higher stands on the floor
@@ -124,7 +127,7 @@ def records(rooms, sets, prefix):
         require(spec['shell']['set'] in sets, f'{room}: {spec["shell"]["set"]} is no family of the set')
         rows, columns, members, _ = shell_of(spec, sets[spec['shell']['set']]); plan = walls.Plan(spec) if 'box' in spec['shell'] else None
         for variant, said in VARIANTS:
-            made.append({'room': room, 'name': f'{room}_{variant}', 'display': f'{spec["category"]}: {spec["name"]}{said}', 'set': spec['shell']['set'], 'rows': rows, 'columns': columns, 'paths': [walls.path(plan.sides(index)) for index in range(len(members))] if plan else [None] * len(members),
+            made.append({'room': room, 'name': f'{room}_{variant}', 'display': SHOWN.format(**spec) + said, 'set': spec['shell']['set'], 'rows': rows, 'columns': columns, 'paths': [walls.path(plan.sides(index)) for index in range(len(members))] if plan else [None] * len(members),
                          'tiles': [(member, model_name(prefix, room, variant, index)) if member >= 0 else None for index, member in enumerate(members)]})
     return made
 
@@ -219,11 +222,13 @@ def placement(prop, nodes, walk):
 
 def leaning(nodes, front):
     """How far back from a seat's middle its upper third lies, as a share of its depth: a chair's or a couch's is at its
-    back. None of a piece of another height than a seat's."""
+    back. None of a piece of another height than a seat's, or too thin for one (a wall screen)."""
     points = [vertex for _, verts, _, _ in geometry.baked(nodes) for vertex in verts]; low, high = min(point[2] for point in points), max(point[2] for point in points)
     if not 0.6 <= high - low <= 1.25:
         return None
     way = direction(COMPASS[front]); along = [point[0] * way[0] + point[1] * way[1] for point in points]; total = weighed = 0.0
+    if max(along) - min(along) < THIN:
+        return None
     for triangle in geometry.faces_of(geometry.baked(nodes)):
         a, b, c = (np.array(point) for point in triangle); middle = (a + b + c) / 3
         if middle[2] > low + 0.65 * (high - low):
@@ -444,14 +449,14 @@ def made(room, spec, set_text, text_of, pieces, prefix):
         full, cut = (terrain.renamed(one, {names['u']: names['f']}) for one in (text, wok))
         if props:
             known = {prop['piece']: pieces[prop['piece']] for prop in props}; wrong = misplaced(props, known); require(not wrong, f'{names["f"]}: ' + '; '.join(wrong))
-            full, _, walked, footprints = detail.place(full, names['f'], [placement(prop, known[prop['piece']], bare) for prop in props], None, dict(known), wok=cut)
             boxes = []
-            if walked:  # its floor is laid again round the furniture, from the unfurnished tile's
+
+            def lay(new, footprints, uncut=cut):  # its floor is laid again round the furniture, from the unfurnished tile's; cutting the old one first took minutes a tile
                 laid = furnished_walk(terrain.renamed(text, {names['u']: names['f']}), names['f'], footprints)
-                if laid:
-                    lined, cut, boxes = laid; full = detail.with_walkmesh_of(full, lined)
-                else:
-                    cut, boxes = walked, [tuple(pick(point[axis] for point in polygon) for pick in (min, max) for axis in (0, 1)) for polygon, _, _ in footprints]
+                if not laid:
+                    boxes.extend(tuple(pick(point[axis] for point in polygon) for pick in (min, max) for axis in (0, 1)) for polygon, _, _ in footprints); return cuts.cut_walkmesh(new, uncut, footprints)
+                boxes.extend(laid[2]); return detail.with_walkmesh_of(new, laid[0]), laid[1]
+            full, _, walked, _ = detail.place(full, names['f'], [placement(prop, known[prop['piece']], bare) for prop in props], None, dict(known), wok=cut, lay=lay); cut = walked or cut
             full = unshadowed(full, {node.name.lower() for node in geometry.parse(full)[2] if not detail.is_kit(node.name)} - _quiet(full))
             torn = cracks(full); require(not torn, f'{names["f"]}: its walkmesh is cracked at {torn[:2]}, and nothing walks over a crack'); floor = _floor(full); lost = sorted(bare - _floor(full, SLACK)); gained = sorted(floor - _floor(text, SLACK))
             stray = [cell for cell in lost if not any(box[0] - 0.02 <= (cell[0] + 0.5) * STEP <= box[2] + 0.02 and box[1] - 0.02 <= (cell[1] + 0.5) * STEP <= box[3] + 0.02 for box in boxes)]

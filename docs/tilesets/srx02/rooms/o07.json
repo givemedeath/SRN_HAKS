@@ -1,0 +1,244 @@
+{
+ "id": "o07",
+ "category": "Office",
+ "name": "Executive Suite",
+ "note": "Floorplan O07: desk, meeting corner, and a store behind the panelling.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.0,
+    "wall": [
+     3.4,
+     3.4
+    ],
+    "ceiling": 3.0
+   },
+   "look": {
+    "floor": "mdrnw2wcp_08",
+    "wall": "wall_dwood4",
+    "ceiling": "srx02_clgplas",
+    "base": "wall_dwood1",
+    "crown": "wall_dwood1",
+    "trim": "wall_dwood1",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      6.9,
+      6.8
+     ],
+     "to": [
+      10,
+      6.8
+     ]
+    },
+    {
+     "from": [
+      6.9,
+      6.7
+     ],
+     "to": [
+      6.9,
+      10
+     ],
+     "doors": [
+      {
+       "at": 2.4,
+       "width": 1.1
+      }
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      6.9,
+      6.8,
+      10,
+      10
+     ],
+     "floor": "tfb01_floor",
+     "wall": "udp2_w_vyn1",
+     "repeat": {
+      "floor": 3.0,
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "dome",
+   "at": [
+    3.3,
+    7.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    7.7,
+    3.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    1.4,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    1.4,
+    3.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    1.4,
+    5.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.3,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.3,
+    3.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.3,
+    5.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.2,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.2,
+    3.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.2,
+    5.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    1.4,
+    9.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.3,
+    9.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.2,
+    9.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "strip",
+   "at": [
+    8.4,
+    8.4
+   ],
+   "under": 3.4,
+   "size": [
+    1.2,
+    0.16
+   ]
+  }
+ ],
+ "props": [
+  {"piece": "jvb_carpt02", "at": [3.3, 6.6, 0.0], "turn": 90, "obstacle": false, "scale": 0.75},
+  {"piece": "jvb_desk01", "at": [3.3, 7.3, 0.0], "faces": "n"},
+  {"piece": "jsa_chair01", "at": [3.3, 8.75, 0.0], "faces": "s"},
+  {"piece": "jvb_ncomp01", "at": [2.8, 7.3, 0.95], "faces": "n"},
+  {"piece": "jhb_phone01", "at": [4.2, 7.3, 0.95], "turn": 180},
+  {"piece": "udp2-p-05", "at": [2.5, 5.7, 0.0], "faces": "n"},
+  {"piece": "udp2-p-05", "at": [4.1, 5.7, 0.0], "faces": "n"},
+  {"piece": "purp_bookcase1", "at": [1.5, 9.46, 0.0], "faces": "s"},
+  {"piece": "udp2-p-22", "at": [5.0, 9.695, 0.0], "faces": "s"},
+  {"piece": "jvb_astat01", "at": [6.4, 7.3, 0.0], "turn": 0},
+  {"piece": "jz_sfp079", "at": [0.731, 7.6, 0.0], "turn": 0},
+  {"piece": "jvb_couch03", "at": [9.2, 3.0, 0.0], "faces": "w"},
+  {"piece": "jvb_tab05", "at": [7.8, 3.0, 0.0], "turn": 0},
+  {"piece": "jvb_chair05", "at": [6.3, 3.0, 0.0], "faces": "e"},
+  {"piece": "jvb_chair05", "at": [7.8, 0.95, 0.0], "faces": "n"},
+  {"piece": "jvb_dress03", "at": [0.63, 3.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-42", "at": [0.63, 3.2, 0.97], "faces": "e"},
+  {"piece": "jvb_furn01", "at": [0.553, 5.1, 0.0], "faces": "e"},
+  {"piece": "pkt_pplant01", "at": [0.8, 0.8, 0.0], "turn": 0, "scale": 0.6},
+  {"piece": "pkt_pplant01", "at": [9.2, 0.8, 0.0], "turn": 0, "scale": 0.6},
+  {"piece": "safe1", "at": [9.199, 9.2, 0.0], "faces": "w"},
+  {"piece": "jvb_fcab02", "at": [7.5, 7.418, 0.0], "faces": "n"},
+  {"piece": "jvb_fcab02", "at": [8.0, 7.418, 0.0], "faces": "n"},
+  {"piece": "udp2-p-57", "at": [9.56, 7.7, 0.0], "faces": "w"},
+  {"piece": "ek_ad_crate", "at": [7.8, 9.35, 0.0], "faces": "s"}
+ ],
+ "placeLater": [{"what": "a hidden or secure door to the store: the doorway is open"}, {"what": "safe, crate and filing cabinets as locked containers"}, {"what": "the desk computer as a terminal"}]
+}
