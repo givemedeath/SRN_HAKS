@@ -311,3 +311,25 @@ The brief now asks for sleeves set in at the shoulder and reaching just above th
 which was not asked for. Next: the user chooses between that layered sleeve (the brief then covers the
 forearm and leaves only the hands bare) and a redraw with a plain elbow-length sleeve, before geometry
 attempt 2.
+
+2026-11-24, the user: "teach the kit loose short sleeves". Done, with attempt 1 as the case (bake `male-4`
+from `export-2`):
+
+* `repose.outfit_joints`: a short, wide sleeve's ring line points in toward the torso, and the shoulder read
+  from it stood 8 to 10 cm outside the mesh. A shoulder more than `SHOULDER_OFF` of the outfit's height from
+  the body's own place for it is put there instead. The joints of Facility Security (male, female) and Site
+  Guard are unchanged.
+* `bake.over_own_skin`: the arm kept beside the sleeves stood 1.7 and 2.4 cm out through them under the
+  armpit. A bake now pushes a sleeve out over the body's skin where that gate would fail (`refit.over_skin`,
+  with the ends the seam contract measures held still) and turns out the faces the push bares. Checked on the
+  kept parts: seams, cover, skin and facing gates pass.
+* Still failing on attempt 1: the pelvis at 2,914 triangles for a budget of 2,900, cut from the 200,000-face
+  export. Not fixed, since attempt 1 is not used (below); look at it if the next geometry does the same.
+
+2026-11-24, the user: "The belt is supposed to be generated as a separate part." Attempt 1 has the belt and
+its pouches in the outfit, so it is not taken further. The brief now draws Street Casual without belt, pouches
+or gloves (plain waistband with empty loops; the tan thigh straps stay, leather 1), and the belt is its own
+accessory brief, `street-casual-belt.json` (belt slot, number 3010, tan leather 1, buckle and two hip
+pouches, three-quarter view). Keeping the thigh straps on the trousers is my choice, not confirmed. Next:
+seal and draw `reference-v7` and the belt's reference on the shared ComfyUI once the user says to post, a
+stop at both images, then geometry attempt 2 of 5 for the outfit and attempt 1 for the belt.

@@ -45,7 +45,7 @@
     42
    ],
    "look": "MEDIUM NEUTRAL GREY cloth",
-   "wears": "the baggy cargo trousers: wide straight legs with heavy raised seams, a big bellows pocket on the outside of each thigh, a second smaller pocket below it on the outside of each shin, a padded, stitched knee panel on the front of each knee in the same grey, and thick gathered cuffs at the ankle tucked into the tops of the boots. Grey all over but for their yellow pocket flaps."
+   "wears": "the baggy cargo trousers: a plain broad waistband with empty belt loops and a buttoned fly, wide straight legs with heavy raised seams, a big bellows pocket on the outside of each thigh, a second smaller pocket below it on the outside of each shin, a padded, stitched knee panel on the front of each knee in the same grey, and thick gathered cuffs at the ankle tucked into the tops of the boots. Grey all over but for their yellow pocket flaps and the tan strap round each thigh."
   },
   {
    "name": "trim",
@@ -66,7 +66,7 @@
    "wears": "the trim, which is small: only the flap of each of the four leg pockets, each flap one solid yellow rectangle."
   },
   {
-   "name": "belt",
+   "name": "straps",
    "kind": "leather",
    "channel": 1,
    "colour": [
@@ -80,7 +80,7 @@
     34
    ],
    "look": "WARM TAN leather",
-   "wears": "the gear: a broad belt through the top of the trousers with a heavy square buckle, a chunky closed pouch on the belt at each hip, one broad strap right round the middle of each thigh with a square buckle on its front, and the two close-fitting gloves. All of it tan."
+   "wears": "the two thigh straps and nothing else: one broad strap right round the middle of each thigh, over the trousers, with a square buckle on its front, strap and buckle both tan."
   },
   {
    "name": "boots",
@@ -100,5 +100,5 @@
    "wears": "the two heavy ankle boots, chunky, with thick deeply ridged soles, a broad capped toe, laces up the front and one broad buckled strap across the ankle, green all over: uppers, soles, laces and straps."
   }
  ],
- "prompt": "Product image of one set of rugged street clothes for a near-future city dweller, standing in an A-pose. Show the clothing only, as a hollow outfit floating in the air with nobody inside it: the collar and the hems of the two short sleeves are empty openings, and the two gloves float on their own, apart from the sleeves.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two short sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, each as long as the whole upper arm and ending in a straight hem just above the elbow. Each glove floats far out to the side at hip height, on the same straight line as its sleeve, open and flat with the fingers together, pointing along that line. Between the hem of each sleeve and its glove is a long stretch of plain white background, as long as the sleeve and the glove together. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit; the whole underside of each sleeve from armpit to hem shows against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe five colours are easy to tell apart at a glance: pink T-shirt, grey trousers, small yellow pocket flaps, tan belt, pouches, straps and gloves, green boots. Every part of the outfit is one of these five colours.\n\n{construction}\n\nThe look is heavy, practical streetwear, busy with detail: thick, oversized, hard-wearing clothes covered in pockets, flaps, raised seams, stitched panels, buckles and straps. Every detail is thick and chunky, sculpted in relief and big enough to see from across a street. Smooth clean surfaces like a painted sculpt: each part one flat colour, clean and new, cloth with large soft folds, clean edges between parts. The outfit is these things and nothing else: the T-shirt, the trousers, the belt with its pouches, the thigh straps, the two gloves and the two boots, with no lettering.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to boot soles and from glove to glove with margin on all sides, plain white background."
+ "prompt": "Product image of one set of rugged street clothes for a near-future city dweller, standing in an A-pose. Show the clothing only, as a hollow outfit floating in the air with nobody inside it: the collar and the hems of the two short sleeves are empty openings.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two short sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, each as long as the whole upper arm and ending in a straight hem just above the elbow. Below the hem of each sleeve there is only plain white background. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit; the whole underside of each sleeve from armpit to hem shows against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe five colours are easy to tell apart at a glance: pink T-shirt, grey trousers, small yellow pocket flaps, tan thigh straps, green boots. Every part of the outfit is one of these five colours.\n\n{construction}\n\nThe look is heavy, practical streetwear, busy with detail: thick, oversized, hard-wearing clothes covered in pockets, flaps, raised seams, stitched panels, buckles and straps. Every detail is thick and chunky, sculpted in relief and big enough to see from across a street. Smooth clean surfaces like a painted sculpt: each part one flat colour, clean and new, cloth with large soft folds, clean edges between parts. The outfit is these things and nothing else: the T-shirt, the trousers with their two thigh straps, and the two boots, with no lettering. The waistband of the trousers is plain, its belt loops empty.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to boot soles and from sleeve to sleeve with margin on all sides, plain white background."
 }
