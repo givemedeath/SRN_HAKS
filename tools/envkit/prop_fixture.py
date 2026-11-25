@@ -30,15 +30,15 @@ def table(stock_text, models, lights=None):
     return placeables.register(stock_text, [{'model': model, 'label': model, 'sound': None, 'light': lights.get(model)} for model in models], again=True)
 
 
-def placed(tag, appearance, position, bearing, static=True):
+def placed(tag, appearance, position, bearing, static=True, state=0):
     """One placeable of a table row in an area's placeable list. A static one is scenery the server never sees again; one
-    a script must reach by its tag (to swap a texture, say) is placed not static."""
+    a script must reach by its tag (to swap a texture, say) is placed not static. state: its animation (4 is switched on, 0 as it stands)."""
     x, y = position
     values = {'TemplateResRef': field('resref', ''), 'Tag': field('cexostring', tag), 'LocName': field('cexolocstring', {'0': tag}),
               'Description': field('cexolocstring', {}), 'Appearance': field('dword', appearance), 'Static': field('byte', 1 if static else 0),
               'Useable': field('byte', 0), 'Plot': field('byte', 1), 'HP': field('short', 15), 'CurrentHP': field('short', 15),
               'Hardness': field('byte', 5), 'Fort': field('byte', 16), 'Ref': field('byte', 0), 'Will': field('byte', 0),
-              'Faction': field('dword', 1), 'AnimationState': field('byte', 0), 'HasInventory': field('byte', 0),
+              'Faction': field('dword', 1), 'AnimationState': field('byte', state), 'HasInventory': field('byte', 0),
               'Lockable': field('byte', 0), 'Locked': field('byte', 0), 'PortraitId': field('word', 0), 'Type': field('byte', 0),
               'BodyBag': field('byte', 0), 'TrapFlag': field('byte', 0), 'Conversation': field('resref', ''),
               'X': gff_float(x), 'Y': gff_float(y), 'Z': gff_float(0.0), 'Bearing': gff_float(bearing)}

@@ -47,6 +47,10 @@ name were redrawn for the 2070s.
 - `screens.json`: the twenty device pictures with a screen in them, and `screen-pictures.json`: what those screens show,
   each drawn alone by the Qwen model from a blank picture (`tilekit screens --draw`) and laid into its device (`tilekit
   screens`). Screens drawn in code, and device pictures redrawn whole, were tried first and were not good enough.
+- The game plays a flipbook (`proceduretype cycle` in its TXI) only from a TGA; eight were DDS and stood still, so they are
+  TGAs now. Two are television screens, made of eight of the contents (`rooms.flipbook`): `display`, whose televisions
+  show it upside down, so each frame is turned over, and `fxpa_screen`. Both play when the placeable is switched on.
+- `review.json`: a client review of the changed placeables (`tilekit review`; a group's `state` 4 switches it on).
 - They go in as plain DDS pictures under their own names, so every placeable that uses one is changed, not only the rooms.
   A standard DDS holds its bottom row first, as the game reads it: a viewer shows it upside down.
 

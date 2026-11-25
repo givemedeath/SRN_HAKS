@@ -265,10 +265,10 @@ def plain(laid):
 
 
 SOUTH = math.pi  # a placeable's bearing that faces south, toward the views of `prop_shots`
-PROP_GROUP = {'across': 5, 'spacing': 6.0, 'apart': 12.0, 'distance': 24.0, 'pitch': 55.0, 'bearing': SOUTH}  # a group of placeables of about one size
+PROP_GROUP = {'across': 5, 'spacing': 6.0, 'apart': 12.0, 'distance': 24.0, 'pitch': 55.0, 'bearing': SOUTH, 'state': 0}  # a group of placeables of about one size; state 4: switched on
 
 
-def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=SOUTH):
+def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=SOUTH, state=0):
     """(width, height, props, rows) of placeables stood `across` to a row, `spacing` metres apart, rows `apart` metres
     apart, a tile of ground round them. props: [{model, appearance, position, bearing}] (bearing pi faces south, toward
     the views of `prop_shots`); appearance: {model: placeables.2da row}."""
@@ -277,7 +277,7 @@ def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=
     count = -(-len(models) // across)
     width, height = 2 + math.ceil(across * spacing / TILE), 2 + math.ceil(count * apart / TILE)
     require(width <= 32 and height <= 32, 'These placeables do not fit one area: give fewer, or closer')
-    props = [{'model': model, 'appearance': appearance[model], 'position': [TILE + spacing * (index % across + 0.5), TILE + apart * (index // across + 0.5)], 'bearing': bearing}
+    props = [{'model': model, 'appearance': appearance[model], 'position': [TILE + spacing * (index % across + 0.5), TILE + apart * (index // across + 0.5)], 'bearing': bearing, **({'state': state} if state else {})}
              for index, model in enumerate(models)]
     return width, height, props, count
 
@@ -325,7 +325,7 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
                 'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 9999.0)})
     are.update({key: field(KINDS.get(key, 'dword'), value) for key, value in LIGHTS[light].items()})
     if props:
-        git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', SOUTH))
+        git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', SOUTH), **({'static': False, 'state': prop['state']} if prop.get('state') else {}))
                                                for index, prop in enumerate(props)])
     if doors:
         git['Door List'] = field('list', [door(f'{tag}_d{index}', one['row'], one['position'], one['bearing'], one.get('opened', 0)) for index, one in enumerate(doors)])
@@ -499,7 +499,7 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
             for number, group in enumerate(shared['placeables']['groups']):  # each size of placeable in an area of its own, spaced and seen to suit it
                 how = {**PROP_GROUP, **{key: value for key, value in group.items() if key in PROP_GROUP}}
                 width, height, props, rows = prop_rows([model.lower() for model in group['models']], appearance, across=how['across'], spacing=how['spacing'],
-                                                       apart=how['apart'], bearing=how['bearing'])
+                                                       apart=how['apart'], bearing=how['bearing'], state=how['state'])
                 cells = {(column, row): (fill, 0) for column in range(width) for row in range(height)}
                 for light in group.get('lights', shared['placeables'].get('lights', shared['lights'])):
                     tag = f'tkp{number}{light[0]}'; add(tag, f'Placeables, {group["name"]}, {light}', width, height, cells, light, props=props)
