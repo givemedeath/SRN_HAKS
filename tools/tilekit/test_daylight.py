@@ -379,10 +379,14 @@ class Daylight(unittest.TestCase):
                 if re.search(r'(?mi)^[ \t]*newanim[ \t]+animloop0', text):
                     parked[path.stem] = daylight.never(text, spec['lit'], daylight.mapped(spec), spec.get('inPlace'))
             self.assertEqual({name: told for name, told in parked.items() if told}, {}, tileset)
-            self.assertLessEqual({name for name in spec.get('inPlace', {})}, set(parked))
+            for name, texture in spec.get('inPlace', {}).items():  # a slip here exempted nothing, and said nothing
+                text = (REPO / 'sources' / f'srn_t_{tileset}' / f'{name}.mdl').read_bytes().decode('cp1252'); self.assertIn(name, parked)
+                self.assertIn(texture.lower(), {drawn for node, parent, drawn in daylight.lit_nodes(text, spec['lit'])})
+        with tempfile.TemporaryDirectory() as temporary, self.assertRaisesRegex(ValueError, 'inPlace names no lit texture'):
+            daylight.write(REPO, 'udp1', temporary, {'udp1-window1b': 'udp1-window1'}, in_place={'udp1_b07_29': 'udp1-window1'})
         text = (REPO / 'sources' / 'srn_t_udp1' / 'udp1_b07_29.mdl').read_bytes().decode('cp1252'); lit = {'udp1-window1b': None, 'udp1-lght-pln': None}
         self.assertEqual(len(daylight.never(text, lit)), 28); self.assertEqual(len(daylight.never(text, lit, in_place={'UDP1_B07_29': 'udp1-lght-pln'})), 28)  # the texture named alone
-        self.assertEqual(min(daylight._world(daylight._placed(text), node.lower())[0][2] for node in daylight.never(text, lit)) > 1, True)  # they stand over the ground
+        self.assertGreater(min(daylight._world(daylight._placed(text), node.lower())[0][2] for node in daylight.never(text, lit)), 1)  # they stand over the ground
 
     def test_a_day_pane_goes_where_a_loop_moves_its_lit_pane(self):
         loop = 'newanim animloop01 t_a01\n  node dummy t_a01\n    parent NULL\n  endnode\n  node trimesh pane\n    parent lights\n    positionkey 1\n      0 0 0 10\n    endlist\n  endnode\ndoneanim animloop01 t_a01\n'

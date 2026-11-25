@@ -377,6 +377,7 @@ def write(repo, tileset, folder, lit, shared=(), again=False, mapped=(), in_plac
     again: a model that has its day and night is made anew from the list, and written where that changes it (a lit
     texture given a day texture since: the windows of eleven suburb tiles were blank by day, 2026-11-24). shared: the tilesets that draw these tiles too and take the change with them (a merged
     set); a model any other tileset draws is left. mapped: the lit textures that glow through their materials (`mapped`). in_place: as `never`."""
+    strange = sorted(held for held in (in_place or {}).values() if held.lower() not in {name.lower() for name in lit}); require(not strange, 'inPlace names no lit texture of the list: ' + ', '.join(strange))
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}, 'done': 0, 'parked': {}}
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):

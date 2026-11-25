@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -46,6 +47,42 @@ class Paint(unittest.TestCase):
         for only in ({9}, {1, 9}, set()):
             with self.assertRaisesRegex(ValueError, 'no group'):
                 toolset_paint.plan(SET, PALETTE, only)
+
+    def test_a_blank_door_type_is_the_generic_one(self):
+        planned = toolset_paint.plan(SET.replace('Type=268', 'Type='), PALETTE)
+        self.assertEqual(planned['groups'][1]['doors'], [])
+
+    def test_prepare_lists_the_tileset_s_own_pack_once_and_first(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary)
+            (repo / 'srn_t_t').mkdir()
+            (repo / 'srn_t_t' / 't.set').write_text(SET, encoding='cp1252')
+            (repo / 'user').mkdir()
+            entries = [{'RESREF': {'value': name}, 'NAME': {'value': shown}} for name, shown in PALETTE.items()]
+            palette = {'MAIN': {'value': [{'LIST': {'value': entries}}]}}
+            given = {}
+            with mock.patch.object(toolset_paint, '_gff', return_value=palette), mock.patch.object(toolset_paint.toolset, 'prepare', side_effect=lambda *_, **more: given.update(more) or {}):
+                toolset_paint.prepare(repo, 't', repo / 'user', ('srn_x', 'srn_t_t', 'srn_x'))
+        self.assertEqual(given['haks'], ('srn_t_t', 'srn_x'))
+        self.assertIn('ekt00_a.are', given['made'])
+        self.assertNotIn('t', toolset_paint.toolset.AREAS)
+
+    def test_a_group_given_up_on_is_undone(self):
+        # a click at each try to arm painted it, and no undo was sent (review of PR 199)
+        planned = toolset_paint.plan(SET, PALETTE, {1})
+        for armed, clicked in ((False, True), (True, False)):
+            window = mock.Mock()
+            window.palette.return_value = ('tree', {'X: Hall': 1})
+            window.others.return_value = []
+            window.arm.return_value, window.clicked.return_value = armed, clicked
+            with tempfile.TemporaryDirectory() as temporary, mock.patch.object(toolset_paint, 'no_client'), mock.patch.object(toolset_paint, 'Window', return_value=window), mock.patch('builtins.print'):
+                (Path(temporary) / 'paint.json').write_text(json.dumps(planned), encoding='utf-8')
+                if armed:
+                    with self.assertRaisesRegex(ValueError, 'No click'):
+                        toolset_paint.run(temporary)
+                else:
+                    self.assertEqual(toolset_paint.run(temporary), 1)
+            window.undo.assert_called_once()
 
     def test_run_keeps_whole_groups_only_and_stops_at_a_paint_left(self):
         planned = toolset_paint.plan(SET, PALETTE)

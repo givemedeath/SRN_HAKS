@@ -95,12 +95,16 @@ def without(text):
     return bare(text)
 
 
+def _checked(spec):
+    require(isinstance(spec.get('lights'), dict) and isinstance(spec.get('texture'), str) and isinstance(spec.get('lamp'), str) and spec['lamp'].strip() and len(spec.get('patch', ())) == 4 and isinstance(spec.get('period'), (int, float)),
+            'A blink list has a texture, a lamp picture, a patch of four numbers, a period and its lights')
+
+
 def with_lights(text, spec):
     """(the model's text with the lamp panes of `spec` over its meshes that draw the fixture, and the loop that blinks
     them; how many panes). A model that draws none of the fixture's lights is given back as it is; one that has the
     loop already, or lamp panes, is refused."""
-    require(isinstance(spec.get('lights'), dict) and isinstance(spec.get('texture'), str) and isinstance(spec.get('lamp'), str) and spec['lamp'].strip() and len(spec.get('patch', ())) == 4 and isinstance(spec.get('period'), (int, float)),
-            'A blink list has a texture, a lamp picture, a patch of four numbers, a period and its lights')
+    _checked(spec)
     texture = spec['texture'].lower(); loop = spec.get('loop', 'animloop01'); period = float(spec['period']); lift = float(spec.get('lift', 0.005))
     name = re.search(r'(?mi)^[ \t]*newmodel[ \t]+(\S+)', text).group(1); ending = '\r\n' if '\r\n' in text else '\n'
     left, top, right, bottom = spec['patch']; require(0 <= left < right <= 1 and 0 <= top < bottom <= 1, 'A patch is [left, top, right, bottom] in 0-1')
@@ -152,7 +156,7 @@ def write(repo, tileset, folder, spec, shared=(), again=False):
     """Write the models of a tileset that draw the fixture's lights, with their lamp panes, into `folder` (a review's
     overlay) and tell {'models': {model: panes}, 'refused': {model: why}, 'done': how many had them already}. again:
     a model that has its lamp panes is made anew from the list. shared: as `daylight.write`."""
-    lamp = str(spec.get('lamp', '')).lower(); made = sorted(path.parent.name for path in Path(repo).glob('srn_*/*.mtr') if path.stem.lower() == lamp)
+    _checked(spec); lamp = spec['lamp'].lower(); made = sorted(path.parent.name for path in Path(repo).glob('srn_*/*.mtr') if path.stem.lower() == lamp)
     require(not made, f'The lamp picture {lamp} has a material in {", ".join(made)}: its lamps would come out pale')
     require(any(path.stem.lower() == lamp for kind in ('dds', 'tga') for path in Path(repo).glob(f'srn_*/*.{kind}')), f'No pack has the lamp picture {lamp}')
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'refused': {}, 'done': 0}

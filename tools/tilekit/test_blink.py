@@ -104,6 +104,8 @@ class Blink(unittest.TestCase):
             (repo / 'srn_t_t' / 't_a01.mdl').write_text(MODEL, encoding='cp1252')
             with self.assertRaisesRegex(ValueError, 'A blink list has'):
                 blink.with_lights(MODEL, {**SPEC, 'lamp': ' '})
+            with self.assertRaisesRegex(ValueError, 'A blink list has'):  # and not that no pack has it
+                blink.write(repo, 't', out, {key: value for key, value in SPEC.items() if key != 'lamp'})
             (repo / 'srn_t_common' / 'Plain.mtr').write_text('texture5 glow', encoding='ascii')  # through a material the lamps come out pale (review of PR 199)
             with self.assertRaisesRegex(ValueError, 'has a material in srn_t_common'):
                 blink.write(repo, 't', out, SPEC)

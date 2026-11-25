@@ -1,7 +1,7 @@
 """Paint a tileset's groups in the Toolset one by one and read back what it saved: the palette lists each, it goes down
 whole, and its keyed door hooks make their doors (the srx01 check of 2026-11-24, docs/tilesets/srx01-plan.md).
 
-  python -m tools.envkit.toolset_paint prepare --tileset srx01 --haks srn_t_srx01 --user <fresh folder> --game <game> [--only 3,57]
+  python -m tools.envkit.toolset_paint prepare --tileset srx01 --user <fresh folder> --game <game> [--only 3,57]
   python -m tools.envkit.toolset_paint run     --user <folder>
   python -m tools.envkit.toolset_paint read    --user <folder>
   python -m tools.envkit toolset retire --user <folder>
@@ -47,7 +47,7 @@ def plan(set_text, palette, only=None):
     tiles = {tile['number']: tile for tile in read['tiles']}
     keyed = {}
     for name, held in inventory.sections(set_text):
-        if name.upper().startswith('TILE') and 'DOOR' in name.upper() and int(held.get('Type', 0)):
+        if name.upper().startswith('TILE') and 'DOOR' in name.upper() and int(held.get('Type') or 0):
             keyed.setdefault(int(name.upper()[4:].split('DOOR')[0]), []).append(int(held['Type']))
     own = {number for group in read['groups'] for number in group['tiles']}
     fills = {}
@@ -102,6 +102,7 @@ def prepare(repo, tileset, user, haks, *, game=None, only=None, size=16):
     folder = repo / f'srn_t_{tileset}'
     document = _gff(folder / f'{tileset}palstd.itp')
     palette = {one['RESREF']['value'].lower(): one['NAME']['value'] for part in document['MAIN']['value'][:2] for one in part['LIST']['value']}
+    haks = tuple(dict.fromkeys((folder.name, *haks)))  # srx01's pack is none of the usual ones
     planned = plan((folder / f'{tileset}.set').read_bytes().decode('cp1252'), palette, only)
     made, before = None, dict(toolset.AREAS)
     try:
@@ -343,11 +344,11 @@ class Window:
         return os.path.getmtime(module) != before
 
     def undo(self):
-        """Undo all that was painted: a click while a group is armed paints it twice, and with nothing left to undo the
-        Toolset does nothing."""
-        for _ in range(3):
+        """Undo all that was painted: a click at each try to arm a group paints it again, and with nothing left to undo
+        the Toolset does nothing."""
+        for _ in range(5):
             self.command(UNDO)
-            time.sleep(0.5)
+            time.sleep(0.3)
 
 
 def no_client():
@@ -373,15 +374,17 @@ def run(user):
             no_client()
             require(not window.others(), f'A window is up in the Toolset: {window.others()}')
             require(group['name'] in items, 'The palette does not list ' + group['name'])
-            if not window.arm(tree, items[group['name']]):
-                print(group['number'], group['name'], 'NOT ARMED', flush=True)
-                unwhole += 1
-                continue
-            require(window.clicked(), 'No click came')
-            time.sleep(0.9)
-            window.disarm()
-            done = window.save(module)
-            window.undo()  # before anything that may stop the run
+            try:
+                if not window.arm(tree, items[group['name']]):
+                    print(group['number'], group['name'], 'NOT ARMED', flush=True)
+                    unwhole += 1
+                    continue
+                require(window.clicked(), 'No click came')
+                time.sleep(0.9)
+                window.disarm()
+                done = window.save(module)
+            finally:
+                window.undo()  # however the group is left: a click while it was armed may have painted it
             require(not window.others(), f'A window is up in the Toolset: {window.others()}')
             wrong = keep(planned, group, module, out) if done else ['not saved']
             unwhole += bool(wrong)
@@ -395,7 +398,7 @@ def main(arguments=None):
     one = commands.add_parser('prepare')
     one.add_argument('--tileset', required=True)
     one.add_argument('--user', required=True)
-    one.add_argument('--haks', nargs='*', default=[], help='packs listed before the usual ones')
+    one.add_argument('--haks', nargs='*', default=[], help='packs listed before the usual ones, after the tileset\'s own')
     one.add_argument('--repo', default='.')
     one.add_argument('--game')
     one.add_argument('--only', help='group numbers, comma separated')
@@ -404,7 +407,7 @@ def main(arguments=None):
     chosen = parser.parse_args(arguments)
     if chosen.command == 'prepare':
         only = {int(part) for part in chosen.only.split(',') if part.strip()} if chosen.only else None
-        print(json.dumps(prepare(chosen.repo, chosen.tileset, chosen.user, tuple(dict.fromkeys((*chosen.haks, *toolset.HAKS))), game=chosen.game, only=only)))
+        print(json.dumps(prepare(chosen.repo, chosen.tileset, chosen.user, (*chosen.haks, *toolset.HAKS), game=chosen.game, only=only)))
         return 0
     if chosen.command == 'run':
         return int(run(chosen.user) > 0)
