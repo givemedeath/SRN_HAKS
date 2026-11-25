@@ -628,6 +628,30 @@ class BakeTests(unittest.TestCase):
             bake.store({'chest': part()}, Path(folder) / 'kept')  # stored without its brief, or before the list held the slots: none
             self.assertEqual(bake.declared(Path(folder) / 'kept'), {'bare': set(), 'skin': set()})
 
+    def test_what_closes_a_part_is_brought_in_under_the_part_beside_it(self):
+        bones, terms = rig(), {**contract(), 'designBend': 'p95', 'ends': dict(seams.ENDS)}
+        for joint in terms['joints'].values():
+            joint['bodies']['test']['bend'] = {'p95': 90.0}
+        sleeve = closed(0.05, 0.3, 0.03, near=None, far='dome')  # a narrow upper arm
+        cuff = closed(0.27, 0.5, 0.06, near='cap', far=None, depth=0.02)  # a forearm twice as wide: its end stands out round the sleeve
+        parts = {'bicepl': sleeve, 'forel': cuff}
+        before = bake.hidden(parts, bones, 'test', terms)
+        self.assertTrue(any(line.startswith('forel at the elbow: what the split added stands up to') for line in before[1]), before[1])
+        said = []
+        self.assertIs(bake.tucked(parts, bones, terms, say=said.append)['forel'], cuff)  # the elbow is not among the joints tucked
+        self.assertEqual(said, [])
+        held = bake.tucked(parts, bones, terms, joints=('elbow',), say=said.append)
+        self.assertIs(held['bicepl'], sleeve)  # the part over the joint: its dome stands over the other by contract
+        moved = np.linalg.norm(held['forel']['v'] - cuff['v'], axis=1) > 0
+        self.assertTrue(moved.any() and not moved[np.unique(cuff['f'][~cuff['added']])].any())  # the outfit's own surface and its edge stay
+        self.assertTrue(np.array_equal(held['forel']['f'], cuff['f']))
+        after = bake.hidden(held, bones, 'test', terms)
+        self.assertFalse(any('stands up to' in line and 'as the body stands' in line for line in after[1]), after[1])
+        self.assertLessEqual(after[0]['elbow']['l']['rest'], seams.ENDS['rest'])
+        self.assertTrue(said[0].startswith('forel at the elbow: ') and 'brought in under the outfit beside it' in said[0])
+        again = bake.tucked(held, bones, terms, joints=('elbow',))
+        self.assertIs(again['forel'], held['forel'])  # nothing left to bring in
+
     def test_a_part_is_tinted_in_what_its_slot_wears_and_a_colour_drawn_as_another_is_reported(self):
         from .test_brief import BLUE, GREY, TAN, document
         given = document(('shirt', 'cloth', GREY), ('flaps', 'cloth', BLUE), ('boots', 'leather', TAN))

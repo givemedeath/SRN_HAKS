@@ -34,6 +34,8 @@ UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelv
          'chest': (split.CLOSING,), 'handl': (split.CAP,), 'handr': (split.CAP,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
+TUCKED = ('shoulder',)  # the joints whose closings are brought in under the part beside them (`tucked`): where a sleeve is cut from the torso
+TUCK = 0.002  # metres under that part's surface
 ELSEWHERE = 0.01  # of a part's own surface in the colour of a material its slot does not wear: reported from here
 BUDGET = {'chest': 16000, 'slot': 5800, 'outfit': 80000, 'texture': 1024}  # doubled 2026-11-25 (user); triangles a chest, another part and a whole outfit may have; texels a side
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
@@ -771,6 +773,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
     parts = skinned(parts, document, body_pack, body_textures, body, bones, say, own_part)
+    parts = tucked(parts, bones, say=say)
     mark("sleeve closings and the body's skin")
     return parts, bones, whole
 
@@ -1017,6 +1020,67 @@ def over_own_skin(part, name, bones):
     faces, normals = np.asarray(held['f'], int).copy(), held['n']
     faces[cloth], normals, _ = faced_out(name, held['v'], faces[cloth], normals, bones)
     return {**held, 'f': faces.astype(np.asarray(part['f']).dtype), 'n': normals}, float(np.linalg.norm(np.asarray(held['v'], float) - v, axis=1).max())
+
+
+def tucked(parts, bones, contract=None, joints=TUCKED, say=lambda *_: None):
+    """`parts` with the closings at `joints` brought in under the part beside them, where they stood out past it
+    as the body stands; a part with none that did is the one given.
+
+    A closing is a fan across a cut, from the cut's line to its middle, rounded out toward the joint. Round
+    a close sleeve the line is all but flat and the fan lies inside the two parts it parts. A loose sleeve's
+    cut runs through the folds the shirt hangs in before the armpit, the fan bridges them, and the chest's
+    lid over its armhole stood 2.1 cm out in front of Street Casual's left sleeve, in plain sight; the
+    sleeve's own, toward the torso, 1.1 cm off the chest's side, which failed `hidden` (2026-11-25).
+
+    At each of the joints, a vertex only what the split added uses (not a pad's, not the body's skin) that
+    lies outside every other part and more than half the contract's `rest` from the nearest of them is set
+    `TUCK` under that nearest surface, read as `hidden` reads it. In the part under the joint that is every
+    such vertex, the ones `hidden` measures as the body stands; in the part over it only those of its flat
+    closings, since its dome stands out over the under part by contract. The line itself, the outfit's own
+    edge, stays. What closes a part keeps closing it: its faces now run from the edge in under the other
+    part, as cloth that is sewn to it would."""
+    rule = (seams.load_contract() if contract is None else contract).get('ends', seams.ENDS)
+    parts, moved = dict(parts), {}
+    planes = {(joint, side): np.asarray(seams.plane(bones, joint, 'l' if side == 'c' else side)[0], float)
+              for joint in seams.JOINTS for side in seams.sides(joint) if (joint, side) not in UNCUT}
+    slots = {key: tuple(split.token(seams.JOINTS[key[0]][end], 'l' if key[1] == 'c' else key[1]) for end in ('over', 'under')) for key in planes}
+    for key in (key for key in planes if key[0] in joints and all(name in parts for name in slots[key])):
+        for under, name in enumerate(slots[key]):
+            part = parts[name]
+            v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+            flag = lambda field: np.asarray(part.get(field, np.zeros(len(f), bool)), bool)
+            flat = _added(part) & ~flag('pad') & ~flag('skin') & (~flag('domed') | bool(under))
+            mine = [other for other in planes if name in slots[other]]
+            here = np.linalg.norm(v[:, None] - np.array([planes[other] for other in mine])[None], axis=2).argmin(axis=1) == mine.index(key)
+            which = np.flatnonzero(_used(v, f, flat) & ~_used(v, f, ~flat) & here)
+            others = [(np.asarray(parts[other]['v'], float), np.asarray(parts[other]['f'], int)) for other in parts if other != name]
+            if not len(which) or not others:
+                continue
+            which = which[~_inside(v[which], others)]
+            if not len(which):
+                continue
+            low, high = v[which].min(axis=0) - HIDDEN_NEAR, v[which].max(axis=0) + HIDDEN_NEAR
+            samples = []
+            for vertices, faces in others:
+                corners = vertices[faces]
+                close = (corners.max(axis=1) >= low).all(axis=1) & (corners.min(axis=1) <= high).all(axis=1)
+                if close.any():
+                    used, inside = np.unique(faces[close], return_inverse=True)
+                    samples.append(measure.surface_points(vertices[used], inside.reshape(-1, 3), HIDDEN_STEP))
+            if not samples:
+                continue
+            samples = np.concatenate(samples)
+            index, far = texture.nearest(v[which], samples)
+            out = (far > rule['rest'] / 2) & (far < HIDDEN_NEAR)  # farther than that from every part, nothing is near to go under
+            if not out.any():
+                continue
+            to = samples[index[out]]
+            v = v.copy()
+            v[which[out]] = to + TUCK * (to - v[which[out]]) / far[out, None]
+            parts[name] = {**part, 'v': v.astype(np.asarray(part['v']).dtype)}
+            moved[name] = max(moved.get(name, 0.0), float(far[out].max()))
+            say(f'{name} at the {key[0]}: {int(out.sum())} points of what closes it brought in under the outfit beside it, from up to {far[out].max() * 100:.1f} cm outside')
+    return parts
 
 
 def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None, own_part=None):

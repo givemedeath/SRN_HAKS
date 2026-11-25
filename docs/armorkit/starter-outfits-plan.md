@@ -496,3 +496,25 @@ painter and fix them". Every tint texture of `male-14` and the belt was looked a
   flaps leather 1 on pelvis, thighs and shins. Belt fitted over it. Neither seen in the client. The shoulder
   gate still fails.
 
+2026-11-25, the user: "Yes, shoulder gate".
+
+* **What failed.** The points 1.0 and 1.1 cm outside the outfit were the middle of each sleeve's closing toward
+  the torso, 8 cm down the arm: on a loose sleeve that wall stands off the chest's side. The chest's lids over
+  its armholes were worse and unmeasured (an over part's are not): up to 2.1 cm out in front of the left
+  sleeve, 1.7 cm the right.
+* **Fix: `bake.tucked`** (after `skinned`, at the shoulders, `TUCKED`): a vertex only what the split added
+  uses, outside every other part by more than half the contract's `rest`, is set 2 mm under the nearest
+  other part. The under part's are all brought in, the over part's flat closings only. Street Casual: 113
+  and 53 points of the chest, 55 and 27 of the sleeves. A second pass moves nothing.
+* **Bake `male-16`** (`male-16-kept`: the kept parts of `male-14` with `tucked` applied, tinted again): **all
+  gates pass**, the shoulders' `rest` 0.2 cm each side, 68,197 triangles, ten models compiled. Belt `belt-7`
+  fitted over it, gates pass. A fresh bake from the mesh runs the same step in the same place and has not
+  been run.
+* **Still to see in the client:** with the arm at rest a patch of the closings, about 8 by 7 cm, faces the
+  viewer in front of each armpit (30 cm² of the chest's, 26 cm² of the sleeve's, by rays cast from the left
+  front). That is by design, not a protrusion: the box sleeve is cut from the chest with the arms at 45
+  degrees, and lowering the arm parts the two edges there. It is drawn in the shirt's edge colours. The
+  sleeves as generated are as deep front to back as the chest (26 cm).
+* Tried and taken back: capping the trough's walls at the free sleeve's width. It moved Street Casual's walls
+  6 mm, not the cause, and moved Facility Security female's left wall 2 mm.
+
