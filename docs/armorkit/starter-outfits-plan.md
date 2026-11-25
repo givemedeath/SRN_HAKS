@@ -347,3 +347,12 @@ leather 1 is free for the belt piece). References drawn, one Qwen image each, ne
 
 Next: the user's choice of how to get the short sleeves (gloves back in the image as an anchor, cut off by
 the bare hands as in attempt 1, or the long undersleeve accepted and the forearm covered), then geometry.
+
+2026-11-25, the user: "Gloves back as anchor". The brief draws the two tan gloves again (their own material,
+leather 1; the bare hands cut them off in the bake) with the `reference-v5` pose wording. Sealed as
+`reference-v9`: run 1 (seed 20261132) drew four gloves; run 2 (seed 20261134) is the candidate: short rolled
+sleeves, two gloves, plain waistband, no belt. Not asked for in it: a yellow tab on each shoulder and a yellow
+patch or pocket on each sleeve, the two sleeves unlike. Belt `street-casual-belt/reference-v3` (seed
+20261133) is the candidate: one ring, one front buckle, a pouch at each hip; the buckle is drawn grey and a
+small buckle sits at each side. Next: the user's word on both images, then geometry attempt 2 of 5 for the
+outfit and attempt 1 for the belt.
