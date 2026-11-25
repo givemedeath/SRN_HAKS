@@ -1,11 +1,12 @@
 """Look at the dynamic skies in the game client: build an isolated test module, run it, capture each scripted view.
 
     python -m tools.skykit.client_fixture --nwn-root GAME_INSTALL [--out output/skykit/client] [--wait SECONDS]
+        [--transition | --play | --live MINUTES] [--build-only]
 
 Builds a HAK of the sky resources (srn_skybox's srn_sky* files and srn_2da's skyboxes.2da) and a one-area module in
 an isolated user directory, starts the client on it (tools/armorkit/client.py: a client that is already running
 blocks the run and is never closed), saves a window capture for every `SKYKIT shot=` line the module's script logs,
-then stops the client it started. Captures are evidence to look at, not an approval.
+then stops the client it started. `--play` and `--live` leave the client running for a person. Captures are evidence to look at, not an approval.
 """
 import argparse
 import hashlib
@@ -120,11 +121,83 @@ void main()
     return text, 0
 
 
-def build(nwn_root, out, transition=False, play=False):
+SKY_ROWS = range(16, 24)  # the SRN skybox rows a live module's /sky command accepts
+
+
+def live_scripts(minutes, start_row=16, start_hour=17):
+    """A live module: the game's own clock runs, `minutes` real minutes to a game hour, and chat commands change the
+    sky, the time and the weather. The game counts an hour as that many minutes, so a clock's minute is `minutes`
+    seconds of it. Returns (enter script, chat script)."""
+    rows = f'{SKY_ROWS.start}-{SKY_ROWS.stop - 1}'
+    commands = f'/sky {rows}, /time HH:MM, /rain, /clear, /help'
+    enter = f"""void main()
+{{
+  object pc = GetEnteringObject(); if (!GetIsPC(pc)) return;
+  SetSkyBox({start_row}, GetArea(pc)); SetWeather(GetArea(pc), WEATHER_CLEAR); SetTime({start_hour}, 0, 0, 0);
+  DelayCommand(3.0, SendMessageToPC(pc, "Sky test: {commands}"));
+}}
+"""
+    chat = f"""string Trim(string s)
+{{
+  while (GetStringLeft(s, 1) == " ") s = GetStringRight(s, GetStringLength(s) - 1);
+  while (GetStringRight(s, 1) == " ") s = GetStringLeft(s, GetStringLength(s) - 1);
+  return s;
+}}
+int Number(string s, int most)
+{{
+  int length = GetStringLength(s); int i;
+  if (length < 1 || length > 2) return -1;
+  for (i = 0; i < length; i++) if (FindSubString("0123456789", GetSubString(s, i, 1)) < 0) return -1;
+  int n = StringToInt(s);
+  return n > most ? -1 : n;
+}}
+string Two(int n) {{ return n < 10 ? "0" + IntToString(n) : IntToString(n); }}
+string Clock() {{ return Two(GetTimeHour()) + ":" + Two((GetTimeMinute() * 60 + GetTimeSecond()) / {minutes}); }}
+void main()
+{{
+  object pc = GetPCChatSpeaker(); string m = Trim(GetStringLowerCase(GetPCChatMessage()));
+  if (GetStringLeft(m, 1) != "/") return;
+  SetPCChatMessage("");
+  object area = GetArea(pc);
+  int space = FindSubString(m, " ");
+  string word = space < 0 ? m : GetStringLeft(m, space);
+  string arg = space < 0 ? "" : Trim(GetStringRight(m, GetStringLength(m) - space - 1));
+  if (word == "/sky")
+  {{
+    int row = Number(arg, {SKY_ROWS.stop - 1});
+    if (row < {SKY_ROWS.start}) {{ SendMessageToPC(pc, "Sky rows are {rows}"); return; }}
+    SetSkyBox(row, area); SendMessageToPC(pc, "Sky row " + IntToString(row));
+  }}
+  else if (word == "/time")
+  {{
+    int split = FindSubString(arg, ":"); if (split < 0) split = FindSubString(arg, " ");
+    int hour = Number(split < 0 ? arg : Trim(GetStringLeft(arg, split)), 23);
+    int minute = split < 0 ? 0 : Number(Trim(GetStringRight(arg, GetStringLength(arg) - split - 1)), 59);
+    if (hour < 0 || minute < 0) {{ SendMessageToPC(pc, "Times are 0:00 to 23:59"); return; }}
+    int seconds = minute * {minutes};
+    SetTime(hour, seconds / 60, seconds % 60, 0); SendMessageToPC(pc, "Time " + Two(hour) + ":" + Two(minute));
+  }}
+  else if (word == "/rain") {{ SetWeather(area, WEATHER_RAIN); SendMessageToPC(pc, "Rain"); }}
+  else if (word == "/clear") {{ SetWeather(area, WEATHER_CLEAR); SendMessageToPC(pc, "Clear"); }}
+  else SendMessageToPC(pc, "{commands}; now " + Clock());
+}}
+"""
+    return enter, chat
+
+
+def build(nwn_root, out, transition=False, play=False, live=None):
+    """The test HAK and module in an isolated user directory. `live` is the module's real minutes per game hour for a
+    module whose clock runs on its own and takes chat commands (live_scripts)."""
     sys.path.insert(0, str(ROOT / 'tools' / 'phenotypes'))
     from tool_runtime import tool
     out = Path(out).resolve()
     staging, user = out / 'staging', out / 'user'
+    hak, module = user / 'hak' / (HAK + '.hak'), user / 'modules' / (MODULE + '.mod')
+    for held in (hak, module):  # before anything else is taken away
+        try:
+            held.unlink(missing_ok=True)
+        except PermissionError as error:
+            raise RuntimeError(f'{held} is in use: close the client that was left running on it') from error
     if staging.exists():
         shutil.rmtree(staging)
     resources, binary = staging / 'hak', staging / 'module'
@@ -141,8 +214,6 @@ def build(nwn_root, out, transition=False, play=False):
         if done.returncode != 0:
             raise RuntimeError(f'{Path(executable).name} failed: ' + (done.stdout + done.stderr).decode(errors='replace')[-800:])
 
-    hak = user / 'hak' / (HAK + '.hak')
-    hak.unlink(missing_ok=True)
     run(erf, '-c', '-f', hak, '-e', 'HAK', resources)
     tiles = [{'__struct_id': 1, 'Tile_ID': field('int', 120), 'Tile_Height': field('int', 0), 'Tile_Orientation': field('int', 0),
               **{k: field('byte', v) for k, v in {'Tile_AnimLoop1': 1, 'Tile_AnimLoop2': 1, 'Tile_AnimLoop3': 1, 'Tile_MainLight1': 0,
@@ -167,9 +238,10 @@ def build(nwn_root, out, transition=False, play=False):
                     Mod_Entry_Dir_Y=field('float', 1.0), Mod_Area_list=field('list', [{'__struct_id': 6, 'Area_Name': field('resref', AREA)}]),
                     Mod_HakList=field('list', [{'__struct_id': 8, 'Mod_Hak': field('cexostring', HAK)}]),
                     Mod_CustomTlk=field('cexostring', ''), Mod_OnClientEntr=field('resref', 'sk_enter'),
+                    **({'Mod_OnPlrChat': field('resref', 'sk_chat')} if live else {}),
                     Mod_StartYear=field('dword', 2075), Mod_StartMonth=field('byte', 1), Mod_StartDay=field('byte', 1),
                     Mod_StartHour=field('byte', 12), Mod_DawnHour=field('byte', 6), Mod_DuskHour=field('byte', 18),
-                    Mod_MinPerHour=field('byte', 2 if transition or play else 60), Mod_XPScale=field('byte', 10))
+                    Mod_MinPerHour=field('byte', live or (2 if transition or play else 60)), Mod_XPScale=field('byte', 10))
     factions = [{'__struct_id': i, 'FactionName': field('cexostring', name), 'FactionGlobal': field('word', 1),
                  'FactionParentID': field('dword', 4294967295)} for i, name in enumerate(('PC', 'Hostile', 'Commoner', 'Merchant', 'Defender'))]
     reps = [{'__struct_id': i * 5 + j, 'FactionID1': field('dword', i), 'FactionID2': field('dword', j),
@@ -179,29 +251,44 @@ def build(nwn_root, out, transition=False, play=False):
         path = staging / (filename + '.json')
         path.write_text(json.dumps(document), encoding='utf-8')
         run(gff, '-i', path, '-o', binary / filename)
-    text, count = play_script() if play else transition_script() if transition else script(SHOTS)
-    source = binary / 'sk_enter.nss'
-    source.write_text(text, encoding='ascii')
-    run(compiler, '--root', nwn_root, '--userdirectory', user, source)
-    if not source.with_suffix('.ncs').exists():
-        raise RuntimeError('the script compiler wrote no sk_enter.ncs')
-    module = user / 'modules' / (MODULE + '.mod')
-    module.unlink(missing_ok=True)
+    if live:
+        enter, chat = live_scripts(live)
+        scripts, count = {'sk_enter': enter, 'sk_chat': chat}, 0
+    else:
+        text, count = play_script() if play else transition_script() if transition else script(SHOTS)
+        scripts = {'sk_enter': text}
+    for name, text in scripts.items():
+        source = binary / f'{name}.nss'
+        source.write_text(text, encoding='ascii')
+        run(compiler, '--root', nwn_root, '--userdirectory', user, source)
+        if not source.with_suffix('.ncs').exists():
+            raise RuntimeError(f'the script compiler wrote no {name}.ncs')
     run(erf, '-c', '-f', module, '-e', 'MOD', binary)
     return user, count
 
 
+def wait_for_client(wait):
+    """Before anything is built, as a client left running (`--play`, `--live`) holds its HAK and its settings; and again
+    before the start, as another session may have opened one during the build."""
+    from tools.armorkit import client
+    if wait:
+        client.wait_free(wait)
+    elif client.running():
+        raise RuntimeError('A game client is already running; close it, or give --wait')
+
+
 def capture(nwn_root, out, wait=0, transition=False):
     from tools.armorkit import client
+    from tools.tilekit import client_settings
     from PIL import ImageGrab  # noqa: F401  (the capture needs Pillow's grabber)
+    wait_for_client(wait)
     user, count = build(nwn_root, out, transition)
+    wait_for_client(wait)
     captures = Path(out).resolve() / 'captures'
     if captures.exists():
         shutil.rmtree(captures)
     captures.mkdir(parents=True)
-    if wait:
-        client.wait_free(wait)
-    (user / 'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
+    (user / 'settings.tml').write_text(client.settings_text(1600, 900, client_settings.settings()), encoding='utf-8')
     process = client.start(nwn_root, user, MODULE)
     tail = client.LogTail(user, PREFIX)
     taken, done = [], False
@@ -241,18 +328,26 @@ def main(argv=None):
     parser.add_argument('--build-only', action='store_true')
     parser.add_argument('--play', action='store_true', help='start the client on a module with no shots and leave it running for a person')
     parser.add_argument('--transition', action='store_true', help='let time run through dusk and dawn instead of the fixed shots')
+    parser.add_argument('--live', type=int, metavar='MINUTES', help='leave a module running for a person, its clock at MINUTES real '
+                        'minutes per game hour (8: a day in 3.2 hours), with chat commands /sky, /time, /rain and /clear')
     args = parser.parse_args(argv)
-    if args.play:
+    if args.live is not None and not 1 <= args.live <= 60:
+        parser.error('--live takes 1 to 60 minutes per hour: 60 is real time, and SetTime takes no minute over 59')
+    if sum((args.play, args.transition, args.live is not None)) > 1:
+        parser.error('--play, --transition and --live are different modules: give one')
+    if args.build_only:
+        print(build(args.nwn_root, args.out, args.transition, args.play, args.live))
+        return
+    if args.play or args.live:
         from tools.armorkit import client
-        user, _ = build(args.nwn_root, args.out, play=True)
-        if args.wait:
-            client.wait_free(args.wait)
-        (user / 'settings.tml').write_text(client.SETTINGS.format(width=1600, height=900), encoding='utf-8')
+        from tools.tilekit import client_settings
+        wait_for_client(args.wait)
+        user, _ = build(args.nwn_root, args.out, play=args.play, live=args.live)
+        wait_for_client(args.wait)
+        # left running for a person: never without a frame limit
+        (user / 'settings.tml').write_text(client.settings_text(1600, 900, client_settings.settings()), encoding='utf-8')
         process = client.start(args.nwn_root, user, MODULE)
         print(json.dumps({'pid': process.pid, 'userDirectory': str(user)}))
-        return
-    if args.build_only:
-        print(build(args.nwn_root, args.out, args.transition))
         return
     captures, done, taken = capture(args.nwn_root, args.out, args.wait, args.transition)
     print(json.dumps({'captures': str(captures), 'finished': done, 'shots': len(taken)}))
