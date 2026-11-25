@@ -444,6 +444,11 @@ Home batch's, no earlier number moved.
   boards, wall TVs and showers 8 to 20 cm off their walls, two server racks 8 cm over the floor, a shelf, a piano and three lamps
   2 to 4 cm in it and a bed 2 cm over it. `rooms.unrested` and `rooms.unhung` now refuse such props.
 - **Views:** `review-office.json` (bird's eye and eye level; `output/tilekit/office4`).
+- **When main is merged (PR 203, from the walkmesh session, 2026-11-25):** that branch is repairing cracked walkmeshes of
+  borrowed tiles (flagged: tfb01 n01_09, n01_13, n01_14, r03_02, r06_01, r07_01, u17_01, v17_01; udp2 a04_06, a04_07, a05_06,
+  a05_07; nac01 d01_05). Keep the repaired walkmeshes, refresh `docs/tilesets/{tfb01,udp2,nac01}/walkmesh.json` and the
+  other pinned hashes of those tiles, and name `srn_t_srx02` in `test_floor_edges.py` PACKS. 19 tfb01 tiles (TILE548-566)
+  are reported to have floor in the model and no .wok in the pack.
 
 ## Work order
 
