@@ -1715,6 +1715,23 @@ and its placeable consumer close without a HAK-order duplicate. Final metadata r
 door slots to model hooks, corrects SJM/SRT/ZSF minimaps, normalizes invalid ZSF boolean flags,
 and binds the Planetscape palette to mp01.
 
+## Rifle texture for two placeables (2026-11-25)
+
+`srn_placeable/jzg_m4a1.dds` is the texture that `vos_rfl_stand1.mdl` (placeables row 22663) and `vos_ar_gun4.mdl` (row
+22634) name. No pack held it, so their rifles drew white. It is the original file, unchanged: 43,724 bytes, SHA-256
+`c46c85a979d32b0ca05bd44db325d0110c848e6f264fe5afd25eb19e467df4d0`, as `docs/imports/mdrnee_item-manifest.json` records
+it for `mdrnee_item.hak`. The bytes were read from git blob `18f616eb942156b6a9f71712eff172f2d6c09cec`,
+`src/haks/mdrnee_item/dds/jzg_m4a1.dds`, of the upstream project verified above
+(`https://gitea.raptio.us/Jaysyn/d20ModernEE`, commit `c01271d3ba053ada6d75bc070c5cf1ab94ec29c6`). The two models and
+their table rows are unchanged.
+
+The item archive's credit file names Jezira among its contributors. The archive belongs to the same Neverwinter Vault
+distribution as the placeables: the Version 2.1 project page cited above offers `mdrn21_item.rar` beside
+`mdrn21_placeable.rar` under one permission, free and open when the consuming project is also open (read 2026-11-25).
+The texture keeps those terms and is not relicensed under the repository's default PolyForm license. It is the only
+resource landed from `mdrnee_item.hak`, as the dependency of two published placeables; the rest of that archive stays
+analysis-only, and its manifest is left as written.
+
 ## MDRNEE item analysis (2026-09-12)
 
 `mdrnee_item.hak` was decomposed in quarantine under the `mdrnee_item` analysis profile. Its
