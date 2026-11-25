@@ -292,6 +292,16 @@ the first design's image. Not run: a bake with a tinted or named channel (`bake.
   arm's from 1,174 to 2,848. Still open: a thin line of another colour across the instep where the foot meets
   the shin; the boots' gloss; elbow and wrist not tried (short sleeves, bare hands here); older outfits not rebaked.
 
+* **Third round (`male-27`, `belt-13`), user, 2026-11-25:** "belt still seems too large", "some mesh issues with
+  the crotch area", and the instep line and boot gloss to fix. The belt's strap is now fitted to the waistband
+  alone and what hangs from it swings out over the thighs (scale 0.589 to 0.497); a pelvis cut on a brief line
+  repeats no strip between the legs (it hung as two flaps); a shin's closing is drawn as the boot it ends in;
+  leather keeps 30% of its drawn highlights. Seen in the client: belt, crotch and instep fixed
+  (`output/armorkit/street-casual/review/male-27.jpg`). The boots are still glossy: a material file's roughness
+  constant 1 and specularity 0.01 changed nothing in the client, and dulled highlights little. A test with a
+  roughness map on one boot and a flat normal map on the other (`male-27-rough`) is prepared but not seen: the
+  client's screen could not be grabbed twice ("screen grab failed").
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
