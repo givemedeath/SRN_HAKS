@@ -500,6 +500,9 @@ class BakeTests(unittest.TestCase):
         self.assertEqual(bake.left_to_body({'bare': ['hand']}), {'handl', 'handr'})
         self.assertEqual(bake.bare_joints({'left': ['handl', 'handr']}), set())
         self.assertEqual(bake.bare_joints({'left': ['forel', 'forer', 'handl', 'handr']}), {('wrist', 'l'), ('wrist', 'r')})
+        self.assertEqual(bake.left_to_body({'bare': ['shin', 'foot']}), {'shinl', 'shinr', 'footl', 'footr'})
+        self.assertEqual(bake.bare_joints({'left': ['shinl', 'shinr']}), {('ankle', 'l'), ('ankle', 'r')})  # a boot's top under a bare shin
+        self.assertEqual(bake.bare_joints({'left': ['chest']}), {('waist', 'c')})  # trousers' waistband under a bare chest
         with mock.patch.object(bodyskin, 'body_part', lambda pack, maps, body, name, rig: arm()):
             out = bake.skinned(parts, document, 'pack', 'maps', 'pmh0', bones, say=said.append)
             self.assertEqual(bake.skinned(parts, {'model': 'outfit', 'materials': []}, 'pack', None, 'pmh0', bones), parts)  # a brief that names neither

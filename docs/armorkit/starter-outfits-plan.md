@@ -162,3 +162,25 @@ What the kit cannot do is fit an arm that ends at a hem or a cuff with nothing b
 (`repose.outfit_joints` refuses it), so a bare-handed outfit's image keeps a plain glove on each arm as the
 fit's landmark. Tested on the kit's test tubes only; a real sleeve closed round the body's hand is first seen
 in step B6. Next: step B1, the Street Casual brief.
+
+2026-11-24, any slot may be bare (user: "make this compatible with any part being bare"). `brief.BARE` now
+holds every slot an outfit fills: chest, pelvis, upper arm, forearm, hand, thigh, shin, foot. Checked on a real
+outfit without a new generation: Facility Security's male generation was split again with each slot, and
+several together, left to the body beside its own bare forearm, and gated against the body's skin.
+
+| Left bare (beside the forearm) | New gate failures |
+|---|---|
+| hand; upper arm; upper arm and hand; foot; shin; shin and foot; thigh; thigh, shin and foot | none |
+| chest, upper arm and hand; pelvis and thigh; pelvis, thigh, shin and foot | none |
+| chest alone, the sleeves kept | both upper arms' ends stand 2.2 and 2.3 cm out of the body |
+| pelvis alone, the thighs kept | both thighs' ends stand 2.3 and 2.8 cm out of the body |
+
+So a brief that leaves the chest bare must leave the upper arms too, and the pelvis the thighs
+(`brief.WITH`); a slot cannot be both bare and shared with the body's skin. That split, from the 17,000-face
+export, has one failure before any slot is left (the left upper arm's end 1.1 cm out of the chest with the arm
+turned back), which is the outfit's own and not counted above.
+
+Not checked: the rest of a bake (layout, tint, the written models) with a part missing other than the
+forearm; `refit`, `bodies` and `publish` for an outfit with no chest or no pelvis, whose inventory icons are
+drawn from those two; any of it in the client. The image is still drawn as a whole figure, with a plain piece
+where a slot is left.

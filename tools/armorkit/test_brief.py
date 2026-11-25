@@ -126,10 +126,12 @@ class BriefTests(unittest.TestCase):
         given = {**document(), 'bare': ['forearm'], 'skin': ['bicep']}
         self.assertEqual(brief.validate(given), given)
         self.assertEqual(brief.composed(given), brief.composed(document()))  # a fact for the bake: the prompt's words are the prompt's
-        for bare in (['hand'], ['forearm', 'hand']):  # bare hands, below a long sleeve or a short one
+        self.assertEqual(set(brief.BARE), {'chest', 'pelvis', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot'})  # any slot an outfit fills
+        for bare in (['hand'], ['forearm', 'hand'], ['shin', 'foot'], ['chest', 'bicep', 'forearm', 'hand'], ['pelvis', 'thigh'], ['thigh']):
             self.assertEqual(brief.validate({**document(), 'bare': bare})['bare'], bare)
-        for wrong in ({'bare': ['bicep']}, {'skin': ['forearm']}, {'bare': 'forearm'}, {'bare': ['forearm', 'forearm']}, {'skin': [1]}, {'skin': ['chest']},
-                      {'bare': ['foot']}, {'skin': ['hand']}):
+        for wrong in ({'skin': ['forearm']}, {'bare': 'forearm'}, {'bare': ['forearm', 'forearm']}, {'skin': [1]}, {'skin': ['chest']},
+                      {'bare': ['shoulder']}, {'skin': ['hand']}, {'bare': ['bicep'], 'skin': ['bicep']},
+                      {'bare': ['chest']}, {'bare': ['pelvis', 'shin']}):  # a torso slot left with its limb kept
             with self.assertRaises(ValueError):
                 brief.validate({**document(), **wrong})
 
