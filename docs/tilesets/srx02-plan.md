@@ -385,6 +385,8 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   - Not done: the Toolset undo of a room; doors in the inner doorways; eye-level views tilted far up.
   - Seen beside this: the same crack test finds a few in exterior tiles (`dgt05_b07_06`, `dgt05_r07_31`, `dgt05_r07_32`,
     `rdt02_a01_03`; the `dgt05_w25` tiles look like levels over one another). Not looked into.
+  - **Gate passed (user, 2026-11-25: "Approve pilots"):** look, prop mix (old placeables beside envkit props) and the
+    triangle counts above. They are the standard for the 34 other rooms (stage 8).
 
 ## Work order
 
