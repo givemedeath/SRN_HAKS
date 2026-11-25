@@ -6,6 +6,7 @@ https://gitea.raptio.us/Jaysyn/d20ModernEE.
 
 The scan (2026-11-25) left 91 texture names for which no upstream HAK holds an original. Two models below each still name
 one of them: `vos_boltgun` (`01`) and `vos_scifigun27` (`rsw`).
+Some of the 91 were replaced afterwards: see "Replacement textures for placeables" in `PROVENANCE.md`.
 
 | Texture | Archive | Bytes | SHA-256 | Git blob | Models |
 |---|---|---:|---|---|---|

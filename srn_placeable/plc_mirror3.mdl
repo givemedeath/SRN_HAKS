@@ -16,7 +16,7 @@ node trimesh frame
   ambient 1.0 1.0 1.0
   diffuse 0.8 0.8 0.8
   specular 1.0 1.0 1.0
-  bitmap newHang2
+  bitmap newhang1
   alpha 1.0
   shininess 1
   selfillumcolor 0.0 0.0 0.0
