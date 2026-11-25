@@ -5725,6 +5725,7 @@
       "tools/headkit/comfy.py",
       "tools/shared_tools.py",
       "tools/tilekit/apply.py",
+      "tools/tilekit/blink.py",
       "tools/tilekit/commands.py",
       "tools/tilekit/compiled.py",
       "tools/tilekit/count.py",
@@ -5762,6 +5763,12 @@
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/merged.py"
+    ],
+    "tools/tilekit/blink.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/daylight.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/client_settings.py": [],
     "tools/tilekit/commands.py": [
@@ -5972,6 +5979,13 @@
     "tools/tilekit/test_baselines.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/test_blink.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/blink.py",
+      "tools/tilekit/daylight.py",
+      "tools/tilekit/material.py",
+      "tools/tilekit/pictures.py"
     ],
     "tools/tilekit/test_compiled.py": [
       "tools/test_impact.py",
@@ -6431,6 +6445,10 @@
       "srn_t_fcx01",
       "srn_t_udp1"
     ],
+    "tools/tilekit/test_blink.py": [
+      "srn_t_common",
+      "srn_t_fcx01"
+    ],
     "tools/tilekit/test_compiled.py": [
       "srn_door",
       "srn_placeable",
@@ -6448,6 +6466,7 @@
       "srn_placeable",
       "srn_t_common",
       "srn_t_dgt04",
+      "srn_t_fcx01",
       "srn_t_udp1"
     ],
     "tools/tilekit/test_detail.py": [
@@ -6850,6 +6869,7 @@
     "tools/tilekit/test_apply.py",
     "tools/tilekit/test_audit.py",
     "tools/tilekit/test_baselines.py",
+    "tools/tilekit/test_blink.py",
     "tools/tilekit/test_compiled.py",
     "tools/tilekit/test_crown.py",
     "tools/tilekit/test_daylight.py",

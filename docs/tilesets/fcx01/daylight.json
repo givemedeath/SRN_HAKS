@@ -1,0 +1,24 @@
+{
+ "schemaVersion": 1,
+ "kind": "tilekit-daylight",
+ "note": "The arcology's lit panes and lamp lenses. Six of them glow through their materials' glow maps, so each has a day material that is the same material without it (`dayMaterials`, written by `tilekit daylight --materials`): as its own day texture such a pane was as bright at noon as at night (2026-11-24). A mesh that draws one of the six is lit whatever its own glow, and is left none: the game tints a glow map by it. glass and arcology_win02 have no material and are their own day textures. A pane shows at its mesh's own alpha. Left lit at every hour: the signs and the monument (fcx_pub, kuhmu, bespin_monument2), the water (tcn01_watrstn02) and the glowing metal trims (c_metall, bb1bottom, dgt04_chrome, lsf_grate01), and the wall console's lights (imp_modules_id5: its glow map and its blinking lamps, docs/tilesets/fcx01/blink.json).",
+ "switched": [],
+ "lit": {
+  "fcx_window1": "fcx_window1_d",
+  "glass": "glass",
+  "black_window": "black_window_d",
+  "windows2": "windows2_d",
+  "arcology_win02": "arcology_win02",
+  "ctown_build_id4": "ctown_build_id4d",
+  "lights3": "lights3_d",
+  "lma_light06": "lma_light06_d"
+ },
+ "dayMaterials": {
+  "fcx_window1_d": "fcx_window1",
+  "black_window_d": "black_window",
+  "windows2_d": "windows2",
+  "ctown_build_id4d": "ctown_build_id4",
+  "lights3_d": "lights3",
+  "lma_light06_d": "lma_light06"
+ }
+}

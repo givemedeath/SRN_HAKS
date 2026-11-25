@@ -647,10 +647,59 @@ The four textures it shares with dgt04 keep dgt04's look.
   (`fcx01_d01_01` to `_09`), 20 void edge tiles and the plain plaza, with nothing missing or black. The palette shows
   the groups' display names. Not tried: every group, doors, tile light settings.
 
+**Parked items taken up after Release C (2026-11-24):**
+- **Applied (user passed the look):** the arcology's lit panes and lamp lenses follow the hour
+  (`docs/tilesets/fcx01/daylight.json`, 98 tiles). Six of the eight textures (the cyan windows, the lit blocks,
+  the marker and wall lamps) glow through their materials' glow maps, and as their own day textures were as bright
+  at noon as at night. Each now has a day material, the same material without its glow map (`dayMaterials`,
+  written by `tilekit daylight --materials`; user asked 2026-11-24); the glass and `arcology_win02` have no
+  material and stay their own day textures. Making them showed that the arcology had never changed with the hour:
+  the game plays a tile's animations only under its animated node (the model's name with an `a`), and 230 of the
+  arcology's lit meshes hung from the root, so the day pane was drawn over the lit one at every hour and the look
+  the user passed was the day pane's glow map. `daylight` now hangs every lit mesh from that node where it stands
+  (`animated`; 74 arcology models, three suburb sign tiles and one city tile remade). Two more things came with it:
+  a mesh that draws a glow-mapped texture is lit whatever its own glow (the wall bands have none), and is left
+  none, since the game tints a glow map by the mesh's glow colour and the cyan bands came out blue at night. Seen
+  from the built packs: bands and tower windows unlit by day, lit at night as passed. A translucent pane keeps its own alpha (the tool
+  keyed it solid at first; found in review of PR 198, 75 models remade). The suburb's part:
+  the suburb's shop signs and logos follow the hour (`udp1/daylight.json`, 29 models). The suburb's signals are not
+  listed and stay lit at every hour: traffic-light lenses (`udp1-allsigns`), emergency lights and hospital crosses
+  (`udp1-msc-red`). They were listed at first as signs; `daylight --lights-on` then turned on both states of six
+  traffic lights at once and the emergency lights' flash, and the lenses went clear by day (found in review of
+  PR 198): the ten tiles and the set files are as before, and a test holds the list and the loops to it.
+  Left lit at every hour in the arcology: the signs and the monument, the water, and the glowing metal trims
+  (`c_metall`, `bb1bottom`, `dgt04_chrome`, `lsf_grate01`). Checks clean, a test holds the arcology's list; seen
+  from the built packs by day and at night.
+- **Applied (user, from the before and after pictures):** hand finishes of three redrawn pictures, noted in
+  `redraw.json` (`placed`): the sign strip as an even row of lit segments, a clean "ARCOLOGY LIVING" caption,
+  brighter marker lamps. The caption and the marker lamps were not seen in game; the strip still reads small there.
+- **Console lights (user, 2026-11-24: "this panel needs a few glowing and blinking lights"):** the arcology's wall
+  console (`imp_modules_id5`, two in each of `fcx01_m01_02` and `fcx01_m01_11`) has a glow map for its steady lights
+  (the cream readout bars, the cyan rack lines, the blue keys: `glow.boxes` in `fcx01/materials.json`) and eleven
+  blinking lamps (`fcx01/blink.json`, `tilekit blink`): small panes over the status squares, six strip indicators and
+  the dial's hub, under the tile's animated node, blinked by the first tile loop, which the set has on. A lamp draws
+  a lit patch of the console's own glow map tinted by its glow colour, so no texture is added. Seen in game on
+  `fcx01_m01_02` by day and at night; the lamps come out paler than their colours (cream and pale green).
+- **School 3, not solved:** 28 of the 47 windows of `udp1_b07_29` were given lit panes (`udp1-window1b`) and day
+  panes through `daylight`. In game they stayed unlit at night, and one stayed lit by day. The cause is found
+  (the lit panes hung from the tile's root, not its animated node: see the arcology above) and `daylight` now
+  hangs them right; the tile is left as it was until its windows are tried again.
+- **Suburb `detail` kit, not started:** `placer.propose` finds almost nothing on the houses and strip malls (thin
+  box windows, models wider than their cell); only mall roofs take pieces. The kit's atlas also lives in
+  `srn_t_dgt04`, which a suburb-only module does not load. Both need work before a pilot.
+
 ### 7. Cohesion
 
 - **Look pass:** the user's whole-city look pass across the three districts and the joins, by day and night.
 - **Performance:** against the baseline.
+- **Measured (2026-11-24, after Release C and the day and night of the arcology and the suburb signs, from the built
+  packs):** the districts block (`docs/tilesets/srx01/districts.json`) by day and at night, 17 views each, in
+  `output/tilekit/e-districts`, for the user's look pass. Frame rate by the stage 2 method, same three views
+  (suburb, city street, arcology void), 6-second average, run 1 / run 2: day 179 179 180 / 181 181 180; night
+  179 178 180 / 182 179 171. Every view holds the cap but the arcology void at night in run 2 (171 against the
+  test's 175; 180 in run 1, 173 over 12 s). Area load, night from day: 0.8 s and 1.0 s (1.4–1.8 s at stage 2). The
+  block has the tile lamps off, as a newly built area has: the city streets and the arcology plaza are nearly
+  unlit at night there, the suburb houses are lit.
 - **Old sets:** whether to retire them is the user's call later. This plan keeps them.
 
 ## Verification (each stage)
