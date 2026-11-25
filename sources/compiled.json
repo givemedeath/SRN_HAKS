@@ -2355,11 +2355,11 @@
    "compiled": "2026-11-20"
   },
   "srn_t_dgt04/dgt05_b07_06.mdl": {
-   "source": "db0856e3efff37848aa6fc2b700320722f97c3bc210abd52214b68136601de50",
-   "binary": "685234a327736071b91a8aa3b3fb4c20e5fd6bc0537c620b9d63864ffe076635",
-   "bytes": 89424,
+   "source": "57dad9ea8965d455232a654cf82edb40512b297bc4e7b8bee389f18061f27fc1",
+   "binary": "1c0c9b5c91f00cf4b04f655eded1a3f5a7b76ece5854293adae7651575cfd521",
+   "bytes": 89092,
    "audit": "rig",
-   "compiled": "2026-11-20"
+   "compiled": "2026-11-25"
   },
   "srn_t_dgt04/dgt05_b07_11.mdl": {
    "source": "66f3ba3c146d431e1602daab15a5e0b4b2d9da2793f3a501a44bab560825443a",
