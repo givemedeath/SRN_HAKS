@@ -293,6 +293,12 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   none): they were the baked placeables' own stencil shadows, and a glass lamp that drew almost clear. Baked
   furniture now has `shadow 0`, as the set's own furniture has, and the lamp is `pkt_slamp01`. A rule for the room
   tooling. The wall's panels still differ a little in tone from face to face: the wall mesh's own shading.
+- **Watched in a recording (user, 2026-11-24).** The client's window recorded with ffmpeg's screen capture at 30
+  frames a second (`output/_clip.py`) showed the footage out of order: **the game plays a frame sheet's rows from
+  the bottom up**, each left to right, so the first frames go in the bottom row. Also fixed: the flash is at the
+  tower, not over the whole picture; a fourth key picture (the fireball dying into smoke) sits between the fireball
+  and the burning tower, and the blend keeps what burns bright, so it no longer goes green; the loop ends on a cut
+  to black instead of the tower un-burning. Checked again frame by frame in a second recording.
 - **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
   other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
 
