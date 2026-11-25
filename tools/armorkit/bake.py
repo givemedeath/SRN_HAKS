@@ -32,8 +32,8 @@ from . import bodyskin, brief, export, measure, reduce, registry, repose, seams,
 from . import ends as shaping  # `ends` here is the seam gate
 from .registry import require
 
-ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED)  # what the split made: it has no surface of its own on the generated outfit
-DOMED = (split.CAP, split.PADDED)  # of those, what rounds a surface on past its edge and is not creased there (`export.added_normals`)
+ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED, split.KEPT)  # what the split made: it has no surface of its own on the generated outfit
+DOMED = (split.CAP, split.PADDED, split.KEPT)  # of those, what rounds a surface on past its edge and is not creased there (`export.added_normals`)
 UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelvis': (split.CLOSING,),
          'chest': (split.CLOSING,), 'handl': (split.CAP,), 'handr': (split.CAP,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
@@ -961,7 +961,7 @@ def cut(given, contract=None):
                          reaches=given['reaches'], whole=UNCUT, made=made, sleeves=given['sleeves'], guards=given['guards'],
                          origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'],
                                                joints=tuple(joint for joint in shaping.TUBES if joint not in given.get('drawn', ())), bare=bare),
-                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={**{('ankle', side): ANKLE_TUCK for side in 'lr'}, **{key: shaping.TUCK for key in bare}},
+                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={**{('ankle', side): ANKLE_TUCK for side in 'lr'}, **{key: shaping.TUCK for key in bare}}, kept=tuple(given.get('drawn', ())),
                          ends=contract.get('ends'))
     return result, made, origins
 
@@ -1050,8 +1050,9 @@ def _reduced(name, pv, pf, pc, made, origins, joints, radii, budget, count):
     added = np.zeros(len(pv), bool)
     added[pf[made != split.OWN].ravel()] = True
     capped = np.zeros(len(pv), bool)
-    capped[pf[made == split.CAP].ravel()] = True
-    capped &= ~own & ~np.isin(np.arange(len(pv)), pf[(made != split.CAP) & (made != split.OWN)].ravel())
+    ended = np.isin(made, (split.CAP, split.KEPT))  # a cap, or the leftover an end is made of (`split.kept_end`)
+    capped[pf[ended].ravel()] = True
+    capped &= ~own & ~np.isin(np.arange(len(pv)), pf[~ended & (made != split.OWN)].ravel())
     planes = split.planes(joints)
     near, lines, ring = np.zeros(len(pv), bool), np.zeros(len(pv), np.int64), np.zeros(len(pv), bool)
     for bit, (key, (point, normal)) in enumerate(planes.items()):
@@ -1068,7 +1069,7 @@ def _reduced(name, pv, pf, pc, made, origins, joints, radii, budget, count):
         else:
             lines |= np.where(on_plane, np.int64(1) << bit, np.int64(0))
     before, kept, faces, which = len(pf), np.arange(len(pv)), pf, np.arange(len(pf))
-    for locked, on in ((added | near, None), ((added & ~capped) | (near & own) | ring, None), (ring, lines)):
+    for locked, on in (((added & ~capped) | (near & ~capped) | ring, None), ((added & ~capped) | (near & own) | ring, None), (ring, lines)):
         if on is not None:  # the split builds one vertex per point of a line where its closings meet: made one, they reduce
             faces, which = welded(pv[kept], faces, which)
         for _ in range(SKIN_ROUNDS):

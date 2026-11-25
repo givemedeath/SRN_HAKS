@@ -25,9 +25,9 @@ PALETTE = {'chest': (200, 200, 205), 'pelvis': (150, 150, 200), 'neck': (230, 21
 OTHER = (180, 180, 180)  # a part with no colour of its own
 SKIN = (110, 100, 95)  # the body's own skin a part holds (`bodyskin.worn`)
 KINDS = {split.CLOSING: (250, 200, 0), split.CAP: (250, 90, 20), split.WALL: (160, 0, 160), split.PADDED: (0, 120, 250),
-         split.GUSSET: (60, 60, 60)}  # what the split made, by kind; a kept part tells only that a face was added
+         split.GUSSET: (60, 60, 60), split.KEPT: (0, 170, 60)}  # what the split made, by kind; a kept part tells only that a face was added
 ADDED = (250, 200, 0)
-LEGEND = 'closing yellow, cap orange, wall purple, pad cap blue, gusset dark grey'
+LEGEND = 'closing yellow, cap orange, wall purple, pad cap blue, gusset dark grey, kept end green'
 DIRECTIONS = {'left': (1.0, 0.0, 0.0), 'right': (-1.0, 0.0, 0.0), 'front': (0.0, -1.0, 0.0), 'back': (0.0, 1.0, 0.0),
               'left front': (0.7, -0.7, 0.0), 'right back': (-0.7, 0.7, 0.0)}  # the way the view looks; the body faces +y, z up
 FOCUS = {'shoulders': ('torso_g', 0.25, 0.5), 'hips': ('pelvis_g', 0.0, 0.5)}  # bone, height above it, half the view's width (m)

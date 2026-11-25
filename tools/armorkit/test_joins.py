@@ -1,6 +1,6 @@
 """The joins Street Casual asked for (2026-11-25): hips cut like briefs, a boot's instep given to the foot, an end
 read from what it is open on, a tier per joint, a belt levelled by its strap, and a bake's parts worked side by
-side and kept between bakes."""
+side and kept between bakes; and an under end made of what the cut left over of the part over it."""
 import tempfile
 import unittest.mock
 import unittest
@@ -163,6 +163,77 @@ class StrapTests(unittest.TestCase):
         band = levelled[:len(strap[0])]
         self.assertLess(np.ptp(band[:, 2]), 0.041)  # a band 4 cm tall, level all the way round: by its surface alone it stood 15 cm tall
         self.assertLess(np.abs(band[:, :2].mean(axis=0)).max(), 0.002)  # and the body's axis through its middle
+
+
+class KeptEndTests(unittest.TestCase):
+    """A limb along z cut at z = 0: the under part below it, the over part above, narrowing from 5 cm to 4."""
+    NORMAL = np.array((0.0, 0.0, -1.0))
+
+    def limb(self):
+        under, under_f = rings(0.05, (-0.10, -0.05, 0.0), 64)
+        levels = np.arange(0, 21) * 0.005
+        turn = np.arange(64) * 2 * np.pi / 64
+        over = np.array([(self.wide(z) * np.cos(a), self.wide(z) * np.sin(a), z) for z in levels for a in turn])
+        over_f = rings(1.0, levels, 64)[1]
+        v = np.concatenate([under, over])
+        columns = np.zeros((len(v), 9))
+        columns[len(under):, 3], columns[len(under):, 4] = over[:, 2], 7.0
+        return v, columns, under_f, over_f + len(under)
+
+    @staticmethod
+    def wide(z):
+        return 0.05 - 0.01 * np.clip(np.asarray(z, float) / 0.03, 0.0, 1.0)
+
+    def test_the_end_is_the_over_parts_surface_drawn_in_under_it_and_closed_at_a_pole(self):
+        v, columns, under_f, over_f = self.limb()
+        turns = split.hinged(self.NORMAL, (0.0, 1.0, 0.0), (22.5, 45.0, 90.0))
+        more = split.kept_end(v, columns, under_f, len(v), np.zeros(3), self.NORMAL, 0.04, 0.2, (v, over_f, columns), turns)
+        grown, kept, added = more
+        self.assertEqual(len(grown), 64 * (split.LEFT_STEPS + split.LEFT_DOME))
+        # closed: every edge of the end lies on two faces, its first ring's on one of the part's own, and at the pole all meet
+        every = np.concatenate([v, grown])
+        _, place = np.unique(np.round(every, 7), axis=0, return_inverse=True)
+        faces = place.reshape(-1)[np.concatenate([under_f, added])]
+        edges = np.sort(np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]], faces[:, [2, 0]]]), axis=1)
+        edges = edges[edges[:, 0] != edges[:, 1]]
+        of_end = np.isin(edges, place.reshape(-1)[len(v):]).any(axis=1)
+        _, inverse, count = np.unique(edges, axis=0, return_inverse=True, return_counts=True)
+        self.assertTrue((count[inverse.reshape(-1)][of_end] == 2).all())
+        # shaped: past the plane, inside the over part as the body stands, no farther from the centre than the rim
+        radius = np.linalg.norm(grown[:, :2], axis=1)
+        self.assertTrue((grown[:, 2] > 0).all())
+        self.assertTrue((radius <= self.wide(grown[:, 2]) + 1e-9).all())
+        self.assertTrue((np.linalg.norm(grown, axis=1) <= 0.05 + 1e-9).all())
+        # and through the bend, wherever it is still past the plane
+        for turned in turns:
+            moved = grown @ turned.T
+            inside = moved[:, 2] > 0.002
+            self.assertTrue((np.linalg.norm(moved[inside, :2], axis=1) <= self.wide(moved[inside, 2]) + 0.002).all())
+        # the leftover: its rings carry the over part's columns from as high as they stand
+        first = kept[:64]
+        self.assertTrue((first[:, 4] == 7.0).all())
+        self.assertTrue(np.allclose(first[:, 3], 0.6 * 0.04 / split.LEFT_STEPS, atol=0.004))
+        self.assertTrue(((grown[:64, 2] >= 0.6 * 0.04 / split.LEFT_STEPS - 1e-9) & (grown[:64, 2] < 0.02)).all())  # drawn in toward the pole, never back
+        # rounded: the last ring is one point on the axis, as deep as asked
+        self.assertTrue(np.allclose(grown[-64:], (0.0, 0.0, 0.04)))
+
+    def test_with_no_surface_over_it_there_is_nothing_to_keep(self):
+        v, columns, under_f, over_f = self.limb()
+        self.assertIsNone(split.kept_end(v, columns, under_f, len(v), np.zeros(3), self.NORMAL, 0.04, 0.2, (v, over_f[:0], columns)))
+
+    def test_a_positive_bend_swings_the_under_part_away_from_where_the_gap_opens(self):
+        for opens in ((0.0, 1.0, 0.0), (0.0, -1.0, 0.0)):
+            turned, back = split.hinged(self.NORMAL, opens, (30.0, -30.0))
+            self.assertLess((turned @ self.NORMAL) @ np.array(opens), -0.4)
+            self.assertGreater((back @ self.NORMAL) @ np.array(opens), 0.4)
+
+    def test_the_split_keeps_the_leftover_at_the_joints_named(self):
+        made = np.array([split.OWN] * 4 + [split.KEPT] * 3 + [split.CAP] * 2)
+        role = bake.roles('shinl', made)
+        self.assertTrue(role['added'][4:].all() and not role['added'][:4].any())
+        self.assertTrue(role['domed'][4:].all())
+        self.assertFalse(role['cap'][4:7].any())  # drawn as the outfit is there, not as a cap's one shade
+        self.assertTrue(role['cap'][7:].all())
 
 
 class WorkedTests(unittest.TestCase):
