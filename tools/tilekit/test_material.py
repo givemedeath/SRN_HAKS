@@ -160,6 +160,11 @@ class MaterialTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'No pack holds a picture of gone'):
             material.build({'textures': {'gone': {'route': 'upscale', 'size': [64, 64]}}}, self.root, self.root / 'masters', self.root / 'out', 'crunch', compress=fake_compress)
 
+    def test_a_plain_texture_may_have_a_name_too_long_for_maps(self):
+        self.assertEqual(material.stem_of('tfb01_floortran2', {'plain': True}), 'tfb01_floortran2')  # 15 or 16 letters: no map adds to them
+        with self.assertRaises(ValueError):
+            material.stem_of('tfb01_floortran2', {})
+
     def test_a_base_game_texture_is_read_from_stock_and_water_written_plain(self):
         (self.root / 'stock').mkdir(); Image.new('RGBA', (16, 16), (20, 40, 90, 255)).save(self.root / 'stock' / 'water.tga')
         with self.assertRaisesRegex(ValueError, 'needs --stock'):

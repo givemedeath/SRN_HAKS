@@ -2523,3 +2523,13 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
   between them is generated geometry in the same textures. Original work of the SRN project operator with Claude.
   `docs/tilesets/srx02/joins-built.json` pins what a build read and wrote; the models are compiled as the other tile
   packs' are (`sources/compiled.json`).
+
+## Modern Interior textures drawn again (`srn_t_tfb01`, `srn_door`; 2026-11-24)
+
+- 43 textures of the D20 Modern Interior source pack (`docs/tilesets/tfb01/materials.json`; 38 in `srn_t_tfb01`, and
+  `tfb01_creats`, `tfb01_door2`, `tfb01_metaldoor`, `tfb01_shpflr1` and `tfb01_shpflr2` in `srn_door`) are replaced under
+  their own names, as DDS of 1024 by 1024 in place of the TGAs. Each was redrawn locally with Qwen-Image 2.1
+  (`tilekit redraw --bindings`) from the source pack's own picture as a layout reference; the prompts and what was
+  kept of each picture are in `docs/tilesets/tfb01/redraw.json`, which also names the commit that holds the pictures
+  replaced and the 25 textures left as they were. No third-party picture was used. The source pack's terms, recorded
+  above, still hold for its models and the textures left. The operator approved the pictures on 2026-11-24.

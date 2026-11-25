@@ -1,0 +1,398 @@
+{
+ "tileset": "tfb01",
+ "before": "239e8836580e49e4a22ecf117bc1ecf93fe5c478",
+ "packs": [
+  "srn_t_tfb01",
+  "srn_door",
+  "srn_t_common"
+ ],
+ "textures": {
+  "tfb01_lwalls": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_furnish2": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_shpflr1": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_door2": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_wallcord": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_wallbrick": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_seat": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_door065": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_deco": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_wall1": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_marbl05": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_wall_iinn": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_plank": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_burlap": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_post": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_metaldoor": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_creats": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_stone05": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_shpwal": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_sac": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01__metal01": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_shelf2": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_irony": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_bed02": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_cloack": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_rock1": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_floor": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_floor2": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_floortran4": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_floortran2": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_innrug": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_shpflr2": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_books": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_paint04": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_book2": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_velvet": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_bark01": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_plates": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_fire": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb_subwayf1": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_floor01": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb_stone01": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_dirt": {
+   "route": "upscale",
+   "redrawn": true,
+   "plain": true,
+   "size": [
+    1024,
+    1024
+   ]
+  }
+ }
+}

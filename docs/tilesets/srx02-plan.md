@@ -309,9 +309,16 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   filled over, so a portrait or an old print is not copied; a fill left standing is refused), `opening: none` (black
   is not put back: it left specks on dark bands). Pictures in `output/tilekit/tfb01-redrawn`, first pass in
   `tfb01-first`, old beside new in `output/trial/pairs`, six rooms in the client in `output/tilekit/set1`. The shapes
-  stay period (cauldrons, urns, barrels, banners, timber braces) and the rooms have no ceilings yet. Not in a pack.
+  stay period (cauldrons, urns, barrels, banners, timber braces) and the rooms have no ceilings yet.
+- **Approved and in the packs (user, 2026-11-24: "Approve textures").** `docs/tilesets/tfb01/materials.json` builds the
+  43 as plain DDS, 1024 by 1024 (a plain texture may now have a 15 or 16 letter name), and `tilekit apply` put them in
+  place of their TGAs: 38 in `srn_t_tfb01`, 5 in `srn_door` (each is drawn by one door model there). The srx02 join
+  tiles draw some of them by name. Both packs rebuilt; the six rooms captured from the rebuilt packs
+  (`output/tilekit/set3`) match the approved views but for flames and clouds. The five door textures were not seen on
+  their doors. Known flaws kept: `tfb01_sac`'s cream panel overlaps the bottom of its frame, `tfb01_rock1` has a small
+  step in tone.
 - **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
-  other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
+  other tile is stripped; of the trial room only its textures are in a pack; 4 m walls to match Office were not tried.
 
 ## Decisions for the user (defaults used unless changed)
 
