@@ -279,6 +279,12 @@ Toolset turns it. `tools/tilekit/test_joins_passage.py` guards them.
   `output/tilekit/tfb01-redrawn` (not in a pack); client views in `output/tilekit/trial8-c`. These four are drawn
   by tiles all over the set, so every room that uses them changes with them. The wall's skirting does not show at
   the floor, and the walls are near white under the review's bright lights.
+- **The screen plays (user, 2026-11-24: "animate the tv first").** The screen's quad draws `tfb01_scrn`, a sheet
+  of 32 frames (4 x 8, each 512 x 256) made from the drawn picture: the ticker runs left past its badge, the neon
+  flickers, the skyline drifts in and out; `tfb01_scrn.txi` says `proceduretype cycle`, `defaultwidth 512`,
+  `defaultheight 256`, `numx 4`, `numy 8`, `fps 8`, a four second loop. In the client two views from one spot show
+  the ticker at different places. The sheet is a 2048 x 2048 TGA, not yet DDS. (The television placeable's
+  `fxpa_screen`, additive and a decal, drew nothing on a tile; a plain cycle does.)
 - **Not done:** ceiling, wall picture and furnishing are a scratch script (`output/_trial.py`), not tool code; no
   other tile is stripped; nothing is in a pack; 4 m walls to match Office were not tried.
 
