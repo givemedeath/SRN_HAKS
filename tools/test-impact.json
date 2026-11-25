@@ -5751,7 +5751,9 @@
       "tools/tilekit/redraw.py",
       "tools/tilekit/remesh.py",
       "tools/tilekit/review.py",
+      "tools/tilekit/screens.py",
       "tools/tilekit/shadows.py",
+      "tools/tilekit/sheets.py",
       "tools/tilekit/terrain.py",
       "tools/tilekit/unique.py"
     ],
@@ -5968,10 +5970,22 @@
       "tools/tilekit/unique.py",
       "tools/tilekit/walls.py"
     ],
+    "tools/tilekit/screens.py": [
+      "tools/tilekit/enlarge.py",
+      "tools/tilekit/material.py"
+    ],
     "tools/tilekit/shadows.py": [
       "tools/tilekit/apply.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/lamps.py"
+    ],
+    "tools/tilekit/sheets.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/reference.py",
+      "tools/headkit/__init__.py",
+      "tools/headkit/design.py",
+      "tools/tilekit/enlarge.py",
+      "tools/tilekit/material.py"
     ],
     "tools/tilekit/sketch.py": [
       "tools/tilekit/geometry.py",
@@ -6163,9 +6177,20 @@
       "tools/tilekit/rooms.py",
       "tools/tilekit/test_strip.py"
     ],
+    "tools/tilekit/test_screens.py": [
+      "tools/tilekit/material.py",
+      "tools/tilekit/pictures.py",
+      "tools/tilekit/screens.py",
+      "tools/tilekit/test_material.py"
+    ],
     "tools/tilekit/test_shadows.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/shadows.py"
+    ],
+    "tools/tilekit/test_sheets.py": [
+      "tools/tilekit/enlarge.py",
+      "tools/tilekit/sheets.py",
+      "tools/tilekit/test_enlarge.py"
     ],
     "tools/tilekit/test_sketch.py": [
       "tools/tilekit/__init__.py",
@@ -6188,6 +6213,9 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/terrain.py"
     ],
+    "tools/tilekit/test_texels.py": [
+      "tools/tilekit/texels.py"
+    ],
     "tools/tilekit/test_unique.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/unique.py"
@@ -6201,6 +6229,10 @@
       "tools/tilekit/test_rooms.py",
       "tools/tilekit/test_strip.py",
       "tools/tilekit/walls.py"
+    ],
+    "tools/tilekit/texels.py": [
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/pictures.py"
     ],
     "tools/tilekit/unique.py": [
       "tools/tilekit/compiled.py",
@@ -6638,8 +6670,14 @@
       "srn_t_tfb01",
       "srn_t_udp2"
     ],
+    "tools/tilekit/test_screens.py": [
+      "srn_placeable"
+    ],
     "tools/tilekit/test_shadows.py": [
       "srn_2da",
+      "srn_t_common"
+    ],
+    "tools/tilekit/test_sheets.py": [
       "srn_t_common"
     ],
     "tools/tilekit/test_strip.py": [
@@ -6648,6 +6686,12 @@
     "tools/tilekit/test_terrain.py": [
       "srn_2da",
       "srn_t_common"
+    ],
+    "tools/tilekit/test_texels.py": [
+      "srn_t_srx02"
+    ],
+    "tools/tilekit/texels.py": [
+      "srn_t_srx02"
     ]
   },
   "tests": [
@@ -7000,10 +7044,13 @@
     "tools/tilekit/test_repair.py",
     "tools/tilekit/test_review.py",
     "tools/tilekit/test_rooms.py",
+    "tools/tilekit/test_screens.py",
     "tools/tilekit/test_shadows.py",
+    "tools/tilekit/test_sheets.py",
     "tools/tilekit/test_sketch.py",
     "tools/tilekit/test_strip.py",
     "tools/tilekit/test_terrain.py",
+    "tools/tilekit/test_texels.py",
     "tools/tilekit/test_unique.py",
     "tools/tilekit/test_walls.py"
   ]

@@ -224,7 +224,7 @@
   {"piece": "ek_ss_snacks", "at": [0.55, 8.4, 0.0], "faces": "e"},
   {"piece": "ek_ss_snacks", "at": [0.55, 11.6, 0.0], "faces": "e"},
   {"piece": "ek_ss_snacks", "at": [0.55, 12.9, 0.0], "faces": "e"},
-  {"piece": "pkt_shelf02", "at": [2.4, 19.05, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf02", "at": [2.4, 19.05, 0.044], "faces": "s"},
   {"piece": "jz_shelvesl01", "at": [9.5, 18.0, 0.0], "faces": "w"},
   {"piece": "ek_ad_crate", "at": [5.4, 19.2, 0.0], "faces": "s"},
   {"piece": "ek_ad_crate", "at": [6.7, 19.2, 0.0], "faces": "s"},

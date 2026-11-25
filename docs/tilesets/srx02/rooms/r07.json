@@ -320,7 +320,7 @@
   {"piece": "p_toiletcln01", "at": [2.15, 9.27, 0.0], "faces": "s"},
   {"piece": "p_stalldivider01", "at": [2.8, 8.93, 0.0], "turn": 0, "scale": 0.75},
   {"piece": "xiashowerd_01", "at": [4.12, 9.03, 0.0], "turn": 0, "obstacle": false},
-  {"piece": "xiashower_01", "at": [4.12, 9.72, 0.0], "faces": "s"},
+  {"piece": "xiashower_01", "at": [4.12, 9.769, 0.0], "faces": "s"},
   {"piece": "p_sinkcln01", "at": [1.0, 6.89, 0.0], "faces": "n"},
   {"piece": "p_sinkcln01", "at": [2.0, 6.89, 0.0], "faces": "n"},
   {"piece": "jz_fridgebig02", "at": [5.71, 9.26, 0.0], "faces": "s"},

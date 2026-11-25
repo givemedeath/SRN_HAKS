@@ -14,7 +14,7 @@ import numpy as np
 
 from . import enlarge, material, require
 
-SIDE = 1536  # pixels of a sheet's side before it is doubled
+SIDE = 3072  # pixels of a sheet's side before it is doubled: a job waits its turn, so a few large ones
 MARGIN = 32
 
 

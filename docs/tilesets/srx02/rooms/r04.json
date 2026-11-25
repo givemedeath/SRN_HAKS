@@ -479,7 +479,7 @@
   {"piece": "jz_sfp074", "at": [2.7, 5.0, 0.0], "turn": 0},
   {"piece": "jvb_chair05", "at": [2.7, 6.9, 0.0], "faces": "s"},
   {"piece": "pkt_pplant01", "at": [0.85, 9.2, 0.0], "turn": 0, "scale": 0.7},
-  {"piece": "pkt_slamp01", "at": [0.6, 0.6, 0.0], "turn": 0},
+  {"piece": "pkt_slamp01", "at": [0.6, 0.6, 0.023], "turn": 0},
   {"piece": "jz_shelvesl01", "at": [7.8, 9.6, 0.0], "faces": "s"},
   {"piece": "udp2-p-24", "at": [19.28, 8.8, 0.0], "faces": "w"},
   {"piece": "udp2-p-106", "at": [19.37, 8.02, 0.0], "faces": "w"},

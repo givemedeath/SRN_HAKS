@@ -239,7 +239,7 @@
   {"piece": "jz_sfp074", "at": [2.15, 0.76, 0.0], "turn": 0},
   {"piece": "udp2-p-42", "at": [2.15, 0.7, 0.46], "faces": "n"},
   {"piece": "pkt_pplant01", "at": [0.75, 0.75, 0.0], "turn": 0, "scale": 0.6},
-  {"piece": "pkt_slamp01", "at": [0.5, 5.15, 0.0], "turn": 0}
+  {"piece": "pkt_slamp01", "at": [0.5, 5.15, 0.023], "turn": 0}
  ],
  "placeLater": [{"what": "bed, wardrobe and fridge as containers where a builder wants loot"}, {"what": "bedroom and bath doors: the doorways are open"}]
 }

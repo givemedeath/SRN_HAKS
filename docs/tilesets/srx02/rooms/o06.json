@@ -192,9 +192,9 @@
  "props": [
   {"piece": "udp2-p-67", "at": [5.0, 7.3, 0.0], "turn": 0},
   {"piece": "jhb_fteuil01", "at": [5.0, 8.4, 0.0], "faces": "s"},
-  {"piece": "udp2-p-29", "at": [4.2, 7.55, 0.92], "turn": 180},
-  {"piece": "udp2-p-15", "at": [5.8, 7.55, 0.92], "turn": 180},
-  {"piece": "udp2-p-41", "at": [5.0, 9.678, 0.0], "faces": "s"},
+  {"piece": "udp2-p-29", "at": [4.2, 7.55, 0.92], "faces": "n"},
+  {"piece": "udp2-p-15", "at": [5.8, 7.55, 0.92], "faces": "n"},
+  {"piece": "udp2-p-41", "at": [5.0, 9.729, 0.0], "faces": "s"},
   {"piece": "pkt_pplant02", "at": [2.6, 9.2, 0.0], "turn": 0, "scale": 0.6},
   {"piece": "pkt_pplant02", "at": [7.4, 9.2, 0.0], "turn": 0, "scale": 0.6},
   {"piece": "jvb_couch03", "at": [0.9, 4.2, 0.0], "faces": "e"},

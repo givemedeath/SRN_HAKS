@@ -171,7 +171,7 @@
  ],
  "props": [
   {"piece": "xiashowerd_01", "at": [0.98, 9.03, 0.0], "turn": 0, "obstacle": false},
-  {"piece": "xiashower_01", "at": [0.98, 9.718, 0.0], "faces": "s"},
+  {"piece": "xiashower_01", "at": [0.98, 9.769, 0.0], "faces": "s"},
   {"piece": "udp2-p-47", "at": [2.8, 9.36, 0.0], "faces": "s"},
   {"piece": "udp2-p-111", "at": [0.62, 7.75, 0.0], "faces": "e"},
   {"piece": "udp2-p-113", "at": [0.24, 7.75, 0.0], "turn": 90, "obstacle": false},

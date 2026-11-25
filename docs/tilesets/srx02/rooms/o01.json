@@ -249,7 +249,7 @@
   {"piece": "udp2-p-12", "at": [9.4, 2.936, 0.0], "faces": "s"},
   {"piece": "udp2-p-11", "at": [9.0, 2.936, 0.0], "faces": "s"},
   {"piece": "udp2-p-46", "at": [6.5, 2.95, 0.0], "faces": "s"},
-  {"piece": "udp2-p-17", "at": [1.9, 3.195, 0.0], "faces": "s"}
+  {"piece": "udp2-p-17", "at": [1.9, 3.246, 0.0], "faces": "s"}
  ],
  "placeLater": [{"what": "office doors: the doorways are open"}, {"what": "desks and filing cabinets as containers"}, {"what": "a terminal, where a computer is to be used"}]
 }

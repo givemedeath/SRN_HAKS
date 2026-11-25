@@ -192,10 +192,10 @@
   {"piece": "udp2-p-11", "at": [1.35, 0.564, 0.0], "faces": "n"},
   {"piece": "udp2-p-30", "at": [0.95, 0.592, 0.99], "turn": 0},
   {"piece": "udp2-p-78", "at": [1.85, 0.5, 0.0], "turn": 0},
-  {"piece": "udp2-p-117", "at": [5.0, 9.6, 0.0], "faces": "s"},
+  {"piece": "udp2-p-117", "at": [5.0, 9.676, 0.0], "faces": "s"},
   {"piece": "pkt_pplant01", "at": [0.75, 9.3, 0.0], "turn": 0, "scale": 0.5},
   {"piece": "pkt_pplant01", "at": [9.25, 9.3, 0.0], "turn": 0, "scale": 0.5},
-  {"piece": "udp2-p-18", "at": [9.695, 5.6, 0.0], "faces": "w"}
+  {"piece": "udp2-p-18", "at": [9.746, 5.6, 0.0], "faces": "w"}
  ],
  "placeLater": [{"what": "a terminal, where a computer is to be used"}, {"what": "desks and filing cabinets as containers"}]
 }

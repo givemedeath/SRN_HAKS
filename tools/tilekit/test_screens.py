@@ -12,20 +12,35 @@ from . import material, pictures, screens
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def ramp(_):
+    return np.repeat(np.linspace(0, 255, 48)[None, :, None], 24, 0).repeat(3, 2).astype(np.uint8)
+
+
 class ScreenTests(unittest.TestCase):
-    def test_every_kind_fills_its_picture_and_is_the_same_each_time(self):
-        for kind in screens.KINDS:
-            one = screens.draw(kind, 48, 36, 3); self.assertEqual(one.shape, (36, 48, 3)); np.testing.assert_array_equal(one, screens.draw(kind, 48, 36, 3)); self.assertGreater(one.std(), 5, kind)
-        with self.assertRaisesRegex(ValueError, 'A screen is one of'):
-            screens.draw('windows', 8, 8)
+    def test_a_content_is_drawn_once_for_its_words_and_lifted(self):
+        spec = {'rule': 'bright', 'pictures': {'one': {'size': [32, 16], 'seed': 2, 'prompt': 'a map', 'lift': True}}}; asked = []
+
+        def run(seed):
+            def drawn(folder, text, images):
+                asked.append((seed, text)); Image.new('RGB', (64, 64), (40, 60, 80)).save(folder / 'out.png')
+            return drawn
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(ValueError, 'not drawn yet'):
+                screens.content(spec, folder, 'one')
+            self.assertEqual(screens.drawn(spec, folder, run, say=None), {'one': 'drawn'}); self.assertEqual(screens.drawn(spec, folder, run, say=None), {'one': 'kept'}); self.assertEqual(asked, [(2, 'a map' + chr(10) + 'bright')])
+            made = screens.content(spec, folder, 'one'); self.assertEqual(made.shape, (16, 32, 3)); self.assertGreater(made.mean(), 110)
+            other = {**spec, 'pictures': {'one': {**spec['pictures']['one'], 'prompt': 'a globe'}}}
+            with self.assertRaisesRegex(ValueError, 'other words'):
+                screens.content(other, folder, 'one')
+            self.assertEqual(screens.drawn(other, folder, run, say=None), {'one': 'drawn'})
 
     def test_only_the_boxes_change(self):
-        picture = np.full((64, 64, 3), 100, np.uint8); made = screens.laid(picture, [{'box': [0.25, 0.25, 0.75, 0.5], 'draw': 'bars', 'turn': 1}, {'box': [0, 0.75, 0.5, 1], 'sign': {'text': 'A', 'colour': [0, 0, 0], 'on': [255, 255, 255]}, 'dim': 0.5}])
+        picture = np.full((64, 64, 3), 100, np.uint8); made = screens.laid(picture, [{'box': [0.25, 0.25, 0.75, 0.5], 'picture': 'ramp', 'crop': [0, 0, 0.5, 1], 'turn': 1}, {'box': [0, 0.75, 0.5, 1], 'sign': {'text': 'A', 'colour': [0, 0, 0], 'on': [255, 255, 255]}, 'dim': 0.5}], of=ramp)
         self.assertTrue((made[16:32, 16:48] != 100).any()); self.assertEqual(int(made[48:64, :32].max()), 128)
         untouched = np.ones((64, 64), bool); untouched[16:32, 16:48] = untouched[48:64, :32] = False; self.assertTrue((made[untouched] == 100).all())
-        for wrong in ({'box': [0, 0, 2, 1], 'draw': 'bars'}, {'box': [0, 0, 1, 1]}, {'box': [0, 0, 1, 1], 'draw': 'bars', 'mend': True}):
+        for wrong in ({'box': [0, 0, 2, 1], 'picture': 'ramp'}, {'box': [0, 0, 1, 1]}, {'box': [0, 0, 1, 1], 'picture': 'ramp', 'mend': True}, {'box': [0, 0, 1, 1], 'picture': 'ramp', 'crop': [0.5, 0, 0.5, 1]}):
             with self.assertRaises(ValueError):
-                screens.laid(picture, [wrong])
+                screens.laid(picture, [wrong], of=ramp)
 
     def test_a_logo_is_mended_from_round_it(self):
         picture = np.zeros((40, 40, 3), np.uint8); picture[:] = (np.arange(40) * 3)[None, :, None]; marked = picture.copy(); marked[15:25, 15:25] = (255, 0, 0)
@@ -35,8 +50,8 @@ class ScreenTests(unittest.TestCase):
     def test_a_build_leaves_what_a_material_takes(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder); (root / 'srn_placeable').mkdir(); Image.new('RGB', (16, 16), (90, 90, 90)).save(root / 'srn_placeable' / 'tv-1.tga')
-            spec = {'packs': ['srn_placeable'], 'textures': {'tv-1': {'route': 'upscale', 'size': [64, 64], 'plain': True, 'redrawn': True, 'screen': [{'box': [0.25, 0.25, 0.75, 0.75], 'draw': 'wave'}]}}}
-            self.assertEqual(screens.build(spec, root, root / 'made'), {'tv-1': 1})
+            spec = {'packs': ['srn_placeable'], 'textures': {'tv-1': {'route': 'upscale', 'size': [64, 64], 'plain': True, 'redrawn': True, 'screen': [{'box': [0.25, 0.25, 0.75, 0.75], 'picture': 'ramp'}]}}}
+            self.assertEqual(screens.build(spec, root, root / 'made', of=ramp), {'tv-1': 1})
             from .test_material import fake_compress
             told = material.build(spec, root, root, root / 'out', 'crunch', compress=fake_compress, redrawn=root / 'made'); self.assertEqual(told['tv-1']['files'], ['tv-1.dds'])  # its name keeps its hyphen
             Image.new('RGB', (16, 16)).save(root / 'srn_placeable' / 'tv-1.tga')
@@ -51,9 +66,10 @@ class ScreenTests(unittest.TestCase):
 
     def test_the_lists_of_the_placeables_do_not_overlap(self):
         lists = {name: json.loads((ROOT / 'docs' / 'placeables' / f'{name}.json').read_text(encoding='utf-8')) for name in ('materials', 'enlarged', 'screens')}
+        contents = json.loads((ROOT / 'docs' / 'placeables' / 'screen-pictures.json').read_text(encoding='utf-8'))
         seen = [texture for one in lists.values() for texture in one['textures']]; self.assertEqual(len(seen), len(set(seen)))
         for name, how in lists['screens']['textures'].items():
-            screens.laid(np.zeros((64, 64, 3), np.uint8), how['screen'], name)
+            screens.laid(np.zeros((64, 64, 3), np.uint8), how['screen'], name, lambda content: ramp(contents['pictures'][content]['seed']))
 
 
 if __name__ == '__main__':

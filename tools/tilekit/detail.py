@@ -294,10 +294,10 @@ def _place(text, name, placements, kit, cache, pack_text, wok, lay, progress):
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}
             require(not outside, f'{name} #{number} ({piece}) reaches past its cover where a player walks; raise that part above head height or widen `cover`')
             if obstacle:  # street furniture keeps clear of what the tile stands on its street (a lamp post, a traffic light's pole)
-                low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(2)]
+                low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
                 high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
                 hit = sorted({node for node, point in drawn() if all(low[axis] <= point[axis] <= high[axis] for axis in range(2))
-                              and roof + 0.05 < point[2] <= high[2]})
+                              and max(roof + 0.05, low[2]) < point[2] <= high[2]})  # a skirting board runs under what hangs on its wall
                 require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
             against = ()
         elif rests:

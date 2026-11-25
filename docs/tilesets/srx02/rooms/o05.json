@@ -284,12 +284,12 @@
   {"piece": "jhb_fteuil01", "at": [17.0, 3.4, 0.0], "faces": "n"},
   {"piece": "jhb_fteuil01", "at": [18.45, 5.0, 0.0], "faces": "w"},
   {"piece": "jhb_fteuil01", "at": [11.55, 5.0, 0.0], "faces": "e"},
-  {"piece": "udp2-p-41", "at": [19.678, 5.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-41", "at": [19.729, 5.0, 0.0], "faces": "w"},
   {"piece": "jvb_dress03", "at": [12.4, 9.35, 0.0], "faces": "s"},
   {"piece": "jvb_pendul01", "at": [12.4, 9.4, 0.97], "faces": "s"},
   {"piece": "jvb_furn01", "at": [17.6, 9.447, 0.0], "faces": "s"},
   {"piece": "jvb_furn01", "at": [15.0, 9.447, 0.0], "faces": "s"},
-  {"piece": "udp2-p-117", "at": [15.0, 0.375, 0.0], "faces": "n"},
+  {"piece": "udp2-p-117", "at": [15.0, 0.324, 0.0], "faces": "n"},
   {"piece": "pkt_pplant01", "at": [19.2, 9.2, 0.0], "turn": 0, "scale": 0.65},
   {"piece": "pkt_pplant01", "at": [19.2, 0.8, 0.0], "turn": 0, "scale": 0.65},
   {"piece": "jvb_astat01", "at": [10.5, 9.4, 0.0], "turn": 0},
@@ -299,8 +299,8 @@
   {"piece": "udp2-p-112", "at": [2.96, 9.38, 0.0], "faces": "s"},
   {"piece": "udp2-p-112", "at": [3.73, 9.38, 0.0], "faces": "s"},
   {"piece": "udp2-p-26", "at": [1.42, 9.4, 1.1], "faces": "s"},
-  {"piece": "udp2-p-24", "at": [0.727, 7.6, 0.0], "faces": "e"},
-  {"piece": "udp2-p-13", "at": [0.6, 7.15, 0.0], "faces": "e"},
+  {"piece": "udp2-p-24", "at": [0.727, 7.98, 0.0], "faces": "e"},
+  {"piece": "udp2-p-13", "at": [0.6, 7.17, 0.0], "faces": "e"},
   {"piece": "jvb_couch03", "at": [0.85, 3.0, 0.0], "faces": "e"},
   {"piece": "jvb_tab05", "at": [2.4, 3.0, 0.0], "turn": 0},
   {"piece": "jvb_chair05", "at": [3.9, 3.0, 0.0], "faces": "w"},
@@ -311,7 +311,7 @@
   {"piece": "jvb_astat01", "at": [6.0, 9.4, 0.0], "turn": 0},
   {"piece": "jvb_astat01", "at": [9.2, 9.4, 0.0], "turn": 0},
   {"piece": "jvb_couch05", "at": [8.5, 0.75, 0.0], "faces": "n"},
-  {"piece": "udp2-p-21", "at": [7.5, 9.695, 0.0], "faces": "s"}
+  {"piece": "udp2-p-21", "at": [7.5, 9.746, 0.0], "faces": "s"}
  ],
  "placeLater": [{"what": "boardroom double doors: the doorway is open"}, {"what": "cabinets and sideboards as containers"}, {"what": "a terminal, where the screen is to be used"}]
 }

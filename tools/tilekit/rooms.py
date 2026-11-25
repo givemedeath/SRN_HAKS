@@ -28,7 +28,8 @@ taken for those of props that were gone (user, 2026-11-24). A node with no `shad
 (a couch, armchairs, dressers and wardrobes stood back to front: user, 2026-11-25).
 
 Refused: a piece that is no row of placeables.2da, or that names a texture no pack holds; a piece whose front is not
-recorded, or a seat or a cabinet recorded back to front (`leaning`, `bare`); a seat out of line with the table it faces (`misplaced`); a walkmesh with cracks; a tile whose own floor is in parts, or that is
+recorded, or a seat or a cabinet recorded back to front (`leaning`, `bare`); a seat out of line with the table it faces (`misplaced`);
+a piece that hangs over the edge of what it stands on (`unrested`) or off its wall (`unhung`); a walkmesh with cracks; a tile whose own floor is in parts, or that is
 open to the room's next tile in two places; a piece that `faces` a wall (two were put in backwards,
 2026-11-24); furniture that cuts the room in two or stands in its doorway (`_lanes`); a furnished room whose
 walkmesh differs from the unfurnished one anywhere but under its furniture, or at its sides (`_rim`)."""
@@ -62,6 +63,9 @@ THIN = 0.3  # metres: a seat is deeper
 REACH, ALIGNED = 1.2, 0.12  # metres: how far before a seat its table is, and how far off its middle the seat may stand
 SNAP, NEAR = 0.05, 0.12  # metres: what a footprint's box is squared to, and how near a wall it is taken out to it
 FLOOR = 0.05  # metres: what stands no higher stands on the floor
+RESTED = 0.75  # the share of a foot that is on what it stands on: a crate on a crate's raised lid has 0.77
+HANGS = 0.5  # metres: what is placed at the floor and begins no lower hangs on a wall
+HUNG = 0.03  # metres: how far its back may be off it
 
 
 def read(path):
@@ -271,6 +275,60 @@ def misplaced(props, pieces):
     return wrong
 
 
+def _laid(prop, pieces):
+    """A prop's triangles where it stands, as an array."""
+    turn = (COMPASS[prop['faces']] - COMPASS[prop.get('front', 's')]) % 360 if 'faces' in prop else prop['turn']
+    return np.array(geometry.faces_of(geometry.baked(pieces[prop['piece']], detail.turned(prop['at'], turn, prop.get('scale', 1.0)))), float).reshape(-1, 3, 3)
+
+
+def unrested(props, pieces):
+    """[what is wrong] with what stands on other furniture: at least `RESTED` of its foot is on it (a phone hung half
+    off a desk: user, 2026-11-25). Its foot is the hull of what is within 3 cm of its lowest point."""
+    stood = [(prop, _laid(prop, pieces)) for prop in props]; wrong = []
+    for prop, mesh in stood:
+        points = mesh.reshape(-1, 3); low = points[:, 2].min() if len(points) else 0
+        if low <= FLOOR or prop['at'][2] <= FLOOR:
+            continue
+        foot = points[points[:, 2] < low + 0.03][:, :2]
+        corners = np.array(cuts.hull([tuple(point) for point in foot.round(4).tolist()]), float)
+        if len(corners) < 3:
+            continue
+        xs, ys = np.meshgrid(*(np.linspace(corners[:, axis].min(), corners[:, axis].max(), 15)[1:-1] for axis in (0, 1))); spots = np.stack([xs.ravel(), ys.ravel()], 1); inside = np.ones(len(spots), bool)
+        for a, b in zip(corners, np.roll(corners, -1, 0)):
+            inside &= (b[0] - a[0]) * (spots[:, 1] - a[1]) - (b[1] - a[1]) * (spots[:, 0] - a[0]) >= 0
+        spots = spots[inside]; held = np.zeros(len(spots), bool)
+        for other, under in stood:
+            if other is prop or not len(under):
+                continue
+            normal = np.cross(under[:, 1] - under[:, 0], under[:, 2] - under[:, 0]); length = np.linalg.norm(normal, axis=1); up = (np.abs(normal[:, 2]) > 0.5 * length) & (length > 1e-9) & (np.abs(under[:, :, 2].mean(1) - low) < 0.5)
+            for a, b, c in under[up]:
+                whole = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+                if abs(whole) < 1e-12:
+                    continue
+                second = ((spots[:, 0] - a[0]) * (c[1] - a[1]) - (spots[:, 1] - a[1]) * (c[0] - a[0])) / whole; third = ((b[0] - a[0]) * (spots[:, 1] - a[1]) - (b[1] - a[1]) * (spots[:, 0] - a[0])) / whole
+                height = a[2] + second * (b[2] - a[2]) + third * (c[2] - a[2]); held |= (second >= -1e-6) & (third >= -1e-6) & (second + third <= 1 + 1e-6) & (height > low - 0.035) & (height < low + 0.12)
+        if len(spots) and held.mean() < RESTED:
+            wrong.append(f'{prop["piece"]} at {prop["at"]}: {held.mean():.0%} of its foot is on what it stands on')
+    return wrong
+
+
+def unhung(props, pieces, text):
+    """[what is wrong] with what hangs on a wall: its back is within `HUNG` of it (posters and white boards hung 8 to
+    20 cm before theirs, 2026-11-25). text: the unfurnished tile."""
+    wall = np.array(geometry.faces_of(geometry.baked(geometry.parse(text)[2])), float).reshape(-1, 3, 3); wrong = []
+    for prop in props:
+        mesh = _laid(prop, pieces) if 'faces' in prop else np.zeros((0, 3, 3))
+        if not len(mesh) or prop['at'][2] > FLOOR or mesh[:, :, 2].min() < HANGS:
+            continue
+        points = mesh.reshape(-1, 3); way = -np.array([*direction(COMPASS[prop['faces']]), 0.0]); deep = points @ way; back = points[deep > deep.max() - 0.03]; spot = back.mean(0); spot = spot + way * (deep.max() - spot @ way)
+        first, second = wall[:, 1] - wall[:, 0], wall[:, 2] - wall[:, 0]; across = np.cross(way, second); whole = (first * across).sum(1); safe = np.where(np.abs(whole) > 1e-9, whole, 1.0)
+        away = spot - wall[:, 0]; u = (away * across).sum(1) / safe; turned = np.cross(away, first); v = (turned @ way) / safe; gap = (second * turned).sum(1) / safe
+        met = gap[(np.abs(whole) > 1e-9) & (u >= -1e-6) & (v >= -1e-6) & (u + v <= 1 + 1e-6) & (np.abs(gap) < 0.5)]
+        if not len(met) or abs(met[np.argmin(np.abs(met))]) > HUNG:
+            wrong.append(f'{prop["piece"]} at {prop["at"]}: ' + (f'its back is {met[np.argmin(np.abs(met))] * 100:.0f} cm off its wall' if len(met) else 'there is no wall behind it'))
+    return wrong
+
+
 # --- what a room must hold to ----------------------------------------------------------------------------------------
 
 def _floor(text, slack=0.0):
@@ -448,7 +506,7 @@ def made(room, spec, set_text, text_of, pieces, prefix):
         bare = _floor(text); props = [prop for prop in spec.get('props', ()) if prop.get('tile', 0) == index]
         full, cut = (terrain.renamed(one, {names['u']: names['f']}) for one in (text, wok))
         if props:
-            known = {prop['piece']: pieces[prop['piece']] for prop in props}; wrong = misplaced(props, known); require(not wrong, f'{names["f"]}: ' + '; '.join(wrong))
+            known = {prop['piece']: pieces[prop['piece']] for prop in props}; wrong = misplaced(props, known) + unrested(props, known) + unhung(props, known, text); require(not wrong, f'{names["f"]}: ' + '; '.join(wrong))
             boxes = []
 
             def lay(new, footprints, uncut=cut):  # its floor is laid again round the furniture, from the unfurnished tile's; cutting the old one first took minutes a tile

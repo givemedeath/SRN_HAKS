@@ -62,8 +62,18 @@ class Made(unittest.TestCase):
 
     def test_a_vase_stands_on_the_chair_placed_before_it_and_nowhere_in_the_air(self):
         vase = {'piece': 'vase', 'at': [-2.5, 0.5, 0.9], 'turn': 0}; made(CHAIR, vase)
-        with self.assertRaisesRegex(ValueError, 'stands where a player walks'):
+        with self.assertRaisesRegex(ValueError, '0% of its foot'):
             made(CHAIR, {**vase, 'at': [0.0, 0.0, 0.9]})
+
+    def test_what_hangs_over_an_edge(self):
+        vase = {'piece': 'vase', 'at': [-2.5, 0.5, 0.9], 'turn': 0}; self.assertEqual(rooms.unrested([CHAIR, vase], PIECES), [])
+        self.assertEqual(rooms.unrested([CHAIR, {**vase, 'at': [-2.15, 0.5, 0.9]}], PIECES), [])  # 5 cm of its 20 over the edge
+        self.assertRegex(rooms.unrested([CHAIR, {**vase, 'at': [-2.1, 0.5, 0.9]}], PIECES)[0], 'vase.*% of its foot')  # half off, as a phone hung off a desk
+
+    def test_what_hangs_off_its_wall(self):
+        pieces = {'poster': piece('poster', box('poster', -0.5, 0.5, 0.0, 0.05, 1, 2))}; wall = chr(10).join(['newmodel w', 'beginmodelgeom w', 'node dummy w', '  parent null', 'endnode', *box('wall', -5, 5, 3.0, 3.2, 0, 3), 'endmodelgeom w', 'donemodel w'])
+        hung = lambda y: rooms.unhung([{'piece': 'poster', 'at': [0.0, y, 0.0], 'faces': 's', 'front': 's'}], pieces, wall)
+        self.assertEqual(hung(2.95), []); self.assertRegex(hung(2.75)[0], '20 cm off its wall'); self.assertRegex(hung(0.0)[0], 'no wall behind it')
 
     def test_a_prop_s_halo_is_not_baked(self):
         nodes = piece('lamp', box('lamp', 0, 1, 0, 1, 0, 1, ('bitmap ek_ad_lamp',)), box('halo', 0, 1, 0, 1, 1, 2, ('bitmap ek_ad_lamp_h',)))
