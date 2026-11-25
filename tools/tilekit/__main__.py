@@ -181,11 +181,22 @@ def compile_command(chosen):
     return 0
 
 
+def screens_command(chosen):
+    from . import screens
+    print(json.dumps(screens.build(_json(chosen.spec), chosen.repo, chosen.out, enlarged=chosen.enlarged, redrawn=chosen.redrawn, only=chosen.only.split(',') if chosen.only else None, stock=chosen.stock)))
+    return 0
+
+
 def enlarge_command(chosen):
     from tools.headkit.comfy import Client
     from . import enlarge
     spec = _json(chosen.spec); local = _json(chosen.bindings)
-    told = enlarge.enlarge(Client(chosen.url), local, chosen.bindings, chosen.repo, spec, chosen.out, only=chosen.only.split(',') if chosen.only else None, stock=chosen.stock)
+    if chosen.sheets:
+        from . import require, sheets
+        require(not chosen.only, 'Sheets take the whole spec')
+        told = sheets.run(Client(chosen.url), local, chosen.bindings, chosen.repo, spec, chosen.out, stock=chosen.stock)
+    else:
+        told = enlarge.enlarge(Client(chosen.url), local, chosen.bindings, chosen.repo, spec, chosen.out, only=chosen.only.split(',') if chosen.only else None, stock=chosen.stock)
     print(json.dumps({state: sum(one == state for one in told.values()) for state in ('enlarged', 'kept')}))
     return 0
 
@@ -245,10 +256,16 @@ def main(arguments=None):
     four.add_argument('--redrawn', type=Path, help='the folder `redraw` filled, for the textures the spec has `redrawn`')
     four.add_argument('--stock', type=Path, help='a folder of base-game pictures read out of the install, for base-game textures')
     five = commands.add_parser('enlarge', help='enlarge the textures a material spec has `doubled` with the upscaling model of the shared ComfyUI')
+    five.add_argument('--sheets', action='store_true', help='many small pictures a job, laid on sheets, instead of one')
     five.add_argument('--spec', required=True, type=Path); five.add_argument('--out', required=True, type=Path, help='the folder the enlarged pictures are kept in')
     five.add_argument('--bindings', required=True, type=Path, help='local JSON with absolute comfyInput and comfyOutput')
     five.add_argument('--url', default='http://127.0.0.1:8188'); five.add_argument('--only', help='only these textures, comma separated'); five.add_argument('--repo', type=Path, default=REPO)
     five.add_argument('--stock', type=Path, help='a folder of base-game pictures read out of the install, for base-game textures')
+    drawn = commands.add_parser('screens', help='draw the computer screens of a screen list (2070s, in code) into the pictures of their devices')
+    drawn.add_argument('--spec', required=True, type=Path, help='the screen list (docs/placeables/screens.json), which is a material spec too')
+    drawn.add_argument('--out', required=True, type=Path, help='the folder the pictures are kept in; `material` takes it as --redrawn')
+    drawn.add_argument('--enlarged', type=Path, help='the folder `enlarge` filled'); drawn.add_argument('--redrawn', type=Path, help='the folder `redraw` filled, for those laid over a redrawn picture')
+    drawn.add_argument('--only', help='only these textures, comma separated'); drawn.add_argument('--stock', type=Path); drawn.add_argument('--repo', type=Path, default=REPO)
     six = commands.add_parser('redraw', help='draw the textures of a redraw list again with an image generator, on the layout they have')
     six.add_argument('--spec', required=True, type=Path, help='the tileset\'s redraw list (docs/tilesets/<tileset>/redraw.json)')
     six.add_argument('--out', required=True, type=Path, help='the folder the redrawn pictures are kept in')
@@ -350,6 +367,8 @@ def main(arguments=None):
             return shadows_command(chosen)
         if chosen.command == 'lamps':
             return lamps_command(chosen)
+        if chosen.command == 'screens':
+            return screens_command(chosen)
         if chosen.command == 'enlarge':
             return enlarge_command(chosen)
         if chosen.command == 'redraw':

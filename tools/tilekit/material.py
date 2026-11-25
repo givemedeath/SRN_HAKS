@@ -148,7 +148,7 @@ def material_text(stem, glow=False):
 
 
 def stem_of(name, how):
-    stem = how.get('stem', name); require(len(stem) <= (16 if how.get('plain') else STEM) and stem == stem.lower() and stem.replace('_', '').isalnum(),
+    stem = how.get('stem', name); require(len(stem) <= (16 if how.get('plain') else STEM) and stem == stem.lower() and (stem.replace('-', '') if how.get('plain') else stem).replace('_', '').isalnum(),  # a plain picture keeps its old name, hyphen and all
                                           f'{name}: its maps need a `stem` of at most {STEM} lowercase characters')
     return stem
 

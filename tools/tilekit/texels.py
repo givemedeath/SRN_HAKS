@@ -38,11 +38,11 @@ def held(repo):
 
 
 def measure(models, sizes):
-    """{picture: {density, area, models}} of the ASCII `models` ({name: text}); sizes: {picture: (width, height)}, and
-    only those are measured."""
+    """{picture: {density, area, models}} of `models` ({name: ASCII text, or a compiled model's nodes as `rooms.pieces_of` reads
+    them}); sizes: {picture: (width, height)}, and only those are measured."""
     drawn, where = collections.defaultdict(list), collections.defaultdict(set)
     for name, text in models.items():
-        for node in geometry.parse(text)[2]:
+        for node in geometry.parse(text)[2] if isinstance(text, str) else text:
             picture = (node.material or '').lower()[:16]
             if not node.rendered or picture not in sizes or not node.tverts:
                 continue
