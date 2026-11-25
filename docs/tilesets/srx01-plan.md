@@ -709,8 +709,8 @@ The four textures it shares with dgt04 keep dgt04's look.
   aqueduct, 7 Street tiles), so they stay dark whatever a builder sets. Left as it is.
 - **Seen in game since:** the remade `dgt05_s05_12`, both mall entrances, the garage and the second console.
 - **Toolset, groups, doors and light (2026-11-24, by computer use on the built packs):** the palette lists all 213
-  groups (104 features, 109 groups) and 59 terrains by their names. Thirty groups, chosen by the user over all 213, one
-  for each kind of group, were painted on plain ground of their own, saved and read back: every one has all its
+  groups (104 features, 109 groups) and 59 terrains by their names. Thirty groups of different kinds and grounds (the
+  user chose thirty over all 213) were painted on plain ground of their own, saved and read back: every one has all its
   tiles, and the Toolset retiles round them. Every hook of a keyed door type made its door (58, 266, 267, 268); hooks
   of the generic type 0 (110 groups) make none, and the builder places one. A tile's main light set in Tile
   Properties is saved. The other 183 groups were not painted; the driver is

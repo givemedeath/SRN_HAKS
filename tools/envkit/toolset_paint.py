@@ -11,8 +11,8 @@ Start the Toolset as it says, size it (`Toolset.ps1 -Do move`), open the module,
 the background: it opens each area, arms each group from the palette, waits for one click, saves, keeps the module and
 undoes. **The clicks are real ones**, by computer use, on an empty tile of the area view, one about every four seconds
 (posted clicks are not painted); a click at another time only selects a tile. Run it only while no game client is up:
-computer use hides other windows. `run` tries again what was not
-whole, and stops at tiles an undo left. `read` says what each saved module holds.
+computer use hides other windows. `run` drives only the Toolset started on its folder, tries again what was not whole,
+and stops at tiles an undo left. `read` says what each saved module holds.
 
 What the Toolset does, found by trying: File > Save has no shortcut, but Save and Undo answer their menu messages; a
 feature of one tile stays armed after it is painted, so the saved file is what is judged, not the mode; another
@@ -20,6 +20,7 @@ group's tiles are not painted over; a hook of the generic door type 0 makes no d
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -134,10 +135,18 @@ def keep(planned, group, module, out):
     """Keep a saved module if its group is whole, so that another is tried again when `run` is; what is wrong with it.
     Another group's tiles stop the run: an undo did nothing, or a paint was left by a run that was stopped."""
     wrong = judged(planned, group, module)
-    require(not any(word.startswith(OTHERS) for word in wrong), f'{group["name"]}: {"; ".join(wrong)}: an earlier paint was not undone. Undo it in the Toolset, then run again')
+    require(not any(word.startswith(OTHERS) for word in wrong), f'{group["name"]}: {"; ".join(wrong)}: an earlier paint was not undone. Undo in the Toolset until the area is plain, then run again')
     if not wrong:
         shutil.copyfile(module, Path(out) / f'{group["number"]}.mod')
     return wrong
+
+
+def started_on(command_line, user):
+    """Whether a Toolset's command line has it on the user folder `user`: any other Toolset is another session's, and
+    its module has this one's name."""
+    plain = lambda text: str(text).replace('/', '\\').rstrip('\\').lower()
+    found = re.search(r'(?i)\s-userdirectory\s+(?:"([^"]+)"|(.+?))\s*$', command_line or '')
+    return bool(found) and plain(found.group(1) or found.group(2)) == plain(user)
 
 
 def read(user):
@@ -155,7 +164,7 @@ def read(user):
 class Window:
     """The running Toolset, by window messages. Its palette's items are read and armed here; the painting is not."""
 
-    def __init__(self):
+    def __init__(self, user):
         import ctypes
         import struct
         from ctypes import wintypes as w
@@ -175,6 +184,9 @@ class Window:
         require(len(found) == 1, f'One running Toolset is needed, not {len(found)}')
         self.frame = found[0]
         self.pid = self.owner(self.frame)
+        asked = f'(Get-CimInstance Win32_Process -Filter "ProcessId={self.pid}").CommandLine'
+        line = subprocess.run(['powershell', '-NoProfile', '-Command', asked], capture_output=True, text=True).stdout
+        require(started_on(line, user), f'The running Toolset was not started on {user}: it is another\'s, and is left alone')
         self.process = self.k.OpenProcess(0x0438, False, self.pid)  # read, write and allocate its memory: a tree wants its structures there
         self.memory = self.k.VirtualAllocEx(self.process, None, 4096, 0x3000, 4)
         require(self.memory and self.memory < 2 ** 31, 'No memory in the Toolset')
@@ -292,7 +304,9 @@ class Window:
 
     def open_area(self, name, title):
         tree = self.visible('TTreeView', self.visible('TfraMainInventory')[0])[0]
-        areas = self.items(tree)[0]
+        top = self.items(tree)
+        require(top and self.items(tree, top[0]), 'No module is open in the Toolset')
+        areas = top[0]
         for one in self.items(tree, areas):
             self.send(tree, 0x1102, 1, one)
         x, y = self.show(tree, next(one for one in self.items(tree, areas) if self.label(tree, one) == title))
@@ -306,11 +320,11 @@ class Window:
         require(False, 'The area did not open: ' + title)
 
     def clicked(self, limit=300):
-        """Wait for a real click of the left button."""
+        """Wait for a real click of the left button while the Toolset is in front."""
         self.u.GetAsyncKeyState(1)
         end = time.time() + limit
         while time.time() < end:
-            if self.u.GetAsyncKeyState(1) & 0x8001:
+            if self.u.GetAsyncKeyState(1) & 0x8001 and self.owner(self.u.GetForegroundWindow()) == self.pid:
                 return True
             time.sleep(0.02)
         return False
@@ -321,10 +335,24 @@ class Window:
         end = time.time() + 20
         while time.time() < end and os.path.getmtime(module) == before:
             time.sleep(0.1)
-        end = time.time() + 30
-        while time.time() < end and any(kind == 'TdlgProgress' for kind, _ in self.others()):
+        end, quiet = time.time() + 30, time.time()
+        while time.time() < end and time.time() - quiet < 0.8:  # it shows several progress windows in turn
+            if any(kind == 'TdlgProgress' for kind, _ in self.others()):
+                quiet = time.time()
             time.sleep(0.1)
         return os.path.getmtime(module) != before
+
+    def undo(self):
+        """Undo all that was painted: a click while a group is armed paints it twice, and with nothing left to undo the
+        Toolset does nothing."""
+        for _ in range(3):
+            self.command(UNDO)
+            time.sleep(0.5)
+
+
+def no_client():
+    running = subprocess.run(['tasklist'], capture_output=True, text=True).stdout.lower()
+    require('nwmain.exe' not in running, 'A game client is running: wait for it, and make no clicks')
 
 
 def run(user):
@@ -332,7 +360,8 @@ def run(user):
     planned = json.loads((user / 'paint.json').read_text(encoding='utf-8'))
     module, out = user / 'modules' / f'{toolset.MODULE}.mod', user / 'painted'
     out.mkdir(exist_ok=True)
-    window = Window()
+    no_client()
+    window, unwhole = Window(user), 0
     for ground, _ in planned['grounds']:
         todo = [group for group in planned['groups'] if group['ground'] == ground and not (out / f'{group["number"]}.mod').is_file()]
         if not todo:
@@ -341,24 +370,23 @@ def run(user):
         window.open_area(name, f'{name[3:]} {ground}')
         tree, items = window.palette()  # read once for an area: every label is several calls into the Toolset
         for group in todo:
-            running = subprocess.run(['tasklist'], capture_output=True, text=True).stdout.lower()
-            require('nwmain.exe' not in running, 'A game client is running: wait for it')
+            no_client()
             require(not window.others(), f'A window is up in the Toolset: {window.others()}')
             require(group['name'] in items, 'The palette does not list ' + group['name'])
             if not window.arm(tree, items[group['name']]):
                 print(group['number'], group['name'], 'NOT ARMED', flush=True)
+                unwhole += 1
                 continue
             require(window.clicked(), 'No click came')
             time.sleep(0.9)
             window.disarm()
             done = window.save(module)
+            window.undo()  # before anything that may stop the run
             require(not window.others(), f'A window is up in the Toolset: {window.others()}')
-            if done:
-                time.sleep(0.3)
             wrong = keep(planned, group, module, out) if done else ['not saved']
-            window.command(UNDO)
-            time.sleep(0.5)
+            unwhole += bool(wrong)
             print(group['number'], group['name'], '; '.join(wrong) or 'whole', flush=True)
+    return unwhole
 
 
 def main(arguments=None):
@@ -375,12 +403,11 @@ def main(arguments=None):
         commands.add_parser(name).add_argument('--user', required=True)
     chosen = parser.parse_args(arguments)
     if chosen.command == 'prepare':
-        only = {int(part) for part in chosen.only.split(',')} if chosen.only else None
+        only = {int(part) for part in chosen.only.split(',') if part.strip()} if chosen.only else None
         print(json.dumps(prepare(chosen.repo, chosen.tileset, chosen.user, tuple(dict.fromkeys((*chosen.haks, *toolset.HAKS))), game=chosen.game, only=only)))
         return 0
     if chosen.command == 'run':
-        run(chosen.user)
-        return 0
+        return int(run(chosen.user) > 0)
     told = read(chosen.user)
     print(json.dumps(told, indent=1))
     return int(any(one['wrong'] for one in told))

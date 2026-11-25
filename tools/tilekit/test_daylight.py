@@ -370,6 +370,20 @@ class Daylight(unittest.TestCase):
         self.assertEqual(sum(picture == 'udp1-window1b' for picture in drawn.values()), 28); self.assertEqual(len(drawn), 47)
         self.assertEqual({number: picture == 'udp1-window1b' for number, picture in drawn.items()}, {number: number * 7 % 5 <= 2 for number in drawn})
 
+    def test_the_suburb_and_the_arcology_leave_no_lit_pane_parked(self):
+        # held for dgt04 alone, and every daylight run told School 3's standing windows as parked (review of PR 199)
+        for tileset in ('udp1', 'fcx01'):
+            spec = json.loads((REPO / 'docs' / 'tilesets' / tileset / 'daylight.json').read_text(encoding='utf-8')); parked = {}
+            for path in sorted((REPO / 'sources' / f'srn_t_{tileset}').glob('*.mdl')):
+                text = path.read_bytes().decode('cp1252')
+                if re.search(r'(?mi)^[ \t]*newanim[ \t]+animloop0', text):
+                    parked[path.stem] = daylight.never(text, spec['lit'], daylight.mapped(spec), spec.get('inPlace'))
+            self.assertEqual({name: told for name, told in parked.items() if told}, {}, tileset)
+            self.assertLessEqual({name for name in spec.get('inPlace', {})}, set(parked))
+        text = (REPO / 'sources' / 'srn_t_udp1' / 'udp1_b07_29.mdl').read_bytes().decode('cp1252'); lit = {'udp1-window1b': None, 'udp1-lght-pln': None}
+        self.assertEqual(len(daylight.never(text, lit)), 28); self.assertEqual(len(daylight.never(text, lit, in_place={'UDP1_B07_29': 'udp1-lght-pln'})), 28)  # the texture named alone
+        self.assertEqual(min(daylight._world(daylight._placed(text), node.lower())[0][2] for node in daylight.never(text, lit)) > 1, True)  # they stand over the ground
+
     def test_a_day_pane_goes_where_a_loop_moves_its_lit_pane(self):
         loop = 'newanim animloop01 t_a01\n  node dummy t_a01\n    parent NULL\n  endnode\n  node trimesh pane\n    parent lights\n    positionkey 1\n      0 0 0 10\n    endlist\n  endnode\ndoneanim animloop01 t_a01\n'
         moving = MODEL.replace('donemodel', loop + 'donemodel')

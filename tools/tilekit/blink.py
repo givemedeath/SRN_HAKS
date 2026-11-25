@@ -154,6 +154,7 @@ def write(repo, tileset, folder, spec, shared=(), again=False):
     a model that has its lamp panes is made anew from the list. shared: as `daylight.write`."""
     lamp = str(spec.get('lamp', '')).lower(); made = sorted(path.parent.name for path in Path(repo).glob('srn_*/*.mtr') if path.stem.lower() == lamp)
     require(not made, f'The lamp picture {lamp} has a material in {", ".join(made)}: its lamps would come out pale')
+    require(any(path.stem.lower() == lamp for kind in ('dds', 'tga') for path in Path(repo).glob(f'srn_*/*.{kind}')), f'No pack has the lamp picture {lamp}')
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'refused': {}, 'done': 0}
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):

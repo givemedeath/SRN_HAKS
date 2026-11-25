@@ -13,7 +13,7 @@ and is left none, since the game tints a glow map by it (`mapped`).
 
 The list (`docs/tilesets/<set>/daylight.json`): {"lit": {lit texture: its day texture, or null for none}, "switched":
 [textures of signs a tile loop raises, lit at every hour: `lights_on` turns their loops on too], "dayMaterials": {day
-material: the lit texture whose material it is made from}}."""
+material: the lit texture whose material it is made from}, "inPlace": {model: the lit texture whose panes stand in place in it, `never`}}."""
 import math
 import re
 from pathlib import Path
@@ -299,13 +299,15 @@ def switched(text, textures, loop='animloop01', mapped=()):
     return bool(_switched(text, textures, loop, mapped))
 
 
-def never(text, textures, mapped=()):
+def never(text, textures, mapped=(), in_place=None):
     """The lit meshes of a model that no tile loop moves, where a loop moves any of them: parked and never raised,
     such a pane never lights (the pawn shop window of dgt04_e09_06, 2026-11-24). A model no loop switches is not told:
     its lit panes are in place. mapped: as `lit_nodes`, here and in `switched` and `lights_on`: a pane lit by its
-    material alone is parked and raised as any other."""
+    material alone is parked and raised as any other. in_place: {model: the lit texture whose panes stand in place in
+    it} (a list's `inPlace`): School 3's windows stand, and its loop raises two lamp lenses."""
+    model = re.search(r'(?mi)^[ \t]*newmodel[ \t]+(\S+)', text); standing = {name.lower(): held.lower() for name, held in (in_place or {}).items()}.get(model.group(1).lower()) if model else None
     moved = {node for loop in LOOPS for node in _switched(text, textures, f'animloop0{loop}', mapped)}
-    return [node for node, parent, texture in lit_nodes(text, textures, mapped=mapped) if moved and node not in moved]
+    return [node for node, parent, texture in lit_nodes(text, textures, mapped=mapped) if moved and node not in moved and texture != standing]
 
 
 def _switched(text, textures, loop, mapped=()):
@@ -367,21 +369,21 @@ def lights_on(repo, tileset, lit, pack=None, mapped=()):
     return sorted(set(told))
 
 
-def write(repo, tileset, folder, lit, shared=(), again=False, mapped=()):
+def write(repo, tileset, folder, lit, shared=(), again=False, mapped=(), in_place=None):
     """Write the models of a tileset that have lit meshes, with their day and night, into `folder` (a review's
     overlay; a model already there is changed in place) and tell {'models': {model: lit meshes}, 'panes': day panes
     made, 'refused': {model: why}, 'done': how many had their day and night already (a second run, or the pack's own),
     'parked': {model: its lit meshes no loop raises where a loop raises others (`never`)}}.
     again: a model that has its day and night is made anew from the list, and written where that changes it (a lit
     texture given a day texture since: the windows of eleven suburb tiles were blank by day, 2026-11-24). shared: the tilesets that draw these tiles too and take the change with them (a merged
-    set); a model any other tileset draws is left. mapped: the lit textures that glow through their materials (`mapped`)."""
+    set); a model any other tileset draws is left. mapped: the lit textures that glow through their materials (`mapped`). in_place: as `never`."""
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {'models': {}, 'panes': 0, 'refused': {}, 'done': 0, 'parked': {}}
     from .apply import noted
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, lamps.PACKS):
         if set(others) - {one.lower() for one in shared}:  # another tileset draws it too
             continue
-        if never(text, lit, mapped):
-            told['parked'][name] = never(text, lit, mapped)
+        if never(text, lit, mapped, in_place):
+            told['parked'][name] = never(text, lit, mapped, in_place)
         if lit_nodes(text, lit, mapped=mapped) and {one.lower() for one in re.findall(r'(?mi)^[ \t]*newanim[ \t]+(\S+)', text)} >= set(ANIMS):
             told['done'] += 1
             if not again:

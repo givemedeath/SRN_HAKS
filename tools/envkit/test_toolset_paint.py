@@ -62,6 +62,15 @@ class Paint(unittest.TestCase):
             with mock.patch.object(toolset_paint, 'judged', return_value=wrong), self.assertRaisesRegex(ValueError, 'not undone'):
                 toolset_paint.keep(planned, hall, module, temporary)
 
+    def test_only_the_toolset_started_on_the_folder_is_driven(self):
+        # any running Toolset was taken, another session's too (review of PR 199)
+        tool = '"D:\\Game Folder\\nwtoolset.exe" -userdirectory '
+        for line in (tool + 'F:\\work\\x-ts', tool + '"F:\\work\\x-ts" \n', tool + 'f:/Work/x-ts/\r\n'):
+            self.assertTrue(toolset_paint.started_on(line, 'F:\\work\\x-ts'), line)
+        self.assertTrue(toolset_paint.started_on(tool + 'F:\\my work\\x-ts', 'F:\\my work\\x-ts'))
+        for line in (tool + 'F:\\work\\x-ts2', tool + 'F:\\work', '"D:\\nwtoolset.exe"', '', None):
+            self.assertFalse(toolset_paint.started_on(line, 'F:\\work\\x-ts'), line)
+
     def test_judge_holds_a_saved_area_to_its_group(self):
         planned = toolset_paint.plan(SET, PALETTE)
         tower, hall, hut = planned['groups']

@@ -108,6 +108,9 @@ class Blink(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'has a material in srn_t_common'):
                 blink.write(repo, 't', out, SPEC)
             (repo / 'srn_t_common' / 'Plain.mtr').unlink()
+            with self.assertRaisesRegex(ValueError, 'No pack has the lamp picture plain'):
+                blink.write(repo, 't', out, SPEC)
+            (repo / 'srn_t_common' / 'plain.dds').write_bytes(b'picture')
             self.assertEqual(blink.write(repo, 't', out, SPEC)['models'], {'t_a01': 2})
             self.assertEqual(blink.write(repo, 't', out, SPEC), {'models': {}, 'refused': {}, 'done': 1})  # it has them: left
             self.assertEqual(blink.write(repo, 't', out, SPEC, again=True)['models'], {})  # made anew, the same: not written

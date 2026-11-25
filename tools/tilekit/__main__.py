@@ -115,7 +115,7 @@ def daylight_command(chosen):
         print(json.dumps({'turned on': len(told), 'models': told}))
         return 0
     require(chosen.out, 'daylight writes its models into --out')
-    spec = _json(chosen.spec); told = daylight.write(chosen.repo, chosen.tileset, chosen.out, spec['lit'], chosen.shared, again=chosen.again, mapped=daylight.mapped(spec))
+    spec = _json(chosen.spec); told = daylight.write(chosen.repo, chosen.tileset, chosen.out, spec['lit'], chosen.shared, again=chosen.again, mapped=daylight.mapped(spec), in_place=spec.get('inPlace'))
     print(json.dumps({'models': len(told['models']), 'lit': sum(told['models'].values()), 'panes': told['panes'], 'done': told['done'], 'refused': told['refused'], 'parked': told['parked']}, indent=1))
     return 0
 
