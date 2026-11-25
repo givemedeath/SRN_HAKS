@@ -80,7 +80,9 @@ def short(corners, faces, placed=None):
         if len(held) == 1 and len(edge) == 2 and edge not in walls and not flat(corners, held[0]):
             (a, b), (one, two, three) = (placed[list(edge)], placed[held[0]]); up = np.cross(two - one, three - one)
             for axis in (0, 1):
-                if abs(up[2]) > .3 * np.linalg.norm(up) and abs(a[axis] - b[axis]) < .02 and abs(a[1 - axis] - b[1 - axis]) > SHORT                         and a[axis] * b[axis] > 0 and 4.95 < min(abs(a[axis]), abs(b[axis])) < 4.995 and max(abs(a[axis]), abs(b[axis])) < 5.002:
+                along = abs(a[axis] - b[axis]) < .02 and abs(a[1 - axis] - b[1 - axis]) > SHORT and a[axis] * b[axis] > 0
+                inside = 4.95 < min(abs(a[axis]), abs(b[axis])) < 4.995 and max(abs(a[axis]), abs(b[axis])) < 5.002
+                if abs(up[2]) > .3 * np.linalg.norm(up) and along and inside:
                     found.append(tuple(sorted(edge)))
     return sorted(found)
 
@@ -134,13 +136,16 @@ class FloorEdges(unittest.TestCase):
         self.assertEqual(short(side - (1, 0, 0), [(0, 1, 2, *TAIL)], side), [(0, 1)])
 
     def test_every_tile_of_a_set_with_a_walkmesh_has_its_wok(self):
+        models, woks = {}, set()  # a set may take its tiles from other packs (srx01, srx02)
+        for pack in PACKS:
+            sources = REPO / 'sources' / pack
+            models.update((path.stem, path) for path in (sources if sources.is_dir() else REPO / pack).glob('*.mdl'))
+            woks.update(path.stem for path in (REPO / pack).glob('*.wok'))
         for pack in PACKS:  # without it creatures walk through the tile's walls (tfb01_l01_09, walked 2026-11-25)
-            models = REPO / 'sources' / pack; models = models if models.is_dir() else REPO / pack
             for path in (REPO / pack).glob('*.set'):
-                for name in sorted(set(re.findall(r'(?im)^\s*model\s*=\s*(\S+)', path.read_text(encoding='cp1252')))):
-                    model = models / f'{name.lower()}.mdl'
-                    if model.is_file() and not (REPO / pack / f'{name.lower()}.wok').is_file():
-                        self.assertNotIn(b'node aabb', model.read_bytes().lower(), name)
+                for name in sorted({name.lower() for name in re.findall(r'(?im)^\s*model\s*=\s*(\S+)', path.read_text(encoding='cp1252'))}):
+                    if name in models and name not in woks:
+                        self.assertFalse(b'node aabb' in models[name].read_bytes().lower(), f'{path.name}: {name} has a walkmesh and no .wok')
 
     def test_a_face_held_twice_is_found(self):
         self.assertEqual(doubled(CORNERS, [(0, 1, 3, *TAIL), (1, 3, 0, *TAIL), (0, 4, 1, *TAIL)]), [(0, 1, 3)])
