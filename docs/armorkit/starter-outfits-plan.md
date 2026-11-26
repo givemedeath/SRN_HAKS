@@ -359,8 +359,10 @@ Casual 3010 on the Human male is now the model `street-casual-typed` (brief `str
 `street-casual-male.json` stay as they are, as the record of the first generation; nothing further is baked from
 them. Seen close in the client before the hold: the shoulders, level with the old ends in all six poses
 (`review/sh-cmp-a.jpg`). Not seen: the hips close (`poses --preset hips`, new), and contrast shots 41 to 47.
-The user put client boots and Toolset use on hold the same day, until further notice. Open on this outfit: its
-shirt and trousers share cloth 1 by the brief; the per-slot channel table is what would let them be coloured apart.
+The user put client boots and Toolset use on hold the same day, until further notice. Its shirt and trousers share
+cloth 1 by the brief, and that stands: the game colours each part on its own, so a player colours the chest and
+upper arms apart from the thighs and shins with no change to the channels (user, 2026-11-25). No per-slot channel
+table is needed for it. Only the pelvis holds both, the shirt's hem and the trousers' top, on the one channel.
 
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
