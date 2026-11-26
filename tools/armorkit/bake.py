@@ -56,7 +56,11 @@ SEAM = 'seam contract: each end against its tier\'s overlap and envelope'  # the
 HIDDEN = 'seam contract: every end closed and domed, what closes it hidden at rest and in the design bend'  # the gate `hidden` answers
 NOT_BUILT = (SEAM, HIDDEN, 'clearance: no body surface showing at rest',
              WHOLE)  # gates of docs/armorkit/plan.md that `gates` does not check: WHOLE but on a fresh bake, SEAM and HIDDEN but on a measured body
-LID_SUNK = 0.03  # metres under the neck's plane the middle of a face lying across the collar is sunk to (`collared`)
+LID_SUNK = 0.05  # metres under the neck's plane the faces that close a collar's rim run down to (`collared`)
+COLLAR_GRAIN = 0.003  # metres: a face of the chest is read at points this far apart to tell whether it enters the neck (`collared`)
+COLLAR_STEPS = 48  # and at no more than this many along its longest edge
+COLLAR_HUG = 0.01  # metres: a face of a collar with its three corners over the neck's plane and nearer the neck than this is cut (`collared`)
+COLLAR_TEETH = 8  # times at most the rim left round the neck is read for teeth, and they are taken
 UNCUT = {('neck', 'c')}  # the joints the bake leaves whole (`cut`): the neck stays on the chest as its collar
 ON_PLANE = 1e-4  # metres: a point this near a joint's plane lies on it, wherever the reduction moved it along the plane
 OPEN_LEAST = 0.01  # metres: a part is open on a plane when this much edge or more lies there on one face only. Less is a
@@ -526,51 +530,102 @@ def within(bones, name, vertices, faces):
     return start + share[:, None] * axis
 
 
-def collared(part, neck, point, normal, sunk=LID_SUNK):
-    """(part, how many faces were taken): the chest `part` without those of its own faces that lie across the
-    collar, their middles inside the body's own `neck` ((vertices, faces)), and with a face in their place
-    from each edge they left open, the rim they closed, down to a new vertex on the neck's axis `sunk` under
-    its plane (`point`, unit `normal` toward the head), where that lies inside the neck. An edge is read by
-    where its ends lie, so that a seam of the texture through the lid opens none; one with both ends inside
-    the neck gets no face. The new vertex has the middle of the edge's two places on the texture, of their
-    normals and of their places on the generated mesh, and the face is flagged as the one that held the edge
-    was. A pad's faces are left.
+def _enters(vertices, faces, solid, grain):
+    """Of `faces`, which enter the closed surface `solid` ((vertices, faces)): a point of the face inside it, of
+    points `grain` apart at the most over the face and along its edges. Only faces whose box reaches the
+    solid's are read."""
+    v, f = np.asarray(vertices, float), np.asarray(faces, int)
+    out = np.zeros(len(f), bool)
+    if not len(f):
+        return out
+    corners = v[f]
+    near = np.flatnonzero((corners.max(axis=1) >= solid[0].min(axis=0)).all(axis=1) & (corners.min(axis=1) <= solid[0].max(axis=0)).all(axis=1))
+    longest = np.linalg.norm(corners[near] - np.roll(corners[near], 1, axis=1), axis=2).max(axis=1) if len(near) else np.zeros(0)
+    steps = np.clip(np.ceil(longest / grain).astype(int), 1, COLLAR_STEPS)
+    for count in np.unique(steps):
+        which = near[steps == count]
+        i, j = np.meshgrid(np.arange(count + 1), np.arange(count + 1), indexing='ij')
+        keep = i + j <= count
+        a, b = i[keep] / count, j[keep] / count
+        weights = np.stack([1 - a - b, a, b], axis=1)  # every point of the grid, the corners and the edges with it
+        points = np.einsum('pk,fkx->fpx', weights, v[f[which]])
+        inside = np.abs(measure.winding(points.reshape(-1, 3), *solid)) >= 0.5
+        out[which] = inside.reshape(len(which), -1).any(axis=1)
+    return out
+
+
+def collared(part, neck, point, normal, sunk=LID_SUNK, grain=COLLAR_GRAIN, hug=COLLAR_HUG):
+    """(part, how many faces were taken): the chest `part` without those of its own faces that enter the body's
+    own `neck` ((vertices, faces)) anywhere (`_enters`, at points `grain` apart) or lie along it, their three
+    corners over the neck's plane and nearer than `hug` outside it, and with a face in their
+    place from each edge they left open, the rim they closed, down to a new vertex on the neck's axis `sunk`
+    under its plane (`point`, unit `normal` toward the head), or half or a quarter as deep where the neck
+    holds no more. An edge is read by where its ends lie, so that a seam of the texture through what is
+    taken opens none. The new vertex has the middle of the edge's two places on the texture, of their
+    normals and of their places on the generated mesh, and the face is flagged as the one that held the
+    edge was. A pad's faces and the body's skin beside the cloth are left. A chest nothing of which enters
+    the neck comes back as it is.
 
     A generated outfit is a solid, and what closes its collar is a lid of a few faces as long as the neck is
-    wide, corner to corner of the rim. The neck stands through the lid, and what of each face lies outside it,
-    level with the rim or over it, showed in front of the neck as a flat flap with a notched edge (Street
-    Casual on the Human male, the typed trial: 34 faces up to 12.6 cm long, client, 2026-11-26). From the rim
-    down to one point inside the neck, what shows falls away from the rim all round, and the rim is what is
-    seen. Each face made three round its sunk middle did as much with 68 faces more, and put the chest 67
-    over its budget of triangles; a fan takes about as many faces as the lid had. What the client showed in
-    front of that neck was the same with the lid taken: it is the cloth drawn inside the shirt's ribbed
-    collar, whose middles lie outside the neck, and this leaves it."""
+    wide, corner to corner of the rim (Street Casual on the Human male, the typed trial: 34 faces up to
+    12.6 cm long). A first form made each three round its sunk middle: 68 faces more, the chest 67 over its
+    budget of triangles; a fan takes about as many faces as the lid had. But the lid was not all that showed.
+    A neck leans forward as it rises, the collar drawn for no neck is a roll of cloth in folds one over
+    another, and the front of the neck stood through the folds: each fold met the leaning skin on a line of
+    its own, a step in from the one under it, and the client showed a flat flap with a notched edge before
+    the neck, the same with the lid taken by its faces' middles (typed-6 against typed-8, client,
+    2026-11-26), and the same again with the faces that have a corner in the neck taken, or with every
+    vertex moved out of it: a face with its three corners outside the neck still crosses the corner of one
+    that is a diamond. So every face that enters the neck is taken. Before the neck, too, the collar rose
+    2.5 cm up the neck within 7 mm of it, a band of cloth on the skin, plain and flat, whose top met the
+    leaning skin in a ragged line (typed-9, client, 2026-11-26). The user chose to cut it back to the
+    ribbing: what lies over the neck's plane and along the neck goes with the lid, and the collar ends
+    where its roll stands away from the neck. With them, `COLLAR_TEETH` times at
+    the most, each face left with two of its edges on the rim: folds cut where they met the neck leave a
+    rim in teeth, and the teeth stood before the neck as the flap had. What is left stands clear of the
+    neck, the fan falls from that rim into it all round, and the skin meets the fan alone, on one line."""
     v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
-    own = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
-    normal = seams.unit(np.asarray(normal, float))
+    own = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool) & ~np.asarray(part.get('skin', np.zeros(len(f), bool)), bool)
+    point, normal = np.asarray(point, float), seams.unit(np.asarray(normal, float))
     neck = (np.asarray(neck[0], float), np.asarray(neck[1], int))
-    lid = own & (np.abs(measure.winding(v[f].mean(axis=1), *neck)) >= 0.5) if len(f) else np.zeros(0, bool)
-    pole = np.asarray(point, float) - sunk * normal
-    if not lid.any() or abs(float(measure.winding(pole[None], *neck)[0])) < 0.5:
-        return part, 0  # nothing across the collar, or a neck that leans away under its plane: nothing to sink a face into
+    from .publish import outside
+    lid = np.zeros(len(f), bool)
+    used = np.unique(f[own])
+    along = np.zeros(len(v), bool)
+    along[used] = ((v[used] - point) @ normal > 0) & (outside(v[used], neck, near=2 * hug) < hug)
+    lid[own] = _enters(v, f[own], neck, grain) | along[f[own]].all(axis=1)
+    if not lid.any():
+        return part, 0
+    for depth in (sunk, sunk / 2, sunk / 4):
+        pole = point - depth * normal
+        if abs(float(measure.winding(pole[None], *neck)[0])) >= 0.5:
+            break
+    else:
+        return part, 0  # nothing of the neck under its plane to run a face down into
     place = np.unique(np.round(v / split.POINT).astype(np.int64), axis=0, return_inverse=True)[1].reshape(-1)
+    sides = np.unique(np.sort(place[np.stack([f, np.roll(f, -1, axis=1)], axis=2)], axis=2).reshape(-1, 2), axis=0, return_inverse=True)[1].reshape(-1, 3)
+    for _ in range(COLLAR_TEETH):  # a face left with two of its three edges on the rim is a tooth of it
+        open_ = np.zeros(int(sides.max()) + 1, bool)
+        open_[sides[lid].ravel()] = True
+        teeth = own & ~lid & (open_[sides].sum(axis=1) >= 2)
+        if not teeth.any():
+            break
+        lid |= teeth
     held = np.flatnonzero(lid)
     ends_ = np.stack([f[held][:, [0, 1, 2]], f[held][:, [1, 2, 0]]], axis=2).reshape(-1, 2)  # each face's three edges, in its winding
     of = np.repeat(held, 3)
-    keys = np.sort(place[ends_], axis=1)
-    _, first, count = np.unique(keys, axis=0, return_inverse=True, return_counts=True)
-    inside = np.abs(measure.winding(v, *neck)) >= 0.5
-    rim = (count[first.reshape(-1)] == 1) & ~inside[ends_].all(axis=1) & (place[ends_[:, 0]] != place[ends_[:, 1]])
+    _, first, count = np.unique(np.sort(place[ends_], axis=1), axis=0, return_inverse=True, return_counts=True)
+    rim = (count[first.reshape(-1)] == 1) & (place[ends_[:, 0]] != place[ends_[:, 1]])
     ends_, of = ends_[rim], of[rim]
     fresh = len(v) + np.arange(len(ends_))
     out = dict(part)
-    out['v'] = np.concatenate([v, np.repeat(pole[None], len(ends_), axis=0)])
+    out['v'] = np.concatenate([v, np.repeat(pole[None], len(ends_), axis=0)]).astype(np.asarray(part['v']).dtype)
     for key in ('uv', 'src'):
         out[key] = np.concatenate([np.asarray(part[key], float), np.asarray(part[key], float)[ends_].mean(axis=1)])
     mean = np.asarray(part['n'], float)[ends_].sum(axis=1) + 1e-9 * normal
     out['n'] = np.concatenate([np.asarray(part['n'], float), mean / np.linalg.norm(mean, axis=1, keepdims=True)])
     out['f'] = np.concatenate([f[~lid], np.stack([ends_[:, 0], ends_[:, 1], fresh], axis=1)])
-    for key in ('added', 'domed', 'trimmed', 'pad'):
+    for key in ('added', 'domed', 'trimmed', 'pad', 'skin'):
         if key in part:
             flags = np.asarray(part[key])
             out[key] = np.concatenate([flags[~lid], flags[of]])
@@ -1013,12 +1068,6 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 shows = texture.face_materials(part['uv'], part['f'], part['rgb'], part['covered'], first, size)
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
-    neck = measure.body(body_pack, body)[1].get('neck') if 'chest' in parts else None
-    if neck is not None:  # before the body's skin is laid beside a part: its faces are no lid
-        before = len(parts['chest']['f'])
-        parts['chest'], sunk = collared(parts['chest'], neck[:2], *seams.plane(bones, 'neck', 'c'))
-        if sunk:
-            say(f"chest: {sunk} faces across the collar taken, the rim they closed run down into the neck by {len(parts['chest']['f']) - before + sunk}")
     parts = skinned(parts, document, body_pack, body_textures, body, bones, say, own_part)
     parts = tucked(parts, bones, say=say)
     mark("sleeve closings and the body's skin")
@@ -1751,6 +1800,16 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)
         mark('read the kept parts')
+    neck = (measure.body(body_pack, body)[1] if own is None else own).get('neck') if 'chest' in parts else None
+    collar = None
+    if neck is not None:  # on the parts as they are written, not as they are kept: a chest carried to another body meets another neck
+        parts = dict(parts)
+        before = len(parts['chest']['f'])
+        parts['chest'], taken = collared(parts['chest'], neck[:2], *seams.plane(bones, 'neck', 'c'))
+        if taken:
+            collar = {'taken': taken, 'fan': len(parts['chest']['f']) - before + taken}
+            say(f"chest: {taken} faces that entered the neck taken, {collar['fan']} from their rim down into it")
+        mark('collar')
     tinted, record = tints(parts, document, cache=tint_cache, say=say, workers=workers)
     mark('tint')
     models = write(output, parts, tinted, bones, body, number)
@@ -1766,6 +1825,8 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
                                          Path(output) / 'resources', game=game, resources=list(resources))
         record['compiled'] = len(compiled)
         mark('compile')
+    if collar is not None:
+        record['collar'] = collar
     record['seconds'] = seconds
     if resume is not None:
         record['resumed'] = str(resume)

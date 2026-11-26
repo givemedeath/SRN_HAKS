@@ -453,15 +453,20 @@ Carry (`refit`), all bodies:
 
 Bake, every outfit:
 
-* **Lid across the collar.** The generated solid closes its collar with a few faces as long as the neck is
-  wide (34 on the male, up to 12.6 cm long). They are taken and the rim they closed runs down to one vertex
-  inside the neck (`bake.collared`); the chest keeps its 15,999 triangles. A first form, each face made three,
-  put it 67 over the budget of 16,000. The client view of the collar did not change: see the review.
+* **Collar.** `bake.collared`, run on the parts as they are written (a carried chest meets its own body's
+  neck), takes every face of the chest that enters the body's neck anywhere (read at 3 mm points, not by
+  corners or middles), every face over the neck's plane within 1 cm of the neck (`COLLAR_HUG`), and the teeth
+  that leaves on the rim; the rim runs down to one vertex inside the neck. Male 186 faces, female 175; the
+  chest stays under 16,000 triangles (`bake.json` records `collar`). Before it the neck stood through the
+  collar's folds and the lid, and the front of the collar rose 2.5 cm up the neck within 7 mm of it: in the
+  client, flat shards before the neck with a notched edge (user: cut back to the ribbing).
 
-Final folders under `output/armorkit/street-casual/`: male `typed-8` (kept `typed-8-kept`, belt `belt-21`,
-with belt `typed-8-belt`), female `female-12` (carried `female-12-refit`, belt `belt-f10`, with belt
-`female-12-belt`); every gate passes on both. Views: `<outfit>-poses`, `-realistic`, `-shoulders`, `-hips`.
-`typed-7` and `female-11` are the form over the budget.
+Final folders under `output/armorkit/street-casual/`: male `typed-10` (kept `typed-10-kept`, belt `belt-23`,
+with belt `typed-10-belt`), female `female-14` (carried `female-14-refit`, belt `belt-f12`, with belt
+`female-14-belt`); every gate passes on both. Views `-shoulders` and `-realistic` of these (the realistic
+female set has 46 of its 48 shots); the full `-poses` and `-hips` sets are of `typed-8` and `female-12`,
+whose parts differ from these at the collar only. `typed-7` and `female-11` are over the triangle budget;
+`typed-8`/`female-12` and `typed-9`/`female-13` are earlier collar forms.
 
 Review (client, contrasting and realistic colours, body, shoulders and hips presets; 144 shots a body):
 no holes, no skin where cloth belongs, nothing see-through on either body. Left as they are:
@@ -469,10 +474,13 @@ no holes, no skin where cloth belongs, nothing see-through on either body. Left 
 * In sit and crouch the ends inside the knees and the seat show as smooth rounded patches, alike on both
   bodies, far less in realistic colours.
 * The generated shirt's collar has a notch at centre back, 1 mm tall there; his hair hides it, hers does not.
-* Close up from the front, cloth lies flat between the shirt's ribbed collar and the neck and meets the neck
-  in a ragged line. It was taken for the lid, and is not: it is the cloth the generator drew inside the
-  ribbing, there with the lid taken too (typed-6 against typed-8). At play distance in realistic colours it
-  reads as a crew neck. Open: paint it as skin, or cut it back to the ribbing.
+* On the male, close up from the front, a band of level cloth 2 to 4 cm wide still lies between the
+  ribbing and the neck: the top of the generated collar's roll, standing more than 1 cm off the neck. The
+  neck now meets it on one clean line. Cutting it as well was tried at 2, 3 and 4 cm, all of it or its level
+  faces only, closed by the fan or by a skirt dropping each rim vertex to the neck's axis: the shirt is a
+  solid, and with its top taken the undersides of the folds show; 3 cm leaves a notch at the back, and on the
+  female, whose yoke rides high beside the neck, every form cut into the ridges. Left at 1 cm. Open: paint
+  the band, or a new generation (the model has used one of its five geometry submissions).
 * The belt's buckle and a pouch clip the shirt hem and thigh in the sit (accessories may clip in motion).
 
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)

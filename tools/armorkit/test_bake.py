@@ -576,7 +576,7 @@ class BakeTests(unittest.TestCase):
             record = bake.run({'model': 'outfit', 'materials': []}, Path(folder) / 'out', 'bodies', 332, mesh='m', colours='c', raw='r', xatlas='x')
         self.assertEqual(list(record['seconds']), ['split', 'tint', 'write', 'gates'])
 
-    def test_the_faces_across_the_collar_give_way_to_a_fan_from_their_rim_into_the_neck(self):
+    def test_what_of_a_collar_enters_the_neck_gives_way_to_a_fan_from_its_rim(self):
         # the neck: a box 10 cm wide from 0.9 to 1.2, its plane at 1.0; the chest: a lid of two faces across it, corner
         # to corner of the rim just over the plane, a seam of the texture along the edge they share, and one face of
         # the cloth beside it
@@ -588,11 +588,12 @@ class BakeTests(unittest.TestCase):
                  'uv': np.array([(0.0, 0.0), (0.2, 0.0), (0.2, 0.2), (0.6, 0.2), (0.4, 0.0), (0.6, 0.0), (0.5, 0.5), (0.6, 0.5), (0.5, 0.6)]),
                  'n': np.tile((0.0, 0.0, 1.0), (9, 1)), 'src': np.zeros((9, 3)), 'added': np.zeros(3, bool), 'domed': np.zeros(3, bool),
                  'trimmed': np.array([4, 7, -1]), 'pad': np.zeros(3, bool)}
-        out, taken = bake.collared(chest, (corners, box), (0.0, 0.0, 1.0), (0.0, 0.0, 1.0))
+        neck, plane = (corners, box), ((0.0, 0.0, 1.0), (0.0, 0.0, 1.0))
+        out, taken = bake.collared(chest, neck, *plane)
         # the two are gone and the four edges of the rim each run down to the neck's axis: the shared edge, open on the
         # texture alone, gets nothing
         self.assertEqual((taken, len(out['f']), len(out['v'])), (2, 5, 13))
-        self.assertTrue(np.allclose(out['v'][9:], (0.0, 0.0, 1.0 - bake.LID_SUNK)))
+        self.assertTrue(np.allclose(out['v'][9:], (0.0, 0.0, 1.0 - bake.LID_SUNK)) and np.array_equal(out['v'][:9], chest['v']))
         self.assertEqual(out['f'].tolist(), [[6, 7, 8], [0, 1, 9], [1, 2, 10], [5, 3, 11], [3, 4, 12]])
         self.assertTrue(np.allclose(out['uv'][9:], [(0.1, 0.0), (0.2, 0.1), (0.6, 0.1), (0.5, 0.1)]) and np.allclose(out['n'][9:], (0, 0, 1)))
         self.assertEqual((out['trimmed'].tolist(), len(out['added']), len(out['pad'])), ([-1, 4, 4, 7, 7], 5, 5))
@@ -601,8 +602,35 @@ class BakeTests(unittest.TestCase):
         self.assertTrue((facing(out['v'], out['f']) > 0).all())
         # no more faces than the lid had, give or take the rim's own: a chest at its budget stays within it
         self.assertLessEqual(len(out['f']) - len(chest['f']), 2)
-        # a pad's faces are left, and a chest nothing lies across comes back as it was
-        self.assertEqual(bake.collared({**chest, 'pad': np.array([True, True, False])}, (corners, box), (0.0, 0.0, 1.0), (0.0, 0.0, 1.0))[1], 0)
+        # a fold of the collar whose three corners stand outside the neck and whose middle is outside it too, but
+        # which crosses the neck's corner: it enters the neck, and it is taken with the lid
+        fold = {**chest, 'v': np.concatenate([chest['v'], [(0.07, 0.02, 1.05), (0.02, 0.07, 1.05), (0.09, 0.09, 1.05)]]),
+                'f': np.concatenate([chest['f'], [(9, 10, 11)]]), 'uv': np.concatenate([chest['uv'], np.zeros((3, 2))]),
+                'n': np.tile((0.0, 0.0, 1.0), (12, 1)), 'src': np.zeros((12, 3)), 'added': np.zeros(4, bool), 'domed': np.zeros(4, bool),
+                'trimmed': np.array([4, 7, -1, 2]), 'pad': np.zeros(4, bool)}
+        self.assertFalse((np.abs(measure.winding(np.vstack([fold['v'][9:], fold['v'][9:].mean(axis=0)]), corners, box)) >= 0.5).any())
+        out, taken = bake.collared(fold, neck, *plane)
+        self.assertEqual((taken, out['trimmed'].tolist()), (3, [-1, 4, 4, 7, 7, 2, 2, 2]))
+        self.assertEqual(out['f'][-3:, :2].tolist(), [[9, 10], [10, 11], [11, 9]])  # no other face holds its edges: each runs down
+        # one that lies along the neck over its plane, 5 mm out from its side, is cut back with the lid; a face as near
+        # it but under the plane, or over the plane 2 cm out, is left
+        side = lambda x, z: {**fold, 'v': np.concatenate([chest['v'], [(x, -0.03, z), (x, 0.03, z), (x, 0.0, z + 0.03)]])}
+        self.assertEqual(bake.collared(side(0.055, 1.005), neck, *plane)[1], 3)
+        self.assertEqual(bake.collared(side(0.055, 0.96), neck, *plane)[1], 2)
+        self.assertEqual(bake.collared(side(0.07, 1.005), neck, *plane)[1], 2)
+        # one that passes the neck's corner clear of it is left
+        clear = {**fold, 'v': np.concatenate([chest['v'], [(0.09, 0.02, 1.05), (0.02, 0.09, 1.05), (0.09, 0.09, 1.05)]])}
+        self.assertEqual(bake.collared(clear, neck, *plane)[1], 2)
+        # a tooth: two faces that enter the neck, and between them one that does not and holds an edge of each. It is
+        # left with two of its edges on the rim and goes with them; beside one of them alone it has one, and stays
+        spots = np.array([(-0.03, -0.07, 1.01), (0.0, -0.12, 1.01), (0.03, -0.07, 1.01), (0.0, 0.04, 1.01)])
+        flat = lambda faces: {'v': spots, 'f': np.array(faces), 'uv': np.zeros((4, 2)), 'n': np.tile((0.0, 0.0, 1.0), (4, 1)), 'src': np.zeros((4, 3))}
+        out, taken = bake.collared(flat([(1, 0, 3), (2, 1, 3), (0, 2, 1)]), neck, *plane)
+        self.assertEqual((taken, out['f'][:, :2].tolist()), (3, [[0, 3], [3, 2], [0, 2]]))
+        self.assertEqual(bake.collared(flat([(1, 0, 3), (0, 2, 1)]), neck, *plane)[1], 1)
+        # a pad's faces and the body's skin beside the cloth are left, and a chest clear of the neck comes back as it was
+        self.assertEqual(bake.collared({**fold, 'pad': np.ones(4, bool)}, neck, *plane)[1], 0)
+        self.assertEqual(bake.collared({**fold, 'skin': np.ones(4, bool)}, neck, *plane)[1], 0)
         self.assertIs(bake.collared(chest, (corners + (1.0, 0, 0), box), (1.0, 0.0, 1.0), (0.0, 0.0, 1.0))[0], chest)
 
     def test_the_tier_the_parts_were_cut_at_is_kept_with_them(self):
