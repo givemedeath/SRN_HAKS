@@ -11,7 +11,11 @@ apartment, a house). `rooms` uses it where a spec's shell says `box` in place of
 
 in metres from the room's south-west corner. Inner walls run along x or y and stand on their line's middle. A zone's
 looks take the place of the box's own on the floor it covers and on the walls that face it. Bars run from floor to
-ceiling, are seen through, stop whoever walks as a wall does, and have no lintel or casing at their doorways."""
+ceiling, are seen through, stop whoever walks as a wall does, and have no lintel or casing at their doorways.
+
+A doorway is the game's generic door's size unless it says otherwise, 2 by 3 metres, and one no wider than that has a
+door hook of the generic type at its middle (`Plan.hooks`), so a door can be laid in it (user, 2026-11-26: "make sure not
+to forget about all the doors"); a wider one is an open arch."""
 import numpy as np
 
 from . import geometry, joins, require, terrain
@@ -28,7 +32,8 @@ WAYS = {'e': (1, 0), 'n': (0, 1), 'w': (-1, 0), 's': (0, -1)}
 BACK = {'e': 'w', 'w': 'e', 'n': 's', 's': 'n'}
 GROUP = {'e': 1, 'n': 2, 'w': 4, 's': 8, 'u': 16, 'd': 32}  # a smoothing group each way, so no corner is rounded
 SEEN, SHUT = ('open', 'bars'), ('wall', 'bars')  # what is drawn as room, and what nobody walks through
-DOOR = {'high': 2.4, 'width': 1.4}
+DOOR = {'high': 3.0, 'width': 2.0}  # metres: the game's generic doors are 2 wide and 3 high
+GENERIC = 0  # the door type of a hook that takes any generic door
 PATHS = {'': ('T', 0), 'n': ('N', 0), 'e': ('N', 270), 's': ('N', 180), 'w': ('N', 90), 'ns': ('L', 0), 'ew': ('L', 90), 'sw': ('H', 0), 'es': ('H', 90), 'en': ('H', 180), 'nw': ('H', 270),
          'nsw': ('I', 0), 'esw': ('I', 90), 'ens': ('I', 180), 'enw': ('I', 270), 'ensw': ('A', 0)}
 
@@ -46,25 +51,31 @@ class Plan:
         require(len(box['like']) == self.rows * self.columns, f'{self.name}: `like` names a source tile for each tile of the room')
         wide, deep = self.wide, self.deep = self.columns * TILE, self.rows * TILE; self.height = box.get('height', TOP); self.zones = box.get('zones', [])
         require(self.height <= TOP, f'{self.name}: its ceiling is over its walls')
-        self.solid = [(0, 0, wide, OUTER), (0, deep - OUTER, wide, deep), (0, 0, OUTER, deep), (wide - OUTER, 0, wide, deep)]; self.gaps = []; self.bars = []
+        self.solid = [(0, 0, wide, OUTER), (0, deep - OUTER, wide, deep), (0, 0, OUTER, deep), (wide - OUTER, 0, wide, deep)]; self.gaps = []; self.bars = []; self.doorways = []
         for one in box.get('openings', ()):
             low, high = one['at'] - one['width'] / 2, one['at'] + one['width'] / 2
             rect = {'s': (low, 0, high, OUTER), 'n': (low, deep - OUTER, high, deep), 'w': (0, low, OUTER, high), 'e': (wide - OUTER, low, wide, high)}[one['side']]
             self.gaps.append((rect, one['high']))
+        framed = []  # each doorway with its casing, and its own wall
         for wall in box.get('walls', ()):
             start, end = tuple(wall['from']), tuple(wall['to']); along = 0 if start[1] == end[1] else 1
             require(start[1 - along] == end[1 - along] and start[along] < end[along], f'{self.name}: the wall from {start} to {end} runs along neither x nor y, or backwards')
             across = start[1 - along]; rect = lambda low, high: (low, across - INNER / 2, high, across + INNER / 2) if along == 0 else (across - INNER / 2, low, across + INNER / 2, high)
-            ways_in = []
+            ways_in = []; own = rect(start[along], end[along])
             for door in wall.get('doors', ()):
                 door = {**DOOR, **door}; low, high = (start[along] + door['at'] + way * door['width'] / 2 for way in (-1, 1))
                 require(low - CASING >= start[along] - 1e-9 and high + CASING <= end[along] + 1e-9, f'{self.name}: a doorway at {door["at"]} leaves the wall from {start} to {end}')
-                ways_in.append((low, high, door['high']))
+                ways_in.append((low, high, door['high'])); framed.append((rect(low - CASING, high + CASING), own, door['at'], start, end))
+                if door['width'] <= DOOR['width'] + 1e-9:  # a door's hook stands at its middle, the leaf along the wall
+                    self.doorways.append(((start[0] + door['at'], across) if along == 0 else (across, start[1] + door['at']), 180 if along == 0 else 270))
             if wall.get('bars'):
                 for low, high in zip([start[along], *sorted(high for _, high, _ in ways_in)], [*sorted(low for low, _, _ in ways_in), end[along]]):
                     self.bars.append((rect(low, high), wall['bars']))
             else:
                 self.solid.append(rect(start[along], end[along])); self.gaps += [(rect(low, high), top) for low, high, top in ways_in]
+        for frame, own, at, start, end in framed:  # a doorway nudged a millimetre short of its wall's end ran into the wall across it (2026-11-26)
+            hit = [one for one in self.solid if one != own and frame[0] < one[2] - 1e-6 and one[0] < frame[2] - 1e-6 and frame[1] < one[3] - 1e-6 and one[1] < frame[3] - 1e-6]
+            require(not hit, f'{self.name}: the doorway at {at} in the wall from {start} to {end} runs, with its casing, into the wall at {hit[0] if hit else None}')
         rects = self.solid + [rect for rect, _ in self.gaps + self.bars] + [tuple(zone['rect']) for zone in self.zones]
         lines = lambda axis, size, count: np.unique(np.round([0, size] + [index * TILE for index in range(count)] + [min(max(rect[side], 0), size) for rect in rects for side in (axis, axis + 2)], 4))
         self.xs, self.ys = lines(0, wide, self.columns), lines(1, deep, self.rows)
@@ -104,6 +115,11 @@ class Plan:
     def of_tile(self, index):
         x0, y0 = self.corner(index)
         return [cell for cell in self.cells if x0 < self.middle(cell)[0] < x0 + TILE and y0 < self.middle(cell)[1] < y0 + TILE]
+
+    def hooks(self, index):
+        """[(x, y from the tile's middle, orientation)] of the door hooks of the doorways in a tile of the room."""
+        x0, y0 = self.corner(index)
+        return [(round(x - x0 - TILE / 2, 3), round(y - y0 - TILE / 2, 3), turn) for (x, y), turn in self.doorways if x0 <= x < x0 + TILE and y0 <= y < y0 + TILE]
 
     def sides(self, index):
         """The sides (n, e, s, w) a tile of the room is open at."""

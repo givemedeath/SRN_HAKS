@@ -2574,3 +2574,23 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
   from the game's own `fslit` and `fslit_sm_nm`; the materials beside the pictures (`<picture>.mtr`) and the lines added
   to five `srn_envprop` materials are written by `tools/tilekit/motion.py` from `docs/placeables/screen-motion.json`.
   No picture changes.
+
+## Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)
+
+- Source: Lady Patricia, "Lady Patricia's Placeables" on the Neverwinter Vault
+  (`https://neverwintervault.org/project/nwn1/prefab/placeable/lady-patricias-placeables`), archives
+  `lpat_alchemy_v1_0.zip` (SHA-256 `8b33a072b08f139e5d59064aecc62fd413252602993d8adb41bc34ca9e347993`) and
+  `lpat_wicca_v1_0.zip` (`9c6ef526313b03487d7665fbf1a7a5964ecb4b35d2d42d447916aa0ed2055b33`). The operator approved the
+  download and the import on 2026-11-26.
+- Terms as the Vault states them: "Free & open only if project also open". The author's permission detail says the
+  contents are distributed free as is, may be incorporated in any combined haks, and asks for credit. This record is
+  that credit; these files are not relicensed under the repository's default license, and they ship only in free,
+  open releases of the project.
+- 60 of the packs' 85 models (bottles, flasks, glassware, specimen jars, wall shelves, hanging herbs, bones, flasks
+  and pots, bowls, sacks, urns, cauldrons, rune stones, a basket, alchemy tables and stills) are copied unchanged into
+  `srn_placeable` but for their texture names, with their walk files, as `placeables.2da` rows 22918–22977 labelled
+  `[lpat]`. Ivy, roots, floor mats, the wall roots, the werewolf head and the bookcase were left out.
+- Pictures: the packs' own `lpat_*` pictures keep their names. Every other picture the models draw, base-game ones
+  (`tcn01_*`, `plc_*`, `ttf01_*` and others, taken from the game's own files) and ones the packs ship under names other
+  packs also use (`alchemy`, `st_*`, `pdag_hdec`), is copied under a new `lpx_` name so that no texture of the game or
+  another hak is overridden. `docs/placeables/lpat-import.json` maps each new name to its source.

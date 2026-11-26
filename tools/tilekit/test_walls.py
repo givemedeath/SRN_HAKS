@@ -29,7 +29,7 @@ class Walls(unittest.TestCase):
         made = [walls.shell(LIKE, f'm_hut_{index}', SPEC, index) for index in range(4)]; names = {node.name for node in geometry.parse(made[0][0])[2]}
         self.assertIn('m_hut_0ml1', names); self.assertNotIn('floor1', made[0][0]); self.assertEqual(made[0][2], ['floor1'])
         floors = [sum(abs(joins.flat_area(one)) for one in joins.bake(text)[1] if int(one[0, 3]) == 9) for text, _, _ in made]
-        self.assertAlmostEqual(sum(floors), 19.6 * 19.6 - 0.2 * 19.6 - 9.7 * 0.2 + 0.2 * 2.0 + 0.2 * 1.4 + 4.0 * 0.2, places=2)  # the walls gone, the doorways and the way in back
+        self.assertAlmostEqual(sum(floors), 19.6 * 19.6 - 0.2 * 19.6 - 9.7 * 0.2 + 0.2 * 2.0 + 0.2 * 2.0 + 4.0 * 0.2, places=2)  # the walls gone, the doorways (a door's 2 m) and the way in back
         self.assertEqual([rooms.cracks(text) for text, _, _ in made], [[]] * 4)
         east, west = rooms._rim(made[0][0]), rooms._rim(made[1][0]); self.assertEqual({step for side, step in east if side == 'e'}, {step for side, step in west if side == 'w'})
 
@@ -53,6 +53,12 @@ class Walls(unittest.TestCase):
         for wall, wanted in (({'from': [0, 5], 'to': [4, 5], 'doors': [{'at': 3.9}]}, 'leaves the wall'), ({'from': [0, 5], 'to': [4, 6]}, 'neither x nor y')):
             with self.assertRaisesRegex(ValueError, wanted):
                 walls.Plan({**SPEC, 'shell': {'set': 'a', 'box': {**BOX, 'walls': [wall]}}})
+
+    def test_a_doorway_that_runs_into_the_wall_across_it(self):
+        across = {'from': [5.0, 4.9], 'to': [5.0, 10]}
+        with self.assertRaisesRegex(ValueError, 'doorway at 3.999 .* runs, with its casing, into the wall'):
+            walls.Plan({**SPEC, 'shell': {'set': 'a', 'box': {**BOX, 'walls': [{'from': [0, 5], 'to': [5.1, 5], 'doors': [{'at': 3.999}]}, across]}}})
+        walls.Plan({**SPEC, 'shell': {'set': 'a', 'box': {**BOX, 'walls': [{'from': [0, 5], 'to': [5.1, 5], 'doors': [{'at': 2.9}]}, across]}}})
 
 
 class Ceilings(unittest.TestCase):

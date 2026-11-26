@@ -15,7 +15,8 @@ lists its arguments. They read a tile's ASCII source where the pack ships a comp
 | `shared` | Models outside the tileset that name its restyled textures | Release 1, shared textures |
 | `placements` | Wall pieces of applied specs that run into their tile's own geometry | Batches 2 to 4, after the new guard |
 | `sketch` | Tile models drawn from the top, front and side, without the game | Crowns, doors |
-| `rooms` | Rooms of a merged interior set, unfurnished and furnished, as tiles of their own (srx02; `tools/tilekit/rooms.py` has the spec, `walls.py` the rooms drawn here, `ceilings.py` their lamps and beams; a new piece's front goes into `fronts.json` after it is looked at) | srx02, stage 5 |
+| `rooms` | Rooms of a merged interior set, unfurnished and furnished, as tiles of their own (srx02; `tools/tilekit/rooms.py` has the spec, `walls.py` the rooms drawn here, `ceilings.py` their lamps and beams; a new piece's front goes into `fronts.json` after it is looked at); a spec's `effects` are emitters (`effects.py`: candle flame, fire, embers, motes, glimmer); every doorway drawn 2 m wide or less gets a generic door hook, and a piece rests on furniture, hangs on its wall or hangs from the ceiling) | srx02, stage 5 |
+| `door_names` | `python -B -m tools.tilekit.door_names`: names each door of the Toolset's appearance list, "<category>: <door>", from `docs/tilesets/doors/names.json` (TLK strings and the `genericdoors.2da` Name column) | srx02, doors |
 | `props` | Every kit piece rendered in Blender (four threads), by day and night | Kit rework |
 
 ## Specs

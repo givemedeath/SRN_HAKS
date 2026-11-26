@@ -357,12 +357,16 @@ def conformed(triangles):
     points = np.unique(np.vstack([corners for corners, _ in faces]), axis=0); done = []
     while faces:
         corners, surface = faces.pop()
+        if np.linalg.norm(np.cross(corners[1] - corners[0], corners[2] - corners[0])) <= 1e-7:
+            continue  # no area: left out below in any case, and a sliver split at its own corners never ends (2026-11-26)
         for index in range(3):
             start, end = corners[index], corners[(index + 1) % 3]; along = end - start; length = np.linalg.norm(along)
             reach = (points - start) @ along / length ** 2; off = np.linalg.norm(points - start - reach[:, None] * along, axis=1)
-            on = np.flatnonzero((off < 1e-4) & (reach > 1e-6 / length + 1e-5) & (reach < 1 - 1e-5))
-            if len(on):
-                middle = points[on[0]]; apex = corners[(index + 2) % 3]
+            on = np.flatnonzero((off < 1e-4) & (reach > 1e-6 / length + 1e-5) & (reach < 1 - 1e-5)); apex = corners[(index + 2) % 3]
+            area = lambda a, b: np.linalg.norm(np.cross(b - a, apex - a))
+            on = [one for one in on if area(start, points[one]) > 1e-7 and area(points[one], end) > 1e-7]  # a point a millimetre from a corner split two faces back and forth for ever (2026-11-26)
+            if on:
+                middle = points[on[0]]
                 faces += [(np.array([start, middle, apex]), surface), (np.array([middle, end, apex]), surface)]
                 break
         else:

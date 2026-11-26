@@ -1,0 +1,139 @@
+{
+ "id": "r08",
+ "category": "Home",
+ "name": "Barrens Shack",
+ "note": "Floorplan R08: one grimy room in the Barrens, a sagging couch and a crate table before an old trid, a burn barrel, and a sleeping nook behind a partition.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     3.0,
+     3.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tfb_subwayf1",
+    "wall": "tfb01_floor",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      6.0,
+      6.0
+     ],
+     "to": [
+      10,
+      6.0
+     ],
+     "doors": [
+      {
+       "at": 1.2,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      6.0,
+      5.9
+     ],
+     "to": [
+      6.0,
+      10
+     ]
+    }
+   ],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "effects": [
+  {
+   "effect": "fire",
+   "at": [
+    1.4,
+    8.6,
+    0.88
+   ]
+  },
+  {
+   "effect": "embers",
+   "at": [
+    1.4,
+    8.6,
+    1.0
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    2.4,
+    3.6,
+    0.853
+   ]
+  }
+ ],
+ "lamps": [
+  {
+   "kind": "dome",
+   "at": [
+    3.0,
+    3.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    8.0,
+    8.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    5.0,
+    1.6
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "purp_bedroll", "at": [8.8, 8.292, 0.0], "turn": 0},
+  {"piece": "jz_cbbox_007", "at": [7.0, 9.308, 0.0], "turn": 0},
+  {"piece": "jz_lamp02", "at": [7.0, 9.301, 0.6], "turn": 0},
+  {"piece": "xrp_couch01", "at": [0.988, 3.647, 0.0], "faces": "e"},
+  {"piece": "jz_cbbox_007", "at": [2.4, 3.608, 0.0], "turn": 0},
+  {"piece": "jz_cbbox_007", "at": [3.8, 3.608, 0.0], "turn": 0},
+  {"piece": "p_tv02", "at": [3.8, 3.6, 0.6], "faces": "w"},
+  {"piece": "ek_gr_fire", "at": [1.4, 8.6, 0.0], "turn": 0},
+  {"piece": "jz_shelves02", "at": [3.399, 9.516, 0.0], "faces": "s"},
+  {"piece": "jz_boites_009", "at": [3.393, 9.521, 0.99], "turn": 0},
+  {"piece": "ek_hs_bags", "at": [8.599, 1.2, 0.0], "turn": 0},
+  {"piece": "psi_barrel10", "at": [9.2, 4.4, 0.0], "turn": 0},
+  {"piece": "m3_cnd01", "at": [2.4, 3.6, 0.601], "turn": 0}
+ ],
+ "placeLater": [{"what": "a battered door in the opening"}, {"what": "the crates and shelves as containers"}]
+}

@@ -17,6 +17,8 @@ A room's spec, `docs/tilesets/<set>/rooms/<id>.json`:
    drawn once across a picture of its own, and a screen on it lit by itself;
  lamps, beams: what hangs from the ceiling (`ceilings`), each on its `tile`;
  props, what stands on another after it: [{tile, piece, at: [x, y, z], faces: a compass point or turn: degrees, scale, obstacle}];
+ effects: [{tile, effect, at: [x, y, z]}] emitters of the furnished room (`effects.EFFECTS`): a candle's flame, a
+   brazier's fire and embers, motes over a magic circle (user, 2026-11-26: emitter effects in the magical rooms);
  placeLater: [what a builder places as a blueprint: containers, terminals, cameras]}.
 `tile` counts the group's tiles from 0 as the set file does, from the south-west; it may be left out of a room of one.
 A spec that says `"inRoom": true` gives `at` in metres from the room's south-west corner, and no `tile`.
@@ -29,7 +31,7 @@ taken for those of props that were gone (user, 2026-11-24). A node with no `shad
 
 Refused: a piece that is no row of placeables.2da, or that names a texture no pack holds; a piece whose front is not
 recorded, or a seat or a cabinet recorded back to front (`leaning`, `bare`); a seat out of line with the table it faces (`misplaced`);
-a piece that hangs over the edge of what it stands on (`unrested`) or off its wall (`unhung`); a walkmesh with cracks; a tile whose own floor is in parts, or that is
+a piece that hangs over the edge of what it stands on, or hangs in the air short of the ceiling or off its wall (`unrested`) or off its wall (`unhung`); a walkmesh with cracks; a tile whose own floor is in parts, or that is
 open to the room's next tile in two places; a piece that `faces` a wall (two were put in backwards,
 2026-11-24); furniture that cuts the room in two or stands in its doorway (`_lanes`); a furnished room whose
 walkmesh differs from the unfurnished one anywhere but under its furniture, or at its sides (`_rim`)."""
@@ -43,7 +45,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import ceilings, cuts, detail, geometry, inventory, require, strip, terrain, walls
+from . import ceilings, cuts, detail, effects, geometry, inventory, require, strip, terrain, walls
 from .unique import unique
 
 VARIANTS = (('u', ''), ('f', ', furnished'))
@@ -81,9 +83,11 @@ def read(path):
         require(('faces' in prop) != ('turn' in prop), f'{path.name}: {prop.get("piece")} has one of `faces` and `turn`')
     for prop in spec.get('placeLater', ()):
         require(isinstance(prop, dict) and prop.get('what'), f'{path.name}: `placeLater` lists {{what, ...}}')
+    for one in spec.get('effects', ()):
+        require(one.get('effect') in effects.EFFECTS, f'{path.name}: no effect {one.get("effect")}: one of ' + ', '.join(effects.EFFECTS))
     if spec.get('inRoom'):
         columns, rows = columns_rows = (spec['shell'].get('box') or spec)['columns'], (spec['shell'].get('box') or spec)['rows']
-        for prop in [*spec.get('props', ()), *spec.get('lamps', ()), *spec.get('beams', ())]:
+        for prop in [*spec.get('props', ()), *spec.get('lamps', ()), *spec.get('beams', ()), *spec.get('effects', ())]:
             middle = prop['at'] if 'at' in prop else [(prop['rect'][axis] + prop['rect'][axis + 2]) / 2 for axis in (0, 1)]
             column, row = (int(middle[axis] // walls.TILE) for axis in range(2)); require('tile' not in prop and column in range(columns) and row in range(rows), f'{path.name}: what is at {middle} is not in the room of {columns_rows}')
             prop['tile'] = row * columns + column; corner = (column * walls.TILE + geometry.HALF, row * walls.TILE + geometry.HALF)
@@ -126,14 +130,16 @@ def model_name(prefix, room, variant, index):
 
 
 def records(rooms, sets, prefix):
-    """[{room, name (of the group), display, set, rows, columns, tiles: [(the source tile, the new model) or None]}] of
-    both variants of each room: what a merge adds to the set."""
+    """[{room, name (of the group), display, set, rows, columns, tiles: [(the source tile, the new model) or None], paths,
+    hooks: [[(x, y, orientation) of each of its doorways' door hooks] of each tile]}] of both variants of each room: what a
+    merge adds to the set."""
     made = []
     for room, spec in rooms.items():
         require(spec['shell']['set'] in sets, f'{room}: {spec["shell"]["set"]} is no family of the set')
         rows, columns, members, _ = shell_of(spec, sets[spec['shell']['set']]); plan = walls.Plan(spec) if 'box' in spec['shell'] else None
         for variant, said in VARIANTS:
             made.append({'room': room, 'name': f'{room}_{variant}', 'display': SHOWN.format(**spec) + said, 'set': spec['shell']['set'], 'rows': rows, 'columns': columns, 'paths': [walls.path(plan.sides(index)) for index in range(len(members))] if plan else [None] * len(members),
+                         'hooks': [plan.hooks(index) for index in range(len(members))] if plan else [[]] * len(members),
                          'tiles': [(member, model_name(prefix, room, variant, index)) if member >= 0 else None for index, member in enumerate(members)]})
     return made
 
@@ -283,14 +289,35 @@ def _laid(prop, pieces):
     return np.array(geometry.faces_of(geometry.baked(pieces[prop['piece']], detail.turned(prop['at'], turn, prop.get('scale', 1.0)))), float).reshape(-1, 3, 3)
 
 
-def unrested(props, pieces):
+def _ceiled(text, spot):
+    """Whether a level face of the tile `text` (its ceiling) is within `HUNG` above or below `spot`, over its x and y."""
+    if text is None:
+        return False
+    faces = np.array(geometry.faces_of(geometry.baked(geometry.parse(text)[2])), float).reshape(-1, 3, 3)
+    normal = np.cross(faces[:, 1] - faces[:, 0], faces[:, 2] - faces[:, 0]); length = np.linalg.norm(normal, axis=1)
+    for a, b, c in faces[(np.abs(normal[:, 2]) > 0.9 * length) & (length > 1e-9)]:
+        whole = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+        second = ((spot[0] - a[0]) * (c[1] - a[1]) - (spot[1] - a[1]) * (c[0] - a[0])) / whole; third = ((b[0] - a[0]) * (spot[1] - a[1]) - (b[1] - a[1]) * (spot[0] - a[0])) / whole
+        if second >= -1e-6 and third >= -1e-6 and second + third <= 1 + 1e-6 and abs(a[2] + second * (b[2] - a[2]) + third * (c[2] - a[2]) - spot[2]) <= HUNG:
+            return True
+    return False
+
+
+def unrested(props, pieces, text=None):
     """[what is wrong] with what stands on other furniture: at least `RESTED` of its foot is on it (a phone hung half
-    off a desk: user, 2026-11-25). Its foot is the hull of what is within 3 cm of its lowest point."""
+    off a desk: user, 2026-11-25). Its foot is the hull of what is within 3 cm of its lowest point. A piece whose top
+    meets the ceiling of the unfurnished tile `text` hangs from it (herbs and flasks on cords, 2026-11-26), and one that
+    `faces` away from a wall its back meets hangs on that wall (a shelf on brackets)."""
     stood = [(prop, _laid(prop, pieces)) for prop in props]; wrong = []
     for prop, mesh in stood:
         points = mesh.reshape(-1, 3); low = points[:, 2].min() if len(points) else 0
         if low <= FLOOR or prop['at'][2] <= FLOOR:
             continue
+        top = points[points[:, 2] > points[:, 2].max() - 0.03]
+        if _ceiled(text, [*top[:, :2].mean(0), points[:, 2].max()]):
+            continue
+        if text is not None and 'faces' in prop and (gap := _gap(prop, mesh, _walls(text))) is not None and abs(gap) <= HUNG:
+            continue  # hung on its wall at a height (a shelf on brackets)
         foot = points[points[:, 2] < low + 0.03][:, :2]
         corners = np.array(cuts.hull([tuple(point) for point in foot.round(4).tolist()]), float)
         if len(corners) < 3:
@@ -314,20 +341,31 @@ def unrested(props, pieces):
     return wrong
 
 
+def _gap(prop, mesh, wall):
+    """Metres from the back of a piece that `faces` somewhere to the tile's face behind it (`wall`: its triangles), or
+    None where no face is within half a metre behind it."""
+    points = mesh.reshape(-1, 3); way = -np.array([*direction(COMPASS[prop['faces']]), 0.0]); deep = points @ way; back = points[deep > deep.max() - 0.03]; spot = back.mean(0); spot = spot + way * (deep.max() - spot @ way)
+    first, second = wall[:, 1] - wall[:, 0], wall[:, 2] - wall[:, 0]; across = np.cross(way, second); whole = (first * across).sum(1); safe = np.where(np.abs(whole) > 1e-9, whole, 1.0)
+    away = spot - wall[:, 0]; u = (away * across).sum(1) / safe; turned = np.cross(away, first); v = (turned @ way) / safe; gap = (second * turned).sum(1) / safe
+    met = gap[(np.abs(whole) > 1e-9) & (u >= -1e-6) & (v >= -1e-6) & (u + v <= 1 + 1e-6) & (np.abs(gap) < 0.5)]
+    return float(met[np.argmin(np.abs(met))]) if len(met) else None
+
+
+def _walls(text):
+    return np.array(geometry.faces_of(geometry.baked(geometry.parse(text)[2])), float).reshape(-1, 3, 3)
+
+
 def unhung(props, pieces, text):
     """[what is wrong] with what hangs on a wall: its back is within `HUNG` of it (posters and white boards hung 8 to
     20 cm before theirs, 2026-11-25). text: the unfurnished tile."""
-    wall = np.array(geometry.faces_of(geometry.baked(geometry.parse(text)[2])), float).reshape(-1, 3, 3); wrong = []
+    wall = _walls(text); wrong = []
     for prop in props:
         mesh = _laid(prop, pieces) if 'faces' in prop else np.zeros((0, 3, 3))
         if not len(mesh) or prop['at'][2] > FLOOR or mesh[:, :, 2].min() < HANGS:
             continue
-        points = mesh.reshape(-1, 3); way = -np.array([*direction(COMPASS[prop['faces']]), 0.0]); deep = points @ way; back = points[deep > deep.max() - 0.03]; spot = back.mean(0); spot = spot + way * (deep.max() - spot @ way)
-        first, second = wall[:, 1] - wall[:, 0], wall[:, 2] - wall[:, 0]; across = np.cross(way, second); whole = (first * across).sum(1); safe = np.where(np.abs(whole) > 1e-9, whole, 1.0)
-        away = spot - wall[:, 0]; u = (away * across).sum(1) / safe; turned = np.cross(away, first); v = (turned @ way) / safe; gap = (second * turned).sum(1) / safe
-        met = gap[(np.abs(whole) > 1e-9) & (u >= -1e-6) & (v >= -1e-6) & (u + v <= 1 + 1e-6) & (np.abs(gap) < 0.5)]
-        if not len(met) or abs(met[np.argmin(np.abs(met))]) > HUNG:
-            wrong.append(f'{prop["piece"]} at {prop["at"]}: ' + (f'its back is {met[np.argmin(np.abs(met))] * 100:.0f} cm off its wall' if len(met) else 'there is no wall behind it'))
+        gap = _gap(prop, mesh, wall)
+        if gap is None or abs(gap) > HUNG:
+            wrong.append(f'{prop["piece"]} at {prop["at"]}: ' + (f'its back is {gap * 100:.0f} cm off its wall' if gap is not None else 'there is no wall behind it'))
     return wrong
 
 
@@ -524,9 +562,10 @@ def made(room, spec, set_text, text_of, pieces, prefix):
         ways = outer if 'box' not in spec['shell'] else outer & crossed(set_text, member)  # a tile a drawn room is like may itself be open to its group's next tile
         require(_alike({one for one in rim if one[0] in outer}, {one for one in _rim(source) if one[0] in ways}), f'{names["u"]}: its floor meets the room\'s sides elsewhere than {model}\'s')
         bare = _floor(text); props = [prop for prop in spec.get('props', ()) if prop.get('tile', 0) == index]
+        fx = [{'piece': one['effect'], 'at': [float(value) for value in one['at']]} for one in spec.get('effects', ()) if one.get('tile', 0) == index]
         full, cut = (terrain.renamed(one, {names['u']: names['f']}) for one in (text, wok))
-        if props:
-            known = {prop['piece']: pieces[prop['piece']] for prop in props}; wrong = misplaced(props, known) + unrested(props, known) + unhung(props, known, text); require(not wrong, f'{names["f"]}: ' + '; '.join(wrong))
+        if props or fx:
+            known = {prop['piece']: pieces[prop['piece']] for prop in props}; wrong = misplaced(props, known) + unrested(props, known, text) + unhung(props, known, text); require(not wrong, f'{names["f"]}: ' + '; '.join(wrong))
             boxes = []
 
             def lay(new, footprints, uncut=cut):  # its floor is laid again round the furniture, from the unfurnished tile's; cutting the old one first took minutes a tile
@@ -534,7 +573,7 @@ def made(room, spec, set_text, text_of, pieces, prefix):
                 if not laid:
                     boxes.extend(tuple(pick(point[axis] for point in polygon) for pick in (min, max) for axis in (0, 1)) for polygon, _, _ in footprints); return cuts.cut_walkmesh(new, uncut, footprints)
                 boxes.extend(laid[2]); return detail.with_walkmesh_of(new, laid[0]), laid[1]
-            full, _, walked, _ = detail.place(full, names['f'], [placement(prop, known[prop['piece']], bare) for prop in props], None, dict(known), wok=cut, lay=lay); cut = walked or cut
+            full, _, walked, _ = detail.place(full, names['f'], [placement(prop, known[prop['piece']], bare) for prop in props] + fx, None, dict(known), wok=cut, lay=lay); cut = walked or cut
             full = terrain.retextured(full, {old.lower(): new for old, new in spec.get('textures', {}).items()})  # a prop's weak picture swapped
             full = unshadowed(full, {node.name.lower() for node in geometry.parse(full)[2] if not detail.is_kit(node.name)} - _quiet(full))
             torn = cracks(full); require(not torn, f'{names["f"]}: its walkmesh is cracked at {torn[:2]}, and nothing walks over a crack'); floor = _floor(full); lost = sorted(bare - _floor(full, SLACK)); gained = sorted(floor - _floor(text, SLACK))

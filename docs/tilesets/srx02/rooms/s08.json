@@ -49,15 +49,15 @@
      "doors": [
       {
        "at": 1.7,
-       "width": 1.2
+       "width": 2.0
       },
       {
        "at": 5.0,
-       "width": 1.2
+       "width": 2.0
       },
       {
        "at": 8.3,
-       "width": 1.2
+       "width": 2.0
       }
      ],
      "bars": "tfb01__metal01"

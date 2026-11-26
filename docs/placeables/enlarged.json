@@ -791,6 +791,7 @@
   "pkt_starmap_00": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
   "pkt_stat01": {"route": "upscale", "size": [1024, 1024], "plain": true, "doubled": 2},
   "pkt_statue": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
+  "pkt_statue3": {"route": "upscale", "size": [1024, 1024], "plain": true, "doubled": 1},
   "pkt_subdroid": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
   "pkt_swpmon01": {"route": "upscale", "size": [256, 256], "plain": true, "doubled": 1},
   "pkt_swpmon02": {"route": "upscale", "size": [256, 256], "plain": true, "doubled": 1},

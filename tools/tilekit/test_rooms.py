@@ -76,10 +76,18 @@ class Made(unittest.TestCase):
         self.assertEqual(rooms.unrested([CHAIR, {**vase, 'at': [-2.15, 0.5, 0.9]}], PIECES), [])  # 5 cm of its 20 over the edge
         self.assertRegex(rooms.unrested([CHAIR, {**vase, 'at': [-2.1, 0.5, 0.9]}], PIECES)[0], 'vase.*% of its foot')  # half off, as a phone hung off a desk
 
+    def test_a_cord_hangs_from_the_ceiling_and_not_short_of_it(self):
+        pieces = {'herbs': piece('herbs', box('herbs', -0.1, 0.1, -0.1, 0.1, 1.0, 2.0))}; ceiling = chr(10).join(['newmodel c', 'beginmodelgeom c', 'node dummy c', '  parent null', 'endnode', *box('ceiling', -5, 5, -5, 5, 3.0, 3.1), 'endmodelgeom c', 'donemodel c'])
+        hung = lambda z: rooms.unrested([{'piece': 'herbs', 'at': [0.0, 0.0, z], 'turn': 0}], pieces, ceiling)
+        self.assertEqual(hung(1.0), []); self.assertRegex(hung(0.8)[0], 'herbs.*0% of its foot')  # its top 20 cm short of the ceiling
+        self.assertRegex(rooms.unrested([{'piece': 'herbs', 'at': [0.0, 0.0, 1.0], 'turn': 0}], pieces)[0], '0% of its foot')  # no tile, no ceiling
+
     def test_what_hangs_off_its_wall(self):
         pieces = {'poster': piece('poster', box('poster', -0.5, 0.5, 0.0, 0.05, 1, 2))}; wall = chr(10).join(['newmodel w', 'beginmodelgeom w', 'node dummy w', '  parent null', 'endnode', *box('wall', -5, 5, 3.0, 3.2, 0, 3), 'endmodelgeom w', 'donemodel w'])
         hung = lambda y: rooms.unhung([{'piece': 'poster', 'at': [0.0, y, 0.0], 'faces': 's', 'front': 's'}], pieces, wall)
         self.assertEqual(hung(2.95), []); self.assertRegex(hung(2.75)[0], '20 cm off its wall'); self.assertRegex(hung(0.0)[0], 'no wall behind it')
+        high = lambda y: rooms.unrested([{'piece': 'poster', 'at': [0.0, y, 1.2], 'faces': 's', 'front': 's'}], pieces, wall)
+        self.assertEqual(high(2.95), []); self.assertRegex(high(2.75)[0], 'poster.*0% of its foot')  # a shelf on brackets meets its wall at any height
 
     def test_a_prop_s_halo_is_not_baked(self):
         nodes = piece('lamp', box('lamp', 0, 1, 0, 1, 0, 1, ('bitmap ek_ad_lamp',)), box('halo', 0, 1, 0, 1, 1, 2, ('bitmap ek_ad_lamp_h',)))

@@ -1,0 +1,157 @@
+{
+ "id": "r09",
+ "category": "Home",
+ "name": "Barrens Home",
+ "note": "Floorplan R09: a Barrens family home of two rooms, a living and sleeping room with a couch, a trid, a bunk and bedrolls, and a tiny kitchen.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 2,
+   "like": [
+    63,
+    64
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     3.0,
+     3.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tfb_subwayf1",
+    "wall": "tfb01_floor",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      16.0,
+      0
+     ],
+     "to": [
+      16.0,
+      10
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 2.0
+      }
+     ]
+    }
+   ],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "effects": [
+  {
+   "effect": "fire",
+   "at": [
+    1.4,
+    9.0,
+    0.88
+   ]
+  },
+  {
+   "effect": "embers",
+   "at": [
+    1.4,
+    9.0,
+    1.0
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    17.6,
+    4.0,
+    1.132
+   ]
+  }
+ ],
+ "lamps": [
+  {
+   "kind": "dome",
+   "at": [
+    3.0,
+    6.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    8.4,
+    4.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    12.5,
+    5.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    18.0,
+    4.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    18.0,
+    8.4
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "xrp_couch01", "at": [0.988, 6.046, 0.0], "faces": "e"},
+  {"piece": "jz_cbbox_007", "at": [2.4, 6.008, 0.0], "turn": 0},
+  {"piece": "jz_cbbox_007", "at": [3.8, 6.008, 0.0], "turn": 0},
+  {"piece": "p_tv02", "at": [3.8, 6.0, 0.6], "faces": "w"},
+  {"piece": "purp_bunk4", "at": [8.184, 8.328, 0.0], "faces": "s"},
+  {"piece": "ek_gr_fire", "at": [1.4, 9.0, 0.0], "turn": 0},
+  {"piece": "jz_shelves02", "at": [2.999, 9.516, 0.0], "faces": "s"},
+  {"piece": "jz_boites_009", "at": [2.994, 9.521, 0.99], "turn": 0},
+  {"piece": "purp_bedroll", "at": [11.0, 8.392, 0.0], "turn": 0},
+  {"piece": "purp_bedroll2", "at": [12.2, 8.392, 0.0], "turn": 0},
+  {"piece": "jz_cbbox_007", "at": [13.4, 9.208, 0.0], "turn": 0},
+  {"piece": "jz_lamp02", "at": [13.4, 9.2, 0.6], "turn": 0},
+  {"piece": "ek_hs_bags", "at": [14.799, 1.0, 0.0], "turn": 0},
+  {"piece": "psi_barrel10", "at": [11.0, 1.2, 0.0], "turn": 0},
+  {"piece": "ek_nb_table", "at": [13.0, 4.6, 0.0], "turn": 0},
+  {"piece": "jz_fridgebig02", "at": [16.808, 9.24, 0.0], "faces": "s"},
+  {"piece": "jz_oldoven01", "at": [17.9, 9.415, 0.0], "faces": "s"},
+  {"piece": "jr_mc_sink", "at": [19.008, 9.263, 0.0], "faces": "s"},
+  {"piece": "jr_mc_cntr", "at": [19.261, 7.404, 0.0], "faces": "w"},
+  {"piece": "jz_mwave01", "at": [19.317, 7.4, 1.08], "faces": "w"},
+  {"piece": "sja_tbl01", "at": [17.606, 4.0, 0.0], "turn": 0},
+  {"piece": "jvb_chair08", "at": [17.6, 3.2, 0.0], "faces": "n"},
+  {"piece": "jvb_chair08", "at": [17.6, 4.8, 0.0], "faces": "s"},
+  {"piece": "m3_cnd01", "at": [17.6, 4.0, 0.88], "turn": 0}
+ ],
+ "placeLater": [{"what": "a battered door in the opening and a curtain or door to the kitchen"}, {"what": "the fridge, oven and shelves as containers"}]
+}

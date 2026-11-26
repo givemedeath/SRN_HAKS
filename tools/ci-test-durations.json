@@ -327,6 +327,7 @@
   "tools/tilekit/test_crown.py": 4.1,
   "tools/tilekit/test_daylight.py": 14.0,
   "tools/tilekit/test_compiled.py": 0.8,
+  "tools/tilekit/test_door_names.py": 0.5,
   "tools/tilekit/test_doorset.py": 0.6,
   "tools/tilekit/test_detail.py": 0.8,
   "tools/tilekit/test_doors.py": 0.1,

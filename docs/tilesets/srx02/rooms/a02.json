@@ -1,0 +1,231 @@
+{
+ "id": "a02",
+ "category": "Magical",
+ "name": "Ritual Lodge",
+ "note": "Floorplan A02: a ring of candles and rune stones on a great rug before an altar, motes rising over the circle, braziers either side, kneeling figures, urns, herbs and bones hung from the ceiling, and the lodge's books along the walls.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 4.0,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     4.0,
+     4.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tfb01_floor2",
+    "wall": "udp1-blck-gr2",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "effects": [
+  {
+   "effect": "flame",
+   "at": [
+    6.7,
+    5.4,
+    0.252
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    5.85,
+    6.61,
+    0.252
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    4.15,
+    6.61,
+    0.252
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    3.3,
+    5.4,
+    0.252
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    4.15,
+    4.19,
+    0.252
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    5.85,
+    4.19,
+    0.252
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    4.0,
+    9.075,
+    1.382
+   ]
+  },
+  {
+   "effect": "flame",
+   "at": [
+    6.0,
+    9.075,
+    1.382
+   ]
+  },
+  {
+   "effect": "fire",
+   "at": [
+    2.0,
+    8.4,
+    0.8
+   ]
+  },
+  {
+   "effect": "embers",
+   "at": [
+    2.0,
+    8.4,
+    0.95
+   ]
+  },
+  {
+   "effect": "fire",
+   "at": [
+    8.0,
+    8.4,
+    0.8
+   ]
+  },
+  {
+   "effect": "embers",
+   "at": [
+    8.0,
+    8.4,
+    0.95
+   ]
+  },
+  {
+   "effect": "motes",
+   "at": [
+    5.0,
+    5.4,
+    0.3
+   ]
+  },
+  {
+   "effect": "glimmer",
+   "at": [
+    5.0,
+    9.075,
+    1.3
+   ]
+  }
+ ],
+ "lamps": [
+  {
+   "kind": "dome",
+   "at": [
+    5.0,
+    5.4
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.0,
+    8.6
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "dome",
+   "at": [
+    2.0,
+    2.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "dome",
+   "at": [
+    8.0,
+    2.0
+   ],
+   "under": 4.0
+  }
+ ],
+ "props": [
+  {"piece": "jvb_carpt01", "at": [5.0, 5.4, 0.0], "turn": 90, "obstacle": false, "scale": 0.9},
+  {"piece": "m3_cnd01", "at": [6.7, 5.4, 0.0], "turn": 0},
+  {"piece": "m3_cnd01", "at": [5.85, 6.61, 0.0], "turn": 0},
+  {"piece": "m3_cnd01", "at": [4.15, 6.61, 0.0], "turn": 0},
+  {"piece": "m3_cnd01", "at": [3.3, 5.4, 0.0], "turn": 0},
+  {"piece": "m3_cnd01", "at": [4.15, 4.19, 0.0], "turn": 0},
+  {"piece": "m3_cnd01", "at": [5.85, 4.19, 0.0], "turn": 0},
+  {"piece": "lpat_wic_rstones", "at": [4.999, 5.243, 0.0], "turn": 0, "obstacle": false},
+  {"piece": "p_x4x4altar01", "at": [5.0, 9.077, 0.0], "faces": "s"},
+  {"piece": "m3_cnd01", "at": [4.0, 9.075, 1.13], "turn": 0},
+  {"piece": "m3_cnd01", "at": [6.0, 9.075, 1.13], "turn": 0},
+  {"piece": "p_x5x5crystal02", "at": [5.0, 9.075, 1.13], "turn": 0},
+  {"piece": "lpat_wic_bowls2", "at": [4.448, 9.079, 1.13], "turn": 0, "scale": 0.5},
+  {"piece": "lpat_wic_jars1", "at": [5.546, 9.087, 1.13], "turn": 0, "scale": 0.8},
+  {"piece": "lpat_wic_botls2", "at": [3.735, 9.126, 1.13], "turn": 0, "scale": 0.5},
+  {"piece": "lpat_wic_botls1", "at": [6.247, 9.087, 1.13], "turn": 0, "scale": 0.5},
+  {"piece": "pkt_m03x17", "at": [2.006, 8.402, 0.0], "turn": 0},
+  {"piece": "pkt_m03x17", "at": [8.005, 8.402, 0.0], "turn": 0},
+  {"piece": "pkt_statkt1", "at": [1.178, 2.208, 0.0], "faces": "e"},
+  {"piece": "pkt_statkt1", "at": [8.822, 2.193, 0.0], "faces": "w"},
+  {"piece": "jvb_astat01", "at": [0.601, 9.3, 0.0], "turn": 0},
+  {"piece": "jvb_astat01", "at": [9.401, 9.3, 0.0], "turn": 0},
+  {"piece": "jvb_bookc01", "at": [0.475, 5.4, 0.0], "faces": "e"},
+  {"piece": "jvb_bookc01", "at": [9.525, 5.4, 0.0], "faces": "w"},
+  {"piece": "lpat_wic_herbs3", "at": [0.622, 5.382, 2.484], "turn": 90, "scale": 0.6},
+  {"piece": "lpat_wic_herbs4", "at": [9.123, 5.409, 2.484], "turn": 90, "scale": 0.6},
+  {"piece": "lpat_wic_hbones2", "at": [1.996, 6.902, 2.561], "turn": 0, "scale": 0.45},
+  {"piece": "lpat_wic_hbones1", "at": [8.004, 6.873, 2.522], "turn": 0, "scale": 0.6},
+  {"piece": "lpat_wic_hpots1", "at": [0.581, 7.371, 2.628], "turn": 0, "scale": 0.5},
+  {"piece": "lpat_wic_hpots2", "at": [9.382, 7.371, 2.628], "turn": 0, "scale": 0.5},
+  {"piece": "lpat_wic_urn5", "at": [0.55, 0.55, 0.0], "turn": 0, "scale": 0.7},
+  {"piece": "lpat_wic_urn6", "at": [1.1, 0.494, 0.0], "turn": 0, "scale": 0.6},
+  {"piece": "lpat_wic_urn2", "at": [9.45, 0.55, 0.0], "turn": 0, "scale": 0.7},
+  {"piece": "lpat_wic_urns2", "at": [8.822, 0.627, 0.0], "turn": 0, "scale": 0.7},
+  {"piece": "lpat_wic_wbasket", "at": [0.67, 3.685, 0.0], "turn": 90, "scale": 0.7},
+  {"piece": "lpat_wic_sack3", "at": [9.417, 3.745, 0.0], "turn": 0, "scale": 0.6}
+ ],
+ "placeLater": [{"what": "a heavy door in the opening"}, {"what": "the altar and braziers as things to use"}]
+}

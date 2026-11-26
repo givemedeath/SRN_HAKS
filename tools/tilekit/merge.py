@@ -26,7 +26,7 @@ import re
 from collections import deque
 from pathlib import Path
 
-from . import inventory, joins, require, rooms
+from . import inventory, joins, require, rooms, walls
 from .terrain import _sections
 
 END = '\r\n'
@@ -219,6 +219,11 @@ def merged_set(sets, names, spec, joined=(), numbers=(), roomed=()):
                 if found.group(2):
                     raw = re.sub(r'(?m)^Type=(\d+)', lambda said: f'Type={doors.get(said.group(1), said.group(1))}', raw)
                 tiles.setdefault(at, []).append(_crlf(_tile(raw, at, terrains.get(name, {}), crossers.get(name, {}), f'{name} tile {source}')).rstrip(END) + END)
+        for one, hooks in zip(room['tiles'], room.get('hooks') or [()] * len(room['tiles'])):  # and a door hook in each of its own doorways
+            if one and hooks:
+                at = number[(ROOM, one[1])]; own = tiles[at]; had = int(re.search(r'(?m)^Doors=(\d+)', own[0]).group(1))
+                own[0] = re.sub(r'(?m)^Doors=\d+', f'Doors={had + len(hooks)}', own[0], count=1)
+                own += [f'[TILE{at}DOOR{had + index}]{END}Type={walls.GENERIC}{END}X={x:g}{END}Y={y:g}{END}Z=0{END}Orientation={turn}{END}' for index, (x, y, turn) in enumerate(hooks)]
     # groups
     shown = {(entry['set'], entry['name']): entry for entry in names['groups']}; groups, taken, begun, met = [], set(), set(), {}
     for name in order:

@@ -5830,6 +5830,12 @@
       "tools/tilekit/kit.py",
       "tools/tilekit/lamps.py"
     ],
+    "tools/tilekit/door_names.py": [
+      "docs/tilesets/doors/names.json",
+      "srn_tlk/allocations.json",
+      "srn_tlk/srn.tlk.json",
+      "tools/tilekit/inventory.py"
+    ],
     "tools/tilekit/doors.py": [
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py"
@@ -5897,7 +5903,8 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
       "tools/tilekit/rooms.py",
-      "tools/tilekit/terrain.py"
+      "tools/tilekit/terrain.py",
+      "tools/tilekit/walls.py"
     ],
     "tools/tilekit/merged.py": [
       "tools/tilekit/lamps.py"
@@ -5966,6 +5973,7 @@
       "tools/tilekit/compiled.py",
       "tools/tilekit/cuts.py",
       "tools/tilekit/detail.py",
+      "tools/tilekit/effects.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
@@ -6054,6 +6062,9 @@
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/kit.py"
+    ],
+    "tools/tilekit/test_door_names.py": [
+      "tools/tilekit/door_names.py"
     ],
     "tools/tilekit/test_doors.py": [
       "tools/tilekit/__init__.py",
@@ -6505,6 +6516,10 @@
     "tools/tilekit/crown.py": [
       "srn_t_common"
     ],
+    "tools/tilekit/door_names.py": [
+      "srn_2da",
+      "srn_tlk"
+    ],
     "tools/tilekit/doors.py": [
       "srn_2da",
       "srn_door"
@@ -6595,6 +6610,10 @@
     ],
     "tools/tilekit/test_detail.py": [
       "srn_t_common"
+    ],
+    "tools/tilekit/test_door_names.py": [
+      "srn_2da",
+      "srn_tlk"
     ],
     "tools/tilekit/test_doors.py": [
       "srn_2da",
@@ -7040,6 +7059,7 @@
     "tools/tilekit/test_crown.py",
     "tools/tilekit/test_daylight.py",
     "tools/tilekit/test_detail.py",
+    "tools/tilekit/test_door_names.py",
     "tools/tilekit/test_doors.py",
     "tools/tilekit/test_doorset.py",
     "tools/tilekit/test_effects.py",

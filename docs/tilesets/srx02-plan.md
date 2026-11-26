@@ -536,6 +536,43 @@ Industrial batch's, no earlier number moved.
 - **Faster walk runs:** `output/_walkx.py` walks a batch in one client run; the Troll starts as soon as every Human has
   walked its route and the run ends once every point is logged (Medical: 163 s to 113 s).
 
+## Stage 8, Magical batch and Barrens homes (2026-11-26)
+
+A01 talismonger shop, A02 ritual lodge, A03 enchanting lab, and two Barrens homes the user asked for: R08 shack (1x1)
+and R09 home (1x2, with a tiny kitchen). 12 tiles numbered after the Medical batch's, no earlier number moved.
+- **Small props:** 60 of Lady Patricia's alchemy and wicca placeables (Neverwinter Vault; the user approved the
+  download) are in `srn_placeable` as rows 22918–22977, `[lpat]`: bottles, flasks, glassware, specimen jars, wall
+  shelves, hanging herbs, bones, flasks and pots, bowls, sacks, urns, cauldrons and rune stones. Textures other than the
+  packs' own are copies under `lpx_` names, so nothing of the game's is overridden (`docs/placeables/lpat-import.json`,
+  `PROVENANCE.md`). They are scaled down in the rooms: the packs draw a bottle half a metre tall.
+- **Emitters:** a room spec's `effects` puts emitters in its tiles (`tools/tilekit/effects.py`): a flame on every
+  candle, fire and embers in the braziers, the crucible and the Barrens burn barrels, slow motes over the lodge's
+  ritual circle and a glimmer over each crystal and focus. A prop's own emitters are not baked, so these stand in.
+- **What hangs:** a piece whose top meets the ceiling hangs from it (herbs, flasks and pots on cords), and a piece
+  whose back meets its wall hangs on it at any height (a shelf on brackets); `unrested` refused both before. Over the
+  floor a hanging piece clears 2.5 m, so they are scaled to fit or hung over furniture.
+- **Floors:** the shop and lodge were drawn with `tfb01_floor01`, which is near black (mean 23 of 255); they now have
+  wooden planks and dark slate.
+- **Pictures:** `pkt_statue3` (the lodge's kneeling figures) was enlarged. The vault pictures passed the texel test.
+- **Walked** by a Human and a Troll, 49 points each: all reached once three route points placed inside furniture were moved.
+- **Triangles** a furnished room: 10.9k (shack) to 32.3k (shop).
+- **Views:** `review-magical.json` (bird's eye and eye level; `output/tilekit/mag1`).
+- **Not done:** palette blueprints for the `[lpat]` rows (there is no Magic category yet); Toolset check.
+
+## Doors (2026-11-26)
+
+"Make sure not to forget about all the doors" (user): every doorway a room draws is 2 m wide, the game's generic door,
+and gets a door hook of type 0 (Generic) at its middle, the leaf along the wall: 220 hooks on 114 room tiles. The
+doorways were widened in every room, and those that then ran into a crossing wall were moved; a corridor a 2 m door
+opens into is at least 2.2 m (R03, R07, O08's passage). `walls.Plan` now refuses a doorway whose casing runs into
+another wall; a doorway a millimetre short of a wall's end had hung `joins.conformed` splitting two faces back and
+forth for ever, which it now refuses to do.
+
+"Classify and rename all the doors in the 2da palette" (user): `docs/tilesets/doors/names.json` names each of the 133
+doors of `genericdoors.2da` "<category>: <door>" (Home, Office, Shop, Garage, Industrial, Security, Gate, Curtain,
+Utility, Sci-Fi, Fantasy) from a picture of each model; `python -B -m tools.tilekit.door_names` writes the TLK strings
+and the Name column. The project's own door set (rows 1094–1103) keeps its strings, which now carry the category.
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record
