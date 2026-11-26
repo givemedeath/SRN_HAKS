@@ -223,7 +223,10 @@ def tone(colours):
     return np.stack([0.25 * value[:, 0], 100 * value[:, 1] / light, 100 * value[:, 2] / light], axis=1)
 
 
-def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sample=200000):
+FAINT = 0.1  # of `materials`' least share: the smallest peak taken for a material where larger ones do not make up the count
+
+
+def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sample=200000, faint=False):
     """The materials of an outfit, from the colours of all its texels: {`tones`, `colours`, `light`}, each one per material.
 
     A source drawn in flat tones has one peak per material in the histogram of its colours (in `tone` space,
@@ -231,7 +234,8 @@ def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sampl
     it, the weights smoothed over the cells around; the `count` heaviest peaks start a k-means, each from the
     middle of what climbs to it. `tones` are the k-means' centres, `colours` the middle colour of each material
     and `light` its middle lightness, the material most of the colours belong to first. A peak with less than
-    `least` of the colours is not a material, and
+    `least` of the colours is not a material (with `faint` a smaller one is, down to `FAINT` of that, where
+    there are not `count` without it), and
     fewer than `count` peaks is an error: the source does not show that many materials."""
     colours = np.asarray(colours, float).reshape(-1, 3)
     require(len(colours), 'No texel has a colour')
@@ -246,7 +250,14 @@ def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sampl
     while not np.array_equal(peak, peak[peak]):
         peak = peak[peak]
     share = np.bincount(peak, weights=counts, minlength=len(cells)) / len(some)
-    heaviest = [number for number in np.argsort(-share, kind='stable')[:count] if share[number] >= least]
+    # An accent is small: a boot's laces and straps were 1% of Street Casual's texels and no material at `least`
+    # (2026-11-25). Where the colours do not show `count` materials that large, smaller peaks are taken, down to
+    # `FAINT` of `least` and no further than it takes, where the brief says a material is small (`faint`): without
+    # its word a tone on a hundredth of the texels is a mark, not a material.
+    for floor in ((least, least / 3, least * FAINT) if faint else (least,)):
+        heaviest = [number for number in np.argsort(-share, kind='stable')[:count] if share[number] >= floor]
+        if len(heaviest) == count:
+            break
     require(len(heaviest) == count, f'The colours show {len(heaviest)} materials, not {count}')
     mine = peak[inverse.reshape(-1)]
     centres = np.array([some[mine == number].mean(axis=0) for number in heaviest])

@@ -935,7 +935,8 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     mark('lay out, colour and relief')
     # what the torso wears over a sleeve is drawn as the sleeve's cloth, with the sleeve's closings
     if 'chest' in parts:
-        first = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), len(brief.baked(document)))
+        first = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), len(brief.baked(document)),
+                                  faint=brief.faint(document))
         chest = parts['chest']
         seen = np.where(chest['covered'], texture.labels(chest['rgb'].reshape(-1, 3), first['tones']).reshape(chest['covered'].shape), -1)
         others = texture.edge_materials(seen, texture.face_texels(chest['uv'], chest['f'], made['chest'] == split.CLOSING, len(chest['rgb'])))
@@ -1273,8 +1274,18 @@ def tucked(parts, bones, contract=None, joints=TUCKED, say=lambda *_: None):
             if not out.any():
                 continue
             to = samples[index[out]]
-            v = v.copy()
+            before, v = v, v.copy()
             v[which[out]] = to + TUCK * (to - v[which[out]]) / far[out, None]
+            # Two points brought to one place leave a triangle with two corners at one point, which the model compiler
+            # drops (three of an upper arm's, 2026-11-25): the corners of such a triangle go a share of the way back to
+            # where they were, a larger one until none is left, and all of it at the last.
+            for share in (0.05, 0.1, 0.2, 0.4, 1.0):
+                corners = v[f]
+                thin = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2).min(axis=1) < 2 * POINT
+                back = np.intersect1d(np.unique(f[thin]), which[out])
+                if not len(back):
+                    break
+                v[back] = v[back] + share * (before[back] - v[back])
             parts[name] = {**part, 'v': v.astype(np.asarray(part['v']).dtype)}
             moved[name] = max(moved.get(name, 0.0), float(far[out].max()))
             say(f'{name} at the {key[0]}: {int(out.sum())} points of what closes it brought in under the outfit beside it, from up to {far[out].max() * 100:.1f} cm outside')
@@ -1465,7 +1476,7 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None,
     hold are drawn side by side in `workers` processes (`worked`)."""
     count, parts = len(brief.baked(document)), {name: parts[name] for name in sorted(parts)}
     size = lambda part: len(part['rgb'])
-    found = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
+    found = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count, faint=brief.faint(document))
     worn = brief.worn(document, found, cut=True)  # the brief's material for each the colours show: its kind is the brief's to say
     kinds = [material['kind'] for material in worn]  # what each is: how it wears
     tints = [brief.tinted(material) for material in worn]  # and the kind whose channels it is tinted on, another's where the brief says so
