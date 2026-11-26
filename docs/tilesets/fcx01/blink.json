@@ -1,0 +1,20 @@
+{
+ "schemaVersion": 1,
+ "kind": "tilekit-blink",
+ "note": "The arcology's wall console (imp_modules_id5; two stand in each of fcx01_m01_02 and fcx01_m01_11). User, 2026-11-24: the panel needs a few glowing and blinking lights. Its steady lights are its glow map (materials.json: the cyan rack lines, the cream readout bars, the blue keys). The blinking ones are lamp panes over the four status squares, six of the small indicators of the pale strip and the dial's hub, blinked by the first tile loop, which the set has on for both tiles. Boxes are in 0-1 of the picture as it is drawn, the top first. The lamps draw the console's plain picture (impmodulesid5, which has no material of that name), so each shows in its own colour; the patch is the middle of a cream bar.",
+ "texture": "imp_modules_id5",
+ "lamp": "impmodulesid5",
+ "patch": [0.4922, 0.4531, 0.4941, 0.4648],
+ "loop": "animloop01",
+ "period": 6.0,
+ "lift": 0.005,
+ "lights": {
+  "status red": {"boxes": [[0.8604, 0.5078, 0.8701, 0.5254], [0.8867, 0.5078, 0.8975, 0.5254]], "colour": [1.0, 0.12, 0.06], "on": [[0.0, 0.5], [1.0, 1.5], [2.0, 2.5]]},
+  "status amber": {"boxes": [[0.8730, 0.5078, 0.8838, 0.5254]], "colour": [1.0, 0.6, 0.1], "on": [[3.0, 5.5]]},
+  "status green": {"boxes": [[0.9004, 0.5078, 0.9102, 0.5254]], "colour": [0.15, 1.0, 0.3], "on": [[0.5, 2.9], [4.0, 5.0]]},
+  "strip red": {"boxes": [[0.5664, 0.6465, 0.5723, 0.6533], [0.5859, 0.6465, 0.5918, 0.6533]], "colour": [1.0, 0.1, 0.05], "on": [[0.25, 0.75], [1.25, 1.75], [3.25, 3.75], [4.25, 4.75]]},
+  "strip amber": {"boxes": [[0.5859, 0.6621, 0.5918, 0.6680], [0.5664, 0.6758, 0.5723, 0.6826]], "colour": [1.0, 0.65, 0.15], "on": [[1.5, 4.0]]},
+  "strip white": {"boxes": [[0.5859, 0.6875, 0.5918, 0.6934], [0.5664, 0.7139, 0.5723, 0.7197]], "colour": [0.7, 0.95, 1.0], "on": [[0.0, 1.0], [2.0, 2.4], [2.8, 3.2], [5.0, 5.9]]},
+  "dial": {"boxes": [[0.8711, 0.6523, 0.8779, 0.6602]], "colour": [1.0, 0.45, 0.1], "on": [[0.0, 3.0]]}
+ }
+}

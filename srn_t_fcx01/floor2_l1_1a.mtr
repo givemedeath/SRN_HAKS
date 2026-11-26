@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 floor2_l1_1a
+texture1 floor2_l1_1a_n
+texture2 floor2_l1_1a_s
+texture3 floor2_l1_1a_r
+texture4 null
+texture5 null

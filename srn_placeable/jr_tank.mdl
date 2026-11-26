@@ -1016,7 +1016,7 @@ node trimesh Lanterns
   diffuse 0.65098 0.709804 0.545098
   specular 0.1 0.1 0.1
   shininess 10
-  bitmap jr_tank_lanterns
+  bitmap tank_lanterns
   render 1
   Shadow 1
   beaming 0

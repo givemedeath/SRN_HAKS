@@ -771,7 +771,7 @@ node trimesh Box01
   diffuse 1 1 1
   specular 0 0 0
   shininess 10
-  bitmap tme_metal01
+  bitmap tmi_metal01
   verts 16
     0.125 0.125 0
     -0.125 0.125 0
@@ -845,7 +845,7 @@ node trimesh Cylinder01
   diffuse 1 1 1
   specular 0 0 0
   shininess 10
-  bitmap tme_stone01
+  bitmap tmi_metal01
   verts 44
     0 0 0
     -0.1 0 0

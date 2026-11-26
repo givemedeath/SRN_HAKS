@@ -152,7 +152,6 @@
   "firesuburban": {"route": "upscale", "size": [1024, 1024], "plain": true, "doubled": 2},
   "firewind": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
   "firexbox": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
-  "flag_nazi": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 1},
   "floorlights": {"route": "upscale", "size": [256, 256], "plain": true, "doubled": 2},
   "floorplate": {"route": "upscale", "size": [512, 512], "plain": true, "doubled": 2},
   "flourescent_ligh": {"route": "upscale", "size": [512, 64], "plain": true, "doubled": 2},

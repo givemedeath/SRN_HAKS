@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 fcx_pub
+texture1 fcx_pub_n
+texture2 fcx_pub_s
+texture3 fcx_pub_r
+texture4 null
+texture5 fcx_pub_i

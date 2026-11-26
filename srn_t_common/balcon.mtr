@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 balcon
+texture1 balcon_n
+texture2 balcon_s
+texture3 balcon_r
+texture4 null
+texture5 null

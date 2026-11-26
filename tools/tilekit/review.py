@@ -230,11 +230,12 @@ def waits(shots, arrive=ARRIVE):
     return [arrive if index == 0 or shots[index - 1]['area'] != shot['area'] else STEP for index, shot in enumerate(shots)]
 
 
-def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
+def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE, more=None):
     """The module's entry script: the player, unseen, is stood at each view in turn, in whichever area it is of, and the
     camera set. Each view writes envkit's shot line a second after its camera is set, which is what a capture waits
     for; a view in another area than the last is given `arrive` seconds first. The line says valid=0 where the player
-    is not standing in the view's area by then (`capture` names those views)."""
+    is not standing in the view's area by then (`capture` names those views). more: (functions, statement), script of a
+    caller's own (`walk`'s walkers): the functions are written before `main`, which runs the statement as it enters."""
     require(all(prop_fixture.LABEL.fullmatch(shot['label']) for shot in shots), 'A view\'s label is letters, digits, - and _')
     prefix = prop_fixture.LOG_PREFIX
     lines = ['void Line(object pc,int n,string label,string area) {',
@@ -247,10 +248,10 @@ def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
     lines += ['  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetObjectByTag(area),Vector(x,y,0.0),facing)));',
               '  DelayCommand(wait,SetCameraHeight(pc,height)); DelayCommand(wait,AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP)));',
               f'  DelayCommand(wait+{prop_fixture.LINE_DELAY:.1f},Line(pc,n,label,area));',
-              f'  DelayCommand(wait+{hold:.1f},Shot(pc,n+1));', '}',
+              f'  DelayCommand(wait+{hold:.1f},Shot(pc,n+1));', '}', *([more[0]] if more else []),
               'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', f'  SetCameraLimits(pc,1.0,{PITCH_LIMIT:.1f},0.5,{DISTANCE_LIMIT:.1f});',
               '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
-              '  SetCutsceneMode(pc,TRUE,FALSE);', f'  WriteTimestampedLogEntry("{prefix} enter shots={len(shots)}");',
+              *(['  ' + more[1]] if more else []), '  SetCutsceneMode(pc,TRUE,FALSE);', f'  WriteTimestampedLogEntry("{prefix} enter shots={len(shots)}");',
               f'  DelayCommand({start:.1f},Shot(pc,0));', '}']
     return '\n'.join(lines) + '\n'
 
@@ -352,11 +353,11 @@ def read_area(path, run=None):
     return are['Width']['value'], are['Height']['value'], [(one['Tile_ID']['value'], one['Tile_Orientation']['value']) for one in are['Tile_List']['value']]
 
 
-def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, tlk=TLK, start=START, hold=HOLD, arrive=ARRIVE):
+def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, tlk=TLK, start=START, hold=HOLD, arrive=ARRIVE, more=None):
     """Build the review module into the fresh folder `output`: a user folder of its own holding the module, the talk
     table and the built packs (as hard links to those in `built`, copies where the file system has none), with a pack
     of the module's own first in its list holding the files of `overlay`. areas: [{tag, title, tileset, width, height,
-    laid, light}]. Returns the record envkit's client run takes."""
+    laid, light}]; more: script of the caller's own (`enter_script`). Returns the record envkit's client run takes."""
     require(NAME.fullmatch(name), 'A review\'s name is a lowercase resref of at most 11 characters')
     require(name not in {pack.lower() for pack in haks}, f'A review is not named like a pack it loads ({name}): its own pack would be written over that one')
     root, output, built = Path(game), Path(output).resolve(), Path(built).resolve()
@@ -381,7 +382,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     for path in laid_over:
         shutil.copyfile(path, staged / path.name); held.append(path.name)
     run('nwn_erf', ['-c', '-f', user / 'hak' / f'{name}.hak', '-e', 'HAK', staged])
-    script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold, arrive), encoding='ascii', newline='\n')
+    script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold, arrive, more), encoding='ascii', newline='\n')
     run('nwn_script_comp', ['--root', root, '--userdirectory', user, '--no-ovr', script])
     require(script.with_suffix('.ncs').is_file(), 'The entry script did not compile')
     made = client_fixture.module_documents(name, list(haks), tlk, tuple(shots[0]['stand'])); ifo = made['module.ifo']
@@ -403,12 +404,13 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     return record
 
 
-def capture(game, record, folder):
+def capture(game, record, folder, *, foreground=60, background=30):
     """Run the client on a built review and capture every view into `folder/captures`. Waits while another game
     client runs. Returns {captures, late, elsewhere}: `late` names the views captured after they had passed, kept as
-    -late.png; `elsewhere` those whose area the player had not reached when the view was taken. Neither shows its view."""
+    -late.png; `elsewhere` those whose area the player had not reached when the view was taken. Neither shows its view.
+    foreground, background: the frame rates the client is held to. captures/run.json keeps the run's log lines."""
     checks.wait_for_clients(); captures = Path(folder) / 'captures'
-    result = prop_fixture.run(game, record, captures, extra_settings=settings(), late_ok=True)
+    result = prop_fixture.run(game, record, captures, extra_settings=settings(foreground, background), late_ok=True)
     (captures / 'run.json').write_text(json.dumps(result, indent=1), encoding='utf-8')
     return {'captures': result['captures'], 'late': result['late'], 'elsewhere': elsewhere(result['lines'])}
 

@@ -1,8 +1,9 @@
 """Command line for tilekit. `inventory` writes what a tileset draws (inventory.json, textures.csv) and the hashes of
 its walkmeshes (walkmesh.json); `walkmesh` holds the tileset's walkmeshes against such a baseline and fails on any
 that changed; `review` builds a module of the tileset on the built packs and captures the same views of it in the
-game client each time, with an overlay folder shown instead of the packs' own files. `material` makes restyled
-textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps`, `shadows` and `daylight` (lit panes clear by day) write changed tile
+game client each time, with an overlay folder shown instead of the packs' own files; `walk` sends a Human and a Troll
+across tiles' suspect floor edges there and says which routes bend. `material` makes restyled
+textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps`, `shadows`, `daylight` (lit panes clear by day) and `blink` (blinking lamp panes) write changed tile
 models into it, `detail` adds kit pieces to tiles there and `remesh` replaces a tile's visible meshes there; `count`
 says what each tile costs to draw (faces, mesh nodes, materials) against a budget; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
 `apply` moves an overlay whose look the user passed into the packs; `compile` makes the packs' tile models from their
@@ -57,6 +58,47 @@ def review_command(chosen):
     return 0
 
 
+def walk_command(chosen):
+    from . import review, walk  # here, so that asking for help imports nothing of the client
+    from .client_settings import MOST
+    tileset = chosen.tileset; set_text = (chosen.repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'); laid_set = inventory.read_set(set_text)
+    found = walk.woks(chosen.repo, chosen.overlay)
+    if chosen.plan and chosen.plan.is_file():  # the plan made before a repair: its edges are not flagged once repaired
+        held = _json(chosen.plan); require(held.get('tileset') == tileset, f'{chosen.plan} is a plan of {held.get("tileset")}, not {tileset}'); tiles = held['tiles']
+        require(not chosen.tiles or {model.strip() for model in chosen.tiles.lower().split(',') if model.strip()} == set(tiles), f'{chosen.plan} walks other tiles: ' + ', '.join(tiles))
+        require(not chosen.sides or held.get('sides'), f'{chosen.plan} was made without --sides: make a plan of its own for the sides')
+    else:
+        models = [model.strip() for model in (chosen.tiles or '').lower().split(',') if model.strip()]; require(models, 'Name the tiles to walk (--tiles), or a plan made before (--plan)')
+        tiles = walk.plan(models, set_text, lambda model: found[model].read_bytes().decode('cp1252') if model in found else None, sides=chosen.sides)
+        if chosen.plan:
+            chosen.plan.parent.mkdir(parents=True, exist_ok=True); chosen.plan.write_text(json.dumps({'tileset': tileset, 'sides': chosen.sides, 'tiles': tiles}, indent=1) + '\n', encoding='utf-8')
+    try:
+        fill = chosen.fill if chosen.fill is not None else review.plain(laid_set)
+    except ValueError as error:
+        raise ValueError(f'{error} (--fill)') from error
+    width, height, laid, walkers = walk.layout(tiles, fill)
+    require(walkers, 'No crossing was found on these tiles: nothing to walk')
+    models = {tile['number']: tile['model'] for tile in reversed(laid_set['tiles'])}
+    strange = sorted({number for number, _ in laid.values()} - set(models)); require(not strange, f'Not tiles of {tileset}.set: ' + ', '.join(map(str, strange)))
+    haks = tuple(dict.fromkeys([f'srn_t_{tileset}', *walk.packs(chosen.repo, sorted({models[number] for number, _ in laid.values()})), 'srn_door', 'srn_2da']))
+    area = {'tag': walk.AREA, 'title': 'Walk', 'tileset': tileset, 'width': width, 'height': height, 'laid': laid, 'light': 'day'}
+    shots = [{'area': walk.AREA, 'label': f'row{row}', 'stand': [width * 5.0, (2 + 3 * row) * 10.0], 'facing': 90.0, 'distance': 70.0, 'pitch': 35.0, 'height': 1.0}
+             for row in range(0, -(-len(walkers) // walk.COLUMNS), 2)]
+    record = review.build(chosen.name, [area], shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay, haks=haks,
+                          hold=max(review.HOLD, walk.seconds(walkers) / len(shots)), more=walk.script(walkers, walk.AREA))
+    (chosen.out / 'walkers.json').write_text(json.dumps({'tileset': tileset, 'tiles': tiles, 'walkers': walkers}, indent=1) + '\n', encoding='utf-8')
+    told = {'module': record['module'], 'haks': list(haks), 'walkers': len(walkers), 'crossings': sum(len(one['crossings']) for one in tiles.values())}
+    if chosen.no_run:
+        print(json.dumps(told, indent=2))
+        return 0
+    review.capture(chosen.game, record, chosen.out, foreground=MOST, background=MOST)  # held to the cap even unseen: the walkers keep time
+    from tools.armorkit import client
+    lines = client.log_lines(record['userDirectory'], walk.PREFIX)
+    result = walk.verdict(lines, walkers); (chosen.out / 'walk.json').write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8')
+    told.update({'walked': len(result['walked']), **{key: result[key] for key in ('bent', 'short', 'missing', 'unmade')}, 'report': str(chosen.out / 'walk.json')})
+    print(json.dumps(told, indent=2))
+    return 1 if any(result[key] for key in ('bent', 'short', 'missing', 'unmade')) else 0
+
 def material_command(chosen):
     from tools import shared_tools
     from . import material
@@ -85,6 +127,15 @@ def redraw_command(chosen):
     return 1 if failed else 0
 
 
+def retexture_command(chosen):
+    from . import retexture
+    told = retexture.write(chosen.repo, chosen.tileset, _json(chosen.spec), chosen.out, shared=chosen.shared)
+    print(json.dumps({'models': sum(isinstance(one, dict) for one in told.values()), 'copies': sum(bool(one.get('copies')) for one in told.values() if isinstance(one, dict)),
+                      'white': {name: one['white'] for name, one in sorted(told.items()) if isinstance(one, dict) and one.get('white')},
+                      'left': {name: one for name, one in sorted(told.items()) if not isinstance(one, dict)}}, indent=1))
+    return 0
+
+
 def lamps_command(chosen):
     from . import lamps
     radius = lamps.RADIUS if chosen.radius is None else chosen.radius
@@ -96,13 +147,32 @@ def lamps_command(chosen):
 
 def daylight_command(chosen):
     from . import daylight
+    if chosen.materials:
+        from . import lamps
+        told = daylight.day_materials(chosen.repo, _json(chosen.spec), [pack.format(tileset=chosen.tileset.lower()) for pack in lamps.PACKS])
+        print(json.dumps({'written': told}))
+        return 0
     if chosen.lights_on:
-        told = daylight.lights_on(chosen.repo, chosen.tileset, daylight.switches(_json(chosen.spec)))
+        told = daylight.lights_on(chosen.repo, chosen.tileset, daylight.switches(_json(chosen.spec)), mapped=daylight.mapped(_json(chosen.spec)))
         print(json.dumps({'turned on': len(told), 'models': told}))
         return 0
     require(chosen.out, 'daylight writes its models into --out')
-    told = daylight.write(chosen.repo, chosen.tileset, chosen.out, _json(chosen.spec)['lit'], chosen.shared, again=chosen.again)
+    spec = _json(chosen.spec); told = daylight.write(chosen.repo, chosen.tileset, chosen.out, spec['lit'], chosen.shared, again=chosen.again, mapped=daylight.mapped(spec), in_place=spec.get('inPlace'))
     print(json.dumps({'models': len(told['models']), 'lit': sum(told['models'].values()), 'panes': told['panes'], 'done': told['done'], 'refused': told['refused'], 'parked': told['parked']}, indent=1))
+    return 0
+
+
+def blink_command(chosen):
+    from . import blink
+    told = blink.write(chosen.repo, chosen.tileset, chosen.out, _json(chosen.spec), chosen.shared, again=chosen.again)
+    print(json.dumps({'models': told['models'], 'done': told['done'], 'refused': told['refused']}, indent=1))
+    return 0
+
+
+def finish_command(chosen):
+    from . import finish
+    told = finish.write(_json(chosen.spec), chosen.redrawn, chosen.out, only=chosen.only.split(',') if chosen.only else None)
+    print(json.dumps({'finished': told}))
     return 0
 
 
@@ -254,6 +324,15 @@ def main(arguments=None):
     three.add_argument('--views', help='only the views whose label begins with one of these, comma separated')
     three.add_argument('--every', type=int, default=1, help='only every nth view, for a short look')
     three.add_argument('--no-run', action='store_true', help='build the module and stop'); three.add_argument('--repo', type=Path, default=REPO)
+    walking = commands.add_parser('walk', help='send a Human and a Troll across the suspect floor edges of tiles in the client, both ways, and say which routes bend or stop short (exit 1 when any does)')
+    walking.add_argument('--tileset', required=True, help='the set the walk area is laid of; it lists the tiles'); walking.add_argument('--tiles', help='the tile models to walk, comma separated')
+    walking.add_argument('--plan', type=Path, help='the crossings: read when the file is there (walk a repair across the edges found before it), else found and written')
+    walking.add_argument('--sides', action='store_true', help='cross the tiles\' sides into a level neighbour too (a floor that ends short of its side)')
+    walking.add_argument('--fill', type=int, help='the tile number laid round the walked tiles (default: the set\'s plain tile)')
+    walking.add_argument('--game', required=True, type=Path, help='the game install folder'); walking.add_argument('--built', required=True, type=Path, help='the folder the packs were built into')
+    walking.add_argument('--out', required=True, type=Path, help='a fresh folder for the module, its log and walk.json'); walking.add_argument('--name', required=True, help='the module\'s name, a resref of at most 11 characters')
+    walking.add_argument('--overlay', type=Path, help='a folder of files shown instead of the packs\' own (a .wok there is walked and planned on)')
+    walking.add_argument('--no-run', action='store_true', help='build the module and stop'); walking.add_argument('--repo', type=Path, default=REPO)
     four = commands.add_parser('material', help='make the restyled textures of a material spec: DDS maps and material files into a folder')
     four.add_argument('--spec', required=True, type=Path, help='the tileset\'s material spec (docs/tilesets/<tileset>/materials.json)')
     four.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay, until a texture is accepted')
@@ -286,6 +365,10 @@ def main(arguments=None):
     six.add_argument('--workers', type=int, default=3, help='how many are drawn at a time'); six.add_argument('--only', help='only these textures, comma separated')
     six.add_argument('--stock', type=Path, help='a folder of base-game pictures read out of the install, for base-game textures')
     six.add_argument('--repo', type=Path, default=REPO)
+    again = commands.add_parser('retexture', help='point a tileset\'s tiles at their own copies of shared textures and make listed meshes white, in model copies')
+    again.add_argument('--tileset', required=True); again.add_argument('--spec', required=True, type=Path, help='the list (docs/tilesets/<tileset>/retexture.json)')
+    again.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); again.add_argument('--repo', type=Path, default=REPO)
+    again.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
     seven = commands.add_parser('lamps', help='move the lamps of a tileset\'s tiles from source lights (drawn as fire) to main lights, in model copies')
     seven.add_argument('--tileset', required=True); seven.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     seven.add_argument('--radius', type=float, help='the radius the moved lights are given (default: lamps.RADIUS, 7)'); seven.add_argument('--repo', type=Path, default=REPO)
@@ -293,11 +376,20 @@ def main(arguments=None):
     eight = commands.add_parser('shadows', help='make the small trims of a tileset\'s tiles cast no shadow, in model copies (a copy already in --out is changed)')
     eight.add_argument('--tileset', required=True); eight.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay')
     eight.add_argument('--repo', type=Path, default=REPO); eight.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
+    hand = commands.add_parser('finish', help='lay the recorded finishes of a redraw list over its redrawn pictures, into another folder: lay them over a copy of the redraws for `material --redrawn`')
+    hand.add_argument('--spec', required=True, type=Path, help='the redraw list (docs/tilesets/<set>/redraw.json)'); hand.add_argument('--redrawn', required=True, type=Path, help='the folder `redraw` filled')
+    hand.add_argument('--out', required=True, type=Path, help='the folder the finished pictures are written to'); hand.add_argument('--only', help='only these textures, comma separated')
+    lamp = commands.add_parser('blink', help='lay blinking lamp panes over a fixture\'s indicator lights, in model copies (a copy already in --out is changed)')
+    lamp.add_argument('--tileset', required=True); lamp.add_argument('--spec', required=True, type=Path, help='the list of lights (docs/tilesets/<set>/blink.json)')
+    lamp.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review\'s overlay'); lamp.add_argument('--repo', type=Path, default=REPO)
+    lamp.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set); repeat for more')
+    lamp.add_argument('--again', action='store_true', help='make the lamp panes of models that have them anew from the list')
     lit = commands.add_parser('daylight', help='make the lit panes of a tileset\'s tiles clear by day and full by night, in model copies (a copy already in --out is changed)')
     lit.add_argument('--tileset', required=True); lit.add_argument('--spec', required=True, type=Path, help='the list of lit textures (docs/tilesets/<set>/daylight.json)')
     lit.add_argument('--out', type=Path, help='the folder the changed models are written to: a review\'s overlay'); lit.add_argument('--repo', type=Path, default=REPO)
     lit.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set); repeat for more')
     lit.add_argument('--again', action='store_true', help='make the day and night of models that have them anew from the list, and write those it changes')
+    lit.add_argument('--materials', action='store_true', help='instead: write the day materials of the list (`dayMaterials`): the material of a lit texture without its glow map, beside it in the packs')
     lit.add_argument('--lights-on', action='store_true', help='instead: turn each of AnimLoop1 to 3 on in the set file for the tiles whose lit panes, or the list\'s `switched` signs, it raises (then: merge)')
     named = commands.add_parser('unique', help='give the nodes of an adopted tile pack\'s ASCII sources names of one word that no other node has, in place (then: compile)')
     named.add_argument('--pack', required=True); named.add_argument('--repo', type=Path, default=REPO)
@@ -349,6 +441,8 @@ def main(arguments=None):
     try:
         if chosen.command in more:
             return more[chosen.command](chosen)
+        if chosen.command == 'walk':
+            return walk_command(chosen)
         if chosen.command == 'doors':
             return doors_command(chosen)
         if chosen.command == 'crown':
@@ -371,10 +465,16 @@ def main(arguments=None):
             return compile_command(chosen)
         if chosen.command == 'daylight':
             return daylight_command(chosen)
+        if chosen.command == 'finish':
+            return finish_command(chosen)
+        if chosen.command == 'blink':
+            return blink_command(chosen)
         if chosen.command == 'unique':
             return unique_command(chosen)
         if chosen.command == 'shadows':
             return shadows_command(chosen)
+        if chosen.command == 'retexture':
+            return retexture_command(chosen)
         if chosen.command == 'lamps':
             return lamps_command(chosen)
         if chosen.command == 'screens':

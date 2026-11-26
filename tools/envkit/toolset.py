@@ -26,8 +26,9 @@ from tools.armorkit.client_fixture import field
 from . import require
 
 MODULE = 'ektool'
-AREAS = {'dgt04': ('ektdg', 'Modern Exterior', 0), 'udp1': ('ektud', 'Suburbs', 52)}  # tileset: area, its name, the tile it is laid with
-HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_envprop', 'srn_2da')  # as a module lists them, first wins
+AREAS = {'dgt04': ('ektdg', 'Modern Exterior', 0), 'udp1': ('ektud', 'Suburbs', 52), 'fcx01': ('ektfc', 'Futuristic City', 0)}  # tileset: area, its name, the tile it is laid with
+HAKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_fcx01', 'srn_t_common', 'srn_door', 'srn_placeable', 'srn_envprop', 'srn_2da')  # as a module lists them, first wins
+GROUPS = ('dgt04', 'udp1')  # the tilesets envkit groups are in: a sheet's check is laid in these; another area is asked for by name
 TLK = 'srn'
 START = (5.0, 5.0)  # the south-west corner tile
 SIZE = 8
@@ -35,7 +36,7 @@ PLACED = ('Appearance', 'X', 'Y', 'Z', 'Bearing', 'Tag', 'TemplateResRef')
 PROPS = ('TemplateResRef', 'Appearance', 'Static', 'Tag')  # what a placed blueprint must keep of its own
 
 
-def documents(tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, size=SIZE):
+def documents(tilesets=GROUPS, haks=HAKS, tlk=TLK, size=SIZE):
     """{file name: GFF document as JSON} of the module: one plain area `size` tiles square for each tileset, the first
     the start area. A group as wide as the area leaves no tile for the start point, which the Toolset will not save
     painted over (the Rail Freight Depot is 8 by 8, 2026-11-14)."""
@@ -69,9 +70,10 @@ def _tools():
     return run
 
 
-def prepare(user, built, *, tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, game=None, size=SIZE):
+def prepare(user, built, *, tilesets=GROUPS, haks=HAKS, tlk=TLK, game=None, size=SIZE, made=None):
     """Make the fresh user folder `user` for the Toolset: the module, the talk table from `built` (the folder the packs
-    were built into) and `hak` as a junction to it. Returns {module, user, launch}; `launch` starts the Toolset on the
+    were built into) and `hak` as a junction to it. `made` gives the
+    module's documents in place of the plain areas. Returns {module, user, launch}; `launch` starts the Toolset on the
     folder where the game install folder is given."""
     user, built = Path(user).resolve(), Path(built).resolve()
     require(not user.exists(), 'A fresh user folder is required: ' + str(user))
@@ -83,7 +85,7 @@ def prepare(user, built, *, tilesets=tuple(AREAS), haks=HAKS, tlk=TLK, game=None
     for folder in (user / 'modules', user / 'tlk', work / 'json', work / 'module'):
         folder.mkdir(parents=True)
     shutil.copyfile(built / f'{tlk}.tlk', user / 'tlk' / f'{tlk}.tlk')
-    for name, document in documents(tilesets, haks, tlk, size).items():
+    for name, document in (documents(tilesets, haks, tlk, size) if made is None else made).items():
         path = work / 'json' / (name + '.json'); path.write_text(json.dumps(document), encoding='utf-8')
         run('nwn_gff', ['-i', path, '-o', work / 'module' / name])
     module = user / 'modules' / f'{MODULE}.mod'; run('nwn_erf', ['-c', '-f', module, '-e', 'MOD', work / 'module'])

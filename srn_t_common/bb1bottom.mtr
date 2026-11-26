@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 bb1bottom
+texture1 bb1bottom_n
+texture2 bb1bottom_s
+texture3 bb1bottom_r
+texture4 null
+texture5 null
