@@ -1,0 +1,149 @@
+{
+ "schemaVersion": 1,
+ "kind": "srn-armorkit-brief",
+ "model": "street-casual-typed-female",
+ "bare": [
+  "forearm",
+  "hand"
+ ],
+ "skin": [
+  "bicep"
+ ],
+ "construction": 3,
+ "wear": 0.5,
+ "materials": [
+  {
+   "name": "shirt",
+   "kind": "cloth",
+   "channel": 1,
+   "colour": [
+    230,
+    130,
+    150
+   ],
+   "suggested": [
+    72,
+    72,
+    76
+   ],
+   "look": "SOFT ROSE PINK cloth, a clear light pink (hex #E68296)",
+   "wears": "the short-sleeved T-shirt: thick, cut for a woman, with a ribbed round crew neck, a raised seam running over each shoulder, a smooth front that follows a full bust in two rounded forms and draws in to a narrow waist, and two wide short sleeves, each ending halfway down the upper arm, where it is turned up once into a thick rolled hem of the same pink. These two short sleeves are the outfit's only sleeves. Tucked into the trousers. Plain pink all over, shoulders and sleeves too.",
+   "slots": [
+    "chest",
+    "bicep",
+    "pelvis"
+   ]
+  },
+  {
+   "name": "trousers",
+   "kind": "cloth",
+   "channel": 1,
+   "colour": [
+    110,
+    160,
+    225
+   ],
+   "suggested": [
+    50,
+    46,
+    42
+   ],
+   "look": "CLEAR SKY BLUE cloth, a light medium blue (hex #6EA0E1)",
+   "wears": "the baggy cargo trousers: a plain broad waistband with empty belt loops and a buttoned fly, wide straight legs with heavy raised seams, a big bellows pocket on the outside of each thigh, a second smaller pocket below it on the outside of each shin, a padded, stitched knee panel on the front of each knee in the same blue, and thick gathered cuffs at the ankle tucked into the tops of the boots. Blue all over but for their yellow pocket flaps.",
+   "slots": [
+    "pelvis",
+    "thigh",
+    "shin"
+   ]
+  },
+  {
+   "name": "trim",
+   "kind": "cloth",
+   "channel": 2,
+   "colour": [
+    235,
+    205,
+    70
+   ],
+   "suggested": [
+    140,
+    36,
+    32
+   ],
+   "look": "BRIGHT LEMON YELLOW cloth (hex #EBCD46)",
+   "wears": "the trim, which is small: only the flap of each of the four leg pockets, each flap one solid yellow rectangle.",
+   "slots": [
+    "pelvis",
+    "thigh"
+   ],
+   "small": true
+  },
+  {
+   "name": "gloves",
+   "kind": "leather",
+   "colour": [
+    196,
+    160,
+    110
+   ],
+   "suggested": [
+    46,
+    40,
+    34
+   ],
+   "look": "WARM TAN leather",
+   "wears": "the two close-fitting gloves and nothing else, each ending in a short cuff at the wrist, tan all over.",
+   "unworn": true,
+   "shown": [
+    177,
+    147,
+    63
+   ]
+  },
+  {
+   "name": "boots",
+   "kind": "leather",
+   "channel": 1,
+   "colour": [
+    120,
+    195,
+    110
+   ],
+   "suggested": [
+    58,
+    54,
+    50
+   ],
+   "look": "LIGHT LEAF GREEN leather, a clear soft green (hex #78C36E)",
+   "wears": "the two heavy ankle boots, chunky, with thick deeply ridged soles and a broad capped toe: uppers, toe caps, soles and buckles all green.",
+   "slots": [
+    "shin",
+    "foot"
+   ]
+  },
+  {
+   "name": "straps",
+   "kind": "leather",
+   "channel": 2,
+   "colour": [
+    240,
+    140,
+    50
+   ],
+   "suggested": [
+    40,
+    36,
+    32
+   ],
+   "look": "BRIGHT ORANGE leather (hex #F08C32)",
+   "wears": "the thick laces up the front of each boot and the one broad strap across each ankle, and nothing else: orange.",
+   "slots": [
+    "shin",
+    "foot"
+   ],
+   "small": true
+  }
+ ],
+ "prompt": "Product image of one set of rugged women's street clothes for a near-future city dweller, standing in an A-pose. It is made for a woman with a full figure, and its shape shows it: the T-shirt is moulded over a full bust, so that the chest stands out in two clearly rounded forms seen from the front, with a narrow waist below them, rounder hips and narrower shoulders. Show the clothing only, as a hollow outfit floating in the air with nobody inside it: the collar and the hems of the two short sleeves are empty openings, and the two gloves float on their own, apart from the sleeves.\n\nPose, the most important thing in this image: a strict A-pose, like a 3D character model sheet. The two short sleeves are straight tubes that point sideways and downward, each one 45 degrees away from the body, each ending in a straight clean hem halfway down the upper arm. Each glove floats far out to the side at hip height, on the same straight line as its sleeve, open and flat with the fingers together, pointing along that line. Between the hem of each sleeve and its glove is a long stretch of plain white background, as long as the sleeve and the glove together. Between each sleeve and the torso there is an empty wedge of white background that starts right at the armpit; the whole underside of each sleeve from armpit to hem shows against white. Legs straight, feet shoulder width apart, a clear gap between the legs all the way up.\n\n{materials}\nThe six colours are easy to tell apart at a glance: pink T-shirt, blue trousers, small yellow pocket flaps, tan gloves, green boots, orange boot laces and boot straps. Every part of the outfit is one of these six colours.\n\n{construction}\n\nThe look is heavy, practical streetwear, busy with detail: thick, oversized, hard-wearing clothes covered in pockets, flaps, raised seams and stitched panels. Every detail is thick and chunky, sculpted in relief and big enough to see from across a street. Smooth clean surfaces like a painted sculpt: each part one flat colour, clean and new, cloth with large soft folds, clean edges between parts. The outfit is these things and nothing else: the T-shirt, the trousers, the two gloves and the two boots, with no lettering. The waistband of the trousers is plain, its belt loops empty.\n\nCamera: straight front view, camera level with the chest, long lens with almost no perspective. The outfit stands upright and symmetrical.\n\nSoft even studio lighting with gentle shading that shows the forms, the whole outfit in frame from collar to boot soles and from glove to glove with margin on all sides, plain white background.",
+ "typed": true
+}

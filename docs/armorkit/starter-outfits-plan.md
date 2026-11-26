@@ -364,6 +364,24 @@ cloth 1 by the brief, and that stands: the game colours each part on its own, so
 upper arms apart from the thighs and shins with no change to the channels (user, 2026-11-25). No per-slot channel
 table is needed for it. Only the pelvis holds both, the shirt's hem and the trousers' top, on the one channel.
 
+2026-11-25, Human female begun (step C1), and stopped at her chest.
+
+* Brief `street-casual-typed-female.json` (model `street-casual-typed-female`): the typed brief with the T-shirt
+  cut over a full bust, as Facility Security's female brief words it. Sealed in the work folder
+  (`street-casual-typed-female/reference-v1`). **No image and no generation yet:** the image request was refused
+  because the shared ComfyUI differs from its approved snapshot (one saved workflow added,
+  `user\default\workflowsudio_minimax_music_3.json`), and the user then halted all ComfyUI use. Nothing
+  was submitted; no geometry attempt is used.
+* The male's other nine parts are carried to her (`female-1-refit`, from `typed-5-kept`): pelvis, both upper
+  arms, thighs, shins and feet, each sleeve held over her arm with nothing left short. Not baked or gated on her
+  yet: that waits for her chest (`refit --seat-in`, `combine`).
+* Found on the way, open: carried together with the male's chest, an upper arm is refused ("would move 5.2 cm").
+  It is the same with the parts from before the joint switch (5.8 cm), so the switch is not its cause. Carried
+  with a chest, the arm's end is drawn in under it (`bent_under`); the body's skin beside the sleeve is then
+  kept from the shoulder down (from 2.6 cm before the plane, where alone it begins 15.7 cm along the arm), and
+  her arm stands 5 cm out of the end near the shoulder, where the chest covers it anyway. To look at when her
+  own chest exists and the arms are seated in it.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
