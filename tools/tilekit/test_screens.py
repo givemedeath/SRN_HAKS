@@ -47,6 +47,10 @@ class ScreenTests(unittest.TestCase):
         made = screens.laid(marked, [{'box': [0.35, 0.35, 0.65, 0.65], 'mend': True}]).astype(int)
         self.assertLess(np.abs(made - picture).max(), 25); self.assertLess(np.ptp(made, axis=2).max(), 2)  # no red is left
 
+    def test_a_box_at_the_picture_s_edge_is_mended_from_its_other_sides_alone(self):
+        picture = np.full((40, 40, 3), 100, np.uint8); picture[30:, 10:30] = 250  # a logo down to the foot
+        made = screens.mended(picture, (10, 30, 30, 40)); self.assertEqual(int(made.max()), 100)
+
     def test_a_build_leaves_what_a_material_takes(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder); (root / 'srn_placeable').mkdir(); Image.new('RGB', (16, 16), (90, 90, 90)).save(root / 'srn_placeable' / 'tv-1.tga')

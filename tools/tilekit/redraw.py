@@ -92,8 +92,9 @@ def unfilled(picture, boxes, near=30.0):
 
 def _broad(values, axis, radius):
     """`values` smoothed along one axis, mirrored at its ends (a wrapping blur would average the very step sought)."""
+    size = values.shape[axis]; radius = max(1, min(radius, size - 2))  # mirrored, a reach past the far end would come back round: a strip's short side
     for _ in range(3):
-        size = values.shape[axis]; place = np.abs(np.arange(-radius - 1, size + radius)); place = np.where(place >= size, 2 * size - 2 - place, place)
+        place = np.abs(np.arange(-radius - 1, size + radius)); place = np.where(place >= size, 2 * size - 2 - place, place)
         total = np.cumsum(np.take(values, place, axis=axis), axis=axis); wide = 2 * radius + 1
         values = (np.take(total, np.arange(wide, wide + size), axis=axis) - np.take(total, np.arange(size), axis=axis)) / wide
     return values

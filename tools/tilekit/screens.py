@@ -90,7 +90,9 @@ def mended(picture, box):
     band = 3; row = lambda y: np.mean([picture[side(y + k, high), left:right] for k in range(band)], axis=0); column = lambda x: np.mean([picture[top:bottom, side(x + k, wide)] for k in range(band)], axis=0)
     above, below, west, east = row(top - band), row(bottom), column(left - band), column(right); rows, columns = bottom - top, right - left
     v, u = ((np.arange(rows) + 0.5) / rows)[:, None, None], ((np.arange(columns) + 0.5) / columns)[None, :, None]
-    near = np.stack([np.broadcast_to(one, (rows, columns, 1)) for one in (1 / v, 1 / (1 - v), 1 / u, 1 / (1 - u))]) ** 2
+    clear = np.array([top >= band, bottom + band <= high, left >= band, right + band <= wide], float)  # a side on the picture's edge has nothing outside it but the box
+    require(clear.any(), 'A box to mend covers the whole picture')
+    near = np.stack([np.broadcast_to(one, (rows, columns, 1)) for one in (1 / v, 1 / (1 - v), 1 / u, 1 / (1 - u))]) ** 2 * clear[:, None, None, None]
     parts = [np.broadcast_to(above[None], (rows, columns, 3)), np.broadcast_to(below[None], (rows, columns, 3)), np.broadcast_to(west[:, None], (rows, columns, 3)), np.broadcast_to(east[:, None], (rows, columns, 3))]
     return np.uint8(np.clip(sum(n * p for n, p in zip(near, parts)) / near.sum(0), 0, 255) + 0.5)
 

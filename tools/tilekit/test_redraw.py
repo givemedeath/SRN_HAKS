@@ -44,6 +44,12 @@ class RedrawTests(RedrawFixture):
         with self.assertRaises(ValueError):
             redraw.blanked(np.zeros((4, 4, 3), np.uint8), [[0.5, 0, 0.5, 1]])
 
+    def test_a_long_thin_strip_is_levelled_both_ways(self):  # the blur's reach on its short side stops at the strip's width
+        from PIL import Image
+        strip = np.uint8(np.linspace(100, 200, 1024)[None, :, None] * np.ones((32, 1024, 3)))
+        made = np.asarray(redraw.levelled(Image.fromarray(strip), 'both')).astype(float)
+        self.assertEqual(made.shape, strip.shape); self.assertLess(abs(made[:, :40].mean() - made[:, -40:].mean()), 25)
+
     def test_levelling_takes_a_side_to_side_shade_out_and_keeps_the_bands(self):
         from PIL import Image
         ramp = np.linspace(0.8, 1.0, 256)[None, :, None] * np.ones((256, 256, 3)) * 200; ramp[160:] *= 0.5
