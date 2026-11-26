@@ -30,7 +30,10 @@ response, matrix/rigger, FRFZ catalog).
 2. Pieces that hang below the waist (hems, tabards, skirts, holsters) go on the **belt** slot. Robes are only
    for garments that truly need them.
 3. Seams use deliberate overlap and clipping to stay cross-compatible, not exact ring matching.
-4. Accessories may clip heavily in motion. They are judged standing and idle.
+4. Accessories may clip heavily in motion. They are judged standing and idle. (User, 2026-11-25 and twice on
+   2026-11-26: on the belt and neck slots clipping is expected, at rest too. What hangs from them keeps the
+   shape and place it was drawn in: it is never pushed, leaned or bent clear, and its clipping gates nothing.
+   Only the part that holds the piece on, a belt's strap on the waistband, is fitted.)
 5. Full helmets use the helmet slot, which replaces the head. Open headgear goes on the neck slot.
 6. Headgear avoids showing faces, keeps exposed skin generic, and is built to fit across heads.
 7. Logos live only on shoulders/pauldrons and neck-slot lanyards. Headgear and logos are part of this kit.

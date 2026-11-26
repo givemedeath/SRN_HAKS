@@ -503,6 +503,27 @@ out flared and sheared.
   `pouch-m-hips2`, `pouch-f-realistic`, `pouch-f-hips` (outfits `pouch-m-belt`, `pouch-f-belt`: typed-10 and
   female-14 with these belts). The first male hips run lost a shot to a stalled client and was taken again.
 
+### 2026-11-26 (late): accessories clip by design; the pouch lean is gone
+
+User: "Again, clipping is fine for belt and neck slot accessories and is expected. Fixe it and make sure that
+is remembered." The lean above (and the 2 cm `HANGS_IN` allowance it served) was a clearance push by another
+name. Superseding it:
+
+* What hangs from a belt is placed rigidly as drawn (one scale, turned and moved with the strap it hangs from)
+  and nothing else: no lean, no level-by-level swing, no allowance. `accessory.tilted`, `_sunk`, `HANGS_IN` and
+  the swing in `accessory.wrap` are removed. Only the strap is fitted on the waistband, as before.
+* `accessory.gates` still measures how deep what hangs stands inside the outfit (`inside.hanging`) but no
+  longer fails on it; the strap's own `INSIDE` gate stays. Tests: a pouch over a thigh comes out where it
+  would without the thigh, and a box 5 cm into a thigh below the strap passes the gates while the same box at
+  strap height fails.
+* Neck slot: `headgear` fits a piece to the head envelope it is worn on and gates only against that; it has
+  no outfit clearance push or clip gate, so nothing changed there.
+* Rule recorded in `plan.md` decision 4.
+* Belts `belt-26` (male) and `belt-f15` (female) pass every gate, pouches 4.4 and 6.8 cm into the trousers at
+  rest. Outfits `clip-m-belt`, `clip-f-belt` (typed-10, female-14 with these belts); client views
+  `clip-m-realistic`, `clip-m-hips2`, `clip-f-realistic`, `clip-f-hips` (the first male hips run lost 18 of
+  24 shots to a stalled client).
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
