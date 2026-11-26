@@ -430,6 +430,51 @@ Her own generated chest (`female-own-1`) is set aside, its one geometry attempt 
 * **Open, the user's call: her neck.** 11.1 cm between neck and head joints against his 7.7 cm, 7.9 cm wide
   against 12.7. It is the locked c7 body; changing it is a new lock and a republished body pack.
 
+### 2026-11-26 (evening): both Human versions rebaked with the current process and reviewed shot by shot
+
+User: carry the male's shirt (not her own generated one), round her shoulders, slim the belly, then rebake both
+with the latest process, review carefully and fix what is found in a reusable way. Done in the carry
+(`refit`) and the bake, each with a test; the female is the male's ten parts carried to her, nothing generated.
+
+Carry (`refit`), all bodies:
+
+* **Yoke.** Above the shoulder line a vertex stands as high over the other body's shoulders, read from above
+  (`shoulders`), as it stood over the source's, where both face up (`YOKE_STEEP`). By the joints alone her
+  yoke came a third as tall and 0.69 as wide, flat and square as a shelf.
+* **Collar.** From the shoulder line up the scales across come to the neck's own (`collar`): her neck is 0.80
+  as deep as his, her chest 0.54 on the shoulder line, and the collar cut 1.3 cm into her neck, its rim in saw
+  teeth. Heights above the neck plane are carried as they are after 5 mm (`COLLAR_EASE`).
+* **Belly.** On a body narrower at a height than the source, the standoff is scaled with the rest: the shirt's
+  7.5 cm of blousing stood whole round a waist 0.69 as wide. On a wider body it is still carried whole. This
+  bends "the pouches keep their depth" (user, 2026-11-14) on narrower bodies only; the user was told.
+* **Limbs.** A part between two joints is as wide at each joint as the other body is there (`limbed`), so two
+  parts meet at a joint by one scale. By their means a thigh came 0.85 as wide and a shin 0.73 at a knee that
+  is 0.77: a second hem round the knee.
+
+Bake, every outfit:
+
+* **Lid across the collar.** The generated solid closes its collar with a few faces as long as the neck is
+  wide (34 on the male, up to 12.6 cm long). They are taken and the rim they closed runs down to one vertex
+  inside the neck (`bake.collared`); the chest keeps its 15,999 triangles. A first form, each face made three,
+  put it 67 over the budget of 16,000. The client view of the collar did not change: see the review.
+
+Final folders under `output/armorkit/street-casual/`: male `typed-8` (kept `typed-8-kept`, belt `belt-21`,
+with belt `typed-8-belt`), female `female-12` (carried `female-12-refit`, belt `belt-f10`, with belt
+`female-12-belt`); every gate passes on both. Views: `<outfit>-poses`, `-realistic`, `-shoulders`, `-hips`.
+`typed-7` and `female-11` are the form over the budget.
+
+Review (client, contrasting and realistic colours, body, shoulders and hips presets; 144 shots a body):
+no holes, no skin where cloth belongs, nothing see-through on either body. Left as they are:
+
+* In sit and crouch the ends inside the knees and the seat show as smooth rounded patches, alike on both
+  bodies, far less in realistic colours.
+* The generated shirt's collar has a notch at centre back, 1 mm tall there; his hair hides it, hers does not.
+* Close up from the front, cloth lies flat between the shirt's ribbed collar and the neck and meets the neck
+  in a ragged line. It was taken for the lid, and is not: it is the cloth the generator drew inside the
+  ribbing, there with the lid taken too (typed-6 against typed-8). At play distance in realistic colours it
+  reads as a crew neck. Open: paint it as skin, or cut it back to the ribbing.
+* The belt's buckle and a pouch clip the shirt hem and thigh in the sit (accessories may clip in motion).
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid

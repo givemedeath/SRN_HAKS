@@ -56,6 +56,7 @@ SEAM = 'seam contract: each end against its tier\'s overlap and envelope'  # the
 HIDDEN = 'seam contract: every end closed and domed, what closes it hidden at rest and in the design bend'  # the gate `hidden` answers
 NOT_BUILT = (SEAM, HIDDEN, 'clearance: no body surface showing at rest',
              WHOLE)  # gates of docs/armorkit/plan.md that `gates` does not check: WHOLE but on a fresh bake, SEAM and HIDDEN but on a measured body
+LID_SUNK = 0.03  # metres under the neck's plane the middle of a face lying across the collar is sunk to (`collared`)
 UNCUT = {('neck', 'c')}  # the joints the bake leaves whole (`cut`): the neck stays on the chest as its collar
 ON_PLANE = 1e-4  # metres: a point this near a joint's plane lies on it, wherever the reduction moved it along the plane
 OPEN_LEAST = 0.01  # metres: a part is open on a plane when this much edge or more lies there on one face only. Less is a
@@ -525,6 +526,57 @@ def within(bones, name, vertices, faces):
     return start + share[:, None] * axis
 
 
+def collared(part, neck, point, normal, sunk=LID_SUNK):
+    """(part, how many faces were taken): the chest `part` without those of its own faces that lie across the
+    collar, their middles inside the body's own `neck` ((vertices, faces)), and with a face in their place
+    from each edge they left open, the rim they closed, down to a new vertex on the neck's axis `sunk` under
+    its plane (`point`, unit `normal` toward the head), where that lies inside the neck. An edge is read by
+    where its ends lie, so that a seam of the texture through the lid opens none; one with both ends inside
+    the neck gets no face. The new vertex has the middle of the edge's two places on the texture, of their
+    normals and of their places on the generated mesh, and the face is flagged as the one that held the edge
+    was. A pad's faces are left.
+
+    A generated outfit is a solid, and what closes its collar is a lid of a few faces as long as the neck is
+    wide, corner to corner of the rim. The neck stands through the lid, and what of each face lies outside it,
+    level with the rim or over it, showed in front of the neck as a flat flap with a notched edge (Street
+    Casual on the Human male, the typed trial: 34 faces up to 12.6 cm long, client, 2026-11-26). From the rim
+    down to one point inside the neck, what shows falls away from the rim all round, and the rim is what is
+    seen. Each face made three round its sunk middle did as much with 68 faces more, and put the chest 67
+    over its budget of triangles; a fan takes about as many faces as the lid had. What the client showed in
+    front of that neck was the same with the lid taken: it is the cloth drawn inside the shirt's ribbed
+    collar, whose middles lie outside the neck, and this leaves it."""
+    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+    own = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
+    normal = seams.unit(np.asarray(normal, float))
+    neck = (np.asarray(neck[0], float), np.asarray(neck[1], int))
+    lid = own & (np.abs(measure.winding(v[f].mean(axis=1), *neck)) >= 0.5) if len(f) else np.zeros(0, bool)
+    pole = np.asarray(point, float) - sunk * normal
+    if not lid.any() or abs(float(measure.winding(pole[None], *neck)[0])) < 0.5:
+        return part, 0  # nothing across the collar, or a neck that leans away under its plane: nothing to sink a face into
+    place = np.unique(np.round(v / split.POINT).astype(np.int64), axis=0, return_inverse=True)[1].reshape(-1)
+    held = np.flatnonzero(lid)
+    ends_ = np.stack([f[held][:, [0, 1, 2]], f[held][:, [1, 2, 0]]], axis=2).reshape(-1, 2)  # each face's three edges, in its winding
+    of = np.repeat(held, 3)
+    keys = np.sort(place[ends_], axis=1)
+    _, first, count = np.unique(keys, axis=0, return_inverse=True, return_counts=True)
+    inside = np.abs(measure.winding(v, *neck)) >= 0.5
+    rim = (count[first.reshape(-1)] == 1) & ~inside[ends_].all(axis=1) & (place[ends_[:, 0]] != place[ends_[:, 1]])
+    ends_, of = ends_[rim], of[rim]
+    fresh = len(v) + np.arange(len(ends_))
+    out = dict(part)
+    out['v'] = np.concatenate([v, np.repeat(pole[None], len(ends_), axis=0)])
+    for key in ('uv', 'src'):
+        out[key] = np.concatenate([np.asarray(part[key], float), np.asarray(part[key], float)[ends_].mean(axis=1)])
+    mean = np.asarray(part['n'], float)[ends_].sum(axis=1) + 1e-9 * normal
+    out['n'] = np.concatenate([np.asarray(part['n'], float), mean / np.linalg.norm(mean, axis=1, keepdims=True)])
+    out['f'] = np.concatenate([f[~lid], np.stack([ends_[:, 0], ends_[:, 1], fresh], axis=1)])
+    for key in ('added', 'domed', 'trimmed', 'pad'):
+        if key in part:
+            flags = np.asarray(part[key])
+            out[key] = np.concatenate([flags[~lid], flags[of]])
+    return out, int(lid.sum())
+
+
 def faced_out(name, vertices, faces, normals, bones):
     """(faces, normals, turned): part `name`'s faces with each the client would show a hole at
     (`measure.seen_through`) turned out, the normal of a vertex only such faces use turned with them, and
@@ -961,6 +1013,12 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 shows = texture.face_materials(part['uv'], part['f'], part['rgb'], part['covered'], first, size)
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
+    neck = measure.body(body_pack, body)[1].get('neck') if 'chest' in parts else None
+    if neck is not None:  # before the body's skin is laid beside a part: its faces are no lid
+        before = len(parts['chest']['f'])
+        parts['chest'], sunk = collared(parts['chest'], neck[:2], *seams.plane(bones, 'neck', 'c'))
+        if sunk:
+            say(f"chest: {sunk} faces across the collar taken, the rim they closed run down into the neck by {len(parts['chest']['f']) - before + sunk}")
     parts = skinned(parts, document, body_pack, body_textures, body, bones, say, own_part)
     parts = tucked(parts, bones, say=say)
     mark("sleeve closings and the body's skin")

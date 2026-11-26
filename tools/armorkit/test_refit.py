@@ -197,7 +197,7 @@ class TaperTests(unittest.TestCase):
         heights = np.array([-0.043, -0.02, -1e-6, 0.0, 0.119, 0.469])
         out = refit.risen(heights, mine, hers)
         self.assertTrue(np.allclose(out[3:], hers, atol=1e-9))  # the stations, each on the other body's
-        self.assertAlmostEqual(float(out[0]), -0.0351, places=3)  # 4.3 cm of collar: 3.5 cm, not the curve's 0.7
+        self.assertAlmostEqual(float(out[0]), -0.0410, places=3)  # 4.3 cm of collar: 4.1 cm, not the curve's 0.7
         self.assertAlmostEqual(float(out[2]), 0.0, places=5)  # no step at the neck
         self.assertTrue((np.diff(out) > 0).all())
         # where the curve rises faster than the heights themselves, it carries the collar too

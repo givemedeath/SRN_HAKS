@@ -576,6 +576,35 @@ class BakeTests(unittest.TestCase):
             record = bake.run({'model': 'outfit', 'materials': []}, Path(folder) / 'out', 'bodies', 332, mesh='m', colours='c', raw='r', xatlas='x')
         self.assertEqual(list(record['seconds']), ['split', 'tint', 'write', 'gates'])
 
+    def test_the_faces_across_the_collar_give_way_to_a_fan_from_their_rim_into_the_neck(self):
+        # the neck: a box 10 cm wide from 0.9 to 1.2, its plane at 1.0; the chest: a lid of two faces across it, corner
+        # to corner of the rim just over the plane, a seam of the texture along the edge they share, and one face of
+        # the cloth beside it
+        corners = np.array([(x, y, z) for x in (-0.05, 0.05) for y in (-0.05, 0.05) for z in (0.9, 1.2)])
+        box = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+        rim = [(-0.08, -0.08, 1.01), (0.08, -0.08, 1.01), (0.08, 0.08, 1.01), (-0.08, 0.08, 1.01)]
+        chest = {'v': np.array(rim + [rim[0], rim[2], (0.2, 0.0, 1.0), (0.3, 0.0, 1.0), (0.2, 0.1, 1.0)]),
+                 'f': np.array([(0, 1, 2), (4, 5, 3), (6, 7, 8)]),
+                 'uv': np.array([(0.0, 0.0), (0.2, 0.0), (0.2, 0.2), (0.6, 0.2), (0.4, 0.0), (0.6, 0.0), (0.5, 0.5), (0.6, 0.5), (0.5, 0.6)]),
+                 'n': np.tile((0.0, 0.0, 1.0), (9, 1)), 'src': np.zeros((9, 3)), 'added': np.zeros(3, bool), 'domed': np.zeros(3, bool),
+                 'trimmed': np.array([4, 7, -1]), 'pad': np.zeros(3, bool)}
+        out, taken = bake.collared(chest, (corners, box), (0.0, 0.0, 1.0), (0.0, 0.0, 1.0))
+        # the two are gone and the four edges of the rim each run down to the neck's axis: the shared edge, open on the
+        # texture alone, gets nothing
+        self.assertEqual((taken, len(out['f']), len(out['v'])), (2, 5, 13))
+        self.assertTrue(np.allclose(out['v'][9:], (0.0, 0.0, 1.0 - bake.LID_SUNK)))
+        self.assertEqual(out['f'].tolist(), [[6, 7, 8], [0, 1, 9], [1, 2, 10], [5, 3, 11], [3, 4, 12]])
+        self.assertTrue(np.allclose(out['uv'][9:], [(0.1, 0.0), (0.2, 0.1), (0.6, 0.1), (0.5, 0.1)]) and np.allclose(out['n'][9:], (0, 0, 1)))
+        self.assertEqual((out['trimmed'].tolist(), len(out['added']), len(out['pad'])), ([-1, 4, 4, 7, 7], 5, 5))
+        # each keeps the winding of the face that held its edge: none is turned in
+        facing = lambda v, f: np.cross(v[f[:, 1]] - v[f[:, 0]], v[f[:, 2]] - v[f[:, 0]])[:, 2]
+        self.assertTrue((facing(out['v'], out['f']) > 0).all())
+        # no more faces than the lid had, give or take the rim's own: a chest at its budget stays within it
+        self.assertLessEqual(len(out['f']) - len(chest['f']), 2)
+        # a pad's faces are left, and a chest nothing lies across comes back as it was
+        self.assertEqual(bake.collared({**chest, 'pad': np.array([True, True, False])}, (corners, box), (0.0, 0.0, 1.0), (0.0, 0.0, 1.0))[1], 0)
+        self.assertIs(bake.collared(chest, (corners + (1.0, 0, 0), box), (1.0, 0.0, 1.0), (0.0, 0.0, 1.0))[0], chest)
+
     def test_the_tier_the_parts_were_cut_at_is_kept_with_them(self):
         cut = {'default': 3, 'waist': 1}
         with tempfile.TemporaryDirectory() as folder:
