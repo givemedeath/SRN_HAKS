@@ -74,6 +74,10 @@ OVER_MOST = 0.03  # metres: a sleeve is pushed out over the arm no farther; a fa
 OVER_NECK = 0.001  # a chest lifted over a patch of the other body's neck that came through it stands this far outside the patch
 TAPERED = {'chest': ('shoulder', 'waist')}  # a part scaled across by a slope: the joints its width is read at, down its axis
 COLLAR_EASE = 0.02  # metres above a tapered part's top joint over which heights come to be carried as they are (`risen`)
+YOKE_CELL = 0.005  # metres: the grid a body's shoulders are read on from above (`shoulders`)
+YOKE_EVEN = 12  # times that reading is evened with its neighbours: the cloth rides the shoulders' run, not each muscle
+YOKE_EASE = 0.03  # metres under the shoulder line over which a tapered part comes to ride the shoulders from above (`tapered`)
+YOKE_WITH = ('bicepl', 'bicepr')  # the body's own parts read with a tapered part's as its shoulders: the upper arms' tops
 TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first station: no crease on the line where it starts
 STANDOFF_WAYS = 48  # directions round a tapered part's middle line its body's own part is read in at each level
 STANDOFF_LEVELS = 0.01  # metres from one level it is read at to the next
@@ -210,6 +214,60 @@ def _around(heights, table, height, angle):
     return (1 - t) * ((1 - s) * table[low, left] + s * table[low, right]) + t * ((1 - s) * table[high, left] + s * table[high, right])
 
 
+def shoulders(meshes, frame, low):
+    """(corner, table): how high the body's own surfaces `meshes` ((vertices, faces) each) stand seen from
+    above, on a grid of `YOKE_CELL` in the level ways of `frame` (one of `taper`'s): per cell the least height
+    down the frame's first axis of what lies over it, of the faces reaching above `low`; a cell nothing lies
+    over reads as the nearest that has something; evened `YOKE_EVEN` times. `corner` is the grid's first
+    cell's place along the two level ways. None where nothing of them is seen from above."""
+    found = []
+    for vertices, faces in meshes:
+        reach = (np.asarray(vertices, float) - frame['origin']) @ frame['axes'].T
+        corners = reach[np.asarray(faces, int)]
+        found.append(corners[corners[:, :, 0].min(axis=1) < low])
+    corners = np.concatenate(found)
+    require(len(corners), "A body's own part does not reach above its shoulder line")
+    corner = corners[:, :, 1:].reshape(-1, 2).min(axis=0) - YOKE_CELL
+    size = np.ceil((corners[:, :, 1:].reshape(-1, 2).max(axis=0) + YOKE_CELL - corner) / YOKE_CELL).astype(int) + 1
+    table = np.full(size, np.inf)
+    for a, b, c in corners:
+        first = np.floor((np.minimum(np.minimum(a, b), c)[1:] - corner) / YOKE_CELL).astype(int)
+        last = np.ceil((np.maximum(np.maximum(a, b), c)[1:] - corner) / YOKE_CELL).astype(int)
+        u, w = np.meshgrid(np.arange(first[0], last[0] + 1), np.arange(first[1], last[1] + 1), indexing='ij')
+        at = np.stack([u, w], axis=-1) * YOKE_CELL + corner
+        edge, other = b[1:] - a[1:], c[1:] - a[1:]
+        area = edge[0] * other[1] - edge[1] * other[0]
+        if abs(area) < 1e-14:
+            continue
+        s = ((at[..., 0] - a[1]) * other[1] - (at[..., 1] - a[2]) * other[0]) / area
+        t = (edge[0] * (at[..., 1] - a[2]) - edge[1] * (at[..., 0] - a[1])) / area
+        over = (s >= -1e-9) & (t >= -1e-9) & (s + t <= 1 + 1e-9)
+        height = a[0] + s * (b[0] - a[0]) + t * (c[0] - a[0])
+        table[u[over], w[over]] = np.minimum(table[u[over], w[over]], height[over])
+    read = np.isfinite(table)
+    if not read.any():
+        return None  # nothing of it seen from above: an open tube
+    filled, empty = np.argwhere(read), np.argwhere(~read)
+    for start in range(0, len(empty), 512):  # nothing over a cell, past the arms or behind the back: as the nearest cell that has something
+        some = empty[start:start + 512]
+        nearest = filled[((some[:, None, :] - filled[None, :, :]) ** 2).sum(axis=2).argmin(axis=1)]
+        table[some[:, 0], some[:, 1]] = table[nearest[:, 0], nearest[:, 1]]
+    for _ in range(YOKE_EVEN):
+        wide = np.pad(table, 1, mode='edge')
+        table = (wide[:-2, 1:-1] + wide[2:, 1:-1] + wide[1:-1, :-2] + wide[1:-1, 2:] + 4 * table) / 8
+    return corner, table
+
+
+def _above(corner, table, places):
+    """`shoulders` read at each of `places` (along the two level ways): straight between its cells, its edge's
+    beyond them."""
+    x = np.clip((np.asarray(places, float) - corner) / YOKE_CELL, 0.0, np.array(table.shape) - 1.0)
+    low = np.minimum(np.floor(x).astype(int), np.maximum(np.array(table.shape) - 2, 0))
+    high, t = np.minimum(low + 1, np.array(table.shape) - 1), x - low
+    return ((1 - t[:, 0]) * ((1 - t[:, 1]) * table[low[:, 0], low[:, 1]] + t[:, 1] * table[low[:, 0], high[:, 1]])
+            + t[:, 0] * ((1 - t[:, 1]) * table[high[:, 0], low[:, 1]] + t[:, 1] * table[high[:, 0], high[:, 1]]))
+
+
 def taper(token, source, target, contract=None, names=None):
     """The slope part `token` is carried by from body `source` to body `target` (`TAPERED`; None for any other
     part, or without a contract), as `tapered` takes it.
@@ -263,9 +321,11 @@ def taper(token, source, target, contract=None, names=None):
     rise = np.polyval(np.polyder(np.polyfit(frames[0]['line'][:, 0], frames[1]['line'][:, 0], 2)), frames[0]['line'][[0, 2], 0])
     require((rise > 0).all(), f'The joints of {token} are spaced too unlike on the two bodies to carry it by one slope: its slices would fold over')
     armhole = max(max(contract['joints'][first]['bodies'][names[0]]['sides'][found[k][1]]['bodyRing']) for k in pair)
+    yoke = [shoulders([body[1][name][:2] for name in (token, *YOKE_WITH) if name in body[1]], frame, frame['line'][1, 0] + YOKE_EASE)
+            for body, frame in zip((source, target), frames)]
     return {'frames': frames, 'top': [frames[1]['span'] / frames[0]['span'], deep[1] / deep[0]],
             'hem': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=last),
-            'radii': radii(source[1][token][:2], frames[0]), 'clear': float(frames[0]['line'][1, 0] + armhole)}
+            'radii': radii(source[1][token][:2], frames[0]), 'clear': float(frames[0]['line'][1, 0] + armhole), 'yoke': None if any(read is None for read in yoke) else yoke}
 
 
 def risen(height, source, target):
@@ -298,7 +358,17 @@ def tapered(vertices, slope):
     middle line is carried, from the slope's `clear` height down, and from the shoulder line to there by a
     growing share of it (no step either end). A vertex inside the radii, a lid across the hem or cloth turned
     in, is scaled whole, as is everything above the shoulder line. A plate or a pouch on the vest so stays as
-    deep as it was made and lies on the other body's belly, wider and taller or shorter as the body is."""
+    deep as it was made and lies on the other body's belly, wider and taller or shorter as the body is. On a
+    body narrower at that height than the source's, the standoff is scaled with the rest: carried whole, the
+    7.5 cm Street Casual's shirt blouses out over the male's belt stood as far out round the Human female's
+    waist, 0.69 as wide, and her belly read bagged out (user, 2026-11-26).
+
+    Above the shoulder line a vertex is set as high over the other body's shoulders, read from above
+    (`shoulders`, the slope's `yoke`), as it stood over the source's, coming to that over `YOKE_EASE` under
+    the line: the cloth of a yoke lies on the shoulders, and how far those stand over the joints is the body's
+    own. By the stations alone, the Human female's shoulder joints 4 cm under her neck's plane where the
+    male's are 12 cm, the shirt's yoke came to her a third as tall and 0.69 as wide: its slope out to the
+    shoulder went flat and its edge stood out square as a shelf (user, 2026-11-26)."""
     a, b = slope['frames']
     reach = (np.asarray(vertices, float) - a['origin']) @ a['axes'].T  # height, and the two level ways
     height = reach[:, 0]
@@ -314,11 +384,16 @@ def tapered(vertices, slope):
         stand = np.maximum(far - _around(*slope['radii'], height, np.arctan2(off[:, 1], off[:, 0])), 0.0)
         held = np.clip((height - a['line'][1, 0]) / max(slope['clear'] - a['line'][1, 0], 1e-9), 0.0, 1.0)
         grown = scale * off / np.maximum(far, 1e-12)[:, None]  # the vertex's unit way from the line, as the scales carry it
-        carried = carried - (stand * held * held * (3 - 2 * held) * (1 - 1 / np.maximum(np.linalg.norm(grown, axis=1), 1e-12)))[:, None] * grown
-    out = b['origin'] + risen(height, a['line'][:, 0], b['line'][:, 0])[:, None] * b['axes'][0]
-    for k in (1, 2):
-        out = out + (through(b['line'][:, k]) + carried[:, k - 1])[:, None] * b['axes'][k]
-    return out
+        wider = np.maximum(np.linalg.norm(grown, axis=1), 1.0)  # narrower there than the source: all of it scaled, the standoff too
+        carried = carried - (stand * held * held * (3 - 2 * held) * (1 - 1 / wider))[:, None] * grown
+    level = np.stack([through(b['line'][:, k]) + carried[:, k - 1] for k in (1, 2)], axis=1)
+    high = risen(height, a['line'][:, 0], b['line'][:, 0])
+    if slope.get('yoke') is not None:
+        ridden = _above(*slope['yoke'][1], level) + min(1.0, float(top[0])) * (height - _above(*slope['yoke'][0], reach[:, 1:]))  # on narrower shoulders, less far over them
+        rides = np.clip((a['line'][1, 0] + YOKE_EASE - height) / YOKE_EASE, 0.0, 1.0)
+        rides = rides * rides * (3 - 2 * rides)
+        high = high + rides * (ridden - high)
+    return b['origin'] + high[:, None] * b['axes'][0] + level @ b['axes'][1:]
 
 
 def placement(token, source, target, contract=None, names=None, slope=False):

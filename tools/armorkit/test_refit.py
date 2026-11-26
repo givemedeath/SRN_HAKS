@@ -248,6 +248,36 @@ class TaperTests(unittest.TestCase):
         lid = refit.tapered(np.array([(0.0, 0.0, 1.1), (0.05, 0.0, 1.1)]), slope)
         self.assertTrue(np.allclose(lid, [(0.0, 0.0, 1.1), (0.10, 0.0, 1.1)]))
 
+    def test_on_a_narrower_body_the_standoff_is_scaled_with_the_rest(self):
+        # carried the other way, to a waist half as wide: cloth 5 cm outside the body's own chest comes to stand half
+        # as far outside it, not the 5 cm that read as a bagged-out belly on the Human female (user, 2026-11-26)
+        slope = refit.taper('chest', self.target, self.source, waisted(0.5), ('a', 'b'))
+        angle = np.linspace(0, 2 * np.pi, 96, endpoint=False)
+        hem = refit.tapered(np.c_[0.18 * np.cos(angle), 0.18 * np.sin(angle), np.full(96, 1.1)], slope)
+        self.assertTrue(np.allclose(np.linalg.norm(hem[:, :2], axis=1), 0.09, atol=1e-6))
+
+    def test_a_yoke_rides_the_other_bodys_shoulders_as_it_rode_the_sources(self):
+        # the shoulders read from above: a slab's top, and beyond its edge the nearest of it
+        frame = {'origin': np.array((0.0, 0.0, 1.0)), 'axes': np.array([(0.0, 0.0, -1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)])}
+        slab = foot(0.2, 0.2, 0.9)  # 0.9 tall from the ground: its top 0.1 under the frame's origin
+        corner, table = refit.shoulders([slab], frame, 0.5)
+        self.assertTrue(np.allclose(refit._above(corner, table, np.array([(0.0, -0.1), (0.05, -0.15), (0.5, 0.5)])), 0.1, atol=1e-6))
+        self.assertIsNone(refit.shoulders([upright(0.1, 0.0, 0.9)], frame, 0.5))  # an open tube: nothing seen from above
+        # a vertex 2 cm over the source's shoulders stands 2 cm over the other body's, wherever the stations put its height;
+        # under the shoulder line the stations alone carry it
+        slope = refit.taper('chest', self.source, self.target, self.terms, ('a', 'b'))
+        self.assertIsNone(slope['yoke'])  # the rig's chests are open tubes
+        flat = lambda height: (np.array((-5.0, -5.0)), np.full((2001, 2001), height))
+        ridden = {**slope, 'yoke': [flat(-0.02), flat(-0.05)]}
+        a, b = slope['frames']
+        over = (a['origin'] - 0.04 * a['axes'][0] + 0.05 * a['axes'][1])[None]
+        self.assertAlmostEqual(float((refit.tapered(over, ridden)[0] - b['origin']) @ b['axes'][0]), -0.07, places=6)
+        under = (a['origin'] + (a['line'][1, 0] + 0.1) * a['axes'][0] + 0.05 * a['axes'][1])[None]
+        self.assertTrue(np.allclose(refit.tapered(under, ridden), refit.tapered(under, slope)))
+        # on narrower shoulders it stands less far over them, by as much as they are narrower
+        narrow = {**ridden, 'top': [0.5, 0.5]}
+        self.assertAlmostEqual(float((refit.tapered(over, narrow)[0] - b['origin']) @ b['axes'][0]), -0.06, places=6)
+
     def test_a_leaning_vest_is_set_on_the_other_bodys_neck_shoulders_and_waist(self):
         # the source's neck 8 cm in front of its waist; the other body upright, 0.7 as long from neck to waist,
         # its shoulders 5 cm farther forward
