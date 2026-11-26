@@ -572,7 +572,12 @@ and R09 home (1x2, with a tiny kitchen). 12 tiles numbered after the Medical bat
   corrugated sheet lapped every 60 cm (`srx02_clgcorr`: both Barrens homes, on rusted steel joists).
 - **Wall decals** (banners, posters, graffiti, a chalkboard) above the floor are marked `obstacle`: `detail` refuses
   a piece between 0.25 and 2.5 m over walkable floor otherwise, even one with no depth.
-- **Not done:** palette blueprints for the `[lpat]` rows (there is no Magic category yet); Toolset check.
+- **Toolset** (2026-11-26, by computer use on an isolated user folder, `output/tilekit/mag3ts`): the palette lists all
+  ten groups as Prefab under Magical and Home; the five furnished rooms were laid a quarter turn, saved ("Area verified
+  successfully") and read back (shack, shop, lodge, lab one tile each, the Barrens home on two, all turned 1; no doors,
+  as the hooks are type 0), then the module was closed, reopened and the area showed them all. The save was first
+  refused because the module's start stood on a wall tile; it was moved into the shack.
+- **Not done:** palette blueprints for the `[lpat]` rows (there is no Magic category yet).
 
 ## Doors (2026-11-26)
 
