@@ -121,7 +121,7 @@ class BeltTests(unittest.TestCase):
         self.assertAlmostEqual(float(placed[:, 2].mean()), 1.0, places=2)
         self.assertLess(record['scale'], 0.5)
 
-    def test_a_pouch_keeps_the_shape_it_was_drawn_in_and_leans_out_whole_over_what_it_would_sink_into(self):
+    def test_a_pouch_keeps_the_shape_it_was_drawn_in_and_clips_into_what_it_hangs_over(self):
         # a strap 5 cm tall round a hoop 1 m across, drawn at twice its size, and a box hanging below it at the front
         v, f = tube(0.5, -0.025, 0.025, around=192)  # a vertex in every direction, as a generated strap has
         box = np.array([(x, y, z) for x in (-0.08, 0.08) for y in (0.5, 0.58) for z in (-0.2, -0.04)])
@@ -139,17 +139,27 @@ class BeltTests(unittest.TestCase):
             ratio = apart(placed[len(v):])[np.triu_indices(8, 1)] / apart(box)[np.triu_indices(8, 1)]
             self.assertLess(np.ptp(ratio), 1e-9)  # one scale every way: nothing flared or sheared
             self.assertAlmostEqual(float(ratio[0]), record['scale'] * record['taller'], places=3)  # the hoop's, made as much taller
-            # a thigh under it: the box leans out whole, its foot first, until no more of it than allowed is inside
-            thigh, thigh_faces = tube(0.2, -0.5, 2.5, rings=120)  # long, so that its open ends are far from the box
-            thigh = thigh + [0.0, 0.05, 0.0]  # its front at y 0.25: the box's back 1.5 cm inside it, the strap it hangs from outside
-            hung = np.array([(x, y, z) for x in (-0.04, 0.04) for y in (0.235, 0.275) for z in (0.74, 0.9)])
-            self.assertGreater(accessory._sunk(hung, [(thigh, thigh_faces)]).max(), 0.01)
-            leaned, degrees = accessory.tilted(hung, np.array([0.0, 0.275, 0.92]), [(thigh, thigh_faces)], allowed=0.005)
-            self.assertGreater(degrees, 0.0)
-            self.assertLessEqual(accessory._sunk(leaned, [(thigh, thigh_faces)]).max(), 0.005)
-            np.testing.assert_allclose(apart(leaned), apart(hung), atol=1e-9)
-            self.assertGreater(leaned[[0, 2, 4, 6], 1].mean(), hung[[0, 2, 4, 6], 1].mean())  # the foot swung out, away from the body
-            self.assertEqual(accessory.tilted(hung + [0.0, 0.5, 0.0], np.array([0.0, 0.775, 0.92]), [(thigh, thigh_faces)])[1], 0.0)  # clear: as it was
+            # a thigh bulging under it, below the strap: the box clips into it and is neither pushed, leaned nor bent
+            # (user, 2026-11-26: "clipping is fine for belt and neck slot accessories and is expected")
+            thigh, thigh_faces = tube(0.1, 0.6, 0.95, rings=40)
+            thigh = thigh + [0.0, 0.12, 0.0]  # its front at y 0.22, the box's back at about 0.25 * scale * taller + 0.12
+            clipped, again = accessory.wrap(points, faces, [(body * [1.0, 0.7, 1.0], body_faces), (thigh, thigh_faces)], np.array([0.0, 0.0, 1.0]))
+            self.assertEqual(again['scale'], record['scale'])
+            np.testing.assert_allclose(clipped[len(v):], placed[len(v):], atol=1e-9)
+            self.assertGreater((np.abs(accessory.measure.winding(clipped[len(v):], thigh, thigh_faces)) >= 0.5).sum(), 0)  # it is inside
+
+    def test_what_hangs_from_an_accessory_may_clip_deep_and_the_part_that_holds_it_on_may_not(self):
+        thigh, thigh_faces = tube(0.1, 0.0, 1.0, rings=40)
+        box = lambda z: np.array([(x, y, z + dz) for x in (-0.02, 0.02) for y in (0.05, 0.09) for dz in (0.0, 0.04)])  # 5 cm into the thigh
+        sides = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / 'belt.plt').write_bytes(b'')
+            (Path(folder) / 'belt.mtr').write_text('shader x\n', encoding='ascii')
+            for z, passed in ((0.3, True), (0.7, False)):
+                part = {'v': box(z), 'f': sides, 'rgb': np.zeros((4, 4, 3))}
+                report = accessory.gates(part, {'legl': (thigh, thigh_faces)}, 'belt', folder, hangs=0.5)
+                self.assertEqual(report['passed'], passed, report['failures'])
+                self.assertGreater(report['inside']['hanging' if passed else 'deepest'], 0.03)
 
     def test_a_belts_faces_turned_toward_the_body_are_no_metals(self):
         # four walls of a hoop, each on a quarter of the texture: outside and inside at the front, outside and inside at the back
