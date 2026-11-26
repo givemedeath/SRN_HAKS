@@ -36,6 +36,10 @@ PRESETS = {
     'waist': {'views': ((62.0, 1.3, 'waist front', None), (152.0, 1.2, 'waist side', None), (242.0, 1.3, 'waist rear', None),
                         (332.0, 1.2, 'other waist side', None)),
               'heights': {'standing': 1.0, 'arms up': 1.0, 'arms forward': 1.0, 'sitting': 0.6, 'crouching': 0.55, 'talking': 1.0}},
+    # the hips close, from a little below them: under a thigh swung forward, where its end shows (2026-11-25)
+    'hips': {'views': ((62.0, 1.1, 'hips front', None), (152.0, 1.0, 'hip side', None), (242.0, 1.1, 'hips rear', None),
+                       (332.0, 1.0, 'other hip side', None)),
+             'heights': {'standing': 0.8, 'arms up': 0.8, 'arms forward': 0.8, 'sitting': 0.45, 'crouching': 0.4, 'talking': 0.8}},
     'head': {'views': ((62.0, 1.0, 'head front', None), (152.0, 1.0, 'head side', None), (242.0, 1.0, 'head rear', None),
                        (332.0, 1.0, 'other head side', None)),
              'heights': {'standing': 1.7, 'arms up': 1.7, 'arms forward': 1.7, 'sitting': 1.25, 'crouching': 1.1, 'talking': 1.7}},

@@ -439,7 +439,7 @@ def main(argv=None):
     p.add_argument('--stock', required=True, help='folder of the stock parts tables the outfit is added to')
     p.add_argument('--hak', action='append', default=[], required=True, help='built pack the fixture loads, highest priority first')
     p.add_argument('--tlk', help='talk table the fixture loads')
-    p.add_argument('--preset', default='body', choices=('body', 'shoulders', 'waist', 'head'), help='where the camera looks')
+    p.add_argument('--preset', default='body', choices=('body', 'shoulders', 'waist', 'hips', 'head'), help='where the camera looks')
     p.add_argument('--without', action='append', default=[], help='also pose a second actor without the part in this slot (shoulder: no pads)')
     p.add_argument('--body-pack', help="folder of the bodies' models: the camera is then set for the body's height")
     p.add_argument('--cells', help='comma-separated logo cells the actors are set to in turn, for a part with a badge')
