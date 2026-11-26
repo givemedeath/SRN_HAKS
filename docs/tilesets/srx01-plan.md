@@ -578,7 +578,8 @@ This follows the dgt04 process (`docs/tilesets/dgt04-upfit-plan.md`):
 - one day and night contact sheet per family batch: houses, malls, strip malls, roads and ground, forest.
 
 **Constraints:**
-- walkmeshes are held against the stage 0 baseline;
+- walkmeshes are held against the stage 0 baseline, except for the repairs in
+  [walkmesh-repairs.md](walkmesh-repairs.md);
 - restyles go in place in `srn_t_udp1`, so the old Suburbs set takes the new look too;
 - redraws use local Qwen;
 - no helper edits between a job and its collect.

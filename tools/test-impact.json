@@ -6017,6 +6017,10 @@
       "tools/tilekit/geometry.py",
       "tools/tilekit/remesh.py"
     ],
+    "tools/tilekit/test_cuts.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/cuts.py"
+    ],
     "tools/tilekit/test_daylight.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/daylight.py",
@@ -6076,6 +6080,11 @@
     "tools/tilekit/test_finish.py": [
       "tools/tilekit/__init__.py",
       "tools/tilekit/finish.py"
+    ],
+    "tools/tilekit/test_floor_edges.py": [
+      "tools/test_impact.py",
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/geometry.py"
     ],
     "tools/tilekit/test_inventory.py": [
       "tools/tilekit/__main__.py",
@@ -6511,6 +6520,17 @@
       "srn_2da",
       "srn_door"
     ],
+    "tools/tilekit/test_floor_edges.py": [
+      "srn_t_common",
+      "srn_t_dgt04",
+      "srn_t_fcx01",
+      "srn_t_nac01",
+      "srn_t_srx01",
+      "srn_t_tbx78",
+      "srn_t_tfb01",
+      "srn_t_udp1",
+      "srn_t_udp2"
+    ],
     "tools/tilekit/test_inventory.py": [
       "srn_2da",
       "srn_placeable",
@@ -6898,6 +6918,7 @@
     "tools/tilekit/test_blink.py",
     "tools/tilekit/test_compiled.py",
     "tools/tilekit/test_crown.py",
+    "tools/tilekit/test_cuts.py",
     "tools/tilekit/test_daylight.py",
     "tools/tilekit/test_detail.py",
     "tools/tilekit/test_doors.py",
@@ -6907,6 +6928,7 @@
     "tools/tilekit/test_family.py",
     "tools/tilekit/test_family_review.py",
     "tools/tilekit/test_finish.py",
+    "tools/tilekit/test_floor_edges.py",
     "tools/tilekit/test_inventory.py",
     "tools/tilekit/test_joins.py",
     "tools/tilekit/test_kit.py",
