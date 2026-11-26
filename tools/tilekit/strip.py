@@ -193,10 +193,11 @@ def stripped(text, gone=('furniture', 'rug')):
         if surface in geometry.WALKABLE:
             (ax, ay, _), (bx, by, _), (cx, cy, _) = corners; walked[surface] = walked.get(surface, 0.0) + abs((bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) / 2
     own = max(walked, key=walked.get) if walked else None; faces = []
+    level = round(float(np.median([corner[2] for corners, surface in walk if surface == own for corner in corners])), 4) if own is not None else 0.0  # the room's own floor, raised or not
     for corners, surface in walk:
         middle = np.mean(corners, axis=0)
         free = own is not None and surface not in geometry.WALKABLE and _within(stood, middle[0], middle[1])
-        faces.append(([[x, y, 0.0] for x, y, _ in corners], own) if free else (corners, surface))  # a bed's top was walked as a raised block: the floor is under it
+        faces.append(([[x, y, level] for x, y, _ in corners], own) if free else (corners, surface))  # a bed's top was walked as a raised block: the floor is under it
     kept = list(lines)
     for node in sorted(out, key=lambda node: -node.start):
         del kept[node.start:node.end + 1]

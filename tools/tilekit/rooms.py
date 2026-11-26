@@ -80,6 +80,7 @@ def read(path):
     for key in ('category', 'name'):
         require(isinstance(spec.get(key), str) and spec[key].strip(), f'{path.name}: a room has a {key}')
     require(isinstance(spec.get('shell'), dict) and 'set' in spec['shell'] and ('group' in spec['shell']) != ('box' in spec['shell']), f'{path.name}: `shell` is {{set, group}} or {{set, box}}')
+    require('box' not in spec['shell'] or not {'faces', 'ceiling'} & set(spec), f'{path.name}: a room drawn here (`box`) has its ceiling in the box and no built-in faces: `faces` and `ceiling` are for a group shell')
     for prop in spec.get('props', ()):
         require(('faces' in prop) != ('turn' in prop), f'{path.name}: {prop.get("piece")} has one of `faces` and `turn`')
     for prop in spec.get('placeLater', ()):
@@ -199,7 +200,7 @@ def unfurnished(text, name, spec, index):
     here = lambda key: [one for one in spec.get(key, ()) if one.get('tile', 0) == index]; hung = ceilings.overhead(name, here('lamps'), here('beams'))
     if 'box' in spec['shell']:
         made, wok, out = walls.shell(text, name, spec, index)
-        return _into(made, hung), wok, out
+        return _into(terrain.retextured(made, {old.lower(): new for old, new in spec.get('textures', {}).items()}), hung), wok, out  # as the furnished one is
     made, wok, out = strip.shell(text, name)
     if 'ceiling' in spec:
         floor = next((node for node in nodes if kinds.get(node.name, ('',))[0] == 'floor'), None); require(floor, f'{name}: the shell draws no floor, whose look its ceiling takes')

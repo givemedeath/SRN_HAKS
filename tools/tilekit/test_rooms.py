@@ -158,6 +158,15 @@ class Floors(unittest.TestCase):
         self.assertEqual({surface: round(value, 2) for surface, value in area.items() if value > 1e-6}, {4: 50.0, 5: 49.0, 7: 1.0})
 
 
+class Read(unittest.TestCase):
+    def test_a_room_drawn_here_takes_no_built_in_faces_or_shell_ceiling(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for extra in ({'faces': []}, {'ceiling': {'texture': 'tiles', 'height': 3.0, 'repeat': 2.5}}):
+                path = Path(folder) / 'box.json'; path.write_text(json.dumps({'id': 'box', 'category': 'Home', 'name': 'Box', 'shell': {'set': 'a', 'box': {}}, **extra}), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, 'drawn here'):
+                    rooms.read(path)
+
+
 class Built(unittest.TestCase):
     def test_a_build_takes_away_what_the_last_one_wrote_and_this_one_does_not(self):  # a room renamed or taken away
         with tempfile.TemporaryDirectory() as folder:

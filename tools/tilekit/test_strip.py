@@ -19,7 +19,7 @@ def box(name, x0, x1, y0, y1, z0, z1, look=LOOK):
     return geometry.mesh_text(name, 'tst', look, corners, [(0.0, 0.0)], faces)
 
 
-def room(extra=(), gap=False):
+def room(extra=(), gap=False, floor=0.0):
     """A tile's uncompiled model: a floor between four walls with a lid on them, a rug, a table and a bookcase against
     the east wall. Its walkmesh walks the table as a raised block that is not walked, and the bookcase as wall."""
     lines = ['newmodel tst', 'setsupermodel tst null', 'beginmodelgeom tst', 'node dummy tst', '  parent null', 'endnode']
@@ -34,7 +34,7 @@ def room(extra=(), gap=False):
     for x0, x1 in zip(xs, xs[1:]):
         for y0, y1 in zip(ys, ys[1:]):
             table = -3 <= x0 and x1 <= -2 and -3 <= y0 and y1 <= -1; books = 2.5 <= x0 and x1 <= 3.5 and -1.5 <= y0 and y1 <= 1.5
-            surface = 7 if table else 2 if books or min(x0, y0) < -3.5 or max(x1, y1) > 3.5 else 5; z = 0.8 if table else 0  # the table's top, the bookcase as wall
+            surface = 7 if table else 2 if books or min(x0, y0) < -3.5 or max(x1, y1) > 3.5 else 5; z = 0.8 if table else floor  # the table's top, the bookcase as wall
             first = len(points); points += [(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)]; faces += [(first, first + 1, first + 2, surface), (first, first + 2, first + 3, surface)]
     lines += tile._walk_node('tst', 'tst', np.array(points, float), np.array(faces, int)) + ['endmodelgeom tst', 'donemodel tst']
     return '\n'.join(lines) + '\n'
@@ -78,6 +78,10 @@ class Stripping(unittest.TestCase):
     def test_what_no_furniture_stood_on_stays_as_it_was(self):
         _, _, faces = strip.stripped(room(), gone=('rug',))
         self.assertEqual(sorted({surface for _, surface in faces}), [2, 5, 7]); self.assertEqual(max(corner[2] for corners, _ in faces for corner in corners), 0.8)
+
+    def test_the_floor_under_furniture_is_laid_at_the_room_s_own_height(self):  # a raised floor, a stage
+        _, _, faces = strip.stripped(room(floor=0.3))
+        self.assertEqual({corner[2] for corners, surface in faces if surface == 5 for corner in corners}, {0.3})
 
 
 class ModernInterior(unittest.TestCase):
