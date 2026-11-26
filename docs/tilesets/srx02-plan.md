@@ -494,7 +494,7 @@ floorplans are done. 16 tiles numbered after the Security batch's, no earlier nu
   stall too once gaps were closed. With the guard, Security (112 each) and Home (88 each) were walked again and all
   reached; Office and the pilots were not walked again (the user stopped client runs, 2026-11-25).
 - **Triangles** a furnished tile: 3.5k to 23.4k, under the pilots' 39.6k.
-- **Toolset:** not yet checked (the user stopped Toolset use, 2026-11-25); the module is ready in `output/tilekit/ret2ts`.
+- **Toolset:** the five furnished rooms (bar, cafe, kitchen, small shop, nightclub on 2x2) were laid a quarter turn with the Industrial and Medical rooms in one area on the current packs (2026-11-26, user: "Yes, check them"; module `srx02t2` in `output/tilekit/mag3ts`), saved ("Area verified successfully"), read back (every tile of each group, all turned 1) and reopened.
 - **Views:** `review-retail.json` (bird's eye and eye level; `output/tilekit/ret2`).
 - **Gate passed (user, 2026-11-25: "Yes, next batch").**
 
@@ -513,7 +513,7 @@ floorplans are done. 18 tiles numbered after the Retail batch's, no earlier numb
   fixed it; the server room has nine racks instead of twelve.
 - **Walked** by a Human and a Troll, 38 points each through every room, doorway and aisle: all reached.
 - **Triangles** a furnished tile: 2.4k to 23.5k, under the pilots' 39.6k.
-- **Toolset:** not yet checked; the module is ready in `output/tilekit/ind1ts`.
+- **Toolset:** the five furnished rooms (workshop, server and mechanical rooms, warehouse on 2x2, loading bay on two tiles) were laid a quarter turn with the Retail and Medical rooms in one area on the current packs (2026-11-26, user: "Yes, check them"; module `srx02t2` in `output/tilekit/mag3ts`), saved ("Area verified successfully"), read back (every tile of each group, all turned 1) and reopened.
 - **Views:** `review-industrial.json` (bird's eye and eye level; `output/tilekit/ind1`, the server room before its
   cross aisle).
 
@@ -531,7 +531,7 @@ Industrial batch's, no earlier number moved.
 - **Pictures:** `jvb_medic02a` (the anaesthesia cart, a photograph with its maker's name) was redrawn.
 - **Walked** by a Human and a Troll, 29 points each: all reached.
 - **Triangles** a furnished tile: 18.5k to 23.0k.
-- **Toolset:** not yet checked.
+- **Toolset:** the three furnished rooms (street clinic, surgery, ward on two tiles) were laid a quarter turn with the Retail and Industrial rooms in one area on the current packs (2026-11-26, user: "Yes, check them"; module `srx02t2` in `output/tilekit/mag3ts`), saved ("Area verified successfully"), read back (every tile of each group, all turned 1) and reopened.
 - **Views:** `review-medical.json` (bird's eye and eye level; `output/tilekit/med1`).
 - **Faster walk runs:** `output/_walkx.py` walks a batch in one client run; the Troll starts as soon as every Human has
   walked its route and the run ends once every point is logged (Medical: 163 s to 113 s).
