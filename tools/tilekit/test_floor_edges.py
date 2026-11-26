@@ -9,6 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
+from tools import test_impact
 from tools.tilekit import geometry
 
 REPO = Path(__file__).resolve().parents[2]
@@ -137,15 +138,16 @@ class FloorEdges(unittest.TestCase):
 
     def test_every_tile_of_a_set_with_a_walkmesh_has_its_wok(self):
         models, woks = {}, set()  # a set may take its tiles from other packs (srx01, srx02)
-        for pack in PACKS:
-            sources = REPO / 'sources' / pack
-            models.update((path.stem, path) for path in (sources if sources.is_dir() else REPO / pack).glob('*.mdl'))
+        for pack in PACKS:  # a compiled model is read in its source where it has one; the ek_ tiles of common have none
+            models.update((path.stem, path) for path in (REPO / pack).glob('*.mdl'))
+            models.update((path.stem, path) for path in (REPO / 'sources' / pack).glob('*.mdl'))
             woks.update(path.stem for path in (REPO / pack).glob('*.wok'))
         for pack in PACKS:  # without it creatures walk through the tile's walls (tfb01_l01_09, walked 2026-11-25)
             for path in (REPO / pack).glob('*.set'):
                 for name in sorted({name.lower() for name in re.findall(r'(?im)^\s*model\s*=\s*(\S+)', path.read_text(encoding='cp1252'))}):
                     if name in models and name not in woks:
-                        self.assertFalse(b'node aabb' in models[name].read_bytes().lower(), f'{path.name}: {name} has a walkmesh and no .wok')
+                        data = models[name].read_bytes()  # a compiled model (it starts with four zero bytes) is not read here: it needs its .wok
+                        self.assertFalse(data[:4] == bytes(4) or re.search(rb'(?i)\bnode\s+aabb\b', data), f'{path.name}: {name} has a walkmesh and no .wok')
 
     def test_a_face_held_twice_is_found(self):
         self.assertEqual(doubled(CORNERS, [(0, 1, 3, *TAIL), (1, 3, 0, *TAIL), (0, 4, 1, *TAIL)]), [(0, 1, 3)])
@@ -158,7 +160,8 @@ class FloorEdges(unittest.TestCase):
         self.assertEqual(pinched(CORNERS, [(0, 1, 3, *TAIL), (0, 2, 1, *TAIL), (0, 4, 2, *TAIL), (2, 4, 1, *TAIL)]), [])  # it joins the pieces to the edge
 
     def test_every_pack_with_sources_is_named(self):
-        self.assertEqual({folder.name for folder in (REPO / 'sources').iterdir() if any(folder.glob('*.mdl'))} - set(PACKS), set())
+        on_disk = {folder.name for folder in (REPO / 'sources').iterdir() if any(folder.glob('*.mdl'))} if (REPO / 'sources').is_dir() else set()
+        self.assertEqual((on_disk | test_impact.committed_sources(REPO)) - set(PACKS), set())  # a CI leg checks out only the sources its tests name
 
     def test_every_floor_is_matched_in_the_sources_and_in_the_woks(self):
         for pack in PACKS:
@@ -175,7 +178,7 @@ class FloorEdges(unittest.TestCase):
                                 self.assertEqual(doubled(corners, node.faces), [])
                                 inside = np.array([place(vertex) for vertex in node.verts])
                                 self.assertEqual(len(pieced(corners, node.faces, inside)), UNCROSSED.get(path.stem, 0))
-                                self.assertEqual(short(corners, node.faces, inside) if path.suffix == '.wok' else [], [])
+                                self.assertEqual(short(corners, node.faces, inside), [])  # a cut or a new .wok copies the model's
                                 self.assertEqual(len(pinched(corners, node.faces)), STRAIGHT.get(path.stem, 0))
                 self.assertTrue(checked, f'{pack} has no walkmesh to check')
 

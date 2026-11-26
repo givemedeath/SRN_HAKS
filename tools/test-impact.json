@@ -6082,6 +6082,7 @@
       "tools/tilekit/finish.py"
     ],
     "tools/tilekit/test_floor_edges.py": [
+      "tools/test_impact.py",
       "tools/tilekit/__init__.py",
       "tools/tilekit/geometry.py"
     ],

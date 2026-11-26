@@ -357,7 +357,7 @@ def rewritten(text, walk):
     kept, ours = [], False
     for line in lines[start:node.end]:
         word = line.split()[:1]
-        if word and not re.match(r'[-+.]?\d|#', word[0]):  # a block's first line; its rows are numbers, and a comment is neither
+        if word and not re.match(r'[-+]?\.?\d|#', word[0]):  # a block's first line; its rows are numbers, and a comment is neither
             ours = word[0].lower() in ('verts', 'faces', 'aabb', *BY_VERTEX)
         if not ours:
             kept.append(line)

@@ -42,6 +42,7 @@ class Rewritten(unittest.TestCase):
     def test_a_comment_in_a_block_and_a_row_for_each_old_vertex_go(self):
         text = WOK.replace('-1\n', '-1\n    # the leaf\n').replace('  tverts 3\n', '  normals 3\n    0 0 1\n    0 0 1\n    0 0 1\n  tverts 3\n')
         self.assertEqual(cuts.rewritten(text, self.walk), cuts.rewritten(WOK, self.walk))
+        self.assertEqual(cuts.rewritten(text.replace('    0 1 0\n', '    -.0 1 0\n').replace('    0 0 1\n', '    +.0 -.0 1\n'), self.walk), cuts.rewritten(WOK, self.walk))  # a row may start with a sign and a point
 
     def test_writing_twice_changes_nothing_more(self):
         once = cuts.rewritten(WOK, self.walk)

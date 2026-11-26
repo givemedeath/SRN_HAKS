@@ -55,8 +55,8 @@ to the side by moving its corners 10 to 30 mm; its floor reaches the neighbour's
 - `tfb01_r06_01`, `r07_01`: a face of no area on an edge, walked straight (0 of 24), left. `tfb01_n01_13`, `n01_14`:
   the same on the top of a 0.9 m wall, nothing crosses it. `nac01_d01_05`: an edge met in pieces at the foot of a
   78 degree slope. `tfb01_b02_03` is in no `.set`.
-- Other packs (`fifi`, `nac01`, `net01`, `shp02`, `sjm01`, `tfb01`, `udp2`, `vmp01`, `zsf01`): 26 walkmeshes have such edges
-  or faces. Not walked, not repaired.
+- Other packs (`fifi`, `net01`, `shp02`, `sjm01`, `vmp01`, `vmr01`, `zsf01`): 16 tiles have such edges, faces or short
+  sides. Not walked, not repaired.
 
 `tools/tilekit/test_floor_edges.py` looks for unmatched edges, doubled faces, faces of no area and floors short of the
 tile's side in the models and `.wok` files of the packs `srx01` and `srx02` take tiles from, and for tiles without a
