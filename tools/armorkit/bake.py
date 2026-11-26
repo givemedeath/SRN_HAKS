@@ -1323,7 +1323,7 @@ def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *
     return parts
 
 
-def store(parts, folder, document=None, tier=None):
+def store(parts, folder, document=None, tier=None, drawn=None):
     """Keep `bake`'s parts in `folder`, a file per part, for `stored`.
 
     The parts are listed in `baked.json`, written last: a folder used again for an outfit with fewer parts
@@ -1335,14 +1335,16 @@ def store(parts, folder, document=None, tier=None):
     parts' ends were cut at, one or a mapping by joint (`seams.at`), and is listed with them: a refit shapes the
     ends for another body at that tier. Left unsaid it was tier 2 for every refit, and Street Casual, cut at
     tier 3 with its shoulders and waist at 1, came to the Human female 1.2 cm outside the envelope all round
-    the waist (2026-11-25)."""
+    the waist (2026-11-25). `drawn` names the joints the outfit was cut at as drawn, to no envelope (`bake`), and
+    is listed likewise where a tier is: a refit shaped those ends to the other body's envelope all the same, and
+    Street Casual's boots came to the Human female with their shafts drawn in to a peak (user, 2026-11-26)."""
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     (folder / KEPT).unlink(missing_ok=True)
     for name, part in parts.items():
         np.savez(folder / (name + '.npz'), **{key: part[key] for key in KEYS + tuple(key for key in OPTIONAL + bodyskin.KEYS if key in part)})
     slots = {key: sorted((document or {}).get(key, [])) for key in ('bare', 'skin')}
-    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts), **slots, **({} if tier is None else {'tier': tier})}, indent=1) + '\n',
+    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts), **slots, **({} if tier is None else {'tier': tier, 'drawn': sorted(drawn or ())})}, indent=1) + '\n',
                                encoding='utf-8', newline='\n')
 
 
@@ -1359,7 +1361,9 @@ def listing(folder):
     tier = listed.get('tier')
     require(tier is None or tier in registry.TIERS or (isinstance(tier, dict) and 'default' in tier and all(value in registry.TIERS for value in tier.values())),
             f'{folder / KEPT} names no tier the parts were cut at: {tier}')
-    return {'parts': listed['parts'], **{key: listed.get(key, []) for key in ('bare', 'skin')}, **({} if tier is None else {'tier': tier})}
+    require(named(listed.get('drawn', [])) and set(listed.get('drawn', [])) <= set(seams.JOINTS), f'{folder / KEPT} names joints cut as drawn that are none')
+    return {'parts': listed['parts'], **{key: listed.get(key, []) for key in ('bare', 'skin')},
+            **({} if tier is None else {'tier': tier, 'drawn': sorted(listed.get('drawn', []))})}
 
 
 def declared(folder):
@@ -1410,9 +1414,9 @@ def combine(sources, folder, document):
             origin[name] = str(Path(source))
         parts.update(stored(source, names))
     require(_fits(parts, document), "The parts named are baked for other slots left to the body or shared with its skin than the brief's")
-    cut = [tier for tier in (listing(source).get('tier') for source, _ in sources) if tier is not None]  # none listed: kept before tiers were
-    require(all(tier == cut[0] for tier in cut), f'The folders hold parts cut at different tiers ({cut}): refit them at one (`refit --tier`, `--tier-at`)')
-    store(parts, folder, document, cut[0] if cut else None)
+    cut = [(found['tier'], found['drawn']) for found in (listing(source) for source, _ in sources) if 'tier' in found]  # none listed: kept before tiers were
+    require(all(tier == cut[0] for tier in cut), f'The folders hold parts cut at different tiers or drawn joints ({cut}): refit them at one (`refit --tier`, `--tier-at`, `--as-drawn`)')
+    store(parts, folder, document, *(cut[0] if cut else ()))
     return origin
 
 
@@ -1679,11 +1683,12 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
         parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture, mark=mark,
                                    workers=workers, cache=cache, resume=resume, drawn=drawn)
         if kept is not None:
-            store(parts, kept, document, tier)
+            store(parts, kept, document, tier, drawn)
             mark('keep the parts')
     else:
         parts, whole = stored(kept), None
         require(listing(kept).get('tier') in (None, tier), f"{kept} holds parts cut at tier {listing(kept).get('tier')}: the gates were asked for tier {tier}")
+        require(listing(kept).get('drawn') in (None, sorted(drawn)), f"{kept} holds parts cut as drawn at {listing(kept).get('drawn')}: the gates were asked for {sorted(drawn)}")
         require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')} and _fits(parts, document),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)

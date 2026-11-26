@@ -335,6 +335,8 @@ def placement(token, source, target, contract=None, names=None, slope=False):
         linear = stretched(rotation, [unit, *ways], [along, *round_])
         return linear, goal.mean(axis=0) - linear @ start.mean(axis=0), {'along': round(along, 4), 'across': [round(value, 4) for value in round_]}
     (_, _, other), = met
+    if token in registry.SLOTS['foot']['tokens']:  # on the ground, whichever way the shin turns
+        return grounded(token, source, target)
     require(len(joints_of(other)) > 1, f'{token} and {other} each meet one joint: nothing turns them')
     start, goal = anchors(other, source[0]), anchors(other, target[0])
     rotation = repose.turn(*(seams.unit(axis_of(points)) for points in (start, goal)))
@@ -344,6 +346,31 @@ def placement(token, source, target, contract=None, names=None, slope=False):
     linear = axes.T @ np.diag(scales) @ axes @ rotation
     joint, aim = anchors(token, source[0])[0], anchors(token, target[0])[0]
     return linear, aim - linear @ joint, {'axes': [round(float(value), 4) for value in scales]}
+
+
+def grounded(token, source, target):
+    """(linear map, offset, report) carrying a foot from body `source` to body `target` (`placement`) in the
+    ground's own frame: turned about the upright only, until it points where the other body's foot does;
+    scaled along that foot's length on the ground and across it as that foot spreads against the source's
+    (`spreads`); and upright as the ankle stands over the ground on the one body against the other, so that a
+    sole on the ground stays on it and flat.
+
+    Scaled along the body foot's own axes (`principal`), which run from the heel's top to the toe, 20 degrees
+    and more off the ground, by 0.88 along and 0.78 across, Street Casual's boots came to the Human female
+    sheared, the toe a wedge, and 4.2 cm off the ground: her ankle stands 1.4 cm higher than the male's, and
+    the body foot's spread upright, which counts the male's longer stub of shin, said 0.77 (user, 2026-11-26)."""
+    up = np.array([0.0, 0.0, 1.0])
+    level = lambda way: seams.unit(way - (way @ up) * up)
+    ahead, was = (level(principal(*body[1][token][:2])[0]) for body in (target, source))
+    was = was if was @ ahead > 0 else -was
+    yaw = repose.turn(was, ahead)
+    axes = np.array([ahead, np.cross(up, ahead), up])
+    joint, aim = anchors(token, source[0])[0], anchors(token, target[0])[0]
+    require(joint[2] > 1e-6 and aim[2] > 1e-6, f'The ankle of {token} stands on the ground: nothing to scale a foot upright by')
+    flat = spreads(*target[1][token][:2], axes[:2]) / spreads(np.asarray(source[1][token][0], float) @ yaw.T, source[1][token][1], axes[:2])
+    scales = np.array([*flat, aim[2] / joint[2]])
+    linear = axes.T @ np.diag(scales) @ axes @ yaw
+    return linear, aim - linear @ joint, {'axes': [round(float(value), 4) for value in scales], 'grounded': True}
 
 
 def capped(before, after, faces, measured, part_ends):
@@ -789,7 +816,7 @@ def seated(part, point, normal, over, gap=split.SEAT_GAP, others=()):
     return out
 
 
-def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2, bare=()):
+def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2, bare=(), drawn=()):
     """(parts, report): baked parts (`bake.stored`) carried from the body `source` to the body `target`, each a
     (rig, parts by token) pair as `measure.body` gives them. `names` limits the parts carried; the rest are
     left out. Each part's vertices and normals are carried by its `placement`; with `contract` and `bodies`,
@@ -807,7 +834,10 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     body's skin is carried without it (`bodyskin.unworn`). Nothing else about a part changes. `report` maps a
     part to its turn in degrees and its scales along and across; a shoulder pad's names the part it is carried
     with (`with`) and holds that part's scales. A part's faces the client would show a hole at are turned out
-    (`bake.faced_out`), and the report holds how many (`turnedOut`)."""
+    (`bake.faced_out`), and the report holds how many (`turnedOut`). At the joints `drawn` names the outfit was
+    cut as drawn, to no envelope (`bake`), and no end is shaped to the other body's: its two parts fit each
+    other as drawn, carried by their scales. Shaped all the same, a boot's shaft came to the Human female drawn
+    in to a peak under the trouser cuff (2026-11-26)."""
     names = list(parts) if names is None else list(names)
     require(set(names) <= set(parts), f'No such part to refit: {", ".join(sorted(set(names) - set(parts)))}')
     from . import bake
@@ -824,14 +854,14 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
             sloped = tapered(before, slope)
             n, v = renormal(n, f, v, sloped), sloped
         if contract is not None:
-            part_ends = ends.ends_of(name, target[0], contract, bodies[1], tier, bare=bare)
-            drawn = [end for end in ends.ends_of(name, target[0], contract, bodies[1], tier, joints=DRAWN_IN, bare=bare) if end[4]]
-            if part_ends or drawn:
+            part_ends = ends.ends_of(name, target[0], contract, bodies[1], tier, joints=tuple(joint for joint in ends.TUBES if joint not in drawn), bare=bare)
+            drawn_in = [end for end in ends.ends_of(name, target[0], contract, bodies[1], tier, joints=DRAWN_IN, bare=bare) if end[4]]
+            if part_ends or drawn_in:
                 measured = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
                 shaped = ends.shaped(v, f, measured, part_ends)
-                if drawn:  # a sleeve's end at the shoulder, scaled as its two joints' rings: inside the envelope, or drawn in to it
-                    shaped = ends.shaped(shaped, f, measured, drawn, inward=True)
-                shaped = capped(v, shaped, f, measured, part_ends + drawn)
+                if drawn_in:  # a sleeve's end at the shoulder, scaled as its two joints' rings: inside the envelope, or drawn in to it
+                    shaped = ends.shaped(shaped, f, measured, drawn_in, inward=True)
+                shaped = capped(v, shaped, f, measured, part_ends + drawn_in)
                 for joint, side in bare:  # under the body's own skin: its part across the joint on the other body
                     letter = 'l' if side == 'c' else side
                     over = split.token(seams.JOINTS[joint]['over'], letter)
@@ -858,12 +888,14 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                     room = split.room(*bake._outfit(out[other])[:2], centres[k], normal)
                     if room is not None:  # as the bake's gate asks it (`bake.ends`)
                         least, depth = min(least, room - split.SEAT_GAP - bake.ROOM_SLACK), min(depth, room - split.SEAT_GAP)
-                deeper = deepened(moved, centres[k], normal, least, depth)
+                # cut as drawn, the end past the plane is the outfit's own leftover, as long as it was drawn: stretched to
+                # the overlap all the same, a boot's top rose 3.4 cm into a peak on the Human female (2026-11-26)
+                deeper = moved if joint in drawn else deepened(moved, centres[k], normal, least, depth)
                 if (joint, side) in bare and other in target[1] and not np.array_equal(deeper, moved):
                     deeper = under_skin(deeper, centres[k], normal, target[1][other][:2])
                 if other in out:  # under a part carried too: seated in a torso, and nothing of it showing in the design bend
                     over = bake._outfit(out[other])[:2]
-                    if joint in measure.TORSO_OPENINGS:
+                    if joint in measure.TORSO_OPENINGS or joint in drawn:  # as drawn: the two parts' scales across differ, a boot's end stood 0.9 cm out of the cuff
                         deeper = seated({**part, 'v': deeper}, centres[k], normal, over, others=np.delete(centres, k, axis=0))
                     deeper = bent_under(part, deeper, joint, side, centres[k], normal, out[other], target[0], contract, bodies[1])
                 moved = deeper
@@ -895,7 +927,7 @@ def whole(part):
     return {**part, **{key: np.asarray(part[key])[keep] for key in FACE_KEYS if key in part}}, int((~keep).sum())
 
 
-def run(kept, output, body_pack, source, target, names=None, tier=None, body_textures=None, seat_in=None):
+def run(kept, output, body_pack, source, target, names=None, tier=None, body_textures=None, seat_in=None, drawn=None):
     """Refit the parts kept in the folder `kept` (`bake.store`) from body `source` to body `target`, both read
     from `body_pack`, their ends shaped to the target's seam contract at tier `tier`, and keep them in the
     folder `output` with the slots the brief they were baked from left to the body and shared with its skin,
@@ -916,7 +948,8 @@ def run(kept, output, body_pack, source, target, names=None, tier=None, body_tex
     require(Path(output).resolve() != Path(kept).resolve(), 'Refit parts are kept in another folder than the parts they came from')
     listed = bake.listing(kept)
     require(tier is None or listed.get('tier') in (None, tier), f"{kept} holds parts cut at tier {listed.get('tier')}, not {tier}")
-    tier = tier if tier is not None else listed.get('tier', 2)
+    require(drawn is None or listed.get('drawn') in (None, sorted(drawn)), f"{kept} holds parts cut as drawn at {listed.get('drawn')}, not {sorted(drawn or ())}")
+    tier, drawn = tier if tier is not None else listed.get('tier', 2), tuple(drawn if drawn is not None else listed.get('drawn', ()))
     left = [token for slot in listed['bare'] for token in registry.SLOTS[slot]['tokens']]
     goal = measure.body(body_pack, target)
     stored, contract = bake.stored(kept), seams.load_contract()
@@ -925,7 +958,7 @@ def run(kept, output, body_pack, source, target, names=None, tier=None, body_tex
         require(body_textures is not None, f'{", ".join(sorted(shared))} share their slots with the body\'s '
                                            'skin: give the body\'s textures to lay the other body\'s beside them')
         bodyskin.material_folder(body_textures)
-    parts, report = refit(stored, measure.body(body_pack, source), goal, names, contract, (source, target), tier, bake.bare_joints({'left': left}))
+    parts, report = refit(stored, measure.body(body_pack, source), goal, names, contract, (source, target), tier, bake.bare_joints({'left': left}), drawn)
     beside = bake.stored(seat_in) if seat_in is not None else {}
     for name in parts:
         met = joints_of(name)
@@ -967,7 +1000,7 @@ def run(kept, output, body_pack, source, target, names=None, tier=None, body_tex
                 report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)
                 parts[name] = held
             report[name]['shortOfSkin'] = round(short_of_skin(parts[name], *split.bone_line(goal[0], name)), 4)
-    bake.store(parts, output, {key: value for key, value in listed.items() if key not in ('parts', 'tier')}, tier)
+    bake.store(parts, output, {key: value for key, value in listed.items() if key not in ('parts', 'tier', 'drawn')}, tier, drawn)
     faced, failures = bake.facing(parts, goal[0])
     for name, area in faced.items():
         if area:

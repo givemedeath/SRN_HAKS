@@ -63,9 +63,9 @@ class CommandLineTests(unittest.TestCase):
     def test_refit_carries_kept_parts_to_another_body(self):
         with mock.patch.object(refit, 'run', return_value={'handl': {'degrees': 1.5}}) as call:  # the module itself: the suite also imports it as armorkit
             self.assertEqual(run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--parts', 'handl, footl'), {'handl': {'degrees': 1.5}})
-            run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--body-textures', 'maps', '--seat-in', 'beside', '--tier', '3', '--tier-at', 'waist=1')
-        self.assertEqual(call.call_args_list[0], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'], tier=None, body_textures=None, seat_in=None))
-        self.assertEqual(call.call_args_list[1], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', None, tier={'default': 3, 'waist': 1}, body_textures='maps', seat_in='beside'))
+            run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--body-textures', 'maps', '--seat-in', 'beside', '--tier', '3', '--tier-at', 'waist=1', '--as-drawn', 'ankle')
+        self.assertEqual(call.call_args_list[0], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'], tier=None, body_textures=None, seat_in=None, drawn=None))
+        self.assertEqual(call.call_args_list[1], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', None, tier={'default': 3, 'waist': 1}, body_textures='maps', seat_in='beside', drawn=('ankle',)))
 
     def test_combine_takes_each_folders_named_parts(self):
         from . import bake, brief

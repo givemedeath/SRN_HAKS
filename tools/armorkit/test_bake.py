@@ -580,13 +580,16 @@ class BakeTests(unittest.TestCase):
         cut = {'default': 3, 'waist': 1}
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
-            bake.store({'chest': part(3)}, root / 'own', {}, cut)
-            bake.store({'pelvis': part(2)}, root / 'carried', {}, cut)
+            bake.store({'chest': part(3)}, root / 'own', {}, cut, ['knee'])
+            bake.store({'pelvis': part(2)}, root / 'carried', {}, cut, ('knee',))
             bake.store({'legl': part()}, root / 'old', {})  # kept before the tier was listed: it says nothing
             bake.store({'legr': part()}, root / 'padded', {}, 2)
             self.assertEqual((bake.listing(root / 'own')['tier'], 'tier' in bake.listing(root / 'old')), (cut, False))
             bake.combine([(root / 'own', ['chest']), (root / 'carried', ['pelvis']), (root / 'old', ['legl'])], root / 'out', {})
-            self.assertEqual(bake.listing(root / 'out')['tier'], cut)
+            self.assertEqual((bake.listing(root / 'out')['tier'], bake.listing(root / 'out')['drawn']), (cut, ['knee']))  # and the joints cut as drawn
+            bake.store({'legr': part()}, root / 'shaped', {}, cut)  # at the same tier, its knee shaped to the envelope
+            with self.assertRaisesRegex(ValueError, 'drawn joints'):
+                bake.combine([(root / 'own', ['chest']), (root / 'shaped', ['legr'])], root / 'mixed', {})
             with self.assertRaisesRegex(ValueError, 'cut at different tiers'):
                 bake.combine([(root / 'own', ['chest']), (root / 'padded', ['legr'])], root / 'mixed', {})
             listed = json.loads((root / 'own' / bake.KEPT).read_text(encoding='utf-8'))

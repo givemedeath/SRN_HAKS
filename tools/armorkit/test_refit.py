@@ -42,6 +42,16 @@ def sleeved():
     return bodyskin.worn(sleeve, body_arm(), (0, 0, 1.5), (0, 0, 1.2))
 
 
+def foot(length, width, height, lean=0.0, lift=0.0):
+    """A body's own left foot: a box `length` long toward -y from its heel, `width` wide and `height` tall, its
+    sole `lift` over the ground and its top leant `lean` back over the heel, as a stub of shin leans a foot's."""
+    corners = np.array([(x, y, z) for x in (-width / 2, width / 2) for y in (0.0, -length) for z in (0.0, height)])
+    corners[:, 1] += lean * corners[:, 2]
+    corners[:, 2] += lift
+    faces = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+    return corners, faces
+
+
 def hand(scale=1.0, round_=None):
     """The body's own left hand: a short tube past the wrist plane (x = 0.55), `scale` times as long and
     `round_` (or `scale`) times as wide."""
@@ -107,6 +117,43 @@ class PlacementTests(unittest.TestCase):
         carried = self.source[1]['handl'][0] @ linear.T + offset
         self.assertAlmostEqual(float(np.ptp(carried[:, 0])), 0.9 * 0.12, places=4)
         self.assertTrue(np.allclose(np.linalg.norm(carried[:, 1:], axis=1), 0.7 * 0.03, atol=1e-4))
+
+
+class FootTests(unittest.TestCase):
+    def test_a_foot_is_carried_in_the_grounds_frame_with_its_sole_on_the_ground(self):
+        # the other body's foot is shorter, narrower, lower, leant more, lifted off the ground and toed out, and its
+        # ankle stands higher: the boot's sole stays flat on the ground, nothing of it sheared
+        ankles = {'a': np.array((0.0, -0.05, 0.14)), 'b': np.array((0.02, -0.04, 0.15))}
+        mine, hers = foot(0.30, 0.12, 0.20, lean=0.4), foot(0.27, 0.09, 0.15, lean=0.6, lift=0.015)
+        hers = (hers[0] @ about_z(10).T, hers[1])
+        source, target = ('a', {'footl': mine}), ('b', {'footl': hers})
+        with mock.patch.object(refit, 'anchors', side_effect=lambda token, bones: ankles[bones][None]):
+            linear, offset, report = refit.grounded('footl', source, target)
+        boot = foot(0.32, 0.14, 0.22)[0]  # the boot drawn round the source's foot, its sole on the ground
+        carried = boot @ linear.T + offset
+        sole = boot[:, 2] == 0
+        self.assertTrue(np.allclose(carried[sole, 2], 0.0, atol=1e-9))  # on the ground, and flat
+        self.assertTrue(np.allclose(linear @ ankles['a'] + offset, ankles['b']))  # its ankle where the other body's is
+        self.assertTrue(np.allclose(linear[2], (0, 0, 0.15 / 0.14)) and np.allclose(linear[:2, 2], 0))  # upright stays upright: no shear
+        self.assertTrue(np.allclose(report['axes'][:2], [0.9, 0.75], atol=0.02) and report['grounded'])
+        toe = linear @ np.array((0.0, -1.0, 0.0))
+        self.assertAlmostEqual(float(np.degrees(np.arctan2(toe[0], -toe[1]))), 10.0, delta=0.5)  # it points where her foot does
+        with mock.patch.object(refit, 'anchors', side_effect=lambda token, bones: ankles[bones][None]), \
+                mock.patch.object(refit, 'joints_of', return_value=[('ankle', 'l', 'shinl')]), \
+                mock.patch.object(refit, 'axis_of', return_value=np.array((0.0, 0.0, 1.0))):
+            again = refit.placement('footl', source, target)
+        self.assertTrue(np.allclose(again[0], linear))  # what `placement` carries a foot by
+
+
+    def test_no_end_is_shaped_at_a_joint_cut_as_drawn_on_any_part(self):
+        # every part carried, not the first alone: the list of ends drawn in took the joints' name, and from the
+        # second part on every end was shaped again; the boots came out peaked all the same (2026-11-26)
+        parts = {'forel': part(faces=1), 'handl': part(faces=1)}
+        identity = (np.eye(3), np.zeros(3), {})
+        with mock.patch.object(refit, 'placement', return_value=identity), mock.patch.object(refit, 'taper', return_value=None),                 mock.patch.object(refit, 'joints_of', return_value=[]), mock.patch.object(refit, 'anchors', return_value=np.zeros((0, 3))),                 mock.patch.object(refit.ends, 'ends_of', return_value=[]) as asked:
+            refit.refit(parts, (rig(), {}), (rig(), {}), None, two_bodies(), ('a', 'b'), 2, (), ('wrist',))
+        tubes = [call.kwargs['joints'] for call in asked.call_args_list if call.kwargs['joints'] != refit.DRAWN_IN]
+        self.assertEqual(tubes, [tuple(joint for joint in refit.ends.TUBES if joint != 'wrist')] * 2)
 
 
 def torso(span=0.4, lean=0.0):
@@ -614,9 +661,13 @@ class RefitTests(unittest.TestCase):
                 refit.run(Path(folder) / 'cut', Path(folder) / 'cut-out', 'pack', 'pmh0', 'pfh0')
                 refit.run(kept, Path(folder) / 'said', 'pack', 'pmh0', 'pfh0', tier=cut)  # kept before tiers were listed
                 refit.run(kept, Path(folder) / 'unsaid', 'pack', 'pmh0', 'pfh0')
+                refit.run(kept, Path(folder) / 'drawn', 'pack', 'pmh0', 'pfh0', tier=cut, drawn=('ankle',))
                 with self.assertRaisesRegex(ValueError, 'cut at tier'):
                     refit.run(Path(folder) / 'cut', Path(folder) / 'other', 'pack', 'pmh0', 'pfh0', tier=2)
-            self.assertEqual([call.args[6] for call in carried.call_args_list], [cut, cut, 2])
+            self.assertEqual([call.args[6] for call in carried.call_args_list], [cut, cut, 2, cut])
+            # and so are the joints it was cut at as drawn: no end there is shaped to the other body's envelope
+            self.assertEqual([call.args[8] for call in carried.call_args_list], [(), (), (), ('ankle',)])
+            self.assertEqual(bake.listing(Path(folder) / 'drawn')['drawn'], ['ankle'])
             self.assertEqual((bake.listing(Path(folder) / 'cut-out')['tier'], bake.listing(Path(folder) / 'said')['tier']), (cut, cut))
             # under a forearm baked on the other body (`seat_in`) the glove's end is seated in it and drawn in under it
             # in the bend, as under one carried with it, and the report says which was done
