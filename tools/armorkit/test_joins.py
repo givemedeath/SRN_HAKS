@@ -184,6 +184,30 @@ class KeptEndTests(unittest.TestCase):
     def wide(z):
         return 0.05 - 0.01 * np.clip(np.asarray(z, float) / 0.03, 0.0, 1.0)
 
+    def test_an_end_into_the_torso_starts_off_the_plane_and_has_a_ring_on_it_inside_the_contracts(self):
+        # the under part ends 2 cm before the plane, on a line; the over part runs on to that line, 5 cm wide
+        under, under_f = rings(0.05, (-0.10, -0.05, -0.02), 64)
+        levels = -0.02 + np.arange(0, 25) * 0.005
+        over, over_f = rings(0.05, levels, 64)
+        v = np.concatenate([under, over])
+        columns = np.zeros((len(v), 9))
+        columns[len(under):, 4] = 7.0
+        on = np.abs(v[:, 2] + 0.02) < 1e-6
+        on[len(under):] = False
+        edges = split.opening_rim(v, under_f, on, np.zeros(3), self.NORMAL)
+        self.assertEqual(len(edges), 64)
+        turns = split.swung(self.NORMAL, 60.0)
+        grown, kept, added = split.kept_end(v, columns, under_f, len(v), np.zeros(3), self.NORMAL, 0.08, None, (v, over_f + len(under), columns), turns,
+                                            edges=edges, bounded=False, ring=np.full(16, 0.03))
+        radius = np.linalg.norm(grown[:, :2], axis=1)
+        on_plane = np.abs(grown[:, 2]) < 1e-9
+        self.assertEqual(int(on_plane.sum()), 64)  # one ring of it on the plane, for the contract to measure
+        self.assertTrue((radius[on_plane] <= 0.03 + 1e-9).all())  # inside the contract's ring there
+        self.assertTrue((radius[grown[:, 2] > 0] <= 0.03 + 1e-9).all())  # and past the plane no farther out
+        self.assertAlmostEqual(float(grown[:, 2].max()), 0.08)  # as deep as asked: 8 cm, deeper than the rim is far out
+        self.assertTrue((kept[:64 * split.LEFT_STEPS, 4] == 7.0).all())  # the leftover carries the over part's columns
+        self.assertEqual(len(split.leaned(self.NORMAL, 30.0)), 8)
+
     def test_the_end_is_the_over_parts_surface_drawn_in_under_it_and_closed_at_a_pole(self):
         v, columns, under_f, over_f = self.limb()
         turns = split.hinged(self.NORMAL, (0.0, 1.0, 0.0), (22.5, 45.0, 90.0))

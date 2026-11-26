@@ -32,6 +32,7 @@ from . import bodyskin, brief, export, measure, reduce, registry, repose, seams,
 from . import ends as shaping  # `ends` here is the seam gate
 from .registry import require
 
+LEFTOVER = split.LEFT_JOINTS  # the joints an under part's end is the leftover of the cut at: all of them (user, 2026-11-25)
 ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED, split.KEPT)  # what the split made: it has no surface of its own on the generated outfit
 DOMED = (split.CAP, split.PADDED, split.KEPT)  # of those, what rounds a surface on past its edge and is not creased there (`export.added_normals`)
 UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelvis': (split.CLOSING,),
@@ -979,7 +980,7 @@ def cut(given, contract=None):
                          reaches=given['reaches'], whole=UNCUT, made=made, sleeves=given['sleeves'], guards=given['guards'],
                          origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'],
                                                joints=tuple(joint for joint in shaping.TUBES if joint not in given.get('drawn', ())), bare=bare),
-                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={**{('ankle', side): ANKLE_TUCK for side in 'lr'}, **{key: shaping.TUCK for key in bare}}, kept=tuple(given.get('drawn', ())),
+                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={**{('ankle', side): ANKLE_TUCK for side in 'lr'}, **{key: shaping.TUCK for key in bare}}, kept=tuple(given.get('kept', LEFTOVER)),
                          ends=contract.get('ends'))
     return result, made, origins
 
