@@ -1,6 +1,7 @@
 """Accessories: a brief for one piece, a belt wrapped over what is worn, a logo badge that reads right, headgear on a head envelope."""
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import numpy as np
@@ -119,6 +120,36 @@ class BeltTests(unittest.TestCase):
         self.assertLess(off.max(), 0.03)
         self.assertAlmostEqual(float(placed[:, 2].mean()), 1.0, places=2)
         self.assertLess(record['scale'], 0.5)
+
+    def test_a_pouch_keeps_the_shape_it_was_drawn_in_and_leans_out_whole_over_what_it_would_sink_into(self):
+        # a strap 5 cm tall round a hoop 1 m across, drawn at twice its size, and a box hanging below it at the front
+        v, f = tube(0.5, -0.025, 0.025, around=192)  # a vertex in every direction, as a generated strap has
+        box = np.array([(x, y, z) for x in (-0.08, 0.08) for y in (0.5, 0.58) for z in (-0.2, -0.04)])
+        sides = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+        points, faces = np.concatenate([v, box]), np.concatenate([f, sides + len(v)])
+        pieces = accessory.hanging(points, faces, least=4)
+        self.assertEqual([sorted(which.tolist()) for which, _ in pieces], [list(range(len(v), len(v) + 8))])
+        self.assertTrue((pieces[0][1] < len(v)).all())  # it hangs from the strap
+        self.assertEqual(accessory.hanging(points, faces), [])  # eight vertices are a crease of the strap, not a pouch
+        apart = lambda q: np.linalg.norm(q[:, None] - q[None], axis=2)
+        with unittest.mock.patch.object(accessory, 'HANGING_LEAST', 4):
+            body, body_faces = tube(0.12, 0.6, 1.2, rings=40)
+            placed, record = accessory.wrap(points, faces, [(body * [1.0, 0.7, 1.0], body_faces)], np.array([0.0, 0.0, 1.0]))
+            self.assertEqual(record['pieces'], 1)
+            ratio = apart(placed[len(v):])[np.triu_indices(8, 1)] / apart(box)[np.triu_indices(8, 1)]
+            self.assertLess(np.ptp(ratio), 1e-9)  # one scale every way: nothing flared or sheared
+            self.assertAlmostEqual(float(ratio[0]), record['scale'] * record['taller'], places=3)  # the hoop's, made as much taller
+            # a thigh under it: the box leans out whole, its foot first, until no more of it than allowed is inside
+            thigh, thigh_faces = tube(0.2, -0.5, 2.5, rings=120)  # long, so that its open ends are far from the box
+            thigh = thigh + [0.0, 0.05, 0.0]  # its front at y 0.25: the box's back 1.5 cm inside it, the strap it hangs from outside
+            hung = np.array([(x, y, z) for x in (-0.04, 0.04) for y in (0.235, 0.275) for z in (0.74, 0.9)])
+            self.assertGreater(accessory._sunk(hung, [(thigh, thigh_faces)]).max(), 0.01)
+            leaned, degrees = accessory.tilted(hung, np.array([0.0, 0.275, 0.92]), [(thigh, thigh_faces)], allowed=0.005)
+            self.assertGreater(degrees, 0.0)
+            self.assertLessEqual(accessory._sunk(leaned, [(thigh, thigh_faces)]).max(), 0.005)
+            np.testing.assert_allclose(apart(leaned), apart(hung), atol=1e-9)
+            self.assertGreater(leaned[[0, 2, 4, 6], 1].mean(), hung[[0, 2, 4, 6], 1].mean())  # the foot swung out, away from the body
+            self.assertEqual(accessory.tilted(hung + [0.0, 0.5, 0.0], np.array([0.0, 0.775, 0.92]), [(thigh, thigh_faces)])[1], 0.0)  # clear: as it was
 
     def test_a_belts_faces_turned_toward_the_body_are_no_metals(self):
         # four walls of a hoop, each on a quarter of the texture: outside and inside at the front, outside and inside at the back

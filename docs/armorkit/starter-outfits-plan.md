@@ -483,6 +483,26 @@ no holes, no skin where cloth belongs, nothing see-through on either body. Left 
   left as it is (user, 2026-11-26).
 * The belt's buckle and a pouch clip the shirt hem and thigh in the sit (accessories may clip in motion).
 
+### 2026-11-26 (night): belt pouches keep the shape they were drawn in
+
+User: "i don't like that the pouch is getting deformed on the belt. Again accessories (belt and neck slots
+should allow clipping, especially in motion)." The fit (`accessory.wrap`) moved each direction round the body
+as its own column, pushed what hangs below the strap out level by level, and made a hoop whose band is drawn
+thin taller and deeper but no longer round; on the Human female (hoop 0.36, made 1.38 taller) the pouches came
+out flared and sheared.
+
+* **Rigid pouches.** What hangs below the strap (`accessory.hanging`: below the strap's own height measured
+  down from the hoop's top in each direction, a strap sags at the front; pieces of 50 vertices or more,
+  vertices at one place joined across texture seams) is put back as drawn, at one scale every way (the hoop's
+  times how much taller its band was made, so a pouch is the same size on both bodies), turned and moved with
+  the strap vertices it hangs from. The strap is fitted as before.
+* **Lean, not bend.** A pouch that would sink more than `HANGS_IN` (2 cm) into the trousers at rest is
+  turned whole about where it hangs, its foot out, 2 degrees at a time, 40 at most (`accessory.tilted`):
+  male 18 and 12 degrees, female 34 and 28. In sit and crouch the pouches sink into the thighs, as allowed.
+* Belts `belt-25` (male) and `belt-f14` (female) pass every gate; client views `pouch-m-realistic`,
+  `pouch-m-hips2`, `pouch-f-realistic`, `pouch-f-hips` (outfits `pouch-m-belt`, `pouch-f-belt`: typed-10 and
+  female-14 with these belts). The first male hips run lost a shot to a stalled client and was taken again.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
