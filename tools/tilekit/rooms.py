@@ -383,7 +383,7 @@ def _floor(text, slack=0.0):
                 whole = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
                 if len(face) > 7 and face[7] in geometry.WALKABLE and abs(whole) > 1e-9:
                     first = ((bx - xs) * (cy - ys) - (by - ys) * (cx - xs)) / whole; second = ((cx - xs) * (ay - ys) - (cy - ys) * (ax - xs)) / whole
-                    off = [1e-9 + slack * math.hypot(q[0] - p[0], q[1] - p[1]) / abs(whole) for p, q in (((ax, ay), (cx, cy)), ((ax, ay), (bx, by)), ((bx, by), (cx, cy)))]
+                    off = [1e-9 + slack * math.hypot(q[0] - p[0], q[1] - p[1]) / abs(whole) for p, q in (((bx, by), (cx, cy)), ((cx, cy), (ax, ay)), ((ax, ay), (bx, by)))]  # each corner's weight by the edge across from it
                     on |= (first >= -off[0]) & (second >= -off[1]) & (first + second <= 1 + off[2])
     return {(int(x) - CELLS // 2, int(y) - CELLS // 2) for x, y in np.argwhere(on)}
 

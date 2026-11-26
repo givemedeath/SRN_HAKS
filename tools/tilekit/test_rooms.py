@@ -167,6 +167,19 @@ class Read(unittest.TestCase):
                     rooms.read(path)
 
 
+class Slack(unittest.TestCase):
+    def test_a_floor_s_slack_is_a_distance_on_a_long_thin_face_too(self):
+        from tools.envkit import tile
+        middle = 0.5 * rooms.STEP + 1e-4  # the first row of cell middles above y = 0
+
+        def floor(top):
+            points = [(-5, 0, 0), (5, 0, 0), (5, top, 0), (-5, top, 0)]
+            return chr(10).join(['newmodel tst', 'beginmodelgeom tst', 'node dummy tst', '  parent null', 'endnode',
+                                 *tile._walk_node('tst', 'tst', np.array(points, float), np.array([(0, 1, 2, 5), (0, 2, 3, 5)], int)), 'endmodelgeom tst', 'donemodel tst'])
+        self.assertIn((0, 0), rooms._floor(floor(middle - 0.0003), rooms.SLACK))  # 0.3 mm short of it: within the slack
+        self.assertNotIn((0, 0), rooms._floor(floor(middle - 0.001), rooms.SLACK))  # 1 mm short: not
+
+
 class Built(unittest.TestCase):
     def test_a_build_takes_away_what_the_last_one_wrote_and_this_one_does_not(self):  # a room renamed or taken away
         with tempfile.TemporaryDirectory() as folder:
