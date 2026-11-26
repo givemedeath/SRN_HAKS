@@ -72,10 +72,14 @@ def walk_command(chosen):
         tiles = walk.plan(models, set_text, lambda model: found[model].read_bytes().decode('cp1252') if model in found else None, sides=chosen.sides)
         if chosen.plan:
             chosen.plan.parent.mkdir(parents=True, exist_ok=True); chosen.plan.write_text(json.dumps({'tileset': tileset, 'sides': chosen.sides, 'tiles': tiles}, indent=1) + '\n', encoding='utf-8')
-    fill = chosen.fill if chosen.fill is not None else review.plain(laid_set)
+    try:
+        fill = chosen.fill if chosen.fill is not None else review.plain(laid_set)
+    except ValueError as error:
+        raise ValueError(f'{error} (--fill)') from error
     width, height, laid, walkers = walk.layout(tiles, fill)
     require(walkers, 'No crossing was found on these tiles: nothing to walk')
     models = {tile['number']: tile['model'] for tile in reversed(laid_set['tiles'])}
+    strange = sorted({number for number, _ in laid.values()} - set(models)); require(not strange, f'Not tiles of {tileset}.set: ' + ', '.join(map(str, strange)))
     haks = tuple(dict.fromkeys([f'srn_t_{tileset}', *walk.packs(chosen.repo, sorted({models[number] for number, _ in laid.values()})), 'srn_door', 'srn_2da']))
     area = {'tag': walk.AREA, 'title': 'Walk', 'tileset': tileset, 'width': width, 'height': height, 'laid': laid, 'light': 'day'}
     shots = [{'area': walk.AREA, 'label': f'row{row}', 'stand': [width * 5.0, (2 + 3 * row) * 10.0], 'facing': 90.0, 'distance': 70.0, 'pitch': 35.0, 'height': 1.0}

@@ -6184,6 +6184,7 @@
     ],
     "tools/tilekit/test_walk.py": [
       "tools/tilekit/__init__.py",
+      "tools/tilekit/__main__.py",
       "tools/tilekit/review.py",
       "tools/tilekit/walk.py"
     ],

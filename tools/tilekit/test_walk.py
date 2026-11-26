@@ -1,9 +1,13 @@
 """The walk plan, layout, script and verdict of `tilekit walk`, without the client."""
+import json
+import tempfile
 import unittest
+from pathlib import Path
 
 import numpy as np
 
 from tools.tilekit import review, walk
+from tools.tilekit.__main__ import main
 
 
 def wok(corners, faces):
@@ -97,6 +101,18 @@ class Walkers(unittest.TestCase):
                              'ENVKIT walk=c.human leg=1 at=   2.00,   0.00,  0.00'], off)
         self.assertEqual([(one['way'], one['off']) for one in late['short']], [('to', .5)]); self.assertEqual((late['walked'][0]['strayed'], late['bent']), (0.0, []))
         self.assertEqual(told['walked'][0]['longer'], 1.001)
+
+
+class Command(unittest.TestCase):
+    def test_a_plan_is_walked_only_as_it_was_made(self):
+        with tempfile.TemporaryDirectory() as folder:
+            plan = Path(folder) / 'plan.json'; run = ['walk', '--plan', str(plan), '--game', folder, '--built', folder, '--out', str(Path(folder) / 'out'), '--name', 'walkt']
+            plan.write_text(json.dumps({'tileset': 'fcx01', 'sides': False, 'tiles': {'fcx01_x05_01': {'number': 211, 'crossings': [CROSSING], 'beside': []}}}), encoding='utf-8')
+            self.assertEqual(main([*run, '--tileset', 'udp1']), 2)  # a plan of another set
+            self.assertEqual(main([*run, '--tileset', 'fcx01', '--tiles', 'fcx01_x05_02']), 2)  # of other tiles
+            self.assertEqual(main([*run, '--tileset', 'fcx01', '--sides']), 2)  # made without the sides
+            self.assertEqual(main([*run, '--tileset', 'fcx01', '--fill', '99999']), 2)  # a fill the set lacks
+            self.assertFalse((Path(folder) / 'out').exists())
 
 
 if __name__ == '__main__':
