@@ -613,8 +613,12 @@ Release A was never cut on its own; release B carries it: the merged set with th
   enlarged pictures that `srn_placeable` and `srn_t_zsf01` both hold (`cq_light`, `cqpanel01`, `cqroof01`, the same
   bytes) are declared as expected overrides in `hakbuilder.json`. Guard: the verification list now runs the
   repository check without builds at every batch commit.
-- **Not done:** merging into `main` (push and pull request wait for the user); palette blueprints for the `[lpat]`
-  rows; the restyle (release C).
+- **Merged with main** (user: "Yes, push and PR"): main's walkmesh repairs (PR 203) are in the udp2, tfb01 and nac01
+  baselines; `test_floor_edges` covers `srn_t_srx02`; main removed `flag_nazi.dds`, so its enlargement is dropped; every
+  tile source was recompiled for the merged materials and gave the same binaries; the srx01 merge was run again for
+  the door names both sides changed. Two pictures the realism pass brought in were under the texel bar and are
+  doubled to 512 (`pkt_walhang2a`, the lodge banner; `grafitti1h`, the shack's tag).
+- **Not done:** palette blueprints for the `[lpat]` rows; the restyle (release C).
 
 ## Work order
 
