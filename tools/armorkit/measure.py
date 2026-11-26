@@ -186,7 +186,9 @@ def winding(points, vertices, faces, chunk=WINDING_CHUNK):
     return out
 
 
-END_ON = 0.9  # the least a face's normal lies along a bone for the face to be a wall across the limb, not cloth round it (26 degrees)
+END_DOWN = 0.5  # and the least where it looks down the limb, away from the bone's start: the mouth of a sleeve, closed (30 degrees off square)
+END_ON = 0.7  # the least a face's normal lies along a bone for the face to be a wall across the limb, not cloth round it (45 degrees): at 0.9 the
+# upper side of a rolled hem, 0.75 along the bone, was cloth, tipped further with each push out and took 3.4 cm of pushes where 5 mm cleared the arm (2026-11-25)
 
 
 def round_limb(vertices, faces, axis, made=None):
@@ -196,11 +198,17 @@ def round_limb(vertices, faces, axis, made=None):
     is the wall's edge, not a sleeve: the arm kept below the hem of Street Casual's second, looser sleeves was
     read 2.2 cm out through such a wall, which no push out from the bone moves clear, and the push grew to 3.4
     and 4.8 cm in four passes (2026-11-25). A face `made` flags, the split's own (a dome at an armpit, whose
-    middle looks along the bone too), counts whichever way it looks."""
+    middle looks along the bone too), counts whichever way it looks.
+
+    `axis` runs from the bone's start to its end, shoulder to elbow. A face that looks down the limb, toward the
+    bone's end, is a wall from `END_DOWN` on: what closes a sleeve's mouth is often no flat wall but a funnel
+    into the sleeve, and the cloth of a sleeve that flares looks the other way, up the limb. The funnel in the
+    mouth of the Human female's own sleeves lay 52 degrees off the bone, counted as cloth, and her arm below the
+    hem was read 3.5 cm out through it (2026-11-25)."""
     corners = np.asarray(vertices, float)[np.asarray(faces, int)]
     normal = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
-    along = np.abs(normal @ np.asarray(axis, float)) / np.maximum(np.linalg.norm(normal, axis=1), 1e-30)
-    counted = along < END_ON
+    along = (normal @ np.asarray(axis, float)) / np.maximum(np.linalg.norm(normal, axis=1), 1e-30)
+    counted = (along < END_DOWN) & (along > -END_ON)
     return counted if made is None else counted | np.asarray(made, bool)
 
 

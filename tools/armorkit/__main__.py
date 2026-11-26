@@ -215,7 +215,7 @@ def command_split(args):
 def command_refit(args):
     from . import refit
     names = listed(args.parts) if args.parts else None
-    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names, body_textures=args.body_textures, seat_in=args.seat_in)))
+    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names, tier=tiers(args.tier, args.tier_at) if args.tier is not None else None, body_textures=args.body_textures, seat_in=args.seat_in)))
 
 
 def command_combine(args):
@@ -414,6 +414,8 @@ def main(argv=None):
     p.add_argument('--from', dest='source', default='pmh0'); p.add_argument('--to', dest='target', required=True)
     p.add_argument('--parts', help='comma-separated parts to carry (default all)')
     p.add_argument('--body-textures', help="folder of the body's material files and maps: a part sharing its slot with the body's skin gets the other body's")
+    p.add_argument('--tier', type=int, choices=registry.TIERS, help='the seam tier the parts were cut at, for parts kept before their tier was listed with them (default: the listed tier, else 2)')
+    p.add_argument('--tier-at', action='append', default=[], metavar='JOINT=TIER', help='a joint they were cut at another tier at (shoulder=1); may be repeated')
     p.add_argument('--seat-in', help="folder of parts baked on the other body: an end carried under one of them is seated in it")
     p.set_defaults(handler=command_refit)
     p = commands.add_parser('combine', help='keep the parts of one outfit, kept apart in several folders, together for `bake --kept`')

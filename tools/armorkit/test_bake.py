@@ -576,6 +576,24 @@ class BakeTests(unittest.TestCase):
             record = bake.run({'model': 'outfit', 'materials': []}, Path(folder) / 'out', 'bodies', 332, mesh='m', colours='c', raw='r', xatlas='x')
         self.assertEqual(list(record['seconds']), ['split', 'tint', 'write', 'gates'])
 
+    def test_the_tier_the_parts_were_cut_at_is_kept_with_them(self):
+        cut = {'default': 3, 'waist': 1}
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            bake.store({'chest': part(3)}, root / 'own', {}, cut)
+            bake.store({'pelvis': part(2)}, root / 'carried', {}, cut)
+            bake.store({'legl': part()}, root / 'old', {})  # kept before the tier was listed: it says nothing
+            bake.store({'legr': part()}, root / 'padded', {}, 2)
+            self.assertEqual((bake.listing(root / 'own')['tier'], 'tier' in bake.listing(root / 'old')), (cut, False))
+            bake.combine([(root / 'own', ['chest']), (root / 'carried', ['pelvis']), (root / 'old', ['legl'])], root / 'out', {})
+            self.assertEqual(bake.listing(root / 'out')['tier'], cut)
+            with self.assertRaisesRegex(ValueError, 'cut at different tiers'):
+                bake.combine([(root / 'own', ['chest']), (root / 'padded', ['legr'])], root / 'mixed', {})
+            listed = json.loads((root / 'own' / bake.KEPT).read_text(encoding='utf-8'))
+            (root / 'own' / bake.KEPT).write_text(json.dumps({**listed, 'tier': {'waist': 1}}), encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'names no tier'):
+                bake.listing(root / 'own')
+
     def test_parts_kept_apart_are_combined_into_one_outfit(self):
         document = {'model': 'outfit', 'materials': [], 'bare': ['forearm'], 'skin': ['bicep']}
         skin = dict(part(), skin=np.zeros(1, bool))

@@ -502,8 +502,9 @@ class RefitTests(unittest.TestCase):
         axis = np.array([0, 0, 1.0])
         self.assertEqual(refit.measure.round_limb(v, f, axis).tolist(), [True, False])
         self.assertEqual(refit.measure.round_limb(v, f, axis, made=[False, True]).tolist(), [True, True])  # the split's own dome counts
-        v[4, 2] = 0.3  # the wall tipped 45 degrees is cloth again
-        self.assertEqual(refit.measure.round_limb(v, f, axis).tolist(), [True, True])
+        v[4, 2] = 0.35  # tipped 56 degrees and looking down the limb it is still what closes a sleeve's mouth
+        self.assertEqual(refit.measure.round_limb(v, f, axis).tolist(), [True, False])
+        self.assertEqual(refit.measure.round_limb(v, f[:, ::-1], axis).tolist(), [True, True])  # looking up it, the cloth of a flare
 
     def test_a_sleeve_is_held_outside_the_other_bodys_arm(self):
         # a sleeve to x = 0.3, its end capped 3 cm back past x = 0.05, with the other body's arm 4 cm round kept beside it
@@ -603,6 +604,20 @@ class RefitTests(unittest.TestCase):
                     mock.patch.object(seams, 'load_contract', return_value=None):
                 report = refit.run(kept, out, 'pack', 'pmh0', 'pfh0')
             self.assertTrue(np.allclose(report['handl']['axes'], 0.8, atol=1e-3))
+            # the ends are shaped at the tier the parts were cut at, listed with them, and the refit parts say it on:
+            # at tier 2 whatever the bake's, a tier 1 waist came to the other body outside its envelope all round
+            cut = {'default': 3, 'waist': 1}
+            bake.store({'handl': glove}, Path(folder) / 'cut', {'bare': ['forearm'], 'skin': ['bicep']}, cut)
+            with mock.patch.object(measure, 'body', side_effect=lambda pack, name: bodies[name]), \
+                    mock.patch.object(seams, 'load_contract', return_value=None), \
+                    mock.patch.object(refit, 'refit', wraps=refit.refit) as carried:
+                refit.run(Path(folder) / 'cut', Path(folder) / 'cut-out', 'pack', 'pmh0', 'pfh0')
+                refit.run(kept, Path(folder) / 'said', 'pack', 'pmh0', 'pfh0', tier=cut)  # kept before tiers were listed
+                refit.run(kept, Path(folder) / 'unsaid', 'pack', 'pmh0', 'pfh0')
+                with self.assertRaisesRegex(ValueError, 'cut at tier'):
+                    refit.run(Path(folder) / 'cut', Path(folder) / 'other', 'pack', 'pmh0', 'pfh0', tier=2)
+            self.assertEqual([call.args[6] for call in carried.call_args_list], [cut, cut, 2])
+            self.assertEqual((bake.listing(Path(folder) / 'cut-out')['tier'], bake.listing(Path(folder) / 'said')['tier']), (cut, cut))
             # under a forearm baked on the other body (`seat_in`) the glove's end is seated in it and drawn in under it
             # in the bend, as under one carried with it, and the report says which was done
             bake.store({'forel': part(faces=1)}, Path(folder) / 'upper', {})

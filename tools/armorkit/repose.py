@@ -377,6 +377,11 @@ def outfit_joints(vertices, faces, body):
         glove, straight = past(marks, sign, arm), None
         apart = len(glove) >= 3 and arm[0, 0] - glove[-1, 0] > GAP * marks['height']  # a bare forearm between
         rest = len(glove) >= 3 and not apart and np.linalg.norm(glove[-1, 1:3] - arm[0, 1:3]) <= STEP_LIMIT * marks['height']
+        # A gauntlet's cuff rises beside the sleeve: Street Casual's female gloves began 1.2 cm below the hem's height
+        # and 14.5 cm out from it, were neither below the sleeve nor the rest of it, and the arm was refused as ending
+        # at its hem (2026-11-25). A glove that far out to the side is apart as one that far below is.
+        apart = apart or (len(glove) >= 3 and not rest and glove[-1, 0] < arm[0, 0]
+                          and np.linalg.norm(glove[-1, 1:3] - arm[0, 1:3]) > GAP * marks['height'])
         apart = apart and followed(shoulder, arm) < whole  # below a whole arm, a boot or a holster
         glove = glove if apart or rest else glove[:0]
         if apart:

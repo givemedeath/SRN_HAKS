@@ -624,8 +624,25 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None):
         np.maximum.at(need, ids[cloth[face[short]]].ravel(), np.repeat(outside[short] + gap, 3))
         push = _spread(need, free, rings, rounds)
         pushed += push
-        require(pushed.max() <= OVER_MOST, f'Held outside the body\'s own skin, the outfit would move {pushed.max() * 100:.1f} cm, '
-                                           f'past {OVER_MOST * 100:.0f} cm: a fold read as its outside, or a body too far from this one')
+        if pushed.max() > OVER_MOST:  # said with where: found by hand three times in a day (2026-11-25)
+            worst = short[int(np.argmax(outside[short]))]
+            corners = moved[cloth[face[worst]]]
+            normal = seams.unit(np.cross(corners[1] - corners[0], corners[2] - corners[0]))
+            whose = ''
+            if 'added' in part:
+                rows = np.flatnonzero(~skin)[measure.round_limb(v, f[~skin], axis, np.asarray(part['added'], bool)[~skin])]
+                whose = ", the split's own" if np.asarray(part['added'], bool)[rows[face[worst]]] else ", the outfit's own"
+            where = (f' The skin stands farthest out, {outside[worst] * 100:.1f} cm, {float((moved[points[worst]] - start) @ axis) * 100:.1f} cm along the bone of '
+                     f'{float(np.linalg.norm(np.asarray(end, float) - start)) * 100:.1f}, through a face{whose} that looks {float(normal @ axis):+.2f} along the bone '
+                     f'(0 is cloth round the limb, 1 a wall across it facing its end); {len(short)} points of the skin are short in this pass.')
+            import os
+            if os.environ.get('ARMORKIT_DUMP'):  # the part as given, to try a change on in seconds and not in a bake (`over_skin(**dict(np.load(...)))` after `part=`)
+                np.savez(Path(os.environ['ARMORKIT_DUMP']) / 'over-skin-refused.npz', v=v, f=f, skin=skin, n=np.asarray(part['n'], float),
+                         added=np.asarray(part.get('added', np.zeros(len(f), bool)), bool), pad=pad, start=start, end=np.asarray(end, float),
+                         fixed=np.zeros(len(v), bool) if fixed is None else np.asarray(fixed, bool))
+                where += f' The part is kept in {os.environ["ARMORKIT_DUMP"]}.'
+            require(False, f'Held outside the body\'s own skin, the outfit would move {pushed.max() * 100:.1f} cm, '
+                           f'past {OVER_MOST * 100:.0f} cm: a fold read as its outside, or a body too far from this one.' + where)
         radial = moved - start - ((moved - start) @ axis)[:, None] * axis
         moved = moved + push[ids][:, None] * radial / np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-12)
     from . import bake
@@ -833,7 +850,7 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                 if split.token(seams.JOINTS[joint]['under'], letter) != name:
                     moved = flattened(part, moved, centres[k], normal, nearest == k, contract.get('ends', seams.ENDS)['domeMost'])
                     continue
-                least = seams.overlap(contract, joint, bodies[1], tier)
+                least = seams.overlap(contract, joint, bodies[1], seams.at(tier, joint))
                 depth = least + ends.DEEPER
                 if joint in measure.TORSO_OPENINGS:
                     if other not in out:
@@ -878,7 +895,7 @@ def whole(part):
     return {**part, **{key: np.asarray(part[key])[keep] for key in FACE_KEYS if key in part}}, int((~keep).sum())
 
 
-def run(kept, output, body_pack, source, target, names=None, tier=2, body_textures=None, seat_in=None):
+def run(kept, output, body_pack, source, target, names=None, tier=None, body_textures=None, seat_in=None):
     """Refit the parts kept in the folder `kept` (`bake.store`) from body `source` to body `target`, both read
     from `body_pack`, their ends shaped to the target's seam contract at tier `tier`, and keep them in the
     folder `output` with the slots the brief they were baked from left to the body and shared with its skin,
@@ -898,6 +915,8 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     from . import bake, measure
     require(Path(output).resolve() != Path(kept).resolve(), 'Refit parts are kept in another folder than the parts they came from')
     listed = bake.listing(kept)
+    require(tier is None or listed.get('tier') in (None, tier), f"{kept} holds parts cut at tier {listed.get('tier')}, not {tier}")
+    tier = tier if tier is not None else listed.get('tier', 2)
     left = [token for slot in listed['bare'] for token in registry.SLOTS[slot]['tokens']]
     goal = measure.body(body_pack, target)
     stored, contract = bake.stored(kept), seams.load_contract()
@@ -948,7 +967,7 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
                 report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)
                 parts[name] = held
             report[name]['shortOfSkin'] = round(short_of_skin(parts[name], *split.bone_line(goal[0], name)), 4)
-    bake.store(parts, output, {key: value for key, value in listed.items() if key != 'parts'})
+    bake.store(parts, output, {key: value for key, value in listed.items() if key not in ('parts', 'tier')}, tier)
     faced, failures = bake.facing(parts, goal[0])
     for name, area in faced.items():
         if area:

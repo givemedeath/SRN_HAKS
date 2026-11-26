@@ -382,6 +382,31 @@ table is needed for it. Only the pelvis holds both, the shirt's hem and the trou
   her arm stands 5 cm out of the end near the shoulder, where the chest covers it anyway. To look at when her
   own chest exists and the arms are seated in it.
 
+### 2026-11-26: Street Casual on the Human female passes every gate
+
+The ComfyUI and client holds are lifted (user, 2026-11-26). Her chest was generated (one geometry attempt of
+five, `street-casual-typed-female`), baked on her (`female-own-1`), the male's other nine parts carried to her
+and seated in it (`female-3-refit`), the two combined (`female-3-kept`) and baked as one (`female-3`): **all
+gates pass**, ten parts compiled. Not yet seen in the client; her belt is not fitted yet.
+
+Causes found and fixed on the way (each with a test), rather than limits lifted:
+
+* **A refit shaped every end at tier 2**, whatever the bake's. Street Casual is cut at tier 3 with shoulders
+  and waist at 1, so her pelvis stood 1.2 cm outside the waist envelope all round, both sleeves 0.9 cm at the
+  shoulder, and a shin 0.7 cm outside the thigh. The tier a bake cuts at is now listed with its kept parts
+  (`baked.json`), a refit reads it and says it on, `combine` refuses folders cut at different tiers, and
+  `bake --kept` refuses to gate parts at another tier than theirs. `refit --tier`/`--tier-at` say it for
+  folders kept before (typed-5-kept).
+* **Gauntlets beside a short sleeve** read as an arm ending 28 cm short ("needs a glove"): the hand pieces of a
+  drawn figure standing apart from the sleeve are now told apart (`repose.outfit_joints`).
+* **A sleeve refused to move 3.8 cm over the skin**: three causes. The funnel inside a sleeve's mouth and a
+  steep rolled hem counted as cloth over the arm (`measure.round_limb`: `END_DOWN` 0.5, `END_ON` 0.7, signed);
+  and skin under the chest at the armpit was kept as shown (`bodyskin.shown`: a top piece made only of faces
+  the split added joins the next, and a sleeve piece hides what lies above it across neighbouring sectors).
+  This also cleared the refusal carried open above (5.2 cm with the male's chest).
+* A refused push now says where it is (cm out, cm along the bone, whose face) and `ARMORKIT_DUMP=<folder>`
+  saves the part for a look.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
