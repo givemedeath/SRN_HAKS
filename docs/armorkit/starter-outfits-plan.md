@@ -479,8 +479,8 @@ no holes, no skin where cloth belongs, nothing see-through on either body. Left 
   neck now meets it on one clean line. Cutting it as well was tried at 2, 3 and 4 cm, all of it or its level
   faces only, closed by the fan or by a skirt dropping each rim vertex to the neck's axis: the shirt is a
   solid, and with its top taken the undersides of the folds show; 3 cm leaves a notch at the back, and on the
-  female, whose yoke rides high beside the neck, every form cut into the ridges. Left at 1 cm. Open: paint
-  the band, or a new generation (the model has used one of its five geometry submissions).
+  female, whose yoke rides high beside the neck, every form cut into the ridges. Left at 1 cm, and the band
+  left as it is (user, 2026-11-26).
 * The belt's buckle and a pouch clip the shirt hem and thigh in the sit (accessories may clip in motion).
 
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
