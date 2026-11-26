@@ -5738,6 +5738,8 @@
     ],
     "tools/tilekit/__init__.py": [],
     "tools/tilekit/__main__.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
       "tools/headkit/comfy.py",
       "tools/shared_tools.py",
       "tools/tilekit/apply.py",

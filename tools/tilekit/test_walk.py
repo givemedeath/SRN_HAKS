@@ -88,17 +88,17 @@ class Walkers(unittest.TestCase):
     def test_a_bent_route_a_short_stop_a_leg_never_reached_and_a_walker_never_made_are_told(self):
         legs = [[0, 'to', [0, 0, 0]], [0, 'ab', [2, 0, 0]], [0, 'ba', [0, 0, 0]]]
         walkers = [{'tag': 'a.human', 'appearance': 6, 'legs': legs}, {'tag': 'b.troll', 'appearance': 15104, 'legs': legs}]
-        lines = ['ENVKIT walk=a.human made=1 app=6', 'ENVKIT walk=a.human leg=0 at=   0.00,   0.00,  0.00', 'ENVKIT walk=a.human trace=   1.00,   0.05,  0.00',
-                 'ENVKIT walk=a.human leg=1 at=   2.00,   0.00,  0.00', 'ENVKIT walk=a.human leg=1 at=   2.00,   0.00,  0.00', 'ENVKIT walk=a.human trace=   1.00,   0.50,  0.00',
-                 'ENVKIT walk=a.human leg=2 at=   0.30,   0.00,  0.00', 'ENVKIT walk=b.troll made=1 app=6', 'ENVKIT shot=0 target=row0 valid=1']
+        lines = ['TILEWALK walk=a.human made=1 app=6', 'TILEWALK walk=a.human leg=0 at=   0.00,   0.00,  0.00', 'TILEWALK walk=a.human trace=   1.00,   0.05,  0.00',
+                 'TILEWALK walk=a.human leg=1 at=   2.00,   0.00,  0.00', 'TILEWALK walk=a.human leg=1 at=   2.00,   0.00,  0.00', 'TILEWALK walk=a.human trace=   1.00,   0.50,  0.00',
+                 'TILEWALK walk=a.human leg=2 at=   0.30,   0.00,  0.00', 'TILEWALK walk=b.troll made=1 app=6', 'ENVKIT shot=0 target=row0 valid=1']
         told = walk.verdict(lines, walkers)
         self.assertEqual([(one['way'], one['off'], one['strayed']) for one in told['walked']], [('ab', 0.0, .05), ('ba', .3, .5)])
         self.assertEqual(([one['way'] for one in told['bent']], [one['way'] for one in told['short']]), (['ba'], ['ba']))
         self.assertEqual(told['missing'], [{'tag': 'b.troll', 'crossing': 0, 'way': way} for way in ('to', 'ab', 'ba')])
         self.assertEqual(told['unmade'], ['b.troll'])  # made, but not as a Troll
         off = [{'tag': 'c.human', 'appearance': 6, 'legs': legs}]  # stopped 0.5 m short of the crossing's start, then straight across from there
-        late = walk.verdict(['ENVKIT walk=c.human made=1 app=6', 'ENVKIT walk=c.human leg=0 at=   0.00,   0.50,  0.00', 'ENVKIT walk=c.human trace=   1.00,   0.25,  0.00',
-                             'ENVKIT walk=c.human leg=1 at=   2.00,   0.00,  0.00'], off)
+        late = walk.verdict(['TILEWALK walk=c.human made=1 app=6', 'TILEWALK walk=c.human leg=0 at=   0.00,   0.50,  0.00', 'TILEWALK walk=c.human trace=   1.00,   0.25,  0.00',
+                             'TILEWALK walk=c.human leg=1 at=   2.00,   0.00,  0.00'], off)
         self.assertEqual([(one['way'], one['off']) for one in late['short']], [('to', .5)]); self.assertEqual((late['walked'][0]['strayed'], late['bent']), (0.0, []))
         self.assertEqual(told['walked'][0]['longer'], 1.001)
 
@@ -106,14 +106,16 @@ class Walkers(unittest.TestCase):
 class Command(unittest.TestCase):
     def test_a_plan_is_walked_only_as_it_was_made(self):
         with tempfile.TemporaryDirectory() as folder:
-            plan = Path(folder) / 'plan.json'; run = ['walk', '--plan', str(plan), '--game', folder, '--built', folder, '--out', str(Path(folder) / 'out'), '--name', 'walkt']
-            plan.write_text(json.dumps({'tileset': 'fcx01', 'sides': False, 'tiles': {'fcx01_x05_01': {'number': 211, 'crossings': [CROSSING], 'beside': []}}}), encoding='utf-8')
-            self.assertEqual(main([*run, '--tileset', 'udp1']), 2)  # a plan of another set
-            self.assertEqual(main([*run, '--tileset', 'fcx01', '--tiles', 'fcx01_x05_02']), 2)  # of other tiles
-            self.assertEqual(main([*run, '--tileset', 'fcx01', '--sides']), 2)  # made without the sides
-            self.assertEqual(main([*run, '--tileset', 'fcx01', '--fill', '99999']), 2)  # a fill the set lacks
-            self.assertFalse((Path(folder) / 'out').exists())
-
+            repo = Path(folder)
+            for tileset in ('tst01', 'tst02'):
+                (repo / f'srn_t_{tileset}').mkdir(); (repo / f'srn_t_{tileset}' / f'{tileset}.set').write_text(f'[GENERAL]\nDefault=Grass\n[TILE0]\nModel={tileset}_a01_01\n', encoding='cp1252')
+            plan = repo / 'plan.json'; run = ['walk', '--plan', str(plan), '--game', folder, '--built', folder, '--out', str(repo / 'out'), '--name', 'walkt', '--repo', folder]
+            plan.write_text(json.dumps({'tileset': 'tst01', 'sides': False, 'tiles': {'tst01_a01_01': {'number': 0, 'crossings': [CROSSING], 'beside': []}}}), encoding='utf-8')
+            self.assertEqual(main([*run, '--tileset', 'tst02']), 2)  # a plan of another set
+            self.assertEqual(main([*run, '--tileset', 'tst01', '--tiles', 'tst01_b01_01']), 2)  # of other tiles
+            self.assertEqual(main([*run, '--tileset', 'tst01', '--sides']), 2)  # made without the sides
+            self.assertEqual(main([*run, '--tileset', 'tst01', '--fill', '99999']), 2)  # a fill the set lacks
+            self.assertFalse((repo / 'out').exists())
 
 if __name__ == '__main__':
     unittest.main()

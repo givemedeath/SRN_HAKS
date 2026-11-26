@@ -92,7 +92,8 @@ def walk_command(chosen):
         print(json.dumps(told, indent=2))
         return 0
     review.capture(chosen.game, record, chosen.out, foreground=MOST, background=MOST)  # held to the cap even unseen: the walkers keep time
-    lines = json.loads((chosen.out / 'captures' / 'run.json').read_text(encoding='utf-8'))['lines']
+    from tools.armorkit import client
+    lines = client.log_lines(record['userDirectory'], walk.PREFIX)
     result = walk.verdict(lines, walkers); (chosen.out / 'walk.json').write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8')
     told.update({'walked': len(result['walked']), **{key: result[key] for key in ('bent', 'short', 'missing', 'unmade')}, 'report': str(chosen.out / 'walk.json')})
     print(json.dumps(told, indent=2))

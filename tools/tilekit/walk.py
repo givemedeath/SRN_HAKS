@@ -30,7 +30,7 @@ COLUMNS = 6  # tiles across the walk area, three cells apart
 LEG = 3.2  # seconds a walker is given for each leg of its walk
 TICK = .25  # seconds between the walkers' logged positions
 START = 12.0  # seconds after the player enters before the walkers set off: the area's models have loaded
-PREFIX = 'ENVKIT'  # the client log lines a run keeps (envkit's prop fixture)
+PREFIX = 'TILEWALK'  # the walkers' client log lines: not envkit's, whose fixture parses all of its own again at every poll
 TURNS = ((1, 0), (0, 1), (-1, 0), (0, -1))  # (cos, sin) of a laid tile's turn, a quarter at a time
 
 
