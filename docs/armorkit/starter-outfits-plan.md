@@ -326,6 +326,33 @@ the first design's image. Not run: a bake with a tinted or named channel (`bake.
   Reference `reference-v3`, geometry attempt 1 of 5, solid export `export-4` (fill 20). Not yet baked whole,
   not compared, per-slot table not built.
 
+2026-11-25, every joint's under end is the leftover of the cut (user: "get fully switched over to the new joint
+mechanism before we proceed further. Only revert if we can't get same or better quality"). Until now only the
+joints a bake named `--as-drawn` (Street Casual's knees and ankles) had it; the waist was capped from its rim and
+the hips and shoulders had seat ends. Now `bake.LEFTOVER` is `split.LEFT_JOINTS`, all eight, whatever is
+`--as-drawn`: that flag still says only that a joint is cut to no envelope.
+
+* **Waist (and neck):** a flat cut like a knee's; the end is held inside the chest leaned forward, back and to
+  either side by 15 and 30 degrees (`split.leaned`, `LEFT_LEANS`), and runs the contract's whole depth.
+* **Hips and shoulders:** the cut is the seat line or the armhole, not the plane. The end starts on that line
+  (`split.opening_rim`), follows the pelvis or the chest from there to the plane, has its last kept ring on the
+  plane inside the contract's ring, and domes from there to the pole at the contract's depth. It is held inside
+  the over part swung as a seat end was; an upper arm's inside the chest with its closings.
+* The parts are made the over one first, and an end follows its over part as shaped to the contract.
+* What went wrong on the way, each seen as a gate failure on the trial outfit and fixed: the pole clamped to the
+  rim's nearest point (knees' rule) left the ends 1 to 5 cm deep where 8 to 14 are asked; following the pelvis
+  on past the plane put a thigh's end 4.1 cm out of it swung forward; with no ring on the plane the contract's
+  `bent` measure had nothing to measure on one side and too little on the other.
+* **Result on the typed trial** (`typed-5`, belt `belt-18`): all gates pass, ten models compiled. In the client,
+  set beside the captures before the switch (`typed-3`) pose by pose, nothing is worse and nothing is visibly
+  better at the distances the pose shots are taken from (`review/all-joints-before-after.jpg`). The contrast
+  run lost shots 41 to 47 to a stalled grab; the realistic run has all 48. No close shot yet looks into an
+  armpit with the arm raised or under a thigh swung forward: those are the refinement pass's first views.
+* Also today: a wall across a limb (the hem wall of a solid export) is no cover over the body's skin beside it
+  (`measure.round_limb`). The trial's looser sleeves were refused at "would move 3.2 cm" for it.
+* The typed brief works in the client: pocket flaps on cloth 2, laces and straps on leather 2, shirt and
+  trousers on cloth 1 by the brief's word.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
