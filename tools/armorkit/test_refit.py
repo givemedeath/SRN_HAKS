@@ -119,6 +119,22 @@ class PlacementTests(unittest.TestCase):
         self.assertTrue(np.allclose(np.linalg.norm(carried[:, 1:], axis=1), 0.7 * 0.03, atol=1e-4))
 
 
+class LimbTests(unittest.TestCase):
+    def test_a_limbs_part_is_as_wide_at_each_joint_as_the_other_body_is_there(self):
+        # a thigh carried 0.8 as wide by the mean of its joints, where the other body's hip is as wide and its knee 0.6:
+        # it comes to each joint by that joint's own scale, as the shin comes to the knee, and no hem stands out there
+        wide = {None: [0.8, 0.8], 'hip': [1.0, 1.0], 'knee': [0.6, 0.6]}
+        ends = np.array([(0.0, 0.0, 1.0), (0.0, 0.0, 0.5)])
+        angle = np.linspace(0, 2 * np.pi, 24, endpoint=False)
+        ring = lambda z: np.c_[0.08 * np.cos(angle), 0.08 * np.sin(angle), np.full(24, z)]
+        with mock.patch.object(refit, 'joints_of', return_value=[('hip', 'l', 'pelvis'), ('knee', 'l', 'shinl')]),                 mock.patch.object(refit, 'anchors', return_value=ends),                 mock.patch.object(refit, 'across', side_effect=lambda *given, only=None: wide[only]):
+            out, report = refit.limbed('legl', np.concatenate([ring(z) for z in (1.1, 1.0, 0.75, 0.5, 0.4)]), ({}, {}), ({}, {}), {}, ('a', 'b'))
+        radius = np.linalg.norm(out[:, :2], axis=1).reshape(5, 24)
+        self.assertTrue(np.allclose(radius, np.array([0.10, 0.10, 0.08, 0.06, 0.06])[:, None]))  # past a joint, as at it
+        self.assertTrue(np.allclose(out[:, 2].reshape(5, 24), np.array([1.1, 1.0, 0.75, 0.5, 0.4])[:, None]))
+        self.assertEqual(report, {'ends': [[1.0, 1.0], [0.6, 0.6]]})
+
+
 class FootTests(unittest.TestCase):
     def test_a_foot_is_carried_in_the_grounds_frame_with_its_sole_on_the_ground(self):
         # the other body's foot is shorter, narrower, lower, leant more, lifted off the ground and toed out, and its
@@ -209,11 +225,19 @@ class TaperTests(unittest.TestCase):
         vest = np.concatenate([vest[:64] * (1, 1, 0) + (0, 0, z) for z in np.linspace(1.05, 1.65, 61)])  # a ring each centimetre
         carried = refit.tapered(vest, slope)
         self.assertTrue(np.allclose(carried[:, 2], vest[:, 2]))  # each slice level where it was
-        top = vest[:, 2] >= 1.5  # down to the shoulder line the part's one map carries it as the slope does
+        top = np.isclose(vest[:, 2], 1.5)  # on the shoulder line the part's one map carries it as the slope does
         self.assertTrue(np.allclose(carried[top], vest[top] @ linear.T + offset))
         wide = lambda low, high, axis: float(np.ptp(carried[(vest[:, 2] > low) & (vest[:, 2] < high)][:, axis])) / 0.18
-        self.assertAlmostEqual(wide(1.495, 1.66, 0), 1.5, places=3)  # from the shoulder line up, the shoulders' scales
-        self.assertAlmostEqual(wide(1.495, 1.66, 1), 1.3, places=3)
+        self.assertAlmostEqual(wide(1.495, 1.505, 0), 1.5, places=3)  # on the shoulder line, the shoulders' scales
+        self.assertAlmostEqual(wide(1.495, 1.505, 1), 1.3, places=3)
+        # from there up they come to the neck's own, here as wide on both bodies, and stay that above it: a collar
+        # goes round the neck, not the shoulders
+        self.assertEqual(slope['collar'], [1.0, 1.0])
+        neck = float(slope['frames'][0]['origin'][2])
+        collar = refit.tapered(np.concatenate([vest[:64] * (1, 1, 0) + (0, 0, z) for z in (neck, neck + 0.03)]), slope)
+        self.assertTrue(np.allclose(np.linalg.norm(collar[:, :2], axis=1), 0.09, atol=1e-9))
+        between = wide(1.5 + (neck - 1.5) / 2 - 0.006, 1.5 + (neck - 1.5) / 2 + 0.006, 0)
+        self.assertTrue(1.0 < between < 1.5)
         self.assertAlmostEqual(wide(1.045, 1.105, 0), 2.0, places=3)  # from the waist down, the waist's
         self.assertAlmostEqual(wide(1.045, 1.105, 1), 2.0, places=3)
         rings = [wide(z - 0.005, z + 0.005, 0) for z in np.linspace(1.1, 1.5, 41)]
@@ -305,7 +329,7 @@ class TaperTests(unittest.TestCase):
         self.assertTrue(np.allclose(source[0]['neck_g'][:3, 3] @ linear.T + offset, bones['neck_g'][:3, 3]))
         # between the stations the middle line is one curve: no step in its lean from slice to slice
         line = refit.tapered(np.c_[np.zeros(61), np.linspace(0.08, 0.0, 61), np.linspace(1.6, 1.1, 61)], slope)
-        self.assertLess(np.abs(np.diff(line[:, 1], 3)).max(), 2e-4)
+        self.assertLess(np.abs(np.diff(line[:, 1], 3)).max(), 6e-4)  # the scales across come to the neck's own above the shoulder line
 
     def test_a_body_whose_joints_are_spaced_too_unlike_for_one_slope_is_refused(self):
         # the source's shoulders 10 cm under its neck and 40 cm over its waist; the other body's 45 cm under and 5 cm

@@ -77,6 +77,7 @@ COLLAR_EASE = 0.02  # metres above a tapered part's top joint over which heights
 YOKE_CELL = 0.005  # metres: the grid a body's shoulders are read on from above (`shoulders`)
 YOKE_EVEN = 12  # times that reading is evened with its neighbours: the cloth rides the shoulders' run, not each muscle
 YOKE_EASE = 0.03  # metres under the shoulder line over which a tapered part comes to ride the shoulders from above (`tapered`)
+YOKE_STEEP = (0.5, 1.0)  # a shoulder's fall per metre across from which, and by which, cloth over it no longer rides it (`tapered`)
 YOKE_WITH = ('bicepl', 'bicepr')  # the body's own parts read with a tapered part's as its shoulders: the upper arms' tops
 TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first station: no crease on the line where it starts
 STANDOFF_WAYS = 48  # directions round a tapered part's middle line its body's own part is read in at each level
@@ -258,6 +259,12 @@ def shoulders(meshes, frame, low):
     return corner, table
 
 
+def _fall(table):
+    """How steeply `shoulders`' reading falls at each cell: metres down per metre across."""
+    down = np.gradient(table, YOKE_CELL)
+    return np.hypot(down[0], down[1])
+
+
 def _above(corner, table, places):
     """`shoulders` read at each of `places` (along the two level ways): straight between its cells, its edge's
     beyond them."""
@@ -325,7 +332,8 @@ def taper(token, source, target, contract=None, names=None):
             for body, frame in zip((source, target), frames)]
     return {'frames': frames, 'top': [frames[1]['span'] / frames[0]['span'], deep[1] / deep[0]],
             'hem': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=last),
-            'radii': radii(source[1][token][:2], frames[0]), 'clear': float(frames[0]['line'][1, 0] + armhole), 'yoke': None if any(read is None for read in yoke) else yoke}
+            'radii': radii(source[1][token][:2], frames[0]), 'clear': float(frames[0]['line'][1, 0] + armhole),
+            'collar': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=met[head]), 'yoke': None if any(read is None for read in yoke) else yoke}
 
 
 def risen(height, source, target):
@@ -351,7 +359,12 @@ def tapered(vertices, slope):
     """`vertices` of a tapered part, on the source body, carried to the target by its slope (`taper`): each to
     the height its own maps to, set as far from the target's middle line as it stood from the source's, times
     the scales across at its height: the slope's `top` down to the shoulders, its `hem` from the waist on, and
-    between them evenly, the slope setting in over the first `TAPER_EASE` of the way.
+    between them evenly, the slope setting in over the first `TAPER_EASE` of the way. From the shoulder line up
+    they come to the neck's own at its plane (the slope's `collar`: the contract's body ring there) and stay
+    that above it: a collar goes round the neck, which is not as much narrower as the shoulders are. The Human
+    female's chest is 0.54 as deep as the male's on the shoulder line and her neck 0.80: by the shoulders'
+    scale the collar came 1.3 cm inside her neck in front, and where the two crossed its rim showed in saw
+    teeth (client, 2026-11-26).
 
     Those scales carry the body under the part, the slope's `radii`. What of a vertex stands outside them, its
     standoff, is not scaled: it is set as far outside the scaled body, the way its own direction from the
@@ -365,8 +378,8 @@ def tapered(vertices, slope):
 
     Above the shoulder line a vertex is set as high over the other body's shoulders, read from above
     (`shoulders`, the slope's `yoke`), as it stood over the source's, coming to that over `YOKE_EASE` under
-    the line: the cloth of a yoke lies on the shoulders, and how far those stand over the joints is the body's
-    own. By the stations alone, the Human female's shoulder joints 4 cm under her neck's plane where the
+    the line, where both bodies' shoulders face up (`YOKE_STEEP`): the cloth of a yoke lies on the shoulders,
+    and how far those stand over the joints is the body's own. By the stations alone, the Human female's shoulder joints 4 cm under her neck's plane where the
     male's are 12 cm, the shirt's yoke came to her a third as tall and 0.69 as wide: its slope out to the
     shoulder went flat and its edge stood out square as a shelf (user, 2026-11-26)."""
     a, b = slope['frames']
@@ -378,6 +391,9 @@ def tapered(vertices, slope):
     top, hem = np.asarray(slope['top'], float), np.asarray(slope['hem'], float)
     off = np.stack([reach[:, k] - through(a['line'][:, k]) for k in (1, 2)], axis=1)  # from the middle line, level
     scale = top + share[:, None] * (hem - top)
+    if slope.get('collar') is not None:  # from the shoulder line up to the neck's plane, and above it, toward the neck's own
+        up = np.clip(1 - height / a['line'][1, 0], 0.0, 1.0)
+        scale = scale + (up * up * (3 - 2 * up))[:, None] * (np.asarray(slope['collar'], float) - top)
     carried = scale * off
     if slope.get('radii') is not None:
         far = np.linalg.norm(off, axis=1)
@@ -392,7 +408,12 @@ def tapered(vertices, slope):
         ridden = _above(*slope['yoke'][1], level) + min(1.0, float(top[0])) * (height - _above(*slope['yoke'][0], reach[:, 1:]))  # on narrower shoulders, less far over them
         rides = np.clip((a['line'][1, 0] + YOKE_EASE - height) / YOKE_EASE, 0.0, 1.0)
         rides = rides * rides * (3 - 2 * rides)
-        high = high + rides * (ridden - high)
+        # only where both bodies' shoulders face up: over a chest's front or a back that falls away, how high a
+        # vertex stands over what lies under it turns on a millimetre across, and a collar's rim behind the neck,
+        # read against the male's back, came to the Human female in saw teeth (client, 2026-11-26)
+        steep = np.maximum(_above(slope['yoke'][0][0], _fall(slope['yoke'][0][1]), reach[:, 1:]), _above(slope['yoke'][1][0], _fall(slope['yoke'][1][1]), level))
+        flat = np.clip((YOKE_STEEP[1] - steep) / (YOKE_STEEP[1] - YOKE_STEEP[0]), 0.0, 1.0)
+        high = high + rides * flat * flat * (3 - 2 * flat) * (ridden - high)
     return b['origin'] + high[:, None] * b['axes'][0] + level @ b['axes'][1:]
 
 
@@ -441,6 +462,33 @@ def placement(token, source, target, contract=None, names=None, slope=False):
     linear = axes.T @ np.diag(scales) @ axes @ rotation
     joint, aim = anchors(token, source[0])[0], anchors(token, target[0])[0]
     return linear, aim - linear @ joint, {'axes': [round(float(value), 4) for value in scales]}
+
+
+def limbed(token, vertices, source, target, contract, names):
+    """(vertices, report): a limb's part, one between two joints, carried by its `placement` (`vertices`, on
+    the other body), with its width set joint by joint: at each of its two joints as much wider as the other
+    body is there (`across`, that joint `only`), and between them evenly, where the placement set all of it by
+    the mean of the two. Past either joint it stays as wide as at the joint. `report` holds the scales across
+    at its two `ends`.
+
+    Two parts that meet at a joint so come to it by the same scale. By its mean, a thigh came to the Human
+    female 0.85 as wide and a shin 0.73, where her knee is 0.77 of the male's: the trouser leg stood out
+    round the knee as a second hem, a centimetre proud of the shin (client, 2026-11-26; no shelves)."""
+    met = joints_of(token)
+    points = anchors(token, target[0])
+    run = points[1] - points[0]
+    length = float(np.linalg.norm(run))
+    unit = run / length
+    was = seams.unit(axis_of(anchors(token, source[0])))
+    ways = np.array(seams.frame(was))  # the directions the placement scaled across in, on the source
+    there = ways @ repose.turn(was, unit).T  # and where it turned them to
+    mean = np.array(across(token, contract, *names, ways, source[0]))
+    ends_ = [np.array(across(token, contract, *names, ways, source[0], only=joint)) for joint, _, _ in met]
+    reach = np.asarray(vertices, float) - points[0]
+    share = np.clip(reach @ unit / length, 0.0, 1.0)[:, None]
+    more = ((1 - share) * ends_[0] + share * ends_[1]) / mean - 1
+    out = np.asarray(vertices, float) + ((reach @ there.T) * more) @ there
+    return out, {'ends': [[round(float(value), 4) for value in end] for end in ends_]}
 
 
 def grounded(token, source, target):
@@ -948,6 +996,9 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
         if slope is not None:  # by its slope instead, its normals turned on from the one map's as the faces round each turned
             sloped = tapered(before, slope)
             n, v = renormal(n, f, v, sloped), sloped
+        elif contract is not None and len(joints_of(name)) == 2 and len({joint for joint, _, _ in joints_of(name)}) == 2:
+            evened, ends_ = limbed(name, v, source, target, contract, bodies)
+            n, v, scales = renormal(n, f, v, evened), evened, {**scales, **ends_}
         if contract is not None:
             part_ends = ends.ends_of(name, target[0], contract, bodies[1], tier, joints=tuple(joint for joint in ends.TUBES if joint not in drawn), bare=bare)
             drawn_in = [end for end in ends.ends_of(name, target[0], contract, bodies[1], tier, joints=DRAWN_IN, bare=bare) if end[4]]
