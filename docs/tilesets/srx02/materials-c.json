@@ -1,0 +1,408 @@
+{
+ "tileset": "srx02",
+ "status": "release C pilot (2026-11-26): review overlay only",
+ "before": "ea45bc809",
+ "packs": [
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_door",
+  "srn_t_common",
+  "srn_placeable"
+ ],
+ "grades": {
+  "interior": {
+   "saturation": 0.85,
+   "contrast": 1.05,
+   "gain": 0.85,
+   "tint": [
+    1.0,
+    0.99,
+    0.97
+   ]
+  },
+  "facility": {
+   "saturation": 0.6,
+   "contrast": 1.15,
+   "gain": 0.7,
+   "tint": [
+    0.95,
+    0.98,
+    1.03
+   ]
+  },
+  "duct": {
+   "saturation": 0.5,
+   "contrast": 1.15,
+   "gain": 0.7,
+   "tint": [
+    0.96,
+    0.98,
+    1.02
+   ]
+  }
+ },
+ "textures": {
+  "udp2_msc_clg": {
+   "route": "layout",
+   "master": "OfficeCeiling001",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_flr_cpt1": {
+   "route": "layout",
+   "master": "Carpet012",
+   "repeat": 2,
+   "keep": 8,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_flr_til2": {
+   "route": "layout",
+   "master": "Tiles107",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_flr_vct2": {
+   "route": "layout",
+   "master": "Tiles040",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_w_vyn1": {
+   "route": "layout",
+   "master": "PaintedPlaster017",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_w_cmu1": {
+   "route": "layout",
+   "master": "Concrete034",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_w_sid3": {
+   "route": "layout",
+   "master": "CorrugatedSteel007A",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "udp2_flr_til1": {
+   "route": "layout",
+   "master": "Tiles107",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb01_shpflr1": {
+   "route": "layout",
+   "master": "WoodFloor051",
+   "repeat": 1,
+   "keep": 8,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_wallcord": {
+   "route": "layout",
+   "master": "PaintedPlaster017",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_plank": {
+   "route": "layout",
+   "master": "Concrete048",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_floor": {
+   "route": "layout",
+   "master": "Concrete047A",
+   "repeat": 1,
+   "keep": 8,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_wall1": {
+   "route": "layout",
+   "master": "PaintedPlaster017",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_floor2": {
+   "route": "layout",
+   "master": "Tiles040",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_stone05": {
+   "route": "layout",
+   "master": "Tiles107",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_lwalls": {
+   "route": "layout",
+   "master": "PaintedPlaster017",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_shpwal": {
+   "route": "layout",
+   "master": "PaintedPlaster017",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_wall_iinn": {
+   "route": "layout",
+   "master": "PaintedPlaster017",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "tfb01_walliinn",
+   "over": true
+  },
+  "tfb01_furnish2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_marbl05": {
+   "route": "layout",
+   "master": "Marble012",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_burlap": {
+   "route": "layout",
+   "master": "Fabric026",
+   "repeat": 1,
+   "keep": 6,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tbx78_wall01": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 3,
+   "grade": "facility",
+   "size": [
+    1024,
+    1024
+   ],
+   "grain": 2.0
+  },
+  "tbx78_metal2": {
+   "route": "layout",
+   "master": "Rust009",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "facility",
+   "size": [
+    1024,
+    1024
+   ],
+   "grain": 1.5
+  },
+  "tbx78_floor01": {
+   "route": "layout",
+   "master": "DiamondPlate008A",
+   "repeat": 1,
+   "keep": 3,
+   "grade": "facility",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tbx78_ceiling": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "facility",
+   "size": [
+    1024,
+    1024
+   ],
+   "grain": 2.0
+  },
+  "tbx78_floor02": {
+   "route": "layout",
+   "master": "Concrete048",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "facility",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tbx78_metal4": {
+   "route": "layout",
+   "master": "Rust009",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "facility",
+   "size": [
+    1024,
+    1024
+   ],
+   "grain": 1.5
+  },
+  "nac_sheet": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "duct",
+   "size": [
+    512,
+    512
+   ],
+   "grain": 2.0
+  },
+  "flexpipe": {
+   "route": "layout",
+   "master": "CorrugatedSteel007A",
+   "repeat": 1,
+   "keep": 3,
+   "grade": "duct",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "nac_sheet4": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "duct",
+   "size": [
+    512,
+    512
+   ],
+   "grain": 2.0
+  },
+  "nac_sheet5": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 4,
+   "grade": "duct",
+   "size": [
+    512,
+    512
+   ],
+   "grain": 2.0
+  }
+ }
+}

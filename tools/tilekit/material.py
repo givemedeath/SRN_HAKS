@@ -209,13 +209,14 @@ def _tree(repo, before, pack):
     return {name.lower(): name for name in (line.rsplit('/', 1)[-1] for line in listed.stdout.splitlines())}
 
 
-def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None, before=None):
+def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None, before=None, over=False):
     """The picture of a texture as the tileset had it before its restyle: its DDS copy before its TGA, in the first of
     `packs` to hold one, else in `stock`, a folder of the base game's own pictures read out of the install (a base-game
     texture). before: the commit whose packs hold the originals (a spec's `before`); once a restyle is in the packs
     their files are its own maps, so a restyled name is refused there: one with a material file, or a standard DDS (the
     D20 originals are all BioWare DDS; a plain restyle such as the water has no material). A texture added to a pack
-    after `before` is read from the pack as it is."""
+    after `before` is read from the pack as it is. over: the standard DDS is the picture to start from (an approved plain
+    restyle such as a redraw, or a source pack that shipped standard DDS); a material file is refused still."""
     repo = Path(repo)
     for pack in packs if before is not None else ():
         tree = _tree(str(repo), before, pack); late = f'{name} is restyled already at {before} ({pack}): a spec\'s `before` is a commit whose packs hold the originals'
@@ -225,14 +226,14 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
             if file:
                 shown = subprocess.run(['git', '-C', str(repo), 'show', f'{before}:{pack}/{file}'], capture_output=True)
                 require(shown.returncode == 0, f'git cannot read {pack}/{file} at {before}')
-                require(kind != 'dds' or shown.stdout[:4] != b'DDS ', late)
+                require(over or kind != 'dds' or shown.stdout[:4] != b'DDS ', late)
                 return pictures.read(file, shown.stdout)
     restyled = [pack for pack in packs if (repo / pack / f'{name}.mtr').is_file()]
     for pack in packs if not restyled else ():
         for kind in ('dds', 'tga'):
             path = repo / pack / f'{name}.{kind}'
             if path.is_file():
-                if kind == 'dds' and path.read_bytes()[:4] == b'DDS ':
+                if kind == 'dds' and not over and path.read_bytes()[:4] == b'DDS ':
                     restyled.append(pack); continue
                 return pictures.read(path)
     for kind in ('dds', 'tga'):  # a base-game texture: its original is the game's own, whatever restyle a pack holds
@@ -287,7 +288,7 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             scan = scans[how['master']]
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
-        old = np.asarray(current(repo, how.get('copy', name), stock=stock, **of_spec(spec)))  # a copy starts from its source's picture
+        old = np.asarray(current(repo, how.get('copy', name), stock=stock, over=bool(how.get('over')), **of_spec(spec)))  # a copy starts from its source's picture
         if picture is not None:  # made from that picture, as its record says
             _derived(redrawn if how.get('redrawn') else enlarged, name, old, doubled=None if how.get('redrawn') else how['doubled'])
         if picture is not None and how.get('recolour'):  # the generator moved its colours: the old picture's broad ones come back

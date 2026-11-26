@@ -195,6 +195,12 @@ class MaterialTests(unittest.TestCase):
         for name in ('wall', 'water'):
             with self.assertRaisesRegex(ValueError, f'{name} is restyled already at {late}'):
                 material.current(repo, name, before=late)
+        Image.new('RGB', (8, 8), (30, 60, 90)).save(pack / 'water.dds')  # an approved plain restyle a new one builds over
+        git('add', '-A'); git('commit', '-q', '-m', 'redrawn'); redrawn = git('rev-parse', 'HEAD')
+        self.assertEqual(material.current(repo, 'water', before=redrawn, over=True).getpixel((0, 0))[:3], (30, 60, 90))
+        self.assertEqual(material.current(repo, 'water', over=True).getpixel((0, 0))[:3], (30, 60, 90))
+        with self.assertRaisesRegex(ValueError, 'wall is restyled already'):  # over never takes a material's maps
+            material.current(repo, 'wall', before=redrawn, over=True)
 
     def test_a_redrawn_or_enlarged_picture_is_taken_only_as_its_record_says_it_was_made(self):
         import hashlib, json
