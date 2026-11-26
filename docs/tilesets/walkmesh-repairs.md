@@ -8,7 +8,8 @@ were repaired in the pack and their baselines are on the `srx02` branch.
 
 ## What bends a route
 
-The game joins walked faces edge by edge. Walked in the client by a Human and a Troll, both ways:
+The game joins walked faces edge by edge. Walked in the client by a Human and a Troll, both ways (now
+`python -B -m tools.tilekit walk`, see [tilekit-tools.md](tilekit-tools.md)):
 
 | Fault | Result |
 | --- | --- |
