@@ -353,6 +353,15 @@ the hips and shoulders had seat ends. Now `bake.LEFTOVER` is `split.LEFT_JOINTS`
 * The typed brief works in the client: pocket flaps on cloth 2, laces and straps on leather 2, shirt and
   trousers on cloth 1 by the brief's word.
 
+2026-11-25, the typed trial supersedes the first Street Casual (user: "this one supersedes male-28"). Street
+Casual 3010 on the Human male is now the model `street-casual-typed` (brief `street-casual-typed.json`, bake
+`typed-5`, belt `belt-18`), and the female, the 18 bodies and publication go on from it. `male-28` and its brief
+`street-casual-male.json` stay as they are, as the record of the first generation; nothing further is baked from
+them. Seen close in the client before the hold: the shoulders, level with the old ends in all six poses
+(`review/sh-cmp-a.jpg`). Not seen: the hips close (`poses --preset hips`, new), and contrast shots 41 to 47.
+The user put client boots and Toolset use on hold the same day, until further notice. Open on this outfit: its
+shirt and trousers share cloth 1 by the brief; the per-slot channel table is what would let them be coloured apart.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
