@@ -156,6 +156,14 @@ class CommandLineTests(unittest.TestCase):
         with mock.patch.object(bake, 'run', report(False)), self.assertRaises(SystemExit) as stopped:
             run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--kept', 'kept')
         self.assertEqual(stopped.exception.code, 1)
+        self.assertEqual((calls[-1][4]['tier'], calls[-1][4]['drawn']), (2, ()))  # no kept list to read: the default
+        # a tint of kept parts asked for no tier is cut as they were (`bodies` asks for none); one asked for a tier is not
+        listed = {'tier': {'default': 3, 'shoulder': 1}, 'drawn': ['ankle', 'knee'], 'parts': ['chest']}
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(bake, 'run', report(True)), mock.patch.object(bake, 'listing', lambda kept: listed):
+            (Path(folder) / bake.KEPT).write_text('{}', encoding='utf-8')
+            run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--kept', folder)
+            run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--kept', folder, '--tier', 1)
+        self.assertEqual([(call[4]['tier'], call[4]['drawn']) for call in calls[-2:]], [({'default': 3, 'shoulder': 1}, ('ankle', 'knee')), (1, ())])
 
     def fixture_run(self, *flags):
         """Run the fixture command with the builder and the client replaced; return what each was called with."""

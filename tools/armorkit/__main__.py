@@ -144,15 +144,28 @@ def tiers(tier, at):
     return found
 
 
+def cut_at(args, kept_only):
+    """(tier, drawn joints) a bake is cut at: as asked, or, for a tint of kept parts asked for neither, as the
+    kept folder lists them. `bodies` bakes every body that way, and at the default tier it refused an outfit
+    cut at tier 3 with its shoulders and waist at 1 and its ankles and knees as drawn (Street Casual, 2026-11-26)."""
+    from . import bake
+    if kept_only and args.tier is None and not args.tier_at and not args.as_drawn and (Path(args.kept) / bake.KEPT).is_file():
+        listed = bake.listing(args.kept)
+        if 'tier' in listed:
+            return listed['tier'], tuple(listed['drawn'])
+    return tiers(2 if args.tier is None else args.tier, args.tier_at), tuple(args.as_drawn)
+
+
 def command_bake(args):
     from . import bake, brief
     sources = (args.colours, args.raw, args.xatlas) if args.resume else (args.mesh, args.colours, args.raw, args.xatlas)
     registry.require(all(sources) or (args.kept and not args.resume and not any(sources)),
                      'bake needs --mesh, --colours, --raw and --xatlas together (--resume in place of --mesh), or --kept alone to tint stored parts again')
+    tier, drawn = cut_at(args, not any(sources))
     record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
-                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=tiers(args.tier, args.tier_at), tint_cache=args.tint_cache,
+                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=tier, tint_cache=args.tint_cache,
                       packs=args.pack, game=args.nwn_root, resources=args.resources, body_textures=args.body_textures,
-                      capture=args.capture, workers=args.workers, cache=args.cache, resume=args.resume, drawn=tuple(args.as_drawn),
+                      capture=args.capture, workers=args.workers, cache=args.cache, resume=args.resume, drawn=drawn,
                       say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
     if not record['gates']['passed']:
@@ -359,7 +372,8 @@ def main(argv=None):
     p = commands.add_parser('bake', help='bake a generated outfit into the parts a body wears, and check what was written')
     p.add_argument('brief'); p.add_argument('output'); p.add_argument('--number', type=int, required=True, help='the part number the models are written as')
     p.add_argument('--body-pack', required=True, help="folder holding the body's models"); p.add_argument('--body', default='pmh0')
-    p.add_argument('--tier', type=int, default=2, choices=registry.TIERS, help='the seam tier the outfit is cut at')
+    p.add_argument('--tier', type=int, choices=registry.TIERS,
+                   help='the seam tier the outfit is cut at (default 2; a tint of kept parts given no --tier, --tier-at or --as-drawn takes the tier and joints they list)')
     p.add_argument('--tier-at', action='append', default=[], metavar='JOINT=TIER', help='a joint the outfit is cut at another tier at (shoulder=1); may be repeated')
     p.add_argument('--body-textures', help="folder holding the body's material files and maps, for an outfit that shows the body's skin")
     p.add_argument('--mesh', help='the exported mesh'); p.add_argument('--colours', help='the saved colour field of the appearance job')
