@@ -667,6 +667,14 @@ class RefitTests(unittest.TestCase):
         self.assertIs(refit.over_skin(bare, start, end), bare)  # nor a part with no skin beside it
         with self.assertRaisesRegex(Exception, 'would move 4.8 cm, past 3 cm'):  # an arm far fuller than the sleeve fails
             refit.over_skin(worn(0.035, fuller=0.08), start, end)
+        self.assertEqual(refit.short_of_skin(refit.over_skin(worn(0.035, fuller=0.08), start, end, most=0.06), start, end), 0.0)  # a body that much wider may
+        # each pass reads the cloth as the last one left it, as the check after them does: a wall a push tilts is cloth
+        calls = []
+        real = refit._cloth
+        with mock.patch.object(refit, '_cloth', lambda part, v, *rest: calls.append(np.array(v)) or real(part, v, *rest)):
+            refit.over_skin(worn(0.035), start, end)
+        self.assertGreater(len(calls), 2)
+        self.assertFalse(np.array_equal(calls[0], calls[1]))
 
     def test_a_part_with_no_skin_beside_it_is_short_of_none(self):
         bones = rig()
@@ -706,6 +714,16 @@ class RefitTests(unittest.TestCase):
         self.assertTrue(np.array_equal(refit.seated(shallow, point, normal, (chest['v'], chest['f'])), shallow['v']))
         pole = np.argmin(sleeve['v'][:, 0])  # what lies nearer another joint of the part is that end's, and stays
         self.assertTrue(np.array_equal(refit.seated(sleeve, point, normal, (chest['v'], chest['f']), others=[sleeve['v'][pole]])[pole], sleeve['v'][pole]))
+        # held inside along the chest's surface, which at an armpit runs across the joint: a cap is drawn toward the
+        # joint's axis or deeper, never wider (a Large Dwarf male's sleeve end, 2.4 cm out of its envelope, 2026-11-26)
+        rel = lambda q: np.linalg.norm((q - point) - ((q - point) @ normal)[:, None] * normal, axis=1)
+        with mock.patch.object(refit, 'under_skin', lambda vertices, *_, **__: np.array(vertices, float) + [-0.01, 0.0, 0.02]):
+            pushed = refit.seated(sleeve, point, normal, (chest['v'], chest['f']))
+        cap = np.setdiff1d(np.unique(sleeve['f'][sleeve['added']]), own)
+        near = ((sleeve['v'][cap] - point) @ normal) > -0.02  # the cap where the plane's section reads it, not its pole deep in the chest
+        self.assertTrue((rel(pushed[cap][near]) <= rel(sleeve['v'][cap][near]) + 1e-9).all())
+        self.assertLessEqual(float(rel(pushed[cap]).max()), float(rel(sleeve['v'][cap]).max()) + 1e-9)
+        self.assertLess(float(pushed[cap, 0].max()), float(sleeve['v'][cap, 0].max()))  # deeper all the same
 
     def test_the_command_keeps_the_refit_parts_with_the_slots_the_brief_gave(self):
         with tempfile.TemporaryDirectory() as folder:

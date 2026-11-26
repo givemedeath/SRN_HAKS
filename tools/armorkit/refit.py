@@ -70,7 +70,7 @@ UNDER_SKIN = 0.002  # a cap under the body's own skin (a glove's under a bare fo
 OVER_SKIN = 0.003  # a sleeve beside the body's own skin in its slot stands at least this far outside the other body's arm
 OVER_ROUNDS = 6  # rings of neighbours a sleeve's push out over the arm is spread to
 OVER_PASSES = 4  # times a sleeve is pushed out and read against the arm again
-OVER_MOST = 0.03  # metres: a sleeve is pushed out over the arm no farther; a farther push fails the refit
+OVER_MOST = 0.03  # metres: a sleeve is pushed out over a Human arm no farther, over a wider body as much more (`run`); a farther push fails the refit
 OVER_NECK = 0.001  # a chest lifted over a patch of the other body's neck that came through it stands this far outside the patch
 TAPERED = {'chest': ('shoulder', 'waist')}  # a part scaled across by a slope: the joints its width is read at, down its axis
 COLLAR_EASE = 0.005  # metres above a tapered part's top joint over which heights come to be carried as they are (`risen`); over 2 cm a collar 1.2 cm tall behind the neck lost half its height and left a notch there (client, 2026-11-26)
@@ -749,14 +749,14 @@ def _cloth(part, v, f, skin, axis):
     return cloth[measure.round_limb(v, cloth, axis, made)]
 
 
-def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None):
+def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None, most=OVER_MOST):
     """`part`, holding the other body's own skin beside the outfit's (`bake.skinned`), with everything drawn
     over that skin (the sleeve's cloth, and the dome closing it at the armpit) held `gap` outside it. Each
     vertex of the skin is read along the ray square out from the part's bone (`start` to `end`) through it
     (`measure.beyond`): where it stands less than `gap` inside, the corners of the last face the ray crosses
     that faces out (the client draws no face from behind) are pushed out from the bone by the difference, the push spread over `rounds` rings of their
     neighbours, never less than a point needs, so the cloth moves as one and creases nowhere, and read again
-    until it settles. The skin and a pad are not moved, nor a vertex `fixed` flags; a push past `OVER_MOST` in all, over every pass, fails, rather than ship a
+    until it settles. The skin and a pad are not moved, nor a vertex `fixed` flags; a push past `most` in all, over every pass, fails, rather than ship a
     spike where a fold is read as the outside. After the last pass the cloth is read once more
     (`short_of_skin`), and a sleeve the skin still stands out through by more than a bake lets it
     (`bake.THROUGH`) fails here: the passes used to end without a word, whatever they left
@@ -784,7 +784,11 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None):
         return part
     rings = _rings(f, ids, count)
     moved, pushed = v.copy(), np.zeros(count)
-    for _ in range(OVER_PASSES):  # the cloth pushed out may still lie inside the arm between its points
+    for again in range(OVER_PASSES):  # the cloth pushed out may still lie inside the arm between its points
+        if again:  # read as it now lies, as `short_of_skin` reads it after: a wall across the sleeve tilted by a push is cloth
+            cloth = _cloth(part, moved, f, skin, axis)  # (a Dwarf female's hem, 3 mm through it after the passes, 2026-11-26)
+            if not len(cloth):
+                break
         outside, face, _ = measure.beyond(moved[points], start, axis, moved, cloth, facing=True)
         short = np.flatnonzero(face >= 0)
         short = short[outside[short] > -gap]
@@ -794,7 +798,7 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None):
         np.maximum.at(need, ids[cloth[face[short]]].ravel(), np.repeat(outside[short] + gap, 3))
         push = _spread(need, free, rings, rounds)
         pushed += push
-        if pushed.max() > OVER_MOST:  # said with where: found by hand three times in a day (2026-11-25)
+        if pushed.max() > most:  # said with where: found by hand three times in a day (2026-11-25)
             worst = short[int(np.argmax(outside[short]))]
             corners = moved[cloth[face[worst]]]
             normal = seams.unit(np.cross(corners[1] - corners[0], corners[2] - corners[0]))
@@ -812,7 +816,7 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None):
                          fixed=np.zeros(len(v), bool) if fixed is None else np.asarray(fixed, bool))
                 where += f' The part is kept in {os.environ["ARMORKIT_DUMP"]}.'
             require(False, f'Held outside the body\'s own skin, the outfit would move {pushed.max() * 100:.1f} cm, '
-                           f'past {OVER_MOST * 100:.0f} cm: a fold read as its outside, or a body too far from this one.' + where)
+                           f'past {most * 100:.0f} cm: a fold read as its outside, or a body too far from this one.' + where)
         radial = moved - start - ((moved - start) @ axis)[:, None] * axis
         moved = moved + push[ids][:, None] * radial / np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-12)
     from . import bake
@@ -945,7 +949,16 @@ def seated(part, point, normal, over, gap=split.SEAT_GAP, others=()):
     if deepest > depth > 0:
         drawn = cap & (height < 0)
         out[drawn] -= (height[drawn] * (1 - depth / deepest))[:, None] * normal
-    out = under_skin(out, point, normal, over, gap, which=cap)
+    held = under_skin(out, point, normal, over, gap, which=cap)
+    # held inside the part over it, a point is moved in along that part's surface, which at an armpit runs
+    # across the joint: it keeps what draws it toward the joint's axis or deeper, and not what carries it
+    # wider. Moved whole, a Large Dwarf male's sleeve end stood 2.4 cm outside the shoulder's envelope at
+    # the plane (Street Casual, 2026-11-26)
+    was = np.linalg.norm((out - point) - ((out - point) @ normal)[:, None] * normal, axis=1)
+    along = (held - point) @ normal
+    radial = (held - point) - along[:, None] * normal
+    now = np.linalg.norm(radial, axis=1)
+    out = point + along[:, None] * normal + radial * np.minimum(1.0, was / np.maximum(now, 1e-12))[:, None]
     inside = np.abs(measure.winding(out[cap], np.asarray(over[0], float), np.asarray(over[1], int))) >= 0.5
     left = np.flatnonzero(cap)[~inside]
     if len(left) and inside.any():
@@ -1141,7 +1154,9 @@ def run(kept, output, body_pack, source, target, names=None, tier=None, body_tex
                     report[name]['dropped'] = report[name].get('dropped', 0) + dropped
         parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0], own_part=own.get)
         for name in shared:
-            held = over_skin(parts[name], *split.bone_line(goal[0], name))
+            # as far again as the body is wider than the one the outfit was made on: the Troll Large male's hem was pushed
+            # 3.3 cm wider round an arm twice a Human's (Street Casual, 2026-11-26)
+            held = over_skin(parts[name], *split.bone_line(goal[0], name), most=OVER_MOST * max([1.0, *report[name].get('across', [])]))
             if held is not parts[name]:
                 report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)
                 parts[name] = held
