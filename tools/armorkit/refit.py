@@ -571,6 +571,14 @@ def _spread(need, free, rings, rounds):
     return push
 
 
+def _cloth(part, v, f, skin, axis):
+    """The faces drawn over the body's own skin in a part that a ray from its bone reads: all but the skin and
+    the walls across the limb that are the drawn outfit's own (`measure.round_limb`)."""
+    made = np.asarray(part['added'], bool)[~skin] if 'added' in part else None
+    cloth = f[~skin]
+    return cloth[measure.round_limb(v, cloth, axis, made)]
+
+
 def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None):
     """`part`, holding the other body's own skin beside the outfit's (`bake.skinned`), with everything drawn
     over that skin (the sleeve's cloth, and the dome closing it at the armpit) held `gap` outside it. Each
@@ -599,8 +607,11 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None):
     free[ids[f[skin].ravel()]] = False
     if fixed is not None:  # per vertex: what stays where it is, an end the seam contract measures
         free[ids[np.asarray(fixed, bool)]] = False
-    cloth, points = f[~skin], np.unique(f[skin])
+    points = np.unique(f[skin])
     start, axis = np.asarray(start, float), seams.unit(np.asarray(end, float) - np.asarray(start, float))
+    cloth = _cloth(part, v, f, skin, axis)
+    if not len(cloth):
+        return part
     rings = _rings(f, ids, count)
     moved, pushed = v.copy(), np.zeros(count)
     for _ in range(OVER_PASSES):  # the cloth pushed out may still lie inside the arm between its points
@@ -706,7 +717,11 @@ def short_of_skin(part, start, end, gap=OVER_SKIN):
     if not skin.any() or skin.all():
         return 0.0
     start = np.asarray(start, float)
-    outside, face, _ = measure.beyond(v[np.unique(f[skin])], start, seams.unit(np.asarray(end, float) - start), v, f[~skin], facing=True)
+    axis = seams.unit(np.asarray(end, float) - start)
+    cloth = _cloth(part, v, f, skin, axis)
+    if not len(cloth):
+        return 0.0
+    outside, face, _ = measure.beyond(v[np.unique(f[skin])], start, axis, v, cloth, facing=True)
     return max(float((outside[face >= 0] + gap).max()) if (face >= 0).any() else 0.0, 0.0)
 
 

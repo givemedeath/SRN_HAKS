@@ -186,6 +186,24 @@ def winding(points, vertices, faces, chunk=WINDING_CHUNK):
     return out
 
 
+END_ON = 0.9  # the least a face's normal lies along a bone for the face to be a wall across the limb, not cloth round it (26 degrees)
+
+
+def round_limb(vertices, faces, axis, made=None):
+    """Which of `faces` are cloth round a limb with unit `axis`, and which a wall across it: a face whose normal
+    lies within `END_ON` of the axis closes an end, as the wall a solid export draws across a sleeve's hem, and
+    is no cover over the skin beside it. A ray square out from the bone only grazes it, and what it reads there
+    is the wall's edge, not a sleeve: the arm kept below the hem of Street Casual's second, looser sleeves was
+    read 2.2 cm out through such a wall, which no push out from the bone moves clear, and the push grew to 3.4
+    and 4.8 cm in four passes (2026-11-25). A face `made` flags, the split's own (a dome at an armpit, whose
+    middle looks along the bone too), counts whichever way it looks."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+    normal = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+    along = np.abs(normal @ np.asarray(axis, float)) / np.maximum(np.linalg.norm(normal, axis=1), 1e-30)
+    counted = along < END_ON
+    return counted if made is None else counted | np.asarray(made, bool)
+
+
 def beyond(points, start, axis, vertices, faces, chunk=WINDING_CHUNK, facing=False):
     """(outside, face): for each point, how far it stands outside the surface `faces` along the ray from the
     line through `start` along unit `axis` square out through it, a bone's axis to a limb: the point's

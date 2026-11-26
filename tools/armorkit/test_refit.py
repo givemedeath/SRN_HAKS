@@ -495,6 +495,16 @@ class RefitTests(unittest.TestCase):
         self.assertLess(past.max(), 0.03 - refit.UNDER_SKIN + 1e-3)
         self.assertGreater(past.min(), 0.02)  # moved in to the skin, not onto the axis
 
+    def test_a_wall_across_the_limb_is_no_cover_over_its_skin(self):
+        # two faces: one round the limb, looking out from the bone along +X, and one across it, looking down the bone
+        v = np.array([[0.1, 0, 0], [0.1, 0, 0.1], [0.1, 0.1, 0], [0, 0, 0.2], [0.1, 0, 0.2], [0, 0.1, 0.2]], float)
+        f = np.array([[0, 2, 1], [3, 4, 5]])
+        axis = np.array([0, 0, 1.0])
+        self.assertEqual(refit.measure.round_limb(v, f, axis).tolist(), [True, False])
+        self.assertEqual(refit.measure.round_limb(v, f, axis, made=[False, True]).tolist(), [True, True])  # the split's own dome counts
+        v[4, 2] = 0.3  # the wall tipped 45 degrees is cloth again
+        self.assertEqual(refit.measure.round_limb(v, f, axis).tolist(), [True, True])
+
     def test_a_sleeve_is_held_outside_the_other_bodys_arm(self):
         # a sleeve to x = 0.3, its end capped 3 cm back past x = 0.05, with the other body's arm 4 cm round kept beside it
         # from x = 0.18 (the left arm runs along +X from the origin)

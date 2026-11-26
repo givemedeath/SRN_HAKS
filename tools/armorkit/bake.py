@@ -481,12 +481,23 @@ def through(parts, bones):
             continue
         start, end = split.bone_line(bones, name)
         skin, axis = v[np.unique(f[kept])], seams.unit(end - start)
+        drawn = cloth
+        cloth = cloth[measure.round_limb(v, cloth, axis, np.asarray(part['added'], bool)[~kept] if 'added' in part else None)]  # no wall across the limb
+        if not len(cloth):  # nothing drawn round the limb: nothing for the skin to stand out through
+            report[name] = 0.0
+            continue
         outside, _, crossed = measure.beyond(skin, start, axis, v, cloth, facing=True)
         most = max(float(np.nanmax(outside)) if np.isfinite(outside).any() else 0.0, 0.0)
         report[name] = round(most, 4)
         if most > THROUGH:
             failures.append(f'{name}: the body\'s own skin beside it stands up to {most * 100:.1f} cm out through the outfit over it')
-        hidden = int((np.isnan(outside) & (crossed >= 0)).sum())
+        behind = np.flatnonzero(np.isnan(outside) & (crossed >= 0))
+        if len(behind) and len(drawn) > len(cloth):
+            # Skin whose ray leaves the outfit by a wall across the limb last stands below a hem, in the open, and
+            # is covered by nothing: the arm under the hems of Street Casual's second sleeves (2026-11-25).
+            last = measure.beyond(skin[behind], start, axis, v, drawn, facing=True)[2]
+            behind = behind[measure.round_limb(v, drawn[last], axis)]
+        hidden = len(behind)
         if hidden:
             failures.append(f'{name}: {hidden} points of the body\'s own skin beside it are covered only by faces turned in, which the client does not draw')
     return report, failures
