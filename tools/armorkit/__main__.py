@@ -345,7 +345,8 @@ def main(argv=None):
     p.add_argument('--models', help="the engine's models folder (from the local runtime binding)")
     p.add_argument('--fov', type=float); p.add_argument('--shape', help='the saved shape of a geometry attempt')
     p.add_argument('--faces', type=int, default=EXPORT_FACES, help='faces of the exported mesh: far more than an outfit is worn at, the bake reduces each part to its budget')
-    p.add_argument('--fill', type=float, help='export a solid with its outside surface only')
+    p.add_argument('--fill', type=float, help='export a solid with its outside surface only: the price of closing an opening, '
+                                              'lower closes larger ones (20 where 40 leaves the outfit hollow)')
     p.add_argument('--url', default='http://127.0.0.1:8188')
     p.set_defaults(handler=command_generate)
     p = commands.add_parser('register', help='record images as made from a sealed reference folder (another image route, a derived image)')

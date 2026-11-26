@@ -832,6 +832,9 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     else:
         bones, skin = measure.body(body_pack, body)
         source, faces = repose.load(mesh)
+        held = repose.solidity(source, faces)
+        require(held >= repose.SOLID, f'{mesh} is a hollow shell, not a solid (it holds {held:.3f} of a ball with its surface, a solid outfit about 0.25): '
+                'export it again with a lower --fill, which closes larger openings')
         source, faces, crumbs = swept(source, faces, repose.outfit_joints(source, faces, repose.body_joints(bones, skin))[1]['scale'])
         if crumbs:
             say('debris dropped, cm²:', [round(area * 1e4, 2) for area in crumbs])

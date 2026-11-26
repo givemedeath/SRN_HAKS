@@ -67,6 +67,21 @@ def kind(bone):
     return bone[:-1] if bone[:-1] in THICK else bone
 
 
+SOLID = 0.05  # the least `solidity` of an outfit's mesh: Street Casual's solid exports had 0.26 and 0.25, its hollow ones 0.008
+
+
+def solidity(vertices, faces):
+    """How much a closed mesh holds for its surface: its volume over that of the ball with its area, 1 for a
+    ball. A solid outfit holds a quarter of that. A hollow one, an outer wall and an inner wall a cell apart, has
+    twice the surface round a thirtieth of the volume, and every measure of inside and outside taken on it is
+    wrong: it is told here, before anything is cut from it (user, 2026-11-25: "our gate checks might have
+    issues", when a hollow export showed as a failure at every joint)."""
+    corners = np.asarray(vertices, float)[np.asarray(faces, int)]
+    volume = abs(float(np.einsum('ij,ij->i', corners[:, 0], np.cross(corners[:, 1], corners[:, 2])).sum())) / 6
+    area = float(np.linalg.norm(np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0]), axis=1).sum()) / 2
+    return 6 * np.sqrt(np.pi) * volume / max(area, 1e-12) ** 1.5
+
+
 def load(path):
     """(vertices, faces) of a generated mesh file, welded and turned from glTF's axes (y up, facing +z) to the bodies'."""
     mesh = gltf.mesh(Path(path))

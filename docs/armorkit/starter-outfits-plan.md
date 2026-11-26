@@ -310,6 +310,22 @@ the first design's image. Not run: a bake with a tinted or named channel (`bake.
   have the number alone and are glossier than meant until rebaked; accessories written through the same
   function get the map on their next fit.
 
+* **Belt at its drawn size (`belt-16`), user, 2026-11-25:** "the belt pouches were not scaled down with the rest",
+  then "accessories are allowed to clip a little, and a lot during movement". What hangs below a belt's strap
+  keeps its drawn shape and is pushed out only where it would stand more than 2 cm inside the trousers
+  (`accessory.HANGS_IN`, my number for "a little"); the strap sits clear on the waistband. 48 cm wide, from 55.
+* **Reference colours by type and accent, a trial (`street-casual-typed`), user, 2026-11-25:** "colored by
+  material type or accent type instead of by part type", with shirt and trousers still in two colours "for use
+  in splitting (not for plt color channel assignment)", and, since parts can be coloured one by one in game, a
+  table of channels per slot to follow if the accents come through. Brief `tools/armorkit/briefs/street-casual-typed.json`
+  (`"typed": true`, materials may share a channel; `"small": true` on an accent). Found so far: a colour that
+  only tiny things wear (violet for buckles and eyelets) made the image model draw large things in it, twice;
+  without the floating gloves it drew arms; laces and boot straps came through as their own colour and are 1%
+  of the texels, under the 3% a material had to be; the pocket flaps were not found, the boots' dark soles
+  taking their place, so materials are to be found from the brief's colours and not from the peaks alone.
+  Reference `reference-v3`, geometry attempt 1 of 5, solid export `export-4` (fill 20). Not yet baked whole,
+  not compared, per-slot table not built.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
@@ -495,7 +511,7 @@ channel".
   without `--fill 40`, which every earlier outfit used: a hollow, double-walled shell instead of a solid. That
   left every part over its triangle budget, the 20,000-face export full of holes, and the split's own surfaces
   5 cm outside the outfit at every joint; it very likely caused the split's refusal of the sleeves too. Solid
-  exports: outfit `export-5` (200,000 faces), belt `export-3` (4,000 faces). **Always pass `--fill 40` to
+  exports: outfit `export-5` (200,000 faces), belt `export-3` (4,000 faces). (Corrected 2026-11-25: `--fill` is the price of closing an opening, not a size; a lower one closes larger openings, and the typed trial's mesh was hollow at 40, 80 and 160 and solid at 20. A hollow export is now refused, `repose.solidity`.) **Always pass `--fill` to
   `generate export`**; a default for it is not built.
 * **Sleeve finding** (`split.sleeve`, committed `75410a3a5`): a section short of the body's middle is the web
   under the armpit for `SLEEVE_WEB` sections at most, then the sleeve is free; up to `SLEEVE_LOST` sections
