@@ -187,6 +187,12 @@ class ReviewTests(unittest.TestCase):
         self.assertEqual([(shot['label'], shot['area'], shot['distance'], shot['pitch']) for shot in near if shot['label'].startswith('near-night')][0],
                          ('near-night-x03y03-ne', 'tkbn', 15, 64))  # the same crossings again from a player's distance, in the block's own areas
         self.assertEqual(len(near), 16)
+        eye = review.plan(SET, {**spec, 'block': {**spec['block'], 'eye': {'crossings': [[3, 3]], 'turns': [0, 180], 'pitches': [90, 110]}}}, parts=('block',))[1]
+        seen = [(shot['label'], shot['area'], shot['stand'], shot['facing'], shot['pitch'], shot['height'], shot['distance']) for shot in eye if shot['label'].startswith('eye-night')]
+        self.assertEqual(seen[0], ('eye-night-x03y03-000-090', 'tkbn', [35.0, 35.0], 0, 90, 1.7, 1.0))  # inside the cell, a person's eye, level
+        self.assertEqual([one[0] for one in seen], ['eye-night-x03y03-000-090', 'eye-night-x03y03-180-090', 'eye-night-x03y03-000-110', 'eye-night-x03y03-180-110'])  # then looking up, at the ceiling
+        with self.assertRaisesRegex(ValueError, 'eye views of a block take'):
+            review.plan(SET, {**spec, 'block': {**spec['block'], 'eye': {'tilt': 5}}}, parts=('block',))
 
     def test_the_command_refuses_in_words_and_a_refused_overlay_leaves_the_folder_fresh(self):
         import contextlib, io, json

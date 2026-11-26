@@ -6,3 +6,7 @@ texture2 ek_sk_desk_s
 texture3 ek_sk_desk_r
 texture4 null
 texture5 ek_sk_desk_i
+// screens move: tools/tilekit/motion.py
+customshaderVS vslit_sm_nm
+customshaderFS srn_screenp_fs
+parameter float ScreenHow0 1.0 1.19 56.0 1.0

@@ -1,0 +1,10 @@
+texture,surface_m2,share_pct,cumulative_pct,models,largest_px,copies,other_sets,other_packs,terrains
+nac_sheet,2534.17,49.039,49.039,13,512,srn_t_nac01:dds:512x512,,,Service Wall
+flexpipe,1158.72,22.422,71.461,12,256,srn_t_nac01:dds:256x256,srx02,,Service Wall
+nac_sheet4,1081.1,20.92,92.382,11,512,srn_t_nac01:dds:512x512,,,Service
+nac_sheet5,337.03,6.522,98.904,4,512,srn_t_nac01:dds:512x512,srx02,,Service
+vents,19.54,0.378,99.282,1,256,srn_t_nac01:dds:256x256,srx01 udp1,srn_placeable:2,Service
+grillarray,12.6,0.244,99.526,3,512,srn_t_nac01:dds:512x512,,,Service
+nac_sheet2,9.43,0.183,99.708,4,256,srn_t_nac01:dds:256x256,,,Service
+service_plate,8.21,0.159,99.867,2,256,srn_t_nac01:dds:256x256,,,Service
+ac_fan,6.86,0.133,100.0,1,512,srn_t_nac01:dds:512x512,,,Wall

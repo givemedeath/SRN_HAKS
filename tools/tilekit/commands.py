@@ -114,6 +114,14 @@ def props_command(chosen):
     _told(sketch.props(chosen.out, masters, chosen.blender)); return 0
 
 
+def rooms_command(chosen):
+    from . import rooms
+    spec = _json(chosen.spec); lock = chosen.lock or chosen.spec.with_name('rooms-built.json')
+    if chosen.check:
+        changed = rooms.stale(chosen.repo, spec, lock); _told({'stale': changed}); return 1 if changed else 0
+    _told(rooms.build(chosen.repo, spec, lock, chosen.blender, chosen.addon)); return 0
+
+
 def _client(parser, repo):
     parser.add_argument('--spec', required=True, type=Path, help='the family review spec (docs/tilesets/tilekit-tools.md)')
     parser.add_argument('--game', required=True, type=Path, help='the game install folder'); parser.add_argument('--built', required=True, type=Path, help='the folder the packs were built into')
@@ -150,5 +158,11 @@ def add(commands, repo):
     ten = commands.add_parser('props', help='render every kit piece in Blender, by day and night, on sheets')
     ten.add_argument('--blender', required=True, type=Path); ten.add_argument('--out', required=True, type=Path, help='a folder for the renders')
     ten.add_argument('--masters', type=Path, help='the folder of tiling scans (default: tilekit/masters in the shared tool root)'); ten.add_argument('--repo', type=Path, default=repo)
-    return {'repair': repair_command, 'propose': propose_command, 'openings': openings_command, 'family-review': family_review_command,
+    eleven = commands.add_parser('rooms', help='write the rooms of a merged interior tileset, unfurnished and furnished, as tiles of their own (then: merge, compile)')
+    eleven.add_argument('--spec', required=True, type=Path, help='the merge spec (docs/tilesets/<set>/merge.json), which names the folder of room specs')
+    eleven.add_argument('--lock', type=Path, help='the record of what a build read and wrote (rooms-built.json beside the spec without it)')
+    eleven.add_argument('--check', action='store_true', help='write nothing: say what has changed since the last build (exit 1 when anything has)')
+    eleven.add_argument('--blender', type=Path, help='the Blender that reads compiled props'); eleven.add_argument('--addon', type=Path, help='the NeverBlender add-on folder')
+    eleven.add_argument('--repo', type=Path, default=repo)
+    return {'rooms': rooms_command, 'repair': repair_command, 'propose': propose_command, 'openings': openings_command, 'family-review': family_review_command,
             'perf': perf_command, 'rank': rank_command, 'shared': shared_command, 'placements': placements_command, 'sketch': sketch_command, 'props': props_command}

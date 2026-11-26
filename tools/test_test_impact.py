@@ -223,13 +223,19 @@ class SelectionPolicyTests(unittest.TestCase):
             self.assertTrue(select(changed,self.fixture)['fullSuite'],changed)
         uncovered={**self.fixture,'dependencies':{**self.fixture['dependencies'],'tools/a/lonely.py':[]}}
         self.assertTrue(select(['tools/a/lonely.py'],uncovered)['fullSuite'])
-    def test_helpers_or_configs_used_by_several_suite_folders_select_the_full_suite(self):
+    def test_helpers_or_configs_shared_with_the_root_tools_select_the_full_suite_and_shared_by_kits_those_kits(self):
         shared={**self.fixture,'dependencies':{**self.fixture['dependencies'],
             'tools/a/common.py':[],'tools/a/test_common.py':['tools/a/common.py'],'tools/b/test_common.py':['tools/a/common.py'],
             'tools/a/test_config.py':['tools/a/config.json'],'tools/test_root.py':['tools/a/config.json']},
             'tests':sorted(self.fixture['tests']+['tools/a/test_common.py','tools/b/test_common.py','tools/a/test_config.py','tools/test_root.py'])}
-        for path in ('tools/a/common.py','tools/a/config.json'):
-            result=select([path],shared);self.assertTrue(result['fullSuite'],path);self.assertIn('Shared helper changed',result['reason'])
+        result=select(['tools/a/config.json'],shared);self.assertTrue(result['fullSuite']);self.assertIn('Shared helper changed',result['reason'])
+        # Shared by two kits: every test of both, the ones that do not import it too; a third kit's are left out.
+        third={**shared,'dependencies':{**shared['dependencies'],'tools/c/test_other.py':[]},'tests':sorted(shared['tests']+['tools/c/test_other.py'])}
+        result=select(['tools/a/common.py'],third);self.assertFalse(result['fullSuite'])
+        self.assertEqual(result['tests'],[t for t in third['tests'] if t.startswith(('tools/a/','tools/b/'))])
+        self.assertIn('Helper shared by tools/a, tools/b: tools/a/common.py',result['reason'])
+        # With a change that selects on its own, both selections run.
+        both=select(['tools/a/common.py','srn_body/x.mdl'],third);self.assertEqual(both['tests'],result['tests']);self.assertEqual(both['packs'],['srn_body'])
         # A helper confined to one suite folder stays focused.
         self.assertEqual(select(['tools/a/helper.py'],shared),{**select(['tools/a/helper.py'],self.fixture)})
         self.assertFalse(select(['tools/a/helper.py'],shared)['fullSuite'])

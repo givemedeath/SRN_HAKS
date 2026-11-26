@@ -73,7 +73,7 @@ def make(old, how, scan=None, *, enlarged=None):
     (pixels of the old picture, as enlarged, below which its detail is given up to the scan's, default 12), relief
     (pixels of rise guessed relief stands, default 2), roughness (0-1, an upscale's, default 0.8), glow (`glow`),
     turn (the scan a quarter turn anticlockwise, `turned`), wrap ('rows': `pictures.wrapped_rows`), crisp (how many times
-    steeper a cut-out's edge is made), plain (`write`)}. An
+    steeper a cut-out's edge is made), plain (`write`), recolour (`build`: a redrawn picture takes the old one's broad colours), join (`build`: it is made to tile, `pictures.joined`)}. An
     old picture with holes in it (an alpha channel in use) gives `alpha` too, and a glow asked for gives `glow`.
     enlarged: the old picture as an upscaling model enlarged it (`enlarge`), which an upscale then starts from."""
     route = how.get('route'); require(route in ROUTES, 'A texture\'s route is one of ' + ', '.join(ROUTES))
@@ -159,8 +159,8 @@ def material_text(stem, glow=False):
 
 
 def stem_of(name, how):
-    stem = how.get('stem', name); require(len(stem) <= STEM and stem == stem.lower() and stem.replace('_', '').isalnum(),
-                                          f'{name}: its maps need a `stem` of at most {STEM} lowercase characters')
+    stem = how.get('stem', name); require(len(stem) <= (16 if how.get('plain') else STEM) and stem == stem.lower() and (stem.replace('-', '') if how.get('plain') else stem).replace('_', '').isalnum(),  # a plain picture keeps its old name, hyphen and all
+                                          f'{name}: ' + ('a plain picture keeps a name of at most 16 lowercase letters, digits, _ and -' if how.get('plain') else f'its maps need a `stem` of at most {STEM} lowercase letters, digits and _'))
     return stem
 
 
@@ -175,7 +175,7 @@ def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None, pl
     if compress is None:
         from tools.envkit import convert
         compress = convert._compress
-    stem = stem or name; require(len(stem) <= STEM and len(name) <= 16, f'{name}: a map\'s stem is at most {STEM} characters and a texture\'s name 16')
+    stem = stem or name; require(len(stem) <= (16 if plain else STEM) and len(name) <= 16, f'{name}: a map\'s stem is at most {16 if plain else STEM} characters and a texture\'s name 16')
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); height, width = made['colour'].shape[:2]
     half = (max(width // 2, 64), max(height // 2, 64))
     channel = lambda values: Image.fromarray(np.repeat(np.uint8(np.clip(values, 0, 1) * 255 + 0.5)[..., None], 4, axis=2), 'RGBA')
@@ -290,6 +290,10 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
         old = np.asarray(current(repo, how.get('copy', name), stock=stock, **of_spec(spec)))  # a copy starts from its source's picture
         if picture is not None:  # made from that picture, as its record says
             _derived(redrawn if how.get('redrawn') else enlarged, name, old, doubled=None if how.get('redrawn') else how['doubled'])
+        if picture is not None and how.get('recolour'):  # the generator moved its colours: the old picture's broad ones come back
+            picture = pictures.recoloured(picture, old)
+        if picture is not None and how.get('join'):
+            picture = pictures.joined(picture)
         made = make(old, how, scan, enlarged=picture)
         if how.get('stain'):  # grime over the whole texture, before the district's grade; see pictures.stained
             require(0 < float(how['stain']) <= 1, f'{name}: a stain is between 0 and 1')

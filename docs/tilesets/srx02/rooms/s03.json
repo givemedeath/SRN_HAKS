@@ -1,0 +1,54 @@
+{
+ "id": "s03",
+ "category": "Security",
+ "name": "Small Armory",
+ "note": "Floorplan S03: controlled access, weapon display and secure storage.",
+ "shell": {
+  "set": "tbx78",
+  "group": "room"
+ },
+ "textures": {
+  "tbx78_wall01": "srx02_clgconc",
+  "tbx78_ceiling": "srx02_clgconc"
+ },
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    0,
+    -1.6
+   ],
+   "under": 5.0,
+   "size": [
+    2.4,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    0,
+    1.6
+   ],
+   "under": 5.0,
+   "size": [
+    2.4,
+    0.2
+   ],
+   "drop": 0.3
+  }
+ ],
+ "props": [
+  {"piece": "ek_isa_gunwall", "at": [-0.6, 3.5, 0.0], "faces": "s"},
+  {"piece": "ek_isa_gunwall", "at": [1.6, 3.5, 0.0], "faces": "s"},
+  {"piece": "ek_isa_cabinet", "at": [3.2, 1.2, 0.0], "faces": "w"},
+  {"piece": "ek_isa_cabinet", "at": [3.2, -0.5, 0.0], "faces": "w"},
+  {"piece": "ek_ad_armory", "at": [-0.8, -3.15, 0.0], "faces": "n"},
+  {"piece": "ek_isa_shelf", "at": [1.3, -3.3, 0.0], "faces": "n"},
+  {"piece": "ek_ad_crate", "at": [3.1, -2.4, 0.0], "faces": "w"},
+  {"piece": "ek_isa_bench", "at": [0.6, 0.2, 0.0], "faces": "s"},
+  {"piece": "ek_ad_crate", "at": [-2.9, 3.1, 0.0], "faces": "s"}
+ ],
+ "placeLater": [{"what": "the gun walls, cabinets and armory as locked containers"}, {"what": "a camera and the secure door"}]
+}

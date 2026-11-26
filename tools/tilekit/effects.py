@@ -1,5 +1,6 @@
 """Particle effects added to tiles: electrical discharges from a broken junction box, water dripping from a fire
-escape or an air conditioner, smoke from a roof vent.
+escape or an air conditioner, smoke from a roof vent; in a room (`rooms`), a candle's flame, a brazier's fire and
+embers, magic motes and a crystal's glimmer.
 
 An effect is a placement in the same spec as the kit pieces, `{piece: <effect>, at: [x, y, z], fall?}`, where `at`
 is the emitter's point in the tile's coordinates. It becomes an emitter node under the tile's root named
@@ -47,6 +48,28 @@ EFFECTS = {
              'alphaStart': 0.9, 'alphaEnd': 0.8, 'sizeStart': 0.07, 'sizeEnd': 0.06, 'sizeStart_y': 0.18, 'sizeEnd_y': 0.22, 'birthrate': 1.2,
              'lifeExp': None, 'mass': 1.0, 'spread': 0.0, 'velocity': 0.0, 'randvel': 0.05,
              'xgrid': SPARSE, 'ygrid': SPARSE, 'frameend': SPARSE * SPARSE - 1},  # 16 of 64 drawn: a drop every 3 s or so
+    # the magical rooms' (user, 2026-11-26: "make use of emitter based effects for the magical rooms in an appropriate way"):
+    # the game's own flame sheet and dot, as its candles and torches use them; at a candle's wick, a brazier's bowl, a circle
+    'flame': {'texture': 'fxpa_flame00', 'stock': True, 'Blend': 'Lighten', 'xSize': 1.0, 'ySize': 1.0, 'colorStart': (1.0, 0.86, 0.6),
+              'colorEnd': (1.0, 0.5, 0.2), 'alphaStart': 0.95, 'alphaEnd': 0.0, 'sizeStart': 0.07, 'sizeEnd': 0.03, 'sizeStart_y': 0.0,
+              'sizeEnd_y': 0.0, 'birthrate': 10.0, 'lifeExp': 0.35, 'mass': -0.03, 'spread': 0.0, 'velocity': 0.06, 'randvel': 0.01,
+              'fps': 24, 'random': 0},  # a candle's: small, steady, a hand's breadth high
+    'fire': {'texture': 'fxpa_flame00', 'stock': True, 'Blend': 'Lighten', 'xSize': 45.0, 'ySize': 45.0, 'colorStart': (1.0, 0.8, 0.5),
+             'colorEnd': (1.0, 0.35, 0.1), 'alphaStart': 1.0, 'alphaEnd': 0.0, 'sizeStart': 0.4, 'sizeEnd': 0.15, 'sizeStart_y': 0.0,
+             'sizeEnd_y': 0.0, 'birthrate': 18.0, 'lifeExp': 0.6, 'mass': -0.05, 'spread': 0.25, 'velocity': 0.7, 'randvel': 0.15,
+             'fps': 24, 'random': 0},  # a brazier's or burn barrel's, from a bowl about 0.45 m across
+    'embers': {'texture': 'fxpa_dot01', 'stock': True, 'Blend': 'Lighten', 'xSize': 35.0, 'ySize': 35.0, 'colorStart': (1.0, 0.6, 0.2),
+               'colorEnd': (0.9, 0.25, 0.05), 'alphaStart': 1.0, 'alphaEnd': 0.0, 'sizeStart': 0.035, 'sizeEnd': 0.015, 'sizeStart_y': 0.0,
+               'sizeEnd_y': 0.0, 'birthrate': 4.0, 'lifeExp': 1.8, 'mass': -0.06, 'spread': 0.5, 'velocity': 0.5, 'randvel': 0.35,
+               'xgrid': 1, 'ygrid': 1, 'frameend': 0},  # sparks rising off a fire
+    'motes': {'texture': 'fxpa_dot01', 'stock': True, 'Blend': 'Lighten', 'xSize': 260.0, 'ySize': 220.0, 'colorStart': (0.55, 0.75, 1.0),
+              'colorEnd': (0.75, 0.45, 1.0), 'alphaStart': 0.9, 'alphaEnd': 0.0, 'sizeStart': 0.05, 'sizeEnd': 0.02, 'sizeStart_y': 0.0,
+              'sizeEnd_y': 0.0, 'birthrate': 6.0, 'lifeExp': 4.0, 'mass': -0.008, 'spread': 3.14, 'velocity': 0.08, 'randvel': 0.12,
+              'xgrid': 1, 'ygrid': 1, 'frameend': 0},  # slow blue-violet motes drifting up over a ritual circle or a charged crystal
+    'glimmer': {'texture': 'fxpa_dot01', 'stock': True, 'Blend': 'Lighten', 'xSize': 25.0, 'ySize': 25.0, 'colorStart': (0.7, 0.95, 1.0),
+                'colorEnd': (0.85, 0.6, 1.0), 'alphaStart': 1.0, 'alphaEnd': 0.0, 'sizeStart': 0.025, 'sizeEnd': 0.008, 'sizeStart_y': 0.0,
+                'sizeEnd_y': 0.0, 'birthrate': 3.0, 'lifeExp': 1.6, 'mass': -0.01, 'spread': 3.14, 'velocity': 0.05, 'randvel': 0.06,
+                'xgrid': 1, 'ygrid': 1, 'frameend': 0},  # a few sparks about a charged crystal or focus on a bench
 
 }
 

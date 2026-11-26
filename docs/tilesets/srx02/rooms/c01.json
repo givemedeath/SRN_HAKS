@@ -1,0 +1,234 @@
+{
+ "id": "c01",
+ "category": "Retail",
+ "name": "Stuffer Shack",
+ "note": "Floorplan C01: checkout, display aisles, chillers and rear stock.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 2,
+   "columns": 1,
+   "like": [
+    40,
+    41
+   ],
+   "height": 4.0,
+   "repeat": {
+    "floor": 5.0,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "udp2_flr_til2",
+    "wall": "udp2_w_vyn1",
+    "ceiling": "srx02_clgtile",
+    "base": "udp2_w_sid3",
+    "trim": "udp2_w_sid3",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      15.6
+     ],
+     "to": [
+      10,
+      15.6
+     ],
+     "doors": [
+      {
+       "at": 7.6,
+       "width": 2.0
+      }
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      15.6,
+      10,
+      20
+     ],
+     "floor": "udp2_flr_vct2",
+     "wall": "udp1-blck-gr2",
+     "ceiling": "srx02_clgconc"
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    1.9,
+    2.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    3.0
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    1.9,
+    6.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    3.6
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    1.9,
+    12.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    4.4
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.03,
+    2.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    3.0
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.03,
+    6.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    3.6
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.03,
+    12.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    4.4
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    8.1,
+    2.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    3.0
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    8.1,
+    6.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    3.6
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    8.1,
+    12.6
+   ],
+   "under": 4.0,
+   "size": [
+    0.18,
+    4.4
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5,
+    17.7
+   ],
+   "under": 4.0,
+   "size": [
+    2.4,
+    0.2
+   ],
+   "drop": 0.4
+  }
+ ],
+ "props": [
+  {"piece": "p_rocerychkout01", "at": [2.0, 4.0, 0.0], "faces": "e"},
+  {"piece": "ek_ss_atm", "at": [9.36, 1.3, 0.0], "faces": "w"},
+  {"piece": "ek_ss_vending", "at": [9.15, 2.6, 0.0], "faces": "w"},
+  {"piece": "ek_ss_trash", "at": [8.2, 0.6, 0.0], "faces": "n"},
+  {"piece": "jvb_candyd01", "at": [0.5, 0.9, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [3.4, 7.2, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [3.96, 7.2, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [6.1, 7.2, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [6.66, 7.2, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [3.4, 8.45, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [3.96, 8.45, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [6.1, 8.45, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [6.66, 8.45, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [3.4, 11.6, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [3.96, 11.6, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [6.1, 11.6, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [6.66, 11.6, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [3.4, 12.85, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [3.96, 12.85, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [6.1, 12.85, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [6.66, 12.85, 0.0], "faces": "e"},
+  {"piece": "ek_ss_drinks", "at": [9.34, 6.6, 0.0], "faces": "w"},
+  {"piece": "ek_ss_drinks", "at": [9.34, 8.7, 0.0], "faces": "w"},
+  {"piece": "ek_ss_drinks", "at": [9.34, 11.4, 0.0], "faces": "w"},
+  {"piece": "ek_ss_drinks", "at": [9.34, 13.5, 0.0], "faces": "w"},
+  {"piece": "ek_ss_snacks", "at": [0.55, 7.15, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [0.55, 8.4, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [0.55, 11.6, 0.0], "faces": "e"},
+  {"piece": "ek_ss_snacks", "at": [0.55, 12.9, 0.0], "faces": "e"},
+  {"piece": "pkt_shelf02", "at": [2.4, 19.05, 0.044], "faces": "s"},
+  {"piece": "jz_shelvesl01", "at": [9.5, 18.0, 0.0], "faces": "w"},
+  {"piece": "ek_ad_crate", "at": [5.4, 19.2, 0.0], "faces": "s"},
+  {"piece": "ek_ad_crate", "at": [6.7, 19.2, 0.0], "faces": "s"},
+  {"piece": "ek_ad_crate", "at": [5.4, 19.2, 0.6], "faces": "s", "scale": 0.9}
+ ],
+ "placeLater": [{"what": "cash register, cash machine and vending machine as things to use"}, {"what": "a camera over the checkout"}]
+}

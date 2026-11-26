@@ -1,0 +1,297 @@
+{
+ "id": "c06",
+ "category": "Retail",
+ "name": "Nightclub",
+ "note": "Floorplan C06: a dance floor, a DJ stage, a long bar, a lounge, washrooms and a store room.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 2,
+   "columns": 2,
+   "like": [
+    63,
+    64,
+    64,
+    64
+   ],
+   "height": 4.0,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     4.0,
+     4.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "udp2_flr_vct2",
+    "wall": "udp1-blck-gr2",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      16.0
+     ],
+     "to": [
+      20,
+      16.0
+     ],
+     "doors": [
+      {
+       "at": 2.6,
+       "width": 2.0
+      },
+      {
+       "at": 17.5,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      15.9
+     ],
+     "to": [
+      10,
+      20
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      5,
+      2.5,
+      14,
+      9.5
+     ],
+     "floor": "tbx78_floor01",
+     "repeat": {
+      "floor": 3.0
+     }
+    },
+    {
+     "rect": [
+      1,
+      11.4,
+      9,
+      16.0
+     ],
+     "floor": "tfb01_floor01"
+    },
+    {
+     "rect": [
+      0,
+      16.0,
+      20,
+      20
+     ],
+     "floor": "udp2_flr_til3",
+     "wall": "udp2_flr_til2",
+     "repeat": {
+      "floor": 3.0,
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "spot",
+   "at": [
+    6.5,
+    4.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.5,
+    8.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    9.5,
+    4.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    9.5,
+    8.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    12.5,
+    4.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    12.5,
+    8.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "strip",
+   "at": [
+    16.4,
+    7.0
+   ],
+   "under": 4.0,
+   "size": [
+    0.16,
+    3.6
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    16.4,
+    13.0
+   ],
+   "under": 4.0,
+   "size": [
+    0.16,
+    3.6
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "dome",
+   "at": [
+    2.2,
+    2.5
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "dome",
+   "at": [
+    2.2,
+    6.5
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.0,
+    13.5
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    12.5,
+    1.9
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    18.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    6.5,
+    18.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    12.5,
+    18.0
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    16.5,
+    18.0
+   ],
+   "under": 4.0
+  }
+ ],
+ "props": [
+  {"piece": "bar_clutter", "at": [16.359, 7.019, 0.0], "faces": "w"},
+  {"piece": "bar_clutter", "at": [16.359, 13.02, 0.0], "faces": "w"},
+  {"piece": "bar_clutter", "at": [19.299, 7.019, 0.0], "faces": "w"},
+  {"piece": "bar_clutter", "at": [19.299, 13.02, 0.0], "faces": "w"},
+  {"piece": "jvb_sit01", "at": [15.6, 5.6, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [15.6, 6.6, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [15.6, 7.6, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [15.6, 8.6, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [15.6, 11.4, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [15.6, 12.4, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [15.6, 13.4, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [15.6, 14.4, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "dj_equipt", "at": [4.945, 13.947, 0.0], "faces": "n"},
+  {"piece": "ek_hs_martini", "at": [0.263, 13.5, -0.5], "faces": "e", "obstacle": false},
+  {"piece": "ek_hs_martini", "at": [8.6, 0.263, -0.5], "faces": "n", "obstacle": false},
+  {"piece": "jz_sfp050", "at": [0.863, 2.5, 0.0], "faces": "e"},
+  {"piece": "jz_sfp121", "at": [2.2, 2.5, 0.0], "turn": 0},
+  {"piece": "jz_sfp050", "at": [0.863, 6.5, 0.0], "faces": "e"},
+  {"piece": "jz_sfp121", "at": [2.2, 6.5, 0.0], "turn": 0},
+  {"piece": "pooltable", "at": [12.361, 1.737, 0.0], "faces": "s"},
+  {"piece": "jvb_arcad01", "at": [15.301, 0.811, 0.0], "faces": "n"},
+  {"piece": "jvb_arcad03", "at": [16.3, 0.789, 0.0], "faces": "n"},
+  {"piece": "sja_tbl01", "at": [4.005, 11.0, 0.0], "turn": 0},
+  {"piece": "sja_tbl01", "at": [11.505, 11.0, 0.0], "turn": 0},
+  {"piece": "sja_tbl01", "at": [13.205, 13.6, 0.0], "turn": 0},
+  {"piece": "udp2-p-47", "at": [1.0, 19.393, 0.0], "faces": "s"},
+  {"piece": "udp2-p-47", "at": [2.4, 19.393, 0.0], "faces": "s"},
+  {"piece": "udp2-p-47", "at": [3.8, 19.393, 0.0], "faces": "s"},
+  {"piece": "p_stalldivider01", "at": [1.7, 18.633, 0.0], "turn": 0},
+  {"piece": "p_stalldivider01", "at": [3.1, 18.633, 0.0], "turn": 0},
+  {"piece": "udp2-p-45", "at": [9.685, 17.6, 0.0], "faces": "w"},
+  {"piece": "udp2-p-45", "at": [9.685, 18.6, 0.0], "faces": "w"},
+  {"piece": "ek_ad_crate", "at": [11.0, 19.34, 0.0], "faces": "s"},
+  {"piece": "ek_ad_crate", "at": [12.3, 19.34, 0.0], "faces": "s"},
+  {"piece": "ek_pt_cases", "at": [13.699, 19.294, 0.0], "faces": "s"},
+  {"piece": "jz_shelvesl01", "at": [15.599, 19.516, 0.0], "faces": "s"},
+  {"piece": "jz_shelvesl01", "at": [19.516, 18.0, 0.0], "faces": "w"}
+ ],
+ "placeLater": [{"what": "a door in the opening; doors to the washrooms and the store room"}, {"what": "the bar as the barkeeper's store; the DJ desk, pool table and arcade games as things to use"}, {"what": "a bouncer at the way in"}]
+}

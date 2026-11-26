@@ -79,6 +79,11 @@
       "CompileModels": false
     },
     {
+      "Name": "srn_t_srx02",
+      "Path": "./srn_t_srx02/",
+      "CompileModels": false
+    },
+    {
       "Name": "srn_t_tfb01",
       "Path": "./srn_t_tfb01/",
       "CompileModels": false
@@ -2019,6 +2024,27 @@
       "Packs": [
         "srn_door",
         "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "cq_light.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_zsf01"
+      ]
+    },
+    {
+      "Resource": "cqpanel01.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_zsf01"
+      ]
+    },
+    {
+      "Resource": "cqroof01.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_zsf01"
       ]
     }
   ]

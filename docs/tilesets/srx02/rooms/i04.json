@@ -1,0 +1,104 @@
+{
+ "id": "i04",
+ "category": "Industrial",
+ "name": "Server Room",
+ "note": "Floorplan I04: two rows of racks facing a cold aisle, cooling units behind them, and a terminal by the way in.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 3.0,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tbx78_floor01",
+    "wall": "tbx78_ceiling",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    5.2
+   ],
+   "under": 3.4,
+   "size": [
+    4.0,
+    0.2
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    2.0
+   ],
+   "under": 3.4,
+   "size": [
+    4.0,
+    0.2
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    8.4
+   ],
+   "under": 3.4,
+   "size": [
+    4.0,
+    0.2
+   ],
+   "drop": 0.25
+  }
+ ],
+ "props": [
+  {"piece": "ek_pt_rack", "at": [2.001, 3.601, 0.0], "faces": "n"},
+  {"piece": "ek_pt_rack", "at": [3.001, 3.601, 0.0], "faces": "n"},
+  {"piece": "ek_pt_rack", "at": [4.001, 3.601, 0.0], "faces": "n"},
+  {"piece": "p_computerrack01", "at": [6.9, 3.6, 0.0], "faces": "n"},
+  {"piece": "serverrack", "at": [7.808, 3.622, 0.0], "faces": "n"},
+  {"piece": "udp2-p-40", "at": [2.4, 6.8, 0.0], "faces": "s"},
+  {"piece": "udp2-p-40", "at": [3.1, 6.8, 0.0], "faces": "s"},
+  {"piece": "udp2-p-40", "at": [3.8, 6.8, 0.0], "faces": "s"},
+  {"piece": "serverrack", "at": [5.893, 6.779, 0.0], "faces": "s"},
+  {"piece": "serverrack", "at": [6.742, 6.779, 0.0], "faces": "s"},
+  {"piece": "ek_hs_hvac2", "at": [2.5, 9.1, 0.0], "turn": 0},
+  {"piece": "ek_hs_hvac2", "at": [7.5, 9.1, 0.0], "turn": 0},
+  {"piece": "p_tapemach01", "at": [0.697, 8.4, 0.0], "faces": "e"},
+  {"piece": "ek_ad_terminal", "at": [9.367, 1.399, 0.0], "faces": "w"},
+  {"piece": "vos_elecbox2", "at": [9.515, 8.6, 0.0], "faces": "w"},
+  {"piece": "vos_airduct2", "at": [0.344, 5.202, 0.0], "faces": "e"}
+ ],
+ "placeLater": [{"what": "a secure door in the opening"}, {"what": "the terminal as a thing to use"}, {"what": "a camera over the way in"}]
+}

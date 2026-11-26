@@ -1,0 +1,336 @@
+{
+ "tileset": "tfb01",
+ "before": "239e8836580e49e4a22ecf117bc1ecf93fe5c478",
+ "packs": [
+  "srn_t_tfb01",
+  "srn_door",
+  "srn_t_common"
+ ],
+ "textures": {
+  "tfb01_lwalls": {
+   "kind": "wall",
+   "district": "home",
+   "note": "It is an interior wall in three bands, and the old patterned wallpaper, red rail and green boards go. The upper half becomes smooth, warm off-white painted plaster with only the faintest roller texture. The narrow band across the middle becomes a simple flat pale grey rail. The lower part becomes plain light grey wall panelling with a slim dark grey skirting board along the very bottom edge. The bands stay at the same heights.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
+  },
+  "tfb01_furnish2": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "It is a pale grey-oak laminate cabinet: the left part is a plain side panel, the right part its front, two drawers above a door, with brushed steel handles. The thin red outlines become fine dark shadow gaps between the drawers and the door."
+  },
+  "tfb01_shpflr1": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "Dark brown wood plank flooring, the boards running from top to bottom, matte, lightly worn."
+  },
+  "tfb01_door2": {
+   "kind": "trim",
+   "district": "home",
+   "note": "Two plain materials side by side, with the split where it is: on the left, pale grey-brown wood with a fine vertical grain; on the right, smooth blue-grey painted metal with faint wear."
+  },
+  "tfb01_wallcord": {
+   "kind": "wall",
+   "district": "home",
+   "note": "A plain modern interior wall. The large upper area is smooth pale warm-grey painted plaster, no pattern at all; the dark band along the bottom is a plain dark charcoal skirting board. The band stays at the same height.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
+  },
+  "tfb01_wallbrick": {
+   "kind": "wall",
+   "district": "home",
+   "note": "A plain modern interior wall. The large middle area is smooth pale warm-grey painted plaster, no pattern at all; the dark band along the top is a plain dark charcoal cornice strip and the dark band along the bottom a plain dark charcoal skirting board. The bands stay at the same heights.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
+  },
+  "tfb01_seat": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "The old-fashioned look goes: no carved antique panelling. The large upper area becomes a flat modern cabinet front in dark walnut veneer with two plain recessed panels where the carved ones are; the narrow striped band near the bottom becomes a row of folded fabric in muted colours; the strip under it plain walnut.",
+   "opening": "none"
+  },
+  "tfb01_door065": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Dark walnut wood boards with a fine grain, the boards running top to bottom, satin finish.",
+   "level": "both"
+  },
+  "tfb01_deco": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "An atlas of small things, each staying in its own rectangle: top left a plain deep-blue fabric; below it small electronics and boxes (a red box, a brass plate, a green panel, a yellow warning label, a red switch); on the right a tall dark speckled stone frame holding a softly glowing cream-white light panel."
+  },
+  "tfb01_wall1": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Smooth pale grey plaster with a fine even texture.",
+   "level": "both"
+  },
+  "tfb01_marbl05": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Polished cream marble with soft gold and pale green veining.",
+   "level": "both"
+  },
+  "tfb01_wall_iinn": {
+   "kind": "wall",
+   "district": "home",
+   "note": "A modern interior wall of pale birch veneer panelling with a fine grain. Each of the horizontal brown bands is a slim flat brushed aluminium strip at its upper and lower edge with birch between. No diagonal and no upright members. The bands stay at the same heights.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
+  },
+  "tfb01_plank": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "Modern large-format stone floor tiles in warm grey, laid in the same pattern of joints.",
+   "level": "both"
+  },
+  "tfb01_burlap": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "A tightly woven commercial carpet in dark grey-brown, seen from above."
+  },
+  "tfb01_post": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Warm cherry wood veneer with a fine grain running top to bottom, satin finish.",
+   "level": "both"
+  },
+  "tfb01_metaldoor": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Dark charcoal powder-coated steel with a fine even texture and faint wear."
+  },
+  "tfb01_creats": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "An atlas of four crate and locker sides, each staying in its own rectangle: olive and grey plastic and metal shipping cases with moulded edges; the top left one carries a small paper label with unreadable text."
+  },
+  "tfb01_stone05": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "A tiled floor: large cream octagonal tiles with grey-green square tiles and small maroon diamond insets between them, in exactly the same pattern, glazed ceramic."
+  },
+  "tfb01_shpwal": {
+   "kind": "wall",
+   "district": "home",
+   "note": "The old-fashioned look goes: no damask wallpaper. The upper part becomes smooth pale blue-grey painted plaster; the narrow band across the middle a simple flat white rail; the lower part a deeper matte blue painted panel. The bands stay at the same heights.",
+   "opening": "none",
+   "bands": true,
+   "level": "across"
+  },
+  "tfb01_sac": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "An atlas, each part staying in its own rectangle: on the left a tall panel of dark blue denim with stitched seams and a rope trim across it; on the right a plain cream-white modern appliance door in a thin brass-coloured frame, nothing printed on it; along the bottom edge a strip of twisted rope.",
+   "blank": [
+    [
+     0.525,
+     0.03,
+     0.975,
+     0.92,
+     [
+      236,
+      229,
+      214
+     ]
+    ]
+   ],
+   "opening": "none"
+  },
+  "tfb01__metal01": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Brushed stainless steel with fine random scratches.",
+   "level": "both"
+  },
+  "tfb01_shelf2": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "The upper part is a shelf of small electronics seen from the front (a small metal box, a little screen showing blue, a radio, a wall phone, a blue-grey cabinet, switch panels with small lit buttons), each staying where it is; the lower part is a plain reddish wood shelf front."
+  },
+  "tfb01_irony": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Worn galvanised steel sheet with fine scratches and a few small rust flecks.",
+   "level": "both"
+  },
+  "tfb01_bed02": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "Bedding seen from above: at the top two white quilted pillows side by side, under them a folded white sheet edge, and below that a dark teal blanket with stitched seams and a soft sheen."
+  },
+  "tfb01_cloack": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Warm cherry wood veneer with a broad flowing grain running top to bottom, satin finish.",
+   "level": "both"
+  },
+  "tfb01_rock1": {
+   "kind": "wall",
+   "district": "home",
+   "note": "A wall of dark blue-grey engineering brick; down the left edge a ragged strip of black torn rubble where the wall is broken."
+  },
+  "tfb01_floor": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "A worn poured concrete floor, pale grey with tan stains and patches."
+  },
+  "tfb01_floor2": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "Modern dark slate floor slabs of mixed sizes with tight joints, in the same pattern of joints, matte."
+  },
+  "tfb01_floortran4": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "Modern dark slate floor slabs of mixed sizes with tight joints, in the same pattern of joints, matte."
+  },
+  "tfb01_floortran2": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "A worn poured concrete floor, pale grey with tan stains and patches."
+  },
+  "tfb01_innrug": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "A woven carpet with an abstract camouflage-like pattern in sand and grey-green, seen from above."
+  },
+  "tfb01_shpflr2": {
+   "kind": "floor",
+   "district": "home",
+   "note": "A deep red carpet, and in its middle a darker square mat with a faint circular target-like pattern, where it is."
+  },
+  "tfb01_books": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "A dark metal bookcase full of books on three shelves, and along the bottom a row of electronics: a vent grille on the left, a control unit with a small green screen, buttons and a keypad on the right. Everything stays where it is."
+  },
+  "tfb01_paint04": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "Four framed pictures in a two by two grid, each frame staying where it is. The plain blue rectangles in the two left frames are blank and are filled in: the upper one with an abstract painting in warm ochre and brown, the lower one with an abstract painting in muted reds. The two right-hand pictures stay as they are. No people in any of them.",
+   "blank": [
+    [
+     0.06,
+     0.07,
+     0.45,
+     0.43
+    ],
+    [
+     0.06,
+     0.57,
+     0.45,
+     0.94
+    ]
+   ]
+  },
+  "tfb01_book2": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "An atlas, each part staying in its own rectangle: top left a sheet of printed newspaper with columns of unreadable text; the plain blue rectangle on it is blank and is filled in with a grey newspaper photograph of a city tower block, no person. Top right, screens showing blue interface windows; the bottom half yellowed paper with a small dark electronic device with a green bar display set into it on the left.",
+   "blank": [
+    [
+     0.2,
+     0.06,
+     0.48,
+     0.34
+    ]
+   ]
+  },
+  "tfb01_velvet": {
+   "kind": "material",
+   "district": "home",
+   "note": "Soft lilac-pink velvet fabric with gentle folds and sheen, a slightly brighter band across the top."
+  },
+  "tfb01_bark01": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Dark charcoal cladding boards laid in horizontal rows with small fixings, matte."
+  },
+  "tfb01_plates": {
+   "kind": "furniture",
+   "district": "home",
+   "note": "Blue and white porcelain: bands of painted pattern across the top and, below, two plates seen from above side by side. Everything stays where it is."
+  },
+  "tfb01_fire": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "Large pale grey concrete paving slabs with fine joints, in the same pattern of joints."
+  },
+  "tfb_subwayf1": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "Smooth poured concrete, mid grey, with fine pores and faint marks."
+  },
+  "tfb01_floor01": {
+   "kind": "material",
+   "district": "home",
+   "tiles": true,
+   "note": "Black woven carbon-fibre cloth with a fine diagonal weave."
+  },
+  "tfb_stone01": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "Square grey-green concrete pavers in a regular grid, in the same grid."
+  },
+  "tfb01_dirt": {
+   "kind": "floor",
+   "district": "home",
+   "tiles": true,
+   "note": "A coarse woven doormat-like carpet in dark brown."
+  }
+ },
+ "left": {
+  "?": "no texture",
+  "tcn01_stone05": "base game",
+  "tfb01_barel": "32 px: nothing to keep",
+  "tfb01_black": "black",
+  "tfb01_flood": "32 px: nothing to keep",
+  "tfb01_flower2": "cut-out",
+  "tfb01_grad_l": "black",
+  "tfb01_grad_r": "black",
+  "tfb01_great": "16 px",
+  "tfb01_hey2": "hay: a barn's",
+  "tfb01_heyalpha": "hay: a barn's",
+  "tfb01_net": "32 px",
+  "tfb01_shp": "512 px already",
+  "tfb01_tent": "64 px atlas: nothing to keep",
+  "tfb01_transp": "cut-out",
+  "tfb01_tree": "32 px",
+  "tfb01_water02": "water",
+  "tfb01_wizgroove": "cut-out",
+  "tfb_black": "black",
+  "tfb_rust1": "512 px already",
+  "tfb_subwayf2": "512 px already",
+  "tfb_subwayw1": "512 px already",
+  "tfb_subwayw2": "512 px already",
+  "tfb_subwayw3": "512 px already",
+  "tfb_subwayw4": "512 px already"
+ }
+}

@@ -1,0 +1,175 @@
+{
+ "id": "c03",
+ "category": "Retail",
+ "name": "Bar",
+ "note": "Floorplan C03: a service bar with stools, booths, a music corner, and back storage.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 4.0,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     4.0,
+     4.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tfb01_floor01",
+    "wall": "udp1-blck-gr2",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      8.4
+     ],
+     "to": [
+      10,
+      8.4
+     ],
+     "doors": [
+      {
+       "at": 8.7,
+       "width": 2.0
+      }
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      8.4,
+      10,
+      10
+     ],
+     "floor": "nac_sheet5",
+     "wall": "tfb_subwayf1"
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "spot",
+   "at": [
+    3.0,
+    6.4
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    4.6,
+    6.4
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.2,
+    6.4
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "dome",
+   "at": [
+    2.25,
+    1.8
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "dome",
+   "at": [
+    2.25,
+    4.4
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "dome",
+   "at": [
+    6.8,
+    2.6
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "spot",
+   "at": [
+    8.6,
+    4.6
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    9.1
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    6.0,
+    9.1
+   ],
+   "under": 4.0
+  }
+ ],
+ "props": [
+  {"piece": "bar_clutter", "at": [4.58, 5.959, 0.0], "faces": "s"},
+  {"piece": "bar_clutter", "at": [4.58, 7.799, 0.0], "faces": "s"},
+  {"piece": "jvb_sit01", "at": [3.4, 5.25, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [4.2, 5.25, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [5.0, 5.25, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [5.8, 5.25, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_sit01", "at": [6.5, 5.25, 0.0], "turn": 0, "scale": 1.45},
+  {"piece": "jvb_couch04", "at": [0.888, 1.8, 0.0], "faces": "e"},
+  {"piece": "jz_sfp121", "at": [2.25, 1.8, 0.0], "turn": 0},
+  {"piece": "jvb_chair08", "at": [3.351, 1.8, 0.0], "faces": "w"},
+  {"piece": "jvb_couch04", "at": [0.888, 4.4, 0.0], "faces": "e"},
+  {"piece": "jz_sfp121", "at": [2.25, 4.4, 0.0], "turn": 0},
+  {"piece": "jvb_chair08", "at": [3.351, 4.4, 0.0], "faces": "w"},
+  {"piece": "jhb_rtable01", "at": [6.798, 2.601, 0.0], "turn": 0},
+  {"piece": "jvb_chair08", "at": [6.8, 1.45, 0.0], "faces": "n"},
+  {"piece": "jvb_chair08", "at": [6.8, 3.751, 0.0], "faces": "s"},
+  {"piece": "jvb_chair08", "at": [5.65, 2.6, 0.0], "faces": "e"},
+  {"piece": "jukebox", "at": [9.385, 4.992, 0.0], "faces": "w"},
+  {"piece": "jvb_arcad01", "at": [9.189, 1.201, 0.0], "faces": "w"},
+  {"piece": "jvb_arcad03", "at": [9.211, 2.1, 0.0], "faces": "w"},
+  {"piece": "ek_hs_martini", "at": [0.263, 6.9, -0.5], "faces": "e", "obstacle": false},
+  {"piece": "ek_ad_crate", "at": [1.0, 9.34, 0.0], "faces": "s"},
+  {"piece": "ek_ad_crate", "at": [2.3, 9.34, 0.0], "faces": "s"},
+  {"piece": "jz_shelves01", "at": [3.599, 9.516, 0.0], "faces": "s"},
+  {"piece": "jz_shelvesl01", "at": [5.599, 9.516, 0.0], "faces": "s"},
+  {"piece": "udp2-p-98", "at": [8.1, 7.9, 0.0], "turn": 0}
+ ],
+ "placeLater": [{"what": "a door in the opening and one to the storage"}, {"what": "the bar as the barkeeper's store"}, {"what": "the jukebox and the arcade games as things to use"}]
+}

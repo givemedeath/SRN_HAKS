@@ -1,0 +1,139 @@
+{
+ "id": "i01",
+ "category": "Industrial",
+ "name": "Workshop",
+ "note": "Floorplan I01: repair benches and tool lockers round a clear work aisle, a drone pad and an engine on the floor.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     3.4,
+     3.4
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "nac_sheet5",
+    "wall": "tfb_subwayf1",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    2.5,
+    3.0
+   ],
+   "under": 3.4,
+   "size": [
+    1.6,
+    0.16
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    2.5,
+    7.0
+   ],
+   "under": 3.4,
+   "size": [
+    1.6,
+    0.16
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    3.0
+   ],
+   "under": 3.4,
+   "size": [
+    1.6,
+    0.16
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    7.0
+   ],
+   "under": 3.4,
+   "size": [
+    1.6,
+    0.16
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    7.5,
+    3.0
+   ],
+   "under": 3.4,
+   "size": [
+    1.6,
+    0.16
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    7.5,
+    7.0
+   ],
+   "under": 3.4,
+   "size": [
+    1.6,
+    0.16
+   ],
+   "drop": 0.25
+  }
+ ],
+ "props": [
+  {"piece": "ek_gr_bench", "at": [2.202, 9.138, 0.0], "faces": "s"},
+  {"piece": "ek_pt_workbnch", "at": [6.299, 8.912, 0.0], "faces": "s"},
+  {"piece": "ek_sk_lockers", "at": [9.197, 7.599, 0.0], "faces": "w"},
+  {"piece": "ek_gr_locker", "at": [9.306, 4.4, 0.0], "faces": "w"},
+  {"piece": "ek_pt_drone", "at": [2.201, 5.402, 0.0], "turn": 0},
+  {"piece": "pkt_medbench", "at": [5.4, 5.002, 0.0], "turn": 0},
+  {"piece": "p_eng_blk01", "at": [5.4, 3.4, 0.0], "turn": 0},
+  {"piece": "ek_sb_cart", "at": [7.601, 5.005, 0.0], "turn": 0},
+  {"piece": "jz_shelvesl01", "at": [0.484, 2.0, 0.0], "faces": "e"},
+  {"piece": "p_generator01", "at": [0.85, 3.9, 0.0], "turn": 90},
+  {"piece": "ek_pt_cases", "at": [0.706, 7.599, 0.0], "faces": "e"},
+  {"piece": "udp2-p-98", "at": [8.9, 1.0, 0.0], "turn": 0}
+ ],
+ "placeLater": [{"what": "a roller door or a door in the opening"}, {"what": "the lockers and cases as containers"}, {"what": "the benches and the drone pad as things to use"}]
+}

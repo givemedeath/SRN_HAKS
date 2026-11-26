@@ -1,0 +1,121 @@
+{
+ "id": "m02",
+ "category": "Medical",
+ "name": "Surgery",
+ "note": "Floorplan M02: a scrub and supply room at the way in, and the operating bay behind it: table, lamps, monitors, a cyberware case and a cryo pod.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 3.0,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "udp2_flr_til3",
+    "wall": "udp2_flr_til2",
+    "ceiling": "srx02_clgtile",
+    "base": "udp2_w_sid3",
+    "trim": "udp2_w_sid3",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      4.5
+     ],
+     "to": [
+      10,
+      4.5
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 2.0
+      }
+     ]
+    }
+   ],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    2.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    6.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.5,
+    2.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.5,
+    6.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.0,
+    7.4
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "lab_sink", "at": [0.733, 2.006, 0.0], "faces": "e"},
+  {"piece": "lab_sink", "at": [0.733, 3.405, 0.0], "faces": "e"},
+  {"piece": "m3_med_strg", "at": [9.322, 1.5, 0.0], "faces": "w"},
+  {"piece": "m3_med_strg", "at": [9.322, 2.4, 0.0], "faces": "w"},
+  {"piece": "ek_csc_bin", "at": [9.413, 3.6, 0.0], "faces": "w"},
+  {"piece": "ek_csc_gurney", "at": [5.002, 7.403, 0.0], "turn": 0},
+  {"piece": "ek_csc_lamp", "at": [3.199, 7.399, 0.0], "turn": 0},
+  {"piece": "ek_csc_lamp", "at": [6.801, 7.401, 0.0], "turn": 180},
+  {"piece": "jvb_medic02", "at": [4.838, 9.28, 0.0], "faces": "s"},
+  {"piece": "m3_med_trolley3", "at": [9.188, 5.45, 0.0], "turn": 90},
+  {"piece": "ek_csc_case", "at": [9.319, 7.5, 0.0], "faces": "w"},
+  {"piece": "pkt_koltank", "at": [1.023, 7.196, 0.0], "turn": 0},
+  {"piece": "jzmedicpnl01", "at": [2.8, 9.746, 0.0], "faces": "s"},
+  {"piece": "m3_medcount2", "at": [8.4, 9.315, 0.0], "faces": "s"},
+  {"piece": "m3_med_mics", "at": [8.6, 9.3, 1.0], "turn": 0}
+ ],
+ "placeLater": [{"what": "secure doors in the opening and the partition"}, {"what": "the cyberware case and lockers as containers"}, {"what": "the cryo pod and monitors as things to use"}]
+}

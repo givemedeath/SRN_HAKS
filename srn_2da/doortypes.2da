@@ -270,11 +270,11 @@
 266  SRX_GlassWindow        t_door12      SRX01   nw_door_ttr_30 16777226 1 1 1
 267  SRX_Astroport_door     ttd_door_010  SRX01   nw_door_ttr_18 63526 1 1 7
 268  SRX_fcx01_door         fcx_door_01   SRX01   nw_door_ttr_18 63526 1 1 7
-269  USER                   ****          ****    ****           ****          ****       ****         ****
-270  USER                   ****          ****    ****           ****          ****       ****         ****
-271  USER                   ****          ****    ****           ****          ****       ****         ****
-272  USER                   ****          ****    ****           ****          ****       ****         ****
-273  USER                   ****          ****    ****           ****          ****       ****         ****
+269  SRX2_CorryTrans1_IN    TIN_UDoor_01  SRX02   nw_door_ttr_11 63503 1 1 2
+270  SRX2_BarnDoor1_IN      TIN_UDoor_02  SRX02   nw_door_ttr_04 5350 1 1 1
+271  SRX2_GateDoor1_IN      TIN_UDoor_03  SRX02   nw_door_ttr_05 5350 0 1 0
+272  SRX2_FrstTranPly_TF    TTF_UDoor_05  SRX02   nw_door_ttr_25 63535 0 0 ****
+273  SRX2_facility          tmx_door_01   SRX02   nw_door_ttr_12 63533 1 1 1
 274  USER                   ****          ****    ****           ****          ****       ****         ****
 275  USER                   ****          ****    ****           ****          ****       ****         ****
 276  USER                   ****          ****    ****           ****          ****       ****         ****

@@ -1,0 +1,317 @@
+{
+ "id": "o05",
+ "category": "Office",
+ "name": "Executive Boardroom",
+ "note": "Floorplan O05: an anteroom and a service bay, and the boardroom behind its double doorway.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 2,
+   "like": [
+    63,
+    64
+   ],
+   "height": 3.6,
+   "repeat": {
+    "floor": 2.0,
+    "wall": [
+     3.6,
+     3.6
+    ],
+    "ceiling": 3.0
+   },
+   "look": {
+    "floor": "mdrnw2wcp_08",
+    "wall": "wall_dwood4",
+    "ceiling": "srx02_clgplas",
+    "base": "wall_dwood1",
+    "crown": "wall_dwood1",
+    "trim": "wall_dwood1",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      10,
+      0
+     ],
+     "to": [
+      10,
+      10
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 2.4
+      }
+     ]
+    },
+    {
+     "from": [
+      0,
+      6.6
+     ],
+     "to": [
+      5.1,
+      6.6
+     ],
+     "doors": [
+      {
+       "at": 2.9,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      5.0,
+      6.5
+     ],
+     "to": [
+      5.0,
+      10
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      6.6,
+      5,
+      10
+     ],
+     "floor": "udp2_flr_til2",
+     "wall": "udp2_w_vyn1",
+     "repeat": {
+      "floor": 3.0,
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    },
+    {
+     "rect": [
+      10,
+      0,
+      20,
+      10
+     ],
+     "floor": "mdrnw2wcp_06"
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "beams": [
+  {
+   "rect": [
+    10.1,
+    1.6500000000000001,
+    19.8,
+    1.95
+   ],
+   "z": [
+    3.4,
+    3.6
+   ],
+   "texture": "wall_dwood1",
+   "repeat": 2.0
+  },
+  {
+   "rect": [
+    10.1,
+    8.049999999999999,
+    19.8,
+    8.35
+   ],
+   "z": [
+    3.4,
+    3.6
+   ],
+   "texture": "wall_dwood1",
+   "repeat": 2.0
+  }
+ ],
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    15.0,
+    5.0
+   ],
+   "under": 3.6,
+   "size": [
+    4.4,
+    0.16
+   ],
+   "drop": 0.9
+  },
+  {
+   "kind": "spot",
+   "at": [
+    11.4,
+    2.4
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    11.4,
+    7.6
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    13.2,
+    2.4
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    13.2,
+    7.6
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    15.0,
+    2.4
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    15.0,
+    7.6
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    16.8,
+    2.4
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    16.8,
+    7.6
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    18.6,
+    2.4
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "spot",
+   "at": [
+    18.6,
+    7.6
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "dome",
+   "at": [
+    2.4,
+    3.0
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "dome",
+   "at": [
+    7.4,
+    3.0
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "dome",
+   "at": [
+    7.4,
+    7.6
+   ],
+   "under": 3.6
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    8.2
+   ],
+   "under": 3.6
+  }
+ ],
+ "props": [
+  {"piece": "shp_table01", "at": [15.0, 5.0, 0.0], "turn": 0, "scale": 1.1},
+  {"piece": "jhb_fteuil01", "at": [13.0, 6.6, 0.0], "faces": "s"},
+  {"piece": "jhb_fteuil01", "at": [14.0, 6.6, 0.0], "faces": "s"},
+  {"piece": "jhb_fteuil01", "at": [15.0, 6.6, 0.0], "faces": "s"},
+  {"piece": "jhb_fteuil01", "at": [16.0, 6.6, 0.0], "faces": "s"},
+  {"piece": "jhb_fteuil01", "at": [17.0, 6.6, 0.0], "faces": "s"},
+  {"piece": "jhb_fteuil01", "at": [13.0, 3.4, 0.0], "faces": "n"},
+  {"piece": "jhb_fteuil01", "at": [14.0, 3.4, 0.0], "faces": "n"},
+  {"piece": "jhb_fteuil01", "at": [15.0, 3.4, 0.0], "faces": "n"},
+  {"piece": "jhb_fteuil01", "at": [16.0, 3.4, 0.0], "faces": "n"},
+  {"piece": "jhb_fteuil01", "at": [17.0, 3.4, 0.0], "faces": "n"},
+  {"piece": "jhb_fteuil01", "at": [18.45, 5.0, 0.0], "faces": "w"},
+  {"piece": "jhb_fteuil01", "at": [11.55, 5.0, 0.0], "faces": "e"},
+  {"piece": "udp2-p-41", "at": [19.729, 5.0, 0.0], "faces": "w"},
+  {"piece": "jvb_dress03", "at": [12.4, 9.35, 0.0], "faces": "s"},
+  {"piece": "jvb_pendul01", "at": [12.4, 9.4, 0.97], "faces": "s"},
+  {"piece": "jvb_furn01", "at": [17.6, 9.447, 0.0], "faces": "s"},
+  {"piece": "jvb_furn01", "at": [15.0, 9.447, 0.0], "faces": "s"},
+  {"piece": "udp2-p-117", "at": [15.0, 0.324, 0.0], "faces": "n"},
+  {"piece": "pkt_pplant01", "at": [19.2, 9.2, 0.0], "turn": 0, "scale": 0.65},
+  {"piece": "pkt_pplant01", "at": [19.2, 0.8, 0.0], "turn": 0, "scale": 0.65},
+  {"piece": "jvb_astat01", "at": [10.5, 9.4, 0.0], "turn": 0},
+  {"piece": "udp2-p-112", "at": [0.65, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-112", "at": [1.42, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-112", "at": [2.19, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-112", "at": [2.96, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-112", "at": [3.73, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-26", "at": [1.42, 9.4, 1.1], "faces": "s"},
+  {"piece": "udp2-p-24", "at": [0.727, 7.98, 0.0], "faces": "e"},
+  {"piece": "udp2-p-13", "at": [0.6, 7.17, 0.0], "faces": "e"},
+  {"piece": "jvb_couch03", "at": [0.85, 3.0, 0.0], "faces": "e"},
+  {"piece": "jvb_tab05", "at": [2.4, 3.0, 0.0], "turn": 0},
+  {"piece": "jvb_chair05", "at": [3.9, 3.0, 0.0], "faces": "w"},
+  {"piece": "jhb_pplant01", "at": [1.0, 0.95, 0.0], "turn": 0, "scale": 0.5},
+  {"piece": "jvb_carpt02", "at": [2.4, 3.0, 0.0], "turn": 90, "obstacle": false, "scale": 0.6},
+  {"piece": "jvb_carpt02", "at": [7.5, 6.2, 0.0], "turn": 0, "obstacle": false, "scale": 0.5},
+  {"piece": "jvb_dress03", "at": [7.5, 9.35, 0.0], "faces": "s"},
+  {"piece": "jvb_astat01", "at": [6.0, 9.4, 0.0], "turn": 0},
+  {"piece": "jvb_astat01", "at": [9.2, 9.4, 0.0], "turn": 0},
+  {"piece": "jvb_couch05", "at": [8.5, 0.75, 0.0], "faces": "n"},
+  {"piece": "udp2-p-21", "at": [7.5, 9.746, 0.0], "faces": "s"}
+ ],
+ "placeLater": [{"what": "boardroom double doors: the doorway is open"}, {"what": "cabinets and sideboards as containers"}, {"what": "a terminal, where the screen is to be used"}]
+}
