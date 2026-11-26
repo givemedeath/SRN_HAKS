@@ -1,0 +1,112 @@
+{
+ "id": "m01",
+ "category": "Medical",
+ "name": "Street Clinic",
+ "note": "Floorplan M01: a waiting area and reception at the way in, and behind a partition an exam bed and a treatment gurney.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 4.0,
+   "repeat": {
+    "floor": 3.0,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "udp2_flr_til3",
+    "wall": "udp2_flr_til2",
+    "ceiling": "srx02_clgtile",
+    "base": "udp2_w_sid3",
+    "trim": "udp2_w_sid3",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      5.5
+     ],
+     "to": [
+      10,
+      5.5
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 1.3
+      }
+     ]
+    }
+   ],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    2.6
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    7.8
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.5,
+    2.6
+   ],
+   "under": 4.0
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.5,
+    7.8
+   ],
+   "under": 4.0
+  }
+ ],
+ "props": [
+  {"piece": "m3_med_sofa1", "at": [0.76, 3.0, 0.0], "faces": "e"},
+  {"piece": "ek_csc_bin", "at": [0.587, 4.95, 0.0], "faces": "e"},
+  {"piece": "m3_med_desk01", "at": [7.2, 3.4, 0.0], "faces": "n"},
+  {"piece": "m3_med_chair03", "at": [7.2, 4.603, 0.0], "faces": "s"},
+  {"piece": "ek_csc_vending", "at": [9.252, 1.2, 0.0], "faces": "w"},
+  {"piece": "shp_medbed", "at": [2.0, 8.012, 0.0], "turn": 0},
+  {"piece": "jvb_medic02", "at": [3.239, 9.28, 0.0], "faces": "s"},
+  {"piece": "ek_csc_lamp", "at": [0.998, 8.199, 0.0], "turn": 0},
+  {"piece": "shp_chart01", "at": [0.244, 6.6, 0.0], "faces": "e"},
+  {"piece": "ek_csc_gurney", "at": [7.402, 8.003, 0.0], "turn": 0},
+  {"piece": "ek_csc_cart", "at": [7.401, 6.601, 0.0], "turn": 0},
+  {"piece": "m3_med_strg", "at": [9.322, 6.4, 0.0], "faces": "w"},
+  {"piece": "m3_medcount1", "at": [5.4, 9.315, 0.0], "faces": "s"},
+  {"piece": "jzmedicpnl01", "at": [7.401, 9.746, 0.0], "faces": "s"}
+ ],
+ "placeLater": [{"what": "a door in the opening and one in the partition"}, {"what": "the reception desk as the doc's store"}, {"what": "the locker and cart as containers"}]
+}

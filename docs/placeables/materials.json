@@ -102,6 +102,7 @@
   "play1seat": {"route": "upscale", "size": [1024, 1024], "plain": true, "redrawn": true, "doubled": 2, "recolour": true, "join": true},
   "portal": {"route": "upscale", "size": [1024, 1024], "plain": true, "redrawn": true, "doubled": 2, "recolour": true, "join": true},
   "powerc3": {"route": "upscale", "size": [1024, 1024], "plain": true, "redrawn": true, "doubled": 2, "recolour": true, "join": true},
+  "serverback": {"route": "upscale", "size": [512, 512], "plain": true, "redrawn": true, "doubled": 2, "recolour": true},
   "serverfront": {"route": "upscale", "size": [1024, 1024], "plain": true, "redrawn": true, "doubled": 2, "recolour": true},
   "sgp_tex011": {"route": "upscale", "size": [1024, 256], "plain": true, "redrawn": true, "doubled": 2, "recolour": true},
   "sgp_tex015": {"route": "upscale", "size": [1024, 256], "plain": true, "redrawn": true, "doubled": 2, "recolour": true},
@@ -138,7 +139,8 @@
   "wall_dwood4": {"route": "upscale", "size": [1024, 1024], "plain": true, "doubled": 1},
   "wall_wood1": {"route": "upscale", "size": [1024, 1024], "plain": true, "redrawn": true, "doubled": 2, "recolour": true, "join": true},
   "wood": {"route": "upscale", "size": [1024, 1024], "plain": true, "redrawn": true, "doubled": 2, "recolour": true, "join": true},
-  "wood_m02a": {"route": "upscale", "size": [1024, 512], "plain": true, "redrawn": true, "doubled": 2, "recolour": true, "join": true}
+  "wood_m02a": {"route": "upscale", "size": [1024, 512], "plain": true, "redrawn": true, "doubled": 2, "recolour": true, "join": true},
+  "jvb_medic02a": {"route": "upscale", "size": [1024, 1024], "plain": true, "redrawn": true, "doubled": 1, "recolour": true}
  },
  "left": {
   "metalbunk": "the bunk lays its whole frame on one spot of it: one colour at any size",

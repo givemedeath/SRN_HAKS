@@ -79,6 +79,7 @@
   "play1seat": {"kind": "material", "district": "home", "note": "It is plain mid grey upholstery fabric, a fine weave. The same colours.", "tiles": true, "level": "both"},
   "portal": {"kind": "material", "district": "civic", "note": "It is pale grey-green rough concrete with small dark pits. The same colours.", "tiles": true, "level": "both"},
   "powerc3": {"kind": "material", "district": "industrial", "note": "It is one plain sheet of green painted metal, its paint finely brushed in thin horizontal streaks. No planks, no boards, no grooves, no gaps, no wood. The same colours.", "tiles": true},
+  "serverback": {"kind": "fixture", "district": "corporate", "note": "It is the back of a grey computer case seen straight on: a round fan grille at the left, a row of thin vertical expansion slots at the right, and a small block of ports low in the middle. Every grille, slot and port stays where it is, with straight clean edges. The same colours.", "opening": "none"},
   "serverfront": {"kind": "furniture", "district": "corporate", "note": "It is the dark grey front of a computer server: a drive slot, vents, a small button panel.", "opening": "none"},
   "sgp_tex011": {"kind": "trim", "district": "industrial", "note": "It is a dark cast metal relief panel of scrolls and ridges with a round boss at the right. Every part stays where it is.", "opening": "none"},
   "sgp_tex015": {"kind": "trim", "district": "industrial", "note": "It is a dark cast metal relief band of scrolls and ridges. Every part stays where it is.", "opening": "none"},
@@ -112,6 +113,7 @@
   "vos_awn_ylw": {"kind": "material", "district": "residential", "note": "It is yellow awning canvas, a coarse even weave. The same colours.", "tiles": true, "level": "both"},
   "wall_wood1": {"kind": "material", "district": "home", "note": "It is dark reddish brown wood with a long straight grain. The same colours.", "tiles": true, "level": "both"},
   "wood": {"kind": "material", "district": "barrens", "note": "It is brown wood with old cracked varnish. The same colours.", "tiles": true, "level": "both"},
-  "wood_m02a": {"kind": "material", "district": "barrens", "note": "It is dark weathered wood planks laid across, with dark gaps between them. The gaps stay where they are.", "tiles": true}
+  "wood_m02a": {"kind": "material", "district": "barrens", "note": "It is dark weathered wood planks laid across, with dark gaps between them. The gaps stay where they are.", "tiles": true},
+  "jvb_medic02a": {"kind": "fixture", "district": "civic", "note": "It is a photograph of a hospital anaesthesia cart seen from the front: a pale blue steel cabinet of drawers on castors with a brushed steel worktop, a dark blue band under the worktop, gauges and dials on the panel above it, black monitor boxes on a frame at the top, and a vaporiser on a steel arm at the left. At the lower left a separate grey steel part stands alone on blue. Every part stays exactly where it is, with straight clean edges. The plain dark blue rectangle on the band is an unmarked plate. The small screens glow faint green with abstract unreadable readouts. No maker's name, no logo, no readable words. The same colours.", "opening": "none", "blank": [[0.713, 0.387, 0.844, 0.424, [32, 60, 100]]]}
  }
 }

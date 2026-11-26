@@ -1,0 +1,275 @@
+{
+ "id": "i02",
+ "category": "Industrial",
+ "name": "Warehouse",
+ "note": "Floorplan I02: a grid of racks with picking aisles, a staging floor of pallets and a forklift, and the receiving desk by the way in.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 2,
+   "columns": 2,
+   "like": [
+    63,
+    64,
+    64,
+    64
+   ],
+   "height": 4.0,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     4.0,
+     4.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "nac_sheet5",
+    "wall": "tfb_subwayf1",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    7.6,
+    3.0
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    7.6,
+    6.8
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    7.6,
+    13.4
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    7.6,
+    17.1
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    12.2,
+    3.0
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    12.2,
+    6.8
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    12.2,
+    13.4
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    12.2,
+    17.1
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    16.0,
+    3.0
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    16.0,
+    6.8
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    16.0,
+    13.4
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    16.0,
+    17.1
+   ],
+   "under": 4.0,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    3.8,
+    4.0
+   ],
+   "under": 4.0,
+   "size": [
+    0.2,
+    2.0
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    3.8,
+    8.5
+   ],
+   "under": 4.0,
+   "size": [
+    0.2,
+    2.0
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    3.8,
+    15.0
+   ],
+   "under": 4.0,
+   "size": [
+    0.2,
+    2.0
+   ],
+   "drop": 0.3
+  }
+ ],
+ "props": [
+  {"piece": "pkt_shelf03", "at": [7.612, 4.966, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf04", "at": [12.215, 4.955, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf02", "at": [16.012, 4.965, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf04", "at": [7.615, 8.555, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf02", "at": [12.212, 8.564, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf03", "at": [16.012, 8.566, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf02", "at": [7.612, 11.564, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf03", "at": [12.212, 11.566, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf04", "at": [16.015, 11.555, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf03", "at": [7.612, 15.166, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf04", "at": [12.215, 15.155, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf02", "at": [16.012, 15.164, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf03", "at": [7.612, 19.094, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf04", "at": [12.215, 19.061, 0.0], "faces": "s"},
+  {"piece": "pkt_shelf02", "at": [16.012, 19.069, 0.0], "faces": "s"},
+  {"piece": "ek_sk_pallets", "at": [2.2, 8.001, 0.0], "turn": 0},
+  {"piece": "ek_sk_pallets", "at": [2.2, 12.401, 0.0], "turn": 0},
+  {"piece": "ek_rf_crates", "at": [2.0, 15.601, 0.0], "turn": 0},
+  {"piece": "ek_aw_crates", "at": [2.599, 18.8, 0.0], "turn": 0},
+  {"piece": "ek_sk_forklift", "at": [2.994, 4.601, 0.0], "faces": "e"},
+  {"piece": "ek_rf_jack", "at": [4.599, 7.0, 0.0], "turn": 0},
+  {"piece": "ek_sk_console", "at": [19.054, 2.4, 0.0], "faces": "w"},
+  {"piece": "ek_ad_terminal", "at": [8.999, 0.633, 0.0], "faces": "n"},
+  {"piece": "ek_sk_lockers", "at": [16.499, 0.803, 0.0], "faces": "n"},
+  {"piece": "ek_pt_cases", "at": [11.501, 2.6, 0.0], "turn": 0},
+  {"piece": "ek_pt_cases", "at": [13.001, 2.6, 0.0], "turn": 0},
+  {"piece": "ek_sk_crates", "at": [14.9, 2.7, 0.0], "turn": 0},
+  {"piece": "udp2-p-98", "at": [8.0, 0.6, 0.0], "turn": 0}
+ ],
+ "placeLater": [{"what": "a freight door in the opening"}, {"what": "the racks, crates and lockers as containers"}, {"what": "the receiving desk as the warehouse's store"}]
+}

@@ -496,6 +496,45 @@ floorplans are done. 16 tiles numbered after the Security batch's, no earlier nu
 - **Triangles** a furnished tile: 3.5k to 23.4k, under the pilots' 39.6k.
 - **Toolset:** not yet checked (the user stopped Toolset use, 2026-11-25); the module is ready in `output/tilekit/ret2ts`.
 - **Views:** `review-retail.json` (bird's eye and eye level; `output/tilekit/ret2`).
+- **Gate passed (user, 2026-11-25: "Yes, next batch").**
+
+## Stage 8, Industrial batch (user, 2026-11-25)
+
+I01 workshop, I02 warehouse (2x2), I03 loading bay (2x1), I04 server room and I05 mechanical room: the Industrial
+floorplans are done. 18 tiles numbered after the Retail batch's, no earlier number moved.
+- **Within a tile:** a prop may not cross a tile seam, and each tile's own floor must be one piece a player can stand
+  on (lanes of 0.6 m). The warehouse's racks sit inside their tiles, and its forklift parks on the receiving floor,
+  where it boxed in no corner.
+- **Not used:** `shp_crate1_h` draws a texture no pack holds.
+- **Pictures:** `t_electricbx` was enlarged; `serverback` (128 pixels) came out of the enlargement with wavy slots
+  and was redrawn.
+- **Server room aisle:** both walkers stopped on a straight line into the first rack row when sent from the far corner
+  to the cold aisle behind it, though the walkmesh was whole and joined. A 2 m cross aisle in each row, near the middle,
+  fixed it; the server room has nine racks instead of twelve.
+- **Walked** by a Human and a Troll, 38 points each through every room, doorway and aisle: all reached.
+- **Triangles** a furnished tile: 2.4k to 23.5k, under the pilots' 39.6k.
+- **Toolset:** not yet checked; the module is ready in `output/tilekit/ind1ts`.
+- **Views:** `review-industrial.json` (bird's eye and eye level; `output/tilekit/ind1`, the server room before its
+  cross aisle).
+
+## Stage 8, Medical batch (2026-11-26)
+
+M01 street clinic, M02 surgery and M03 ward (2x1): the Medical floorplans are done. 8 tiles numbered after the
+Industrial batch's, no earlier number moved.
+- **Pieces:** the M3 Med set (beds, desk, counters, cabinets, fridge, trolleys, microscope) draws PBR materials
+  (`.mtr`) already in `srn_placeable`; the envkit clinic props (gurney, surgical lamps, case, cart, vending, bin) and old
+  monitors, a cryo tank and a wall chart fill the rest. The neon cross was left out: it hangs below head height and
+  rests on nothing.
+- **On a counter:** the microscope stands on the counter's worktop at 1.0 m, not its 1.1 m splash-back.
+- **Within a tile:** the surgery's instrument trolley stands against the east wall; across the bay it shut off the
+  corner behind the lamps. The ward's last bed moved 0.3 m so its bedside table clears the wall.
+- **Pictures:** `jvb_medic02a` (the anaesthesia cart, a photograph with its maker's name) was redrawn.
+- **Walked** by a Human and a Troll, 29 points each: all reached.
+- **Triangles** a furnished tile: 18.5k to 23.0k.
+- **Toolset:** not yet checked.
+- **Views:** `review-medical.json` (bird's eye and eye level; `output/tilekit/med1`).
+- **Faster walk runs:** `output/_walkx.py` walks a batch in one client run; the Troll starts as soon as every Human has
+  walked its route and the run ends once every point is logged (Medical: 163 s to 113 s).
 
 ## Work order
 
