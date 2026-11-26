@@ -176,6 +176,18 @@ def waisted(ring):
 
 
 class TaperTests(unittest.TestCase):
+    def test_a_collar_keeps_its_height_over_a_neck_whose_shoulders_lie_close_under_it(self):
+        mine, hers = np.array([0.0, 0.119, 0.469]), np.array([0.0, 0.041, 0.347])  # neck, shoulders, waist: the Human pair
+        heights = np.array([-0.043, -0.02, -1e-6, 0.0, 0.119, 0.469])
+        out = refit.risen(heights, mine, hers)
+        self.assertTrue(np.allclose(out[3:], hers, atol=1e-9))  # the stations, each on the other body's
+        self.assertAlmostEqual(float(out[0]), -0.0351, places=3)  # 4.3 cm of collar: 3.5 cm, not the curve's 0.7
+        self.assertAlmostEqual(float(out[2]), 0.0, places=5)  # no step at the neck
+        self.assertTrue((np.diff(out) > 0).all())
+        # where the curve rises faster than the heights themselves, it carries the collar too
+        wide = refit.risen(heights, hers, mine)
+        self.assertTrue(np.allclose(wide, np.polyval(np.polyfit(hers, mine, 2), heights)))
+
     def setUp(self):
         # the other body's shoulders 1.5 times as far apart, its own chest 1.3 times as deep and its waist twice as wide
         self.source = (torso(0.4), {'chest': upright(0.10, 1.0, 1.7)})

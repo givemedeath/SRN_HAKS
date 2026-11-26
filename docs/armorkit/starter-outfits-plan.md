@@ -407,6 +407,29 @@ Causes found and fixed on the way (each with a test), rather than limits lifted:
 * A refused push now says where it is (cm out, cm along the bone, whose face) and `ARMORKIT_DUMP=<folder>`
   saves the part for a look.
 
+### 2026-11-26 (later): her boots, bust and collar after the first client look
+
+User, on the first client shots of `female-3`: the breasts are too large, the feet are wrong, and the female
+necks look long. State now: `female-6` (the male's whole outfit carried to her, `female-6-refit`) passes every
+gate with belt `belt-f4`; client shots in `female-6-poses` (contrasting) and `female-6-poses-realistic`.
+Her own generated chest (`female-own-1`) is set aside, its one geometry attempt used.
+
+* **Feet.** A foot was scaled along the body foot's own axes, which run heel-top to toe 20 degrees off the
+  ground: the boot came out sheared, its toe a wedge, 4.2 cm off the ground. A foot is now carried in the
+  ground's frame, its sole on the ground (`refit.grounded`). The outfit is cut as drawn at ankle and knee, and
+  the refit shaped and stretched those ends all the same: the drawn joints are now listed with the kept parts
+  like the tier, no end there is shaped or deepened, and the end is seated in the part over it.
+* **Bust.** The female brief asked for a full bust and the generated shirt stood 6 to 10 cm off her. The
+  male's shirt carried to her keeps its standoff over her own shape. The female brief's wording is to be
+  changed before any further generation from it.
+* **Collar.** Heights above the neck joint followed the curve through neck, shoulders and waist, which rises
+  0.16 at her neck: a 4.3 cm collar came to 0.7 cm. Above the neck they are now carried as they are
+  (`refit.risen`): 3.5 cm.
+* **Open: her shoulders read square.** Her shoulder joints lie 4 cm under her neck's plane, the male's 12 cm,
+  so the shirt's yoke is carried a third as tall and 0.69 as wide and its slope flattens.
+* **Open, the user's call: her neck.** 11.1 cm between neck and head joints against his 7.7 cm, 7.9 cm wide
+  against 12.7. It is the locked c7 body; changing it is a new lock and a republished body pack.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid

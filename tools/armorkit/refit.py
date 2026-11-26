@@ -73,6 +73,7 @@ OVER_PASSES = 4  # times a sleeve is pushed out and read against the arm again
 OVER_MOST = 0.03  # metres: a sleeve is pushed out over the arm no farther; a farther push fails the refit
 OVER_NECK = 0.001  # a chest lifted over a patch of the other body's neck that came through it stands this far outside the patch
 TAPERED = {'chest': ('shoulder', 'waist')}  # a part scaled across by a slope: the joints its width is read at, down its axis
+COLLAR_EASE = 0.02  # metres above a tapered part's top joint over which heights come to be carried as they are (`risen`)
 TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first station: no crease on the line where it starts
 STANDOFF_WAYS = 48  # directions round a tapered part's middle line its body's own part is read in at each level
 STANDOFF_LEVELS = 0.01  # metres from one level it is read at to the next
@@ -267,6 +268,25 @@ def taper(token, source, target, contract=None, names=None):
             'radii': radii(source[1][token][:2], frames[0]), 'clear': float(frames[0]['line'][1, 0] + armhole)}
 
 
+def risen(height, source, target):
+    """The heights on the target body's middle line that `height`, on the source's, are carried to (`tapered`):
+    by one curve through the three stations (`source`, `target`: the neck at 0, the shoulders, the waist), and
+    above the neck, where that curve rises slower than the heights themselves, by a rise that comes to theirs
+    over the first `COLLAR_EASE` (no corner at the neck). A collar stands on the neck, which is no part of
+    what the stations measure: the Human female's shoulders lie 4 cm under her neck's plane where the male's
+    lie 12 cm, the curve rose 0.16 there, and Street Casual's collar, 4.3 cm up his neck, came to 0.7 cm up
+    hers and left her neck bare to the shoulders (user, 2026-11-26)."""
+    curve = np.polyfit(source, target, 2)
+    height = np.asarray(height, float)
+    out, slow = np.polyval(curve, height), float(np.polyval(np.polyder(curve), 0.0))
+    above = height < 0
+    if slow < 1 and above.any():
+        up = -height[above]
+        eased = np.where(up < COLLAR_EASE, up ** 2 / (2 * COLLAR_EASE), up - COLLAR_EASE / 2)
+        out[above] = np.polyval(curve, 0.0) - (slow * up + (1 - slow) * eased)
+    return out
+
+
 def tapered(vertices, slope):
     """`vertices` of a tapered part, on the source body, carried to the target by its slope (`taper`): each to
     the height its own maps to, set as far from the target's middle line as it stood from the source's, times
@@ -295,7 +315,7 @@ def tapered(vertices, slope):
         held = np.clip((height - a['line'][1, 0]) / max(slope['clear'] - a['line'][1, 0], 1e-9), 0.0, 1.0)
         grown = scale * off / np.maximum(far, 1e-12)[:, None]  # the vertex's unit way from the line, as the scales carry it
         carried = carried - (stand * held * held * (3 - 2 * held) * (1 - 1 / np.maximum(np.linalg.norm(grown, axis=1), 1e-12)))[:, None] * grown
-    out = b['origin'] + through(b['line'][:, 0])[:, None] * b['axes'][0]
+    out = b['origin'] + risen(height, a['line'][:, 0], b['line'][:, 0])[:, None] * b['axes'][0]
     for k in (1, 2):
         out = out + (through(b['line'][:, k]) + carried[:, k - 1])[:, None] * b['axes'][k]
     return out
