@@ -102,6 +102,51 @@ def pictures(size=1024):
     small = 256; rows = np.arange(small); ridge = ((rows // 4) % 2)[:, None] ^ ((rows // 4) % 2)[None, :]; edge = np.minimum(rows, small - 1 - rows); near = np.minimum(edge[:, None], edge[None, :])
     out['srx02_lampdif'] = grey(np.where(near < 6, 205, 246 + 7 * ridge - 10 * (near < 20)), (1.0, 0.985, 0.94))
     out['srx02_lamphous'] = grey(196 + 3 * _noise(rng, small, 20, 2), (1.0, 1.0, 1.0))
+    out.update(_older(rng, size))  # drawn after the others, so their pictures stay as they were
+    return out
+
+
+def _streaks(rng, size, across, along):
+    """Seamless noise that changes fast across x (`across` cells) and slowly down y (`along` cells): wood grain, rust runs."""
+    frequency = np.fft.fftfreq(size) * size
+    wave = np.real(np.fft.ifft2(np.fft.fft2(rng.standard_normal((size, size))) * np.exp(-(np.abs(frequency)[None, :] / across) ** 2) * np.exp(-(np.abs(frequency)[:, None] / along) ** 2)))
+    return wave / (wave.std() or 1)
+
+
+def _older(rng, size):
+    """The ceilings of older and poorer rooms (user: the magic and Barrens rooms "need more appropriate ceilings",
+    2026-11-26): dark timber boards, stained plaster, and rusted corrugated sheet. One picture covers 2.4 m."""
+    out = {}; rows = np.arange(size); colour = lambda shade, tint: np.clip(shade[..., None] * np.asarray(tint, float), 0, 255).astype('uint8')
+    # timber boards along x, 15 cm wide, each its own tone, with butt joints, nail heads and old water marks
+    board = size // 16; which = rows // board; grain = _streaks(rng, size, 160, 3).T
+    shade = 100 * (1 + rng.uniform(-0.13, 0.13, 16)[which][:, None]) + 7 * grain + 5 * _noise(rng, size, 6, 3)
+    shade[(rows % board) < 2] *= 0.45; shade[(rows % board) == 2] *= 1.12
+    for number in range(16):
+        band = slice(number * board + 2, (number + 1) * board)
+        for joint in rng.choice(size, 2, replace=False):
+            shade[band, joint:joint + 2] *= 0.5
+            for side in (-9, 9):
+                for depth in (board // 3, 2 * board // 3):
+                    away = np.hypot(*np.meshgrid((rows - (joint + side) % size), rows - (number * board + depth)))
+                    shade[away < 2.5] *= 0.55
+    stains = _noise(rng, size, 3, 3); shade *= 1 - 0.16 * np.clip(stains - 0.9, 0, 1.2)  # soft dark water marks
+    out['srx02_clgbord'] = colour(shade, (1.0, 0.66, 0.43))
+    # old plaster, yellowed, with tide-marked water stains and fine cracks
+    shade = 212 + 4 * _noise(rng, size, 4, 3) + 2.5 * _noise(rng, size, 80, 3, 0.7); wet = _noise(rng, size, 3, 3)
+    cracks = (np.abs(_noise(rng, size, 30, 3, 0.8)) < 0.03) & (_noise(rng, size, 4, 2) > 0.6)
+    damp = np.clip(wet - 1.3, 0, 1); shade = shade - 14 * damp - 10 * np.exp(-((wet - 1.3) / 0.04) ** 2) - 30 * cracks  # faint tide line
+    tint = (1.0, 0.975, 0.92) - damp[..., None] * np.array((0.0, 0.05, 0.13))
+    out['srx02_clgplst'] = np.clip(shade[..., None] * tint, 0, 255).astype('uint8')
+    # corrugated sheet: ridges along y every 7.5 cm, sheets lapped every 60 cm with screws on the crests, rust in runs
+    ridges = 32; phase = 2 * np.pi * ridges * rows / size; light = np.tile(118 + 24 * np.sin(phase), (size, 1))
+    sheet = size // 4; lap = rows % sheet; light = light * np.where(lap < 3, 0.55, np.where(lap < 6, 1.1, 1.0))[:, None]
+    for lap in range(0, size, sheet):
+        for crest in range(0, ridges, 3):
+            x = int((crest + 0.25) * size / ridges); away = np.hypot(*np.meshgrid(rows - x, rows - (lap + 9))); light[away < 3] *= 0.5
+    rust = np.clip(0.4 * (0.6 * _noise(rng, size, 5, 4, 0.6) + 0.5 * _streaks(rng, size, 40, 2) + 0.2), 0, 0.85)
+    grime = np.clip(0.25 + _noise(rng, size, 6, 3) * 0.3, 0, 0.7)
+    zinc = np.stack([light * 1.0, light * 1.01, light * 0.99], -1); red = np.stack([light * 0.8, light * 0.5, light * 0.32], -1)
+    out['srx02_clgcorr'] = np.clip((zinc * (1 - rust[..., None]) + red * rust[..., None]) * (1 - 0.35 * grime[..., None]), 0, 255).astype('uint8')
     return out
 
 

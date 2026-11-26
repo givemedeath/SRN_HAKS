@@ -2,7 +2,7 @@
  "id": "a03",
  "category": "Magical",
  "name": "Enchanting Lab",
- "note": "Floorplan A03: two work benches of crystals, glassware and reagents glimmering, a lab counter and sink, a crucible over a fire with a still and a retort, shelves of specimens, carboys, flasks hung over the benches, books and a terminal.",
+ "note": "Floorplan A03: two work benches of crystals, glassware and reagents glimmering, a lab counter and sink, an alchemy table of glassware between a still and a retort, a chalkboard, shelves of specimens, carboys, flasks hung over the benches, books and a terminal.",
  "shell": {
   "set": "udp2",
   "box": {
@@ -23,7 +23,7 @@
    "look": {
     "floor": "udp2_flr_vct2",
     "wall": "udp2_w_cmu1",
-    "ceiling": "srx02_clgconc",
+    "ceiling": "srx02_clgplst",
     "base": "udp2_w_sid2",
     "trim": "udp2_w_sid2",
     "top": "gg_black"
@@ -59,19 +59,11 @@
    ]
   },
   {
-   "effect": "fire",
+   "effect": "glimmer",
    "at": [
     5.0,
     7.2,
-    0.7
-   ]
-  },
-  {
-   "effect": "embers",
-   "at": [
-    5.0,
-    7.2,
-    1.0
+    0.95
    ]
   }
  ],
@@ -109,6 +101,64 @@
    "under": 3.4
   }
  ],
+ "beams": [
+  {
+   "rect": [
+    0.2,
+    2.88,
+    9.8,
+    3.12
+   ],
+   "z": [
+    3.14,
+    3.4
+   ],
+   "texture": "wall_dwood1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    0.2,
+    6.18,
+    9.8,
+    6.42
+   ],
+   "z": [
+    3.14,
+    3.4
+   ],
+   "texture": "wall_dwood1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    0.2,
+    9.48,
+    9.8,
+    9.6
+   ],
+   "z": [
+    3.16,
+    3.28
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    0.2,
+    9.66,
+    9.8,
+    9.76
+   ],
+   "z": [
+    3.2,
+    3.3
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  }
+ ],
  "props": [
   {"piece": "pkt_medbench", "at": [3.0, 4.502, 0.0], "turn": 0},
   {"piece": "p_x5x5crystal02", "at": [2.5, 4.5, 0.77], "turn": 0},
@@ -127,10 +177,11 @@
   {"piece": "lab_cntrr", "at": [2.612, 9.079, 0.0], "faces": "s"},
   {"piece": "lab_sink", "at": [4.805, 9.267, 0.0], "faces": "s"},
   {"piece": "jhb_etag02", "at": [7.8, 9.464, 0.0], "faces": "s"},
-  {"piece": "pkt_m03x17", "at": [5.005, 7.202, 0.0], "turn": 0},
-  {"piece": "lpat_wic_pot1", "at": [5.001, 7.2, 0.676], "turn": 0, "scale": 0.7},
-  {"piece": "lpat_retort_lrg", "at": [6.509, 7.242, 0.0], "turn": 0, "scale": 0.8},
-  {"piece": "lpat_alc_brw", "at": [3.601, 7.368, 0.0], "turn": 90, "scale": 0.7},
+  {"piece": "lpat_alctable_2", "at": [5.002, 7.199, 0.0], "faces": "s"},
+  {"piece": "lpat_retort_lrg", "at": [6.809, 7.242, 0.0], "turn": 0, "scale": 0.8},
+  {"piece": "lpat_alc_brw", "at": [3.401, 7.368, 0.0], "turn": 90, "scale": 0.7},
+  {"piece": "p_chalkbrddrty01", "at": [8.4, 0.333, 0.9], "faces": "n", "scale": 0.8, "obstacle": true},
+  {"piece": "pkt_pannel02", "at": [0.223, 3.999, 0.0], "faces": "e"},
   {"piece": "jz_shelves01", "at": [9.516, 2.001, 0.0], "faces": "w"},
   {"piece": "jz_shelves02", "at": [9.516, 3.001, 0.0], "faces": "w"},
   {"piece": "p_x4x4brainjar02", "at": [9.52, 2.0, 0.99], "turn": 0},

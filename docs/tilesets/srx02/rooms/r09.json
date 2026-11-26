@@ -2,7 +2,7 @@
  "id": "r09",
  "category": "Home",
  "name": "Barrens Home",
- "note": "Floorplan R09: a Barrens family home of two rooms, a living and sleeping room with a couch, a trid, a bunk and bedrolls, and a tiny kitchen.",
+ "note": "Floorplan R09: a Barrens family home of two rooms, a living and sleeping room with a couch, a trid, a bunk and bedrolls, stains, litter and trash, and a tiny kitchen.",
  "shell": {
   "set": "udp2",
   "box": {
@@ -16,15 +16,15 @@
    "repeat": {
     "floor": 2.5,
     "wall": [
-     3.0,
-     3.0
+     2.5,
+     2.5
     ],
     "ceiling": 2.4
    },
    "look": {
-    "floor": "tfb_subwayf1",
-    "wall": "tfb01_floor",
-    "ceiling": "srx02_clgconc",
+    "floor": "tfb01_floor",
+    "wall": "tfb_subwayw4",
+    "ceiling": "srx02_clgcorr",
     "base": "udp2_w_sid2",
     "trim": "udp2_w_sid2",
     "top": "gg_black"
@@ -81,50 +81,141 @@
    "at": [
     17.6,
     4.0,
-    1.132
+    1.031
    ]
   }
  ],
  "lamps": [
   {
-   "kind": "dome",
+   "kind": "spot",
    "at": [
     3.0,
     6.0
    ],
-   "under": 3.4
+   "under": 3.4,
+   "drop": 0.6
   },
   {
-   "kind": "dome",
+   "kind": "spot",
    "at": [
     8.4,
     4.0
    ],
-   "under": 3.4
+   "under": 3.4,
+   "drop": 0.6
   },
   {
-   "kind": "dome",
+   "kind": "spot",
    "at": [
     12.5,
     5.0
    ],
-   "under": 3.4
+   "under": 3.4,
+   "drop": 0.6
   },
   {
-   "kind": "dome",
+   "kind": "spot",
    "at": [
     18.0,
     4.0
    ],
-   "under": 3.4
+   "under": 3.4,
+   "drop": 0.6
   },
   {
-   "kind": "dome",
+   "kind": "spot",
    "at": [
     18.0,
     8.4
    ],
-   "under": 3.4
+   "under": 3.4,
+   "drop": 0.6
+  }
+ ],
+ "beams": [
+  {
+   "rect": [
+    0.2,
+    2.14,
+    10.0,
+    2.2600000000000002
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    0.2,
+    4.640000000000001,
+    10.0,
+    4.76
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    0.2,
+    7.140000000000001,
+    10.0,
+    7.26
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    10.0,
+    2.14,
+    19.8,
+    2.2600000000000002
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    10.0,
+    4.640000000000001,
+    19.8,
+    4.76
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    10.0,
+    7.140000000000001,
+    19.8,
+    7.26
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
   }
  ],
  "props": [
@@ -132,6 +223,8 @@
   {"piece": "jz_cbbox_007", "at": [2.4, 6.008, 0.0], "turn": 0},
   {"piece": "jz_cbbox_007", "at": [3.8, 6.008, 0.0], "turn": 0},
   {"piece": "p_tv02", "at": [3.8, 6.0, 0.6], "faces": "w"},
+  {"piece": "p_ashtray01", "at": [2.25, 5.8, 0.6], "turn": 0},
+  {"piece": "jvb_bottle01", "at": [2.55, 6.198, 0.6], "turn": 0},
   {"piece": "purp_bunk4", "at": [8.184, 8.328, 0.0], "faces": "s"},
   {"piece": "ek_gr_fire", "at": [1.4, 9.0, 0.0], "turn": 0},
   {"piece": "jz_shelves02", "at": [2.999, 9.516, 0.0], "faces": "s"},
@@ -140,9 +233,12 @@
   {"piece": "purp_bedroll2", "at": [12.2, 8.392, 0.0], "turn": 0},
   {"piece": "jz_cbbox_007", "at": [13.4, 9.208, 0.0], "turn": 0},
   {"piece": "jz_lamp02", "at": [13.4, 9.2, 0.6], "turn": 0},
+  {"piece": "sgp_vett01", "at": [11.595, 7.188, 0.0], "turn": 0, "obstacle": false},
+  {"piece": "pkt_tissus01", "at": [10.603, 7.203, 0.0], "turn": 0},
   {"piece": "ek_hs_bags", "at": [14.799, 1.0, 0.0], "turn": 0},
   {"piece": "psi_barrel10", "at": [11.0, 1.2, 0.0], "turn": 0},
   {"piece": "ek_nb_table", "at": [13.0, 4.6, 0.0], "turn": 0},
+  {"piece": "p_x5x5trashpil01", "at": [8.6, 1.0, 0.0], "turn": 0, "scale": 0.38},
   {"piece": "jz_fridgebig02", "at": [16.808, 9.24, 0.0], "faces": "s"},
   {"piece": "jz_oldoven01", "at": [17.9, 9.415, 0.0], "faces": "s"},
   {"piece": "jr_mc_sink", "at": [19.008, 9.263, 0.0], "faces": "s"},
@@ -151,7 +247,19 @@
   {"piece": "sja_tbl01", "at": [17.606, 4.0, 0.0], "turn": 0},
   {"piece": "jvb_chair08", "at": [17.6, 3.2, 0.0], "faces": "n"},
   {"piece": "jvb_chair08", "at": [17.6, 4.8, 0.0], "faces": "s"},
-  {"piece": "m3_cnd01", "at": [17.6, 4.0, 0.88], "turn": 0}
+  {"piece": "m3_cnd01", "at": [17.6, 4.0, 0.88], "turn": 0, "scale": 0.6},
+  {"piece": "p_whiskeybtl01", "at": [17.35, 4.15, 0.88], "turn": 0},
+  {"piece": "vos_pbag_b", "at": [16.687, 0.619, 0.0], "turn": 0, "scale": 0.7},
+  {"piece": "vos_garbage1", "at": [19.216, 0.75, 0.0], "turn": 0, "scale": 0.45},
+  {"piece": "jz_dirtygrd_md01", "at": [6.0, 4.6, 0.01], "turn": 0, "scale": 0.7, "obstacle": false},
+  {"piece": "jz_dirtygrdc_m01", "at": [12.4, 5.6, 0.012], "turn": 0, "scale": 0.55, "obstacle": false},
+  {"piece": "vos_litter_1a", "at": [5.0, 5.0, 0.0], "turn": 0, "scale": 0.5, "obstacle": false},
+  {"piece": "jz_grdpapers01", "at": [11.4, 3.4, 0.0], "turn": 0, "scale": 1.2, "obstacle": false},
+  {"piece": "jz_dirtygrdc_m01", "at": [18.0, 6.2, 0.012], "turn": 0, "scale": 0.32, "obstacle": false},
+  {"piece": "jz_dirtygrd_md01", "at": [1.8, 8.8, 0.011], "turn": 0, "scale": 0.4, "obstacle": false},
+  {"piece": "jz_wllpapers01", "at": [0.224, 2.4, 0.0], "faces": "e", "obstacle": true},
+  {"piece": "jzposter141", "at": [14.9, 9.776, 0.0], "faces": "s", "obstacle": true},
+  {"piece": "jz_sfp089", "at": [0.257, 6.0, 0.0], "faces": "e", "obstacle": true}
  ],
  "placeLater": [{"what": "a battered door in the opening and a curtain or door to the kitchen"}, {"what": "the fridge, oven and shelves as containers"}]
 }

@@ -557,6 +557,21 @@ and R09 home (1x2, with a tiny kitchen). 12 tiles numbered after the Medical bat
 - **Walked** by a Human and a Troll, 49 points each: all reached once three route points placed inside furniture were moved.
 - **Triangles** a furnished room: 10.9k (shack) to 32.3k (shop).
 - **Views:** `review-magical.json` (bird's eye and eye level; `output/tilekit/mag1`).
+- **Realism pass** (user: "could look a little more realistic", 2026-11-26). Barrens: streaked board-formed concrete
+  walls (`tfb_subwayw4`) over a stained concrete floor (`tfb01_floor`) in place of clean concrete; floor stains,
+  litter, papers and soot decals; trash piles and bags; bottles, an ashtray and cigarettes on the crate tables; a
+  mattress on pallets with a blanket; a jacket on the floor; tags, posters and torn papers on the walls; rusted wall
+  lights; bare fittings on short drops instead of neat domes. Magic: the shop's modern display case became a wooden
+  work table with books and a scroll; candles are 60% of their size; carved plaques, wall banners and rugs; the lodge's
+  clay braziers became bronze fire urns and its stick statues stone vases; the lab's brazier and cauldron in the middle
+  of the floor became an alchemy table of glassware between the still and the retort, with a chalkboard.
+- **Ceilings** (user: the magic and Barrens rooms "need more appropriate ceilings", 2026-11-26). Three new pictures
+  drawn in `tools/tilekit/ceilings.py` (`_older`, after the others so theirs did not change): dark timber boards with
+  butt joints, nails and water marks (`srx02_clgbord`: shop and lodge, under dark timber beams); yellowed plaster with
+  damp stains (`srx02_clgplst`: the lab, with two timber beams and two rusted pipes along its north wall); rusted
+  corrugated sheet lapped every 60 cm (`srx02_clgcorr`: both Barrens homes, on rusted steel joists).
+- **Wall decals** (banners, posters, graffiti, a chalkboard) above the floor are marked `obstacle`: `detail` refuses
+  a piece between 0.25 and 2.5 m over walkable floor otherwise, even one with no depth.
 - **Not done:** palette blueprints for the `[lpat]` rows (there is no Magic category yet); Toolset check.
 
 ## Doors (2026-11-26)

@@ -23,7 +23,7 @@
    "look": {
     "floor": "tfb01_shpflr1",
     "wall": "wall_dwood4",
-    "ceiling": "srx02_clgplas",
+    "ceiling": "srx02_clgbord",
     "base": "wall_dwood1",
     "crown": "wall_dwood1",
     "trim": "wall_dwood1",
@@ -73,9 +73,9 @@
   {
    "effect": "flame",
    "at": [
-    7.8,
-    5.47,
-    1.552
+    7.9,
+    5.4,
+    1.031
    ]
   },
   {
@@ -83,7 +83,7 @@
    "at": [
     3.55,
     3.7,
-    1.132
+    1.031
    ]
   },
   {
@@ -91,15 +91,15 @@
    "at": [
     5.0,
     8.4,
-    1.132
+    1.031
    ]
   },
   {
    "effect": "glimmer",
    "at": [
-    6.6,
-    5.47,
-    1.42
+    6.5,
+    5.3,
+    1.0
    ]
   },
   {
@@ -161,6 +161,36 @@
    "under": 3.4
   }
  ],
+ "beams": [
+  {
+   "rect": [
+    2.3400000000000003,
+    0.2,
+    2.56,
+    9.8
+   ],
+   "z": [
+    3.1399999999999997,
+    3.4
+   ],
+   "texture": "wall_dwood1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    5.89,
+    0.2,
+    6.11,
+    9.8
+   ],
+   "z": [
+    3.1399999999999997,
+    3.4
+   ],
+   "texture": "wall_dwood1",
+   "repeat": 1.0
+  }
+ ],
  "props": [
   {"piece": "jhb_etag02", "at": [0.536, 3.001, 0.0], "faces": "e"},
   {"piece": "jz_shelves01", "at": [0.484, 5.599, 0.0], "faces": "e"},
@@ -177,15 +207,19 @@
   {"piece": "m3_drmcat01", "at": [9.588, 4.323, 0.0], "faces": "w"},
   {"piece": "lpat_wic_jars3", "at": [9.521, 2.998, 0.57], "turn": 270},
   {"piece": "lpat_flsks2", "at": [9.57, 3.01, 1.8], "turn": 270, "scale": 0.3},
-  {"piece": "ek_pt_counter", "at": [7.2, 5.299, 0.0], "faces": "s"},
-  {"piece": "p_x5x5crystal02", "at": [6.6, 5.47, 1.3], "turn": 0},
-  {"piece": "jvb_budda02", "at": [7.2, 5.47, 1.3], "turn": 0},
-  {"piece": "m3_cnd01", "at": [7.8, 5.47, 1.3], "turn": 0},
+  {"piece": "lpat_table_a1", "at": [7.202, 5.298, 0.0], "faces": "s"},
+  {"piece": "p_x5x5crystal02", "at": [6.5, 5.3, 0.88], "turn": 0},
+  {"piece": "jvb_budda02", "at": [7.0, 5.4, 0.88], "turn": 0},
+  {"piece": "m3_cnd01", "at": [7.9, 5.4, 0.88], "turn": 0, "scale": 0.6},
+  {"piece": "jhb_books01", "at": [7.5, 5.124, 0.88], "turn": 0},
+  {"piece": "sgp_dct01", "at": [6.85, 5.055, 0.88], "turn": 90},
   {"piece": "jvb_chair08", "at": [7.2, 6.35, 0.0], "faces": "s"},
   {"piece": "sja_tbl01", "at": [3.405, 3.6, 0.0], "turn": 0},
   {"piece": "p_x5x5crystal01", "at": [3.25, 3.5, 0.88], "turn": 0},
-  {"piece": "m3_cnd01", "at": [3.55, 3.7, 0.88], "turn": 0},
+  {"piece": "m3_cnd01", "at": [3.55, 3.7, 0.88], "turn": 0, "scale": 0.6},
   {"piece": "lpat_wic_botls3", "at": [3.298, 3.85, 0.88], "turn": 0, "scale": 0.5},
+  {"piece": "p_brndbook01", "at": [3.6, 3.38, 0.88], "turn": 0},
+  {"piece": "p_rugsml01", "at": [3.4, 3.6, 0.01], "turn": 0, "obstacle": false},
   {"piece": "plc_mdcraniom2", "at": [3.401, 5.59, 0.0], "turn": 0},
   {"piece": "lpat_wic_herbs1", "at": [3.446, 3.586, 2.126], "turn": 0, "scale": 0.6},
   {"piece": "lpat_wic_herbs2", "at": [1.586, 6.511, 2.304], "turn": 0, "scale": 0.5},
@@ -201,10 +235,14 @@
   {"piece": "sja_tbl01", "at": [5.005, 8.4, 0.0], "turn": 0},
   {"piece": "jvb_chair08", "at": [4.3, 8.4, 0.0], "faces": "e"},
   {"piece": "jvb_chair08", "at": [5.7, 8.4, 0.0], "faces": "w"},
-  {"piece": "m3_cnd01", "at": [5.0, 8.4, 0.88], "turn": 0},
+  {"piece": "m3_cnd01", "at": [5.0, 8.4, 0.88], "turn": 0, "scale": 0.6},
   {"piece": "lpat_wic_rstones", "at": [5.05, 8.137, 0.88], "turn": 0, "scale": 0.4},
+  {"piece": "jvb_carpt02", "at": [5.0, 8.4, 0.01], "turn": 90, "scale": 0.5, "obstacle": false},
   {"piece": "ek_ad_crate", "at": [7.0, 9.34, 0.0], "faces": "s"},
   {"piece": "lpat_wic_shelf2", "at": [0.384, 8.406, 0.95], "faces": "e", "scale": 0.8, "obstacle": true},
+  {"piece": "pkt_pannel02", "at": [1.801, 0.223, 0.0], "faces": "n"},
+  {"piece": "pkt_pannel02", "at": [8.401, 0.223, 0.0], "faces": "n"},
+  {"piece": "pkt_wallha2a", "at": [3.397, 6.846, 0.5], "faces": "s", "obstacle": true},
   {"piece": "lpat_wic_hbones1", "at": [9.202, 9.184, 2.536], "turn": 0, "scale": 0.35},
   {"piece": "lpat_wic_urns1", "at": [9.417, 7.581, 0.0], "turn": 0, "scale": 0.7}
  ],

@@ -2,7 +2,7 @@
  "id": "r08",
  "category": "Home",
  "name": "Barrens Shack",
- "note": "Floorplan R08: one grimy room in the Barrens, a sagging couch and a crate table before an old trid, a burn barrel, and a sleeping nook behind a partition.",
+ "note": "Floorplan R08: one grimy room in the Barrens, a sagging couch and a crate table of bottles and ashtray before an old trid, a burn barrel, trash and litter, tags on the walls, and a mattress on pallets in a nook behind a partition.",
  "shell": {
   "set": "udp2",
   "box": {
@@ -15,15 +15,15 @@
    "repeat": {
     "floor": 2.5,
     "wall": [
-     3.0,
-     3.0
+     2.5,
+     2.5
     ],
     "ceiling": 2.4
    },
    "look": {
-    "floor": "tfb_subwayf1",
-    "wall": "tfb01_floor",
-    "ceiling": "srx02_clgconc",
+    "floor": "tfb01_floor",
+    "wall": "tfb_subwayw4",
+    "ceiling": "srx02_clgcorr",
     "base": "udp2_w_sid2",
     "trim": "udp2_w_sid2",
     "top": "gg_black"
@@ -90,50 +90,120 @@
    "at": [
     2.4,
     3.6,
-    0.853
+    0.751
    ]
   }
  ],
  "lamps": [
   {
-   "kind": "dome",
+   "kind": "spot",
    "at": [
     3.0,
     3.6
    ],
-   "under": 3.4
+   "under": 3.4,
+   "drop": 0.6
   },
   {
-   "kind": "dome",
+   "kind": "spot",
    "at": [
     8.0,
     8.0
    ],
-   "under": 3.4
+   "under": 3.4,
+   "drop": 0.6
   },
   {
-   "kind": "dome",
+   "kind": "spot",
    "at": [
     5.0,
     1.6
    ],
-   "under": 3.4
+   "under": 3.4,
+   "drop": 0.6
+  }
+ ],
+ "beams": [
+  {
+   "rect": [
+    0.2,
+    2.14,
+    9.8,
+    2.2600000000000002
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    0.2,
+    4.640000000000001,
+    9.8,
+    4.76
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
+  },
+  {
+   "rect": [
+    0.2,
+    7.140000000000001,
+    9.8,
+    7.26
+   ],
+   "z": [
+    3.18,
+    3.4
+   ],
+   "texture": "tfb_rust1",
+   "repeat": 1.0
   }
  ],
  "props": [
-  {"piece": "purp_bedroll", "at": [8.8, 8.292, 0.0], "turn": 0},
+  {"piece": "jz_palet_002", "at": [8.902, 7.599, 0.0], "turn": 90},
+  {"piece": "jz_palet_002", "at": [8.902, 8.399, 0.0], "turn": 90},
+  {"piece": "jz_palet_002", "at": [8.902, 9.199, 0.0], "turn": 90},
+  {"piece": "m3_medmat01", "at": [8.9, 8.4, 0.14], "turn": 0, "obstacle": true},
+  {"piece": "pkt_tissus01", "at": [8.903, 8.003, 0.339], "turn": 0, "obstacle": true},
   {"piece": "jz_cbbox_007", "at": [7.0, 9.308, 0.0], "turn": 0},
   {"piece": "jz_lamp02", "at": [7.0, 9.301, 0.6], "turn": 0},
+  {"piece": "sgp_vett01", "at": [7.696, 6.988, 0.0], "turn": 0, "obstacle": false},
   {"piece": "xrp_couch01", "at": [0.988, 3.647, 0.0], "faces": "e"},
   {"piece": "jz_cbbox_007", "at": [2.4, 3.608, 0.0], "turn": 0},
   {"piece": "jz_cbbox_007", "at": [3.8, 3.608, 0.0], "turn": 0},
   {"piece": "p_tv02", "at": [3.8, 3.6, 0.6], "faces": "w"},
+  {"piece": "m3_cnd01", "at": [2.4, 3.6, 0.6], "turn": 0, "scale": 0.6},
+  {"piece": "p_ashtray01", "at": [2.25, 3.4, 0.6], "turn": 0},
+  {"piece": "jz_clopes01", "at": [2.6, 3.4, 0.6], "turn": 0},
+  {"piece": "jvb_bottle01", "at": [2.55, 3.848, 0.6], "turn": 0},
+  {"piece": "p_whiskeybtl01", "at": [1.7, 5.2, 0.0], "turn": 0},
+  {"piece": "udp-p-64", "at": [4.618, 3.039, 0.0], "turn": 0},
   {"piece": "ek_gr_fire", "at": [1.4, 8.6, 0.0], "turn": 0},
   {"piece": "jz_shelves02", "at": [3.399, 9.516, 0.0], "faces": "s"},
   {"piece": "jz_boites_009", "at": [3.393, 9.521, 0.99], "turn": 0},
   {"piece": "ek_hs_bags", "at": [8.599, 1.2, 0.0], "turn": 0},
+  {"piece": "p_x5x5trashpil03", "at": [8.8, 2.6, 0.0], "turn": 0, "scale": 0.45},
+  {"piece": "vos_pbag_b", "at": [7.686, 0.622, 0.0], "turn": 0, "scale": 0.8},
   {"piece": "psi_barrel10", "at": [9.2, 4.4, 0.0], "turn": 0},
-  {"piece": "m3_cnd01", "at": [2.4, 3.6, 0.601], "turn": 0}
+  {"piece": "jz_dirtygrd_md01", "at": [3.6, 5.0, 0.01], "turn": 0, "scale": 0.7, "obstacle": false},
+  {"piece": "jz_dirtygrdc_m01", "at": [1.6, 8.4, 0.012], "turn": 0, "scale": 0.45, "obstacle": false},
+  {"piece": "vos_litter_1a", "at": [3.2, 3.8, 0.0], "turn": 0, "scale": 0.5, "obstacle": false},
+  {"piece": "jz_grdpapers01", "at": [5.6, 2.0, 0.0], "turn": 0, "scale": 1.2, "obstacle": false},
+  {"piece": "jz_grdpapers05", "at": [4.2, 8.0, 0.0], "turn": 0, "obstacle": false},
+  {"piece": "jvb_detrit01", "at": [8.0, 4.4, 0.0], "turn": 0, "scale": 0.7, "obstacle": false},
+  {"piece": "grafitti1h", "at": [1.599, 0.234, 0.25], "faces": "n", "obstacle": true},
+  {"piece": "vos_grfiti_05", "at": [9.776, 2.9, 0.55], "faces": "w", "scale": 0.45, "obstacle": true},
+  {"piece": "jzposter141", "at": [5.1, 9.776, 0.0], "faces": "s", "obstacle": true},
+  {"piece": "jz_wllpapers01", "at": [0.224, 6.6, 0.0], "faces": "e", "obstacle": true},
+  {"piece": "jz_sfp089", "at": [0.257, 3.6, 0.0], "faces": "e", "obstacle": true}
  ],
  "placeLater": [{"what": "a battered door in the opening"}, {"what": "the crates and shelves as containers"}]
 }
