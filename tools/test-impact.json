@@ -5742,6 +5742,7 @@
       "tools/shared_tools.py",
       "tools/tilekit/apply.py",
       "tools/tilekit/blink.py",
+      "tools/tilekit/client_settings.py",
       "tools/tilekit/commands.py",
       "tools/tilekit/compiled.py",
       "tools/tilekit/count.py",
@@ -5762,7 +5763,8 @@
       "tools/tilekit/review.py",
       "tools/tilekit/shadows.py",
       "tools/tilekit/terrain.py",
-      "tools/tilekit/unique.py"
+      "tools/tilekit/unique.py",
+      "tools/tilekit/walk.py"
     ],
     "tools/tilekit/apply.py": [
       "hakbuilder.json",
@@ -5875,6 +5877,9 @@
       "tools/tilekit/review.py"
     ],
     "tools/tilekit/finish.py": [],
+    "tools/tilekit/floors.py": [
+      "tools/tilekit/geometry.py"
+    ],
     "tools/tilekit/geometry.py": [],
     "tools/tilekit/inventory.py": [
       "tools/tilekit/compiled.py",
@@ -6084,6 +6089,7 @@
     "tools/tilekit/test_floor_edges.py": [
       "tools/test_impact.py",
       "tools/tilekit/__init__.py",
+      "tools/tilekit/floors.py",
       "tools/tilekit/geometry.py"
     ],
     "tools/tilekit/test_inventory.py": [
@@ -6176,8 +6182,20 @@
       "tools/tilekit/__init__.py",
       "tools/tilekit/unique.py"
     ],
+    "tools/tilekit/test_walk.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/review.py",
+      "tools/tilekit/walk.py"
+    ],
     "tools/tilekit/unique.py": [
       "tools/tilekit/compiled.py",
+      "tools/tilekit/inventory.py"
+    ],
+    "tools/tilekit/walk.py": [
+      "tools/armorkit/__init__.py",
+      "tools/armorkit/client.py",
+      "tools/tilekit/floors.py",
+      "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py"
     ]
   },
@@ -6419,7 +6437,8 @@
       "srn_weapon"
     ],
     "tools/tilekit/__main__.py": [
-      "srn_2da"
+      "srn_2da",
+      "srn_door"
     ],
     "tools/tilekit/compiled.py": [
       "srn_door",
@@ -6946,6 +6965,7 @@
     "tools/tilekit/test_shadows.py",
     "tools/tilekit/test_sketch.py",
     "tools/tilekit/test_terrain.py",
-    "tools/tilekit/test_unique.py"
+    "tools/tilekit/test_unique.py",
+    "tools/tilekit/test_walk.py"
   ]
 }

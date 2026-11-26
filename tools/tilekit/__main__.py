@@ -1,7 +1,8 @@
 """Command line for tilekit. `inventory` writes what a tileset draws (inventory.json, textures.csv) and the hashes of
 its walkmeshes (walkmesh.json); `walkmesh` holds the tileset's walkmeshes against such a baseline and fails on any
 that changed; `review` builds a module of the tileset on the built packs and captures the same views of it in the
-game client each time, with an overlay folder shown instead of the packs' own files. `material` makes restyled
+game client each time, with an overlay folder shown instead of the packs' own files; `walk` sends a Human and a Troll
+across tiles' suspect floor edges there and says which routes bend. `material` makes restyled
 textures into such an overlay, from pictures `enlarge` and `redraw` leave; `lamps`, `shadows`, `daylight` (lit panes clear by day) and `blink` (blinking lamp panes) write changed tile
 models into it, `detail` adds kit pieces to tiles there and `remesh` replaces a tile's visible meshes there; `count`
 says what each tile costs to draw (faces, mesh nodes, materials) against a budget; `terrain` writes a building terrain copied under a name of its own, and descriptive palette names, into one;
@@ -56,6 +57,41 @@ def review_command(chosen):
     print(json.dumps(told, indent=2))
     return 0
 
+
+def walk_command(chosen):
+    from . import review, walk  # here, so that asking for help imports nothing of the client
+    from .client_settings import MOST
+    tileset = chosen.tileset; set_text = (chosen.repo / f'srn_t_{tileset}' / f'{tileset}.set').read_bytes().decode('cp1252'); laid_set = inventory.read_set(set_text)
+    found = walk.woks(chosen.repo, chosen.overlay)
+    if chosen.plan and chosen.plan.is_file():  # the plan made before a repair: its edges are not flagged once repaired
+        held = _json(chosen.plan); require(held.get('tileset') == tileset, f'{chosen.plan} is a plan of {held.get("tileset")}, not {tileset}'); tiles = held['tiles']
+        require(not chosen.tiles or set(chosen.tiles.lower().split(',')) == set(tiles), f'{chosen.plan} walks other tiles: ' + ', '.join(tiles))
+    else:
+        models = [model for model in (chosen.tiles or '').lower().split(',') if model]; require(models, 'Name the tiles to walk (--tiles), or a plan made before (--plan)')
+        tiles = walk.plan(models, set_text, lambda model: found[model].read_bytes().decode('cp1252') if model in found else None, sides=chosen.sides)
+        if chosen.plan:
+            chosen.plan.parent.mkdir(parents=True, exist_ok=True); chosen.plan.write_text(json.dumps({'tileset': tileset, 'sides': chosen.sides, 'tiles': tiles}, indent=1) + '\n', encoding='utf-8')
+    fill = chosen.fill if chosen.fill is not None else review.plain(laid_set)
+    width, height, laid, walkers = walk.layout(tiles, fill)
+    require(walkers, 'No crossing was found on these tiles: nothing to walk')
+    models = {tile['number']: tile['model'] for tile in reversed(laid_set['tiles'])}
+    haks = tuple(dict.fromkeys([f'srn_t_{tileset}', *walk.packs(chosen.repo, sorted({models[number] for number, _ in laid.values()})), 'srn_door', 'srn_2da']))
+    area = {'tag': walk.AREA, 'title': 'Walk', 'tileset': tileset, 'width': width, 'height': height, 'laid': laid, 'light': 'day'}
+    shots = [{'area': walk.AREA, 'label': f'row{row}', 'stand': [width * 5.0, (2 + 3 * row) * 10.0], 'facing': 90.0, 'distance': 70.0, 'pitch': 35.0, 'height': 1.0}
+             for row in range(0, -(-len(walkers) // walk.COLUMNS), 2)]
+    record = review.build(chosen.name, [area], shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay, haks=haks,
+                          hold=max(review.HOLD, walk.seconds(walkers) / len(shots)), more=walk.script(walkers, walk.AREA))
+    (chosen.out / 'walkers.json').write_text(json.dumps({'tileset': tileset, 'tiles': tiles, 'walkers': walkers}, indent=1) + '\n', encoding='utf-8')
+    told = {'module': record['module'], 'haks': list(haks), 'walkers': len(walkers), 'crossings': sum(len(one['crossings']) for one in tiles.values())}
+    if chosen.no_run:
+        print(json.dumps(told, indent=2))
+        return 0
+    review.capture(chosen.game, record, chosen.out, foreground=MOST, background=MOST)  # held to the cap even unseen: the walkers keep time
+    lines = json.loads((chosen.out / 'captures' / 'run.json').read_text(encoding='utf-8'))['lines']
+    result = walk.verdict(lines, walkers); (chosen.out / 'walk.json').write_text(json.dumps(result, indent=1) + '\n', encoding='utf-8')
+    told.update({'walked': len(result['walked']), **{key: result[key] for key in ('bent', 'short', 'missing', 'unmade')}, 'report': str(chosen.out / 'walk.json')})
+    print(json.dumps(told, indent=2))
+    return 1 if any(result[key] for key in ('bent', 'short', 'missing', 'unmade')) else 0
 
 def material_command(chosen):
     from tools import shared_tools
@@ -264,6 +300,15 @@ def main(arguments=None):
     three.add_argument('--views', help='only the views whose label begins with one of these, comma separated')
     three.add_argument('--every', type=int, default=1, help='only every nth view, for a short look')
     three.add_argument('--no-run', action='store_true', help='build the module and stop'); three.add_argument('--repo', type=Path, default=REPO)
+    walking = commands.add_parser('walk', help='send a Human and a Troll across the suspect floor edges of tiles in the client, both ways, and say which routes bend or stop short (exit 1 when any does)')
+    walking.add_argument('--tileset', required=True, help='the set the walk area is laid of; it lists the tiles'); walking.add_argument('--tiles', help='the tile models to walk, comma separated')
+    walking.add_argument('--plan', type=Path, help='the crossings: read when the file is there (walk a repair across the edges found before it), else found and written')
+    walking.add_argument('--sides', action='store_true', help='cross the tiles\' sides into a level neighbour too (a floor that ends short of its side)')
+    walking.add_argument('--fill', type=int, help='the tile number laid round the walked tiles (default: the set\'s plain tile)')
+    walking.add_argument('--game', required=True, type=Path, help='the game install folder'); walking.add_argument('--built', required=True, type=Path, help='the folder the packs were built into')
+    walking.add_argument('--out', required=True, type=Path, help='a fresh folder for the module, its log and walk.json'); walking.add_argument('--name', required=True, help='the module\'s name, a resref of at most 11 characters')
+    walking.add_argument('--overlay', type=Path, help='a folder of files shown instead of the packs\' own (a .wok there is walked and planned on)')
+    walking.add_argument('--no-run', action='store_true', help='build the module and stop'); walking.add_argument('--repo', type=Path, default=REPO)
     four = commands.add_parser('material', help='make the restyled textures of a material spec: DDS maps and material files into a folder')
     four.add_argument('--spec', required=True, type=Path, help='the tileset\'s material spec (docs/tilesets/<tileset>/materials.json)')
     four.add_argument('--out', required=True, type=Path, help='the folder written to: a review\'s overlay, until a texture is accepted')
@@ -363,6 +408,8 @@ def main(arguments=None):
     try:
         if chosen.command in more:
             return more[chosen.command](chosen)
+        if chosen.command == 'walk':
+            return walk_command(chosen)
         if chosen.command == 'doors':
             return doors_command(chosen)
         if chosen.command == 'crown':
