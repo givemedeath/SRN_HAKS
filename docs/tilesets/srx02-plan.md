@@ -620,6 +620,44 @@ Release A was never cut on its own; release B carries it: the merged set with th
   doubled to 512 (`pkt_walhang2a`, the lodge banner; `grafitti1h`, the shack's tag).
 - **Not done:** palette blueprints for the `[lpat]` rows; the restyle (release C).
 
+## Release C plan (2026-11-26, user: "Start release C")
+
+Merged as PR 205; release C is on `claude/srx02-release-c` from main `ea45bc809`. **Props polishing pass (user,
+2026-11-26):** in about two weeks, when Meshy credits are back, the prefab rooms get better props (bar and magic props
+first). So release C restyles the tiles and leaves the room specs' prop choices alone; the rooms are rebuilt at the
+end only because they draw the family textures.
+
+**Where the four families stand** (`docs/tilesets/<set>/textures.csv`, drawn area of the set's own tiles):
+
+| | Textures | Drawn area | At 256 px or less | Restyled so far |
+|---|---|---|---|---|
+| Office `udp2` | 51 | 84,477 m² | 7, 7.6% of the area | none |
+| Modern Interior `tfb01` | 67 | 73,945 m² | 16, 12.8% | 43 redrawn with local Qwen at stage 4b (plain pictures, no maps) |
+| Facility `tbx78` | 20 | 27,680 m² | 9, 41.9% | none |
+| Ducts `nac01` | 9 | 5,168 m² | 4, 23.1% | none |
+
+The top textures: Office's ceiling tile (26%), carpet, vinyl and terrazzo floors, vinyl and block walls; Modern
+Interior's shop floor, plank and corded walls, floors and stone; Facility's wall, metal, floor and ceiling (its wall
+and floor are 256 px); the ducts' sheet metal and flex pipe. None of the four packs has a material (`.mtr`) yet, and
+all four ship ASCII models with no `sources/` copy.
+
+**Proposed order** (the srx01 release B method, `dgt04-upfit-plan.md`):
+1. **Pilot.** The top textures of each family (about 27, at least 70% of each family's area) through `tilekit
+   material`, under one interior grade, in a review overlay: eye-level and bird's-eye views of a block of each
+   family, a Hallway join between families, and one room per family. **User gate on the look.**
+2. **The rest, family by family**, with a contact sheet each; weak pictures (256 px or less over a scrap of area)
+   upscaled or redrawn (`tilekit enlarge`, `redraw` with local Qwen); old screens and logos redrawn for the 2070s.
+3. **Lights and shadows:** `lamps` (lamp halos to main lights where a set has them) and `shadows` (one-plane meshes
+   that cast wedges), as on dgt04 and udp1.
+4. **Adoption:** `unique`, then `compile --adopt` for `srn_t_udp2`, `srn_t_tfb01`, `srn_t_tbx78` and `srn_t_nac01`,
+   so they ship compiled with ASCII in `sources/`.
+5. **One EnvMap** for the set (open since stage 2).
+6. **Re-check:** rooms rebuilt (`tilekit rooms`), the passage joins viewed across each family boundary, Toolset
+   smoke, walks, and `perf` against release B's numbers. Release C is one pull request.
+
+Restyles go in place in the four source packs, so the old Office, Modern Interior, Facility and Ducts sets take the
+new look too.
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record
