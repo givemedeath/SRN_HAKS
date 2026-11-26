@@ -160,7 +160,7 @@ def material_text(stem, glow=False):
 
 def stem_of(name, how):
     stem = how.get('stem', name); require(len(stem) <= (16 if how.get('plain') else STEM) and stem == stem.lower() and (stem.replace('-', '') if how.get('plain') else stem).replace('_', '').isalnum(),  # a plain picture keeps its old name, hyphen and all
-                                          f'{name}: its maps need a `stem` of at most {STEM} lowercase characters')
+                                          f'{name}: ' + ('a plain picture keeps a name of at most 16 lowercase letters, digits, _ and -' if how.get('plain') else f'its maps need a `stem` of at most {STEM} lowercase letters, digits and _'))
     return stem
 
 
@@ -175,7 +175,7 @@ def write(name, made, folder, crunch, *, stem=None, glow=None, compress=None, pl
     if compress is None:
         from tools.envkit import convert
         compress = convert._compress
-    stem = stem or name; require(len(stem) <= (16 if plain else STEM) and len(name) <= 16, f'{name}: a map\'s stem is at most {STEM} characters and a texture\'s name 16')
+    stem = stem or name; require(len(stem) <= (16 if plain else STEM) and len(name) <= 16, f'{name}: a map\'s stem is at most {16 if plain else STEM} characters and a texture\'s name 16')
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); height, width = made['colour'].shape[:2]
     half = (max(width // 2, 64), max(height // 2, 64))
     channel = lambda values: Image.fromarray(np.repeat(np.uint8(np.clip(values, 0, 1) * 255 + 0.5)[..., None], 4, axis=2), 'RGBA')

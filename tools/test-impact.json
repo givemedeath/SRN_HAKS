@@ -6252,6 +6252,8 @@
       "tools/tilekit/review.py"
     ],
     "tools/tilekit/test_rooms.py": [
+      "tools/envkit/__init__.py",
+      "tools/envkit/tile.py",
       "tools/tilekit/__init__.py",
       "tools/tilekit/cuts.py",
       "tools/tilekit/geometry.py",

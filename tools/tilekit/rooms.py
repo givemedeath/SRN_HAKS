@@ -59,6 +59,7 @@ CELLS = int(round(2 * geometry.HALF / STEP))  # walk grid cells across a tile
 ROUND = 2  # cells all round a place that must be walked for a player to stand there: a lane is 0.6 m at least
 DOORWAY = 6  # cells: how near a doorway the room's own floor must come
 TOGETHER = 0.85  # the share of the floor a player can stand on that must be one piece
+REDUCING = 1800  # seconds Blender is given to reduce the heavy props of a build
 MOST = 2500  # triangles of one baked prop: envkit's run to 12,000, and a store of them passed the 65,535 vertices a mesh may have (2026-11-25)
 WHOLE = 0.93  # and of one tile's alone: a creature finds its way from tile to tile, then within each
 THIN = 0.3  # metres: a seat is deeper
@@ -450,12 +451,13 @@ def furnished_walk(text, name, footprints):
     from types import SimpleNamespace
     from tools.envkit import tile
     from . import joins
-    triangles = _walk(text); floor = [corners for corners, surface in triangles if surface in geometry.WALKABLE]; surface = next(surface for _, surface in triangles if surface in geometry.WALKABLE); edges = {}
-    require(np.ptp(np.vstack(floor)[:, 2]) < 1e-3, f'{name}: its floor is not level'); high = float(np.vstack(floor)[0, 2])
-    for corners in floor:
+    triangles = _walk(text); floor = [corners for corners, surface in triangles if surface in geometry.WALKABLE]; edges = {}
+    kinds = np.array([surface for _, surface in triangles if surface in geometry.WALKABLE])  # each rebuilt cell keeps the surface it lay on: a kitchen's stone and its wood
+    require(floor, f'{name}: its floor is not walked'); require(np.ptp(np.vstack(floor)[:, 2]) < 1e-3, f'{name}: its floor is not level'); high = float(np.vstack(floor)[0, 2])
+    for corners, surface in zip(floor, kinds):
         for index in range(3):
-            edges.setdefault(frozenset((tuple(corners[index]), tuple(corners[(index + 1) % 3]))), []).append(1)
-    sides = [tuple(edge) for edge, owners in edges.items() if len(owners) == 1 and len(edge) == 2]
+            edges.setdefault(frozenset((tuple(corners[index]), tuple(corners[(index + 1) % 3]))), []).append(int(surface))
+    sides = [tuple(edge) for edge, owners in edges.items() if (len(owners) == 1 or len(set(owners)) > 1) and len(edge) == 2]  # the floor's rim, and where two surfaces meet
     if not all(abs(a[0] - b[0]) < 2e-3 or abs(a[1] - b[1]) < 2e-3 for a, b in sides):
         return None
     lines = [sorted({round(point[axis], 4) for side in sides for point in side if abs(side[0][axis] - side[1][axis]) < 2e-3}) for axis in (0, 1)]
@@ -466,18 +468,19 @@ def furnished_walk(text, name, footprints):
     boxes += closed(boxes, [(x0, y0, x1, y1) for x0, y0, x1, y1 in solid])
     xs, ys = (np.unique(np.round([*lines[axis], *(min(max(box[side], lines[axis][0]), lines[axis][-1]) for box in boxes for side in (axis, axis + 2))], 4)) for axis in (0, 1))
     flat = np.array(floor)[:, :, :2]; a, b, c = flat[:, 0], flat[:, 1], flat[:, 2]; whole = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (b[:, 1] - a[:, 1]) * (c[:, 0] - a[:, 0])
-    a, b, c, whole = (one[np.abs(whole) > 1e-9] for one in (a, b, c, whole))
+    a, b, c, whole, kinds = (one[np.abs(whole) > 1e-9] for one in (a, b, c, whole, kinds))
 
-    def kind(cell):
+    def kind(cell):  # None off the floor, walls.SOLID under furniture, else the surface the cell's middle lies on
         x, y = (xs[cell[0]] + xs[cell[0] + 1]) / 2, (ys[cell[1]] + ys[cell[1] + 1]) / 2
         first = ((b[:, 0] - x) * (c[:, 1] - y) - (b[:, 1] - y) * (c[:, 0] - x)) / whole; second = ((c[:, 0] - x) * (a[:, 1] - y) - (c[:, 1] - y) * (a[:, 0] - x)) / whole
-        if not ((first >= -1e-6) & (second >= -1e-6) & (first + second <= 1 + 1e-6)).any():
+        on = (first >= -1e-6) & (second >= -1e-6) & (first + second <= 1 + 1e-6)
+        if not on.any():
             return None
-        return any(box[0] < x < box[2] and box[1] < y < box[3] for box in boxes)
+        return walls.SOLID if any(box[0] < x < box[2] and box[1] < y < box[3] for box in boxes) else int(kinds[np.argmax(on)])
     laid = walls.merged(SimpleNamespace(xs=xs, ys=ys), [(i, j) for i in range(len(xs) - 1) for j in range(len(ys) - 1)], kind); made = []
-    for (x0, y0, x1, y1), taken in laid:
+    for (x0, y0, x1, y1), surface in laid:
         for ring in (((x0, y0), (x1, y0), (x1, y1)), ((x0, y0), (x1, y1), (x0, y1))):
-            made.append(np.array([[x, y, high, walls.SOLID if taken else surface, 0.0] for x, y in ring], float))
+            made.append(np.array([[x, y, high, surface, 0.0] for x, y in ring], float))
     near = lambda value, axis: next((line for line in lines[axis] if abs(line - value) <= 2e-3), value)
     for corners, of in triangles:
         if of not in geometry.WALKABLE:
@@ -665,7 +668,11 @@ def lighter(pieces, blender):
                   'most': max(1, round(MOST * len(faces) / whole))} for _, verts, tverts, faces in heavy[piece]]
     with tempfile.TemporaryDirectory(prefix='tilekit-reduce-') as work_:
         source, target = Path(work_) / 'in.json', Path(work_) / 'out.json'; source.write_text(json.dumps(jobs), encoding='utf-8')
-        ran = subprocess.run([str(blender), '-b', '-t', '4', '--factory-startup', '--python', str(Path(__file__).with_name('reduce_blender.py')), '--', str(source), str(target)], capture_output=True, text=True)
+        try:
+            ran = subprocess.run([str(blender), '-b', '-t', '4', '--factory-startup', '--python', str(Path(__file__).with_name('reduce_blender.py')), '--', str(source), str(target)],
+                                 capture_output=True, text=True, timeout=REDUCING)
+        except subprocess.TimeoutExpired:
+            require(False, f'Blender did not reduce the props within {REDUCING} s: ' + ', '.join(sorted(heavy)))
         require(ran.returncode == 0 and target.is_file(), 'Blender could not reduce the props: ' + (ran.stderr or ran.stdout).strip()[-400:]); done = iter(json.loads(target.read_text(encoding='utf-8')))
     out = dict(pieces)
     for piece in sorted(heavy):
@@ -750,6 +757,9 @@ def stale(repo, merge_spec, lock_path):
 def build(repo, merge_spec, lock_path, blender=None, addon=None):
     """Write the rooms' sources and walkmeshes and the lock (then: merge, compile). {room: what was done}."""
     repo = Path(repo); files, told = work(repo, merge_spec, blender, addon)
+    was = json.loads(Path(lock_path).read_text(encoding='utf-8')).get('outputs', {}) if Path(lock_path).is_file() else {}
+    for path in sorted(set(was) - set(files)):  # a room taken away, or a tile it no longer has: what the last build wrote goes too
+        (repo / path).unlink(missing_ok=True)
     for path, text in files.items():
         (repo / path).parent.mkdir(parents=True, exist_ok=True); (repo / path).write_bytes(text.encode('cp1252'))
     lock = {'schemaVersion': 1, 'kind': 'tilekit-rooms', 'inputs': inputs(repo, merge_spec), 'outputs': {path: _hash(text.encode('cp1252')) for path, text in sorted(files.items())}}

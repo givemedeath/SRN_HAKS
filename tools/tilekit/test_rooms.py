@@ -4,7 +4,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
+import numpy as np
 from PIL import Image
 
 from tools.tilekit import cuts, geometry, inventory, joins, merge, rooms
@@ -140,6 +142,30 @@ class Cut(unittest.TestCase):
         triangle = [(-2.5688, -0.9723, 0.0), (-1.72, -3.48, 0.0), (-1.72, -0.15, 0.0)]; footprint = [(-1.76, -0.16), (-0.84, -0.16), (-0.84, 0.76), (-1.76, 0.76)]
         inside = cuts._clip(triangle, footprint); parts = cuts.outside(triangle, inside, footprint); area = lambda ring: abs(cuts._area_signed(ring))
         self.assertAlmostEqual(sum(map(area, parts)) + area(inside), area(triangle), places=3)
+
+
+class Floors(unittest.TestCase):
+    def test_a_floor_laid_again_keeps_each_surface_where_it_was(self):  # a kitchen's stone beside its wood
+        from tools.envkit import tile
+        points = [(-5, -5, 0), (0, -5, 0), (0, 5, 0), (-5, 5, 0), (0, -5, 0), (5, -5, 0), (5, 5, 0), (0, 5, 0)]
+        faces = [(0, 1, 2, 4), (0, 2, 3, 4), (4, 5, 6, 5), (4, 6, 7, 5)]
+        text = chr(10).join(['newmodel tst', 'beginmodelgeom tst', 'node dummy tst', '  parent null', 'endnode', *tile._walk_node('tst', 'tst', np.array(points, float), np.array(faces, int)),
+                          'endmodelgeom tst', 'donemodel tst'])
+        model, _, _ = rooms.furnished_walk(text, 'tst', [([(1.0, 1.0), (2.0, 1.0), (2.0, 2.0), (1.0, 2.0)], 0.0, None)])
+        area = {}
+        for corners, surface in rooms._walk(model):
+            area[int(surface)] = area.get(int(surface), 0.0) + cuts._area(*corners)
+        self.assertEqual({surface: round(value, 2) for surface, value in area.items() if value > 1e-6}, {4: 50.0, 5: 49.0, 7: 1.0})
+
+
+class Built(unittest.TestCase):
+    def test_a_build_takes_away_what_the_last_one_wrote_and_this_one_does_not(self):  # a room renamed or taken away
+        with tempfile.TemporaryDirectory() as folder:
+            repo = Path(folder); lock = repo / 'rooms-built.json'; (repo / 'srn_t_x').mkdir(); gone, kept = repo / 'srn_t_x' / 'gone.wok', repo / 'srn_t_x' / 'kept.wok'
+            gone.write_text('old'); kept.write_text('old'); lock.write_text(json.dumps({'outputs': {'srn_t_x/gone.wok': 'a', 'srn_t_x/kept.wok': 'b'}}))
+            with mock.patch.object(rooms, 'work', return_value=({'srn_t_x/kept.wok': 'new'}, {})), mock.patch.object(rooms, 'inputs', return_value={}):
+                rooms.build(repo, {}, lock)
+            self.assertFalse(gone.exists()); self.assertEqual(kept.read_text(), 'new'); self.assertEqual(list(json.loads(lock.read_text())['outputs']), ['srn_t_x/kept.wok'])
 
 
 class Screens(unittest.TestCase):

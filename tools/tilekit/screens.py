@@ -65,7 +65,7 @@ def content(spec, folder, name):
     from PIL import Image
     require(name in spec['pictures'], f'No screen content is called {name}'); target, record = Path(folder) / f'{name}.png', Path(folder) / f'{name}.json'
     require(target.is_file() and record.is_file(), f'{name} is not drawn yet: tilekit screens --draw'); was = json.loads(record.read_text(encoding='utf-8'))
-    require(all(was.get(key) == value for key, value in spec['pictures'][name].items()), f'{name} was drawn from other words: draw it again')
+    require(all(was.get(key) == value for key, value in spec['pictures'][name].items()) and was.get('rule') == spec['rule'], f'{name} was drawn from other words: draw it again')
     with Image.open(target) as picture:
         made = np.asarray(picture.convert('RGB'))
     return lifted(made) if spec['pictures'][name].get('lift') else made
