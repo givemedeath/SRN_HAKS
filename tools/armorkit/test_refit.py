@@ -725,6 +725,18 @@ class RefitTests(unittest.TestCase):
         self.assertLessEqual(float(rel(pushed[cap]).max()), float(rel(sleeve['v'][cap]).max()) + 1e-9)
         self.assertLess(float(pushed[cap, 0].max()), float(sleeve['v'][cap, 0].max()))  # deeper all the same
 
+    def test_what_the_split_added_past_an_under_end_is_held_inside_the_part_over_it_at_rest(self):
+        # a cap 10 cm back past the plane at x = 0.05, under a part over the joint that reaches back only to x = -0.03
+        sleeve, over = closed(0.05, 0.3, 0.04, near='cap', far=None, depth=0.1), closed(-0.03, 0.05, 0.06)
+        everywhere = np.ones(len(sleeve['v']), bool)
+        own = np.unique(sleeve['f'][~sleeve['added']])
+        cap = np.setdiff1d(np.unique(sleeve['f'][sleeve['added']]), own)
+        self.assertFalse(bake._inside(sleeve['v'][cap], [(over['v'], over['f'])]).all())
+        held = refit.hidden_at_rest(sleeve, sleeve['v'], everywhere, (over['v'], over['f']))
+        self.assertTrue(bake._inside(held[cap], [(over['v'], over['f'])]).all())
+        self.assertTrue(np.array_equal(held[own], sleeve['v'][own]))  # the part itself is not moved
+        self.assertTrue(np.array_equal(refit.hidden_at_rest(sleeve, sleeve['v'], ~everywhere, (over['v'], over['f'])), sleeve['v']))  # nor another end
+
     def test_the_command_keeps_the_refit_parts_with_the_slots_the_brief_gave(self):
         with tempfile.TemporaryDirectory() as folder:
             kept, out = Path(folder) / 'kept', Path(folder) / 'out'

@@ -1320,7 +1320,7 @@ def shared_with_body(document):
     return {name for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens']}
 
 
-def over_own_skin(part, name, bones):
+def over_own_skin(part, name, bones, most=None):
     """(part, moved): `part`, holding the body's own skin beside the outfit's (`bodyskin.worn`), with the outfit
     pushed out over that skin where the skin stands out through it by more than the gate lets it (`through`,
     `THROUGH`), as a refit pushes a sleeve out over another body's arm (`refit.over_skin`), and how far it
@@ -1336,7 +1336,7 @@ def over_own_skin(part, name, bones):
     start, end = split.bone_line(bones, name)
     v, axis = np.asarray(part['v'], float), seams.unit(end - start)
     along = (v - start) @ axis
-    held = refit.over_skin(part, start, end, fixed=(along < END_BAND) | (along > float((end - start) @ axis) - END_BAND))
+    held = refit.over_skin(part, start, end, fixed=(along < END_BAND) | (along > float((end - start) @ axis) - END_BAND), most=refit.OVER_MOST if most is None else most)
     cloth = ~np.asarray(held['skin'], bool)
     faces, normals = np.asarray(held['f'], int).copy(), held['n']
     faces[cloth], normals, _ = faced_out(name, held['v'], faces[cloth], normals, bones)
@@ -1414,16 +1414,18 @@ def tucked(parts, bones, contract=None, joints=TUCKED, say=lambda *_: None):
     return parts
 
 
-def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None, own_part=None):
+def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None, own_part=None, most=None):
     """The baked parts with the body's own part beside the outfit's in each slot the brief shares with the
-    body's skin (`skin`, `bodyskin.worn`). `own_part(name)`, if given, is the body's part as already read."""
+    body's skin (`skin`, `bodyskin.worn`). `own_part(name)`, if given, is the body's part as already read;
+    `most(name)`, if given, how far its outfit may be pushed out over that skin (`over_own_skin`): a refit's
+    to a wider body, more than a Human's."""
     parts = dict(parts)
     for slot in document.get('skin', []):
         for name in registry.SLOTS[slot]['tokens']:
             if name in parts:
                 own = own_part(name) if own_part else bodyskin.body_part(body_pack, body_textures, body, name, bones)
                 start, end = split.bone_line(bones, name)
-                parts[name], moved = over_own_skin(bodyskin.worn(parts[name], own, start, end, BUDGET['texture']), name, bones)
+                parts[name], moved = over_own_skin(bodyskin.worn(parts[name], own, start, end, BUDGET['texture']), name, bones, most(name) if most else None)
                 if moved:
                     say(f'{name}: pushed out up to {moved * 100:.1f} cm over the body\'s own skin beside it')
                 say(f'{name}: {int(parts[name]["skin"].sum())} of the body\'s {len(own["f"])} faces beside the outfit\'s, {len(parts[name]["rgb"])} px')

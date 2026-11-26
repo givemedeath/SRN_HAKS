@@ -619,6 +619,26 @@ def tucked(part, vertices, point, normal, limit, turns, over, most):
     return out
 
 
+def hidden_at_rest(part, vertices, here, over, gap=split.SEAT_GAP):
+    """`vertices` of `part` with what the split added past an under end (`added`, the points no face of its own
+    uses, of those `here` flags) that still stands outside the part carried over it, `over` (vertices, faces of
+    its outfit), held `gap` inside it (`under_skin`), as the bake's gate reads that end as the body stands
+    (`bake.hidden`, `rest`). Seated and drawn under it for the design bend, the pelvis's dome at the waist of
+    the Troll Large female still stood 5 mm out of her chest at rest (Street Casual, 2026-11-26)."""
+    from . import bake
+    v, f = np.asarray(vertices, float), np.asarray(part['f'], int)
+    added = np.asarray(part['added'], bool) & ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
+    cap = bake._used(v, f, added) & ~bake._used(v, f, ~np.asarray(part['added'], bool)) & np.asarray(here, bool)
+    if not cap.any() or not len(over[0]):
+        return v
+    outside = ~bake._inside(v[cap], [over])
+    if not outside.any():
+        return v
+    which = np.zeros(len(v), bool)
+    which[np.flatnonzero(cap)[outside]] = True
+    return under_skin(v, v.mean(axis=0), np.array([0.0, 0.0, 1.0]), over, gap, which=which)
+
+
 def bent_under(part, vertices, joint, side, centre, normal, over, bones, contract, body):
     """`tucked` at one joint of body `body`, as the bake's gate turns an end there (`bake.hidden`): `vertices`
     of `part`, whose under end lies at the joint (`joint`, `side`; its plane's point `centre` and unit
@@ -1057,6 +1077,8 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                     if joint in measure.TORSO_OPENINGS or joint in drawn:  # as drawn: the two parts' scales across differ, a boot's end stood 0.9 cm out of the cuff
                         deeper = seated({**part, 'v': deeper}, centres[k], normal, over, others=np.delete(centres, k, axis=0))
                     deeper = bent_under(part, deeper, joint, side, centres[k], normal, out[other], target[0], contract, bodies[1])
+                    if joint not in drawn:
+                        deeper = hidden_at_rest(part, deeper, nearest == k, over)
                 moved = deeper
             grown = max([1.0, float(np.linalg.svd(linear, compute_uv=False).max())] + (list(slope['hem']) if slope is not None else []))
             moved = healed(part, moved, [(centres[k], seams.unit(seams.plane(target[0], met[k][0], 'l' if met[k][1] == 'c' else met[k][1])[1])) for k in cut], grown)
@@ -1152,11 +1174,12 @@ def run(kept, output, body_pack, source, target, names=None, tier=None, body_tex
                 report[name]['reduced'] = lost
                 if dropped:  # slivers the cut left, with those the carrying left (`refit`)
                     report[name]['dropped'] = report[name].get('dropped', 0) + dropped
-        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0], own_part=own.get)
+        # as far again as the body is wider than the one the outfit was made on: the Troll Large male's hem was pushed
+        # 3.3 cm wider round an arm 1.86 times a Human's (Street Casual, 2026-11-26)
+        wider = lambda name: OVER_MOST * max([1.0, *report[name].get('across', [])])
+        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0], own_part=own.get, most=wider)
         for name in shared:
-            # as far again as the body is wider than the one the outfit was made on: the Troll Large male's hem was pushed
-            # 3.3 cm wider round an arm twice a Human's (Street Casual, 2026-11-26)
-            held = over_skin(parts[name], *split.bone_line(goal[0], name), most=OVER_MOST * max([1.0, *report[name].get('across', [])]))
+            held = over_skin(parts[name], *split.bone_line(goal[0], name), most=wider(name))
             if held is not parts[name]:
                 report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)
                 parts[name] = held
