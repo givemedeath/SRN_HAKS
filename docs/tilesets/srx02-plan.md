@@ -593,6 +593,29 @@ doors of `genericdoors.2da` "<category>: <door>" (Home, Office, Shop, Garage, In
 Utility, Sci-Fi, Fantasy) from a picture of each model; `python -B -m tools.tilekit.door_names` writes the TLK strings
 and the Name column. The project's own door set (rows 1094–1103) keeps its strings, which now carry the category.
 
+## Release B (2026-11-26, user: "Yes, release B")
+
+Release A was never cut on its own; release B carries it: the merged set with the joins, and the rooms of every batch.
+- **What is in it:** `srx02.set` with 813 tiles and 250 groups; 43 room floorplans (the six pilots and the Home,
+  Office, Security, Retail, Industrial, Medical and Magical batches with the two Barrens homes) as unfurnished and
+  furnished groups, 134 room tiles numbered 679-812. **Tile numbers 0-812 are frozen from here** (`numbers.json`): a
+  later tile or group is numbered after them.
+- **Checks:** `tilekit merge --check` clean; `tools/Test-Repository.ps1 -ChangedSince main` passed with every changed
+  pack built (33 packs registered); affected helper tests passed. Every batch was walked by a Human and a Troll, looked
+  at by the user and laid, saved, read back and reopened in the Toolset.
+- **Frame rate** (`output/_perfb.py`, the pilots' method): a block of 80 tiles of the heaviest new furnished rooms (shop,
+  lodge, lab, bar, server room, surgery, armory, barracks), cap 200: 146-176 frames a second over 12 s furnished
+  against 170-176 unfurnished; 93-157 against 120-161 over 48 s. The worst view, from above the block, lost 17%. The
+  views mostly face ceilings, so they measure the block, not a room seen from inside.
+- **Found by the repository check and fixed** (each was missed because the batches ran the affected tests only):
+  the ten door-name strings dropped from `srn_tlk/allocations.json` (357-366) are back as retired records, since an
+  allocation is never reused; the 60 `[lpat]` rows are in `docs/additions/catalog.json` (`madeBy: hand`); the three
+  enlarged pictures that `srn_placeable` and `srn_t_zsf01` both hold (`cq_light`, `cqpanel01`, `cqroof01`, the same
+  bytes) are declared as expected overrides in `hakbuilder.json`. Guard: the verification list now runs the
+  repository check without builds at every batch commit.
+- **Not done:** merging into `main` (push and pull request wait for the user); palette blueprints for the `[lpat]`
+  rows; the restyle (release C).
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record
@@ -735,6 +758,8 @@ repeat), so the four families share a material standard; joins and rooms re-chec
   `detail.py` change.
 - `tilekit merge --check`, `joins --check`, `compile --check`, `tilekit walkmesh` against the baselines.
 - `tools/Test-Repository.ps1 -ChangedSince main` and a rebuild of `srn_t_srx02` and any changed pack.
+- At every batch commit, `tools/Test-Repository.ps1 -ChangedSince main -SkipBuild` (TLK allocations, the additions
+  catalog and cross-pack duplicates are checked there and nowhere else; release B found three misses).
 - Toolset by computer use: paint, rotate, undo/redo, save, reopen, read the saved area back.
 - Client by computer use: no second client, 200 cap, keyholing off, fog clip 9999, a handful of targeted views;
   screenshots to the user at each look gate.

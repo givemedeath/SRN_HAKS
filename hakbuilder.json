@@ -2025,6 +2025,27 @@
         "srn_door",
         "srn_placeable"
       ]
+    },
+    {
+      "Resource": "cq_light.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_zsf01"
+      ]
+    },
+    {
+      "Resource": "cqpanel01.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_zsf01"
+      ]
+    },
+    {
+      "Resource": "cqroof01.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_zsf01"
+      ]
     }
   ]
 }

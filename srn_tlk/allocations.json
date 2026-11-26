@@ -2175,6 +2175,66 @@
       "status": "active"
     },
     {
+      "id": 357,
+      "key": "door.setname.retired.357",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 358,
+      "key": "door.setname.retired.358",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 359,
+      "key": "door.setname.retired.359",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 360,
+      "key": "door.setname.retired.360",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 361,
+      "key": "door.setname.retired.361",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 362,
+      "key": "door.setname.retired.362",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 363,
+      "key": "door.setname.retired.363",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 364,
+      "key": "door.setname.retired.364",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 365,
+      "key": "door.setname.retired.365",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
+      "id": 366,
+      "key": "door.setname.retired.366",
+      "owner": "shared",
+      "status": "retired"
+    },
+    {
       "id": 367,
       "key": "door.generic.3050",
       "owner": "shared",
