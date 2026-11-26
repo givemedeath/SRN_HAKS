@@ -60,6 +60,8 @@ TOGETHER = 0.85  # the share of the floor a player can stand on that must be one
 MOST = 2500  # triangles of one baked prop: envkit's run to 12,000, and a store of them passed the 65,535 vertices a mesh may have (2026-11-25)
 WHOLE = 0.93  # and of one tile's alone: a creature finds its way from tile to tile, then within each
 THIN = 0.3  # metres: a seat is deeper
+NARROW = 0.45  # metres: a walkable gap narrower than this between furniture, or furniture and a wall, is closed: no creature
+# fits it, and the pathfinder sent a Human and a Troll into the 4 cm between a chair and its table and they stopped (bar, 2026-11-25)
 REACH, ALIGNED = 1.2, 0.12  # metres: how far before a seat its table is, and how far off its middle the seat may stand
 SNAP, NEAR = 0.05, 0.12  # metres: what a footprint's box is squared to, and how near a wall it is taken out to it
 FLOOR = 0.05  # metres: what stands no higher stands on the floor
@@ -386,6 +388,22 @@ def squared(polygon, lines):
     return out[0][0], out[1][0], out[0][1], out[1][1]
 
 
+def closed(boxes, solid, narrow=NARROW):
+    """Boxes that fill each gap narrower than `narrow` between two of `boxes`, or between one and a box of `solid` (a
+    wall), across the span where the two face each other."""
+    fill = []
+    for at, one in enumerate(boxes):
+        for other in [*boxes[at + 1:], *solid]:
+            for axis in (0, 1):
+                across = 1 - axis; low, high = max(one[across], other[across]), min(one[across + 2], other[across + 2])
+                if high - low <= 1e-6:
+                    continue
+                gap = (one[axis + 2], other[axis]) if other[axis] >= one[axis + 2] else (other[axis + 2], one[axis]) if one[axis] >= other[axis + 2] else None
+                if gap and 1e-6 < gap[1] - gap[0] < narrow:
+                    box = [0.0] * 4; box[axis], box[axis + 2], box[across], box[across + 2] = gap[0], gap[1], low, high; fill.append(tuple(box))
+    return fill
+
+
 def furnished_walk(text, name, footprints):
     """(the model, its walkmesh file, [the boxes nothing walks on]) with the floor of `text` laid again in rectangles
     round the footprints' boxes. Furniture cut out of the triangles there were left splinters and cracks a hair wide,
@@ -406,6 +424,8 @@ def furnished_walk(text, name, footprints):
     for axis in (0, 1):  # two lines a hair apart are one
         lines[axis] = [line for at, line in enumerate(lines[axis]) if not at or line - lines[axis][at - 1] > 2e-3]
     boxes = [squared(polygon, lines) for polygon, _, _ in footprints]
+    solid = [tuple(pick(corners[:, axis]) for pick in (np.min, np.max) for axis in (0, 1)) for corners, of in triangles if of not in geometry.WALKABLE]
+    boxes += closed(boxes, [(x0, y0, x1, y1) for x0, y0, x1, y1 in solid])
     xs, ys = (np.unique(np.round([*lines[axis], *(min(max(box[side], lines[axis][0]), lines[axis][-1]) for box in boxes for side in (axis, axis + 2))], 4)) for axis in (0, 1))
     flat = np.array(floor)[:, :, :2]; a, b, c = flat[:, 0], flat[:, 1], flat[:, 2]; whole = (b[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (b[:, 1] - a[:, 1]) * (c[:, 0] - a[:, 0])
     a, b, c, whole = (one[np.abs(whole) > 1e-9] for one in (a, b, c, whole))

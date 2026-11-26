@@ -20,7 +20,7 @@ Custom ComfyUI extension package and runtime adapter (`custom_nodes/srn_headkit`
 - `capture_runtime_identity(folder_paths, comfy_source_inventory=None, *, session=None)`: Hashes active Python/Torch runtime files and environment state.
 - `same_runtime_environment(current, baseline)`: Compares stable interpreter/runtime pins between execution passes.
 - `seal_runtime_identity(payload)`: Computes deterministic fingerprint digest for runtime identity payloads.
-- `runtime_members(roots)`: Performs file census across active runtime directories, filtering inactive packages.
+- `runtime_members(roots)`: Performs file census across active runtime directories, filtering inactive packages and ComfyUI-Manager's `user/__manager/cache` (downloaded node lists it rewrites on every start).
 - `capture_inventory(core, roots)`: Records canonical file paths and SHA-256 hashes across ComfyUI core and custom node roots.
 - `load_inventory(path, expected_core)`: Parses and verifies frozen source roots deployment inventory.
 - `verify_inventory(inventory)`: Checks that all files in a source inventory exist and match recorded hashes.

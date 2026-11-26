@@ -43,7 +43,11 @@ name were redrawn for the 2070s.
 - `materials.json`: the size each goes into its pack at, and the pictures enlarged only (`tilekit enlarge`): atlases of
   small parts, where a redraw would move the parts. `left` says which weak ones stay and why.
 - `enlarged.json`: the rest of the weak pictures, enlarged on shared sheets (`tilekit enlarge --sheets`, `sheets.py`), and
-  under `left` those that are not touched (drawn by a tile pack, a material of the same name, fine enough) and why.
+  under `left` those that are not touched (a material of the same name, fine enough, made for this project already) and
+  why. 83 whose grain the enlargement smoothed away were redrawn instead (user, 2026-11-25: "fix the remaining weak
+  ones"); they moved to `redraw.json` and `materials.json`. A picture a tile pack holds under the same name (17: `srn_door`,
+  `srn_t_shp02`, `srn_t_udp1`, `srn_t_zsf01`) is the same picture there, so the enlargement goes into each pack that has it
+  and the tiles are sharper too; the spec's `packs` lists them.
 - `screens.json`: the twenty device pictures with a screen in them, and `screen-pictures.json`: what those screens show,
   each drawn alone by the Qwen model from a blank picture (`tilekit screens --draw`) and laid into its device (`tilekit
   screens`). Screens drawn in code, and device pictures redrawn whole, were tried first and were not good enough.

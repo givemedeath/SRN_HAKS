@@ -60,6 +60,12 @@ class Made(unittest.TestCase):
         area = lambda text: sum(abs(joins.flat_area(one)) for one in joins.bake(text)[1] if int(one[0, 3]) == 5)
         self.assertAlmostEqual(area(tiles['tst_denu_01'][0]) - area(tiles['tst_denf_01'][0]), 0.64, places=2)  # the chair's foot; a rug is walked over
 
+    def test_a_gap_no_creature_fits_is_closed_and_a_lane_is_kept(self):
+        chair, table, wall = (6.54, 3.49, 7.06, 4.01), (5.96, 1.75, 7.64, 3.45), (9.8, 0.0, 10.0, 10.0)
+        self.assertEqual(rooms.closed([chair, table], []), [(6.54, 3.45, 7.06, 3.49)])
+        self.assertEqual(rooms.closed([(9.0, 2.0, 9.725, 3.0)], [wall]), [(9.725, 2.0, 9.8, 3.0)])
+        self.assertEqual(rooms.closed([table, (8.66, 1.6, 9.7, 2.6)], [wall]), [(9.7, 1.6, 9.8, 2.6)])  # the lane a metre wide stays
+
     def test_a_vase_stands_on_the_chair_placed_before_it_and_nowhere_in_the_air(self):
         vase = {'piece': 'vase', 'at': [-2.5, 0.5, 0.9], 'turn': 0}; made(CHAIR, vase)
         with self.assertRaisesRegex(ValueError, '0% of its foot'):

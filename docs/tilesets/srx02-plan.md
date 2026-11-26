@@ -472,6 +472,30 @@ Office batch's, no earlier number moved.
 - **Triangles** a furnished tile: 8.7k to 36.6k, under the pilots' 39.6k (the vault bays had 41.6k; a crate and a shelf came out).
 - **Toolset:** all six furnished rooms laid a quarter turn, saved and read back.
 - **Views:** `review-security.json` (bird's eye and eye level; `output/tilekit/sec2`).
+- **Gate passed (user, 2026-11-25: "Yes, do Retail").**
+
+## Stage 8, Retail batch (user, 2026-11-25: "Yes, do Retail")
+
+C02 small shop, C03 bar, C04 cafe, C05 commercial kitchen and C06 nightclub (2x2); C01 was a pilot, so the Retail
+floorplans are done. 16 tiles numbered after the Security batch's, no earlier number moved.
+- **Signs hung high:** a neon sign over a walkable floor is no obstacle and hangs at or above head height (2.5 m); an
+  obstacle cannot stand below the floor, and a piece above it must rest on something. Ceilings stop at 4 m, so a panel
+  sign taller than the bar's wall was left out.
+- **On a counter:** a coffee maker and a register rest at the top of the counter they stand on (1.08 m for `mc_cntr`).
+- **Fronts put right:** `jvb_couch04`, `jvb_chair08`, `sgp_spt02` and `dj_equipt` faced the wrong way in `fronts.json`
+  (they were read from thumbnails, whose east and west views mislead).
+- **No gap a creature cannot pass:** the bar's walk stalled a Human and a Troll in the 4 cm between a chair and its
+  table, where the pathfinder had sent them. Every furnished room's walkmesh now closes a walkable gap narrower than
+  0.45 m between two pieces, or a piece and a wall (`rooms.closed`); a lane a metre wide stays. All furnished rooms of
+  every batch were rebuilt with it.
+- **Pictures enlarged for these rooms:** `d20_dglass01`, `jhb_rtable01`, `jvb_cabinethosp`, `jvb_chaircafes`,
+  `t_mannequin01`.
+- **Walked** by a Human and a Troll, 65 points each through every room, doorway and aisle: all reached, the bar's
+  stall too once gaps were closed. With the guard, Security (112 each) and Home (88 each) were walked again and all
+  reached; Office and the pilots were not walked again (the user stopped client runs, 2026-11-25).
+- **Triangles** a furnished tile: 3.5k to 23.4k, under the pilots' 39.6k.
+- **Toolset:** not yet checked (the user stopped Toolset use, 2026-11-25); the module is ready in `output/tilekit/ret2ts`.
+- **Views:** `review-retail.json` (bird's eye and eye level; `output/tilekit/ret2`).
 
 ## Work order
 
