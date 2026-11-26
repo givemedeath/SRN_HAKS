@@ -40,16 +40,18 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_door",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_door": 1,
         "srn_t_tfb01": 4
@@ -77,7 +79,9 @@
           "height": 1
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 39
       }
@@ -95,16 +99,18 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 14
       }
@@ -122,13 +128,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -146,16 +152,18 @@
         "Kitchen",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 2
       }
@@ -171,13 +179,13 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -194,16 +202,18 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 7
       }
@@ -217,13 +227,13 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -240,16 +250,18 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 28
       }
@@ -264,13 +276,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -289,16 +301,18 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 1
       }
@@ -316,16 +330,18 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 24
       }
@@ -339,16 +355,18 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {}
     },
     {
@@ -363,16 +381,18 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 15
       }
@@ -386,16 +406,18 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {}
     },
     {
@@ -411,16 +433,18 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_door",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_door": 1,
         "srn_t_tfb01": 29
@@ -459,16 +483,18 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 7
       }
@@ -503,13 +529,13 @@
       "terrains": [
         "Inn"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -528,13 +554,13 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -554,13 +580,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -579,16 +605,18 @@
         "Kitchen",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {}
     },
     {
@@ -602,13 +630,13 @@
         "Livingroom",
         "Shop"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -627,13 +655,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -673,13 +701,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_door",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -699,13 +727,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -723,13 +751,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -755,7 +783,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {}
     },
     {
@@ -818,13 +848,13 @@
       "terrains": [
         "Shop"
       ],
-      "largest": 64,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_door",
-          "type": "tga",
-          "width": 64,
-          "height": 64
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -844,16 +874,18 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 4
       }
@@ -871,13 +903,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -919,13 +951,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -942,13 +974,13 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -963,13 +995,13 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -988,16 +1020,18 @@
         "Shop",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_tfb01": 6
       }
@@ -1015,16 +1049,18 @@
         "Shop",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_door",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_door": 1
       }
@@ -1038,16 +1074,18 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {}
     },
     {
@@ -1063,13 +1101,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -1114,13 +1152,13 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -1159,13 +1197,13 @@
       "terrains": [
         "Kitchen"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -1256,13 +1294,13 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -1286,7 +1324,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {}
     },
     {
@@ -1346,13 +1386,13 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -1431,13 +1471,13 @@
       "terrains": [
         "Wall"
       ],
-      "largest": 256,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 256,
-          "height": 256
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -1512,13 +1552,13 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -1537,13 +1577,13 @@
         "Shop",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -1561,13 +1601,13 @@
         "Livingroom",
         "Wall"
       ],
-      "largest": 128,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_tfb01",
-          "type": "tga",
-          "width": 128,
-          "height": 128
+          "type": "dds",
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],

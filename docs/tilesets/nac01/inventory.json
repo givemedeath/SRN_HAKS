@@ -68,7 +68,9 @@
           "height": 256
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {}
     },
     {
@@ -110,7 +112,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {}
     },
     {

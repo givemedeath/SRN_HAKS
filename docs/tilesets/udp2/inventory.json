@@ -52,7 +52,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_udp2": 21
       }
@@ -78,7 +80,9 @@
           "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_udp2": 10
       }
@@ -116,6 +120,7 @@
       ],
       "otherSets": [
         "srx01",
+        "srx02",
         "udp1"
       ],
       "otherPacks": {
@@ -144,7 +149,9 @@
           "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_udp2": 5
       }
@@ -194,7 +201,9 @@
           "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_udp2": 4
       }
@@ -218,7 +227,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_udp2": 3
       }
@@ -242,7 +253,9 @@
           "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_udp2": 3
       }
@@ -269,7 +282,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 3,
         "srn_t_udp2": 7
@@ -324,7 +339,9 @@
           "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 9,
         "srn_t_udp2": 14
@@ -359,7 +376,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 12,
         "srn_t_udp2": 9
@@ -444,7 +463,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_door": 8
       }
@@ -469,7 +490,9 @@
           "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_t_udp2": 2
       }
@@ -780,13 +803,13 @@
         "Service",
         "Tiled"
       ],
-      "largest": 512,
+      "largest": 1024,
       "copies": [
         {
           "pack": "srn_t_udp2",
           "type": "dds",
-          "width": 512,
-          "height": 512
+          "width": 1024,
+          "height": 1024
         }
       ],
       "otherSets": [],
@@ -816,7 +839,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 8
       }
@@ -945,7 +970,9 @@
           "height": 256
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 8
       }
@@ -997,7 +1024,9 @@
           "height": 64
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 23
       }
@@ -1074,7 +1103,9 @@
           "height": 128
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 20
       }
@@ -1132,7 +1163,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 1
       }
@@ -1148,7 +1181,9 @@
       ],
       "largest": null,
       "copies": [],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 1
       }
@@ -1177,7 +1212,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 18
       }
@@ -1206,7 +1243,9 @@
           "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 6
       }
@@ -1235,7 +1274,9 @@
           "height": 1024
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 2
       }
@@ -1264,7 +1305,9 @@
           "height": 256
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 12
       }
@@ -1338,7 +1381,9 @@
           "height": 512
         }
       ],
-      "otherSets": [],
+      "otherSets": [
+        "srx02"
+      ],
       "otherPacks": {
         "srn_placeable": 2
       }
