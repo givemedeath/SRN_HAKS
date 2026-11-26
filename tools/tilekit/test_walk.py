@@ -66,12 +66,17 @@ class Walkers(unittest.TestCase):
         self.assertEqual((laid[(2, 2)], laid[(3, 2)], laid[(5, 2)], laid[(6, 2)], laid[(4, 2)]), ((1, 0), (4, 2), (1, 0), (4, 2), (0, 0)))
         self.assertEqual(walkers[0]['legs'], [[0, 'to', [24.0, 25.0, 0.0]], [0, 'ab', [26.0, 25.0, 0.0]], [0, 'ba', [24.0, 25.0, 0.0]]])
         self.assertEqual(walkers[1]['legs'][0][2], [54.0, 25.0, 0.0])
+        many = {f't_b{index:02d}_01': {'number': 1, 'crossings': [CROSSING], 'beside': []} for index in range(31)}
+        self.assertEqual(walk.layout(dict(list(many.items())[:30]), 0)[1], 32)
+        with self.assertRaises(ValueError):  # an area is 32 tiles high at most
+            walk.layout(many, 0)
 
     def test_the_walkers_script_makes_each_one_and_sends_it_along_its_legs(self):
         walkers = walk.layout({'t_b01_01': {'number': 1, 'crossings': [CROSSING], 'beside': []}}, 0)[3]
         functions, statement = walk.script(walkers, walk.AREA)
         self.assertEqual((functions.count('void W0()'), functions.count('void W1()'), functions.count('Go("t_b01_01.troll"'), functions.count('GetObjectByTag("wlk")')), (1, 1, 3, 2))
         self.assertIn(',15104);', functions); self.assertEqual(statement, 'DelayCommand(12.0,Walk());')
+        self.assertEqual(functions.count('SetLocalInt(c,"LAST",2);'), 2); self.assertIn('!GetLocalInt(OBJECT_SELF,"WALKED")', functions)  # traced to the last leg
         text = review.enter_script([{'area': 'wlk', 'label': 'row0', 'stand': [10.0, 20.0], 'facing': 90, 'distance': 70, 'pitch': 35, 'height': 1}], more=(functions, statement))
         self.assertLess(text.index('void Walk()'), text.index('void main()')); self.assertLess(text.index('void main()'), text.index(statement))
         self.assertNotIn('Walk', review.enter_script([{'area': 'wlk', 'label': 'row0', 'stand': [10.0, 20.0], 'facing': 90, 'distance': 70, 'pitch': 35, 'height': 1}]))
@@ -87,6 +92,10 @@ class Walkers(unittest.TestCase):
         self.assertEqual(([one['way'] for one in told['bent']], [one['way'] for one in told['short']]), (['ba'], ['ba']))
         self.assertEqual(told['missing'], [{'tag': 'b.troll', 'crossing': 0, 'way': way} for way in ('to', 'ab', 'ba')])
         self.assertEqual(told['unmade'], ['b.troll'])  # made, but not as a Troll
+        off = [{'tag': 'c.human', 'appearance': 6, 'legs': legs}]  # stopped 0.5 m short of the crossing's start, then straight across from there
+        late = walk.verdict(['ENVKIT walk=c.human made=1 app=6', 'ENVKIT walk=c.human leg=0 at=   0.00,   0.50,  0.00', 'ENVKIT walk=c.human trace=   1.00,   0.25,  0.00',
+                             'ENVKIT walk=c.human leg=1 at=   2.00,   0.00,  0.00'], off)
+        self.assertEqual([(one['way'], one['off']) for one in late['short']], [('to', .5)]); self.assertEqual((late['walked'][0]['strayed'], late['bent']), (0.0, []))
         self.assertEqual(told['walked'][0]['longer'], 1.001)
 
 

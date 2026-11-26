@@ -65,9 +65,10 @@ def walk_command(chosen):
     found = walk.woks(chosen.repo, chosen.overlay)
     if chosen.plan and chosen.plan.is_file():  # the plan made before a repair: its edges are not flagged once repaired
         held = _json(chosen.plan); require(held.get('tileset') == tileset, f'{chosen.plan} is a plan of {held.get("tileset")}, not {tileset}'); tiles = held['tiles']
-        require(not chosen.tiles or set(chosen.tiles.lower().split(',')) == set(tiles), f'{chosen.plan} walks other tiles: ' + ', '.join(tiles))
+        require(not chosen.tiles or {model.strip() for model in chosen.tiles.lower().split(',') if model.strip()} == set(tiles), f'{chosen.plan} walks other tiles: ' + ', '.join(tiles))
+        require(not chosen.sides or held.get('sides'), f'{chosen.plan} was made without --sides: make a plan of its own for the sides')
     else:
-        models = [model for model in (chosen.tiles or '').lower().split(',') if model]; require(models, 'Name the tiles to walk (--tiles), or a plan made before (--plan)')
+        models = [model.strip() for model in (chosen.tiles or '').lower().split(',') if model.strip()]; require(models, 'Name the tiles to walk (--tiles), or a plan made before (--plan)')
         tiles = walk.plan(models, set_text, lambda model: found[model].read_bytes().decode('cp1252') if model in found else None, sides=chosen.sides)
         if chosen.plan:
             chosen.plan.parent.mkdir(parents=True, exist_ok=True); chosen.plan.write_text(json.dumps({'tileset': tileset, 'sides': chosen.sides, 'tiles': tiles}, indent=1) + '\n', encoding='utf-8')

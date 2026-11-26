@@ -173,7 +173,8 @@ def layout(found, fill, columns=COLUMNS):
     about it, on the `fill` tile. walkers: [{tag, appearance, legs: [[crossing, way, [x, y, z]]]}], the way `to` the
     crossing's first point, `ab` across and `ba` back, in the area's own metres."""
     count = len([model for model, one in found.items() if one['crossings']]) * len(WALKERS); rows = -(-count // columns)
-    width, height = columns * 3 + 2, rows * 3 + 2; laid = {(column, row): (fill, 0) for column in range(width) for row in range(height)}; walkers = []
+    width, height = columns * 3 + 2, rows * 3 + 2; require(height <= 32, f'{count // len(WALKERS)} tiles do not fit one walk area: walk at most {10 * columns // len(WALKERS)} at once')
+    laid = {(column, row): (fill, 0) for column in range(width) for row in range(height)}; walkers = []
     for model, one in found.items():
         if not one['crossings']:
             continue
@@ -198,18 +199,20 @@ def seconds(walkers):
 def script(walkers, area):
     """(functions, statement) of the walkers for review's entry script (`more`): each walker made in the area tagged
     `area` at its first point, as its appearance, sent along its legs and logging `<PREFIX> walk=<tag> leg=<n> at=x,y,z` on each arrival and
-    `trace=x,y,z` four times a second."""
+    `trace=x,y,z` four times a second until it reaches its last leg (a trace cut short would leave a late leg's route
+    unseen, and so straight)."""
     at = 'FloatToString(v.x,7,2)+","+FloatToString(v.y,7,2)+","+FloatToString(v.z,6,2)'
-    lines = [f'void Arrived(string who,int n) {{ vector v=GetPosition(OBJECT_SELF); WriteTimestampedLogEntry("{PREFIX} walk="+who+" leg="+IntToString(n)+" at="+{at}); }}',
+    lines = [f'void Arrived(string who,int n) {{ vector v=GetPosition(OBJECT_SELF); WriteTimestampedLogEntry("{PREFIX} walk="+who+" leg="+IntToString(n)+" at="+{at}); '
+             'if(n==GetLocalInt(OBJECT_SELF,"LAST")) SetLocalInt(OBJECT_SELF,"WALKED",1); }',
              'void Go(string who,int n,float x,float y,float z) { ActionMoveToLocation(Location(GetArea(OBJECT_SELF),Vector(x,y,z),0.0),FALSE); ActionDoCommand(Arrived(who,n)); ActionWait(0.3); }',
-             f'void Trace(string who,int n) {{ vector v=GetPosition(OBJECT_SELF); WriteTimestampedLogEntry("{PREFIX} walk="+who+" trace="+{at}); if(n>0) DelayCommand({TICK},Trace(who,n-1)); }}',
+             f'void Trace(string who,int n) {{ vector v=GetPosition(OBJECT_SELF); WriteTimestampedLogEntry("{PREFIX} walk="+who+" trace="+{at}); if(n>0 && !GetLocalInt(OBJECT_SELF,"WALKED")) DelayCommand({TICK},Trace(who,n-1)); }}',
              'object Make(object a,float x,float y,float z,int app) { object c=CreateObject(OBJECT_TYPE_CREATURE,"nw_bandit001",Location(a,Vector(x,y,z),0.0)); '
              'ChangeToStandardFaction(c,STANDARD_FACTION_COMMONER); SetCreatureAppearanceType(c,app); AssignCommand(c,ClearAllActions(TRUE)); return c; }']
     calls = []
     for index, walker in enumerate(walkers):
-        tag, legs = walker['tag'], walker['legs']; (x, y, z) = legs[0][2]; ticks = int(len(legs) * LEG / TICK) + 60
+        tag, legs = walker['tag'], walker['legs']; (x, y, z) = legs[0][2]; ticks = int(3 * len(legs) * LEG / TICK) + 240  # a bound: it stops once the last leg is reached
         body = [f'void W{index}() {{ object c=Make(GetObjectByTag("{area}"),{x:.3f},{y:.3f},{z:.3f},{walker["appearance"]}); '
-                f'WriteTimestampedLogEntry("{PREFIX} walk={tag} made="+IntToString(GetIsObjectValid(c))+" app="+IntToString(GetAppearanceType(c))); '
+                f'SetLocalInt(c,"LAST",{len(legs) - 1}); WriteTimestampedLogEntry("{PREFIX} walk={tag} made="+IntToString(GetIsObjectValid(c))+" app="+IntToString(GetAppearanceType(c))); '
                 f'AssignCommand(c,DelayCommand(3.5,Trace("{tag}",{ticks})));']
         body += [f'  AssignCommand(c,DelayCommand({4 + number * .1:.1f},Go("{tag}",{number},{x:.3f},{y:.3f},{z:.3f})));' for number, (_, _, (x, y, z)) in enumerate(legs)]
         lines.append('\n'.join(body) + ' }'); calls.append(f'  DelayCommand({index * .2:.1f},W{index}());')
@@ -229,14 +232,14 @@ def _strayed(point, start, goal):
 def verdict(lines, walkers):
     """What a walk's log says: {walked, bent, short, missing, unmade}. walked: [{tag, crossing, way, off, strayed,
     longer}] for every leg across, `off` the metres the walker stopped from its goal, `strayed` the furthest its route
-    went from the straight line, `longer` its length over the straight line's; bent and short name those over BENT and
-    SHORT; missing the legs a walker never logged (it did not arrive), unmade the walkers the game did not make as asked."""
+    went from the straight line between where it last arrived and its goal, `longer` its length over that line's; bent
+    and short name those over BENT and SHORT, short also a walk `to` a crossing that stopped short of its first point; missing the legs a walker never logged (it did not arrive), unmade the walkers the game did not make as asked."""
     from tools.armorkit import client
     events = {}
     for values in map(client.parse_line, lines):
         if 'walk' in values:
             events.setdefault(values['walk'].strip(), []).append(values)
-    walked, missing, unmade = [], [], []
+    walked, missing, unmade, reached = [], [], [], []
     for walker in walkers:
         tag, legs = walker['tag'], walker['legs']; path, done = [], set(); made = [values for values in events.get(tag, []) if 'made' in values]
         if not made or made[0]['made'].strip() != '1' or int(made[0].get('app', '-1')) != walker['appearance']:
@@ -246,14 +249,16 @@ def verdict(lines, walkers):
                 path.append(_point(values['trace']))
             elif 'leg' in values and int(values['leg']) not in done:
                 number = int(values['leg']); done.add(number); crossing, way, goal = legs[number]; point = _point(values['at'])
-                if way != 'to':
-                    start = legs[number - 1][2]; route = path + [point]; straight = math.dist(start[:2], goal[:2])
+                if way == 'to' and math.dist(point[:2], goal[:2]) > SHORT:  # it never stood where the crossing begins
+                    reached.append({'tag': tag, 'crossing': crossing, 'way': way, 'off': round(math.dist(point[:2], goal[:2]), 3)})
+                elif way != 'to':
+                    start = path[0] if path else legs[number - 1][2]; route = path + [point]; straight = math.dist(start[:2], goal[:2])  # from where it last arrived
                     walked.append({'tag': tag, 'crossing': crossing, 'way': way, 'off': round(math.dist(point[:2], goal[:2]), 3),
                                    'strayed': round(max(_strayed(one, start, goal) for one in route), 3),
                                    'longer': round(sum(math.dist(one[:2], two[:2]) for one, two in zip(route, route[1:])) / straight, 3) if straight else None})
                 path = [point]
         missing += [{'tag': tag, 'crossing': legs[number][0], 'way': legs[number][1]} for number in range(len(legs)) if number not in done]
-    return {'walked': walked, 'bent': [one for one in walked if one['strayed'] > BENT], 'short': [one for one in walked if one['off'] > SHORT],
+    return {'walked': walked, 'bent': [one for one in walked if one['strayed'] > BENT], 'short': reached + [one for one in walked if one['off'] > SHORT],
             'missing': missing, 'unmade': unmade}
 
 
@@ -266,11 +271,11 @@ def woks(repo, overlay=None):
 
 
 def packs(repo, models):
-    """The tile packs (srn_t_*) whose models these are, in order of first use."""
+    """The tile packs (srn_t_*) that hold these models, in order of first use."""
     found = []
     for model in models:
-        held = sorted(path.parent.name for path in Path(repo).glob(f'srn_t_*/{model}.mdl'))
-        require(len(held) == 1, f'{model} is in {len(held)} tile packs, not one: ' + ', '.join(held))
-        if held[0] not in found:
+        held = sorted(path.parent.name for path in Path(repo).glob(f'srn_t_*/{model}.mdl'))  # none: a base-game model, loaded without a pack
+        require(len(held) <= 1, f'{model} is in {len(held)} tile packs: ' + ', '.join(held))
+        if held and held[0] not in found:
             found.append(held[0])
     return found
