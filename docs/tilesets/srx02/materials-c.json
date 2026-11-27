@@ -391,16 +391,12 @@
    "roughness": 0.6
   },
   "flexpipe": {
-   "route": "layout",
-   "master": "CorrugatedSteel007A",
-   "repeat": 1,
-   "keep": 8,
+   "route": "upscale",
    "grade": "duct",
    "size": [
     512,
     512
-   ],
-   "grain": 2.0
+   ]
   },
   "nac_sheet4": {
    "route": "layout",

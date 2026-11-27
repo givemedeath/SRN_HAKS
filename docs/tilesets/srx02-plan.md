@@ -658,6 +658,19 @@ all four ship ASCII models with no `sources/` copy.
 Restyles go in place in the four source packs, so the old Office, Modern Interior, Facility and Ducts sets take the
 new look too.
 
+**Release C progress (2026-11-26).**
+- Pilot pass 1 (`layout` route over every texture) barely changed the look. Pass 2 (user: "scan replaces the picture")
+  puts the scans on plain surfaces (`master` route, the old mean colour kept by `tone`), keeps the layout of banded,
+  panelled and tiled pictures with stronger scan grain, and adds the prefab rooms' own `srx02_clg*` ceilings. The
+  user approved pass 2 and the rollout ("Yes, fix and roll out"). Spec: `docs/tilesets/srx02/materials-c.json`;
+  views: `review-c.json` (rooms) and `review.json` (family floors and corridors).
+- New `over` flag: a texture whose pack picture is already a standard DDS (the tfb01 Qwen redraws; a few source
+  pictures such as `tbx78_floor01`) builds over that picture. **Mistake, guarded:** `current` read such a DDS top
+  row first while the game shows its first row at the bottom, so 62 textures came out upside down (the shop wall's
+  blue band moved to the top). `current` now turns a standard DDS upright; `test_material` checks a bottom-left pixel.
+- Skipped on purpose: blank and gradient pictures, textures shared with sets already restyled (`udp1-*`, `gg*`),
+  cut-outs with alpha, and pictures of 64 px or less.
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record

@@ -209,6 +209,14 @@ def _tree(repo, before, pack):
     return {name.lower(): name for name in (line.rsplit('/', 1)[-1] for line in listed.stdout.splitlines())}
 
 
+def _upright(picture, data):
+    """A pack's picture as the game shows it: the game takes a standard DDS's first row for the bottom (see `write`),
+    so one read top row first is turned over. A redraw restyled over came out upside down without this (shop wall,
+    2026-11-26)."""
+    from PIL import ImageOps
+    return ImageOps.flip(picture) if data[:4] == b'DDS ' else picture
+
+
 def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None, before=None, over=False):
     """The picture of a texture as the tileset had it before its restyle: its DDS copy before its TGA, in the first of
     `packs` to hold one, else in `stock`, a folder of the base game's own pictures read out of the install (a base-game
@@ -227,7 +235,7 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
                 shown = subprocess.run(['git', '-C', str(repo), 'show', f'{before}:{pack}/{file}'], capture_output=True)
                 require(shown.returncode == 0, f'git cannot read {pack}/{file} at {before}')
                 require(over or kind != 'dds' or shown.stdout[:4] != b'DDS ', late)
-                return pictures.read(file, shown.stdout)
+                return _upright(pictures.read(file, shown.stdout), shown.stdout)
     restyled = [pack for pack in packs if (repo / pack / f'{name}.mtr').is_file()]
     for pack in packs if not restyled else ():
         for kind in ('dds', 'tga'):
@@ -235,7 +243,7 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
             if path.is_file():
                 if kind == 'dds' and not over and path.read_bytes()[:4] == b'DDS ':
                     restyled.append(pack); continue
-                return pictures.read(path)
+                return _upright(pictures.read(path), path.read_bytes()[:4])
     for kind in ('dds', 'tga'):  # a base-game texture: its original is the game's own, whatever restyle a pack holds
         if stock and (Path(stock) / f'{name}.{kind}').is_file():
             return pictures.read(Path(stock) / f'{name}.{kind}')

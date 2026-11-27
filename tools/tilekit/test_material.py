@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
+from PIL.ImageOps import flip
 
 from . import material, pictures
 
@@ -195,10 +196,13 @@ class MaterialTests(unittest.TestCase):
         for name in ('wall', 'water'):
             with self.assertRaisesRegex(ValueError, f'{name} is restyled already at {late}'):
                 material.current(repo, name, before=late)
-        Image.new('RGB', (8, 8), (30, 60, 90)).save(pack / 'water.dds')  # an approved plain restyle a new one builds over
+        upright = Image.new('RGB', (8, 8), (30, 60, 90)); upright.putpixel((0, 7), (1, 2, 3))  # bottom-left as the game shows it
+        flip(upright).save(pack / 'water.dds')  # an approved plain restyle a new one builds over, its first row the bottom
         git('add', '-A'); git('commit', '-q', '-m', 'redrawn'); redrawn = git('rev-parse', 'HEAD')
         self.assertEqual(material.current(repo, 'water', before=redrawn, over=True).getpixel((0, 0))[:3], (30, 60, 90))
         self.assertEqual(material.current(repo, 'water', over=True).getpixel((0, 0))[:3], (30, 60, 90))
+        self.assertEqual(material.current(repo, 'water', before=redrawn, over=True).getpixel((0, 7))[:3], (1, 2, 3))  # turned upright
+        self.assertEqual(material.current(repo, 'water', over=True).getpixel((0, 7))[:3], (1, 2, 3))
         with self.assertRaisesRegex(ValueError, 'wall is restyled already'):  # over never takes a material's maps
             material.current(repo, 'wall', before=redrawn, over=True)
 
