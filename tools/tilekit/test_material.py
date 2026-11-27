@@ -133,6 +133,10 @@ class MaterialTests(unittest.TestCase):
         made = material.make(old, {'route': 'layout', 'size': [64, 64], 'keep': 2}, found)
         self.assertGreater(made['colour'][:, 8:24].mean(), 150); self.assertLess(made['colour'][:, 40:56].mean(), 50)
         self.assertGreater(made['colour'][:, 8:24].std(), 3)  # with the scan's grain on it
+        lined = np.full((16, 16, 3), 200, np.uint8); lined[:, 7] = 20  # a one-pixel grid line: kept where it was at keep 0
+        whole = material.make(lined, {'route': 'layout', 'size': [64, 64], 'keep': 0, 'grain': 1.0}, found)['colour'].astype(float)
+        self.assertLess(whole[:, 28:32].mean(), whole[:, 8:24].mean() - 60)  # still dark and narrow, not blurred away
+        self.assertGreater(whole[:, 8:24].std(), 3)  # the scan's grain over the rest
         large = material.make(old, {'route': 'upscale', 'size': [64, 128], 'roughness': 0.4})
         self.assertEqual((large['colour'].shape, float(large['roughness'][0, 0]), float(large['metal'].max())), ((128, 64, 3), 0.4, 0.0))
         self.assertGreater(large['colour'][:, 4:24].mean(), 180)

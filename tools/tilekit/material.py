@@ -136,12 +136,15 @@ def _routed(old, how, route, size, scan):
         flat = np.full(size[::-1], float(how.get('roughness', 0.8)))
         return {'colour': large, 'normal': pictures.relief(pictures.height_of(large), float(how.get('relief', 2.0))), 'roughness': flat, 'metal': np.zeros(size[::-1])}
     repeat = int(how.get('repeat', 1)); keep = int(how.get('keep', 12)); grain = float(how.get('grain', 1.0))
-    fine = _sized(scan['colour'], size, repeat=repeat).astype(np.float64)
-    broad = np.dstack([pictures._wrapped_blur(large[..., channel], keep) for channel in range(3)])
-    detail = fine - np.dstack([pictures._wrapped_blur(fine[..., channel], keep) for channel in range(3)])
+    require(keep >= 0, 'A layout keeps the old picture broader than `keep` pixels, or all of it at 0')
+    # keep 0: the old picture whole, its grid and bands exactly where they were, with the scan's grain over it. A wider
+    # keep blurs the old lines away and the scan's own grid takes their place out of line (office ceiling, 2026-11-26).
+    fine = _sized(scan['colour'], size, repeat=repeat).astype(np.float64); scale = keep or int(how.get('fine', 6))  # the scan's grain finer than this
+    broad = large.astype(np.float64) if keep == 0 else np.dstack([pictures._wrapped_blur(large[..., channel], keep) for channel in range(3)])
+    detail = fine - np.dstack([pictures._wrapped_blur(fine[..., channel], scale) for channel in range(3)])
     colour = np.uint8(np.clip(broad + detail * grain, 0, 255) + 0.5)
     # The layout's own edges (a kerb, a joint) are relief too: guessed from the kept picture and laid over the scan's.
-    edges = pictures.relief(pictures.height_of(broad, detail=2, broad=keep * 2), float(how.get('relief', 2.0))).astype(np.float64) - np.array([127.5, 127.5, 255.0])
+    edges = pictures.relief(pictures.height_of(broad, detail=2, broad=max(keep, 3) * 2), float(how.get('relief', 2.0))).astype(np.float64) - np.array([127.5, 127.5, 255.0])
     normal = _renormal(np.clip(_sized(scan['normal'], size, repeat=repeat).astype(np.float64) + edges, 0, 255))
     return {'colour': colour, 'normal': normal, 'roughness': _sized(scan['roughness'], size, repeat=repeat), 'metal': _sized(scan['metal'], size, repeat=repeat)}
 
