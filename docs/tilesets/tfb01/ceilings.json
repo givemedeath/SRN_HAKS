@@ -1,0 +1,5 @@
+{
+ "note": "Modern Interior was drawn open to the sky: every room gets a ceiling at its walls' top (user, 2026-11-26). Homes and the inn plaster, shops acoustic tile. Pictures are tfb01 copies of the srx02 room ceilings, so the old tfb01 set needs no other pack.",
+ "looks": {"default": "tfb01_ceilpl", "Shop": "tfb01_ceilti"},
+ "skip": []
+}

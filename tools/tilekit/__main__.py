@@ -391,6 +391,10 @@ def main(arguments=None):
     lit.add_argument('--again', action='store_true', help='make the day and night of models that have them anew from the list, and write those it changes')
     lit.add_argument('--materials', action='store_true', help='instead: write the day materials of the list (`dayMaterials`): the material of a lit texture without its glow map, beside it in the packs')
     lit.add_argument('--lights-on', action='store_true', help='instead: turn each of AnimLoop1 to 3 on in the set file for the tiles whose lit panes, or the list\'s `switched` signs, it raises (then: merge)')
+    capping = commands.add_parser('ceilings', help='give the tiles of a tileset that are open to the sky over their floor a ceiling at the top of their walls, in model copies')
+    capping.add_argument('--tileset', required=True); capping.add_argument('--spec', required=True, type=Path, help='{looks: {default, <terrain>: texture}, skip: [models]} (docs/tilesets/<set>/ceilings.json)')
+    capping.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review overlay'); capping.add_argument('--repo', type=Path, default=REPO)
+    capping.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
     named = commands.add_parser('unique', help='give the nodes of an adopted tile pack\'s ASCII sources names of one word that no other node has, in place (then: compile)')
     named.add_argument('--pack', required=True); named.add_argument('--repo', type=Path, default=REPO)
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
@@ -475,6 +479,11 @@ def main(arguments=None):
             return shadows_command(chosen)
         if chosen.command == 'retexture':
             return retexture_command(chosen)
+        if chosen.command == 'ceilings':
+            spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
+            from . import ceilings
+            told = ceilings.cap(chosen.repo, chosen.tileset, chosen.out, spec['looks'], shared=chosen.shared, skip=set(spec.get('skip', ())))
+            print(json.dumps(told, indent=1)); return 0
         if chosen.command == 'lamps':
             return lamps_command(chosen)
         if chosen.command == 'screens':

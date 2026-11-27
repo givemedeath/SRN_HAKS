@@ -154,3 +154,73 @@ def write(folder, crunch):
     """Write the pictures into a pack's folder as plain DDS. [file names]."""
     from . import material
     return [file for name, picture in pictures().items() for file in material.write(name, {'colour': picture, 'normal': picture, **dict.fromkeys(('metal', 'roughness'), np.zeros(picture.shape[:2]))}, folder, crunch, plain=True)]
+
+
+# A tile open to the sky over its floor gets a ceiling at its walls' top (user, 2026-11-26: "appropriate ceilings on the
+# rooms that are missing them"). Modern Interior (tfb01) was drawn without any.
+COVERED = 0.95  # a tile whose walked floor is this much under something above `HEADROOM` has its ceiling already
+HEADROOM = 2.4  # metres: what is higher over the floor than this is overhead
+LOWEST = 2.8  # metres: walls lower than this are furniture or a counter; the tile takes `STOREY` instead
+STOREY = 3.0  # metres: the walls' top of most of tfb01's rooms
+CLEAR = 2.6  # metres a ceiling stays above any floor walked under it: a male troll is 2.5 m (contract 1.3.0)
+
+
+def _tops(nodes):
+    """{height of a wall's top, to 0.1 m: faces}: the near-upright faces higher than two metres, by their top."""
+    import collections
+    told = collections.Counter()
+    for a, b, c in geometry.triangles(nodes):
+        across = np.cross(np.subtract(b, a), np.subtract(c, a)); length = np.linalg.norm(across)
+        if length > 1e-9 and abs(across[2]) / length < 0.2 and max(a[2], b[2], c[2]) > 2:
+            told[round(max(a[2], b[2], c[2]), 1)] += 1
+    return told
+
+
+def capped(text, root, texture, repeat=2.0):
+    """(the model with a ceiling over its cell, its height) or (None, why not). Seen from below only: a camera over the
+    room looks through it. The height is the walls' top most of its upright faces reach, `STOREY` where they stop
+    short of `LOWEST`; over a floor walked higher (a stair, an upper storey) it is the lowest walls' top `CLEAR` above
+    that floor, else a `STOREY` over it."""
+    from .rooms import ceiled
+    _, _, nodes = geometry.parse(text); walk = geometry.walkable(nodes, step=0.5)
+    if not walk:
+        return None, 'no floor walked'
+    over = {}  # {cell: the highest bottom of what passes over it}
+    for triangle in geometry.triangles(nodes):
+        bottom = min(point[2] for point in triangle)
+        for point in geometry.samples(triangle, 0.25):
+            spot = geometry.cell(point, 0.5); over[spot] = max(over.get(spot, bottom), bottom)
+    if sum(over.get(spot, -1e9) >= min(heights) + HEADROOM for spot, heights in walk.items()) >= COVERED * len(walk):
+        return None, 'ceiled already'
+    tops = _tops(nodes); high = tops.most_common(1)[0][0] if tops else STOREY
+    high = high if high >= LOWEST else STOREY
+    walked = max(max(heights) for heights in walk.values())
+    if walked + CLEAR > high + 0.01:  # a stair or an upper storey: the lowest walls' top clear of its floor, else a storey over it
+        high = min((top for top, count in tops.items() if count >= 4 and top >= walked + CLEAR - 0.01), default=round(walked + STOREY, 1))
+    require(not any(node.name.lower() == f'{root}_ceil'.lower() for node in nodes), f'{root} has a node {root}_ceil already')
+    return ceiled(text, root, tuple(line.format(texture) for line in PLAIN), high, repeat), high
+
+
+def cap(repo, tileset, folder, looks, *, shared=(), skip=()):
+    """Write the ceiled models of a tileset's open tiles into `folder` (a review's overlay; a copy already there is the one
+    changed) and tell {model: height or why not}. looks: {'default': texture, terrain: texture} by the tile's corners
+    that are not the hub (`Wall`); skip: models left open on purpose (a stairwell shaft, a black filler)."""
+    from pathlib import Path
+    from . import inventory
+    from .apply import noted
+    from .lamps import PACKS
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
+    corners = {tile['model']: tile['corners'] for tile in inventory.read_set((Path(repo) / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252'))['tiles']}
+    for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, PACKS):
+        if name in skip:
+            told[name] = 'left open'; continue
+        if set(others) - {one.lower() for one in shared}:
+            told[name] = 'shared with ' + ', '.join(others); continue
+        terrains = sorted({corner for corner in corners.get(name, ()) if corner.lower() != 'wall'})
+        texture = next((looks[terrain] for terrain in terrains if terrain in looks), looks['default'])
+        new, said = capped(text, name, texture)
+        if new is not None:
+            require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
+            noted(folder, file, source); (folder / file).write_bytes(new.encode('cp1252'))
+        told[name] = said
+    return told

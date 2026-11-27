@@ -1226,6 +1226,32 @@
     1024,
     1024
    ]
+  },
+  "tfb01_ceilpl": {
+   "route": "master",
+   "master": "PaintedPlaster017",
+   "repeat": 3,
+   "tone": 1.0,
+   "grade": "ceiling",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true,
+   "copy": "srx02_clgplas"
+  },
+  "tfb01_ceilti": {
+   "route": "master",
+   "master": "OfficeCeiling001",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true,
+   "copy": "srx02_clgtile"
   }
  }
 }
