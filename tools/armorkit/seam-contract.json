@@ -549,22 +549,22 @@
         1.0
        ],
        "bodyRing": [
-        0.1082,
-        0.1057,
+        0.1083,
+        0.1058,
         0.0998,
         0.095,
         0.0859,
         0.0949,
         0.0997,
-        0.1061,
-        0.1082,
-        0.1097,
-        0.1119,
-        0.1132,
-        0.1084,
-        0.113,
-        0.1118,
-        0.1096
+        0.1062,
+        0.1083,
+        0.1099,
+        0.1126,
+        0.1138,
+        0.1087,
+        0.1138,
+        0.1126,
+        0.1099
        ],
        "underPastPlane": 0.1063
       }
@@ -578,24 +578,24 @@
      },
      "tiers": {
       "0": {
-       "envelopeRadius": 0.1172,
-       "meanRadius": 0.1091,
-       "minimumOverlap": 0.0373
+       "envelopeRadius": 0.1178,
+       "meanRadius": 0.1093,
+       "minimumOverlap": 0.0374
       },
       "1": {
-       "envelopeRadius": 0.1252,
-       "meanRadius": 0.1171,
-       "minimumOverlap": 0.0401
+       "envelopeRadius": 0.1258,
+       "meanRadius": 0.1173,
+       "minimumOverlap": 0.0402
       },
       "2": {
-       "envelopeRadius": 0.1382,
-       "meanRadius": 0.1301,
-       "minimumOverlap": 0.0445
+       "envelopeRadius": 0.1388,
+       "meanRadius": 0.1303,
+       "minimumOverlap": 0.0446
       },
       "3": {
-       "envelopeRadius": 0.1632,
-       "meanRadius": 0.1551,
-       "minimumOverlap": 0.0531
+       "envelopeRadius": 0.1638,
+       "meanRadius": 0.1553,
+       "minimumOverlap": 0.0532
       }
      }
     },
@@ -613,22 +613,22 @@
         1.0
        ],
        "bodyRing": [
-        0.1087,
-        0.1066,
+        0.109,
+        0.1068,
         0.1007,
         0.0959,
         0.0867,
         0.0958,
         0.1007,
-        0.107,
-        0.1086,
-        0.1103,
-        0.1126,
-        0.1139,
-        0.1094,
-        0.1137,
-        0.1124,
-        0.1101
+        0.1072,
+        0.109,
+        0.1107,
+        0.1136,
+        0.1149,
+        0.1099,
+        0.1149,
+        0.1136,
+        0.1107
        ],
        "underPastPlane": 0.1063
       }
@@ -642,24 +642,24 @@
      },
      "tiers": {
       "0": {
-       "envelopeRadius": 0.1179,
-       "meanRadius": 0.1098,
-       "minimumOverlap": 0.0376
+       "envelopeRadius": 0.1189,
+       "meanRadius": 0.1103,
+       "minimumOverlap": 0.0377
       },
       "1": {
-       "envelopeRadius": 0.1259,
-       "meanRadius": 0.1178,
-       "minimumOverlap": 0.0403
+       "envelopeRadius": 0.1269,
+       "meanRadius": 0.1183,
+       "minimumOverlap": 0.0405
       },
       "2": {
-       "envelopeRadius": 0.1389,
-       "meanRadius": 0.1308,
-       "minimumOverlap": 0.0448
+       "envelopeRadius": 0.1399,
+       "meanRadius": 0.1313,
+       "minimumOverlap": 0.0449
       },
       "3": {
-       "envelopeRadius": 0.1639,
-       "meanRadius": 0.1558,
-       "minimumOverlap": 0.0533
+       "envelopeRadius": 0.1649,
+       "meanRadius": 0.1563,
+       "minimumOverlap": 0.0535
       }
      }
     },
@@ -1189,22 +1189,22 @@
         1.0
        ],
        "bodyRing": [
-        0.0878,
-        0.0825,
-        0.0759,
-        0.0708,
-        0.0644,
-        0.0699,
-        0.0719,
-        0.0747,
-        0.0774,
-        0.0856,
-        0.0937,
-        0.0984,
-        0.0979,
-        0.0988,
-        0.0965,
-        0.0923
+        0.093,
+        0.0891,
+        0.0828,
+        0.0756,
+        0.0682,
+        0.0762,
+        0.0823,
+        0.0887,
+        0.093,
+        0.0963,
+        0.1003,
+        0.1021,
+        0.0994,
+        0.1021,
+        0.1003,
+        0.0964
        ],
        "underPastPlane": 0.0883
       }
@@ -1218,24 +1218,24 @@
      },
      "tiers": {
       "0": {
-       "envelopeRadius": 0.1028,
-       "meanRadius": 0.0877,
-       "minimumOverlap": 0.0298
+       "envelopeRadius": 0.1061,
+       "meanRadius": 0.0944,
+       "minimumOverlap": 0.0321
       },
       "1": {
-       "envelopeRadius": 0.1108,
-       "meanRadius": 0.0957,
-       "minimumOverlap": 0.0326
+       "envelopeRadius": 0.1141,
+       "meanRadius": 0.1024,
+       "minimumOverlap": 0.0348
       },
       "2": {
-       "envelopeRadius": 0.1238,
-       "meanRadius": 0.1087,
-       "minimumOverlap": 0.037
+       "envelopeRadius": 0.1271,
+       "meanRadius": 0.1154,
+       "minimumOverlap": 0.0393
       },
       "3": {
-       "envelopeRadius": 0.1488,
-       "meanRadius": 0.1337,
-       "minimumOverlap": 0.0455
+       "envelopeRadius": 0.1521,
+       "meanRadius": 0.1404,
+       "minimumOverlap": 0.0478
       }
      }
     },
@@ -1253,22 +1253,22 @@
         1.0
        ],
        "bodyRing": [
-        0.0876,
-        0.0823,
-        0.0759,
-        0.0706,
-        0.0652,
-        0.0697,
-        0.0718,
-        0.0745,
-        0.0772,
-        0.0853,
-        0.0936,
-        0.0983,
-        0.0978,
-        0.0987,
-        0.0964,
-        0.0922
+        0.0924,
+        0.0886,
+        0.0821,
+        0.0751,
+        0.0682,
+        0.0757,
+        0.0818,
+        0.0882,
+        0.0925,
+        0.0958,
+        0.0998,
+        0.1015,
+        0.0988,
+        0.1015,
+        0.0997,
+        0.0959
        ],
        "underPastPlane": 0.0883
       }
@@ -1282,24 +1282,24 @@
      },
      "tiers": {
       "0": {
-       "envelopeRadius": 0.1027,
-       "meanRadius": 0.0876,
-       "minimumOverlap": 0.0298
+       "envelopeRadius": 0.1055,
+       "meanRadius": 0.0939,
+       "minimumOverlap": 0.0319
       },
       "1": {
-       "envelopeRadius": 0.1107,
-       "meanRadius": 0.0956,
-       "minimumOverlap": 0.0325
+       "envelopeRadius": 0.1135,
+       "meanRadius": 0.1018,
+       "minimumOverlap": 0.0347
       },
       "2": {
-       "envelopeRadius": 0.1237,
-       "meanRadius": 0.1086,
-       "minimumOverlap": 0.037
+       "envelopeRadius": 0.1265,
+       "meanRadius": 0.1149,
+       "minimumOverlap": 0.0391
       },
       "3": {
-       "envelopeRadius": 0.1487,
-       "meanRadius": 0.1336,
-       "minimumOverlap": 0.0455
+       "envelopeRadius": 0.1515,
+       "meanRadius": 0.1399,
+       "minimumOverlap": 0.0476
       }
      }
     }
@@ -14367,7 +14367,7 @@
     "pmg0_handr001.mdl": "a829d14a898fa73363a70315e2b642efb839fad7f3fdd841cac86f95f229fe46",
     "pmg0_legl001.mdl": "0fcf81f1a24aea9d37a5b5bca4096ff18e8964fd20f66a5eb92092a8b314940b",
     "pmg0_legr001.mdl": "0419939487a717421465dd1ca0f372cb4b040a57d095f767ba35ac7d70946217",
-    "pmg0_neck001.mdl": "d61aa1b1ce57217888ce87b2cc4c9b713c55dad8baa47cd9ffb9eb72b21d2e76",
+    "pmg0_neck001.mdl": "6c63baa1fb5510128434882af189c878224a01ccfdf5145c3fb1a1fed3bf4d14",
     "pmg0_pelvis001.mdl": "57769fa76ea904b457c315fec50a949f7ba55b8af2a85f981b490adda56013f7",
     "pmg0_shinl001.mdl": "1a923ebb574e990f2760ee52a4b366ea98f3d6597637f02acb9be79c0faa33b5",
     "pmg0_shinr001.mdl": "e7a9aedecb66ba466ab43b42b62efa2c63349c3469a193095292b7d37f7898c2"
@@ -14385,7 +14385,7 @@
     "pmg2_handr001.mdl": "f200bfe48c30726c6fbe7a0624e3a2390b92533192af5bfee97491b910732964",
     "pmg2_legl001.mdl": "2043ce21a751ca071fb12990113639a3e26b2e31ede25de52e1a2f895897e142",
     "pmg2_legr001.mdl": "580044236ecfdead5f19cd9a2da19f8158710557280e6f2c76ef142fadc9d667",
-    "pmg2_neck001.mdl": "eaaa7bbcf6bf08e7d548e2394d1d1fc113586f1977e3436420714f4f7977f142",
+    "pmg2_neck001.mdl": "4cedfaff53e06a5583614791535c899cd21aa218fef78981aee6f5db0a8949d5",
     "pmg2_pelvis001.mdl": "466749891d62466cf5b6762af09fa57445abd0f4efd9d283ea14a72007b0deab",
     "pmg2_shinl001.mdl": "6ca6f6b9f1a07a709e93a2352b07b01b82d98dc8f2345f18eb737238fdd632cd",
     "pmg2_shinr001.mdl": "9b3e6f0957cb7dd5d0071d706ed362723c5b382471e4fef875c1c78c6997bafa"
@@ -14547,7 +14547,7 @@
     "pfg0_handr001.mdl": "de90d7e7b1b66a3db5c6a8aae4695725b3fc76063543712107e6d803f5286b80",
     "pfg0_legl001.mdl": "6b7385eba57ff593bbf5ed3aaebf6c1aea8c37d1e0d7faa8be95ec02b2dc0b69",
     "pfg0_legr001.mdl": "3ae6984a3940caea672b8b8b517380354df6fe7953d6661dbdd21c5b4d24fbd4",
-    "pfg0_neck001.mdl": "9980762515c73939e7b75fa89114e0e517590e17f43c807bc74f3aa1dacc4018",
+    "pfg0_neck001.mdl": "26c50130486a200100e024ead0b55b706551201451e2506bfec3a513dea92cf3",
     "pfg0_pelvis001.mdl": "6ec375c908a63b7782899c11496def9ca2ab04402c09b3a11085af4b0f39a099",
     "pfg0_shinl001.mdl": "5886ef8ec303cdfd9013e9f71d8c313e50f3e86715b074abb6281b32be988e53",
     "pfg0_shinr001.mdl": "69d0baedc1f7ae0269799c350693ef9f9bf291e548ec44e4570a5014cd441b43"
@@ -14565,7 +14565,7 @@
     "pfg2_handr001.mdl": "2efa2b089515230558d228847291002e038dad27fe2c757285c24345adf49f87",
     "pfg2_legl001.mdl": "137a7ee50a787337523d8f4399ae96819e01e4c851a3fdf9f7cad7c070c936a3",
     "pfg2_legr001.mdl": "c83a96a151894237e445b57f3ff5ce62e42a474047010c8cb6f3d237ef340854",
-    "pfg2_neck001.mdl": "c34e03969d056a673bac6d6842f6946a8b7d14087b606ec589099d9df95bbff0",
+    "pfg2_neck001.mdl": "d83aee7f02695cc112dcef3c5d054959ed6f7a4f54fdac7cec7aaafc7b3cb0bd",
     "pfg2_pelvis001.mdl": "3773cffabbee1d05aa7e512c6f957702da7da1ba8124d71cd118b728108dab26",
     "pfg2_shinl001.mdl": "04b3228f83d340b382d913d3b0ea2a3ede2c96bfae59a24be27531f66eb2572a",
     "pfg2_shinr001.mdl": "7dd818cc9a8ad2f07bd6586ef2789f8318fde2bd065c766ef04354dcc1efe6a1"
