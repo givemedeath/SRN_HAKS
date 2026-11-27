@@ -670,6 +670,23 @@ new look too.
   blue band moved to the top). `current` now turns a standard DDS upright; `test_material` checks a bottom-left pixel.
 - Skipped on purpose: blank and gradient pictures, textures shared with sets already restyled (`udp1-*`, `gg*`),
   cut-outs with alpha, and pictures of 64 px or less.
+- **Ceilings (user, 2026-11-26: "appropriate ceilings on the rooms that are missing them").** `tilekit ceilings`
+  (`ceilings.cap`) gives every tile open to the sky over its floor a ceiling at its walls' top, seen from below only:
+  329 of tfb01's tiles (plaster `tfb01_ceilpl`, shops acoustic tile `tfb01_ceilti`, tfb01 copies of the rooms'
+  ceilings). Over a stair or an upper storey it is the lowest walls' top 2.6 m clear of the floor, else a storey
+  over it. udp2's black filler tiles (`m01`) and up-stairwell shafts (`a35`) stay open; nac01's ducts are closed pipes.
+  Troll check: male trolls are 2.5 m; ceilings are 2.8 m or more, doorways 2.8 m or more, the lowest hanging lamps 2.6 m.
+- **Light panels (user: the office ceiling's lights lost their glow).** The light panel is painted into
+  `udp2_msc_clg`; the interior grade dimmed it and the material shades it. It now has a glow map over the panel.
+- **Room lights switched by script (user, 2026-11-26: "script driven switching is probably best for interiors").**
+  Every fitting is self-lit, day and night, today (room lamps, tbx78's yellow panels and red strips, udp2's panels),
+  and a fitting's glow lights nothing: a room's light is its tiles' main lights. Planned for the lights stage:
+  - each lit fitting gets an unlit look in place and its lit faces in a copy that a free loop raises into place
+    (`animloop03`: tbx78 and nac01 use no loop, udp2's `animloop01` is an empty stub on 172 models, tfb01 uses 01-02
+    and one 03), as `daylight` does with lit windows; the set file has `AnimLoop3=1` so a painted room is lit;
+  - SR_NWN switches a room with `SetTileAnimationLoops(tile, ..., bAnimLoop3)` over the room's tiles, together with
+    `SetTileMainLightColor` (off: black) and one `RecomputeStaticLighting(area)` after; instructions for SR_NWN in
+    a doc beside the tileset's, as armorkit's `sr-nwn-instructions.md`.
 
 ## Work order
 

@@ -66,7 +66,21 @@
     1024
    ],
    "grain": 1.0,
-   "fine": 6
+   "fine": 6,
+   "glow": {
+    "gain": 1.15,
+    "boxes": [
+     {
+      "box": [
+       0.25,
+       0.37,
+       0.74,
+       0.63
+      ],
+      "above": 185
+     }
+    ]
+   }
   },
   "udp2_flr_cpt1": {
    "route": "master",
