@@ -1266,6 +1266,17 @@
    ],
    "over": true,
    "copy": "srx02_clgtile"
+  },
+  "tfb01_flood": {
+   "route": "upscale",
+   "redrawn": true,
+   "over": true,
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ],
+   "note": "drawn again in code (tilekit/drawn.py): banner, device face, wood, cork; build with --redrawn of drawn.write"
   }
  }
 }
