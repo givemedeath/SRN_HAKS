@@ -261,7 +261,8 @@ the first design's image. Not run: a bake with a tinted or named channel (`bake.
   backwards" and "is still too large", and "there is pants painting on the bottom of the shirt". What changed:
   * *Ankles as drawn* (`bake --as-drawn ankle`). Any tier's envelope moved the boots' rims by 9 cm and more at
     the plane (a collar round the ankle). The two ends are cut on the rig's plane and left as drawn; the seam
-    gate reads nothing there, and the registry entry will need to say so. The foot's cap starts 25% inside its
+    gate reads nothing there. The registry gives those joints tier 3 with no mark of their own: an odd seam where
+    a 3010 shin or thigh is worn with another set's tier 3 part is acceptable (user, 2026-11-27). The foot's cap starts 25% inside its
     rim (`ANKLE_TUCK`).
   * *Brief.* Trim is worn on the pelvis and thighs only (its red had been read on the boots' shafts, whose
     brown is the colour the trim shows in the reference), trousers on the pelvis, thighs and shins only (the
