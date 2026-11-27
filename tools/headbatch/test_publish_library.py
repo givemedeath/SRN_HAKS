@@ -5,6 +5,7 @@ import struct
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from PIL import Image
@@ -120,6 +121,13 @@ class Stage(unittest.TestCase):
         self.assertEqual(pl.main(base+['--revision', str(revision)]+record('conflict.json', [(old, h(b'PLT-third'))])), 1)
         empty = Path(self.tmp.name)/'empty.json'; empty.write_text('{"heads": []}', encoding='utf-8')
         self.assertEqual(pl.main(base+['--revision', str(empty)]), 1)
+        # an unchanged row (from == to) is no revision, and a two-step chain counts its resource once
+        hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-bytes'}))
+        self.assertEqual(pl.main(base+record('same.json', [(old, old), (h(b'PLT-x'), h(b'PLT-y'))])), 0)
+        hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-third'}))
+        with patch('builtins.print') as shown:
+            self.assertEqual(pl.main(base+['--revision', str(revision)]+record('second.json', [(h(b'PLT-other'), h(b'PLT-third'))])), 0)
+        self.assertEqual(json.loads(shown.call_args[0][0])['revised'], 1)
 
     def test_dry_run_leaves_the_repository_alone(self):
         ws = Workspace(self.tmp.name); code, out = self.stage(ws, '--dry-run')

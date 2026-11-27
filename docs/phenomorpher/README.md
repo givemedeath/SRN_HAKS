@@ -60,7 +60,7 @@ its 1.5.0 hash: [neck-c8/release-1.6.0.json](neck-c8/release-1.6.0.json).
 
 Rollback is contract 1.5.0: restore the eight body files and seven head models from 1.5.0 (hashes in the receipt), this
 contract, the two armorkit measurement files, and the seam contract version (4) in `tools/armorkit/measure.py` and
-`test_seams.py`. `publish_library.py verify` then no longer needs the 1.6.0 receipt as a `--revision`.
+`test_seams.py`. Verify the rolled-back `srn_head.hak` without the 1.6.0 receipt: `publish_library.py verify` requires the latest bytes of every `--revision` it is given.
 
 ## Release 1.5.0: firearm effects and crossbow carry
 
