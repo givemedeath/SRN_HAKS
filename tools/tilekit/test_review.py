@@ -216,6 +216,9 @@ class ReviewTests(unittest.TestCase):
             self.assertEqual(run({'tileset': 'tst01', 'grid': {}}), (2, "tilekit: The review spec lacks 'lights'\n"))
             self.assertEqual(run({'tileset': 'nope', 'grid': {}})[0], 2)  # no such set file: said, not thrown
             self.assertEqual(run(spec, '--overlay', str(root / 'over')), (2, 'tilekit: Overlay files are lowercase resref files: Brick.tga\n'))
+            (root / 'over' / 'Brick.tga').unlink(); (root / 'over' / 'tst02.set').write_bytes(b'[GENERAL]\nName=TST02\n')  # bare LF: the client fell over on it
+            self.assertEqual(run(spec, '--overlay', str(root / 'over')), (2, 'tilekit: tst02.set: a set file has CRLF line ends; the client falls over on bare LF lines\n'))
+            (root / 'over' / 'tst02.set').unlink()
             self.assertIn('add srn_t_tst01 to the spec\'s haks', run({**spec, 'haks': list(review.HAKS)})[1])  # a tileset whose pack the module would not load
             self.assertIn('The fill tile 99 is no tile of tst01', run({**spec, 'fill': 99})[1])
             self.assertEqual(run(spec, '--views', ','), (2, 'tilekit: No view named in --views\n'))  # a stray comma is no view, not every one

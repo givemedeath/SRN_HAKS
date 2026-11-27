@@ -684,9 +684,20 @@ new look too.
   - each lit fitting gets an unlit look in place and its lit faces in a copy that a free loop raises into place
     (`animloop03`: tbx78 and nac01 use no loop, udp2's `animloop01` is an empty stub on 172 models, tfb01 uses 01-02
     and one 03), as `daylight` does with lit windows; the set file has `AnimLoop3=1` so a painted room is lit;
-  - SR_NWN switches a room with `SetTileAnimationLoops(tile, ..., bAnimLoop3)` over the room's tiles, together with
+  - SR_NWN switches a room with Anvil's `NwArea.SetTiles` (AnimationLoop3; NWScript has no tile loop call, found
+    2026-11-27) over the room's tiles, together with
     `SetTileMainLightColor` (off: black) and one `RecomputeStaticLighting(area)` after; instructions for SR_NWN in
     a doc beside the tileset's, as armorkit's `sr-nwn-instructions.md`.
+- **Lights stage (2026-11-27, user: "Yes, start lights").** `tilekit roomlights` (list `srx02/lights.json`): 310
+  family tiles (udp2 210, tfb01 14, tbx78 86; nac01 has none) and the 136 prefab-room tiles that have lamps (rooms
+  switch what they build; passage joins read their tiles unswitched and stay lit; the merge turns AnimLoop3 on for
+  switched room tiles). Office ceilings switch to `udp2_msc_clgo`, their material without the glow map. Client:
+  `review-lights.json` captures the rooms lit and switched off (a review lamp set may now give the area's tile
+  loops, `loops`); the fittings swap as meant. **Found:** NWScript has no tile loop call; SR_NWN needs Anvil's
+  `NwArea.SetTiles` for a live switch, not yet tried live (`srx02/sr-nwn-room-lights.md`). An area's tiles keep
+  their own loop flags (`Tile_AnimLoopN`), copied from the set file when painted. **Mistake, guarded:** a `sed` copy
+  of srx02.set lost its CRLF line ends and the client fell over loading the area, which looked like a loop crash;
+  `review` now refuses an overlay set file with bare LF lines.
 - **Applied (2026-11-27, user: "Yes, apply").** `tilekit apply` of `materials-c.json` over `c-overlay` (616 files put
   in seven packs, 35 old copies deleted, 55 expected overrides) and of the `c-ceil` ceilings (329 tfb01 models);
   srx02's compiled tiles recompiled for the new materials. Walkmeshes as their baselines; the passage joins and the

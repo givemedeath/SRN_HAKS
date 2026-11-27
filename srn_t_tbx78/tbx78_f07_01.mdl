@@ -10,6 +10,9 @@ beginmodelgeom tbx78_f07_01
 node dummy tbx78_f07_01
   parent NULL
 endnode
+node dummy tbx78_f07_01a
+  parent tbx78_f07_01
+endnode
 node trimesh object21
   parent tbx78_f07_01
   position 10.0 0.0 0.0
@@ -611,8 +614,8 @@ node trimesh object04
     -2.05208 3.0 0
 endnode
 node trimesh object05
-  parent tbx78_f07_01
-  position 2.93 0.0 3.6
+  parent tbx78_f07_01a
+  position 2.93 0 -56.4
   orientation 0.0 0.0 0.0 0.0
   wirecolor 0.839216 0.894118 0.647059
   tilefade 0
@@ -625,6 +628,41 @@ node trimesh object05
   alpha 1.0
   transparencyhint 0
   selfillumcolor 0.839216 0.898039 0.65098
+  ambient 1.0 1.0 1.0
+  diffuse 1.0 1.0 1.0
+  specular 0.0 0.0 0.0
+  shininess 10
+  center -0.5 0.0 0.0
+  bitmap tbx78_lights
+  verts 4
+    -0.63 1.25 0.0
+    -0.63 -1.25 0.0
+    0.62 -1.25 0.0
+    0.62 1.25 0.0
+  faces 2
+    1 0 2 2 1 0 2 2
+    3 2 0 2 3 2 0 2
+  tverts 4
+    0.921963 0.0140432 0
+    0.921963 0.957439 0
+    0.0886301 0.95744 0
+    0.0886295 0.0140434 0
+endnode
+node trimesh object05_off
+  parent tbx78_f07_01a
+  position 2.93 0.0 3.6
+  orientation 0.0 0.0 0.0 0.0
+  wirecolor 0.839216 0.894118 0.647059
+  tilefade 0
+  scale 1.0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 1.0
+  transparencyhint 0
+  selfillumcolor 0 0 0
   ambient 1.0 1.0 1.0
   diffuse 1.0 1.0 1.0
   specular 0.0 0.0 0.0
@@ -1081,4 +1119,29 @@ node light tbx78_f07_01ml1
   fadinglight 1
 endnode
 endmodelgeom tbx78_f07_01
+newanim animloop03 tbx78_f07_01
+  length 0.03333
+  transtime 0.0
+  animroot tbx78_f07_01
+  node dummy tbx78_f07_01
+    parent NULL
+  endnode
+  node dummy tbx78_f07_01a
+    parent tbx78_f07_01
+  endnode
+  node trimesh object05
+    parent tbx78_f07_01a
+    positionkey 2
+      0.00000 2.93000 0.00000 3.60000
+      0.03333 2.93000 0.00000 3.60000
+    endlist
+  endnode
+  node trimesh object05_off
+    parent tbx78_f07_01a
+    positionkey 2
+      0.00000 2.93000 0.00000 -56.40000
+      0.03333 2.93000 0.00000 -56.40000
+    endlist
+  endnode
+doneanim animloop03 tbx78_f07_01
 donemodel tbx78_f07_01

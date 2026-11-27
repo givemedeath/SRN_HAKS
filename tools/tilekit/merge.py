@@ -213,6 +213,8 @@ def merged_set(sets, names, spec, joined=(), numbers=(), roomed=()):
             found = re.fullmatch(r'TILE(\d+)(DOOR\d+)?', section); source = int(found.group(1)) if found else None
             for model, path in ((model, path) for member, model, path in members if member == source):  # a room drawn here may take several tiles from one
                 at = number[(ROOM, model)]; raw = re.sub(r'(?m)^Model=[^\r\n]*', lambda _: f'Model={model}', said)
+                if model.lower() in room.get('switched', ()) and not found.group(2):  # its lights switched (roomlights): lit when painted
+                    raw = re.sub(r'(?m)^AnimLoop3=\d+', 'AnimLoop3=1', raw)
                 if path and not found.group(2):  # and it is open where its own walls say
                     for key, value in (('PathNode', path[0]), ('VisibilityNode', path[0]), ('Orientation', path[1]), ('VisibilityOrientation', path[1])):
                         raw = re.sub(rf'(?m)^{key}=[^\r\n]*', f'{key}={value}', raw)
@@ -376,6 +378,12 @@ def work(repo, spec):
     order = [family['set'] for family in spec['families']]; cut = json.loads(inputs['joins'].read_text(encoding='utf-8')) if 'joins' in inputs else None
     sets = {name: inputs[f'set:{name}'].read_bytes().decode('cp1252') for name in order}; joined = joins.tiles(cut) if cut else (); record = None
     roomed = rooms.records(rooms.specs(Path(repo) / spec['rooms']), sets, spec['set']) if spec.get('rooms') else ()
+    if spec.get('lights'):  # a room tile whose lights are switched (roomlights) is lit while its third loop is on
+        from .compiled import SOURCES
+        from .roomlights import switched
+        source = lambda model: Path(repo) / SOURCES / f'srn_t_{spec["set"]}' / f'{model}.mdl'
+        for room in roomed:
+            room['switched'] = {one[1].lower() for one in room['tiles'] if one and source(one[1]).is_file() and switched(source(one[1]).read_bytes().decode('cp1252'))}
     if 'numbers' in outputs:
         kept = json.loads(outputs['numbers'].read_text(encoding='utf-8')) if outputs['numbers'].is_file() else {'tiles': []}
         require(isinstance(kept, dict) and isinstance(kept.get('tiles'), list), f'{outputs["numbers"].name} is no numbers record: it has no list of tiles')

@@ -461,8 +461,8 @@ node trimesh crown moulding693
     74 1.46567 9.90598
 endnode
 node trimesh ceiling251
-  parent udp2_a31_01
-  position 0 0 4
+  parent udp2_a31_01a
+  position -1.31298 0 -56
   orientation 0 0 0 0
   wirecolor 0.890625 0.890625 0.890625
   ambient 0.588 0.588 0.588
@@ -470,6 +470,100 @@ node trimesh ceiling251
   specular 0 0 0
   shininess 10
   bitmap udp2_msc_clg
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 0
+  tilefade 0
+  rotatetexture 1
+  verts 23
+    -2.49995 -5 0
+    0 -5 0
+    2.50005 -5 0
+    5.00005 -5 0
+    -2.49995 -2.5 0
+    0 -2.5 0
+    2.50005 -2.5 0
+    5.00005 -2.5 0
+    -4.99995 1.2 0
+    -2.49995 1.2 0
+    0 1.2 0
+    2.50005 0 0
+    5.00005 0 0
+    -4.99995 2.5 0
+    -2.49995 2.5 0
+    0 2.5 0
+    2.50005 2.5 0
+    5.00005 2.5 0
+    -4.99995 5 0
+    -2.49995 5 0
+    0 5 0
+    2.50005 5 0
+    5.00005 5 0
+  faces 28
+    0 4 5  1  0 4 5  0
+    5 1 0  1  5 1 0  0
+    1 5 6  1  1 5 6  0
+    6 2 1  1  6 2 1  0
+    2 6 7  1  2 6 7  0
+    7 3 2  1  7 3 2  0
+    4 9 10  1  4 9 10  0
+    10 5 4  1  10 5 4  0
+    5 10 11  1  5 10 11  0
+    11 6 5  1  11 6 5  0
+    6 11 12  1  6 11 12  0
+    12 7 6  1  12 7 6  0
+    8 13 14  1  8 13 14  0
+    14 9 8  1  14 9 8  0
+    9 14 15  1  9 14 15  0
+    15 10 9  1  15 10 9  0
+    10 15 16  1  10 15 16  0
+    16 11 10  1  16 11 10  0
+    11 16 17  1  11 16 17  0
+    17 12 11  1  17 12 11  0
+    13 18 19  1  13 18 19  0
+    19 14 13  1  19 14 13  0
+    14 19 20  1  14 19 20  0
+    20 15 14  1  20 15 14  0
+    15 20 21  1  15 20 21  0
+    21 16 15  1  21 16 15  0
+    16 21 22  1  16 21 22  0
+    22 17 16  1  22 17 16  0
+  tverts 23
+    0.500499 0.000999391 0.5
+    1 0.000999272 0.5
+    1.4995 0.000999153 0.5
+    1.999 0.000999033 0.5
+    0.500499 0.5005 0.5
+    1 0.5005 0.5
+    1.4995 0.500499 0.5
+    1.999 0.500499 0.5
+    0.000999331 1.23976 0.500018
+    0.5005 1.23976 0.500018
+    1 1.23976 0.500018
+    1.4995 1 0.5
+    1.999 1 0.5
+    0.000999391 1.4995 0.5
+    0.5005 1.4995 0.5
+    1 1.4995 0.5
+    1.4995 1.4995 0.5
+    1.999 1.4995 0.5
+    0.00099951 1.999 0.5
+    0.5005 1.999 0.5
+    1 1.999 0.5
+    1.4995 1.999 0.5
+    1.999 1.999 0.5
+endnode
+node trimesh ceiling251_off
+  parent udp2_a31_01a
+  position -1.31298 0 4
+  orientation 0 0 0 0
+  wirecolor 0.890625 0.890625 0.890625
+  ambient 0.588 0.588 0.588
+  diffuse 0.588 0.588 0.588
+  specular 0 0 0
+  shininess 10
+  bitmap udp2_msc_clgo
   render 1
   Shadow 0
   beaming 0
@@ -1558,7 +1652,7 @@ node trimesh crown moulding693
   parent udp2_a31_01
 endnode
 node trimesh ceiling251
-  parent udp2_a31_01
+  parent udp2_a31_01a
 endnode
 node trimesh wall base1302
   parent udp2_a31_01
@@ -1652,7 +1746,7 @@ node trimesh crown moulding693
   parent udp2_a31_01
 endnode
 node trimesh ceiling251
-  parent udp2_a31_01
+  parent udp2_a31_01a
 endnode
 node trimesh wall base1302
   parent udp2_a31_01
@@ -1703,4 +1797,29 @@ node trimesh tunnelsteps81
   parent udp2_a31_01
 endnode
 doneanim tiledefault udp2_a31_01
+newanim animloop03 udp2_a31_01
+  length 0.03333
+  transtime 0.0
+  animroot udp2_a31_01
+  node dummy udp2_a31_01
+    parent NULL
+  endnode
+  node dummy udp2_a31_01a
+    parent udp2_a31_01
+  endnode
+  node trimesh ceiling251
+    parent udp2_a31_01a
+    positionkey 2
+      0.00000 -1.31298 0.00000 4.00000
+      0.03333 -1.31298 0.00000 4.00000
+    endlist
+  endnode
+  node trimesh ceiling251_off
+    parent udp2_a31_01a
+    positionkey 2
+      0.00000 -1.31298 0.00000 -56.00000
+      0.03333 -1.31298 0.00000 -56.00000
+    endlist
+  endnode
+doneanim animloop03 udp2_a31_01
 donemodel udp2_a31_01

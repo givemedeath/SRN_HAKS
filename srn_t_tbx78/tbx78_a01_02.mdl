@@ -10,6 +10,9 @@ beginmodelgeom tbx78_a01_02
 node dummy tbx78_a01_02
   parent NULL
 endnode
+node dummy tbx78_a01_02a
+  parent tbx78_a01_02
+endnode
 node light tbx78_a01_02ml1
   parent tbx78_a01_02
   position 0.0 0.0 3.6
@@ -1227,8 +1230,8 @@ node trimesh floor
     1.69048 1.09524 0
 endnode
 node trimesh lights01
-  parent tbx78_a01_02
-  position 0.0 0.0 0.0
+  parent tbx78_a01_02a
+  position 0 0 -60
   orientation 0.0 0.0 0.0 0.0
   wirecolor 0.839216 0.894118 0.647059
   tilefade 0
@@ -1241,6 +1244,41 @@ node trimesh lights01
   alpha 1.0
   transparencyhint 0
   selfillumcolor 0.839216 0.898039 0.65098
+  ambient 1.0 1.0 1.0
+  diffuse 1.0 1.0 1.0
+  specular 0.0 0.0 0.0
+  shininess 10
+  center 0.0 -1.0 360.0
+  bitmap tbx78_lights
+  verts 4
+    -1.35 0.63 3.6
+    1.35 0.64 3.6
+    1.35 -0.65 3.6
+    -1.35 -0.66 3.6
+  faces 2
+    0 1 2 4 0 1 2 1
+    2 3 0 4 2 3 0 1
+  tverts 4
+    0.926667 0.990059 0
+    0.933333 -0.0174038 0
+    0.0733331 -0.0174036 0
+    0.0666669 0.990059 0
+endnode
+node trimesh lights01_off
+  parent tbx78_a01_02a
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  wirecolor 0.839216 0.894118 0.647059
+  tilefade 0
+  scale 1.0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 1.0
+  transparencyhint 0
+  selfillumcolor 0 0 0
   ambient 1.0 1.0 1.0
   diffuse 1.0 1.0 1.0
   specular 0.0 0.0 0.0
@@ -2127,8 +2165,8 @@ node aabb wok
     2.25 2.5 3.0 5.0 5.0 3.0 17
 endnode
 node trimesh ls1
-  parent tbx78_a01_02
-  position 2.5 0.0 -0.05
+  parent tbx78_a01_02a
+  position 2.5 0 -60.05
   orientation 0.0 0.0 0.0 0.0
   wirecolor 1.0 0.0 0.0
   tilefade 0
@@ -2141,6 +2179,51 @@ node trimesh ls1
   alpha 1.0
   transparencyhint 0
   selfillumcolor 1.0 0.0 0.0
+  ambient 1.0 1.0 1.0
+  diffuse 1.0 1.0 1.0
+  specular 0.0 0.0 0.0
+  shininess 10
+  center -250.0 0.0 6.0
+  bitmap tbx78_lstrip
+  verts 8
+    -0.06 -5.0 0.0
+    -0.06 5.0 0.0
+    -0.06 -5.0 0.12
+    -0.06 5.0 0.12
+    -4.94 -5.0 0.0
+    -4.94 5.0 0.0
+    -4.94 -5.0 0.12
+    -4.94 5.0 0.12
+  faces 4
+    1 0 2 64 2 0 3 1
+    2 3 1 64 3 5 2 1
+    4 5 7 16 1 6 7 1
+    7 6 4 16 7 4 1 1
+  tverts 8
+    -9.11539 1.09999 0
+    10.1154 1.09999 0
+    10.1154 1.10001 0
+    -9.11539 -0.100012 0
+    10.1154 -0.100012 0
+    10.1154 -0.099988 0
+    -9.11539 1.10001 0
+    -9.11539 -0.0999882 0
+endnode
+node trimesh ls1_off
+  parent tbx78_a01_02a
+  position 2.5 0.0 -0.05
+  orientation 0.0 0.0 0.0 0.0
+  wirecolor 1.0 0.0 0.0
+  tilefade 0
+  scale 1.0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 1.0
+  transparencyhint 0
+  selfillumcolor 0 0 0
   ambient 1.0 1.0 1.0
   diffuse 1.0 1.0 1.0
   specular 0.0 0.0 0.0
@@ -2217,4 +2300,43 @@ node trimesh object03
     8.3125 0.974135 0
 endnode
 endmodelgeom tbx78_a01_02
+newanim animloop03 tbx78_a01_02
+  length 0.03333
+  transtime 0.0
+  animroot tbx78_a01_02
+  node dummy tbx78_a01_02
+    parent NULL
+  endnode
+  node dummy tbx78_a01_02a
+    parent tbx78_a01_02
+  endnode
+  node trimesh lights01
+    parent tbx78_a01_02a
+    positionkey 2
+      0.00000 0.00000 0.00000 0.00000
+      0.03333 0.00000 0.00000 0.00000
+    endlist
+  endnode
+  node trimesh lights01_off
+    parent tbx78_a01_02a
+    positionkey 2
+      0.00000 0.00000 0.00000 -60.00000
+      0.03333 0.00000 0.00000 -60.00000
+    endlist
+  endnode
+  node trimesh ls1
+    parent tbx78_a01_02a
+    positionkey 2
+      0.00000 2.50000 0.00000 -0.05000
+      0.03333 2.50000 0.00000 -0.05000
+    endlist
+  endnode
+  node trimesh ls1_off
+    parent tbx78_a01_02a
+    positionkey 2
+      0.00000 2.50000 0.00000 -60.05000
+      0.03333 2.50000 0.00000 -60.05000
+    endlist
+  endnode
+doneanim animloop03 tbx78_a01_02
 donemodel tbx78_a01_02

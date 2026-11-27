@@ -1,0 +1,15 @@
+{
+ "note": "release C lights stage (user, 2026-11-26: \"script driven switching is probably best for interiors\"; 2026-11-27: \"Yes, start lights\"). Room light fittings only: screens, jukeboxes and devices stay lit.",
+ "lit": {
+  "srx02_lampdif": null,
+  "tbx78_lights": null,
+  "tbx78_lstrip": null,
+  "tfb01_deco": null,
+  "tfb01_door065": null,
+  "udp2_msc_clg": "udp2_msc_clgo",
+  "lrk_lite06": null,
+  "lightpipe1": null
+ },
+ "mapped": ["udp2_msc_clg"],
+ "offMaterials": {"udp2_msc_clgo": "udp2_msc_clg"}
+}

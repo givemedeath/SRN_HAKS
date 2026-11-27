@@ -10,6 +10,9 @@ beginmodelgeom tbx78_c02_06
 node dummy tbx78_c02_06
   parent NULL
 endnode
+node dummy tbx78_c02_06a
+  parent tbx78_c02_06
+endnode
 node light tbx78_c02_06ml1
   parent tbx78_c02_06
   position 1.75 0.0 5.0
@@ -140,8 +143,8 @@ node trimesh object08
     -1.25439 0.978268 0
 endnode
 node trimesh object04
-  parent tbx78_c02_06
-  position 1.89 -1.13 5.0
+  parent tbx78_c02_06a
+  position 1.89 -1.13 -55
   orientation 0.0 0.0 0.0 0.0
   wirecolor 0.337255 0.337255 0.337255
   tilefade 0
@@ -154,6 +157,41 @@ node trimesh object04
   alpha 1.0
   transparencyhint 0
   selfillumcolor 0.839216 0.898039 0.65098
+  ambient 1.0 1.0 1.0
+  diffuse 1.0 1.0 1.0
+  specular 0.0 0.0 0.0
+  shininess 10
+  center -2.0 3.0 0.0
+  bitmap tbx78_lights
+  verts 4
+    -0.65 -1.26 0.0
+    -0.65 1.32 0.0
+    0.61 1.32 0.0
+    0.61 -1.26 0.0
+  faces 2
+    0 1 2 0 0 1 2 1
+    2 3 0 0 2 3 0 1
+  tverts 4
+    0.0958053 0.0177318 0
+    0.0958057 0.949798 0
+    0.914531 0.949797 0
+    0.914531 0.0177318 0
+endnode
+node trimesh object04_off
+  parent tbx78_c02_06a
+  position 1.89 -1.13 5.0
+  orientation 0.0 0.0 0.0 0.0
+  wirecolor 0.337255 0.337255 0.337255
+  tilefade 0
+  scale 1.0
+  render 1
+  shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 1.0
+  transparencyhint 0
+  selfillumcolor 0 0 0
   ambient 1.0 1.0 1.0
   diffuse 1.0 1.0 1.0
   specular 0.0 0.0 0.0
@@ -2732,4 +2770,29 @@ node trimesh box06
     1.47544 0.9375 0
 endnode
 endmodelgeom tbx78_c02_06
+newanim animloop03 tbx78_c02_06
+  length 0.03333
+  transtime 0.0
+  animroot tbx78_c02_06
+  node dummy tbx78_c02_06
+    parent NULL
+  endnode
+  node dummy tbx78_c02_06a
+    parent tbx78_c02_06
+  endnode
+  node trimesh object04
+    parent tbx78_c02_06a
+    positionkey 2
+      0.00000 1.89000 -1.13000 5.00000
+      0.03333 1.89000 -1.13000 5.00000
+    endlist
+  endnode
+  node trimesh object04_off
+    parent tbx78_c02_06a
+    positionkey 2
+      0.00000 1.89000 -1.13000 -55.00000
+      0.03333 1.89000 -1.13000 -55.00000
+    endlist
+  endnode
+doneanim animloop03 tbx78_c02_06
 donemodel tbx78_c02_06

@@ -5748,6 +5748,7 @@
     ],
     "tools/tilekit/__init__.py": [],
     "tools/tilekit/__main__.py": [
+      "hakbuilder.json",
       "tools/armorkit/__init__.py",
       "tools/armorkit/client.py",
       "tools/headkit/comfy.py",
@@ -5775,6 +5776,7 @@
       "tools/tilekit/remesh.py",
       "tools/tilekit/retexture.py",
       "tools/tilekit/review.py",
+      "tools/tilekit/roomlights.py",
       "tools/tilekit/screens.py",
       "tools/tilekit/shadows.py",
       "tools/tilekit/sheets.py",
@@ -5925,7 +5927,8 @@
       "tools/envkit/tile.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/kit.py",
-      "tools/tilekit/pictures.py"
+      "tools/tilekit/pictures.py",
+      "tools/tilekit/roomlights.py"
     ],
     "tools/tilekit/kit.py": [
       "tools/tilekit/material.py"
@@ -5942,8 +5945,10 @@
       "tools/tilekit/pictures.py"
     ],
     "tools/tilekit/merge.py": [
+      "tools/tilekit/compiled.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
+      "tools/tilekit/roomlights.py",
       "tools/tilekit/rooms.py",
       "tools/tilekit/terrain.py",
       "tools/tilekit/walls.py"
@@ -6013,6 +6018,12 @@
       "tools/tilekit/client_settings.py",
       "tools/tilekit/inventory.py"
     ],
+    "tools/tilekit/roomlights.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/daylight.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
     "tools/tilekit/rooms.py": [
       "tools/envkit/__init__.py",
       "tools/envkit/tile.py",
@@ -6025,6 +6036,7 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
       "tools/tilekit/reduce_blender.py",
+      "tools/tilekit/roomlights.py",
       "tools/tilekit/strip.py",
       "tools/tilekit/terrain.py",
       "tools/tilekit/unique.py",
@@ -6270,6 +6282,13 @@
     "tools/tilekit/test_review.py": [
       "tools/tilekit/__main__.py",
       "tools/tilekit/review.py"
+    ],
+    "tools/tilekit/test_roomlights.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/daylight.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/roomlights.py",
+      "tools/tilekit/test_strip.py"
     ],
     "tools/tilekit/test_rooms.py": [
       "tools/envkit/__init__.py",
@@ -7222,6 +7241,7 @@
     "tools/tilekit/test_repair.py",
     "tools/tilekit/test_retexture.py",
     "tools/tilekit/test_review.py",
+    "tools/tilekit/test_roomlights.py",
     "tools/tilekit/test_rooms.py",
     "tools/tilekit/test_screens.py",
     "tools/tilekit/test_shadows.py",
