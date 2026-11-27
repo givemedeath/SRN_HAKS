@@ -2053,8 +2053,9 @@ rigs lower `head_g` by 3.5 cm, and the female chests are edited in place (a trap
 the neck), keeping their UVs, materials and textures. The Human male library heads `pmh0_head086` to `092` are scaled
 uniformly by 1.06 about `head_g`; their PLTs are unchanged.
 
-Models are compiled with Blender 5.2.1 and Neverblender 4.5.1 (cleanmodels v4.10.0) against the stock `a_ba`/`a_fa`
-supermodels; every audit passes with no warnings. The user approved the c8 candidate on 2026-11-26. Per-resource
+Models are compiled with Blender 5.2.1 and Neverblender 4.5.1 (cleanmodels v4.10.0); the female rigs keep their published
+supermodel `srn_fa_h0`, and every audit passes with no warnings. The user approved the c8 candidate on 2026-11-26 and
+chose the 3.5 cm head drop after the in-game check. Per-resource
 hashes: `docs/phenomorpher/neck-c8/release-1.6.0.json` and `docs/phenomorpher/human-bodies-lock-c8.json`.
 
 ## Approved Waves 1 and 2 private weapon review (2026-11-03)

@@ -1,6 +1,7 @@
 # Seam contract and head envelopes (version 5, 2026-11-26)
 
-Measured in Phase 0 of [the plan](plan.md) on the locked c7 Human Fit bodies in `srn_body` (`pmh0`, `pfh0`) and
+Measured in Phase 0 of [the plan](plan.md) on the locked Human Fit bodies in `srn_body` (`pmh0`, `pfh0`; c7 through
+version 4, the c8 necks since version 5) and
 the published heads in `srn_head`; since version 4 the seam contract holds all 20 bodies of `srn_body`, each
 measured on its own models (**Version 4** below). The tables on this page are the two Human Fit bodies'. The numbers live in `tools/armorkit/seam-contract.json` and
 `tools/armorkit/head-envelopes.json`; this page says what they mean and how they were taken. They are
@@ -128,12 +129,12 @@ Re-measured 2026-11-18 with the 40 head-library heads (docs/heads/head-library-4
 hair and braids set several envelopes: Orc female now reaches 17.5 cm below the head bone and is 40 cm wide, Orc male
 35 cm. How headgear treats hair that hangs below the jaw is decided when headgear is fitted.
 
-Re-measured 2026-11-26 with the c8 Human necks (contract 1.6.0, [human-bodies-lock-c8](../phenomorpher/human-bodies-lock-c8.md)):
-the Human male heads are 6% larger, and the Human female head bone is 3.5 cm lower. Only the two Human rows change.
-
 Re-measured 2026-11-20 with the 10 head-library troll heads (docs/heads/head-library-trolls-v1.md; user decision).
 Only the two Troll rows change. Troll male now reaches 18.4 cm below the head bone and
 27.0 cm in front, and Troll female is 55.2 cm wide.
+
+Re-measured 2026-11-26 with the c8 Human necks (contract 1.6.0, [human-bodies-lock-c8](../phenomorpher/human-bodies-lock-c8.md)):
+the Human male heads are 6% larger, and the Human female head bone is 3.5 cm lower. Only the two Human rows change.
 
 | Body | Heads | Width (cm) | Depth back / front (cm) | Below / above head bone (cm) | Largest radius (cm) | Head bone height (m) |
 |---|---|---|---|---|---|---|

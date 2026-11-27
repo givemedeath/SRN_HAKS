@@ -34,6 +34,11 @@ armour are not refitted here: armorkit owns them.
 * **Client** (repository-built HAKs, isolated fixtures, frame limiter on, keyholing off): bare bodies with stock and
   library heads, standing (front, side, back), `getlow`, head back with arms up, and stock scale and leather armour.
   A c7 run of the same views is the comparison: [client-c7-vs-c8.jpg](neck-c8/evidence/client-c7-vs-c8.jpg).
+* **Published outfit:** armorkit's Facility Security (outfit 6020) on all four Human bodies, standing and arms up,
+  from the built `srn_parts`: the new necks sit inside its shirt collar with nothing showing through
+  ([outfit-6020-collar.jpg](neck-c8/evidence/outfit-6020-collar.jpg)). No outfit was rebaked.
+* **Gates:** `verify-assets` (937 resources) and `verify-runtime` (structural) pass. They were run as direct calls of
+  the PhenoMorpher engine functions, not through the managed `run.py` launcher, so they are not managed launch receipts.
 * Evidence images: [`neck-c8/evidence/`](neck-c8/evidence/).
 
 ## Known limits
@@ -42,6 +47,8 @@ armour are not refitted here: armorkit owns them.
   c7.
 * Head 090 shows a light band under the jaw when the head tips back. The c7 run shows the same band: it is the head's
   own underside.
+* The Large female `pfh2` wearing library head 028 showed a mottled head texture in the outfit check. It is the head
+  on the Large female, not the neck; not investigated here.
 * Stock heads (skinmeshes) were checked in the client only, not offline. Other races are unchanged and not reviewed
   here.
 * `tools/armorkit/seam-contract.json` (version 5) and `head-envelopes.json` are re-measured on c8. Outfits baked

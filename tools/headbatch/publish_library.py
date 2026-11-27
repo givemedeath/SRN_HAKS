@@ -8,7 +8,8 @@ Commands (see docs/heads/head-library-publication.md):
             REPO/docs/heads/NAME.json                      (portable manifest: no local paths)
             OUT/NAME-draft.md                              (record draft; the author writes the exceptions)
           --dry-run writes the repository files under OUT/repo instead.
-  verify  Check that a built HAK holds every resource of one or more manifests byte for byte.
+  verify  Check that a built HAK holds every resource of one or more manifests byte for byte (or as a --revision
+          record replaced it).
 
 Workspace conventions read here: runtime/batch-NN-checkpoint-M.json (heads[] with head, slot, design, clientEvidence
 .session, corrections, geometrySubmissions, designSubmissions), trials/client-sessions/<session>/session.json ("trial"),
@@ -384,9 +385,27 @@ def stage(args):
     return 0
 
 
+def revisions(paths):
+    """{(file name, old sha256): (new sha256, bytes)} from revision records: JSON documents whose rows carry `path`,
+    `fromSHA256`, `sha256` and `bytes` (for example docs/phenomorpher/neck-c8/release-1.6.0.json, which rescaled
+    published heads). A published manifest stays as written; a revision says which later bytes replace its pin."""
+    found = {}
+    def walk(node):
+        if isinstance(node, dict):
+            if {'path', 'fromSHA256', 'sha256', 'bytes'} <= set(node):
+                found[(Path(node['path']).name, node['fromSHA256'])] = (node['sha256'], node['bytes'])
+            for value in node.values(): walk(value)
+        elif isinstance(node, list):
+            for value in node: walk(value)
+    for path in paths or ():
+        walk(read_json(path))
+    return found
+
+
 def verify(args):
     resources = erf_resources(Path(args.hak).read_bytes())
-    checked = 0
+    revised = revisions(args.revision)
+    checked = replaced = 0
     for path in args.manifest:
         manifest = read_json(path)
         require(manifest.get('kind') == KIND, f'{path}: not a {KIND} manifest')
@@ -394,9 +413,13 @@ def verify(args):
             for ext, meta in head['resources'].items():
                 data = resources.get((head['slot'], RESOURCE_TYPES[ext]))
                 require(data is not None, f"{path}: {meta['name']} is not in {args.hak}")
-                require(sha256(data) == meta['sha256'] and len(data) == meta['bytes'], f"{path}: {meta['name']} differs from its manifest")
+                want = (meta['sha256'], meta['bytes'])
+                # a revision record may replace the pin, and may itself be revised again
+                while (sha256(data), len(data)) != want and (meta['name'], want[0]) in revised:
+                    want = revised[(meta['name'], want[0])]; replaced += 1
+                require((sha256(data), len(data)) == want, f"{path}: {meta['name']} differs from its manifest")
                 checked += 1
-    print(json.dumps({'hak': Path(args.hak).name, 'resources': checked, 'passed': True}))
+    print(json.dumps({'hak': Path(args.hak).name, 'resources': checked, 'revised': replaced, 'passed': True}))
     return 0
 
 
@@ -421,6 +444,7 @@ def parser():
     p.set_defaults(handler=stage)
     p = commands.add_parser('verify', help='check a built HAK against publication manifests')
     p.add_argument('--hak', required=True); p.add_argument('--manifest', required=True, action='append')
+    p.add_argument('--revision', action='append', default=[], help='revision record (path, fromSHA256, sha256, bytes rows) that replaces pinned bytes')
     p.set_defaults(handler=verify)
     return top
 

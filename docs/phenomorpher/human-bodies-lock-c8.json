@@ -156,7 +156,7 @@
   "output/phenomorpher/neck-c8/tools/headmeas.py": "1e32179bdf000e66167aa3b08eaa7a688b7e6f896e16dd2990f25d2fd4353d25",
   "output/phenomorpher/neck-c8/tools/headpose.py": "2ce10deb9e3af9ed0c54f385a78bbb28f95ac329351bba0ad026e497009bffd5",
   "output/phenomorpher/neck-c8/tools/headrev.py": "3641ad6db71a0698fff8f372d6c1256eb2dc77226b2d71d736a597ac5c2234ff",
-  "output/phenomorpher/neck-c8/tools/lock_c8.py": "a28f4b4fcde92a9617b3bd2c0466c8d5337461a9a1159d2911f7695c5b1eee95",
+  "output/phenomorpher/neck-c8/tools/lock_c8.py": "a3e89fab19eb1cf65f84b64e9643931b8202b73db67f7f9bb34da6d587ad27e4",
   "output/phenomorpher/neck-c8/tools/motion.py": "e2720c019688b00752e1b6bd626fb34206459d18ad5ecd1775dbfdba8b6790e6",
   "output/phenomorpher/neck-c8/tools/neck3.py": "b1ecab5c2d40ea30f602c36815062b38e8155c9e935ece40a6af9c40fc7d356e",
   "output/phenomorpher/neck-c8/tools/prop.py": "8ce6aa48126b53179d6213bfa6002503bbb7b834cb56e68fe80aa0c9774d7ee0",
@@ -176,21 +176,24 @@
   "docs/phenomorpher/neck-c8/evidence/male-heads-x106.jpg": "efa1ae74b7063900e3335cdfe93884b67d8e1f11e9e6852c04410f10f8ccd477",
   "docs/phenomorpher/neck-c8/evidence/motion-pfh0.jpg": "9ae04e526c360089ccb0cd4696a758a47b55a742133dde7ac2048b8913c07efa",
   "docs/phenomorpher/neck-c8/evidence/motion-pfh2.jpg": "4c9a0f9ea6a55cc8c3e4aeda0049c741d537d7c7aa6ac348a626a069e403f819",
-  "docs/phenomorpher/neck-c8/evidence/motion-pmh0.jpg": "f4be5514de91d52e67d324e8f00aa710bc23593c29cf15a944dd62e97d56d565"
+  "docs/phenomorpher/neck-c8/evidence/motion-pmh0.jpg": "f4be5514de91d52e67d324e8f00aa710bc23593c29cf15a944dd62e97d56d565",
+  "docs/phenomorpher/neck-c8/evidence/outfit-6020-collar.jpg": "56fa88ef87bbe60fdd88a00f0b91192b963901ad10d0dbb71f02c7b893598985"
  },
  "clientEvidence": {
   "fixtures": [
    "output/phenomorpher/neck-c8/client",
    "output/phenomorpher/neck-c8/client2",
-   "output/phenomorpher/neck-c8/client-c7"
+   "output/phenomorpher/neck-c8/client-c7",
+   "output/phenomorpher/neck-c8/wear6020"
   ],
-  "note": "client = first tour (2 cm); client2 = 3.5 cm recheck; client-c7 = c7 comparison. Captures stay in output/ (ignored)."
+  "note": "client = first tour (2 cm); client2 = 3.5 cm recheck; client-c7 = c7 comparison; wear6020 = the published armorkit outfit 6020 (Facility Security) on pfh0, pfh2, pmh0, pmh2, standing and arms up: the necks sit inside its collar. Captures stay in output/ (ignored)."
  },
  "gates": {
   "verifyAssets": "passed (937 resources, 20 targets)",
   "verifyRuntime": "output/phenomorpher/neck-c8/verify-runtime-1.6.0.json",
   "verifyRuntimeSha256": "161fed36829a7e473ba8701c639a5b90a1ec5bab7483661e56bc36eb23c21020",
   "motionHoles": "0 for every body in pause1, whirlwind, plslashr, kdfntdmg, 2wslasho, worship, victoryfr and sit, except one pixel in pfh2 plslashr that comes from the head mesh itself (0 without the head)",
+  "launch": "verify-assets and verify-runtime were direct calls of phenomorpher.api.verify_assets and engine.runtime_rules.check from this worktree, not managed run.py launches (no fresh shared-tool migration receipt was at hand); rerun through run.py before treating them as managed receipts",
   "armorkitMeasure": "tools/armorkit/seam-contract.json version 5 and head-envelopes.json re-measured on the published packs; armorkit tests pass"
  }
 }

@@ -92,6 +92,16 @@ class Stage(unittest.TestCase):
         self.assertEqual(pl.main(['verify', '--hak', str(hak), '--manifest', str(self.repo/'docs/heads/head-library-test-v1.json')]), 0)
         hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-other'}))
         self.assertEqual(pl.main(['verify', '--hak', str(hak), '--manifest', str(self.repo/'docs/heads/head-library-test-v1.json')]), 1)
+        # a revision record names the new bytes of a pinned resource; other bytes still refuse
+        import hashlib
+        old = json.loads(text)['heads'][0]['resources']['plt']['sha256']
+        revision = Path(self.tmp.name)/'revision.json'
+        revision.write_text(json.dumps({'heads': [{'path': f'srn_head/{SLOT}.plt', 'fromSHA256': old,
+                                                   'sha256': hashlib.sha256(b'PLT-other').hexdigest(), 'bytes': 9}]}), encoding='utf-8')
+        args = ['verify', '--hak', str(hak), '--manifest', str(self.repo/'docs/heads/head-library-test-v1.json'), '--revision', str(revision)]
+        self.assertEqual(pl.main(args), 0)
+        hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-third'}))
+        self.assertEqual(pl.main(args), 1)
 
     def test_dry_run_leaves_the_repository_alone(self):
         ws = Workspace(self.tmp.name); code, out = self.stage(ws, '--dry-run')
