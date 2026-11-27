@@ -14,7 +14,7 @@ Run it with the bundled workspace Python (never the Windows Store `python` shim)
 | Command | What it does |
 |---|---|
 | `stage --workspace W --repo R --name NAME --created DATE --prefix troll-` | Publishes every checkpointed head whose name starts with the prefix, or `--heads a,b,c`. Writes `srn_head/<slot>.mdl` and `.plt`, `docs/heads/evidence/NAME/<slot>-client.jpg` and `docs/heads/NAME.json`, plus `OUT/NAME-draft.md`. `--dry-run` writes the repository files under `OUT/repo` instead. |
-| `verify --hak output/srn_head.hak --manifest docs/heads/NAME.json [--manifest ...] [--revision RECORD ...]` | Checks that a built HAK holds every resource of the manifests byte for byte. A `--revision` record (rows of `path`, `fromSHA256`, `sha256`, `bytes`) names later bytes that replace a pin; the manifest stays as written. The Human male heads `pmh0_head086` to `092` were rescaled by `docs/phenomorpher/neck-c8/release-1.6.0.json` and 56 race heads by `docs/phenomorpher/race-necks/release-1.7.0.json`, so pass both with the library manifests. |
+| `verify --hak output/srn_head.hak --manifest docs/heads/NAME.json [--manifest ...] [--revision RECORD ...]` | Checks that a built HAK holds every resource of the manifests byte for byte. A `--revision` record (rows of `path`, `fromSHA256`, `sha256`, `bytes`) names later bytes that replace a pin; the manifest stays as written. The HAK must then hold the latest revision (chains are followed; a cycle, a contradicting row or a record without rows is refused). The Human male heads `pmh0_head086` to `092` were rescaled by `docs/phenomorpher/neck-c8/release-1.6.0.json` and 56 race heads by `docs/phenomorpher/race-necks/release-1.7.0.json`, so pass both with the library manifests. |
 
 ## What `stage` checks
 

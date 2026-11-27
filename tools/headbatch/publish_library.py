@@ -390,15 +390,18 @@ def revisions(paths):
     `fromSHA256`, `sha256` and `bytes` (for example docs/phenomorpher/neck-c8/release-1.6.0.json, which rescaled
     published heads). A published manifest stays as written; a revision says which later bytes replace its pin."""
     found = {}
-    def walk(node):
+    def walk(node, rows):
         if isinstance(node, dict):
             if {'path', 'fromSHA256', 'sha256', 'bytes'} <= set(node):
-                found[(Path(node['path']).name, node['fromSHA256'])] = (node['sha256'], node['bytes'])
-            for value in node.values(): walk(value)
+                key, value = (Path(node['path']).name, node['fromSHA256']), (node['sha256'], node['bytes'])
+                require(found.get(key, value) == value, f'Revision records disagree on {key[0]} from {key[1]}')
+                found[key] = value; rows.append(key)
+            for value in node.values(): walk(value, rows)
         elif isinstance(node, list):
-            for value in node: walk(value)
+            for value in node: walk(value, rows)
     for path in paths or ():
-        walk(read_json(path))
+        rows = []; walk(read_json(path), rows)
+        require(rows, f'{path}: no revision rows (path, fromSHA256, sha256, bytes)')
     return found
 
 
@@ -413,11 +416,12 @@ def verify(args):
             for ext, meta in head['resources'].items():
                 data = resources.get((head['slot'], RESOURCE_TYPES[ext]))
                 require(data is not None, f"{path}: {meta['name']} is not in {args.hak}")
-                want = (meta['sha256'], meta['bytes'])
-                # a revision record may replace the pin, and may itself be revised again
-                while (sha256(data), len(data)) != want and (meta['name'], want[0]) in revised:
+                want = (meta['sha256'], meta['bytes']); seen = {want[0]}
+                # a revision replaces the pin and may itself be revised again: the HAK must hold the latest bytes
+                while (meta['name'], want[0]) in revised:
                     want = revised[(meta['name'], want[0])]; replaced += 1
-                require((sha256(data), len(data)) == want, f"{path}: {meta['name']} differs from its manifest")
+                    require(want[0] not in seen, f"{path}: the revision records for {meta['name']} form a cycle"); seen.add(want[0])
+                require((sha256(data), len(data)) == want, f"{path}: {meta['name']} differs from its manifest and revisions")
                 checked += 1
     print(json.dumps({'hak': Path(args.hak).name, 'resources': checked, 'revised': replaced, 'passed': True}))
     return 0
