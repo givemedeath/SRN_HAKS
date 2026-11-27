@@ -47,7 +47,9 @@ def review_command(chosen):
         shots = [shot for shot in shots if shot['label'].startswith(views)]
         require(shots, 'No view begins with ' + ' or '.join(views))
     shots = shots[::max(1, chosen.every)]; kept = {shot['area'] for shot in shots}; areas = [area for area in areas if area['tag'] in kept]
-    lacking = sorted({f'srn_t_{area["tileset"]}' for area in areas} - set(haks))  # each tileset laid is one of this project's packs (its set file is read there)
+    base = {name.lower() for name in spec.get('base', ())}  # base-game tilesets: in the game's own files, their set file given in the overlay
+    require(not base or chosen.overlay, 'A review of a base-game tileset reads its set file from --overlay')
+    lacking = sorted({f'srn_t_{area["tileset"]}' for area in areas if area['tileset'].lower() not in base} - set(haks))  # each tileset laid is one of this project's packs (its set file is read there)
     require(not lacking, 'The module would not load the pack of every tileset it lays: add ' + ', '.join(lacking) + ' to the spec\'s haks')
     record = review.build(chosen.name, areas, shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay, haks=haks)
     told = {'module': record['module'], 'areas': [area['tag'] for area in areas], 'views': len(shots), 'overlay': record['overlay']}
