@@ -259,7 +259,10 @@ class Spool:
                 if not matches_fit:
                     self.attention(head, stage, f'{attempt}: native sizing check failed: {detail}')
             text = f"{result.get('model')} {result.get('triangles')} tri, reviewed fit {'verified' if matches_fit else 'DIFFERS'}"
-            if matches_fit and 0 < result.get('triangles', 0) <= budget and result.get('plt', {}).get('sha256'):
+            face = (result.get('raceSizing') or {}).get('faceCheck', '')
+            if face.startswith('review'):  # 12-25% from the race library: compared side by side before export is approved
+                text += f", race face size {result['raceSizing'].get('deviation', 0):+.0%} from the library median: {face}"
+            if matches_fit and not face.startswith('review') and 0 < result.get('triangles', 0) <= budget and result.get('plt', {}).get('sha256'):
                 self.launch('native', head, 'export', f'{approved} export {text}, PLT bound', attempt)
             else:
                 self.review(head, stage, f'{attempt}: {text}')

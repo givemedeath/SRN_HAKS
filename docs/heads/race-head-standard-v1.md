@@ -18,7 +18,8 @@ landmarks. That route gave the published library, and the review found these err
 | Human female, Dwarf, Orc, Troll female | x1.0 | `head_g` | consistent; single outliers were rescaled per head |
 
 A manifest opts in with `"raceSizing": "race-head-standard-v1"` and the `raceHeadStandard` input. Headbatch sets both
-for every new manifest. Export applies the factor once, after the Troll build allowance. It writes `raceSizing` to the
+whenever it writes a manifest, so regenerating an older head's manifest stales its export, which then re-runs with the
+race size and face check. Export applies the factor once, after the Troll build allowance. It writes `raceSizing` to the
 export result: the standard's hash, the factor, the pivot, how the factor was chosen, and the measured face.
 
 * **Fit frame.** The factor holds for profile and nose fits against the race's compact reference: the `fitFrame` stem,

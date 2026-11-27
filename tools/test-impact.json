@@ -1044,6 +1044,7 @@
       "tools/headbatch/run_headbatch.py",
       "tools/headbatch/spool.py",
       "tools/headbatch/stock_materials.py",
+      "tools/headbatch/trial_sizing.py",
       "tools/headbatch/trials.py",
       "tools/headbatch/workspace.py",
       "tools/headkit/brow_edges.py",

@@ -37,13 +37,21 @@ def inputs(native_path, policy, compiler, bindings, standard=None):
     return old, fit, maps, sorted({str(Path(p).resolve()) for p in files})
 
 
-def main():
-    import numpy as np
-    native, policy, compiler, bindings, output = map(Path, sys.argv[1:6])
-    rest = sys.argv[6:]
+def arguments(argv):
+    """(native, policy, compiler, bindings, output, standard, race, frozen) from NATIVE POLICY COMPILER BINDINGS OUTPUT,
+    then optionally STANDARD RACE_JSON (the race head standard and the manifest's raceSizing), then optionally FROZEN_INPUTS."""
+    require(len(argv) >= 5, 'usage: NATIVE POLICY COMPILER BINDINGS OUTPUT [STANDARD RACE_JSON] [FROZEN_INPUTS]')
+    paths, rest = [Path(a) for a in argv[:5]], list(argv[5:])
     require(len(rest) in (0, 1, 2, 3), 'usage: NATIVE POLICY COMPILER BINDINGS OUTPUT [STANDARD RACE_JSON] [FROZEN_INPUTS]')
     standard, race = (Path(rest[0]), json.loads(rest[1])) if len(rest) >= 2 else (None, None)
+    require(race is None or isinstance(race, (str, dict)), 'RACE_JSON is the manifest raceSizing value')
     frozen = rest[-1] if len(rest) in (1, 3) else None
+    return (*paths, standard, race, frozen)
+
+
+def main():
+    import numpy as np
+    native, policy, compiler, bindings, output, standard, race, frozen = arguments(sys.argv[1:])
     old, fit, maps, files = inputs(native, policy, compiler, bindings, standard)
     if frozen:
         write(frozen, files, fresh=True)
