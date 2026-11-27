@@ -124,7 +124,7 @@ class ContractTests(unittest.TestCase):
 
     def test_every_joint_has_all_20_bodies_and_growing_tiers(self):
         self.assertEqual({float(v) for v in self.contract['tierOffsets'].values()}, set(seams.TIER_OFFSETS.values()))
-        self.assertEqual((self.contract['version'], self.contract['ends']), (5, seams.ENDS))  # every end domed (2026-11-13); all 20 bodies (2026-11-14); c8 Human necks (2026-11-26)
+        self.assertEqual((self.contract['version'], self.contract['ends']), (6, seams.ENDS))  # every end domed (2026-11-13); all 20 bodies (2026-11-14); c8 Human necks (2026-11-26); c8 race necks (2026-11-27)
         for joint, row in self.contract['joints'].items():
             self.assertEqual(set(row['bodies']), set(registry.BODIES), joint)  # a race body is gated and refit on its own rings
             for body in registry.BODIES:

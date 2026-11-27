@@ -1,7 +1,7 @@
-# Seam contract and head envelopes (version 5, 2026-11-26)
+# Seam contract and head envelopes (version 6, 2026-11-27)
 
 Measured in Phase 0 of [the plan](plan.md) on the locked Human Fit bodies in `srn_body` (`pmh0`, `pfh0`; c7 through
-version 4, the c8 necks since version 5) and
+version 4, the c8 necks since version 5, the c8 race necks since version 6) and
 the published heads in `srn_head`; since version 4 the seam contract holds all 20 bodies of `srn_body`, each
 measured on its own models (**Version 4** below). The tables on this page are the two Human Fit bodies'. The numbers live in `tools/armorkit/seam-contract.json` and
 `tools/armorkit/head-envelopes.json`; this page says what they mean and how they were taken. They are
@@ -136,17 +136,21 @@ Only the two Troll rows change. Troll male now reaches 18.4 cm below the head bo
 Re-measured 2026-11-26 with the c8 Human necks (contract 1.6.0, [human-bodies-lock-c8](../phenomorpher/human-bodies-lock-c8.md)):
 the Human male heads are 6% larger, and the Human female head bone is 3.5 cm lower. Only the two Human rows change.
 
+Re-measured 2026-11-27 with the c8 race necks (contract 1.7.0, [race-necks-c8](../phenomorpher/race-necks-c8.md)):
+56 race heads are rescaled (Elf x1.15, Troll male x1.12, some Orc and Dwarf heads) and the Elf and Orc female head
+bones are 2 and 3.3 cm lower. The Human and Troll female rows do not change.
+
 | Body | Heads | Width (cm) | Depth back / front (cm) | Below / above head bone (cm) | Largest radius (cm) | Head bone height (m) |
 |---|---|---|---|---|---|---|
 | Human male | 7 | 30.2 | 13.9 / 14.7 | 12.8 / 21.3 | 15.4 | 1.753 |
-| Dwarf male | 9 | 32.5 | 17.3 / 14.0 | 14.1 / 19.8 | 17.0 | 1.167 |
-| Elf male | 9 | 24.2 | 11.6 / 11.4 | 10.8 / 20.4 | 12.2 | 1.902 |
-| Orc male | 7 | 34.7 | 22.2 / 14.3 | 6.9 / 27.1 | 18.6 | 1.900 |
-| Troll male | 25 | 62.0 | 22.5 / 27.0 | 18.4 / 36.1 | 32.9 | 2.501 |
+| Dwarf male | 9 | 28.3 | 17.3 / 15.0 | 12.9 / 19.3 | 16.1 | 1.167 |
+| Elf male | 9 | 27.9 | 13.4 / 13.2 | 12.4 / 23.4 | 14.1 | 1.902 |
+| Orc male | 7 | 34.7 | 22.2 / 17.7 | 6.9 / 27.1 | 20.2 | 1.900 |
+| Troll male | 25 | 69.4 | 25.2 / 30.2 | 19.2 / 41.5 | 36.9 | 2.501 |
 | Human female | 9 | 30.1 | 12.9 / 12.1 | 13.3 / 23.8 | 15.3 | 1.630 |
-| Dwarf female | 9 | 29.8 | 15.6 / 15.1 | 12.8 / 20.3 | 15.7 | 1.115 |
-| Elf female | 9 | 27.1 | 12.8 / 12.4 | 11.8 / 18.0 | 13.7 | 1.770 |
-| Orc female | 9 | 40.1 | 22.0 / 15.0 | 17.5 / 29.7 | 20.1 | 1.800 |
+| Dwarf female | 9 | 25.2 | 15.6 / 12.6 | 11.0 / 18.9 | 14.5 | 1.114 |
+| Elf female | 9 | 31.1 | 14.7 / 14.3 | 13.6 / 20.7 | 15.7 | 1.751 |
+| Orc female | 9 | 40.1 | 22.0 / 16.2 | 17.5 / 29.7 | 20.2 | 1.767 |
 | Troll female | 25 | 55.2 | 29.8 / 19.1 | 19.2 / 36.6 | 28.5 | 2.301 |
 
 ## Limits
@@ -251,6 +255,26 @@ plane lies up to 8.8 cm from the Fit body's, and the mean radius of the waist ri
 every body's planes and rings to the models in `srn_body`, and its animation models to the ones the bends were
 sampled from, as they did for the Human pair: a changed body model of any of the 20 now asks for a new
 measurement.
+
+## Version 6 (2026-11-27)
+
+Re-measured on the c8 race necks (contract 1.7.0, [race-necks-c8](../phenomorpher/race-necks-c8.md)). Only the neck
+joint of the 16 Dwarf, Elf, Orc and Troll bodies changes, with the source hashes of their changed models; every other
+joint, body and rule is the version 5 number. Fit / Large:
+
+| Bodies | Neck body ring, mean (cm) | Neck under end past the plane (cm) |
+|---|---|---|
+| `pfd0` / `pfd2` | 4.2 -> 4.9 / 4.2 -> 4.9 | 6.0 -> 4.2 / 6.0 -> 4.2 |
+| `pfe0` / `pfe2` | 4.8 -> 5.5 / 4.8 -> 5.5 | 5.6 -> 6.7 / 5.6 -> 6.7 |
+| `pfo0` / `pfo2` | 6.1 -> 7.0 / 6.0 -> 6.9 | 5.8 -> 6.9 / 5.8 -> 6.9 |
+| `pfg0` / `pfg2` | 7.9 -> 8.4 / 7.9 -> 8.4 | 7.5 -> 8.8 / 7.5 -> 8.8 |
+| `pmd0` / `pmd2` | 5.3 -> 5.8 / 5.3 -> 5.8 | 8.3 -> 4.8 / 8.3 -> 4.8 |
+| `pme0` / `pme2` | 6.4 -> 6.6 / 6.4 -> 6.6 | 7.7 -> 7.9 / 7.7 -> 7.9 |
+| `pmo0` / `pmo2` | 7.9 -> 8.1 / 7.9 -> 8.1 | 7.9 -> 8.1 / 7.9 -> 8.1 |
+| `pmg0` / `pmg2` | 10.3 -> 10.5 / 10.4 -> 10.6 | 10.3 -> 10.6 / 10.3 -> 10.6 |
+
+The Dwarf necks end nearer the plane because their `neck_g` is tilted (7 and 29 degrees) and the new neck follows it.
+Outfits baked on version 5 are not refitted here; whether a neck piece needs a rebake is armorkit's call.
 
 ## Version 5 (2026-11-26)
 

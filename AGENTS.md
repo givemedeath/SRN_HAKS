@@ -52,6 +52,10 @@ Human bodies, the female `head_g` 3.5 cm lower with a trapezius slope on the fem
 heads scaled by 1.06. See `docs/phenomorpher/human-bodies-lock-c8.md` and its hash manifest. c8 is published in
 contract 1.6.0. Start further body work from c8; the c7 record below stays as written.
 
+The c8 necks reached the Dwarf, Elf, Orc and Troll bodies on 2026-11-27 (contract 1.7.0; user-approved, Elf female
+head 2 cm lower, Orc female 3.3 cm), with 56 race library heads rescaled. See
+`docs/phenomorpher/race-necks-c8.md`. Race body work starts from 1.7.0.
+
 Historical: the user locked c7 as the Human bodies on 2026-10-27. It is the c6 lock (2026-10-26: b13 female hip
 and knee joins, c6 torso polish, rebuilt skin textures) plus the Large male `pmh2` with its joint heights
 back at Fit. See `docs/phenomorpher/human-bodies-lock-c7.md` and its hash manifest. The c6 record
