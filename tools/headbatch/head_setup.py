@@ -215,7 +215,10 @@ def rewrite_manifest(workspace, name, check, overrides, replaced):
     if race == 'troll' and chosen.get('fit', {}).get('align', 'nose') in ('nose', 'profile'):
         policy = Path(__file__).resolve().parents[2]/'docs/heads/troll-build-allowance-r3.json'
         inputs['nativeSizingPolicy'] = link(head, policy, policy.name, replaced)
+    standard = Path(__file__).resolve().parents[2]/'docs/heads/race-head-standard-v1.json'
+    inputs['raceHeadStandard'] = link(head, standard, standard.name, replaced)
     data = defaults(name, receipt, inputs, reference)
+    data['raceSizing'] = 'race-head-standard-v1'  # per-race export size and face check (user 2026-11-27); overrides may refine it
     merge(data, chosen)
     bind_render_device(workspace,data)
     if 'nativeSizingPolicy' in inputs:

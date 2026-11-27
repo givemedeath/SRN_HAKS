@@ -46,6 +46,22 @@
     "features": {},
     "fit": {},
     "nativeSizing": {"const": "troll-build-allowance-r3"},
+    "raceSizing": {
+      "oneOf": [
+        {"const": "race-head-standard-v1"},
+        {
+          "type": "object",
+          "required": ["policy"],
+          "additionalProperties": false,
+          "properties": {
+            "policy": {"const": "race-head-standard-v1"},
+            "factor": {"type": "number", "minimum": 0.7, "maximum": 1.4},
+            "reason": {"type": "string", "minLength": 1},
+            "outsideBand": {"type": "string", "minLength": 1}
+          }
+        }
+      ]
+    },
     "schemaVersion": {
       "const": 1
     },

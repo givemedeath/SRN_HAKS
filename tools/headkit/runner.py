@@ -29,7 +29,7 @@ def stage_roles(stage,data):
         'tone':{'uvMesh','basecolor4k','metallic4k','detail','frontDetail'}|palettes
                |(set() if data.get('tone',{}).get('faceTreatment') is not None else {'ownership4k','ownership1k'}),
         'palette':{'uvMesh','runtimeColor','ownership1k'}|palettes|({'design'} if design_rows(data) else set())
-                  |({'bodySkin'} if (data.get('palette') or {}).get('matchBodySkin') is True else set()),'export':{'uvMesh','runtimeShades','ownership1k'}|({'fitReference','nativeSizingPolicy'} if data.get('nativeSizing') else set()),'native':set(),
+                  |({'bodySkin'} if (data.get('palette') or {}).get('matchBodySkin') is True else set()),'export':{'uvMesh','runtimeShades','ownership1k'}|({'fitReference','nativeSizingPolicy'} if data.get('nativeSizing') else set())|({'fitReference','raceHeadStandard'} if data.get('raceSizing') else set()),'native':set(),
         'render':{'uvMesh'}|set(data.get('render',{}).get('mapInputs',{}).values())}[stage]
     return roles&inputs
 
@@ -43,7 +43,7 @@ MESH_AFTER_REPAIR='uv','reuseReviewedUvs','maximumSubtexelFraction','allowDecode
 STAGE_SECTIONS={'prepare':{'profile','matte','alignment','features','approval.referenceDesignReviewed'},'precluster':{'mesh.scalpPatch','mesh.lowerHairTrim'},'fit':{'fit'},
     'repair':{'mesh!'+','.join(MESH_AFTER_REPAIR),'fit'},
     'unwrap':{'mesh'},'bake':{'mesh','approval'},'paint':{'paint','mesh','approval.textureMaps'},'ownership':{'ownership','paint','mesh','approval'},
-    'tone':{'tone','profile','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval','nativeSizing'},
+    'tone':{'tone','profile','palette.inputs','ownership','approval'},'palette':{'palette','ownership','approval','matte.backgroundTolerance'},'export':{'fit','palette','mesh','approval','nativeSizing','raceSizing'},
     'native':{'fit'},'render':{'render','approval'},'masks':{'faceMasks'},'quality':{'quality','palette.inputs'}}
 
 
@@ -735,7 +735,9 @@ class Runner:
             refs=(self.input('nativeSizingPolicy'), self.input('fitReference')) if policy else None
             material_options = ({'material_policy':m['palette']['nativeMaterial']}
                                 if 'nativeMaterial' in m.get('palette',{}) else {})
-            result=prepare(source,shades,layers,fit,fit['model'],folder/'converted',sizing_inputs=refs,**material_options)
+            race=m.get('raceSizing')
+            race_refs=(self.input('raceHeadStandard'),race,self.input('fitReference')) if race else None
+            result=prepare(source,shades,layers,fit,fit['model'],folder/'converted',sizing_inputs=refs,race_inputs=race_refs,**material_options)
             if bound:result['fitBinding']={'sourceStage':'unwrap','unwrapReceipt':self.state['stages']['unwrap']}
             if self._staged_fit():result['fitStage']={'receipt':self.state['stages']['fit'],'matrix':fit['matrix']}
             if uv_audit is not None:result['uvAudit']=uv_audit

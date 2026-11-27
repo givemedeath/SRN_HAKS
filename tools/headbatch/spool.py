@@ -253,7 +253,7 @@ class Spool:
             matrix = guards.fit_matrix(self.workspace.head(head))
             budget = manifest['mesh'].get('triangleBudget', 20000)
             matches_fit = matrix is not None and result.get('matrix') == matrix
-            if manifest.get('nativeSizing') or result.get('nativeSizing'):
+            if any(manifest.get(k) or result.get(k) for k in ('nativeSizing', 'raceSizing')):
                 code, detail = self.tool('review', 'exportfit', head, attempt)
                 matches_fit = code == 0
                 if not matches_fit:

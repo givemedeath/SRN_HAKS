@@ -712,6 +712,7 @@
     ],
     "tools/headbatch/head_files.py": [],
     "tools/headbatch/head_setup.py": [
+      "docs/heads/race-head-standard-v1.json",
       "docs/heads/troll-build-allowance-r3.json",
       "tools/headbatch/gpu_job.py",
       "tools/headbatch/guards.py",
@@ -833,7 +834,8 @@
     "tools/headbatch/review/exportfit.py": [
       "tools/headbatch/head_files.py",
       "tools/headkit/common.py",
-      "tools/headkit/native.py"
+      "tools/headkit/native.py",
+      "tools/headkit/race_sizing.py"
     ],
     "tools/headbatch/review/eyereference.py": [
       "tools/headkit/common.py",
@@ -1203,6 +1205,7 @@
       "tools/headkit/comfy_nodes/verification.py",
       "tools/headkit/manifest.schema.json",
       "tools/headkit/quality-thresholds.json",
+      "tools/headkit/race_sizing.py",
       "tools/headkit/runner.py",
       "tools/headkit/stock-shades.json",
       "tools/heads/head_export.py",
@@ -1316,6 +1319,7 @@
       "tools/headkit/images.py",
       "tools/headkit/mesh.py",
       "tools/headkit/native_reader.py",
+      "tools/headkit/race_sizing.py",
       "tools/heads/head_export.py",
       "tools/heads/verify_head_hak.py",
       "tools/phenomorpher/phenomorpher/engine/__init__.py",
@@ -1387,6 +1391,9 @@
     "tools/headkit/quality_reference.py": [
       "tools/headkit/common.py",
       "tools/headkit/predicates.py"
+    ],
+    "tools/headkit/race_sizing.py": [
+      "tools/headkit/common.py"
     ],
     "tools/headkit/rays.py": [],
     "tools/headkit/reference_background.py": [
@@ -1546,7 +1553,9 @@
       "tools/headkit/runner.py"
     ],
     "tools/headkit/test_headkit.py": [
+      "docs/heads/race-head-standard-v1.json",
       "docs/heads/troll-build-allowance-r3.json",
+      "tools/headbatch/races.json",
       "tools/headkit/__init__.py",
       "tools/headkit/__main__.py",
       "tools/headkit/blender_render.py",
@@ -1583,6 +1592,7 @@
       "tools/headkit/palette.py",
       "tools/headkit/preview.py",
       "tools/headkit/projection.py",
+      "tools/headkit/race_sizing.py",
       "tools/headkit/rays.py",
       "tools/headkit/relief.py",
       "tools/headkit/replay.py",

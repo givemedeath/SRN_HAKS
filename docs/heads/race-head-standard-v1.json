@@ -1,0 +1,165 @@
+{
+ "schemaVersion": 1,
+ "kind": "SRN-race-head-standard",
+ "id": "race-head-standard-v1",
+ "date": "2026-11-27",
+ "approval": "User approved the 1.7.0 race head review on 2026-11-27 (\"Approve, elf drop 2 cm\"), confirmed the heads (\"Yes, update headkit\") and asked headkit to scale and place heads for every race the same way.",
+ "measuredFrom": {
+  "pack": "srn_head at PhenoMorpher contract 1.7.0",
+  "contractSHA256": "b44489712631627222c3b15dc8a1ec7bf28157cf7f90d7c580c0708c19037ca4",
+  "record": "docs/phenomorpher/race-necks-c8.md"
+ },
+ "rule": "Headkit export multiplies a profile- or nose-fitted head (fitted against the race compact reference in fitFrame, or for Trolls a frame the Troll build allowance accepts) by exportScale, after the Troll allowance. pivot head_g scales about the head_g origin; pivot chin about the point on head_g's vertical at the head's own chin height (lowest front-midline point), so the chin keeps its height. Landmark fits keep their reviewed scale (factor 1). Heads are placed by head_g alone: the body rig carries any head drop (headDropMeters, informational), so a head never adds its own offset.",
+ "faceCheck": {
+  "measure": "interpupillary distance between the iris centres (PLT tattoo1 channel 8) of the exported head, in metres",
+  "reviewFraction": 0.12,
+  "refuseFraction": 0.25,
+  "note": "Library heads span up to 20% around the median (eye spacing is a design choice). Beyond reviewFraction the export is flagged for a side-by-side review against the race library; beyond refuseFraction it is refused unless raceSizing.outsideBand gives the reviewed reason. The 1.7.0 outliers measured +31% to +40% (Dwarf female 018, 021), +25% (Dwarf male 020) and -23% (Orc male 018). Troll designs paint tattoo1, so Troll rows have no band and are judged by eye."
+ },
+ "visibleNeck": {
+  "frontFractionOfStature": 0.0087,
+  "note": "Body rule, not a head setting: chin to chest at the front of the neck, about 0.87% of stature (Human c8 female). Per-race head drops in the rig meet it."
+ },
+ "prefixes": {
+  "pmh0": {
+   "exportScale": 1.06,
+   "pivot": "head_g",
+   "fitFrame": "pmh0_head001",
+   "reason": "c8 review (2026-11-26): faces the size of the female heads at 8.4 heads to the body",
+   "statureMeters": 1.9339,
+   "headDropMeters": 0.0,
+   "interpupillary": {
+    "medianMeters": 0.0565,
+    "minMeters": 0.0519,
+    "maxMeters": 0.064,
+    "heads": 7
+   },
+   "eyeToChinMedianMeters": 0.1093
+  },
+  "pfh0": {
+   "exportScale": 1.0,
+   "pivot": "head_g",
+   "fitFrame": "pfh0_head024",
+   "reason": "1.7.0 review: consistent; single outliers were rescaled per head",
+   "statureMeters": 1.803,
+   "headDropMeters": 0.035,
+   "interpupillary": {
+    "medianMeters": 0.0602,
+    "minMeters": 0.0501,
+    "maxMeters": 0.0618,
+    "heads": 7
+   },
+   "eyeToChinMedianMeters": 0.1026
+  },
+  "pme0": {
+   "exportScale": 1.15,
+   "pivot": "head_g",
+   "fitFrame": "pme0_head001",
+   "reason": "1.7.0 review: faces 0.87-0.90 of Human on taller bodies, about 0.8 of the stock Elf head",
+   "statureMeters": 2.0997,
+   "headDropMeters": 0.0,
+   "interpupillary": {
+    "medianMeters": 0.0579,
+    "minMeters": 0.0507,
+    "maxMeters": 0.0654,
+    "heads": 9
+   },
+   "eyeToChinMedianMeters": 0.1046
+  },
+  "pfe0": {
+   "exportScale": 1.15,
+   "pivot": "head_g",
+   "fitFrame": "pfe0_head009",
+   "reason": "1.7.0 review: faces 0.87-0.90 of Human on taller bodies, about 0.8 of the stock Elf head",
+   "statureMeters": 1.936,
+   "headDropMeters": 0.02,
+   "interpupillary": {
+    "medianMeters": 0.0563,
+    "minMeters": 0.0529,
+    "maxMeters": 0.0673,
+    "heads": 9
+   },
+   "eyeToChinMedianMeters": 0.1015
+  },
+  "pmd0": {
+   "exportScale": 1.0,
+   "pivot": "head_g",
+   "fitFrame": "pmd0_head001",
+   "reason": "1.7.0 review: consistent; single outliers were rescaled per head",
+   "statureMeters": 1.3261,
+   "headDropMeters": 0.0,
+   "interpupillary": {
+    "medianMeters": 0.0561,
+    "minMeters": 0.0525,
+    "maxMeters": 0.0637,
+    "heads": 9
+   },
+   "eyeToChinMedianMeters": 0.1078
+  },
+  "pfd0": {
+   "exportScale": 1.0,
+   "pivot": "head_g",
+   "fitFrame": "pfd0_head012",
+   "reason": "1.7.0 review: consistent; single outliers were rescaled per head",
+   "statureMeters": 1.2709,
+   "headDropMeters": 0.0,
+   "interpupillary": {
+    "medianMeters": 0.0526,
+    "minMeters": 0.0497,
+    "maxMeters": 0.059,
+    "heads": 9
+   },
+   "eyeToChinMedianMeters": 0.1015
+  },
+  "pmo0": {
+   "exportScale": 1.0,
+   "pivot": "head_g",
+   "fitFrame": "pmo0_head011",
+   "reason": "1.7.0 review: consistent; single outliers were rescaled per head",
+   "statureMeters": 2.0997,
+   "headDropMeters": 0.0,
+   "interpupillary": {
+    "medianMeters": 0.069,
+    "minMeters": 0.0683,
+    "maxMeters": 0.0741,
+    "heads": 3
+   },
+   "eyeToChinMedianMeters": 0.1404
+  },
+  "pfo0": {
+   "exportScale": 1.0,
+   "pivot": "head_g",
+   "fitFrame": "pfo0_head011",
+   "reason": "1.7.0 review: consistent; single outliers were rescaled per head",
+   "statureMeters": 1.9562,
+   "headDropMeters": 0.033,
+   "interpupillary": {
+    "medianMeters": 0.0776,
+    "minMeters": 0.0722,
+    "maxMeters": 0.0843,
+    "heads": 9
+   },
+   "eyeToChinMedianMeters": 0.132
+  },
+  "pmg0": {
+   "exportScale": 1.12,
+   "pivot": "chin",
+   "fitFrame": null,
+   "reason": "1.7.0 review: heads small against the shoulders; scaled about the chin so the jaw does not sink into the chest",
+   "statureMeters": 2.7627,
+   "headDropMeters": 0.0,
+   "interpupillary": null,
+   "eyeToChinMedianMeters": null
+  },
+  "pfg0": {
+   "exportScale": 1.0,
+   "pivot": "head_g",
+   "fitFrame": null,
+   "reason": "1.7.0 review: consistent; single outliers were rescaled per head",
+   "statureMeters": 2.5417,
+   "headDropMeters": 0.0,
+   "interpupillary": null,
+   "eyeToChinMedianMeters": null
+  }
+ }
+}

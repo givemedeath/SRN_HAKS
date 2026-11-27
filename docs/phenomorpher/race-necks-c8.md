@@ -61,7 +61,8 @@ race.
 Heads scale uniformly about `head_g`, except the Troll males: they scale about the point on `head_g`'s vertical at the
 head's own chin height, so the jaw does not sink into the chest. 56 heads change (receipt: `raceHeads`). Their PLTs,
 UVs and materials are unchanged. `publish_library.py verify` needs this receipt as a `--revision` beside
-`neck-c8/release-1.6.0.json`.
+`neck-c8/release-1.6.0.json`. New heads get the same corrections at headkit export:
+[race-head-standard-v1](../heads/race-head-standard-v1.md).
 
 ## Review
 

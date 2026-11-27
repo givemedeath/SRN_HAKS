@@ -429,6 +429,8 @@ Setup selects face-v1 for a new Troll. Supply the paired reference, body skin an
 
 Profile and nose fits bind the published r3 Troll build allowance at manifest generation. Export records the reference hash, factor and pivot. The compact references use the sex-specific allowance, while a recognized already enlarged donor uses 1.0. A custom reference requires verification of its scale frame. Landmark-calibrated routes retain their reviewed scale.
 
+Every new manifest also binds the race head standard (`raceSizing: race-head-standard-v1`, input `raceHeadStandard`; [race-head-standard-v1.md](race-head-standard-v1.md)). Export scales by the race factor after the Troll allowance and checks the face size against the published library. `review exportfit` verifies both factors and pivots. A head flagged "review" is compared side by side with its race's library before its export is approved; a refused one needs `raceSizing.factor` or `raceSizing.outsideBand` in `overrides.json` with the reviewed reason. Make `bodyNecks` references from the contract 1.7.0 bodies.
+
 The workspace can set `comfy.multiviewGeometryStartRAMGiB` to reserve more host RAM specifically for four-view geometry. The normal admission and live limits still apply. The example reserves 22 GiB after a 17.49 GiB start failed during model loading. It is a measured lower-bound estimate, so the live guard remains necessary.
 
 External proposals and clay/diffuse edits share the same design cap. Record every submission once in design/external-attempts/HEAD/NNN.json, preserving the input, disposition and any resulting image pin. The local design launcher includes these records automatically.
