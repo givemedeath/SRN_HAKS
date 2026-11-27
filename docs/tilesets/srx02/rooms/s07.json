@@ -1,0 +1,217 @@
+{
+ "id": "s07",
+ "category": "Security",
+ "name": "Locker Room",
+ "note": "Floorplan S07: lockers and benches, a washroom with stalls, and showers.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 3.0,
+    "wall": [
+     3.4,
+     3.4
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "udp2_flr_vct2",
+    "wall": "udp2_w_cmu1",
+    "ceiling": "srx02_clgconc",
+    "base": "tfb01_floor01",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      5.2
+     ],
+     "to": [
+      10,
+      5.2
+     ],
+     "doors": [
+      {
+       "at": 1.5,
+       "width": 2.0
+      },
+      {
+       "at": 8.4,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      5.0,
+      5.1
+     ],
+     "to": [
+      5.0,
+      10
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      5.2,
+      10,
+      10
+     ],
+     "floor": "udp2_flr_til3",
+     "wall": "udp2_flr_til2",
+     "repeat": {
+      "floor": 3.0,
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    1.9,
+    2.6
+   ],
+   "under": 3.4,
+   "size": [
+    0.16,
+    2.4
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    2.6
+   ],
+   "under": 3.4,
+   "size": [
+    0.16,
+    2.4
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "strip",
+   "at": [
+    8.1,
+    2.6
+   ],
+   "under": 3.4,
+   "size": [
+    0.16,
+    2.4
+   ],
+   "drop": 0.25
+  },
+  {
+   "kind": "panel",
+   "at": [
+    1.6,
+    6.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    1.6,
+    8.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    3.8,
+    6.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    3.8,
+    8.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    6.3,
+    7.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    8.6,
+    7.4
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "shpv1_lkr", "at": [0.735, 1.0, 0.0], "faces": "e"},
+  {"piece": "shpv1_lkr", "at": [0.735, 2.32, 0.0], "faces": "e"},
+  {"piece": "shpv1_lkr", "at": [0.735, 3.64, 0.0], "faces": "e"},
+  {"piece": "shpv1_lkr", "at": [9.265, 1.0, 0.0], "faces": "w"},
+  {"piece": "shpv1_lkr", "at": [9.265, 2.32, 0.0], "faces": "w"},
+  {"piece": "shpv1_lkr", "at": [9.265, 3.64, 0.0], "faces": "w"},
+  {"piece": "shpv1_lkr", "at": [3.4, 4.565, 0.0], "faces": "s"},
+  {"piece": "shpv1_lkr", "at": [4.72, 4.565, 0.0], "faces": "s"},
+  {"piece": "shpv1_lkr", "at": [6.04, 4.565, 0.0], "faces": "s"},
+  {"piece": "pkt_lbench", "at": [3.3, 2.752, 0.0], "turn": 0},
+  {"piece": "pkt_lbench", "at": [6.7, 2.752, 0.0], "turn": 0},
+  {"piece": "udp2-p-98", "at": [7.1, 4.8, 0.0], "turn": 0},
+  {"piece": "udp2-p-45", "at": [0.415, 6.4, 0.0], "faces": "e"},
+  {"piece": "udp2-p-45", "at": [0.415, 7.3, 0.0], "faces": "e"},
+  {"piece": "udp2-p-45", "at": [0.415, 8.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-44", "at": [0.29, 9.1, 0.0], "faces": "e"},
+  {"piece": "udp2-p-98", "at": [0.5, 9.5, 0.0], "turn": 0},
+  {"piece": "udp2-p-43", "at": [4.678, 6.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-43", "at": [4.678, 7.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-47", "at": [2.75, 9.393, 0.0], "faces": "s"},
+  {"piece": "udp2-p-47", "at": [4.2, 9.393, 0.0], "faces": "s"},
+  {"piece": "p_stalldivider01", "at": [2.05, 8.633, 0.0], "turn": 0},
+  {"piece": "p_stalldivider01", "at": [3.45, 8.633, 0.0], "turn": 0},
+  {"piece": "xiashower_01", "at": [5.851, 9.769, 0.0], "faces": "s"},
+  {"piece": "xiashower_01", "at": [7.401, 9.769, 0.0], "faces": "s"},
+  {"piece": "xiashower_01", "at": [8.951, 9.769, 0.0], "faces": "s"},
+  {"piece": "xiashowerd_01", "at": [5.851, 9.197, 0.01], "turn": 0, "obstacle": false},
+  {"piece": "xiashowerd_01", "at": [7.401, 9.197, 0.01], "turn": 0, "obstacle": false},
+  {"piece": "xiashowerd_01", "at": [8.951, 9.197, 0.01], "turn": 0, "obstacle": false},
+  {"piece": "p_stalldivider01", "at": [6.63, 8.633, 0.0], "turn": 0},
+  {"piece": "p_stalldivider01", "at": [8.18, 8.633, 0.0], "turn": 0},
+  {"piece": "purp_bench", "at": [6.3, 5.715, 0.0], "faces": "n"}
+ ],
+ "placeLater": [{"what": "inner doors: the doorways are open"}, {"what": "lockers as containers"}]
+}

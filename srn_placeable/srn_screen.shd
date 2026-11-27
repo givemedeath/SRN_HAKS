@@ -1,0 +1,38 @@
+//=============================================================================
+//
+// srn_screen.shd -- what moves on a lit screen: pure functions of the place on
+// the picture and the time. Included by srn_screen_fs (plain pictures) and
+// srn_screenp_fs (props with an illumination map). Written for GLSL 1.10:
+// float literals only.
+//
+//=============================================================================
+
+#ifndef SRN_SCREEN
+#define SRN_SCREEN
+
+float SrnNoise(vec2 p)
+{
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+// Seconds. The engine's clock counts the module's day in milliseconds; it is
+// cut to ten minutes so that a float still holds its small steps.
+float SrnSeconds()
+{
+    return mod(float(worldtimerTimeOfDay), 600000.0) * 0.001;
+}
+
+// How much brighter or dimmer an interface is at p (0..1 across the screen, y up).
+float SrnInterface(vec2 p, float t)
+{
+    vec2 cell = floor(p * vec2(26.0, 18.0));
+    float clock = t * 0.9 + SrnNoise(cell) * 9.0;
+    float on = SrnNoise(cell + floor(clock) * 0.37);
+    float light = 1.0 + 0.6 * step(0.84, on) * (1.0 - fract(clock));
+    vec2 block = floor(p * vec2(5.0, 4.0));
+    light += 0.14 * sin(t * (1.0 + 2.0 * SrnNoise(block + 3.0)) + 6.28 * SrnNoise(block));
+    float bar = fract(p.y + t * 0.16);
+    return light * (1.0 + 0.55 * smoothstep(0.9, 1.0, bar) * step(bar, 0.998));
+}
+
+#endif

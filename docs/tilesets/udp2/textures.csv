@@ -1,0 +1,52 @@
+texture,surface_m2,share_pct,cumulative_pct,models,largest_px,copies,other_sets,other_packs,terrains
+udp2_msc_clg,21620.2,25.593,25.593,210,512,srn_t_udp2:dds:512x512,srx02,srn_t_udp2:21,Foyer_L Foyer_U Office_Alum Office_Vinyl Office_Wood Service Tiled Wall
+udp2_flr_cpt1,9468.25,11.208,36.801,85,1024,srn_t_udp2:dds:1024x1024,srx02,srn_t_udp2:10,Office_Alum Office_Vinyl Office_Wood Wall
+gg_black,6427.74,7.609,44.41,222,4,srn_door:dds:4x4 srn_placeable:dds:4x4,srx01 srx02 udp1,srn_door:4 srn_placeable:83 srn_t_udp2:15,Foyer_L Foyer_U Office_Alum Office_Vinyl Office_Wood Service Tiled Wall
+udp2_flr_til2,5961.53,7.057,51.467,53,1024,srn_t_udp2:dds:1024x1024,srx02,srn_t_udp2:5,Foyer_L Foyer_U Wall
+udp1-wd-grd1,5410.34,6.405,57.872,48,,srn_placeable:mtr srn_t_common:mtr,,,Foyer_L Foyer_U Office_Wood Wall
+udp2_flr_vct2,5052.75,5.981,63.853,49,1024,srn_t_udp2:dds:1024x1024,srx02,srn_t_udp2:4,Service Wall
+udp2_w_vyn1,4263.66,5.047,68.9,46,512,srn_t_udp2:dds:512x512,srx02,srn_t_udp2:3,Office_Vinyl Wall
+udp2_w_cmu1,3672.74,4.348,73.248,42,1024,srn_t_udp2:dds:1024x1024,srx02,srn_t_udp2:3,Tiled Wall
+udp2_w_sid3,3384.66,4.007,77.254,106,512,srn_t_udp2:dds:512x512,srx02,srn_placeable:3 srn_t_udp2:7,Foyer_L Foyer_U Service Tiled Wall
+udp2_flr_til1,3052.75,3.614,80.868,29,1024,srn_t_udp2:dds:1024x1024,,srn_t_udp2:3,Tiled Wall
+udp2_w_vent,2403.25,2.845,83.713,201,1024,srn_t_udp2:dds:1024x1024,srx02,srn_placeable:9 srn_t_udp2:14,Foyer_L Foyer_U Office_Alum Office_Vinyl Office_Wood Service Tiled Wall
+udp2_w_sid2,2312.87,2.738,86.451,129,512,srn_placeable:dds:512x512 srn_t_udp2:dds:512x512,srx02,srn_placeable:12 srn_t_udp2:9,Foyer_L Foyer_U Office_Alum Office_Vinyl Office_Wood Wall
+udp1-mtl-grid,2200.23,2.605,89.055,23,,srn_placeable:mtr srn_t_common:mtr,,,Office_Alum Wall
+udp1-blck-gr2,2036.1,2.41,91.466,27,,srn_t_common:mtr,,,Office_Alum Office_Vinyl Office_Wood Service Tiled Wall
+udp1_d_sldgl,1756.0,2.079,93.544,31,512,srn_door:dds:512x512 srn_placeable:dds:512x512,srx02,srn_door:8,Foyer_L Foyer_U Office_Alum Office_Vinyl Office_Wood Service Tiled Wall
+udp2_flr_til3,1444.0,1.709,95.254,34,1024,srn_t_udp2:dds:1024x1024,srx02,srn_t_udp2:2,Foyer_L Foyer_U Wall
+udp1-blck-gr,1259.16,1.491,96.744,7,,srn_t_common:mtr,,,Service Wall
+az-msc-drtdr,548.11,0.649,97.393,21,512,srn_t_common:dds:512x512,,,Foyer_U Office_Alum Office_Vinyl Office_Wood Service Tiled Wall
+udp2_cnc_str,431.39,0.511,97.904,15,512,srn_t_udp2:dds:512x512,,,Service Tiled Wall
+udp2_cnc_pl,405.01,0.479,98.383,3,512,srn_t_udp2:dds:512x512,,,Wall
+gg2-h2-3,369.06,0.437,98.82,27,,srn_placeable:mtr srn_t_common:mtr,,,Foyer_L Foyer_U Office_Alum Office_Vinyl Service Tiled
+gg2-gradient,216.91,0.257,99.077,10,512,srn_t_udp2:dds:512x512,,,Office_Alum Office_Vinyl Office_Wood Service Tiled
+udp1-pnt-wh1,166.78,0.197,99.274,8,,srn_placeable:mtr srn_t_common:mtr,,,Service Tiled Wall
+udp1-mtl-chrm,103.29,0.122,99.397,39,,srn_door:mtr srn_placeable:mtr,,,Foyer_L Foyer_U Office_Alum Office_Vinyl Office_Wood Wall
+gg2-wd-pl,75.76,0.09,99.486,5,,srn_placeable:mtr srn_t_common:mtr,,,Office_Wood
+udp2-elev1,65.41,0.077,99.564,1,512,srn_door:dds:512x512 srn_placeable:dds:512x512,,,Wall
+gg-brk-reg2,58.65,0.069,99.633,3,512,srn_t_udp2:dds:512x512,,,Foyer_L Foyer_U Service
+gi-h5,51.94,0.061,99.695,3,512,srn_t_udp2:dds:512x512,,,Foyer_L Foyer_U Office_Wood
+udp2-marble2,43.07,0.051,99.746,5,1024,srn_t_udp2:dds:1024x1024,,,Office_Alum Office_Vinyl Office_Wood Service Tiled
+udp2_p_cab1,42.34,0.05,99.796,2,512,srn_placeable:dds:512x512 srn_t_udp2:dds:512x512,srx02,srn_placeable:8,Wall
+udp2_w_sid1,39.19,0.046,99.842,5,512,srn_t_udp2:dds:512x512,,,Office_Alum Office_Vinyl Office_Wood Service Tiled
+gg2-h2-2,36.9,0.044,99.886,3,512,srn_door:dds:512x512,,,Office_Vinyl Service Tiled
+gg-conc3,18.28,0.022,99.907,2,512,srn_placeable:dds:512x512 srn_t_udp2:dds:512x512,,,Foyer_L Foyer_U
+gg-conc,17.23,0.02,99.928,2,,srn_placeable:mtr srn_t_common:mtr,,,Foyer_L Foyer_U
+udp2_p_for3,11.35,0.013,99.941,2,256,srn_placeable:dds:256x256 srn_t_udp2:dds:256x256,srx02,srn_placeable:8,Wall
+udp1-mtl-gry,9.62,0.011,99.953,1,,srn_placeable:mtr srn_t_common:mtr,,,Wall
+udp2_p_wht,6.92,0.008,99.961,2,64,srn_placeable:dds:64x64 srn_t_udp2:dds:64x64,srx02,srn_placeable:23,Wall
+udp2_fp,6.54,0.008,99.969,5,256,srn_t_udp2:dds:256x256,,,Office_Alum Office_Vinyl Office_Wood Service Tiled
+udp1-mtl-alum,5.49,0.006,99.975,2,,srn_door:mtr srn_placeable:mtr,,,Wall
+udp2_p_gry,5.3,0.006,99.981,1,128,srn_placeable:dds:128x128 srn_t_udp2:dds:128x128,srx02,srn_placeable:20,Wall
+gg2-bark,5.2,0.006,99.987,7,,srn_placeable:mtr srn_t_common:mtr,,,Foyer_L Foyer_U Office_Alum Office_Vinyl Office_Wood Service Tiled
+udp2_p_garbage,3.3,0.004,99.991,1,512,srn_placeable:dds:512x512 srn_t_udp2:dds:512x512,srx02,srn_placeable:1,Wall
+udp2_p_watercooler,1.9,0.002,99.994,2,,,srx02,srn_placeable:1,Wall
+udp2_p_sstl2,1.58,0.002,99.995,1,512,srn_placeable:dds:512x512 srn_t_udp2:dds:512x512,srx02,srn_placeable:18,Wall
+udp2_p_appl,1.13,0.001,99.997,1,1024,srn_placeable:dds:1024x1024 srn_t_udp2:dds:1024x1024,srx02,srn_placeable:6,Wall
+udp2_p_cfem,0.8,0.001,99.998,1,1024,srn_placeable:dds:1024x1024 srn_t_udp2:dds:1024x1024,srx02,srn_placeable:2,Wall
+udp2_p_trash,0.79,0.001,99.999,1,256,srn_placeable:dds:256x256 srn_t_udp2:dds:256x256,srx02,srn_placeable:12,Wall
+gg2-spikes,0.64,0.001,99.999,2,256,srn_t_udp2:dds:256x256,,,Foyer_L Foyer_U
+udp1-mtl-gry2,0.24,0.0,100.0,1,,srn_placeable:mtr srn_t_common:mtr,,,Wall
+udp2_p_cfep,0.17,0.0,100.0,1,512,srn_placeable:dds:512x512 srn_t_udp2:dds:512x512,srx02,srn_placeable:2,Wall
+udp1-hydr1a,0.07,0.0,100.0,1,512,srn_placeable:dds:512x512 srn_t_udp2:dds:512x512,,,Wall

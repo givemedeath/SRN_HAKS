@@ -2589,3 +2589,92 @@ of Poly Haven) are in no pack: the user kept the originals.
 The tile models are the originals, compiled by NeverBlender from `sources/srn_t_udp1/` (node names made unique by
 `tilekit unique`), with day and night animations for their lit windows and lamp lenses (`tilekit daylight`) and
 the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are unchanged.
+
+## Unified interior tileset `srx02` (`srn_t_srx02`, `srn_2da`, `srn_t_nac01`; 2026-11-24)
+
+- `srn_t_srx02/srx02.set`, `srx02palstd.itp` and `srn_2da/srx02_edge.2da` are written by `tools/tilekit/merge.py` from
+  the set files of `srn_t_udp2` (D20 Office Interiors UDP), `srn_t_tfb01` (D20 Modern Interior), `srn_t_tbx78` (D20
+  Modern Facility) and `srn_t_nac01` (D20 ServiceDucts) and the edge tables of the first and third, under the names in
+  `docs/tilesets/srx02/names.json`. They hold no model, texture or picture: every tile draws the source packs' own
+  files, whose provenance and terms are recorded above. The names, the palette layout and the generated rules between
+  the four sets are original work of the SRN project operator with Claude; the operator approved the names on
+  2026-11-24. `docs/tilesets/srx02/merged.json` pins what each merge read and wrote.
+- `srn_2da/doortypes.2da` rows 269-273 are copies of the base game's rows 24, 42, 43, 54 and 146 keyed to `SRX02`.
+- `srn_t_nac01/nac01.set`: one door hook's `X==-4.75` corrected to `X=-4.75` (a typing error of the source).
+- The join tiles `srn_t_srx02/srx02_j*.mdl` (sources in `sources/srn_t_srx02/`), their walkmeshes and
+  `mi_srx02_j*.tga` minimaps are written by `tools/tilekit/joins.py` (`docs/tilesets/srx02/joins.json`): each is cut
+  from the straight passage tiles of two of the four source packs and draws their textures by name; the bulkhead
+  between them is generated geometry in the same textures. Original work of the SRN project operator with Claude.
+  `docs/tilesets/srx02/joins-built.json` pins what a build read and wrote; the models are compiled as the other tile
+  packs' are (`sources/compiled.json`).
+
+## Modern Interior textures drawn again (`srn_t_tfb01`, `srn_door`; 2026-11-24)
+
+- 43 textures of the D20 Modern Interior source pack (`docs/tilesets/tfb01/materials.json`; 38 in `srn_t_tfb01`, and
+  `tfb01_creats`, `tfb01_door2`, `tfb01_metaldoor`, `tfb01_shpflr1` and `tfb01_shpflr2` in `srn_door`) are replaced under
+  their own names, as DDS of 1024 by 1024 in place of the TGAs. Each was redrawn locally with Qwen-Image 2.1
+  (`tilekit redraw --bindings`) from the source pack's own picture as a layout reference; the prompts and what was
+  kept of each picture are in `docs/tilesets/tfb01/redraw.json`, which also names the commit that holds the pictures
+  replaced and the 25 textures left as they were. No third-party picture was used. The source pack's terms, recorded
+  above, still hold for its models and the textures left. The operator approved the pictures on 2026-11-24.
+
+## Interior rooms (`srn_t_srx02`; 2026-11-24)
+
+- The room tiles `srn_t_srx02/srx02_<id>u_NN.mdl` and `srx02_<id>f_NN.mdl` (sources in `sources/srn_t_srx02/`) and their
+  walkmeshes are written by `tools/tilekit/rooms.py` from the specs in `docs/tilesets/srx02/rooms/`. Each is a copy of a
+  source set's tile without its furniture, with a generated ceiling and, where furnished, placeables of `srn_placeable`
+  and `srn_envprop` baked in; they draw the textures of those packs by name. `docs/tilesets/srx02/rooms-built.json` lists
+  the tiles and placeables each was made from, whose provenance and terms are recorded above.
+- `srx02_bookscr.dds` (a bookcase round a screen) and `srx02_scrnews.tga` (the screen's frames, with `srx02_scrnews.txi`)
+  were drawn locally with Qwen-Image 2.1 from a layout drawn in code and, for the frames, from that picture itself, and
+  put together by the SRN project operator with Claude. No third-party picture was used. The operator approved the
+  room on 2026-11-24.
+- `srx02_clgplas.dds`, `srx02_clgconc.dds`, `srx02_clgtile.dds` (ceilings), `srx02_lampdif.dds` and `srx02_lamphous.dds` (lamps)
+  are drawn in code by `tools/tilekit/ceilings.py` (2026-11-25); no picture of anyone's went into them. The shells of `r02`,
+  `r04` and `c01` are drawn by `tools/tilekit/walls.py` with the source sets' textures. Props of more than 2,500 triangles
+  are baked from copies reduced in Blender; the placeables themselves are unchanged.
+
+## Names and blueprints of the imported placeables (`srn_placeable`, `srn_2da`, `srn_tlk`; 2026-11-25)
+
+- 4,226 blueprints (`srn_placeable/*.utp`) and the labels of their rows in `srn_2da/placeables.2da` are written by
+  `tools/envkit` (`envkit library`) from `docs/placeables/library.json`. The blueprints are this project's, made of the
+  game's fields for a plain placeable. Their names are for the most part those of the blueprints of the d20 Modern
+  update module, a local copy in SR_NWN's old assets, tidied; no file of that module is copied. 745 without one
+  there were named by the project from the row's label and a picture of the piece. The categories
+  (`docs/placeables/categories.json`, `srn_placeable/placeablepal.itp`, 70 strings of `srn_tlk`) are this project's.
+  No model, texture or row number changes. The operator asked for the names, the blueprints and the categories.
+
+## Pictures of imported placeables made anew (`srn_placeable`, `srn_t_udp2`, `srn_t_tbx78`; 2026-11-25)
+
+- Pictures of the d20 Modern and UDP placeables too coarse for eye level, under their own names. Enlarged ones
+  (`docs/placeables/enlarged.json`, `materials.json`) are the imported pictures, enlarged on the operator's ComfyUI by the upscaler named in
+  each record. Redrawn ones (`redraw.json`) were drawn by the local Qwen image edit model on the imported picture's layout.
+- What twenty screens show (`screen-pictures.json`) was drawn by the same model from a blank picture and the prompts there;
+  `tools/tilekit/screens.py` lays them in. They replace screenshots of real desktops, programs and broadcasts; makers'
+  logos beside them are painted out. The imported pictures stay in the history (`before` in each list).
+- The operator asked for the pass and for all placeables to be in it.
+- Screens that move (2026-11-25, the operator asked for all display screens to be animated): the shaders
+  `srn_placeable/srn_screen.shd`, `srn_screen_fs.shd` and `srn_screenp_fs.shd` are this project's, written with Claude
+  from the game's own `fslit` and `fslit_sm_nm`; the materials beside the pictures (`<picture>.mtr`) and the lines added
+  to five `srn_envprop` materials are written by `tools/tilekit/motion.py` from `docs/placeables/screen-motion.json`.
+  No picture changes.
+
+## Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)
+
+- Source: Lady Patricia, "Lady Patricia's Placeables" on the Neverwinter Vault
+  (`https://neverwintervault.org/project/nwn1/prefab/placeable/lady-patricias-placeables`), archives
+  `lpat_alchemy_v1_0.zip` (SHA-256 `8b33a072b08f139e5d59064aecc62fd413252602993d8adb41bc34ca9e347993`) and
+  `lpat_wicca_v1_0.zip` (`9c6ef526313b03487d7665fbf1a7a5964ecb4b35d2d42d447916aa0ed2055b33`). The operator approved the
+  download and the import on 2026-11-26.
+- Terms as the Vault states them: "Free & open only if project also open". The author's permission detail says the
+  contents are distributed free as is, may be incorporated in any combined haks, and asks for credit. This record is
+  that credit; these files are not relicensed under the repository's default license, and they ship only in free,
+  open releases of the project.
+- 60 of the packs' 85 models (bottles, flasks, glassware, specimen jars, wall shelves, hanging herbs, bones, flasks
+  and pots, bowls, sacks, urns, cauldrons, rune stones, a basket, alchemy tables and stills) are copied unchanged into
+  `srn_placeable` but for their texture names, with their walk files, as `placeables.2da` rows 22918–22977 labelled
+  `[lpat]`. Ivy, roots, floor mats, the wall roots, the werewolf head and the bookcase were left out.
+- Pictures: the packs' own `lpat_*` pictures keep their names. Every other picture the models draw, base-game ones
+  (`tcn01_*`, `plc_*`, `ttf01_*` and others, taken from the game's own files) and ones the packs ship under names other
+  packs also use (`alchemy`, `st_*`, `pdag_hdec`), is copied under a new `lpx_` name so that no texture of the game or
+  another hak is overridden. `docs/placeables/lpat-import.json` maps each new name to its source.

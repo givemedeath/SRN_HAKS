@@ -129,6 +129,27 @@ def toned(colour, like, amount=1.0):
     return np.uint8(np.clip(colour * scale, 0, 255) + 0.5)
 
 
+def recoloured(colour, like, share=0.06):
+    """`colour` (uint8 RGB array) with the broad colours of the picture `like` and its own detail: a generator asked to
+    keep a red wood drew half of it blue (2026-11-25). Broad is wider than `share` of the picture's shorter side."""
+    from PIL import Image
+    colour = np.asarray(colour)[..., :3]; height, width = colour.shape[:2]; radius = max(1, round(min(height, width) * share))
+    like = np.asarray(Image.fromarray(np.ascontiguousarray(np.asarray(like)[..., :3])).resize((width, height), Image.LANCZOS))
+    broad = lambda values: np.dstack([_wrapped_blur(values[..., channel].astype(np.float64), radius) for channel in range(3)])
+    return np.uint8(np.clip(colour * np.clip((broad(like) + 2) / (broad(colour) + 2), 0.2, 5), 0, 255) + 0.5)
+
+
+def joined(colour, strip=0.12):
+    """`colour` (uint8 RGB array) made to meet itself where it repeats: near each edge it fades into what lies half a
+    picture away, which runs on across that edge. For a plain material; a pattern would show doubled in the strip."""
+    values = np.asarray(colour)[..., :3].astype(np.float64)
+    for axis in (1, 0):
+        size = values.shape[axis]; place = (np.arange(size) + 0.5) / size; near = np.clip(np.minimum(place, 1 - place) / strip, 0, 1); keep = near * near * (3 - 2 * near)
+        keep = keep[None, :, None] if axis == 1 else keep[:, None, None]
+        values = values * keep + np.roll(values, size // 2, axis=axis) * (1 - keep)
+    return np.uint8(values + 0.5)
+
+
 def graded(colour, grade):
     """`colour` (uint8 RGB array) as a district's grade leaves it. grade: {saturation (1 keeps it, 0 is grey), contrast
     (about the picture's own mean brightness, 1 keeps it), gain (brightness, 1 keeps it), tint ([red, green, blue]

@@ -1,0 +1,452 @@
+{
+ "tileset": "srx02",
+ "haks": [
+  "srn_t_srx02",
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 18,
+  "height": 4,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "i01_f",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "i02_f",
+    "at": [
+     3,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "i03_f",
+    "at": [
+     6,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "i04_f",
+    "at": [
+     9,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "i05_f",
+    "at": [
+     11,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "i02_u",
+    "at": [
+     13,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "i01_u",
+    "at": [
+     16,
+     1
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    1,
+    1
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    6,
+    1
+   ],
+   [
+    9,
+    1
+   ],
+   [
+    11,
+    1
+   ],
+   [
+    13,
+    1
+   ],
+   [
+    16,
+    1
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "bird-i01f",
+     "at": [
+      1.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-i02f",
+     "at": [
+      4.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 26,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-i03f",
+     "at": [
+      7.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 26,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-i04f",
+     "at": [
+      9.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-i05f",
+     "at": [
+      11.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-i02u",
+     "at": [
+      14.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 26,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "bird-i01u",
+     "at": [
+      16.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "i01-in",
+     "at": [
+      1.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "i01-bench",
+     "at": [
+      1.26,
+      1.68
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "i01-drone",
+     "at": [
+      1.5,
+      1.42
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "i01-lockers",
+     "at": [
+      1.65,
+      1.62
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "i02-in",
+     "at": [
+      3.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "i02-aisle",
+     "at": [
+      3.52,
+      1.68
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "i02-staging",
+     "at": [
+      3.46,
+      2.0
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "i02-back",
+     "at": [
+      3.46,
+      2.72
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "i02-receive",
+     "at": [
+      3.9,
+      1.24
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "i03-in",
+     "at": [
+      6.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "i03-staging",
+     "at": [
+      6.85,
+      1.4
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "i03-controls",
+     "at": [
+      6.4,
+      1.66
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "i04-in",
+     "at": [
+      9.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "i04-aisle",
+     "at": [
+      9.13,
+      1.52
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "i04-behind",
+     "at": [
+      9.5,
+      1.82
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "i05-in",
+     "at": [
+      11.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "i05-plant",
+     "at": [
+      11.25,
+      1.2
+     ],
+     "turns": [
+      45
+     ]
+    },
+    {
+     "name": "i05-switch",
+     "at": [
+      11.5,
+      1.7
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "i02-up",
+     "at": [
+      3.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    },
+    {
+     "name": "i04-up",
+     "at": [
+      9.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

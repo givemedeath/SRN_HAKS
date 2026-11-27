@@ -13,7 +13,7 @@ from tools.tilekit import geometry
 from tools.tilekit.floors import doubled, pieced, pinched, short
 
 REPO = Path(__file__).resolve().parents[2]
-PACKS = ('srn_t_common', 'srn_t_dgt04', 'srn_t_fcx01', 'srn_t_nac01', 'srn_t_srx01', 'srn_t_tbx78', 'srn_t_tfb01', 'srn_t_udp1',
+PACKS = ('srn_t_common', 'srn_t_dgt04', 'srn_t_fcx01', 'srn_t_nac01', 'srn_t_srx01', 'srn_t_srx02', 'srn_t_tbx78', 'srn_t_tfb01', 'srn_t_udp1',
          'srn_t_udp2')  # named so the test selector runs this when one changes
 # Tiles with a face of no area on an edge between two others, and how many such edges each has. All were walked straight
 # across in the client, 2026-11-25, but tfb01_n01_13 and n01_14, whose edge is the top of a 0.9 m wall.

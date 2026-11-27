@@ -413,6 +413,14 @@ class ComfyServerRuntimeTests(Temporary):
         self.assertEqual(files,{paths[i] for i in (0,2,3,5)})
         self.assertIn(paths[1],runtime_members({stdlib,stdlib/'site-packages',active}))
 
+    def test_runtime_members_leave_out_only_the_manager_s_cache(self):
+        from headkit.comfy_nodes.runtime_identity import runtime_members
+        core=self.root/'ComfyUI'
+        paths=[core/'user'/'__manager'/'cache'/'881334633_nodes.json',core/'user'/'__manager'/'config.json',
+               core/'cache'/'kept.json',core/'user'/'cache'/'kept.json',core/'nodes.py']
+        for path in paths:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture')
+        self.assertEqual(runtime_members({core}),set(paths[1:]))
+
     def test_runtime_members_include_sourceless_bytecode_and_zip_imports(self):
         from headkit.comfy_nodes.runtime_identity import runtime_members
         active=self.root/'venv'/'site-packages'

@@ -1,0 +1,91 @@
+{
+ "id": "i05",
+ "category": "Industrial",
+ "name": "Mechanical Room",
+ "note": "Floorplan I05: plant on the floor, switchgear and electrical cabinets on the walls, a pipe run and an air handler.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 3.0,
+    "wall": [
+     3.4,
+     3.4
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tbx78_floor01",
+    "wall": "tfb_subwayf1",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    2.5
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    7.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.5,
+    2.5
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.5,
+    7.0
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "p_electricbx1", "at": [2.6, 8.915, 0.0], "faces": "s"},
+  {"piece": "ek_sb_switch", "at": [7.2, 9.129, 0.0], "faces": "s"},
+  {"piece": "ek_sb_pipes", "at": [9.453, 3.0, 0.0], "faces": "w"},
+  {"piece": "vos_elecbox1", "at": [9.456, 6.047, 0.0], "faces": "w"},
+  {"piece": "shp_p10", "at": [9.615, 9.15, 0.0], "faces": "w"},
+  {"piece": "ek_hs_cabinet", "at": [1.064, 3.0, 0.0], "faces": "e"},
+  {"piece": "vos_elecbox2", "at": [0.485, 5.2, 0.0], "faces": "e"},
+  {"piece": "ek_aw_gen", "at": [5.0, 4.998, 0.0], "turn": 0},
+  {"piece": "ek_hs_hvac2", "at": [2.0, 6.4, 0.0], "turn": 0},
+  {"piece": "p_generator01", "at": [7.6, 5.2, 0.0], "turn": 0}
+ ],
+ "placeLater": [{"what": "a door in the opening"}, {"what": "the switchgear and cabinets as things to use"}]
+}

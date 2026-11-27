@@ -2,13 +2,15 @@ import contextlib
 import io
 import json
 import struct
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 from PIL import Image
 
-import publish_library as pl
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # its own folder, as its neighbours do: it ran only when one of them shared its run
+import publish_library as pl  # noqa: E402
 
 HEAD, SLOT = 'troll-male-a', 'pmg0_head021'
 VIEWS = [v for v, _ in pl.VIEWS]

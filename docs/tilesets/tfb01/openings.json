@@ -1,0 +1,2496 @@
+{
+ "tileset": "tfb01",
+ "hooks": [
+  {
+   "tile": 5,
+   "model": "tfb01_a13_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": null,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 5,
+   "model": "tfb01_a13_01",
+   "door": 1,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": null,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 6,
+   "model": "tfb01_a14_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 7,
+   "model": "tfb01_a15_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 7,
+   "model": "tfb01_a15_01",
+   "door": 1,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 7,
+   "model": "tfb01_a15_01",
+   "door": 2,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 8,
+   "model": "tfb01_a16_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 9,
+   "model": "tfb01_a17_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 19,
+   "model": "tfb01_d13_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": null,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 20,
+   "model": "tfb01_d14_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 20,
+   "model": "tfb01_d14_01",
+   "door": 1,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 0.99
+  },
+  {
+   "tile": 21,
+   "model": "tfb01_d15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 22,
+   "model": "tfb01_d16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 23,
+   "model": "tfb01_e01_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 24,
+   "model": "tfb01_e03_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 26,
+   "model": "tfb01_e06_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 37,
+   "model": "tfb01_f13_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.7,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 38,
+   "model": "tfb01_f14_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 0.99
+  },
+  {
+   "tile": 39,
+   "model": "tfb01_f15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.7,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 40,
+   "model": "tfb01_f16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.7,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 41,
+   "model": "tfb01_g01_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 42,
+   "model": "tfb01_g03_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 44,
+   "model": "tfb01_g06_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 55,
+   "model": "tfb01_h13_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 56,
+   "model": "tfb01_h14_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 0.99
+  },
+  {
+   "tile": 56,
+   "model": "tfb01_h14_01",
+   "door": 1,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": null,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 57,
+   "model": "tfb01_h15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 58,
+   "model": "tfb01_h16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 59,
+   "model": "tfb01_i01_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 60,
+   "model": "tfb01_i03_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 62,
+   "model": "tfb01_i06_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 73,
+   "model": "tfb01_l13_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 74,
+   "model": "tfb01_l14_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 0.99
+  },
+  {
+   "tile": 74,
+   "model": "tfb01_l14_01",
+   "door": 1,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 75,
+   "model": "tfb01_l15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 76,
+   "model": "tfb01_l16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 77,
+   "model": "tfb01_m01_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 78,
+   "model": "tfb01_m03_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 80,
+   "model": "tfb01_m06_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 95,
+   "model": "tfb01_o09_01",
+   "door": 0,
+   "at": [
+    1.16,
+    0.0,
+    -0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 96,
+   "model": "tfb01_o13_01",
+   "door": 0,
+   "at": [
+    1.66,
+    0.0,
+    -0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 97,
+   "model": "tfb01_p09_01",
+   "door": 0,
+   "at": [
+    0.95,
+    0.0,
+    -0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.98
+  },
+  {
+   "tile": 98,
+   "model": "tfb01_p13_01",
+   "door": 0,
+   "at": [
+    1.35,
+    0.0,
+    -0.0
+   ],
+   "turn": -90.0,
+   "width": 5.0,
+   "height": 3.0,
+   "left": 2.5,
+   "right": 2.5
+  },
+  {
+   "tile": 99,
+   "model": "tfb01_o16_01",
+   "door": 0,
+   "at": [
+    0.0,
+    -0.01,
+    1.4
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.01,
+   "right": 0.99
+  },
+  {
+   "tile": 100,
+   "model": "tfb01_p16_01",
+   "door": 0,
+   "at": [
+    0.0,
+    2.0,
+    -1.6
+   ],
+   "turn": 0.0,
+   "width": 2.8,
+   "height": 3.0,
+   "left": 1.39,
+   "right": 1.41
+  },
+  {
+   "tile": 101,
+   "model": "tfb01_b20_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 3.0,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 101,
+   "model": "tfb01_b20_01",
+   "door": 1,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 102,
+   "model": "tfb01_b19_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 3.0,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 103,
+   "model": "tfb01_b18_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 104,
+   "model": "tfb01_a07_01",
+   "door": 0,
+   "at": [
+    0.0,
+    -0.81,
+    0.0
+   ],
+   "turn": -180.0,
+   "width": 5.0,
+   "height": 4.5,
+   "left": 2.5,
+   "right": 2.5
+  },
+  {
+   "tile": 105,
+   "model": "tfb01_e15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 106,
+   "model": "tfb01_e16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 108,
+   "model": "tfb01_g15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.7,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 109,
+   "model": "tfb01_i16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 110,
+   "model": "tfb01_i15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 111,
+   "model": "tfb01_m16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 112,
+   "model": "tfb01_m15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 119,
+   "model": "tfb01_a13_02",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 119,
+   "model": "tfb01_a13_02",
+   "door": 1,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 120,
+   "model": "tfb01_a14_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 121,
+   "model": "tfb01_a07_02",
+   "door": 0,
+   "at": [
+    0.0,
+    0.76,
+    0.0
+   ],
+   "turn": 180.0,
+   "width": null,
+   "height": 3.8,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 131,
+   "model": "tfb01_d13_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 132,
+   "model": "tfb01_d13_03",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 133,
+   "model": "tfb01_d16_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 143,
+   "model": "tfb01_f13_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.7,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 144,
+   "model": "tfb01_f13_03",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.7,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 145,
+   "model": "tfb01_f15_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.7,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 146,
+   "model": "tfb01_f16_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.7,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 154,
+   "model": "tfb01_h13_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 155,
+   "model": "tfb01_h13_03",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 156,
+   "model": "tfb01_h15_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 157,
+   "model": "tfb01_h16_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 167,
+   "model": "tfb01_l13_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 168,
+   "model": "tfb01_l13_03",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 169,
+   "model": "tfb01_l15_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 170,
+   "model": "tfb01_l16_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 171,
+   "model": "tfb01_d01_08",
+   "door": 0,
+   "at": [
+    2.77,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 172,
+   "model": "tfb01_d01_07",
+   "door": 0,
+   "at": [
+    2.81,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 173,
+   "model": "tfb01_d15_02",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 174,
+   "model": "tfb01_g16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 175,
+   "model": "tfb01_q02_01",
+   "door": 0,
+   "at": [
+    0.33,
+    -1.09,
+    1.6
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 3.8,
+   "left": 0.96,
+   "right": 1.04
+  },
+  {
+   "tile": 176,
+   "model": "tfb01_r02_01",
+   "door": 0,
+   "at": [
+    -1.2,
+    -2.7,
+    -0.01
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.97,
+   "right": 0.98
+  },
+  {
+   "tile": 180,
+   "model": "tfb01_r04_01",
+   "door": 0,
+   "at": [
+    -3.02,
+    1.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 3.3,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 181,
+   "model": "tfb01_q03_01",
+   "door": 0,
+   "at": [
+    1.5,
+    -3.02,
+    0.0
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.3,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 182,
+   "model": "tfb01_q04_01",
+   "door": 0,
+   "at": [
+    -1.13,
+    -1.64,
+    -1.0
+   ],
+   "turn": -180.0,
+   "width": 2.0,
+   "height": 3.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 184,
+   "model": "tfb01_s04_01",
+   "door": 0,
+   "at": [
+    -0.8,
+    -1.62,
+    -1.0
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 185,
+   "model": "tfb01_s03_01",
+   "door": 0,
+   "at": [
+    1.5,
+    -3.02,
+    0.0
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.3,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 186,
+   "model": "tfb01_s02_01",
+   "door": 0,
+   "at": [
+    -0.01,
+    -1.09,
+    1.6
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 3.8,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 188,
+   "model": "tfb01_t02_01",
+   "door": 0,
+   "at": [
+    2.69,
+    1.2,
+    -0.01
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.98,
+   "right": 0.97
+  },
+  {
+   "tile": 190,
+   "model": "tfb01_t04_01",
+   "door": 0,
+   "at": [
+    -3.02,
+    3.17,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.3,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 190,
+   "model": "tfb01_t04_01",
+   "door": 1,
+   "at": [
+    -3.02,
+    -0.74,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.3,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 191,
+   "model": "tfb01_a09_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 192,
+   "model": "tfb01_b09_01",
+   "door": 0,
+   "at": [
+    5.0,
+    -0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 192,
+   "model": "tfb01_b09_01",
+   "door": 1,
+   "at": [
+    -5.0,
+    -0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 193,
+   "model": "tfb01_b10_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    -0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 193,
+   "model": "tfb01_b10_01",
+   "door": 1,
+   "at": [
+    0.0,
+    -5.0,
+    0.0
+   ],
+   "turn": -180.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 194,
+   "model": "tfb01_b11_01",
+   "door": 0,
+   "at": [
+    0.0,
+    -5.0,
+    0.0
+   ],
+   "turn": -180.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 194,
+   "model": "tfb01_b11_01",
+   "door": 1,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 194,
+   "model": "tfb01_b11_01",
+   "door": 2,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 195,
+   "model": "tfb01_b12_01",
+   "door": 0,
+   "at": [
+    0.0,
+    -5.0,
+    0.0
+   ],
+   "turn": -180.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 195,
+   "model": "tfb01_b12_01",
+   "door": 1,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 4.2,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 196,
+   "model": "tfb01_b13_01",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 196,
+   "model": "tfb01_b13_01",
+   "door": 1,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 197,
+   "model": "tfb01_b14_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    -0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 198,
+   "model": "tfb01_b15_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 198,
+   "model": "tfb01_b15_01",
+   "door": 1,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 199,
+   "model": "tfb01_b16_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 200,
+   "model": "tfb01_b17_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 201,
+   "model": "tfb01_b18_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 202,
+   "model": "tfb01_b19_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 3.0,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 203,
+   "model": "tfb01_b20_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 3.0,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 203,
+   "model": "tfb01_b20_01",
+   "door": 1,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 204,
+   "model": "tfb01_z20_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.98,
+   "right": 0.98
+  },
+  {
+   "tile": 207,
+   "model": "tfb01_r18_01",
+   "door": 0,
+   "at": [
+    2.79,
+    5.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": null,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 208,
+   "model": "tfb01_r17_01",
+   "door": 0,
+   "at": [
+    2.79,
+    -5.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 3.1,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 209,
+   "model": "tfb01_y15_01",
+   "door": 0,
+   "at": [
+    2.5,
+    5.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 210,
+   "model": "tfb01_x15_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    5.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": null,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 211,
+   "model": "tfb01_w15_01",
+   "door": 0,
+   "at": [
+    -0.75,
+    2.79,
+    0.0
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 211,
+   "model": "tfb01_w15_01",
+   "door": 1,
+   "at": [
+    5.0,
+    5.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": null,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 212,
+   "model": "tfb01_w14_01",
+   "door": 0,
+   "at": [
+    5.0,
+    -5.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": 3.0,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 212,
+   "model": "tfb01_w14_01",
+   "door": 1,
+   "at": [
+    1.25,
+    2.55,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.98,
+   "right": 0.98
+  },
+  {
+   "tile": 213,
+   "model": "tfb01_x14_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    -5.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": null,
+   "height": null,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 214,
+   "model": "tfb01_y14_01",
+   "door": 0,
+   "at": [
+    2.5,
+    -5.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": null,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 225,
+   "model": "tfb01_s06_01",
+   "door": 0,
+   "at": [
+    2.5,
+    -5.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": null,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 226,
+   "model": "tfb01_s07_01",
+   "door": 0,
+   "at": [
+    2.5,
+    5.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.0,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 228,
+   "model": "tfb01_q09_01",
+   "door": 0,
+   "at": [
+    4.0,
+    2.34,
+    0.19
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 2.8,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 231,
+   "model": "tfb01_q12_01",
+   "door": 0,
+   "at": [
+    4.0,
+    -2.34,
+    0.19
+   ],
+   "turn": -180.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 236,
+   "model": "tfb01_s09_01",
+   "door": 0,
+   "at": [
+    -3.98,
+    0.12,
+    -0.01
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 239,
+   "model": "tfb01_s12_01",
+   "door": 0,
+   "at": [
+    -3.98,
+    -0.63,
+    -0.01
+   ],
+   "turn": 180.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 241,
+   "model": "tfb01_t10_01",
+   "door": 0,
+   "at": [
+    2.31,
+    -5.0,
+    -0.01
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 242,
+   "model": "tfb01_t11_01",
+   "door": 0,
+   "at": [
+    2.31,
+    5.0,
+    -0.01
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": 1.0,
+   "right": null
+  },
+  {
+   "tile": 251,
+   "model": "tfb01_w17_01",
+   "door": 0,
+   "at": [
+    2.65,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 253,
+   "model": "tfb01_t17_01",
+   "door": 0,
+   "at": [
+    -5.0,
+    2.67,
+    -0.01
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": null,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 256,
+   "model": "tfb01_s17_01",
+   "door": 0,
+   "at": [
+    5.0,
+    2.67,
+    -0.01
+   ],
+   "turn": 0.0,
+   "width": null,
+   "height": 4.0,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 257,
+   "model": "tfb01_v14_01",
+   "door": 0,
+   "at": [
+    0.0,
+    -0.02,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 260,
+   "model": "tfb01_q15_01",
+   "door": 0,
+   "at": [
+    1.93,
+    -3.01,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 260,
+   "model": "tfb01_q15_01",
+   "door": 1,
+   "at": [
+    1.93,
+    0.92,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 261,
+   "model": "tfb01_q16_01",
+   "door": 0,
+   "at": [
+    1.93,
+    -0.84,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 1.03,
+   "right": 0.97
+  },
+  {
+   "tile": 261,
+   "model": "tfb01_q16_01",
+   "door": 1,
+   "at": [
+    1.93,
+    3.02,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 262,
+   "model": "tfb01_r14_01",
+   "door": 0,
+   "at": [
+    -4.9,
+    2.5,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 4.2,
+   "height": 3.2,
+   "left": 1.99,
+   "right": 2.2
+  },
+  {
+   "tile": 264,
+   "model": "tfb01_r16_01",
+   "door": 0,
+   "at": [
+    -5.1,
+    -2.53,
+    0.0
+   ],
+   "turn": 180.0,
+   "width": null,
+   "height": 3.2,
+   "left": null,
+   "right": 2.21
+  },
+  {
+   "tile": 267,
+   "model": "tfb01_t16_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": null
+  },
+  {
+   "tile": 268,
+   "model": "tfb01_t15_01",
+   "door": 0,
+   "at": [
+    5.0,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": null,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 274,
+   "model": "tfb01_v02_01",
+   "door": 0,
+   "at": [
+    2.71,
+    1.2,
+    -0.01
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.4,
+   "left": 0.98,
+   "right": 0.97
+  },
+  {
+   "tile": 278,
+   "model": "tfb01_v04_01",
+   "door": 0,
+   "at": [
+    -1.2,
+    -2.67,
+    0.0
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.97,
+   "right": 0.98
+  },
+  {
+   "tile": 279,
+   "model": "tfb01_a16_02",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": null,
+   "height": 4.2,
+   "left": null,
+   "right": 1.0
+  },
+  {
+   "tile": 280,
+   "model": "tfb01_m03_02",
+   "door": 0,
+   "at": [
+    0.0,
+    2.09,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.6,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 282,
+   "model": "tfb01_m06_02",
+   "door": 0,
+   "at": [
+    -2.13,
+    -0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 3.6,
+   "left": 0.99,
+   "right": 0.99
+  },
+  {
+   "tile": 284,
+   "model": "tfb01_d01_04",
+   "door": 0,
+   "at": [
+    0.37,
+    1.95,
+    1.4
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.3,
+   "left": 0.97,
+   "right": 1.03
+  },
+  {
+   "tile": 284,
+   "model": "tfb01_d01_04",
+   "door": 1,
+   "at": [
+    2.63,
+    -0.7,
+    -1.6
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.6,
+   "left": 1.01,
+   "right": 0.99
+  },
+  {
+   "tile": 285,
+   "model": "tfb01_d01_05",
+   "door": 0,
+   "at": [
+    0.37,
+    1.83,
+    1.4
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.3,
+   "left": 0.98,
+   "right": 0.97
+  },
+  {
+   "tile": 286,
+   "model": "tfb01_d01_06",
+   "door": 0,
+   "at": [
+    2.69,
+    1.57,
+    -1.6
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.6,
+   "left": 1.01,
+   "right": 0.99
+  },
+  {
+   "tile": 287,
+   "model": "tfb01_f01_05",
+   "door": 0,
+   "at": [
+    0.37,
+    2.3,
+    1.4
+   ],
+   "turn": -90.0,
+   "width": 1.9,
+   "height": 3.3,
+   "left": 0.97,
+   "right": 0.98
+  },
+  {
+   "tile": 288,
+   "model": "tfb01_f01_04",
+   "door": 0,
+   "at": [
+    0.37,
+    2.46,
+    1.4
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 288,
+   "model": "tfb01_f01_04",
+   "door": 1,
+   "at": [
+    2.63,
+    -0.22,
+    -1.6
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 4.6,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 289,
+   "model": "tfb01_f01_06",
+   "door": 0,
+   "at": [
+    2.69,
+    2.05,
+    -1.6
+   ],
+   "turn": -90.0,
+   "width": 2.1,
+   "height": 4.6,
+   "left": 1.07,
+   "right": 1.0
+  },
+  {
+   "tile": 290,
+   "model": "tfb01_f01_07",
+   "door": 0,
+   "at": [
+    2.7,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.7,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 291,
+   "model": "tfb01_f01_08",
+   "door": 0,
+   "at": [
+    2.7,
+    0.0,
+    0.0
+   ],
+   "turn": -90.0,
+   "width": 2.0,
+   "height": 3.7,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 295,
+   "model": "tfb01_e01_02",
+   "door": 0,
+   "at": [
+    0.0,
+    5.0,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 4.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 299,
+   "model": "tfb01_s03_02",
+   "door": 0,
+   "at": [
+    1.5,
+    -3.02,
+    0.0
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.3,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 302,
+   "model": "tfb01_q04_03",
+   "door": 0,
+   "at": [
+    -1.13,
+    -1.64,
+    -1.0
+   ],
+   "turn": -180.0,
+   "width": 2.0,
+   "height": 3.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 303,
+   "model": "tfb01_s04_02",
+   "door": 0,
+   "at": [
+    -0.8,
+    -1.62,
+    -1.0
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.2,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 313,
+   "model": "tfb01_n01_09",
+   "door": 0,
+   "at": [
+    0.0,
+    4.7,
+    0.0
+   ],
+   "turn": 0.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 313,
+   "model": "tfb01_n01_09",
+   "door": 1,
+   "at": [
+    -4.7,
+    0.0,
+    0.0
+   ],
+   "turn": 90.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 1.0,
+   "right": 1.0
+  },
+  {
+   "tile": 314,
+   "model": "tfb01_n01_10",
+   "door": 0,
+   "at": [
+    4.7,
+    2.0,
+    0.0
+   ],
+   "turn": 270.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.99,
+   "right": 1.01
+  },
+  {
+   "tile": 316,
+   "model": "tfb01_n01_12",
+   "door": 0,
+   "at": [
+    2.95,
+    -0.8,
+    0.0
+   ],
+   "turn": 180.0,
+   "width": 2.0,
+   "height": 3.0,
+   "left": 0.98,
+   "right": 1.02
+  }
+ ],
+ "black": []
+}

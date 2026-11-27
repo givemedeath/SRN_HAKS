@@ -1,0 +1,16 @@
+{
+ "tileset": "srx02",
+ "haks": ["srn_t_srx02", "srn_t_udp2", "srn_t_tfb01", "srn_t_tbx78", "srn_t_nac01", "srn_t_common", "srn_door", "srn_placeable", "srn_envprop", "srn_2da"],
+ "block": {
+  "width": 7,
+  "height": 3,
+  "lights": ["day"],
+  "patches": [],
+  "groups": [{"name": "liv01_u", "at": [1, 1], "loose": true}, {"name": "liv01_f", "at": [5, 1], "loose": true}],
+  "crossings": [[1, 1], [5, 1]],
+  "views": ["none"],
+  "near": {"distance": 14.0, "pitch": 60.0},
+  "eye": {"turns": [45, 135, 225, 315], "pitches": [90, 105]},
+  "lamps": [{"name": "main", "main": 3, "source": 3, "lights": ["day"]}]
+ }
+}

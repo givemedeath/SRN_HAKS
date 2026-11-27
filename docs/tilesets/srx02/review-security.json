@@ -1,0 +1,647 @@
+{
+ "tileset": "srx02",
+ "haks": [
+  "srn_t_srx02",
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 23,
+  "height": 4,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "s02_f",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s04_f",
+    "at": [
+     4,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s05_f",
+    "at": [
+     7,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s06_f",
+    "at": [
+     9,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s07_f",
+    "at": [
+     11,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s08_f",
+    "at": [
+     13,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s02_u",
+    "at": [
+     15,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s04_u",
+    "at": [
+     18,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s08_u",
+    "at": [
+     21,
+     1
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    1,
+    1
+   ],
+   [
+    4,
+    1
+   ],
+   [
+    7,
+    1
+   ],
+   [
+    9,
+    1
+   ],
+   [
+    11,
+    1
+   ],
+   [
+    13,
+    1
+   ],
+   [
+    15,
+    1
+   ],
+   [
+    18,
+    1
+   ],
+   [
+    21,
+    1
+   ],
+   [
+    16,
+    2
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "bird-s02f",
+     "at": [
+      2.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 24,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-s04f",
+     "at": [
+      5.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 24,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-s05f",
+     "at": [
+      7.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-s06f",
+     "at": [
+      9.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-s07f",
+     "at": [
+      11.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-s08f",
+     "at": [
+      13.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-s02u",
+     "at": [
+      16.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 24,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "bird-s04u",
+     "at": [
+      19.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 24,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "bird-s08u",
+     "at": [
+      21.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "s02-gear",
+     "at": [
+      1.1,
+      1.24
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "s02-gearb",
+     "at": [
+      2.9,
+      1.16
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "s02-bay",
+     "at": [
+      1.5,
+      1.45
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "s02-bayb",
+     "at": [
+      2.94,
+      1.56
+     ],
+     "turns": [
+      150
+     ]
+    },
+    {
+     "name": "s02-bunk",
+     "at": [
+      1.95,
+      1.93
+     ],
+     "turns": [
+      215
+     ]
+    },
+    {
+     "name": "s04-vest",
+     "at": [
+      4.5,
+      1.1
+     ],
+     "turns": [
+      60
+     ]
+    },
+    {
+     "name": "s04-issue",
+     "at": [
+      4.76,
+      1.42
+     ],
+     "turns": [
+      135
+     ]
+    },
+    {
+     "name": "s04-back",
+     "at": [
+      4.34,
+      1.67
+     ],
+     "turns": [
+      60
+     ]
+    },
+    {
+     "name": "s04-bayb",
+     "at": [
+      5.06,
+      1.74
+     ],
+     "turns": [
+      30
+     ]
+    },
+    {
+     "name": "s04-gun",
+     "at": [
+      5.89,
+      1.42
+     ],
+     "turns": [
+      205
+     ]
+    },
+    {
+     "name": "s04-gunb",
+     "at": [
+      5.39,
+      1.44
+     ],
+     "turns": [
+      270
+     ]
+    },
+    {
+     "name": "s04-vault",
+     "at": [
+      5.74,
+      1.55
+     ],
+     "turns": [
+      60
+     ]
+    },
+    {
+     "name": "s05-in",
+     "at": [
+      7.46,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "s05-lane",
+     "at": [
+      7.13,
+      1.12
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "s05-desk",
+     "at": [
+      7.93,
+      1.5
+     ],
+     "turns": [
+      215
+     ]
+    },
+    {
+     "name": "s05-back",
+     "at": [
+      7.13,
+      1.64
+     ],
+     "turns": [
+      30
+     ]
+    },
+    {
+     "name": "s06-in",
+     "at": [
+      9.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "s06-west",
+     "at": [
+      9.62,
+      1.32
+     ],
+     "turns": [
+      170
+     ]
+    },
+    {
+     "name": "s06-east",
+     "at": [
+      9.36,
+      1.78
+     ],
+     "turns": [
+      330
+     ]
+    },
+    {
+     "name": "s06-rear",
+     "at": [
+      9.5,
+      1.86
+     ],
+     "turns": [
+      270
+     ]
+    },
+    {
+     "name": "s07-in",
+     "at": [
+      11.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "s07-left",
+     "at": [
+      11.46,
+      1.38
+     ],
+     "turns": [
+      210
+     ]
+    },
+    {
+     "name": "s07-wash",
+     "at": [
+      11.15,
+      1.56
+     ],
+     "turns": [
+      60
+     ]
+    },
+    {
+     "name": "s07-show",
+     "at": [
+      11.84,
+      1.56
+     ],
+     "turns": [
+      110
+     ]
+    },
+    {
+     "name": "s07-washb",
+     "at": [
+      11.43,
+      1.8
+     ],
+     "turns": [
+      190
+     ]
+    },
+    {
+     "name": "s08-in",
+     "at": [
+      13.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "s08-desk",
+     "at": [
+      13.62,
+      1.44
+     ],
+     "turns": [
+      195
+     ]
+    },
+    {
+     "name": "s08-cell",
+     "at": [
+      13.5,
+      1.46
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "s08-inside",
+     "at": [
+      13.17,
+      1.93
+     ],
+     "turns": [
+      290
+     ]
+    },
+    {
+     "name": "s05-up",
+     "at": [
+      7.46,
+      1.1
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    },
+    {
+     "name": "s06-up",
+     "at": [
+      9.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    },
+    {
+     "name": "s08-up",
+     "at": [
+      13.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    },
+    {
+     "name": "s04-up",
+     "at": [
+      5.06,
+      1.26
+     ],
+     "turns": [
+      0
+     ],
+     "pitches": [
+      110
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

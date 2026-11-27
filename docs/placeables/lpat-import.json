@@ -1,0 +1,395 @@
+{
+ "note": "Lady Patricia props from the Neverwinter Vault (user approved the download, 2026-11-26). Models keep their names; textures that are not the packs' own lpat_* pictures are copies under lpx_ names, so no base-game or other texture is overridden. Written by output/_lpatimport.py.",
+ "archives": {
+  "lpat_alchemy_v1_0.zip": "8b33a072b08f139e5d59064aecc62fd413252602993d8adb41bc34ca9e347993",
+  "lpat_wicca_v1_0.zip": "9c6ef526313b03487d7665fbf1a7a5964ecb4b35d2d42d447916aa0ed2055b33"
+ },
+ "rows": {
+  "lpat_alcbottles1": 22918,
+  "lpat_flsks1": 22919,
+  "lpat_flsks2": 22920,
+  "lpat_alctable_01": 22921,
+  "lpat_alctable_2": 22922,
+  "lpat_alchemy1": 22923,
+  "lpat_alchemy2": 22924,
+  "lpat_tubes1": 22925,
+  "lpat_tubes2": 22926,
+  "lpat_retort_lrg": 22927,
+  "lpat_alc_brw": 22928,
+  "lpat_table_a1": 22929,
+  "lpat_wic_botls1": 22930,
+  "lpat_wic_botls2": 22931,
+  "lpat_wic_botls3": 22932,
+  "lpat_wic_bflask1": 22933,
+  "lpat_wic_bflask2": 22934,
+  "lpat_wic_bflask3": 22935,
+  "lpat_wic_bflask4": 22936,
+  "lpat_wic_jars1": 22937,
+  "lpat_wic_jars2": 22938,
+  "lpat_wic_jars3": 22939,
+  "lpat_wic_shelf1": 22940,
+  "lpat_wic_shelf2": 22941,
+  "lpat_wic_shelf3": 22942,
+  "lpat_wic_herbs1": 22943,
+  "lpat_wic_herbs2": 22944,
+  "lpat_wic_herbs3": 22945,
+  "lpat_wic_herbs4": 22946,
+  "lpat_wic_hbones1": 22947,
+  "lpat_wic_hbones2": 22948,
+  "lpat_wic_hflask1": 22949,
+  "lpat_wic_hflask2": 22950,
+  "lpat_wic_hflask3": 22951,
+  "lpat_wic_hflask4": 22952,
+  "lpat_wic_hpot1": 22953,
+  "lpat_wic_hpot2": 22954,
+  "lpat_wic_hpot3": 22955,
+  "lpat_wic_hpot4": 22956,
+  "lpat_wic_hpots1": 22957,
+  "lpat_wic_hpots2": 22958,
+  "lpat_wic_bowls1": 22959,
+  "lpat_wic_bowls2": 22960,
+  "lpat_wic_bowls3": 22961,
+  "lpat_wic_sack1": 22962,
+  "lpat_wic_sack2": 22963,
+  "lpat_wic_sack3": 22964,
+  "lpat_wic_sack4": 22965,
+  "lpat_wic_urn1": 22966,
+  "lpat_wic_urn2": 22967,
+  "lpat_wic_urn3": 22968,
+  "lpat_wic_urn4": 22969,
+  "lpat_wic_urn5": 22970,
+  "lpat_wic_urn6": 22971,
+  "lpat_wic_urns1": 22972,
+  "lpat_wic_urns2": 22973,
+  "lpat_wic_pot1": 22974,
+  "lpat_wic_potlrg": 22975,
+  "lpat_wic_rstones": 22976,
+  "lpat_wic_wbasket": 22977
+ },
+ "textures": {
+  "lpat_alc_pages": {
+   "from": "lpat_alc_pages",
+   "file": "lpat_alc_pages.tga",
+   "by": "vault"
+  },
+  "lpat_alchemy1": {
+   "from": "lpat_alchemy1",
+   "file": "lpat_alchemy1.tga",
+   "by": "vault"
+  },
+  "lpat_wic_botls": {
+   "from": "lpat_wic_botls",
+   "file": "lpat_wic_botls.tga",
+   "by": "vault"
+  },
+  "lpat_wic_clay": {
+   "from": "lpat_wic_clay",
+   "file": "lpat_wic_clay.tga",
+   "by": "vault"
+  },
+  "lpat_wic_clay2": {
+   "from": "lpat_wic_clay2",
+   "file": "lpat_wic_clay2.tga",
+   "by": "vault"
+  },
+  "lpat_wic_herbs": {
+   "from": "lpat_wic_herbs",
+   "file": "lpat_wic_herbs.tga",
+   "by": "vault"
+  },
+  "lpat_wic_herbs2": {
+   "from": "lpat_wic_herbs2",
+   "file": "lpat_wic_herbs2.tga",
+   "by": "vault"
+  },
+  "lpat_wic_herbs3": {
+   "from": "lpat_wic_herbs3",
+   "file": "lpat_wic_herbs3.dds",
+   "by": "vault"
+  },
+  "lpat_wic_herbs4": {
+   "from": "lpat_wic_herbs4",
+   "file": "lpat_wic_herbs4.tga",
+   "by": "vault"
+  },
+  "lpat_wic_herbs5": {
+   "from": "lpat_wic_herbs5",
+   "file": "lpat_wic_herbs5.tga",
+   "by": "vault"
+  },
+  "lpat_wic_jars": {
+   "from": "lpat_wic_jars",
+   "file": "lpat_wic_jars.tga",
+   "by": "vault"
+  },
+  "lpat_wic_jars2": {
+   "from": "lpat_wic_jars2",
+   "file": "lpat_wic_jars2.dds",
+   "by": "vault"
+  },
+  "lpat_wic_leaf": {
+   "from": "lpat_wic_leaf",
+   "file": "lpat_wic_leaf.tga",
+   "by": "vault"
+  },
+  "lpx_alchemy": {
+   "from": "alchemy",
+   "file": "alchemy.tga",
+   "by": "vault"
+  },
+  "lpx_aragwood03": {
+   "from": "aragwood03",
+   "file": "aragwood03.tga",
+   "by": "vault"
+  },
+  "lpx_cskecomthigh": {
+   "from": "c_ske_com_thigh",
+   "file": "c_ske_com_thigh.dds",
+   "by": "base game"
+  },
+  "lpx_grstreesapli": {
+   "from": "grs_tree-sapling",
+   "file": "grs_tree-sapling.tga",
+   "by": "vault"
+  },
+  "lpx_pdaghdec": {
+   "from": "pdag_hdec",
+   "file": "pdag_hdec.dds",
+   "by": "vault"
+  },
+  "lpx_plcbookcover": {
+   "from": "plc_bookcover",
+   "file": "plc_bookcover.dds",
+   "by": "base game"
+  },
+  "lpx_plccrpsbksrp": {
+   "from": "plc_crpsbksrp",
+   "file": "plc_crpsbksrp.dds",
+   "by": "base game"
+  },
+  "lpx_plcfabric": {
+   "from": "plc_fabric",
+   "file": "plc_fabric.dds",
+   "by": "base game"
+  },
+  "lpx_plcrck": {
+   "from": "plc_rck",
+   "file": "plc_rck.dds",
+   "by": "base game"
+  },
+  "lpx_plcwood256": {
+   "from": "plc_wood256",
+   "file": "plc_wood256.dds",
+   "by": "base game"
+  },
+  "lpx_stbotl01": {
+   "from": "st_botl01",
+   "file": "st_botl01.dds",
+   "by": "vault"
+  },
+  "lpx_stbotl07": {
+   "from": "st_botl07",
+   "file": "st_botl07.dds",
+   "by": "vault"
+  },
+  "lpx_stcopper": {
+   "from": "st_copper",
+   "file": "st_copper.dds",
+   "by": "vault"
+  },
+  "lpx_stpott04": {
+   "from": "st_pott04",
+   "file": "st_pott04.dds",
+   "by": "vault"
+  },
+  "lpx_stpott07": {
+   "from": "st_pott07",
+   "file": "st_pott07.dds",
+   "by": "vault"
+  },
+  "lpx_tcn01bark02": {
+   "from": "tcn01_bark02",
+   "file": "tcn01_bark02.dds",
+   "by": "base game"
+  },
+  "lpx_tcn01dir01t": {
+   "from": "tcn01_dir01t",
+   "file": "tcn01_dir01t.dds",
+   "by": "base game"
+  },
+  "lpx_tcn01flower0": {
+   "from": "tcn01_flower02",
+   "file": "tcn01_flower02.dds",
+   "by": "base game"
+  },
+  "lpx_tcn01hrdwd01": {
+   "from": "tcn01_hrdwd01",
+   "file": "tcn01_hrdwd01.dds",
+   "by": "base game"
+  },
+  "lpx_tcn01hrdwd02": {
+   "from": "tcn01_hrdwd02",
+   "file": "tcn01_hrdwd02.dds",
+   "by": "base game"
+  },
+  "lpx_tcn01stone18": {
+   "from": "tcn01_stone18",
+   "file": "tcn01_stone18.dds",
+   "by": "base game"
+  },
+  "lpx_tdd02ivy": {
+   "from": "tdd02_ivy",
+   "file": "tdd02_ivy.tga",
+   "by": "vault"
+  },
+  "lpx_tde01chain": {
+   "from": "tde01_chain",
+   "file": "tde01_chain.dds",
+   "by": "base game"
+  },
+  "lpx_tdm01crystal": {
+   "from": "tdm01_crystal01",
+   "file": "tdm01_crystal01.dds",
+   "by": "base game",
+   "txi": true
+  },
+  "lpx_tds01metal04": {
+   "from": "tds01_metal04",
+   "file": "tds01_metal04.dds",
+   "by": "base game"
+  },
+  "lpx_tds01npipe2": {
+   "from": "tds01_npipe2",
+   "file": "tds01_npipe2.dds",
+   "by": "base game"
+  },
+  "lpx_tds01pipe6": {
+   "from": "tds01_pipe6",
+   "file": "tds01_pipe6.dds",
+   "by": "base game"
+  },
+  "lpx_tds01water01": {
+   "from": "tds01_water01",
+   "file": "tds01_water01.dds",
+   "by": "base game",
+   "txi": true
+  },
+  "lpx_tic01furnat0": {
+   "from": "tic01_furnat02",
+   "file": "tic01_furnat02.dds",
+   "by": "base game"
+  },
+  "lpx_tiiskingraph": {
+   "from": "tii_skingraph",
+   "file": "tii_skingraph.dds",
+   "by": "base game"
+  },
+  "lpx_tin01cloack": {
+   "from": "tin01_cloack",
+   "file": "tin01_cloack.dds",
+   "by": "base game"
+  },
+  "lpx_tin01deco": {
+   "from": "tin01_deco",
+   "file": "tin01_deco.dds",
+   "by": "base game"
+  },
+  "lpx_tin01sac": {
+   "from": "tin01_sac",
+   "file": "tin01_sac.dds",
+   "by": "base game"
+  },
+  "lpx_tin01shelf2": {
+   "from": "tin01_shelf2",
+   "file": "tin01_shelf2.dds",
+   "by": "base game"
+  },
+  "lpx_ttf01fabric": {
+   "from": "ttf01_fabric",
+   "file": "ttf01_fabric.dds",
+   "by": "base game"
+  },
+  "lpx_ttf01metal00": {
+   "from": "ttf01_metal00",
+   "file": "ttf01_metal00.dds",
+   "by": "base game"
+  },
+  "lpx_ttf01plants": {
+   "from": "ttf01_plants",
+   "file": "ttf01_plants.dds",
+   "by": "base game"
+  },
+  "lpx_ttf01skull02": {
+   "from": "ttf01_skull02",
+   "file": "ttf01_skull02.dds",
+   "by": "base game"
+  },
+  "lpx_ttf01skull03": {
+   "from": "ttf01_skull03",
+   "file": "ttf01_skull03.dds",
+   "by": "base game"
+  },
+  "lpx_tti01metl03": {
+   "from": "tti01_metl03",
+   "file": "tti01_metl03.dds",
+   "by": "base game"
+  },
+  "lpx_tti01rock3": {
+   "from": "tti01_rock3",
+   "file": "tti01_rock3.dds",
+   "by": "base game"
+  },
+  "lpx_ttr01bark02": {
+   "from": "ttr01_bark02",
+   "file": "ttr01_bark02.dds",
+   "by": "base game"
+  },
+  "lpx_ttr01metalto": {
+   "from": "ttr01_metaltop",
+   "file": "ttr01_metaltop.dds",
+   "by": "base game"
+  },
+  "lpx_ttr01runes": {
+   "from": "ttr01_runes",
+   "file": "ttr01_runes.dds",
+   "by": "base game",
+   "txi": true
+  },
+  "lpx_ttr01trim01": {
+   "from": "ttr01_trim01",
+   "file": "ttr01_trim01.dds",
+   "by": "base game"
+  },
+  "lpx_ttz01wood06": {
+   "from": "ttz01_wood06",
+   "file": "ttz01_wood06.tga",
+   "by": "base game"
+  },
+  "lpx_ttz01wood07": {
+   "from": "ttz01_wood07",
+   "file": "ttz01_wood07.tga",
+   "by": "base game"
+  },
+  "lpx_vdutexbark": {
+   "from": "vdu_tex_bark",
+   "file": "vdu_tex_bark.tga",
+   "by": "base game",
+   "txi": true
+  }
+ },
+ "own": [
+  "lpat_alc_pages",
+  "lpat_alchemy1",
+  "lpat_wic_botls",
+  "lpat_wic_clay",
+  "lpat_wic_clay2",
+  "lpat_wic_herbs",
+  "lpat_wic_herbs2",
+  "lpat_wic_herbs3",
+  "lpat_wic_herbs4",
+  "lpat_wic_herbs5",
+  "lpat_wic_jars",
+  "lpat_wic_jars2",
+  "lpat_wic_leaf"
+ ]
+}

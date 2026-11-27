@@ -1,0 +1,143 @@
+{
+ "id": "m03",
+ "category": "Medical",
+ "name": "Ward",
+ "note": "Floorplan M03: six beds along the wall with tables and drip stands, a nurse station, medicine fridge and supplies.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 2,
+   "like": [
+    63,
+    64
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 3.0,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "udp2_flr_til3",
+    "wall": "udp2_flr_til2",
+    "ceiling": "srx02_clgtile",
+    "base": "udp2_w_sid3",
+    "trim": "udp2_w_sid3",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    3.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    7.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.5,
+    3.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.5,
+    7.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    12.5,
+    3.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    12.5,
+    7.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    17.5,
+    3.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    17.5,
+    7.0
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "m3_medbed01", "at": [1.613, 8.449, 0.0], "turn": 0},
+  {"piece": "m3_medbed02", "at": [4.602, 8.45, 0.0], "turn": 0},
+  {"piece": "m3_medbed03", "at": [7.599, 8.45, 0.0], "turn": 0},
+  {"piece": "m3_medbed01", "at": [12.412, 8.449, 0.0], "turn": 0},
+  {"piece": "m3_medbed02", "at": [15.402, 8.45, 0.0], "turn": 0},
+  {"piece": "m3_medbed03", "at": [18.099, 8.45, 0.0], "turn": 0},
+  {"piece": "m3_med_btab1", "at": [2.7, 8.6, 0.0], "turn": 0},
+  {"piece": "m3_med_btab1", "at": [5.7, 8.6, 0.0], "turn": 0},
+  {"piece": "m3_med_btab1", "at": [8.7, 8.6, 0.0], "turn": 0},
+  {"piece": "m3_med_btab1", "at": [13.5, 8.6, 0.0], "turn": 0},
+  {"piece": "m3_med_btab1", "at": [16.5, 8.6, 0.0], "turn": 0},
+  {"piece": "m3_med_btab1", "at": [19.2, 8.6, 0.0], "turn": 0},
+  {"piece": "jvb_medic04", "at": [0.65, 8.9, 0.0], "turn": 0},
+  {"piece": "jvb_medic04", "at": [3.65, 8.9, 0.0], "turn": 0},
+  {"piece": "jvb_medic04", "at": [6.65, 8.9, 0.0], "turn": 0},
+  {"piece": "jvb_medic04", "at": [11.45, 8.9, 0.0], "turn": 0},
+  {"piece": "jvb_medic04", "at": [14.45, 8.9, 0.0], "turn": 0},
+  {"piece": "jvb_medic04", "at": [17.15, 8.9, 0.0], "turn": 0},
+  {"piece": "m3_medcount1", "at": [13.4, 3.0, 0.0], "faces": "n"},
+  {"piece": "m3_medcount2", "at": [15.8, 3.0, 0.0], "faces": "n"},
+  {"piece": "m3_med_chair03", "at": [14.6, 1.677, 0.0], "faces": "n"},
+  {"piece": "m3_med_lfri2", "at": [18.4, 0.66, 0.0], "faces": "n"},
+  {"piece": "m3_med_fcab", "at": [11.0, 0.564, 0.0], "faces": "n"},
+  {"piece": "m3_med_strg", "at": [19.322, 4.0, 0.0], "faces": "w"},
+  {"piece": "ek_csc_vending", "at": [0.748, 2.0, 0.0], "faces": "e"},
+  {"piece": "m3_med_sofa1", "at": [0.76, 5.0, 0.0], "faces": "e"},
+  {"piece": "m3_med_trolley", "at": [12.0, 6.0, 0.0], "turn": 0},
+  {"piece": "ek_csc_cart", "at": [6.0, 5.801, 0.0], "turn": 0},
+  {"piece": "ek_csc_bin", "at": [19.413, 6.4, 0.0], "faces": "w"}
+ ],
+ "placeLater": [{"what": "a door in the opening"}, {"what": "the nurse station as the ward's store; the fridge and cabinets as containers"}]
+}

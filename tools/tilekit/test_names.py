@@ -1,14 +1,15 @@
 """The approved names of the unified city tileset (docs/tilesets/srx01/names.json) still cover what the three source
-sets hold, and what was applied from them (placeable categories, door names) still agrees with them."""
+sets hold, the proposed ones of the interior tileset (srx02) what its four hold, and what was applied from them (placeable categories, door names) still agrees with them."""
 import json
 import re
 import unittest
 from pathlib import Path
 
-from tools.tilekit import doorset, inventory
+from tools.tilekit import doorset, inventory, merge
 
 REPO = Path(__file__).resolve().parents[2]
-PACKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_fcx01', 'srn_tlk', 'srn_2da')  # what this reads: named so the test selector runs it when one changes
+INTERIOR = ('udp2', 'tfb01', 'tbx78', 'nac01')  # the source sets of srx02
+PACKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_fcx01', *(f'srn_t_{name}' for name in INTERIOR), 'srn_tlk', 'srn_2da')  # what this reads: named so the test selector runs it when one changes
 NAMES = json.loads((REPO / 'docs' / 'tilesets' / 'srx01' / 'names.json').read_text(encoding='utf-8'))
 SETS = {name: inventory.read_set((REPO / f'srn_t_{name}' / f'{name}.set').read_bytes().decode('cp1252')) for name in ('dgt04', 'udp1', 'fcx01')}
 TALK = {entry['id']: entry['text'] for entry in json.loads((REPO / 'srn_tlk' / 'srn.tlk.json').read_text(encoding='utf-8-sig'))['entries']}
@@ -69,6 +70,39 @@ class Names(unittest.TestCase):
         self.assertEqual([TALK[reference - CUSTOM] for reference in doorset.NAMES.values()], [door['name'] for door in doors])
         table = (REPO / 'srn_2da' / 'genericdoors.2da').read_bytes().decode('cp1252')
         self.assertEqual(doorset.table(table), table)  # the table holds the rows the door set writes
+
+
+class InteriorNames(unittest.TestCase):
+    """The names of the unified interior tileset (docs/tilesets/srx02/names.json) cover what its four source sets hold."""
+    names = json.loads((REPO / 'docs' / 'tilesets' / 'srx02' / 'names.json').read_text(encoding='utf-8'))
+    sets = {name: inventory.read_set((REPO / f'srn_t_{name}' / f'{name}.set').read_bytes().decode('cp1252')) for name in INTERIOR}
+
+    def test_keys_are_unique_and_fit_the_set_file(self):
+        names = self.names; merge.maps(names)  # what the merge itself holds a names file to
+        keys = [entry['key'] for entry in names['terrains'] + names['crossers']]
+        self.assertEqual([key for key in keys if len(key) > 16 or not re.fullmatch(r'[A-Za-z0-9_]+', key)], [])
+        shown = [entry['display'] for kind in ('terrains', 'crossers', 'groups') for entry in names[kind]] + [one for entry in names['groups'] for one in entry.get('repeats', ())[1:]]
+        self.assertEqual(sorted({name for name in shown if shown.count(name) > 1}), [])
+        self.assertEqual({entry['category'] for kind in ('terrains', 'crossers', 'groups') for entry in names[kind]} - set(names['categories']), set())
+        self.assertEqual([entry['display'] for kind in ('terrains', 'crossers', 'groups') for entry in names[kind] if not entry['display'].startswith(entry['category'] + ': ')], [])
+
+    def test_every_source_name_maps_to_a_new_name(self):
+        # in any case: the game reads names so, and nac01 spells its crosser Duct and duct
+        terrains, crossers = merge.maps(self.names)
+        for name, laid in self.sets.items():
+            for kind, corners, mapped in (('terrains', 'corners', terrains), ('crossers', 'crossers', crossers)):
+                with self.subTest(kind=kind, tileset=name):
+                    used = {value.lower() for tile in laid['tiles'] for value in tile[corners] if value} | {value.lower() for value in laid[kind]}
+                    self.assertEqual(sorted(used - set(mapped.get(name, {}))), [])
+                    self.assertEqual(sorted(set(mapped.get(name, {})) - used), [])  # and no name the set lacks
+
+    def test_every_group_is_named(self):
+        for name, laid in self.sets.items():
+            with self.subTest(tileset=name):
+                listed = [entry for entry in self.names['groups'] if entry['set'] == name]
+                self.assertEqual(sorted(entry['name'] for entry in listed), sorted({group['name'] for group in laid['groups']}))
+                for entry in listed:  # a name the set uses more than once lists a display for each
+                    self.assertEqual(len(entry.get('repeats', [None])), sum(group['name'] == entry['name'] for group in laid['groups']), entry['name'])
 
 
 if __name__ == '__main__':
