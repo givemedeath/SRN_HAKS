@@ -704,6 +704,15 @@ caverns with no need to create a lot of ceilings", the SWLOR haks included.
   has the best sculpted rock tunnels (walls lean in) but needs lids; its wall tops are irregular, so a lid at the
   walls' top leaves gaps where a wall dips. Proposal put to the user: tunnels from `fifi` (closed, tech, sits with
   tbx78) and caverns from `tib01` lidded by `tilekit ceilings` in rock.
+- **Decision (user, 2026-11-27): "Caverns: Beholder Caves and it will need scans or redraws to replace its
+  textures".** Base `tib01` is 69 tiles over 8 textures (models using each: `tib01_lava` 67, `tib01_wallbase` 65,
+  `tib_ground` 63, `tib01_border` 59, `tib01_drips` 51, `tib01_wallbasic` 3, `tib01_lavavein2` 1, `tib_door01` 1).
+  Every one is replaced by a scan (`material` master or layout route) or a redraw, under own names (`tilekit
+  retexture`; base-game textures are never changed in place); the lava becomes something a 2070s city has under it
+  (water, sludge or dark rock). Lids by `tilekit ceilings` in the new rock, the uneven wall tops proved on a pilot
+  room. Open at release D's start: the CEP extension `zib01` (340 more models in SWLOR_Haks `sw_t_beholder`: Lava,
+  Blood, Magic, Sewer, Urine and Water rooms over `zdc04_*` and `zlc_cfw_water_*` textures) only if the base rooms
+  are too few; the tunnels source (`fifi` proposed, not yet confirmed).
 
 ## Work order
 
