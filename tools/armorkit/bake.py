@@ -252,7 +252,8 @@ def ends(parts, bones, body, tier, contract=None, drawn=()):
                 widest = seams.standoff(seams.section(vertices, faces, point, normal), ring, limit=limit)[0]
                 # the end is what the part is open on at the plane before the split closed it, not what else of it the plane
                 # passes through: a heavy boot's toe box, 11.7 cm outside the envelope before its shaft (`shaping.opening`)
-                own = np.asarray(parts[under]['f'])[~_added(parts[under])] if 'added' in parts[under] or 'made' in parts[under] else None
+                skin_of = np.asarray(parts[under].get('skin', np.zeros(len(parts[under]['f']), bool)), bool)  # nor the body's skin beside it
+                own = np.asarray(parts[under]['f'])[~_added(parts[under]) & ~skin_of] if 'added' in parts[under] or 'made' in parts[under] else None
                 opened = None if own is None else shaping.opening(vertices, own, mesh_ops.weld_ids(vertices, split.WELD), point, normal)
                 if opened is not None:
                     turns = np.arange(len(ring)) * 2 * np.pi / len(ring)
@@ -1041,7 +1042,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
         jobs.append({'v': pv, 'f': pf, 'c': pc, 'limit': BUDGET['texture'] // (2 if name in shared_with_body(document) else 1),
                      **{key: role[key] for key in ('under', 'added', 'closing', 'cap', 'padded')}})
         rest[name] = (role, pad, bare, of_face)
-    how = _written(texture, _laid) if cache is not None and jobs else None
+    how = _written(texture, gltf, _laid, _colours, _fine, _library) if cache is not None and jobs else None
     library = Path(xatlas.__file__).parent.name if getattr(xatlas, '__file__', None) else getattr(xatlas, '__name__', type(xatlas).__name__)
     keys = [digest(how, job, _file(colours), _file(raw), library) for job in jobs] if cache is not None else None
     laid, fresh = worked([{**job, 'colours': str(colours), 'raw': str(raw), 'xatlas': where or xatlas} for job in jobs], _laid, workers if where else 1,
@@ -1147,7 +1148,7 @@ def within_budget(result, made, origins, joints, radii, beside=None, left=(), sa
     alone = [name for name, (pv, pf, pc) in result.items() if name not in left and name not in beside and len(pf) > budget_of(name)]
     jobs = [{'name': name, 'v': result[name][0], 'f': result[name][1], 'c': result[name][2], 'made': made[name], 'origins': origins[name],
              'joints': joints, 'radii': {'|'.join(key): radius for key, radius in radii.items()}, 'budget': budget_of(name)} for name in alone]
-    how = _written(reduce, _reduced, split.planes, welded) if cache is not None and jobs else None
+    how = _written(reduce, split, seams, _reduced, _reduced_job, welded) if cache is not None and jobs else None
     done, _ = worked(jobs, _reduced_job, workers, None if cache is None else Path(cache) / 'reduce',
                      [digest(how, job) for job in jobs] if cache is not None else None)
     done = dict(zip(alone, done))
@@ -1362,7 +1363,7 @@ def tucked(parts, bones, contract=None, joints=TUCKED, say=lambda *_: None):
     edge, stays. What closes a part keeps closing it: its faces now run from the edge in under the other
     part, as cloth that is sewn to it would."""
     rule = (seams.load_contract() if contract is None else contract).get('ends', seams.ENDS)
-    parts, moved = dict(parts), {}
+    parts = dict(parts)
     planes = {(joint, side): np.asarray(seams.plane(bones, joint, 'l' if side == 'c' else side)[0], float)
               for joint in seams.JOINTS for side in seams.sides(joint) if (joint, side) not in UNCUT}
     slots = {key: tuple(split.token(seams.JOINTS[key[0]][end], 'l' if key[1] == 'c' else key[1]) for end in ('over', 'under')) for key in planes}
@@ -1410,7 +1411,6 @@ def tucked(parts, bones, contract=None, joints=TUCKED, say=lambda *_: None):
                     break
                 v[back] = v[back] + share * (before[back] - v[back])
             parts[name] = {**part, 'v': v.astype(np.asarray(part['v']).dtype)}
-            moved[name] = max(moved.get(name, 0.0), float(far[out].max()))
             say(f'{name} at the {key[0]}: {int(out.sum())} points of what closes it brought in under the outfit beside it, from up to {far[out].max() * 100:.1f} cm outside')
     return parts
 
