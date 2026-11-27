@@ -15,7 +15,10 @@ lists its arguments. They read a tile's ASCII source where the pack ships a comp
 | `shared` | Models outside the tileset that name its restyled textures | Release 1, shared textures |
 | `placements` | Wall pieces of applied specs that run into their tile's own geometry | Batches 2 to 4, after the new guard |
 | `sketch` | Tile models drawn from the top, front and side, without the game | Crowns, doors |
+| `rooms` | Rooms of a merged interior set, unfurnished and furnished, as tiles of their own (srx02; `tools/tilekit/rooms.py` has the spec, `walls.py` the rooms drawn here, `ceilings.py` their lamps and beams; a new piece's front goes into `fronts.json` after it is looked at); a spec's `effects` are emitters (`effects.py`: candle flame, fire, embers, motes, glimmer); every doorway drawn 2 m wide or less gets a generic door hook, and a piece rests on furniture, hangs on its wall or hangs from the ceiling) | srx02, stage 5 |
+| `door_names` | `python -B -m tools.tilekit.door_names`: names each door of the Toolset's appearance list, "<category>: <door>", from `docs/tilesets/doors/names.json` (TLK strings and the `genericdoors.2da` Name column) | srx02, doors |
 | `props` | Every kit piece rendered in Blender (four threads), by day and night | Kit rework |
+| `walk` | Sends a Human and a Troll across tiles' suspect floor edges, both ways, and lists the routes that bend or stop short | Walkmesh repairs (srx01, srx02) |
 
 ## Specs
 
@@ -33,6 +36,27 @@ lists its arguments. They read a tile's ASCII source where the pack ships a comp
   `FogClipDist` 9999. They wait for another client to close.
 - At most 24 views are taken, evenly through those asked for; `--views` names them, `--most` or `--all` takes more. The
   labels left out are told.
+- Interiors: a `review` block's `eye` takes views from inside a room at eye level (1.7 m, level or tilted up), so
+  ceilings are seen. A view from above shows the top of a ceiling.
 - `perf` sets every limiter to one cap (200 at most) with vsync off, and refuses to start while a client is running.
   Read the rates off `counters.png`; a rate at the cap means at least that. Load times are in `perf.json`.
 - `--no-run` (`family-review`) builds the module only.
+- `walk` holds every limiter at 200, seen or not, so the walkers keep time.
+
+## Walking a walkmesh repair
+
+`walk` finds the crossings on the tiles' `.wok` files: across each edge `test_floor_edges` would flag, and with `--sides`
+over each side into a tile of the set whose floor is level there. It lays each tile twice in one area, sends the
+walkers there and judges every crossing from their logged positions: bent when the route strays more than 0.15 m from
+the straight line, short when the walker stops more than 0.15 m from its goal. Exit 1 when any is.
+
+1. Before the repair, build the packs and walk the tiles, keeping the plan: `walk --tileset udp1 --tiles udp1_a16_01
+   --sides --plan <folder>/plan.json --game <install> --built output --out <folder>/before --name walkbefore`. A faulty
+   `.wok` can be walked from an overlay folder instead of the packs (`--overlay`).
+2. Repair, rebuild the packs and walk the same plan again: `walk --tileset udp1 --plan <folder>/plan.json ... --out
+   <folder>/after --name walkafter`. The repaired edges are no longer flagged, so the plan made before is the one to walk.
+3. Compare `bent`, `short` and `missing` in the two `walk.json` files. The routes, the module and the client log stay
+   in `--out`; record the counts in `docs/tilesets/walkmesh-repairs.md`.
+
+A walker that the game did not make as asked (`unmade`) or a leg it never reached (`missing`) is a failed walk, not a
+straight one: look at the tile in the captures before trusting the counts.

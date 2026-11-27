@@ -1,0 +1,1489 @@
+{
+ "set": "srx02",
+ "status": "approved by the user, 2026-11-24 (from client pictures)",
+ "rule": "key: the name in the set file, 16 characters at most, frozen at release A. display: what the Toolset palette shows, \"<category>: <name>\", so the palette lists sort by use.",
+ "notes": [
+  "A source name is kept as the key unless it clashes (Wall, Service, Corridor) or differs only by case; the display says what the pictures show.",
+  "tfb01 (Modern Interior) has no ceilings, low walls and a medieval look, with furniture built into its floor tiles. Its names are proposed as they would read after a restyle; until then Home and Retail promise more than the tiles show.",
+  "Categories with no entry yet (Industrial, Medical, Magical, Joins) are for the furnished rooms and the crosser joins.",
+  "palette: false on a group and the three tbx78 groups named room2x1 need merge code at stage 2: the merge leaves no group off the palette today and refuses a third group of one name."
+ ],
+ "categories": [
+  "Construction",
+  "Office",
+  "Home",
+  "Retail",
+  "Facility",
+  "Ducts",
+  "Transit",
+  "Security",
+  "Industrial",
+  "Medical",
+  "Magical",
+  "Joins",
+  "Legacy"
+ ],
+ "terrains": [
+  {
+   "set": "udp2",
+   "name": "Wall",
+   "key": "Wall",
+   "category": "Construction",
+   "display": "Construction: Wall",
+   "reason": "the hub every floor meets; the border and default terrain of all four sets"
+  },
+  {
+   "set": "udp2",
+   "name": "Service",
+   "key": "Service",
+   "category": "Office",
+   "display": "Office: Service Room, Brick",
+   "reason": "kept: grey concrete floor, brown brick walls"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled",
+   "key": "Tiled",
+   "category": "Office",
+   "display": "Office: Terracotta Tile",
+   "reason": "kept: terracotta tile floor, stained plaster walls"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl",
+   "key": "Office_Vinyl",
+   "category": "Office",
+   "display": "Office: Carpet, Cream Walls",
+   "reason": "kept; the floor pictured is a dark green carpet checker, not vinyl"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood",
+   "key": "Office_Wood",
+   "category": "Office",
+   "display": "Office: Carpet, Wood Panelling",
+   "reason": "kept: the same carpet, wood panelled walls"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum",
+   "key": "Office_Alum",
+   "category": "Office",
+   "display": "Office: Carpet, Grey Panels",
+   "reason": "kept: the same carpet, grey metal wall panels"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_L",
+   "key": "Foyer_L",
+   "category": "Office",
+   "display": "Office: Atrium, Ground Floor",
+   "reason": "kept: the two-storey atrium with columns and a gallery, seen from below"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_U",
+   "key": "Foyer_U",
+   "category": "Office",
+   "display": "Office: Atrium, Gallery",
+   "reason": "kept: the gallery level of the same atrium"
+  },
+  {
+   "set": "tfb01",
+   "name": "Livingroom",
+   "key": "Livingroom",
+   "category": "Home",
+   "display": "Home: Living Room, Green Wallpaper",
+   "reason": "kept; furniture is built into its tiles",
+   "flag": "period look and no ceiling: see notes"
+  },
+  {
+   "set": "tfb01",
+   "name": "Kitchen",
+   "key": "Kitchen",
+   "category": "Home",
+   "display": "Home: Kitchen, Plaster",
+   "reason": "kept",
+   "flag": "period look and no ceiling: see notes"
+  },
+  {
+   "set": "tfb01",
+   "name": "Inn",
+   "key": "Inn",
+   "category": "Home",
+   "display": "Home: Timber Frame Room",
+   "reason": "kept in the set file; shown by what it is, a timber framed room",
+   "flag": "period look and no ceiling: see notes"
+  },
+  {
+   "set": "tfb01",
+   "name": "Shop",
+   "key": "Shop",
+   "category": "Retail",
+   "display": "Retail: Shop, Blue Wallpaper",
+   "reason": "kept",
+   "flag": "period look and no ceiling: see notes"
+  },
+  {
+   "set": "tbx78",
+   "name": "facility",
+   "key": "Facility",
+   "category": "Facility",
+   "display": "Facility: Metal Plate Room",
+   "reason": "capital added: rusted green metal plate, panel ceiling, yellow lights"
+  },
+  {
+   "set": "nac01",
+   "name": "Service",
+   "key": "Duct_Room",
+   "category": "Ducts",
+   "display": "Ducts: Junction Room",
+   "reason": "clashes with the office Service terrain; this one is the white machine room the ducts meet in"
+  }
+ ],
+ "folds": [
+  {
+   "set": "tfb01",
+   "name": "Wall",
+   "into": "Wall",
+   "reason": "the same hub terrain; one Wall lets every family meet with no join tile"
+  },
+  {
+   "set": "tbx78",
+   "name": "wall",
+   "into": "Wall",
+   "reason": "the same hub terrain; one Wall lets every family meet with no join tile"
+  },
+  {
+   "set": "nac01",
+   "name": "Wall",
+   "into": "Wall",
+   "reason": "the same hub terrain; one Wall lets every family meet with no join tile"
+  }
+ ],
+ "crossers": [
+  {
+   "set": "udp2",
+   "name": "Door",
+   "key": "Door",
+   "category": "Office",
+   "display": "Office: Door",
+   "reason": "kept: 4.25 m opening, or the whole side"
+  },
+  {
+   "set": "udp2",
+   "name": "Hallway1",
+   "key": "Hallway1",
+   "category": "Office",
+   "display": "Office: Hallway A",
+   "reason": "kept: 9.5 m wide, 4.0 m clear",
+   "flag": "A and B look alike in the pictures; the names review should say what tells them apart"
+  },
+  {
+   "set": "udp2",
+   "name": "Hallway2",
+   "key": "Hallway2",
+   "category": "Office",
+   "display": "Office: Hallway B",
+   "reason": "kept",
+   "flag": "see Hallway A"
+  },
+  {
+   "set": "udp2",
+   "name": "Door_Garage_Sm",
+   "key": "Door_Garage_Sm",
+   "category": "Office",
+   "display": "Office: Garage Door, Small",
+   "reason": "kept",
+   "flag": "not pictured yet"
+  },
+  {
+   "set": "udp2",
+   "name": "Door_Garage_Lg",
+   "key": "Door_Garage_Lg",
+   "category": "Office",
+   "display": "Office: Garage Door, Large",
+   "reason": "kept",
+   "flag": "not pictured yet"
+  },
+  {
+   "set": "tfb01",
+   "name": "Corridor",
+   "key": "Corridor",
+   "category": "Home",
+   "display": "Home: Corridor, Arched",
+   "reason": "kept: a cream arched passage 7.0 to 7.75 m wide, open above"
+  },
+  {
+   "set": "tfb01",
+   "name": "Doorway",
+   "key": "Doorway",
+   "category": "Home",
+   "display": "Home: Doorway",
+   "reason": "kept: 2.25 to 2.5 m; the one candidate to fold with the facility doorway 2 at stage 3"
+  },
+  {
+   "set": "tfb01",
+   "name": "Subway",
+   "key": "Subway",
+   "category": "Transit",
+   "display": "Transit: Subway Track",
+   "reason": "kept"
+  },
+  {
+   "set": "tbx78",
+   "name": "corridor",
+   "key": "Fac_Corridor",
+   "category": "Facility",
+   "display": "Facility: Corridor, Metal Tunnel",
+   "reason": "clashes with the home Corridor in any case; an octagonal riveted tunnel 4.75 to 5.0 m wide"
+  },
+  {
+   "set": "tbx78",
+   "name": "doorway1",
+   "key": "Fac_Doorway1",
+   "category": "Facility",
+   "display": "Facility: Doorway, Wide",
+   "reason": "family prefix, so the three doorways sort together: 3.0 m"
+  },
+  {
+   "set": "tbx78",
+   "name": "doorway2",
+   "key": "Fac_Doorway2",
+   "category": "Facility",
+   "display": "Facility: Doorway",
+   "reason": "family prefix: 2.5 m, 3.26 m clear"
+  },
+  {
+   "set": "tbx78",
+   "name": "doorway3",
+   "key": "Fac_Doorway3",
+   "category": "Facility",
+   "display": "Facility: Doorway, Raised",
+   "reason": "family prefix: 2.5 m on a 0.6 m floor",
+   "flag": "not pictured yet"
+  },
+  {
+   "set": "tbx78",
+   "name": "cell",
+   "key": "Fac_Cell",
+   "category": "Facility",
+   "display": "Facility: Cell Bars",
+   "reason": "family prefix",
+   "flag": "not pictured yet"
+  },
+  {
+   "set": "tbx78",
+   "name": "raised",
+   "key": "Fac_Raised",
+   "category": "Facility",
+   "display": "Facility: Raised Floor",
+   "reason": "family prefix",
+   "flag": "not pictured yet"
+  },
+  {
+   "set": "nac01",
+   "name": "Duct",
+   "key": "Duct",
+   "category": "Ducts",
+   "display": "Ducts: Duct",
+   "reason": "kept: a narrow round pipe 1.5 to 3.0 m; two tiles spell it duct, which the merge reads as the same name"
+  }
+ ],
+ "groups": [
+  {
+   "set": "udp2",
+   "name": "Service_Entry 2x1",
+   "was": "Service_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Brick Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_Win",
+   "was": "Service_Win",
+   "category": "Office",
+   "display": "Office: Brick Window Wall"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_WinCrnr",
+   "was": "Service_WinCrnr",
+   "category": "Office",
+   "display": "Office: Brick Window Corner"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_Firepl",
+   "was": "Service_Firepl",
+   "category": "Office",
+   "display": "Office: Brick Fireplace"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_SmRm1",
+   "was": "Service_SmRm1",
+   "category": "Office",
+   "display": "Office: Brick Small Room A"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_SmRm2",
+   "was": "Service_SmRm2",
+   "category": "Office",
+   "display": "Office: Brick Small Room B"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_MidRm1 2x1",
+   "was": "Service_MidRm1 2x1",
+   "category": "Office",
+   "display": "Office: Brick Room 2x1 A"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_MidRm2 2x1",
+   "was": "Service_MidRm2 2x1",
+   "category": "Office",
+   "display": "Office: Brick Room 2x1 B"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_Stair_UD",
+   "was": "Service_Stair_UD",
+   "category": "Office",
+   "display": "Office: Brick Stair, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_Stair_U",
+   "was": "Service_Stair_U",
+   "category": "Office",
+   "display": "Office: Brick Stair, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_Stair_D",
+   "was": "Service_Stair_D",
+   "category": "Office",
+   "display": "Office: Brick Stair, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Entry 2x1",
+   "was": "Tiled_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Terracotta Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Win",
+   "was": "Tiled_Win",
+   "category": "Office",
+   "display": "Office: Terracotta Window Wall"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_WinCrnr",
+   "was": "Tiled_WinCrnr",
+   "category": "Office",
+   "display": "Office: Terracotta Window Corner"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Firepl",
+   "was": "Tiled_Firepl",
+   "category": "Office",
+   "display": "Office: Terracotta Fireplace"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_SmRm1",
+   "was": "Tiled_SmRm1",
+   "category": "Office",
+   "display": "Office: Terracotta Small Room A"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_SmRm2",
+   "was": "Tiled_SmRm2",
+   "category": "Office",
+   "display": "Office: Terracotta Small Room B"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_MidRm1 2x1",
+   "was": "Tiled_MidRm1 2x1",
+   "category": "Office",
+   "display": "Office: Terracotta Room 2x1 A"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_MidRm2 2x1",
+   "was": "Tiled_MidRm2 2x1",
+   "category": "Office",
+   "display": "Office: Terracotta Room 2x1 B"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Stair_UD",
+   "was": "Tiled_Stair_UD",
+   "category": "Office",
+   "display": "Office: Terracotta Stair, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Stair_U",
+   "was": "Tiled_Stair_U",
+   "category": "Office",
+   "display": "Office: Terracotta Stair, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Stair_D",
+   "was": "Tiled_Stair_D",
+   "category": "Office",
+   "display": "Office: Terracotta Stair, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Entry 2x1",
+   "was": "Office_Vinyl_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Cream Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Win",
+   "was": "Office_Vinyl_Win",
+   "category": "Office",
+   "display": "Office: Cream Window Wall"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_WinCrnr",
+   "was": "Office_Vinyl_WinCrnr",
+   "category": "Office",
+   "display": "Office: Cream Window Corner"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Firepl",
+   "was": "Office_Vinyl_Firepl",
+   "category": "Office",
+   "display": "Office: Cream Fireplace"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_SmRm1",
+   "was": "Office_Vinyl_SmRm1",
+   "category": "Office",
+   "display": "Office: Cream Small Room A"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_SmRm2",
+   "was": "Office_Vinyl_SmRm2",
+   "category": "Office",
+   "display": "Office: Cream Small Room B"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_MidRm1 2x1",
+   "was": "Office_Vinyl_MidRm1 2x1",
+   "category": "Office",
+   "display": "Office: Cream Room 2x1 A"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_MidRm2 2x1",
+   "was": "Office_Vinyl_MidRm2 2x1",
+   "category": "Office",
+   "display": "Office: Cream Room 2x1 B"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Stair_UD",
+   "was": "Office_Vinyl_Stair_UD",
+   "category": "Office",
+   "display": "Office: Cream Stair, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Stair_U",
+   "was": "Office_Vinyl_Stair_U",
+   "category": "Office",
+   "display": "Office: Cream Stair, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Stair_D",
+   "was": "Office_Vinyl_Stair_D",
+   "category": "Office",
+   "display": "Office: Cream Stair, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Entry 2x1",
+   "was": "Office_Wood_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Wood Panel Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Win",
+   "was": "Office_Wood_Win",
+   "category": "Office",
+   "display": "Office: Wood Panel Window Wall"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_WinCrnr",
+   "was": "Office_Wood_WinCrnr",
+   "category": "Office",
+   "display": "Office: Wood Panel Window Corner"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Firepl",
+   "was": "Office_Wood_Firepl",
+   "category": "Office",
+   "display": "Office: Wood Panel Fireplace"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_SmRm1",
+   "was": "Office_Wood_SmRm1",
+   "category": "Office",
+   "display": "Office: Wood Panel Small Room A"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_SmRm2",
+   "was": "Office_Wood_SmRm2",
+   "category": "Office",
+   "display": "Office: Wood Panel Small Room B"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_MidRm1 2x1",
+   "was": "Office_Wood_MidRm1 2x1",
+   "category": "Office",
+   "display": "Office: Wood Panel Room 2x1 A"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_MidRm2 2x1",
+   "was": "Office_Wood_MidRm2 2x1",
+   "category": "Office",
+   "display": "Office: Wood Panel Room 2x1 B"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Stair_UD",
+   "was": "Office_Wood_Stair_UD",
+   "category": "Office",
+   "display": "Office: Wood Panel Stair, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Stair_U",
+   "was": "Office_Wood_Stair_U",
+   "category": "Office",
+   "display": "Office: Wood Panel Stair, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Stair_D",
+   "was": "Office_Wood_Stair_D",
+   "category": "Office",
+   "display": "Office: Wood Panel Stair, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Entry 2x1",
+   "was": "Office_Alum_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Grey Panel Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Win",
+   "was": "Office_Alum_Win",
+   "category": "Office",
+   "display": "Office: Grey Panel Window Wall"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_WinCrnr",
+   "was": "Office_Alum_WinCrnr",
+   "category": "Office",
+   "display": "Office: Grey Panel Window Corner"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Firepl",
+   "was": "Office_Alum_Firepl",
+   "category": "Office",
+   "display": "Office: Grey Panel Fireplace"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_SmRm1",
+   "was": "Office_Alum_SmRm1",
+   "category": "Office",
+   "display": "Office: Grey Panel Small Room A"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_SmRm2",
+   "was": "Office_Alum_SmRm2",
+   "category": "Office",
+   "display": "Office: Grey Panel Small Room B"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_MidRm1 2x1",
+   "was": "Office_Alum_MidRm1 2x1",
+   "category": "Office",
+   "display": "Office: Grey Panel Room 2x1 A"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_MidRm2 2x1",
+   "was": "Office_Alum_MidRm2 2x1",
+   "category": "Office",
+   "display": "Office: Grey Panel Room 2x1 B"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Stair_UD",
+   "was": "Office_Alum_Stair_UD",
+   "category": "Office",
+   "display": "Office: Grey Panel Stair, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Stair_U",
+   "was": "Office_Alum_Stair_U",
+   "category": "Office",
+   "display": "Office: Grey Panel Stair, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Stair_D",
+   "was": "Office_Alum_Stair_D",
+   "category": "Office",
+   "display": "Office: Grey Panel Stair, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_L_Entry 2x1",
+   "was": "Foyer_L_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Atrium Ground Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_L_Win",
+   "was": "Foyer_L_Win",
+   "category": "Office",
+   "display": "Office: Atrium Ground Window Wall"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_L_WinCrnr",
+   "was": "Foyer_L_WinCrnr",
+   "category": "Office",
+   "display": "Office: Atrium Ground Window Corner"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_L_Firepl",
+   "was": "Foyer_L_Firepl",
+   "category": "Office",
+   "display": "Office: Atrium Ground Fireplace"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_L_Stair_U",
+   "was": "Foyer_L_Stair_U",
+   "category": "Office",
+   "display": "Office: Atrium Ground Stair, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_U_Entry 2x1",
+   "was": "Foyer_U_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Atrium Gallery Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_U_Win",
+   "was": "Foyer_U_Win",
+   "category": "Office",
+   "display": "Office: Atrium Gallery Window Wall"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_U_WinCrnr",
+   "was": "Foyer_U_WinCrnr",
+   "category": "Office",
+   "display": "Office: Atrium Gallery Window Corner"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_U_Firepl",
+   "was": "Foyer_U_Firepl",
+   "category": "Office",
+   "display": "Office: Atrium Gallery Fireplace"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_U_Stair_D",
+   "was": "Foyer_U_Stair_D",
+   "category": "Office",
+   "display": "Office: Atrium Gallery Stair, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Hallway1_Entry 2x1",
+   "was": "Hallway1_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Hallway A Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Hallway2_Entry 2x1",
+   "was": "Hallway2_Entry 2x1",
+   "category": "Office",
+   "display": "Office: Hallway B Entry, 2x1"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_Stair2_UD",
+   "was": "Service_Stair2_UD",
+   "category": "Office",
+   "display": "Office: Brick Stair B, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_Stair2_U",
+   "was": "Service_Stair2_U",
+   "category": "Office",
+   "display": "Office: Brick Stair B, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Service_Stair2_D",
+   "was": "Service_Stair2_D",
+   "category": "Office",
+   "display": "Office: Brick Stair B, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Stair2_UD",
+   "was": "Tiled_Stair2_UD",
+   "category": "Office",
+   "display": "Office: Terracotta Stair B, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Stair2_U",
+   "was": "Tiled_Stair2_U",
+   "category": "Office",
+   "display": "Office: Terracotta Stair B, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Tiled_Stair2_D",
+   "was": "Tiled_Stair2_D",
+   "category": "Office",
+   "display": "Office: Terracotta Stair B, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Stair2_UD",
+   "was": "Office_Vinyl_Stair2_UD",
+   "category": "Office",
+   "display": "Office: Cream Stair B, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Stair2_U",
+   "was": "Office_Vinyl_Stair2_U",
+   "category": "Office",
+   "display": "Office: Cream Stair B, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Vinyl_Stair2_D",
+   "was": "Office_Vinyl_Stair2_D",
+   "category": "Office",
+   "display": "Office: Cream Stair B, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Stair2_UD",
+   "was": "Office_Wood_Stair2_UD",
+   "category": "Office",
+   "display": "Office: Wood Panel Stair B, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Stair2_U",
+   "was": "Office_Wood_Stair2_U",
+   "category": "Office",
+   "display": "Office: Wood Panel Stair B, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Wood_Stair2_D",
+   "was": "Office_Wood_Stair2_D",
+   "category": "Office",
+   "display": "Office: Wood Panel Stair B, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Stair2_UD",
+   "was": "Office_Alum_Stair2_UD",
+   "category": "Office",
+   "display": "Office: Grey Panel Stair B, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Stair2_U",
+   "was": "Office_Alum_Stair2_U",
+   "category": "Office",
+   "display": "Office: Grey Panel Stair B, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Office_Alum_Stair2_D",
+   "was": "Office_Alum_Stair2_D",
+   "category": "Office",
+   "display": "Office: Grey Panel Stair B, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_U_Stair2_D",
+   "was": "Foyer_U_Stair2_D",
+   "category": "Office",
+   "display": "Office: Atrium Gallery Stair B, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_L_Stair2_U",
+   "was": "Foyer_L_Stair2_U",
+   "category": "Office",
+   "display": "Office: Atrium Ground Stair B, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_U_Grandstair_D",
+   "was": "Foyer_U_Grandstair_D",
+   "category": "Office",
+   "display": "Office: Atrium Gallery Grand Stair, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Foyer_L_Grandstair_U",
+   "was": "Foyer_L_Grandstair_U",
+   "category": "Office",
+   "display": "Office: Atrium Ground Grand Stair, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Elevator1",
+   "was": "Elevator1",
+   "category": "Office",
+   "display": "Office: Elevator A"
+  },
+  {
+   "set": "udp2",
+   "name": "Elevator2",
+   "was": "Elevator2",
+   "category": "Office",
+   "display": "Office: Elevator B"
+  },
+  {
+   "set": "udp2",
+   "name": "Stairwell_U",
+   "was": "Stairwell_U",
+   "category": "Office",
+   "display": "Office: Stairwell, Up"
+  },
+  {
+   "set": "udp2",
+   "name": "Stairwell_UD",
+   "was": "Stairwell_UD",
+   "category": "Office",
+   "display": "Office: Stairwell, Up and Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Stairwell_D",
+   "was": "Stairwell_D",
+   "category": "Office",
+   "display": "Office: Stairwell, Down"
+  },
+  {
+   "set": "udp2",
+   "name": "Restrooms 1x1",
+   "was": "Restrooms 1x1",
+   "category": "Office",
+   "display": "Office: Restrooms"
+  },
+  {
+   "set": "udp2",
+   "name": "Break_Room 1x1",
+   "was": "Break_Room 1x1",
+   "category": "Office",
+   "display": "Office: Break Room"
+  },
+  {
+   "set": "tfb01",
+   "name": "Livingroom",
+   "was": "Livingroom",
+   "category": "Home",
+   "display": "Home: Living Room"
+  },
+  {
+   "set": "tfb01",
+   "name": "Livingroom01_1x2",
+   "was": "Livingroom01_1x2",
+   "category": "Home",
+   "display": "Home: Living Room 1x2 A"
+  },
+  {
+   "set": "tfb01",
+   "name": "Livingroom02_1x2",
+   "was": "Livingroom02_1x2",
+   "category": "Home",
+   "display": "Home: Living Room 1x2 B"
+  },
+  {
+   "set": "tfb01",
+   "name": "KitchenRoom",
+   "was": "KitchenRoom",
+   "category": "Home",
+   "display": "Home: Kitchen Room"
+  },
+  {
+   "set": "tfb01",
+   "name": "KitchenRoom01_1x2",
+   "was": "KitchenRoom01_1x2",
+   "category": "Home",
+   "display": "Home: Kitchen Room 1x2 A"
+  },
+  {
+   "set": "tfb01",
+   "name": "KitchenRoom02_1x2",
+   "was": "KitchenRoom02_1x2",
+   "category": "Home",
+   "display": "Home: Kitchen Room 1x2 B"
+  },
+  {
+   "set": "tfb01",
+   "name": "InnRoom",
+   "was": "InnRoom",
+   "category": "Home",
+   "display": "Home: Timber Room"
+  },
+  {
+   "set": "tfb01",
+   "name": "InnRoom01_1x2",
+   "was": "InnRoom01_1x2",
+   "category": "Home",
+   "display": "Home: Timber Room 1x2 A"
+  },
+  {
+   "set": "tfb01",
+   "name": "InnRoom02_1x2",
+   "was": "InnRoom02_1x2",
+   "category": "Home",
+   "display": "Home: Timber Room 1x2 B"
+  },
+  {
+   "set": "tfb01",
+   "name": "ShopRoom",
+   "was": "ShopRoom",
+   "category": "Retail",
+   "display": "Retail: Shop Room"
+  },
+  {
+   "set": "tfb01",
+   "name": "Shop01_1x2",
+   "was": "Shop01_1x2",
+   "category": "Retail",
+   "display": "Retail: Shop 1x2 A"
+  },
+  {
+   "set": "tfb01",
+   "name": "ShopRoom02_1x2",
+   "was": "ShopRoom02_1x2",
+   "category": "Retail",
+   "display": "Retail: Shop Room 1x2 B"
+  },
+  {
+   "set": "tfb01",
+   "name": "DoorLivingroom01",
+   "was": "DoorLivingroom01",
+   "category": "Home",
+   "display": "Home: Living Room Door"
+  },
+  {
+   "set": "tfb01",
+   "name": "DoorKitchen01",
+   "was": "DoorKitchen01",
+   "category": "Home",
+   "display": "Home: Kitchen Door"
+  },
+  {
+   "set": "tfb01",
+   "name": "DoorInn01",
+   "was": "DoorInn01",
+   "category": "Home",
+   "display": "Home: Timber Room Door"
+  },
+  {
+   "set": "tfb01",
+   "name": "DoorShop01",
+   "was": "DoorShop01",
+   "category": "Retail",
+   "display": "Retail: Shop Door"
+  },
+  {
+   "set": "tfb01",
+   "name": "StairsUp",
+   "was": "StairsUp",
+   "category": "Home",
+   "display": "Home: Stairs, Up"
+  },
+  {
+   "set": "tfb01",
+   "name": "CorridorExitBig",
+   "was": "CorridorExitBig",
+   "category": "Home",
+   "display": "Home: Corridor Exit, Wide"
+  },
+  {
+   "set": "tfb01",
+   "name": "StairsDown",
+   "was": "StairsDown",
+   "category": "Home",
+   "display": "Home: Stairs, Down"
+  },
+  {
+   "set": "tfb01",
+   "name": "CorridorExit",
+   "was": "CorridorExit",
+   "category": "Home",
+   "display": "Home: Corridor Exit"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeLower01_2x2",
+   "was": "HomeLower01_2x2",
+   "category": "Home",
+   "display": "Home: Lower Floor 2x2 A"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeUpper01_2x2",
+   "was": "HomeUpper01_2x2",
+   "category": "Home",
+   "display": "Home: Upper Floor 2x2 A"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeUpper02_2x2",
+   "was": "HomeUpper02_2x2",
+   "category": "Home",
+   "display": "Home: Upper Floor 2x2 B"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeLower02_2x2",
+   "was": "HomeLower02_2x2",
+   "category": "Home",
+   "display": "Home: Lower Floor 2x2 B"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeLower03_2x2",
+   "was": "HomeLower03_2x2",
+   "category": "Home",
+   "display": "Home: Lower Floor 2x2 C"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeLower04_2x2",
+   "was": "HomeLower04_2x2",
+   "category": "Home",
+   "display": "Home: Lower Floor 2x2 D"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeLower05_2x2",
+   "was": "HomeLower05_2x2",
+   "category": "Home",
+   "display": "Home: Lower Floor 2x2 E"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeUpper03_2x2",
+   "was": "HomeUpper03_2x2",
+   "category": "Home",
+   "display": "Home: Upper Floor 2x2 C"
+  },
+  {
+   "set": "tfb01",
+   "name": "DoorTrans",
+   "was": "DoorTrans",
+   "category": "Home",
+   "display": "Home: Transition Door"
+  },
+  {
+   "set": "tfb01",
+   "name": "Tent",
+   "was": "Tent",
+   "category": "Legacy",
+   "display": "Legacy: Tent",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "Baracks",
+   "was": "Baracks",
+   "category": "Security",
+   "display": "Security: Barracks"
+  },
+  {
+   "set": "tfb01",
+   "name": "Temple Evil",
+   "was": "Temple Evil",
+   "category": "Legacy",
+   "display": "Legacy: Temple, Evil",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "Temple Good",
+   "was": "Temple Good",
+   "category": "Legacy",
+   "display": "Legacy: Temple, Good",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "Temple Neutral",
+   "was": "Temple Neutral",
+   "category": "Legacy",
+   "display": "Legacy: Temple, Neutral",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "Wizards Den",
+   "was": "Wizards Den",
+   "category": "Legacy",
+   "display": "Legacy: Wizards Den",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "Smithy",
+   "was": "Smithy",
+   "category": "Legacy",
+   "display": "Legacy: Smithy",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "Barn",
+   "was": "Barn",
+   "category": "Legacy",
+   "display": "Legacy: Barn",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "Bordello",
+   "was": "Bordello",
+   "category": "Retail",
+   "display": "Retail: Bordello"
+  },
+  {
+   "set": "tfb01",
+   "name": "Portal",
+   "was": "Portal",
+   "category": "Legacy",
+   "display": "Legacy: Portal",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "Chessboard",
+   "was": "Chessboard",
+   "category": "Legacy",
+   "display": "Legacy: Chessboard",
+   "palette": false,
+   "reason": "fantasy; its tiles stay in the set, the group is left off the palette"
+  },
+  {
+   "set": "tfb01",
+   "name": "SlumHome01",
+   "was": "SlumHome01",
+   "category": "Home",
+   "display": "Home: Slum Home A"
+  },
+  {
+   "set": "tfb01",
+   "name": "SlumHome02",
+   "was": "SlumHome02",
+   "category": "Home",
+   "display": "Home: Slum Home B"
+  },
+  {
+   "set": "tfb01",
+   "name": "ShopRoom01_1x2",
+   "was": "ShopRoom01_1x2",
+   "category": "Retail",
+   "display": "Retail: Shop Room 1x2 A"
+  },
+  {
+   "set": "tfb01",
+   "name": "Shop02_1x2",
+   "was": "Shop02_1x2",
+   "category": "Retail",
+   "display": "Retail: Shop 1x2 B"
+  },
+  {
+   "set": "tfb01",
+   "name": "LivingroomCornerStairsU",
+   "was": "LivingroomCornerStairsU",
+   "category": "Home",
+   "display": "Home: Living Room Corner Stairs, Up"
+  },
+  {
+   "set": "tfb01",
+   "name": "LivingroomCornerStairsD",
+   "was": "LivingroomCornerStairsD",
+   "category": "Home",
+   "display": "Home: Living Room Corner Stairs, Down"
+  },
+  {
+   "set": "tfb01",
+   "name": "LivingroomCornerStairsB",
+   "was": "LivingroomCornerStairsB",
+   "category": "Home",
+   "display": "Home: Living Room Corner Stairs, Up and Down"
+  },
+  {
+   "set": "tfb01",
+   "name": "KitchenCornerStairsB",
+   "was": "KitchenCornerStairsB",
+   "category": "Home",
+   "display": "Home: Kitchen Corner Stairs, Up and Down"
+  },
+  {
+   "set": "tfb01",
+   "name": "KitchenCornerStairsU",
+   "was": "KitchenCornerStairsU",
+   "category": "Home",
+   "display": "Home: Kitchen Corner Stairs, Up"
+  },
+  {
+   "set": "tfb01",
+   "name": "KitchenCornerStairsD",
+   "was": "KitchenCornerStairsD",
+   "category": "Home",
+   "display": "Home: Kitchen Corner Stairs, Down"
+  },
+  {
+   "set": "tfb01",
+   "name": "KitchenCornerExit1",
+   "was": "KitchenCornerExit1",
+   "category": "Home",
+   "display": "Home: Kitchen Corner Exit A"
+  },
+  {
+   "set": "tfb01",
+   "name": "KitchenCornerExit2",
+   "was": "KitchenCornerExit2",
+   "category": "Home",
+   "display": "Home: Kitchen Corner Exit B"
+  },
+  {
+   "set": "tfb01",
+   "name": "LivingroomCornerExit1",
+   "was": "LivingroomCornerExit1",
+   "category": "Home",
+   "display": "Home: Living Room Corner Exit A"
+  },
+  {
+   "set": "tfb01",
+   "name": "LivingroomCornerExit2",
+   "was": "LivingroomCornerExit2",
+   "category": "Home",
+   "display": "Home: Living Room Corner Exit B"
+  },
+  {
+   "set": "tfb01",
+   "name": "Livingroom Blank",
+   "was": "Livingroom Blank",
+   "category": "Home",
+   "display": "Home: Living Room, Empty"
+  },
+  {
+   "set": "tfb01",
+   "name": "Livingroom03_1x2",
+   "was": "Livingroom03_1x2",
+   "category": "Home",
+   "display": "Home: Living Room 1x2 C"
+  },
+  {
+   "set": "tfb01",
+   "name": "Livingroom04_1x2",
+   "was": "Livingroom04_1x2",
+   "category": "Home",
+   "display": "Home: Living Room 1x2 D"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeUpper04_2x2",
+   "was": "HomeUpper04_2x2",
+   "category": "Home",
+   "display": "Home: Upper Floor 2x2 D"
+  },
+  {
+   "set": "tfb01",
+   "name": "HomeUpper05_2x2",
+   "was": "HomeUpper05_2x2",
+   "category": "Home",
+   "display": "Home: Upper Floor 2x2 E"
+  },
+  {
+   "set": "tfb01",
+   "name": "Bordello Blank",
+   "was": "Bordello Blank",
+   "category": "Retail",
+   "display": "Retail: Bordello, Empty"
+  },
+  {
+   "set": "tfb01",
+   "name": "Subway",
+   "was": "Subway",
+   "category": "Transit",
+   "display": "Transit: Subway Platform"
+  },
+  {
+   "set": "tbx78",
+   "name": "ladder_up",
+   "was": "ladder_up",
+   "category": "Facility",
+   "display": "Facility: Ladder, Up"
+  },
+  {
+   "set": "tbx78",
+   "name": "ladder_dwn",
+   "was": "ladder_dwn",
+   "category": "Facility",
+   "display": "Facility: Ladder, Down"
+  },
+  {
+   "set": "tbx78",
+   "name": "removed_panel",
+   "was": "removed_panel",
+   "category": "Facility",
+   "display": "Facility: Removed Panel"
+  },
+  {
+   "set": "tbx78",
+   "name": "giant_cage",
+   "was": "giant_cage",
+   "category": "Facility",
+   "display": "Facility: Cage"
+  },
+  {
+   "set": "tbx78",
+   "name": "pillar",
+   "was": "pillar",
+   "category": "Facility",
+   "display": "Facility: Pillar"
+  },
+  {
+   "set": "tbx78",
+   "name": "room2x1",
+   "was": "room2x1",
+   "category": "Facility",
+   "display": "Facility: Room 2x1 A",
+   "repeats": [
+    "Facility: Room 2x1 A",
+    "Facility: Room 1x2 B",
+    "Facility: Room 1x2 C"
+   ],
+   "flag": "the set names three groups room2x1; the merge must name each (stage 2 code)"
+  },
+  {
+   "set": "tbx78",
+   "name": "stairs_up",
+   "was": "stairs_up",
+   "category": "Facility",
+   "display": "Facility: Stairs, Up"
+  },
+  {
+   "set": "tbx78",
+   "name": "room",
+   "was": "room",
+   "category": "Facility",
+   "display": "Facility: Room"
+  },
+  {
+   "set": "tbx78",
+   "name": "stairs_dwn",
+   "was": "stairs_dwn",
+   "category": "Facility",
+   "display": "Facility: Stairs, Down"
+  },
+  {
+   "set": "tbx78",
+   "name": "elevator",
+   "was": "elevator",
+   "category": "Facility",
+   "display": "Facility: Elevator"
+  },
+  {
+   "set": "tbx78",
+   "name": "room3x1",
+   "was": "room3x1",
+   "category": "Facility",
+   "display": "Facility: Room 3x1"
+  },
+  {
+   "set": "tbx78",
+   "name": "door_transition",
+   "was": "door_transition",
+   "category": "Facility",
+   "display": "Facility: Transition Door"
+  }
+ ],
+ "edgeNames": [
+  {
+   "set": "udp2",
+   "name": "Study",
+   "into": "Office_Alum",
+   "reason": "udp2's edge table calls its fifth floor Study (models gi_z01_05, gi_z02_05, after Office_Wood's _04); no tile does, so those border rows never matched. Here they name Office_Alum"
+  }
+ ]
+}

@@ -1,0 +1,425 @@
+{
+ "tileset": "srx02",
+ "haks": [
+  "srn_t_srx02",
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 14,
+  "height": 4,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "a01_f",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "a02_f",
+    "at": [
+     3,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "a03_f",
+    "at": [
+     5,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r08_f",
+    "at": [
+     7,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "r09_f",
+    "at": [
+     9,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "a02_u",
+    "at": [
+     12,
+     1
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    1,
+    1
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    5,
+    1
+   ],
+   [
+    7,
+    1
+   ],
+   [
+    9,
+    1
+   ],
+   [
+    12,
+    1
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "bird-a01f",
+     "at": [
+      1.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-a02f",
+     "at": [
+      3.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-a03f",
+     "at": [
+      5.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r08f",
+     "at": [
+      7.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-r09f",
+     "at": [
+      10.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 26,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-a02u",
+     "at": [
+      12.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "a01-in",
+     "at": [
+      1.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "a01-counter",
+     "at": [
+      1.5,
+      1.36
+     ],
+     "turns": [
+      45
+     ]
+    },
+    {
+     "name": "a01-shelves",
+     "at": [
+      1.22,
+      1.46
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "a01-back",
+     "at": [
+      1.72,
+      1.84
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "a02-in",
+     "at": [
+      3.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "a02-circle",
+     "at": [
+      3.5,
+      1.26
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "a02-altar",
+     "at": [
+      3.26,
+      1.66
+     ],
+     "turns": [
+      45
+     ]
+    },
+    {
+     "name": "a03-in",
+     "at": [
+      5.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "a03-benches",
+     "at": [
+      5.5,
+      1.3
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "a03-crucible",
+     "at": [
+      5.5,
+      1.59
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "a03-shelves",
+     "at": [
+      5.76,
+      1.26
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "r08-in",
+     "at": [
+      7.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "r08-couch",
+     "at": [
+      7.5,
+      1.36
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "r08-nook",
+     "at": [
+      7.84,
+      1.74
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "r09-in",
+     "at": [
+      9.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "r09-living",
+     "at": [
+      9.84,
+      1.5
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "r09-kitchen",
+     "at": [
+      10.44,
+      1.5
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "r09-cook",
+     "at": [
+      10.8,
+      1.2
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "a01-up",
+     "at": [
+      1.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    },
+    {
+     "name": "a02-up",
+     "at": [
+      3.5,
+      1.26
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

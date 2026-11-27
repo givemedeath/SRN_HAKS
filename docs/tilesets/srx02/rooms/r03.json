@@ -1,0 +1,352 @@
+{
+ "id": "r03",
+ "category": "Home",
+ "name": "Two-Bedroom Apartment",
+ "note": "Floorplan R03: two bedrooms, common room and washroom. The wall between its tiles has one doorway.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 2,
+   "like": [
+    63,
+    64
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     3.4,
+     3.4
+    ],
+    "ceiling": 3.0
+   },
+   "look": {
+    "floor": "tfb01_shpflr1",
+    "wall": "tfb01_lwalls",
+    "ceiling": "srx02_clgplas",
+    "base": "tfb01_shpflr1",
+    "crown": "srx02_clgplas",
+    "trim": "tfb01_shpflr1",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      10,
+      0
+     ],
+     "to": [
+      10,
+      10
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      3.8
+     ],
+     "to": [
+      20,
+      3.8
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      6.2
+     ],
+     "to": [
+      20,
+      6.2
+     ],
+     "doors": [
+      {
+       "at": 1.8,
+       "width": 2.0
+      },
+      {
+       "at": 6.4,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      13.6,
+      6.2
+     ],
+     "to": [
+      13.6,
+      10
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      6.6,
+      10,
+      10
+     ],
+     "floor": "udp2_flr_til2",
+     "repeat": {
+      "floor": 3.0
+     }
+    },
+    {
+     "rect": [
+      10,
+      0,
+      20,
+      3.8
+     ],
+     "wall": "tfb01_wall_iinn",
+     "repeat": {
+      "wall": [
+       3.4,
+       3.4
+      ]
+     }
+    },
+    {
+     "rect": [
+      13.6,
+      6.2,
+      20,
+      10
+     ],
+     "wall": "tfb01_wall_iinn",
+     "repeat": {
+      "wall": [
+       3.4,
+       3.4
+      ]
+     }
+    },
+    {
+     "rect": [
+      10,
+      6.2,
+      13.6,
+      10
+     ],
+     "floor": "udp2_flr_til3",
+     "wall": "udp2_flr_til2",
+     "repeat": {
+      "floor": 3.0,
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "dome",
+   "at": [
+    2.1,
+    4.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    8.0,
+    2.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    3.0,
+    8.4
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.6
+   ]
+  },
+  {
+   "kind": "spot",
+   "at": [
+    4.4,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    4.4,
+    4.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    4.4,
+    6.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.6,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.6,
+    4.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.6,
+    6.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    11.5,
+    5.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    14.0,
+    5.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    16.5,
+    5.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    19.0,
+    5.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    13.2,
+    2.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    17.2,
+    2.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    11.8,
+    8.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    16.6,
+    7.6
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "udp2-p-24", "at": [0.656, 9.273, 0.0], "faces": "s"},
+  {"piece": "udp2-p-106", "at": [1.42, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-107", "at": [2.18, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-108", "at": [2.94, 9.377, 0.0], "faces": "s"},
+  {"piece": "udp2-p-109", "at": [3.7, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-106", "at": [4.46, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-72", "at": [2.1, 4.4, 0.0], "turn": 0},
+  {"piece": "udp2-p-03", "at": [2.1, 3.15, 0.0], "faces": "n"},
+  {"piece": "udp2-p-03", "at": [2.1, 5.65, 0.0], "faces": "s"},
+  {"piece": "udp2-p-03", "at": [0.85, 4.4, 0.0], "faces": "e"},
+  {"piece": "udp2-p-03", "at": [3.35, 4.4, 0.0], "faces": "w"},
+  {"piece": "jvb_couch07", "at": [7.05, 2.2, 0.0], "faces": "e"},
+  {"piece": "jvb_tab05", "at": [8.3, 2.2, 0.0], "turn": 0},
+  {"piece": "jz_sfp074", "at": [9.365, 2.2, 0.0], "turn": 0},
+  {"piece": "udp2-p-42", "at": [9.425, 2.2, 0.46], "faces": "w"},
+  {"piece": "jvb_bookc01", "at": [9.2, 0.465, 0.0], "faces": "n"},
+  {"piece": "udp2-p-55", "at": [8.0, 9.53, 0.0], "faces": "s"},
+  {"piece": "pkt_pplant01", "at": [9.2, 9.1, 0.0], "turn": 0, "scale": 0.6},
+  {"piece": "jvb_dress03", "at": [1.5, 0.63, 0.0], "faces": "n"},
+  {"piece": "jhb_lamp01", "at": [1.0, 0.63, 0.97], "turn": 0},
+  {"piece": "jvb_bed05", "at": [11.2, 1.9, 0.0], "faces": "e"},
+  {"piece": "jhb_chev01", "at": [10.409, 0.55, 0.0], "faces": "e"},
+  {"piece": "jhb_chev01", "at": [10.409, 3.25, 0.0], "faces": "e"},
+  {"piece": "jz_sfp065", "at": [15.0, 0.62, 0.0], "faces": "n"},
+  {"piece": "udp2-p-61", "at": [19.35, 1.9, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [18.4, 1.9, 0.0], "faces": "e"},
+  {"piece": "udp2-p-36", "at": [19.4, 1.9, 0.92], "faces": "w"},
+  {"piece": "jvb_dress02", "at": [17.4, 0.442, 0.0], "faces": "n"},
+  {"piece": "xiashowerd_01", "at": [10.88, 9.03, 0.0], "turn": 0, "obstacle": false},
+  {"piece": "xiashower_01", "at": [10.88, 9.769, 0.0], "faces": "s"},
+  {"piece": "udp2-p-47", "at": [12.7, 9.36, 0.0], "faces": "s"},
+  {"piece": "udp2-p-111", "at": [13.06, 7.6, 0.0], "faces": "w"},
+  {"piece": "udp2-p-113", "at": [13.46, 7.6, 0.0], "turn": -90, "obstacle": false},
+  {"piece": "jvb_bed06", "at": [17.4, 8.584, 0.0], "faces": "s"},
+  {"piece": "jhb_armoir01", "at": [14.2, 8.6, 0.0], "faces": "e"},
+  {"piece": "jvb_dress04", "at": [19.452, 7.0, 0.0], "faces": "w"},
+  {"piece": "jhb_chev01", "at": [15.9, 9.491, 0.0], "faces": "s"},
+  {"piece": "udp2-p-55", "at": [19.54, 5.0, 0.0], "faces": "w"}
+ ],
+ "placeLater": [{"what": "bedroom and washroom doors: the doorways are open"}, {"what": "wardrobes and fridge as containers"}]
+}

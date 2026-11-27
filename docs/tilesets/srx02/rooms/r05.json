@@ -1,0 +1,216 @@
+{
+ "id": "r05",
+ "category": "Home",
+ "name": "Safehouse",
+ "note": "Floorplan R05: the way in turns behind a second wall; bunks, a communications desk and a store behind the kitchenette wall.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 5.0,
+    "wall": [
+     4.0,
+     4.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "udp2_flr_vct2",
+    "wall": "udp1-blck-gr2",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      2.6
+     ],
+     "to": [
+      10,
+      2.6
+     ],
+     "doors": [
+      {
+       "at": 8.2,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      6.6,
+      7.0
+     ],
+     "to": [
+      10,
+      7.0
+     ]
+    },
+    {
+     "from": [
+      6.6,
+      6.9
+     ],
+     "to": [
+      6.6,
+      10
+     ],
+     "doors": [
+      {
+       "at": 1.5,
+       "width": 2.0
+      }
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      6.6,
+      7.0,
+      10,
+      10
+     ],
+     "floor": "tfb01_floor"
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "beams": [
+  {
+   "rect": [
+    0.3,
+    4.260000000000001,
+    9.7,
+    4.54
+   ],
+   "z": [
+    3.16,
+    3.4
+   ],
+   "texture": "srx02_clgconc",
+   "repeat": 2.4
+  },
+  {
+   "rect": [
+    0.3,
+    6.0600000000000005,
+    9.7,
+    6.34
+   ],
+   "z": [
+    3.16,
+    3.4
+   ],
+   "texture": "srx02_clgconc",
+   "repeat": 2.4
+  }
+ ],
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    3.0,
+    5.3
+   ],
+   "under": 3.4,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    7.0,
+    5.3
+   ],
+   "under": 3.4,
+   "size": [
+    2.0,
+    0.2
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    1.4
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.16
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    8.2,
+    8.4
+   ],
+   "under": 3.4,
+   "size": [
+    1.2,
+    0.16
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    3.4,
+    8.3
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.16
+   ]
+  }
+ ],
+ "props": [
+  {"piece": "vos_grpboxes1", "at": [1.2, 1.2, 0.0], "turn": 0, "scale": 0.9},
+  {"piece": "ek_ad_crate", "at": [9.14, 0.75, 0.0], "faces": "n"},
+  {"piece": "cqbed02", "at": [0.85, 8.4, 0.0], "faces": "s"},
+  {"piece": "cqbed01", "at": [0.85, 5.2, 0.0], "faces": "s"},
+  {"piece": "shpv5_lkr", "at": [2.2, 9.28, 0.0], "faces": "s"},
+  {"piece": "jz_fridgebig02", "at": [3.4, 9.26, 0.0], "faces": "s"},
+  {"piece": "jz_oldoven01", "at": [4.25, 9.42, 0.0], "faces": "s"},
+  {"piece": "jr_mc_sink", "at": [5.25, 9.27, 0.0], "faces": "s"},
+  {"piece": "computer_station", "at": [9.4, 4.7, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [8.4, 4.7, 0.0], "faces": "e"},
+  {"piece": "p_hamradio", "at": [9.14, 0.75, 0.6], "faces": "n"},
+  {"piece": "serverrack", "at": [9.31, 6.4, -0.08], "faces": "w"},
+  {"piece": "jz_sfp042", "at": [3.1, 3.34, 0.0], "faces": "n"},
+  {"piece": "jz_sfp039", "at": [3.1, 4.7, 0.0], "turn": 0},
+  {"piece": "udp2-p-71", "at": [5.4, 6.0, 0.0], "turn": 0},
+  {"piece": "udp2-p-03", "at": [5.4, 4.75, 0.0], "faces": "n"},
+  {"piece": "udp2-p-03", "at": [5.4, 7.25, 0.0], "faces": "s"},
+  {"piece": "udp2-p-36", "at": [5.1, 5.8, 0.85], "turn": 20},
+  {"piece": "ek_isa_cabinet", "at": [9.25, 8.0, 0.0], "faces": "w"},
+  {"piece": "ek_isa_shelf", "at": [7.74, 9.37, 0.0], "faces": "s"},
+  {"piece": "safe1", "at": [9.21, 9.3, 0.0], "faces": "w"},
+  {"piece": "p_amobx01", "at": [7.15, 7.54, 0.0], "turn": 30}
+ ],
+ "placeLater": [{"what": "a secure door in the second wall and a hidden one to the store"}, {"what": "safe, gun cabinet, lockers and crate as locked containers"}, {"what": "a camera over the way in; the communications desk as a terminal"}]
+}

@@ -597,6 +597,105 @@ node trimesh GLASS_19
     0.75 0.816756 0
     0.924969 0.81666 0
 endnode
+node trimesh day00_0
+  parent FCX01_H01_19a
+  position 1.55 0.0 6.47
+  orientation 1.0 0.0 0.0 0.0
+  wirecolor 0.0156863 0.521569 0.0156863 
+  tilefade 0
+  scale 1.0
+  render 1
+  Shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 0.5
+  transparencyhint 0
+  selfillumcolor 0 0 0
+  ambient 0.0 0.0 1.0 
+  Diffuse 0.0 0.0 1.0 
+  Specular 0.0 0.0 0.0 
+  shininess 10
+  center 0.499996 0.0 0.5 
+  bitmap glass
+  verts 18
+    -1.04 -0.68 -2.15
+    -1.04 -0.68 2.16
+    -1.02 -0.69 2.16
+    -1.02 -0.69 -2.15
+    -1.04 -5.0 2.16
+    -1.03 -5.0 2.16
+    -1.02 -5.0 2.16
+    -1.02 -5.0 -2.15
+    -1.03 -5.0 -2.15
+    -1.04 -5.0 -2.15
+    1.02 5.0 -2.15
+    1.02 5.0 0.86
+    1.02 5.0 2.16
+    1.04 5.0 2.16
+    1.05 5.0 2.16
+    1.05 5.0 -0.86
+    1.05 5.0 -2.15
+    1.03 5.0 -2.15
+  faces 18
+    2 1 4  4  6 5 15  1
+    4 5 2  4  15 16 6  1
+    6 2 5  4  17 6 16  1
+    0 3 7  4  8 7 18  2
+    7 8 0  4  18 19 8  2
+    9 0 8  4  20 8 19  2
+    10 17 3  4  29 37 7  2
+    3 0 10  4  7 8 29  2
+    10 0 11  2  30 4 31  3
+    12 1 13  4  32 5 33  1
+    11 0 1  2  31 4 5  3
+    1 12 11  2  5 32 31  3
+    14 2 15  2  34 6 35  4
+    1 2 14  4  5 6 34  1
+    14 13 1  4  34 33 5  1
+    16 3 17  4  36 7 37  2
+    15 2 3  2  35 6 7  4
+    3 16 15  2  7 36 35  4
+  tverts 38
+    0.25 0.222222 0
+    0.5 0.222222 0
+    0.75 0.222222 0
+    1.0 0.222222 0
+    0.0 0.777778 0
+    0.25 0.777778 0
+    0.5 0.777778 0
+    0.75 0.777778 0
+    1.0 0.777778 0
+    0.5 0.888889 0
+    0.75 0.888889 0
+    1.0 0.888889 0
+    0.0 0.944444 0
+    0.25 0.944444 0
+    0.5 0.944444 0
+    0.25 0.75 0
+    0.375145 0.750032 0
+    0.5 0.75 0
+    0.75 0.75 0
+    0.874855 0.749968 0
+    1.0 0.75 0
+    0.25 0.25 0
+    0.5 0.25 0
+    0.874855 0.249968 0
+    0.75 0.25 0
+    1.0 0.25 0
+    0.0 0.816639 0
+    1.0 0.816639 0
+    0.174877 0.816639 0
+    1.0 0.816639 0
+    0.0 0.816639 0
+    0.174877 0.816639 0
+    0.25 0.816639 0
+    0.425309 0.816735 0
+    0.5 0.816756 0
+    0.675401 0.816756 0
+    0.75 0.816756 0
+    0.924969 0.81666 0
+endnode
 node aabb walk_19
   parent FCX01_H01_19
   position 0.0 0.0 2.16
@@ -740,4 +839,104 @@ node aabb walk_19
         4.65 4.4 2.16 5.0 5.0 2.16 18
 endnode
 endmodelgeom FCX01_H01_19
+newanim day FCX01_H01_19
+  length 0.03333
+  transtime 0.25
+  animroot FCX01_H01_19
+  node dummy FCX01_H01_19
+    parent NULL
+  endnode
+  node dummy FCX01_H01_19a
+    parent FCX01_H01_19
+  endnode
+  node trimesh GLASS_19
+    parent FCX01_H01_19a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent FCX01_H01_19a
+    alphakey 2
+      0.00000 0.5
+      0.03333 0.5
+    endlist
+  endnode
+doneanim day FCX01_H01_19
+newanim day2night FCX01_H01_19
+  length 0.56667
+  transtime 0.25
+  animroot FCX01_H01_19
+  node dummy FCX01_H01_19
+    parent NULL
+  endnode
+  node dummy FCX01_H01_19a
+    parent FCX01_H01_19
+  endnode
+  node trimesh GLASS_19
+    parent FCX01_H01_19a
+    alphakey 2
+      0.00000 0
+      0.56667 0.5
+    endlist
+  endnode
+  node trimesh day00_0
+    parent FCX01_H01_19a
+    alphakey 2
+      0.00000 0.5
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night FCX01_H01_19
+newanim night FCX01_H01_19
+  length 0.03333
+  transtime 0.25
+  animroot FCX01_H01_19
+  node dummy FCX01_H01_19
+    parent NULL
+  endnode
+  node dummy FCX01_H01_19a
+    parent FCX01_H01_19
+  endnode
+  node trimesh GLASS_19
+    parent FCX01_H01_19a
+    alphakey 2
+      0.00000 0.5
+      0.03333 0.5
+    endlist
+  endnode
+  node trimesh day00_0
+    parent FCX01_H01_19a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night FCX01_H01_19
+newanim night2day FCX01_H01_19
+  length 0.60000
+  transtime 0.25
+  animroot FCX01_H01_19
+  node dummy FCX01_H01_19
+    parent NULL
+  endnode
+  node dummy FCX01_H01_19a
+    parent FCX01_H01_19
+  endnode
+  node trimesh GLASS_19
+    parent FCX01_H01_19a
+    alphakey 2
+      0.00000 0.5
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent FCX01_H01_19a
+    alphakey 2
+      0.00000 0
+      0.60000 0.5
+    endlist
+  endnode
+doneanim night2day FCX01_H01_19
 donemodel FCX01_H01_19

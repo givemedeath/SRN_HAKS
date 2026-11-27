@@ -1,0 +1,198 @@
+{
+ "id": "r01",
+ "category": "Home",
+ "name": "Studio Apartment",
+ "note": "Floorplan R01: compact studio; bath, kitchenette, sleeping and living in one room.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     3.4,
+     3.4
+    ],
+    "ceiling": 3.0
+   },
+   "look": {
+    "floor": "tfb01_shpflr1",
+    "wall": "tfb01_wallcord",
+    "ceiling": "srx02_clgplas",
+    "base": "tfb01_shpflr1",
+    "crown": "srx02_clgplas",
+    "trim": "tfb01_shpflr1",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      7.0
+     ],
+     "to": [
+      3.5,
+      7.0
+     ],
+     "doors": [
+      {
+       "at": 1.75,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      3.4,
+      6.9
+     ],
+     "to": [
+      3.4,
+      10
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      7.0,
+      3.4,
+      10
+     ],
+     "floor": "udp2_flr_til3",
+     "wall": "udp2_flr_til2",
+     "repeat": {
+      "floor": 3.0,
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    },
+    {
+     "rect": [
+      3.4,
+      8.0,
+      7.6,
+      10
+     ],
+     "floor": "udp2_flr_til2",
+     "repeat": {
+      "floor": 3.0
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "dome",
+   "at": [
+    2.2,
+    3.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    7.4,
+    4.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    1.7,
+    8.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    5.7,
+    8.6
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.6
+   ]
+  },
+  {
+   "kind": "spot",
+   "at": [
+    4.6,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    4.6,
+    4.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.4,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.4,
+    4.0
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "xiashowerd_01", "at": [0.98, 9.03, 0.0], "turn": 0, "obstacle": false},
+  {"piece": "xiashower_01", "at": [0.98, 9.769, 0.0], "faces": "s"},
+  {"piece": "udp2-p-47", "at": [2.8, 9.36, 0.0], "faces": "s"},
+  {"piece": "udp2-p-111", "at": [0.62, 7.75, 0.0], "faces": "e"},
+  {"piece": "udp2-p-113", "at": [0.24, 7.75, 0.0], "turn": 90, "obstacle": false},
+  {"piece": "udp2-p-24", "at": [3.956, 9.273, 0.0], "faces": "s"},
+  {"piece": "udp2-p-106", "at": [4.75, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-107", "at": [5.51, 9.38, 0.0], "faces": "s"},
+  {"piece": "udp2-p-108", "at": [6.27, 9.377, 0.0], "faces": "s"},
+  {"piece": "udp2-p-106", "at": [7.03, 9.38, 0.0], "faces": "s"},
+  {"piece": "jvb_bed05", "at": [8.73, 5.0, 0.0], "faces": "w"},
+  {"piece": "jvb_tab07", "at": [9.385, 3.6, 0.0], "turn": 0},
+  {"piece": "jz_lamp01", "at": [9.385, 3.6, 0.43], "turn": 0},
+  {"piece": "jhb_armoir01", "at": [9.28, 8.0, 0.0], "faces": "w"},
+  {"piece": "jz_sfp048", "at": [2.0, 4.9, 0.0], "faces": "s"},
+  {"piece": "jvb_tab05", "at": [2.0, 3.2, 0.0], "turn": 90},
+  {"piece": "jz_sfp074", "at": [2.0, 0.735, 0.0], "turn": 0},
+  {"piece": "udp2-p-42", "at": [2.0, 0.675, 0.46], "faces": "n"},
+  {"piece": "jvb_dress02", "at": [0.442, 2.0, 0.0], "faces": "e"},
+  {"piece": "jvb_desk04", "at": [9.288, 1.85, 0.0], "faces": "w"},
+  {"piece": "jvb_ncomp01", "at": [9.328, 1.85, 0.74], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [8.35, 1.85, 0.0], "faces": "e"},
+  {"piece": "pkt_pplant02", "at": [3.0, 0.62, 0.0], "turn": 0, "scale": 0.55}
+ ],
+ "placeLater": [{"what": "bed, wardrobe and fridge as containers where a builder wants loot"}, {"what": "bath door: the doorway is open"}, {"what": "a terminal, where the computer is to be used"}]
+}

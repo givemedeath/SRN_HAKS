@@ -174,6 +174,8 @@ def suite(path):
     parts=path.split('/')
     return '/'.join(parts[:2]) if len(parts)>2 and parts[0]=='tools' else parts[0]
 
+ROOT='tools'  # suite() of a test directly in tools/: the helpers every kit may use
+
 def dependents(paths,data):
     impacted=set(paths)
     while True:
@@ -196,13 +198,18 @@ def select(changed,data,config=None,deleted=()):
     shared=[p for p in changed if config and any(re.search(r,p) for r in config['sharedInfrastructure'])]
     if shared:return full(data,'Shared infrastructure changed: '+', '.join(shared))
     # A helper whose tests span several suite folders is shared; static imports cannot prove
-    # coverage of its dynamic or indirect consumers, so it keeps the full helper suite.
+    # coverage of its dynamic or indirect consumers. Shared by kits (tools/<kit>), every test of
+    # those kits runs, whether it imports the helper or not; a kit with no test that reaches it
+    # is not run (2026-11-24: a tilekit helper envkit also uses ran the phenotype, head and item
+    # suites, 20 minutes for 2). Reached from the root tools, it keeps the full helper suite.
     known=set(data['dependencies'])|{p for rows in data['dependencies'].values() for p in rows}
-    tests_set=set(data['tests'])
+    tests_set=set(data['tests']);wide=set();helpers=[]
     for path in changed:
         if path in known and path not in tests_set:
             folders={suite(t) for t in dependents([path],data)&tests_set}
-            if len(folders)>1:return full(data,f'Shared helper changed: {path} (tests in {", ".join(sorted(folders))})')
+            if len(folders)>1:
+                if ROOT in folders:return full(data,f'Shared helper changed: {path} (tests in {", ".join(sorted(folders))})')
+                wide.update(folders);helpers.append(path)
     impacted=set();documentation=[];changed_packs=set();code=[]
     for path in changed:
         first=path.split('/')[0]
@@ -216,10 +223,11 @@ def select(changed,data,config=None,deleted=()):
         else:return full(data,'Unknown/configuration dependency; full suite required: '+path)
     impacted.update(p for p,rows in data.get('packReferences',{}).items() if changed_packs&set(rows))
     impacted=dependents(impacted,data)
-    tests=sorted(set(data['tests'])&impacted)
+    tests=sorted(set(data['tests'])&impacted|{t for t in data['tests'] if suite(t) in wide})
     if set(data['unresolved'])&impacted:return full(data,'Unresolved dependency; full suite required')
     if code and not tests:return full(data,'Changed code has no covering test; full suite required')
     reason='Transitive imports, helper literals and configurations'
+    if wide:reason=f'Helper shared by {", ".join(sorted(wide))}: {", ".join(helpers)}; every test of those suites, and other dependents'
     if documentation and not code and not changed_packs and not tests:reason='Documentation only; no helper tests read these files'
     elif changed_packs and not code:reason='Pack assets; tests referencing '+', '.join(sorted(changed_packs))
     return {'fullSuite':False,'reason':reason,'tests':tests,'documentation':sorted(documentation),'packs':sorted(changed_packs)}

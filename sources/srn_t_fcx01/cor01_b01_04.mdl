@@ -545,6 +545,118 @@ node trimesh Groups02321
     0.499999 0.318652 0
     0.5 0.467617 0
 endnode
+node trimesh day00_0
+  parent COR01_B01_04a
+  position 0.03 0.0 2.64
+  orientation 1.0 0.0 0.0 0.0
+  wirecolor 1.0 1.0 1.0 
+  tilefade 0
+  scale 1.0
+  render 1
+  Shadow 0
+  beaming 0
+  inheritcolor 0
+  rotatetexture 0
+  alpha 0.5
+  transparencyhint 0
+  selfillumcolor 0 0 0
+  ambient 0.0 0.0 1.0 
+  Diffuse 0.0666667 0.0 0.941177 
+  Specular 0.0 0.0 0.0 
+  shininess 1
+  center 6.0 0.0 31.5 
+  bitmap glass
+  verts 19
+    -0.24 0.0 -1.74
+    0.13 -0.21 -1.74
+    -0.06 -0.12 -0.1
+    0.08 -0.12 0.2
+    0.12 0.22 -1.74
+    0.1 0.0 -0.1
+    0.08 0.13 0.2
+    -0.06 0.11 -0.1
+    -0.13 0.0 0.2
+    0.06 -0.1 2.17
+    0.01 0.0 2.37
+    -0.11 0.0 2.17
+    0.06 0.11 2.17
+    -0.17 0.3 0.09
+    0.36 0.0 0.09
+    -0.17 -0.3 0.09
+    0.08 0.0 0.08
+    -0.03 -0.06 0.08
+    -0.03 0.06 0.08
+  faces 33
+    0 1 2  1  0 1 2  5
+    3 2 1  1  3 2 1  5
+    1 4 5  2  1 4 5  4
+    6 5 4  2  6 5 4  4
+    4 0 7  4  7 8 9  6
+    8 7 0  4  10 9 8  6
+    9 10 11  1  11 12 13  5
+    12 10 9  2  14 12 11  4
+    11 10 12  4  15 12 16  6
+    3 9 8  1  3 11 17  5
+    11 8 9  1  13 17 11  5
+    6 12 3  2  6 14 3  4
+    9 3 12  2  11 3 14  4
+    8 11 6  4  10 15 18  6
+    12 6 11  4  16 18 15  6
+    7 8 13  2  9 10 19  6
+    5 6 14  1  5 6 20  4
+    2 3 15  4  2 3 21  5
+    6 3 16  8  6 3 22  4
+    3 14 16  16  23 24 25  4
+    14 6 16  32  24 26 25  4
+    3 8 17  32  3 17 27  5
+    8 6 18  16  10 18 28  6
+    6 13 18  64  26 29 30  6
+    13 8 18  8  29 31 30  6
+    8 15 17  64  32 33 34  5
+    15 3 17  128  33 23 34  5
+    6 7 13  128  18 9 19  6
+    7 6 4  4  9 18 7  6
+    3 5 14  64  3 5 20  4
+    5 3 1  2  5 3 1  4
+    8 2 15  256  17 2 21  5
+    2 8 0  1  2 17 0  5
+  tverts 35
+    0.374996 -0.159721 0
+    0.625004 -0.159721 0
+    0.5 0.599899 0
+    0.624997 0.749749 0
+    0.875005 -0.159721 0
+    0.750014 0.599899 0
+    0.875 0.749749 0
+    -0.124995 -0.159721 0
+    0.124995 -0.159721 0
+    0.0 0.603041 0
+    0.124998 0.749749 0
+    0.624997 1.21777 0
+    0.5 1.31766 0
+    0.375003 1.21776 0
+    0.874998 1.21777 0
+    0.125002 1.21776 0
+    -0.125002 1.21777 0
+    0.375001 0.749749 0
+    -0.125 0.749749 0
+    -4.76837e-007 0.749535 0
+    0.749999 0.749535 0
+    0.499999 0.749534 0
+    0.75 0.69962 0
+    0.558332 0.441656 0
+    0.681347 0.499999 0
+    0.532383 0.5 0
+    0.558333 0.558333 0
+    0.499998 0.702762 0
+    -1.54972e-006 0.688621 0
+    0.5 0.681348 0
+    0.5 0.532384 0
+    0.441668 0.558333 0
+    0.441667 0.441666 0
+    0.499999 0.318652 0
+    0.5 0.467617 0
+endnode
 #Tile trimesh node
 node trimesh Groups02322
   parent COR01_B01_04
@@ -2470,6 +2582,15 @@ newanim animloop01 COR01_B01_04
             0.0 0.0 0.0 0.0 0.0
         endlist
     endnode
+    node trimesh day00_0
+        parent COR01_B01_04a
+        positionkey
+            0.0 0.03 0.0 2.64
+        endlist
+        orientationkey
+            0.0 0.0 0.0 0.0 0.0
+        endlist
+    endnode
     node trimesh Groups02322
         parent COR01_B01_04
         positionkey
@@ -2667,6 +2788,9 @@ newanim tiledefault COR01_B01_04
     node trimesh Groups02321
         parent COR01_B01_04a
     endnode
+    node trimesh day00_0
+        parent COR01_B01_04a
+    endnode
     node trimesh Groups02322
         parent COR01_B01_04
     endnode
@@ -2717,4 +2841,104 @@ newanim tiledefault COR01_B01_04
     endnode
 doneanim tiledefault COR01_B01_04
 
+newanim day COR01_B01_04
+  length 0.03333
+  transtime 0.25
+  animroot COR01_B01_04
+  node dummy COR01_B01_04
+    parent NULL
+  endnode
+  node dummy COR01_B01_04a
+    parent COR01_B01_04
+  endnode
+  node trimesh Groups02321
+    parent COR01_B01_04a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent COR01_B01_04a
+    alphakey 2
+      0.00000 0.5
+      0.03333 0.5
+    endlist
+  endnode
+doneanim day COR01_B01_04
+newanim day2night COR01_B01_04
+  length 0.56667
+  transtime 0.25
+  animroot COR01_B01_04
+  node dummy COR01_B01_04
+    parent NULL
+  endnode
+  node dummy COR01_B01_04a
+    parent COR01_B01_04
+  endnode
+  node trimesh Groups02321
+    parent COR01_B01_04a
+    alphakey 2
+      0.00000 0
+      0.56667 0.5
+    endlist
+  endnode
+  node trimesh day00_0
+    parent COR01_B01_04a
+    alphakey 2
+      0.00000 0.5
+      0.56667 0
+    endlist
+  endnode
+doneanim day2night COR01_B01_04
+newanim night COR01_B01_04
+  length 0.03333
+  transtime 0.25
+  animroot COR01_B01_04
+  node dummy COR01_B01_04
+    parent NULL
+  endnode
+  node dummy COR01_B01_04a
+    parent COR01_B01_04
+  endnode
+  node trimesh Groups02321
+    parent COR01_B01_04a
+    alphakey 2
+      0.00000 0.5
+      0.03333 0.5
+    endlist
+  endnode
+  node trimesh day00_0
+    parent COR01_B01_04a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+doneanim night COR01_B01_04
+newanim night2day COR01_B01_04
+  length 0.60000
+  transtime 0.25
+  animroot COR01_B01_04
+  node dummy COR01_B01_04
+    parent NULL
+  endnode
+  node dummy COR01_B01_04a
+    parent COR01_B01_04
+  endnode
+  node trimesh Groups02321
+    parent COR01_B01_04a
+    alphakey 2
+      0.00000 0.5
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day00_0
+    parent COR01_B01_04a
+    alphakey 2
+      0.00000 0
+      0.60000 0.5
+    endlist
+  endnode
+doneanim night2day COR01_B01_04
 donemodel COR01_B01_04

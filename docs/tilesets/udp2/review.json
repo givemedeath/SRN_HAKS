@@ -1,0 +1,202 @@
+{
+ "tileset": "udp2",
+ "haks": [
+  "srn_t_udp2",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 19,
+  "height": 24,
+  "lights": [
+   "day"
+  ],
+  "patches": [
+   {
+    "terrain": "Service",
+    "at": [
+     2,
+     2
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Tiled",
+    "at": [
+     8,
+     2
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Office_Vinyl",
+    "at": [
+     14,
+     2
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Office_Wood",
+    "at": [
+     2,
+     8
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Office_Alum",
+    "at": [
+     8,
+     8
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Foyer_L",
+    "at": [
+     14,
+     8
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Foyer_U",
+    "at": [
+     2,
+     14
+    ],
+    "size": [
+     3,
+     3
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "Hallway1",
+    "cells": [
+     [
+      0,
+      20
+     ],
+     [
+      18,
+      20
+     ]
+    ]
+   },
+   {
+    "crosser": "Hallway2",
+    "cells": [
+     [
+      0,
+      22
+     ],
+     [
+      18,
+      22
+     ]
+    ]
+   }
+  ],
+  "crossings": [
+   [
+    2,
+    2
+   ],
+   [
+    8,
+    2
+   ],
+   [
+    14,
+    2
+   ],
+   [
+    2,
+    8
+   ],
+   [
+    8,
+    8
+   ],
+   [
+    14,
+    8
+   ],
+   [
+    2,
+    14
+   ],
+   [
+    9,
+    20
+   ],
+   [
+    9,
+    22
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 32.0,
+   "pitch": 52.0,
+   "views": [
+    "x02y02-ne",
+    "x08y02-ne",
+    "x14y02-ne",
+    "x02y08-ne",
+    "x08y08-ne",
+    "x14y08-ne",
+    "x02y14-ne",
+    "x09y20-ne",
+    "x09y20-sw",
+    "x09y22-ne",
+    "x09y22-sw"
+   ]
+  },
+  "eye": {
+   "turns": [
+    0,
+    135,
+    225
+   ],
+   "pitches": [
+    100
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

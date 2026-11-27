@@ -1,0 +1,370 @@
+{
+  "schemaVersion": 1,
+  "tileset": "nac01",
+  "set": {
+    "terrains": 2,
+    "crossers": 1,
+    "tiles": 17,
+    "models": 17,
+    "groups": 0
+  },
+  "edge": {
+    "rows": 0,
+    "models": 0,
+    "notInSet": 0
+  },
+  "forms": {
+    "uncompiled": 17,
+    "compiled": 0,
+    "absent": 0
+  },
+  "surface": 5167.68,
+  "coverage": {
+    "50": 2,
+    "80": 3,
+    "90": 3,
+    "95": 4,
+    "99": 5
+  },
+  "textures": [
+    {
+      "name": "nac_sheet",
+      "surface": 2534.17,
+      "share": 49.039,
+      "cumulative": 49.039,
+      "models": 13,
+      "terrains": [
+        "Service",
+        "Wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "flexpipe",
+      "surface": 1158.72,
+      "share": 22.422,
+      "cumulative": 71.461,
+      "models": 12,
+      "terrains": [
+        "Service",
+        "Wall"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "srx02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "nac_sheet4",
+      "surface": 1081.1,
+      "share": 20.92,
+      "cumulative": 92.382,
+      "models": 11,
+      "terrains": [
+        "Service"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "nac_sheet5",
+      "surface": 337.03,
+      "share": 6.522,
+      "cumulative": 98.904,
+      "models": 4,
+      "terrains": [
+        "Service"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [
+        "srx02"
+      ],
+      "otherPacks": {}
+    },
+    {
+      "name": "vents",
+      "surface": 19.54,
+      "share": 0.378,
+      "cumulative": 99.282,
+      "models": 1,
+      "terrains": [
+        "Service"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [
+        "srx01",
+        "udp1"
+      ],
+      "otherPacks": {
+        "srn_placeable": 2
+      }
+    },
+    {
+      "name": "grillarray",
+      "surface": 12.6,
+      "share": 0.244,
+      "cumulative": 99.526,
+      "models": 3,
+      "terrains": [
+        "Service"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "nac_sheet2",
+      "surface": 9.43,
+      "share": 0.183,
+      "cumulative": 99.708,
+      "models": 4,
+      "terrains": [
+        "Service"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "service_plate",
+      "surface": 8.21,
+      "share": 0.159,
+      "cumulative": 99.867,
+      "models": 2,
+      "terrains": [
+        "Service"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "ac_fan",
+      "surface": 6.86,
+      "share": 0.133,
+      "cumulative": 100.0,
+      "models": 1,
+      "terrains": [
+        "Wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_nac01",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    }
+  ],
+  "models": {
+    "nac01_d01_01": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        9
+      ],
+      "edge": false
+    },
+    "nac01_d01_02": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        10
+      ],
+      "edge": false
+    },
+    "nac01_d01_03": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        11
+      ],
+      "edge": false
+    },
+    "nac01_d01_04": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        12
+      ],
+      "edge": false
+    },
+    "nac01_d01_05": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        13
+      ],
+      "edge": false
+    },
+    "nac01_s01_01": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        1
+      ],
+      "edge": false
+    },
+    "nac01_s01_02": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        2
+      ],
+      "edge": false
+    },
+    "nac01_s01_03": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        3
+      ],
+      "edge": false
+    },
+    "nac01_s01_04": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        4
+      ],
+      "edge": false
+    },
+    "nac01_s01_05": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        5
+      ],
+      "edge": false
+    },
+    "nac01_s01_06": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        6
+      ],
+      "edge": false
+    },
+    "nac01_s01_07": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        7
+      ],
+      "edge": false
+    },
+    "nac01_s01_08": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        8
+      ],
+      "edge": false
+    },
+    "nac01_s01_09": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        14
+      ],
+      "edge": false
+    },
+    "nac01_s01_10": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        15
+      ],
+      "edge": false
+    },
+    "nac01_s01_11": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        16
+      ],
+      "edge": false
+    },
+    "nac01_x01_01": {
+      "pack": "srn_t_nac01",
+      "form": "uncompiled",
+      "tiles": [
+        0
+      ],
+      "edge": false
+    }
+  },
+  "unnamedModels": []
+}

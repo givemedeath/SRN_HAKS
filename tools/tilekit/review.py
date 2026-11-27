@@ -179,8 +179,8 @@ def grid(numbers, fill, across=32):
 
 PITCH_LIMIT, DISTANCE_LIMIT = 150.0, 200.0  # a view's camera may look up from the street (pitch over 90) at a tower's top, and stand far off
 
-def _shot(area, label, x, y, facing, distance, pitch):
-    return {'area': area, 'label': label, 'stand': [round(x, 2), round(y, 2)], 'facing': facing, 'distance': distance, 'pitch': pitch, 'height': 1.0}
+def _shot(area, label, x, y, facing, distance, pitch, height=1.0):
+    return {'area': area, 'label': label, 'stand': [round(x, 2), round(y, 2)], 'facing': facing, 'distance': distance, 'pitch': pitch, 'height': height}
 
 
 def grid_shots(area, prefix, across, rows, *, reach=REACH, distance=55.0, pitch=52.0):
@@ -201,6 +201,21 @@ def corner_shots(area, prefix, crossings, *, distance=34.0, pitch=58.0):
             for column, row in crossings for name, facing in (('ne', 45), ('nw', 135), ('sw', 225), ('se', 315))]
 
 
+EYE = {'height': 1.7, 'distance': 1.0, 'turns': (45, 135, 225, 315), 'pitches': (90, 105)}  # a standing person's eye; pitch 90 is level, more looks up
+
+
+def eye_shots(area, prefix, crossings, *, height=EYE['height'], distance=EYE['distance'], turns=EYE['turns'], pitches=EYE['pitches'], places=()):
+    """Views from inside a room, at eye level: from the middle of each crossing's cell, turned each of `turns` degrees,
+    once for each of `pitches` (90 level, more than 90 looking up). A view from above never shows a ceiling, nor how a
+    room stands round a person; an interior is judged from these. Named x03y03-045-090: the turn, then the pitch. places:
+    [{name, at: [column, row], parts of a cell too, turns, and distance, height or pitches of its own (pitch 10 looks down)}] for
+    rooms a wall parts the middle of the cell from; named by their names."""
+    return [_shot(area, f'{prefix}-x{column:02d}y{row:02d}-{int(turn):03d}-{int(pitch):03d}', (column + 0.5) * TILE, (row + 0.5) * TILE, turn, distance, pitch, height)
+            for column, row in crossings for pitch in pitches for turn in turns] + [
+            _shot(area, f'{prefix}-{place["name"]}-{int(turn):03d}-{int(pitch):03d}', place['at'][0] * TILE, place['at'][1] * TILE, turn, place.get('distance', distance), pitch, place.get('height', height))
+            for place in places for turn in place['turns'] for pitch in place.get('pitches', pitches)]
+
+
 def lattice_shots(area, prefix, width, height, *, step=4, distance=30.0, pitch=58.0):
     """Views of an area someone built: from the middle of every `step`th cell, looking north and looking south. An
     area smaller than a step is still looked at, from its first cell."""
@@ -215,11 +230,12 @@ def waits(shots, arrive=ARRIVE):
     return [arrive if index == 0 or shots[index - 1]['area'] != shot['area'] else STEP for index, shot in enumerate(shots)]
 
 
-def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
+def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE, more=None):
     """The module's entry script: the player, unseen, is stood at each view in turn, in whichever area it is of, and the
     camera set. Each view writes envkit's shot line a second after its camera is set, which is what a capture waits
     for; a view in another area than the last is given `arrive` seconds first. The line says valid=0 where the player
-    is not standing in the view's area by then (`capture` names those views)."""
+    is not standing in the view's area by then (`capture` names those views). more: (functions, statement), script of a
+    caller's own (`walk`'s walkers): the functions are written before `main`, which runs the statement as it enters."""
     require(all(prop_fixture.LABEL.fullmatch(shot['label']) for shot in shots), 'A view\'s label is letters, digits, - and _')
     prefix = prop_fixture.LOG_PREFIX
     lines = ['void Line(object pc,int n,string label,string area) {',
@@ -232,10 +248,10 @@ def enter_script(shots, start=START, hold=HOLD, arrive=ARRIVE):
     lines += ['  AssignCommand(pc,ClearAllActions()); AssignCommand(pc,JumpToLocation(Location(GetObjectByTag(area),Vector(x,y,0.0),facing)));',
               '  DelayCommand(wait,SetCameraHeight(pc,height)); DelayCommand(wait,AssignCommand(pc,SetCameraFacing(facing,distance,pitch,CAMERA_TRANSITION_TYPE_SNAP)));',
               f'  DelayCommand(wait+{prop_fixture.LINE_DELAY:.1f},Line(pc,n,label,area));',
-              f'  DelayCommand(wait+{hold:.1f},Shot(pc,n+1));', '}',
+              f'  DelayCommand(wait+{hold:.1f},Shot(pc,n+1));', '}', *([more[0]] if more else []),
               'void main() {', '  object pc=GetEnteringObject(); if(!GetIsPC(pc)) return;', f'  SetCameraLimits(pc,1.0,{PITCH_LIMIT:.1f},0.5,{DISTANCE_LIMIT:.1f});',
               '  ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectVisualEffect(VFX_DUR_CUTSCENE_INVISIBILITY),pc);',
-              '  SetCutsceneMode(pc,TRUE,FALSE);', f'  WriteTimestampedLogEntry("{prefix} enter shots={len(shots)}");',
+              *(['  ' + more[1]] if more else []), '  SetCutsceneMode(pc,TRUE,FALSE);', f'  WriteTimestampedLogEntry("{prefix} enter shots={len(shots)}");',
               f'  DelayCommand({start:.1f},Shot(pc,0));', '}']
     return '\n'.join(lines) + '\n'
 
@@ -250,10 +266,10 @@ def plain(laid):
 
 
 SOUTH = math.pi  # a placeable's bearing that faces south, toward the views of `prop_shots`
-PROP_GROUP = {'across': 5, 'spacing': 6.0, 'apart': 12.0, 'distance': 24.0, 'pitch': 55.0, 'bearing': SOUTH}  # a group of placeables of about one size
+PROP_GROUP = {'across': 5, 'spacing': 6.0, 'apart': 12.0, 'distance': 24.0, 'pitch': 55.0, 'bearing': SOUTH, 'state': 0}  # a group of placeables of about one size; state 4: switched on
 
 
-def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=SOUTH):
+def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=SOUTH, state=0):
     """(width, height, props, rows) of placeables stood `across` to a row, `spacing` metres apart, rows `apart` metres
     apart, a tile of ground round them. props: [{model, appearance, position, bearing}] (bearing pi faces south, toward
     the views of `prop_shots`); appearance: {model: placeables.2da row}."""
@@ -262,7 +278,7 @@ def prop_rows(models, appearance, *, across=5, spacing=6.0, apart=12.0, bearing=
     count = -(-len(models) // across)
     width, height = 2 + math.ceil(across * spacing / TILE), 2 + math.ceil(count * apart / TILE)
     require(width <= 32 and height <= 32, 'These placeables do not fit one area: give fewer, or closer')
-    props = [{'model': model, 'appearance': appearance[model], 'position': [TILE + spacing * (index % across + 0.5), TILE + apart * (index // across + 0.5)], 'bearing': bearing}
+    props = [{'model': model, 'appearance': appearance[model], 'position': [TILE + spacing * (index % across + 0.5), TILE + apart * (index // across + 0.5)], 'bearing': bearing, **({'state': state} if state else {})}
              for index, model in enumerate(models)]
     return width, height, props, count
 
@@ -310,7 +326,7 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
                 'Flags': field('dword', 0), 'DayNightCycle': field('byte', 0), 'SkyBox': field('byte', 1), 'FogClipDist': field('float', 9999.0)})
     are.update({key: field(KINDS.get(key, 'dword'), value) for key, value in LIGHTS[light].items()})
     if props:
-        git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', SOUTH))
+        git['Placeable List'] = field('list', [prop_fixture.placed(f'{tag}_p{index}', prop['appearance'], prop['position'], prop.get('bearing', SOUTH), **({'static': False, 'state': prop['state']} if prop.get('state') else {}))
                                                for index, prop in enumerate(props)])
     if doors:
         git['Door List'] = field('list', [door(f'{tag}_d{index}', one['row'], one['position'], one['bearing'], one.get('opened', 0)) for index, one in enumerate(doors)])
@@ -337,11 +353,11 @@ def read_area(path, run=None):
     return are['Width']['value'], are['Height']['value'], [(one['Tile_ID']['value'], one['Tile_Orientation']['value']) for one in are['Tile_List']['value']]
 
 
-def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, tlk=TLK, start=START, hold=HOLD, arrive=ARRIVE):
+def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, tlk=TLK, start=START, hold=HOLD, arrive=ARRIVE, more=None):
     """Build the review module into the fresh folder `output`: a user folder of its own holding the module, the talk
     table and the built packs (as hard links to those in `built`, copies where the file system has none), with a pack
     of the module's own first in its list holding the files of `overlay`. areas: [{tag, title, tileset, width, height,
-    laid, light}]. Returns the record envkit's client run takes."""
+    laid, light}]; more: script of the caller's own (`enter_script`). Returns the record envkit's client run takes."""
     require(NAME.fullmatch(name), 'A review\'s name is a lowercase resref of at most 11 characters')
     require(name not in {pack.lower() for pack in haks}, f'A review is not named like a pack it loads ({name}): its own pack would be written over that one')
     root, output, built = Path(game), Path(output).resolve(), Path(built).resolve()
@@ -366,7 +382,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     for path in laid_over:
         shutil.copyfile(path, staged / path.name); held.append(path.name)
     run('nwn_erf', ['-c', '-f', user / 'hak' / f'{name}.hak', '-e', 'HAK', staged])
-    script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold, arrive), encoding='ascii', newline='\n')
+    script = binary / f'{name}_en.nss'; script.write_text(enter_script(shots, start, hold, arrive, more), encoding='ascii', newline='\n')
     run('nwn_script_comp', ['--root', root, '--userdirectory', user, '--no-ovr', script])
     require(script.with_suffix('.ncs').is_file(), 'The entry script did not compile')
     made = client_fixture.module_documents(name, list(haks), tlk, tuple(shots[0]['stand'])); ifo = made['module.ifo']
@@ -388,12 +404,13 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     return record
 
 
-def capture(game, record, folder):
+def capture(game, record, folder, *, foreground=60, background=30):
     """Run the client on a built review and capture every view into `folder/captures`. Waits while another game
     client runs. Returns {captures, late, elsewhere}: `late` names the views captured after they had passed, kept as
-    -late.png; `elsewhere` those whose area the player had not reached when the view was taken. Neither shows its view."""
+    -late.png; `elsewhere` those whose area the player had not reached when the view was taken. Neither shows its view.
+    foreground, background: the frame rates the client is held to. captures/run.json keeps the run's log lines."""
     checks.wait_for_clients(); captures = Path(folder) / 'captures'
-    result = prop_fixture.run(game, record, captures, extra_settings=settings(), late_ok=True)
+    result = prop_fixture.run(game, record, captures, extra_settings=settings(foreground, background), late_ok=True)
     (captures / 'run.json').write_text(json.dumps(result, indent=1), encoding='utf-8')
     return {'captures': result['captures'], 'late': result['late'], 'elsewhere': elsewhere(result['lines'])}
 
@@ -406,7 +423,7 @@ def elsewhere(lines):
 def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None):
     """(areas, shots) of a review from a tileset's set file and its review spec: {tileset, fill, block: {width, height,
     patches, runs, groups (`stamped`), crossings, lights, views (which of a crossing's views are taken, as 'x03y03-ne'; all without it),
-    near: {distance, pitch, views}, lamps: [{name, main, source, lights}] (the block again with
+    near: {distance, pitch, views}, eye: {crossings (the block's without it), height, distance, turns, pitches} (`eye_shots`), lamps: [{name, main, source, lights}] (the block again with
     every tile's own lights on, `area_documents`; views `lamp-<name>-<light>`)}, grid: {across, lights}, area: {step, lights},
     shared: {lights, tilesets: {tileset: {models, fill, lights}}, placeables: {lights, groups: [{name, models, lights, and
     the `PROP_GROUP` keys}]}}}. built_area: (width, height, laid)
@@ -434,6 +451,8 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
         # Of the four views of each crossing, some stand inside a roof or face a wall: a spec names the ones worth taking.
         # A view is the label's last two parts (x03y03-ne), however many parts its prefix has (lamp-main-night).
         chosen = lambda made, views: [shot for shot in made if not views or '-'.join(shot['label'].rsplit('-', 2)[-2:]) in views]
+        eye = block.get('eye'); require(eye is None or set(eye) <= {'crossings', 'places', *EYE}, 'The eye views of a block take crossings, places, ' + ', '.join(EYE))
+        eyes = lambda tag, prefix: eye_shots(tag, prefix, [tuple(cell) for cell in eye.get('crossings', block['crossings'])], **{key: eye[key] for key in (*EYE, 'places') if key in eye}) if eye is not None else []
         cells = solve(tiles, laid['default'], block['width'], block['height'], block['patches'], block.get('runs', ()), avoid=grouped | envkit)
         if block.get('groups'):  # whole buildings, as a builder lays them
             cells = stamped(cells, tiles, set_text, block['groups'], block['width'], block['height'])
@@ -442,12 +461,14 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
             shots += chosen(corner_shots(tag, f'block-{light}', [tuple(cell) for cell in block['crossings']]), block.get('views'))
             if 'near' in block:  # the same views from where a player's camera stands: a texture is judged there, a district from afar
                 shots += chosen(corner_shots(tag, f'near-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch']), block['near'].get('views'))
+            shots += eyes(tag, f'eye-{light}')
         for lamps in block.get('lamps', ()):  # the block's own lights switched on: what a builder gets from a tile's light settings
             for light in lamps['lights']:
                 tag = f'tkl{lamps["name"][0]}{light[0]}'; add(tag, f'Block, {light}, {lamps["name"]} lights', block['width'], block['height'], cells, light, {'main': lamps.get('main', 0), 'source': lamps.get('source', 0)})
                 shots += chosen(corner_shots(tag, f'lamp-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']]), block.get('views'))
                 if 'near' in block:
                     shots += chosen(corner_shots(tag, f'lampnear-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch']), block['near'].get('views'))
+                shots += eyes(tag, f'lampeye-{lamps["name"]}-{light}')
     if 'grid' in parts and 'grid' in spec:
         width, height, cells, rows = grid([number for number in sorted(tiles) if number not in envkit], fill, spec['grid'].get('across', 32))
         for light in spec['grid']['lights']:
@@ -480,7 +501,7 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
             for number, group in enumerate(shared['placeables']['groups']):  # each size of placeable in an area of its own, spaced and seen to suit it
                 how = {**PROP_GROUP, **{key: value for key, value in group.items() if key in PROP_GROUP}}
                 width, height, props, rows = prop_rows([model.lower() for model in group['models']], appearance, across=how['across'], spacing=how['spacing'],
-                                                       apart=how['apart'], bearing=how['bearing'])
+                                                       apart=how['apart'], bearing=how['bearing'], state=how['state'])
                 cells = {(column, row): (fill, 0) for column in range(width) for row in range(height)}
                 for light in group.get('lights', shared['placeables'].get('lights', shared['lights'])):
                     tag = f'tkp{number}{light[0]}'; add(tag, f'Placeables, {group["name"]}, {light}', width, height, cells, light, props=props)

@@ -1,0 +1,344 @@
+{
+ "id": "r07",
+ "category": "Home",
+ "name": "Flophouse",
+ "note": "Floorplan R07: partitioned cheap sleeping spaces off one corridor, shared washroom and kitchen.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 2,
+   "like": [
+    63,
+    64
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 5.0,
+    "wall": [
+     4.0,
+     4.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tfb01_floor",
+    "wall": "udp2_w_cmu1",
+    "ceiling": "srx02_clgconc",
+    "base": "udp2_w_sid2",
+    "trim": "udp2_w_sid2",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      10,
+      0
+     ],
+     "to": [
+      10,
+      10
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      3.8
+     ],
+     "to": [
+      20,
+      3.8
+     ],
+     "doors": [
+      {
+       "at": 1.65,
+       "width": 2.0
+      },
+      {
+       "at": 4.95,
+       "width": 2.0
+      },
+      {
+       "at": 8.25,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      6.2
+     ],
+     "to": [
+      20,
+      6.2
+     ],
+     "doors": [
+      {
+       "at": 1.65,
+       "width": 2.0
+      },
+      {
+       "at": 4.95,
+       "width": 2.0
+      },
+      {
+       "at": 8.25,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      13.3,
+      0
+     ],
+     "to": [
+      13.3,
+      3.8
+     ]
+    },
+    {
+     "from": [
+      16.6,
+      0
+     ],
+     "to": [
+      16.6,
+      3.8
+     ]
+    },
+    {
+     "from": [
+      13.3,
+      6.2
+     ],
+     "to": [
+      13.3,
+      10
+     ]
+    },
+    {
+     "from": [
+      16.6,
+      6.2
+     ],
+     "to": [
+      16.6,
+      10
+     ]
+    },
+    {
+     "from": [
+      0,
+      6.4
+     ],
+     "to": [
+      5.1,
+      6.4
+     ],
+     "doors": [
+      {
+       "at": 3.75,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      5.0,
+      6.3
+     ],
+     "to": [
+      5.0,
+      10
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      6.4,
+      5,
+      10
+     ],
+     "floor": "udp2_flr_til3",
+     "wall": "udp2_flr_til2",
+     "repeat": {
+      "floor": 3.0,
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "strip",
+   "at": [
+    12.5,
+    5.0
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.16
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    17.5,
+    5.0
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.16
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    3.0
+   ],
+   "under": 3.4,
+   "size": [
+    2.0,
+    0.18
+   ],
+   "drop": 0.3
+  },
+  {
+   "kind": "strip",
+   "at": [
+    7.5,
+    7.4
+   ],
+   "under": 3.4,
+   "size": [
+    1.8,
+    0.16
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    2.6,
+    8.1
+   ],
+   "under": 3.4,
+   "size": [
+    1.4,
+    0.16
+   ]
+  },
+  {
+   "kind": "dome",
+   "at": [
+    11.6,
+    2.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    11.6,
+    8.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    14.9,
+    2.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    14.9,
+    8.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    18.2,
+    2.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "dome",
+   "at": [
+    18.2,
+    8.0
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "purp_bunk4", "at": [10.75, 8.36, 0.0], "faces": "s"},
+  {"piece": "shpv5_lkr", "at": [12.45, 9.28, 0.0], "faces": "s"},
+  {"piece": "purp_bunk4", "at": [11.18, 1.64, 0.0], "faces": "n"},
+  {"piece": "shpv5_lkr", "at": [12.45, 0.72, 0.0], "faces": "n"},
+  {"piece": "purp_bunk4", "at": [14.05, 8.36, 0.0], "faces": "s"},
+  {"piece": "shpv5_lkr", "at": [15.75, 9.28, 0.0], "faces": "s"},
+  {"piece": "purp_bunk4", "at": [14.48, 1.64, 0.0], "faces": "n"},
+  {"piece": "shpv5_lkr", "at": [15.75, 0.72, 0.0], "faces": "n"},
+  {"piece": "purp_bunk4", "at": [17.35, 8.36, 0.0], "faces": "s"},
+  {"piece": "shpv5_lkr", "at": [19.05, 9.28, 0.0], "faces": "s"},
+  {"piece": "purp_bunk4", "at": [17.78, 1.64, 0.0], "faces": "n"},
+  {"piece": "shpv5_lkr", "at": [19.05, 0.72, 0.0], "faces": "n"},
+  {"piece": "p_toiletcln01", "at": [0.8, 9.27, 0.0], "faces": "s"},
+  {"piece": "p_stalldivider01", "at": [1.5, 8.93, 0.0], "turn": 0, "scale": 0.75},
+  {"piece": "p_toiletcln01", "at": [2.15, 9.27, 0.0], "faces": "s"},
+  {"piece": "p_stalldivider01", "at": [2.8, 8.93, 0.0], "turn": 0, "scale": 0.75},
+  {"piece": "xiashowerd_01", "at": [4.12, 9.03, 0.0], "turn": 0, "obstacle": false},
+  {"piece": "xiashower_01", "at": [4.12, 9.769, 0.0], "faces": "s"},
+  {"piece": "p_sinkcln01", "at": [1.0, 6.89, 0.0], "faces": "n"},
+  {"piece": "p_sinkcln01", "at": [2.0, 6.89, 0.0], "faces": "n"},
+  {"piece": "jz_fridgebig02", "at": [5.71, 9.26, 0.0], "faces": "s"},
+  {"piece": "jz_oldoven01", "at": [6.5, 9.42, 0.0], "faces": "s"},
+  {"piece": "jr_mc_sink", "at": [7.5, 9.27, 0.0], "faces": "s"},
+  {"piece": "jr_mc_cntr", "at": [8.85, 9.27, 0.0], "faces": "s"},
+  {"piece": "udp2-p-71", "at": [7.6, 6.7, 0.0], "turn": 0},
+  {"piece": "udp2-p-03", "at": [6.35, 6.7, 0.0], "faces": "e"},
+  {"piece": "udp2-p-03", "at": [7.6, 7.95, 0.0], "faces": "s"},
+  {"piece": "xrp_couch01", "at": [7.1, 2.2, 0.0], "faces": "e"},
+  {"piece": "jz_sfp039", "at": [8.25, 2.2, 0.0], "turn": 90},
+  {"piece": "jz_cbbox_007", "at": [9.45, 2.2, 0.0], "turn": 0},
+  {"piece": "p_tv02", "at": [9.45, 2.2, 0.6], "faces": "w"},
+  {"piece": "purp_bedroll", "at": [0.85, 1.5, 0.0], "turn": 0},
+  {"piece": "purp_bedroll2", "at": [2.1, 1.5, 0.0], "turn": 0},
+  {"piece": "jz_cbbox_007", "at": [0.66, 3.3, 0.0], "turn": 20},
+  {"piece": "vos_garbage1", "at": [1.4, 5.1, 0.0], "turn": 0},
+  {"piece": "p_grbgcanurb01", "at": [9.4, 0.7, 0.0], "turn": 0}
+ ],
+ "placeLater": [{"what": "cubicle doors or curtains: the doorways are open"}, {"what": "lockers as containers"}]
+}

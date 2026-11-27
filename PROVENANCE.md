@@ -1715,6 +1715,76 @@ and its placeable consumer close without a HAK-order duplicate. Final metadata r
 door slots to model hooks, corrects SJM/SRT/ZSF minimaps, normalizes invalid ZSF boolean flags,
 and binds the Planetscape palette to mp01.
 
+## Textures that published placeables name (2026-11-25)
+
+A scan of all `srn_placeable` model files found texture names that neither a pack nor the base game holds. The originals
+of 159 of them are landed unchanged in `srn_placeable`: 155 from `mdrnee_item.hak` (nearly all the
+VoS guns and gun racks) and 4 from `mdrnee_tile.hak` (`ceiling2_l3_2c`, `window3`, `window4`, `window6`). Models and
+table rows are unchanged. `docs/imports/mdrnee_placeable-dependency-textures.md` lists each file with its archive,
+size, SHA-256, upstream git blob and the models that name it. Every SHA-256 is the one `mdrnee_item-manifest.json` or
+`mdrnee_tile-manifest.json` in `docs/imports/` records, and every git blob is the one at commit
+`c01271d3ba053ada6d75bc070c5cf1ab94ec29c6` of the upstream project verified above
+(`https://gitea.raptio.us/Jaysyn/d20ModernEE`). The item bytes were read from a local clone of that project, the tile
+bytes from the quarantined extraction of the archive; where the tile archive holds both a DDS and a TGA, the DDS is
+landed.
+
+The item archive's credits are under "MDRNEE item analysis" below. The archive belongs to the same Neverwinter Vault
+distribution as the placeables: the Version 2.1 project page
+(<https://www.neverwintervault.org/project/nwn1/hakpak/combined/d20-modern-haks-version-21>) offers `mdrn21_item.rar`
+beside `mdrn21_placeable.rar` under one permission, free and open when the consuming project is also open (read
+2026-11-25). The tile textures keep the
+terms of the MDRNEE tileset import. None is relicensed under the repository's default PolyForm license. These are the
+only resources landed from `mdrnee_item.hak`, as dependencies of published placeables; the rest of that archive stays
+analysis-only, and both manifests are left as written.
+
+## Replacement textures for placeables (2026-11-25)
+
+No original is known for the remaining texture names of the section above. Those whose absence showed in the game client
+are replaced here, in `srn_placeable`, with the project owner's approval of client pictures; the rest are left.
+
+Drawn for this repository by a script from noise and plain shapes, without any source image, and compressed with NWN
+Crunch: three striped awning fabrics, an iron railing, a ship rail, plain stone (`nw2_es_walls1`; it is not the
+Neverwinter Nights 2 texture of that name), couch cloth and a speeder hull.
+
+| Texture | Bytes | SHA-256 |
+|---|---:|---|
+| `fence_c11b.dds` | 21892 | `2136afb472c7db14dd5c694de310ec57e2f47dc5c7cdab218010deaaf18e0c90` |
+| `nw2_es_walls1.dds` | 174796 | `01cbd704906d7867393c7ef6df863951646ee861a55b88c9922dae21e5913a7d` |
+| `plc_x50_cloth.dds` | 10956 | `23602b185abf8584e701e4e74b0e1744b0aeafd5ed145fc682d1a23bcf56d6fc` |
+| `qp_awning01.dds` | 43724 | `52d495b1ba177eac1e3e1557b86ac30b54df5badc6e2c436756a70de7b5fe8a9` |
+| `qp_awning02.dds` | 43724 | `9848db295084b4cc0ed8186717e6f74aea321990f7d5e29754bdcfbcce2bab9d` |
+| `qp_awning03.dds` | 43724 | `0f9b48b8e89187be17073b0f7f7b5a8e1c7c25a63187e92d837272e554ca69b9` |
+| `qp_railing.dds` | 349572 | `037f6229b05bf634727485e04bd3958b2749f895fb502b13938e1c40630639a0` |
+| `v_ghtroc_body.dds` | 43724 | `0eff2edfc26bf1d060c9f2590b90a9d5b4d059fa1d856d42ea3fa353ad404b78` |
+
+Made from textures this pack set already held, whose terms they keep: `vos_bldfronts_2.dds` is composed of two shops of
+`vos_bldfronts_1.dds`, and `window_tall_bars.dds` is an unchanged copy of `srn_t_common/window_tall_b.dds`.
+
+Copied unchanged from the SWLOR HAK decomposition at `SWLOR_Haks` commit `e349a8026ce226da1e2199295b0d9e34bc4e94f4`
+(`https://github.com/givemedeath/SWLOR_Haks`), as six of the door dependencies above were: `v_snow.tga`
+(`sw_plc/v_snow.tga`, git blob `d14f83dcf555e1432f2389a5a24a62fa86d34281`) and `bark01f.dds` (`sw_plc_cep/bark01f.dds`,
+git blob `d34633948ac1023149343b39c4e48c9fef1bccea`). That repository states no licence for its assets. They retain the
+provenance and permission terms of their respective upstream content and are not relicensed under the repository's
+default PolyForm license.
+
+| Texture | Bytes | SHA-256 |
+|---|---:|---|
+| `bark01f.dds` | 174796 | `e996f8339cbac365ec1c1201e24785f8ca0a4686aa59da6877e922325a9e4dd4` |
+| `v_snow.tga` | 196652 | `3fb859e328b5cc345d62f14a6f155d171c31389aca6dd9c4211b083fb4e97900` |
+| `vos_bldfronts_2.dds` | 699084 | `35a3093e5634de344c57ce515c15cd13f2726da78a4e5f9d7d1224de9f8b8af9` |
+| `window_tall_bars.dds` | 87528 | `6d7386463ca3ae7a097692d0fc3d7ebcd66fdd51d9c6915a5cf1ab0cf21e4a08` |
+
+These models name another texture of the pack in place of a missing one, and are otherwise unchanged:
+`plc_mirror2` and `plc_mirror3` (`newhang1`), `pcl_slight` (`tmi_metal01`), `plc_x50` to `plc_x52` (`plc_x50_cloth`),
+`plc_sith` (`nw2_es_walls1`), `plc_ghtroc` (`v_ghtroc_body` for `floor_car`), `jz_tractor01` and `jz_tractor02`
+(`jz_tractorp01`), `plc_swpbike1` (`pkt_spdrwin01`), `pkt_m09x08` (`lsi_lite01`) and `jr_tank` (`tank_lanterns`).
+
+`vos_awn2b_m` had black ambient light and drew black; its ambient and diffuse colours are now those of `vos_awn2b_l` and
+`vos_awn2b_s`.
+
+`plc_kruiz` flew a Nazi flag. Its flag mesh (`plane01`) and the texture only it used, `flag_nazi.dds`, are removed at the
+project owner's request. Import manifests are left as written.
+
 ## MDRNEE item analysis (2026-09-12)
 
 `mdrnee_item.hak` was decomposed in quarantine under the `mdrnee_item` analysis profile. Its
@@ -2539,3 +2609,92 @@ of Poly Haven) are in no pack: the user kept the originals.
 The tile models are the originals, compiled by NeverBlender from `sources/srn_t_udp1/` (node names made unique by
 `tilekit unique`), with day and night animations for their lit windows and lamp lenses (`tilekit daylight`) and
 the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are unchanged.
+
+## Unified interior tileset `srx02` (`srn_t_srx02`, `srn_2da`, `srn_t_nac01`; 2026-11-24)
+
+- `srn_t_srx02/srx02.set`, `srx02palstd.itp` and `srn_2da/srx02_edge.2da` are written by `tools/tilekit/merge.py` from
+  the set files of `srn_t_udp2` (D20 Office Interiors UDP), `srn_t_tfb01` (D20 Modern Interior), `srn_t_tbx78` (D20
+  Modern Facility) and `srn_t_nac01` (D20 ServiceDucts) and the edge tables of the first and third, under the names in
+  `docs/tilesets/srx02/names.json`. They hold no model, texture or picture: every tile draws the source packs' own
+  files, whose provenance and terms are recorded above. The names, the palette layout and the generated rules between
+  the four sets are original work of the SRN project operator with Claude; the operator approved the names on
+  2026-11-24. `docs/tilesets/srx02/merged.json` pins what each merge read and wrote.
+- `srn_2da/doortypes.2da` rows 269-273 are copies of the base game's rows 24, 42, 43, 54 and 146 keyed to `SRX02`.
+- `srn_t_nac01/nac01.set`: one door hook's `X==-4.75` corrected to `X=-4.75` (a typing error of the source).
+- The join tiles `srn_t_srx02/srx02_j*.mdl` (sources in `sources/srn_t_srx02/`), their walkmeshes and
+  `mi_srx02_j*.tga` minimaps are written by `tools/tilekit/joins.py` (`docs/tilesets/srx02/joins.json`): each is cut
+  from the straight passage tiles of two of the four source packs and draws their textures by name; the bulkhead
+  between them is generated geometry in the same textures. Original work of the SRN project operator with Claude.
+  `docs/tilesets/srx02/joins-built.json` pins what a build read and wrote; the models are compiled as the other tile
+  packs' are (`sources/compiled.json`).
+
+## Modern Interior textures drawn again (`srn_t_tfb01`, `srn_door`; 2026-11-24)
+
+- 43 textures of the D20 Modern Interior source pack (`docs/tilesets/tfb01/materials.json`; 38 in `srn_t_tfb01`, and
+  `tfb01_creats`, `tfb01_door2`, `tfb01_metaldoor`, `tfb01_shpflr1` and `tfb01_shpflr2` in `srn_door`) are replaced under
+  their own names, as DDS of 1024 by 1024 in place of the TGAs. Each was redrawn locally with Qwen-Image 2.1
+  (`tilekit redraw --bindings`) from the source pack's own picture as a layout reference; the prompts and what was
+  kept of each picture are in `docs/tilesets/tfb01/redraw.json`, which also names the commit that holds the pictures
+  replaced and the 25 textures left as they were. No third-party picture was used. The source pack's terms, recorded
+  above, still hold for its models and the textures left. The operator approved the pictures on 2026-11-24.
+
+## Interior rooms (`srn_t_srx02`; 2026-11-24)
+
+- The room tiles `srn_t_srx02/srx02_<id>u_NN.mdl` and `srx02_<id>f_NN.mdl` (sources in `sources/srn_t_srx02/`) and their
+  walkmeshes are written by `tools/tilekit/rooms.py` from the specs in `docs/tilesets/srx02/rooms/`. Each is a copy of a
+  source set's tile without its furniture, with a generated ceiling and, where furnished, placeables of `srn_placeable`
+  and `srn_envprop` baked in; they draw the textures of those packs by name. `docs/tilesets/srx02/rooms-built.json` lists
+  the tiles and placeables each was made from, whose provenance and terms are recorded above.
+- `srx02_bookscr.dds` (a bookcase round a screen) and `srx02_scrnews.tga` (the screen's frames, with `srx02_scrnews.txi`)
+  were drawn locally with Qwen-Image 2.1 from a layout drawn in code and, for the frames, from that picture itself, and
+  put together by the SRN project operator with Claude. No third-party picture was used. The operator approved the
+  room on 2026-11-24.
+- `srx02_clgplas.dds`, `srx02_clgconc.dds`, `srx02_clgtile.dds` (ceilings), `srx02_lampdif.dds` and `srx02_lamphous.dds` (lamps)
+  are drawn in code by `tools/tilekit/ceilings.py` (2026-11-25); no picture of anyone's went into them. The shells of `r02`,
+  `r04` and `c01` are drawn by `tools/tilekit/walls.py` with the source sets' textures. Props of more than 2,500 triangles
+  are baked from copies reduced in Blender; the placeables themselves are unchanged.
+
+## Names and blueprints of the imported placeables (`srn_placeable`, `srn_2da`, `srn_tlk`; 2026-11-25)
+
+- 4,226 blueprints (`srn_placeable/*.utp`) and the labels of their rows in `srn_2da/placeables.2da` are written by
+  `tools/envkit` (`envkit library`) from `docs/placeables/library.json`. The blueprints are this project's, made of the
+  game's fields for a plain placeable. Their names are for the most part those of the blueprints of the d20 Modern
+  update module, a local copy in SR_NWN's old assets, tidied; no file of that module is copied. 745 without one
+  there were named by the project from the row's label and a picture of the piece. The categories
+  (`docs/placeables/categories.json`, `srn_placeable/placeablepal.itp`, 70 strings of `srn_tlk`) are this project's.
+  No model, texture or row number changes. The operator asked for the names, the blueprints and the categories.
+
+## Pictures of imported placeables made anew (`srn_placeable`, `srn_t_udp2`, `srn_t_tbx78`; 2026-11-25)
+
+- Pictures of the d20 Modern and UDP placeables too coarse for eye level, under their own names. Enlarged ones
+  (`docs/placeables/enlarged.json`, `materials.json`) are the imported pictures, enlarged on the operator's ComfyUI by the upscaler named in
+  each record. Redrawn ones (`redraw.json`) were drawn by the local Qwen image edit model on the imported picture's layout.
+- What twenty screens show (`screen-pictures.json`) was drawn by the same model from a blank picture and the prompts there;
+  `tools/tilekit/screens.py` lays them in. They replace screenshots of real desktops, programs and broadcasts; makers'
+  logos beside them are painted out. The imported pictures stay in the history (`before` in each list).
+- The operator asked for the pass and for all placeables to be in it.
+- Screens that move (2026-11-25, the operator asked for all display screens to be animated): the shaders
+  `srn_placeable/srn_screen.shd`, `srn_screen_fs.shd` and `srn_screenp_fs.shd` are this project's, written with Claude
+  from the game's own `fslit` and `fslit_sm_nm`; the materials beside the pictures (`<picture>.mtr`) and the lines added
+  to five `srn_envprop` materials are written by `tools/tilekit/motion.py` from `docs/placeables/screen-motion.json`.
+  No picture changes.
+
+## Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)
+
+- Source: Lady Patricia, "Lady Patricia's Placeables" on the Neverwinter Vault
+  (`https://neverwintervault.org/project/nwn1/prefab/placeable/lady-patricias-placeables`), archives
+  `lpat_alchemy_v1_0.zip` (SHA-256 `8b33a072b08f139e5d59064aecc62fd413252602993d8adb41bc34ca9e347993`) and
+  `lpat_wicca_v1_0.zip` (`9c6ef526313b03487d7665fbf1a7a5964ecb4b35d2d42d447916aa0ed2055b33`). The operator approved the
+  download and the import on 2026-11-26.
+- Terms as the Vault states them: "Free & open only if project also open". The author's permission detail says the
+  contents are distributed free as is, may be incorporated in any combined haks, and asks for credit. This record is
+  that credit; these files are not relicensed under the repository's default license, and they ship only in free,
+  open releases of the project.
+- 60 of the packs' 85 models (bottles, flasks, glassware, specimen jars, wall shelves, hanging herbs, bones, flasks
+  and pots, bowls, sacks, urns, cauldrons, rune stones, a basket, alchemy tables and stills) are copied unchanged into
+  `srn_placeable` but for their texture names, with their walk files, as `placeables.2da` rows 22918–22977 labelled
+  `[lpat]`. Ivy, roots, floor mats, the wall roots, the werewolf head and the bookcase were left out.
+- Pictures: the packs' own `lpat_*` pictures keep their names. Every other picture the models draw, base-game ones
+  (`tcn01_*`, `plc_*`, `ttf01_*` and others, taken from the game's own files) and ones the packs ship under names other
+  packs also use (`alchemy`, `st_*`, `pdag_hdec`), is copied under a new `lpx_` name so that no texture of the game or
+  another hak is overridden. `docs/placeables/lpat-import.json` maps each new name to its source.

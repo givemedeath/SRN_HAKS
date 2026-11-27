@@ -77,7 +77,7 @@ def adopted(repo):
 NAMED = re.compile(rb'(?im)^[ \t]*(?:bitmap|texture0|materialname)[ \t]+(\S+)')  # what a mesh's material is looked up by (cleanmodels materials.py)
 
 
-BORROW = ('srn_door', 'srn_placeable')  # packs a module loads with the tilesets (review.HAKS), whose materials tiles may name
+BORROW = ('srn_door', 'srn_placeable', 'srn_envprop')  # packs a module loads with the tilesets (review.HAKS), whose materials tiles may name
 
 
 def borrowed(repo):

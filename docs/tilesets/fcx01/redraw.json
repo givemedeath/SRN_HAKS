@@ -22,7 +22,67 @@
   "kuhmu": {
    "kind": "fixture",
    "district": "corporate",
-   "note": "A long narrow lit status strip with no lettering at all: an even row of small lit rectangular segments of a few different widths, cool white and pale cyan with a few amber ones, on a dark graphite panel, running evenly from end to end with the same rhythm everywhere, so that any part of the strip looks like any other. No letters, numbers, glyphs or symbols."
+   "note": "A long narrow lit status strip with no lettering at all: an even row of small lit rectangular segments of a few different widths, cool white and pale cyan with a few amber ones, on a dark graphite panel, running evenly from end to end with the same rhythm everywhere, so that any part of the strip looks like any other. No letters, numbers, glyphs or symbols.",
+   "placed": "Finished over the redraw (`finish`, 2026-11-24): the glyph band painted over with graphite and an even row of white, cyan and amber lit segments.",
+   "finish": [
+    {
+     "segments": {
+      "band": [
+       20,
+       100,
+       1002,
+       152
+      ],
+      "fill": [
+       34,
+       40,
+       46
+      ],
+      "row": [
+       112,
+       140
+      ],
+      "from": 28,
+      "to": 990,
+      "end": 996,
+      "widths": [
+       14,
+       22,
+       22,
+       34
+      ],
+      "colours": [
+       [
+        225,
+        240,
+        250
+       ],
+       [
+        225,
+        240,
+        250
+       ],
+       [
+        150,
+        225,
+        240
+       ],
+       [
+        150,
+        225,
+        240
+       ],
+       [
+        245,
+        180,
+        70
+       ]
+      ],
+      "gap": 8,
+      "seed": 7
+     }
+    }
+   ]
   },
   "ctown_build_id4": {
    "kind": "fixture",
@@ -53,7 +113,21 @@
   "lights3": {
    "kind": "fixture",
    "district": "corporate",
-   "note": "A row of small lit marker lamps on black; the black stays pure black. Every white mark stays in the same place and size and becomes a small cool-white lit lens with a thin steel bezel."
+   "note": "A row of small lit marker lamps on black; the black stays pure black. Every white mark stays in the same place and size and becomes a small cool-white lit lens with a thin steel bezel.",
+   "placed": "Finished over the redraw (`finish`, 2026-11-24): every lit mark lifted to a bright cool white, the black left black.",
+   "finish": [
+    {
+     "lift": {
+      "above": 40,
+      "over": 60,
+      "to": [
+       225,
+       240,
+       250
+      ]
+     }
+    }
+   ]
   },
   "windows2": {
    "kind": "fixture",
@@ -94,7 +168,34 @@
    "district": "corporate",
    "copy": "pub",
    "note": "A tall backlit advertising panel: a night view down a canyon between arcology towers with rows of glowing windows, in teal and amber, with a dark caption bar along the bottom.",
-   "words": "ARCOLOGY LIVING in the caption bar, in plain pale capital letters"
+   "words": "ARCOLOGY LIVING in the caption bar, in plain pale capital letters",
+   "placed": "Finished over the redraw (`finish`, 2026-11-24): the garbled caption bar painted over and lettered ARCOLOGY LIVING.",
+   "finish": [
+    {
+     "caption": {
+      "band": [
+       0,
+       905,
+       1023,
+       1023
+      ],
+      "fill": [
+       8,
+       12,
+       16
+      ],
+      "text": "ARCOLOGY LIVING",
+      "font": "bahnschrift.ttf",
+      "size": 64,
+      "colour": [
+       210,
+       232,
+       240
+      ],
+      "middle": 964
+     }
+    }
+   ]
   }
  }
 }

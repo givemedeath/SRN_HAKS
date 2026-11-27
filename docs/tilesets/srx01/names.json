@@ -3201,52 +3201,52 @@
    {
     "row": 1094,
     "label": "srn_StreetDoor",
-    "name": "Street Door, Single"
+    "name": "Security: Street Door, Single"
    },
    {
     "row": 1095,
     "label": "srn_ShopDoor",
-    "name": "Shop Door, Glass"
+    "name": "Shop: Shop Door, Glass"
    },
    {
     "row": 1096,
     "label": "srn_DoubleDoor",
-    "name": "Double Door"
+    "name": "Security: Double Door"
    },
    {
     "row": 1097,
     "label": "srn_SteelDoor",
-    "name": "Security Door, Steel"
+    "name": "Security: Security Door, Steel"
    },
    {
     "row": 1098,
     "label": "srn_Shutter2",
-    "name": "Roller Shutter, 2 m"
+    "name": "Shop: Roller Shutter, 2 m"
    },
    {
     "row": 1099,
     "label": "srn_Shutter4",
-    "name": "Roller Shutter, 4 m"
+    "name": "Shop: Roller Shutter, 4 m"
    },
    {
     "row": 1100,
     "label": "srn_LoadingShutter",
-    "name": "Loading Shutter, 6 m"
+    "name": "Industrial: Loading Shutter, 6 m"
    },
    {
     "row": 1101,
     "label": "srn_Gate",
-    "name": "Vehicle Gate, Mesh"
+    "name": "Gate: Vehicle Gate, Mesh"
    },
    {
     "row": 1102,
     "label": "srn_InteriorDoor",
-    "name": "Interior Door"
+    "name": "Home: Interior Door"
    },
    {
     "row": 1103,
     "label": "srn_StripCurtain",
-    "name": "Strip Curtain"
+    "name": "Curtain: Strip Curtain"
    }
   ],
   "tileset": [

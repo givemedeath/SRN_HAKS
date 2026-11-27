@@ -1,0 +1,553 @@
+{
+ "id": "o08",
+ "category": "Office",
+ "name": "Departmental Suite",
+ "note": "Floorplan O08: reception, meeting room with a copy room, open plan, and two offices and a break room off one passage.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 2,
+   "columns": 2,
+   "like": [
+    63,
+    64,
+    64,
+    64
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.0,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "mdrnw2wcp_01",
+    "wall": "udp2_w_vyn1",
+    "ceiling": "srx02_clgtile",
+    "base": "tfb01_floor01",
+    "trim": "udp2_p_pdgry",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      10
+     ],
+     "to": [
+      20,
+      10
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 2.4
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      0
+     ],
+     "to": [
+      10,
+      10
+     ],
+     "doors": [
+      {
+       "at": 5.0,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      10
+     ],
+     "to": [
+      10,
+      20
+     ],
+     "doors": [
+      {
+       "at": 4.4,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      16.0,
+      0
+     ],
+     "to": [
+      16.0,
+      10
+     ],
+     "doors": [
+      {
+       "at": 2.4,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      13.2
+     ],
+     "to": [
+      20,
+      13.2
+     ],
+     "doors": [
+      {
+       "at": 3.0,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      10,
+      15.6
+     ],
+     "to": [
+      20,
+      15.6
+     ],
+     "doors": [
+      {
+       "at": 3.6,
+       "width": 2.0
+      },
+      {
+       "at": 6.6,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      15.1,
+      15.5
+     ],
+     "to": [
+      15.1,
+      20
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      0,
+      10,
+      10
+     ],
+     "floor": "tfb01_floor2",
+     "repeat": {
+      "floor": 2.5
+     }
+    },
+    {
+     "rect": [
+      16,
+      0,
+      20,
+      10
+     ],
+     "floor": "udp2_flr_vct2",
+     "repeat": {
+      "floor": 3.0
+     }
+    },
+    {
+     "rect": [
+      10,
+      10,
+      20,
+      13.2
+     ],
+     "floor": "udp2_flr_til2",
+     "repeat": {
+      "floor": 3.0
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "spot",
+   "at": [
+    3.6,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    3.6,
+    3.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.4,
+    1.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    6.4,
+    3.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    5.4
+   ],
+   "under": 3.4,
+   "size": [
+    2.6,
+    0.16
+   ],
+   "drop": 0.5
+  },
+  {
+   "kind": "panel",
+   "at": [
+    1.8,
+    2.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    8.2,
+    2.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    1.8,
+    7.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    8.2,
+    7.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    13.1,
+    2.6
+   ],
+   "under": 3.4,
+   "size": [
+    0.6,
+    1.2
+   ]
+  },
+  {
+   "kind": "panel",
+   "at": [
+    13.1,
+    5.0
+   ],
+   "under": 3.4,
+   "size": [
+    0.6,
+    1.2
+   ]
+  },
+  {
+   "kind": "panel",
+   "at": [
+    13.1,
+    7.4
+   ],
+   "under": 3.4,
+   "size": [
+    0.6,
+    1.2
+   ]
+  },
+  {
+   "kind": "panel",
+   "at": [
+    18,
+    2.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    18,
+    5.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    18,
+    8.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.9,
+    12.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.9,
+    14.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.9,
+    17.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.1,
+    12.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.1,
+    14.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.1,
+    17.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    13.0,
+    12.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    17.4,
+    12.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    12.5,
+    18.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    17.5,
+    18.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "strip",
+   "at": [
+    11.6,
+    14.8
+   ],
+   "under": 3.4,
+   "size": [
+    1.4,
+    0.16
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    14.6,
+    14.8
+   ],
+   "under": 3.4,
+   "size": [
+    1.4,
+    0.16
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    17.6,
+    14.8
+   ],
+   "under": 3.4,
+   "size": [
+    1.4,
+    0.16
+   ]
+  }
+ ],
+ "props": [
+  {"piece": "udp2-p-69", "at": [5.0, 5.4, 0.0], "turn": 0},
+  {"piece": "udp2-p-06", "at": [5.0, 6.5, 0.0], "faces": "s"},
+  {"piece": "udp2-p-29", "at": [4.3, 5.65, 0.92], "faces": "n"},
+  {"piece": "udp2-p-15", "at": [5.7, 5.65, 0.92], "faces": "n"},
+  {"piece": "jvb_couch03", "at": [0.9, 2.6, 0.0], "faces": "e"},
+  {"piece": "jvb_tab05", "at": [2.15, 2.6, 0.0], "turn": 0},
+  {"piece": "jvb_chair05", "at": [0.95, 5.2, 0.0], "faces": "e"},
+  {"piece": "pkt_pplant01", "at": [0.8, 0.8, 0.0], "turn": 0, "scale": 0.55},
+  {"piece": "udp2-p-03", "at": [9.25, 1.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-03", "at": [9.25, 2.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-46", "at": [9.5, 3.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-12", "at": [0.564, 7.6, 0.0], "faces": "e"},
+  {"piece": "udp2-p-12", "at": [0.564, 8.05, 0.0], "faces": "e"},
+  {"piece": "udp2-p-20", "at": [2.2, 9.846, 0.0], "faces": "s"},
+  {"piece": "udp2-p-21", "at": [7.8, 9.846, 0.0], "faces": "s"},
+  {"piece": "udp2-p-41", "at": [0.271, 9.0, 0.0], "faces": "e"},
+  {"piece": "pkt_pplant01", "at": [9.2, 9.2, 0.0], "turn": 0, "scale": 0.55},
+  {"piece": "pkt_pplant01", "at": [0.8, 9.2, 0.0], "turn": 0, "scale": 0.55},
+  {"piece": "udp2-p-76", "at": [13.1, 5.0, 0.0], "turn": 0},
+  {"piece": "udp2-p-06", "at": [11.9, 3.9, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [11.9, 5.0, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [11.9, 6.1, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [14.3, 3.9, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [14.3, 5.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [14.3, 6.1, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [13.1, 7.65, 0.0], "faces": "s"},
+  {"piece": "udp2-p-41", "at": [13.1, 0.271, 0.0], "faces": "n"},
+  {"piece": "udp2-p-117", "at": [13.1, 9.776, 0.0], "faces": "s"},
+  {"piece": "udp2-p-36", "at": [12.8, 4.2, 0.85], "faces": "w"},
+  {"piece": "udp2-p-36", "at": [13.4, 5.8, 0.85], "faces": "e"},
+  {"piece": "udp2-p-15", "at": [13.1, 5.0, 0.85], "faces": "e"},
+  {"piece": "udp2-p-54", "at": [10.45, 8.6, 0.0], "faces": "e"},
+  {"piece": "pkt_pplant01", "at": [15.2, 9.2, 0.0], "turn": 0, "scale": 0.5},
+  {"piece": "udp2-p-40", "at": [16.9, 9.1, 0.0], "faces": "s"},
+  {"piece": "udp2-p-40", "at": [17.75, 9.1, 0.0], "faces": "s"},
+  {"piece": "serverrack", "at": [18.7, 9.4, -0.08], "faces": "s"},
+  {"piece": "udp2-p-77", "at": [19.398, 3.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-57", "at": [19.55, 5.4, 0.0], "faces": "w"},
+  {"piece": "udp2-p-57", "at": [19.55, 6.4, 0.0], "faces": "w"},
+  {"piece": "jz_cbbox_002", "at": [16.6, 0.65, 0.0], "turn": 10},
+  {"piece": "jz_cbbox_002", "at": [17.3, 0.65, 0.0], "turn": -5},
+  {"piece": "jz_cbbox_007", "at": [16.6, 0.64, 0.6], "turn": 12},
+  {"piece": "udp2-p-11", "at": [19.3, 0.6, 0.0], "faces": "w"},
+  {"piece": "udp2-p-11", "at": [19.3, 1.05, 0.0], "faces": "w"},
+  {"piece": "udp2-p-79", "at": [2.43, 13.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [1.57, 13.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-79", "at": [3.37, 13.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [4.23, 13.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-79", "at": [2.43, 14.8, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [1.57, 14.8, 0.0], "faces": "e"},
+  {"piece": "udp2-p-79", "at": [3.37, 14.8, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [4.23, 14.8, 0.0], "faces": "w"},
+  {"piece": "udp2-p-79", "at": [2.43, 16.4, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [1.57, 16.4, 0.0], "faces": "e"},
+  {"piece": "udp2-p-79", "at": [3.37, 16.4, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [4.23, 16.4, 0.0], "faces": "w"},
+  {"piece": "udp2-p-97", "at": [2.9, 13.6, 0.0], "turn": 90},
+  {"piece": "udp2-p-97", "at": [2.9, 16.1, 0.0], "turn": 90},
+  {"piece": "udp2-p-79", "at": [6.63, 13.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [5.77, 13.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-79", "at": [7.57, 13.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [8.43, 13.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-79", "at": [6.63, 14.8, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [5.77, 14.8, 0.0], "faces": "e"},
+  {"piece": "udp2-p-79", "at": [7.57, 14.8, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [8.43, 14.8, 0.0], "faces": "w"},
+  {"piece": "udp2-p-79", "at": [6.63, 16.4, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [5.77, 16.4, 0.0], "faces": "e"},
+  {"piece": "udp2-p-79", "at": [7.57, 16.4, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [8.43, 16.4, 0.0], "faces": "w"},
+  {"piece": "udp2-p-97", "at": [7.1, 13.6, 0.0], "turn": 90},
+  {"piece": "udp2-p-97", "at": [7.1, 16.1, 0.0], "turn": 90},
+  {"piece": "udp2-p-77", "at": [9.25, 19.2, 0.0], "faces": "s"},
+  {"piece": "udp2-p-117", "at": [5.0, 19.676, 0.0], "faces": "s"},
+  {"piece": "udp2-p-12", "at": [0.564, 11.0, 0.0], "faces": "e"},
+  {"piece": "udp2-p-12", "at": [0.564, 11.45, 0.0], "faces": "e"},
+  {"piece": "pkt_pplant01", "at": [0.8, 19.2, 0.0], "turn": 0, "scale": 0.5},
+  {"piece": "udp2-p-57", "at": [1.9, 19.56, 0.0], "faces": "s"},
+  {"piece": "udp2-p-46", "at": [9.5, 10.6, 0.0], "faces": "w"},
+  {"piece": "udp2-p-18", "at": [0.254, 14.8, 0.0], "faces": "e"},
+  {"piece": "udp2-p-24", "at": [19.273, 10.65, 0.0], "faces": "w"},
+  {"piece": "udp2-p-106", "at": [19.4, 11.5, 0.0], "faces": "w"},
+  {"piece": "udp2-p-107", "at": [19.385, 12.27, 0.0], "faces": "w"},
+  {"piece": "udp2-p-71", "at": [15.3, 11.6, 0.0], "turn": 0},
+  {"piece": "udp2-p-03", "at": [14.05, 11.6, 0.0], "faces": "e"},
+  {"piece": "udp2-p-03", "at": [16.55, 11.6, 0.0], "faces": "w"},
+  {"piece": "ek_isa_vending", "at": [10.75, 12.45, 0.0], "faces": "e"},
+  {"piece": "udp2-p-78", "at": [10.5, 10.6, 0.0], "turn": 0},
+  {"piece": "udp2-p-80", "at": [12.6, 18.2, 0.0], "faces": "n"},
+  {"piece": "udp2-p-06", "at": [12.6, 19.06, 0.0], "faces": "s"},
+  {"piece": "udp2-p-02", "at": [12.6, 17.1, 0.0], "faces": "n"},
+  {"piece": "udp2-p-54", "at": [10.5, 18.3, 0.0], "faces": "e"},
+  {"piece": "udp2-p-12", "at": [14.6, 19.3, 0.0], "faces": "s"},
+  {"piece": "pkt_pplant01", "at": [10.7, 19.2, 0.0], "turn": 0, "scale": 0.45},
+  {"piece": "udp2-p-80", "at": [17.4, 18.2, 0.0], "faces": "n"},
+  {"piece": "udp2-p-06", "at": [17.4, 19.06, 0.0], "faces": "s"},
+  {"piece": "udp2-p-02", "at": [17.4, 17.1, 0.0], "faces": "n"},
+  {"piece": "udp2-p-54", "at": [19.5, 18.3, 0.0], "faces": "w"},
+  {"piece": "udp2-p-12", "at": [15.6, 19.3, 0.0], "faces": "s"},
+  {"piece": "pkt_pplant02", "at": [19.2, 19.2, 0.0], "turn": 0, "scale": 0.45}
+ ],
+ "placeLater": [{"what": "inner doors: the doorways are open"}, {"what": "desks, cabinets, fridge and crates as containers"}, {"what": "the servers and a computer as terminals"}]
+}

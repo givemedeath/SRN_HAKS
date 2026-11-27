@@ -1,0 +1,255 @@
+{
+ "id": "o01",
+ "category": "Office",
+ "name": "Private Offices",
+ "note": "Floorplan O01: four enclosed offices off an inner corridor; a secretary and seats before them.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.0,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "mdrnw2wcp_01",
+    "wall": "udp2_w_vyn1",
+    "ceiling": "srx02_clgtile",
+    "base": "tfb01_floor01",
+    "trim": "udp2_p_pdgry",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      3.4
+     ],
+     "to": [
+      4.2,
+      3.4
+     ]
+    },
+    {
+     "from": [
+      5.8,
+      3.4
+     ],
+     "to": [
+      10,
+      3.4
+     ]
+    },
+    {
+     "from": [
+      4.1,
+      3.3
+     ],
+     "to": [
+      4.1,
+      10
+     ],
+     "doors": [
+      {
+       "at": 1.7,
+       "width": 2.0
+      },
+      {
+       "at": 4.9,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      5.9,
+      3.3
+     ],
+     "to": [
+      5.9,
+      10
+     ],
+     "doors": [
+      {
+       "at": 1.7,
+       "width": 2.0
+      },
+      {
+       "at": 4.9,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      0,
+      6.6
+     ],
+     "to": [
+      4.1,
+      6.6
+     ]
+    },
+    {
+     "from": [
+      5.9,
+      6.6
+     ],
+     "to": [
+      10,
+      6.6
+     ]
+    }
+   ],
+   "zones": []
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "panel",
+   "at": [
+    2.1,
+    5.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.1,
+    8.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.9,
+    5.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.9,
+    8.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.2,
+    1.7
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    7.8,
+    1.7
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    5.0,
+    1.7
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    4.6
+   ],
+   "under": 3.4,
+   "size": [
+    0.16,
+    1.2
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    7.0
+   ],
+   "under": 3.4,
+   "size": [
+    0.16,
+    1.2
+   ]
+  },
+  {
+   "kind": "strip",
+   "at": [
+    5.0,
+    9.0
+   ],
+   "under": 3.4,
+   "size": [
+    0.16,
+    1.2
+   ]
+  }
+ ],
+ "props": [
+  {"piece": "udp2-p-80", "at": [1.75, 5.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [0.89, 5.0, 0.0], "faces": "e"},
+  {"piece": "udp2-p-02", "at": [2.85, 5.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-12", "at": [0.6, 6.136, 0.0], "faces": "s"},
+  {"piece": "udp2-p-54", "at": [3.1, 6.26, 0.0], "faces": "s"},
+  {"piece": "pkt_pplant01", "at": [0.75, 3.95, 0.0], "turn": 0, "scale": 0.45},
+  {"piece": "udp2-p-80", "at": [1.75, 8.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-06", "at": [0.89, 8.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-02", "at": [2.85, 8.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-11", "at": [0.6, 9.4, 0.0], "faces": "s"},
+  {"piece": "udp2-p-54", "at": [3.2, 9.56, 0.0], "faces": "s"},
+  {"piece": "udp2-p-11", "at": [1.05, 9.4, 0.0], "faces": "s"},
+  {"piece": "udp2-p-80", "at": [8.25, 5.0, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [9.11, 5.0, 0.0], "faces": "w"},
+  {"piece": "udp2-p-02", "at": [7.15, 5.0, 0.0], "faces": "e"},
+  {"piece": "udp2-p-54", "at": [6.9, 6.26, 0.0], "faces": "s"},
+  {"piece": "udp2-p-12", "at": [9.4, 6.136, 0.0], "faces": "s"},
+  {"piece": "udp2-p-78", "at": [9.5, 3.8, 0.0], "turn": 0},
+  {"piece": "udp2-p-80", "at": [8.25, 8.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [9.11, 8.2, 0.0], "faces": "w"},
+  {"piece": "udp2-p-02", "at": [7.15, 8.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-54", "at": [6.8, 9.56, 0.0], "faces": "s"},
+  {"piece": "pkt_pplant02", "at": [9.35, 9.35, 0.0], "turn": 0, "scale": 0.45},
+  {"piece": "udp2-p-03", "at": [0.75, 1.2, 0.0], "faces": "e"},
+  {"piece": "udp2-p-03", "at": [0.75, 2.3, 0.0], "faces": "e"},
+  {"piece": "jz_table01", "at": [0.62, 0.575, 0.0], "turn": 0},
+  {"piece": "pkt_pplant01", "at": [3.4, 2.85, 0.0], "turn": 0, "scale": 0.5},
+  {"piece": "udp2-p-79", "at": [8.0, 1.75, 0.0], "faces": "e"},
+  {"piece": "udp2-p-06", "at": [8.86, 1.75, 0.0], "faces": "w"},
+  {"piece": "udp2-p-12", "at": [9.4, 2.936, 0.0], "faces": "s"},
+  {"piece": "udp2-p-11", "at": [9.0, 2.936, 0.0], "faces": "s"},
+  {"piece": "udp2-p-46", "at": [6.5, 2.95, 0.0], "faces": "s"},
+  {"piece": "udp2-p-17", "at": [1.9, 3.246, 0.0], "faces": "s"}
+ ],
+ "placeLater": [{"what": "office doors: the doorways are open"}, {"what": "desks and filing cabinets as containers"}, {"what": "a terminal, where a computer is to be used"}]
+}

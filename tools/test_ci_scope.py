@@ -158,12 +158,17 @@ class LiveConfigurationTests(unittest.TestCase):
                 self.assertLessEqual(required,set(row['packs']))
                 self.assertLessEqual(required,set(row['checkout'].split('\n')))
 
-    def test_shared_helper_change_runs_the_full_helper_suite(self):
-        # retarget.py is consumed by phenotype, head and robe helpers (AGENTS.md: shared helpers run the full suite).
+    def test_shared_helper_change_runs_every_suite_that_uses_it(self):
+        # retarget.py is consumed by phenotype, head, robe and item helpers (AGENTS.md: a helper kits share runs their whole suites).
         plan=ci_scope.plan(['tools/phenotypes/retarget.py'],self.data,self.config)
-        self.assertTrue(plan['fullSuite']);self.assertIn('Shared helper changed: tools/phenotypes/retarget.py',plan['reason'])
+        self.assertFalse(plan['fullSuite']);self.assertIn('tools/phenotypes/retarget.py',plan['reason'])
         selected={t for row in plan['helperMatrix'] for t in row['tests']}
-        self.assertEqual(selected,set(self.data['tests']))
+        for kit in ('phenotypes','heads','robes'):
+            self.assertLessEqual({t for t in self.data['tests'] if t.startswith(f'tools/{kit}/')},selected,kit)
+        self.assertEqual({t for t in selected if t.startswith(('tools/tilekit/','tools/envkit/','tools/skykit/'))},set())
+        # Shared infrastructure still runs everything.
+        plan=ci_scope.plan(['tools/shared_tools.py'],self.data,self.config)
+        self.assertTrue(plan['fullSuite']);self.assertEqual({t for row in plan['helperMatrix'] for t in row['tests']},set(self.data['tests']))
     def test_single_folder_helper_change_stays_focused(self):
         plan=ci_scope.plan(['tools/phenotypes/pose_preview_render_settings.py'],self.data,self.config)
         self.assertFalse(plan['fullSuite'])

@@ -54,8 +54,8 @@ Rules the commands follow, and that a row added by hand must follow too:
 A blueprint is named as its model (`ek_ss_trash.utp`) and lives in `srn_envprop`. Blueprints in a hak are not on
 the Toolset's Custom tab, which lists only the module's own. They are offered on the Standard tab because
 `placeablepalstd.itp` lists them: that file is the game's own palette with ours added, laid out on the category
-tree in `placeablepal.itp`. It is rebuilt whole by `envkit blueprints`, so it needs the game installed; do not edit
-it by hand.
+tree in `placeablepal.itp`. It is rebuilt whole by `envkit blueprints` and by `envkit library` (the imported
+placeables: `docs/placeables/README.md`), so it needs the game installed; do not edit it by hand.
 
 Categories are the IDs of `placeablepal.itp`. Envkit blueprints sit under Shadowrun City (208 to 218), and each is
 listed with its category in `docs/tilesets/srx01/names.json` (`placeables`), which `tilekit merge` locks:

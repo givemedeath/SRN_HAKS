@@ -1,0 +1,1757 @@
+{
+ "udp2": [
+  {
+   "name": "Service_SmRm1",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    15
+   ],
+   "models": [
+    "udp2_a21_01"
+   ],
+   "edges": [
+    "15:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Service_SmRm2",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    16
+   ],
+   "models": [
+    "udp2_a22_01"
+   ],
+   "edges": [
+    "16:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Service_MidRm1 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    17,
+    18
+   ],
+   "models": [
+    "udp2_a23_01",
+    "udp2_a24_01"
+   ],
+   "edges": [
+    "17:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Service_MidRm2 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    19,
+    20
+   ],
+   "models": [
+    "udp2_a25_01",
+    "udp2_a26_01"
+   ],
+   "edges": [
+    "19:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Tiled_SmRm1",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    38
+   ],
+   "models": [
+    "udp2_a21_02"
+   ],
+   "edges": [
+    "38:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Tiled_SmRm2",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    39
+   ],
+   "models": [
+    "udp2_a22_02"
+   ],
+   "edges": [
+    "39:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Tiled_MidRm1 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    40,
+    41
+   ],
+   "models": [
+    "udp2_a23_02",
+    "udp2_a24_02"
+   ],
+   "edges": [
+    "40:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Tiled_MidRm2 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    42,
+    43
+   ],
+   "models": [
+    "udp2_a25_02",
+    "udp2_a26_02"
+   ],
+   "edges": [
+    "42:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Office_Vinyl_SmRm1",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    61
+   ],
+   "models": [
+    "udp2_a21_03"
+   ],
+   "edges": [
+    "61:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Office_Vinyl_SmRm2",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    62
+   ],
+   "models": [
+    "udp2_a22_03"
+   ],
+   "edges": [
+    "62:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Office_Vinyl_MidRm1 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    63,
+    64
+   ],
+   "models": [
+    "udp2_a23_03",
+    "udp2_a24_03"
+   ],
+   "edges": [
+    "63:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Office_Vinyl_MidRm2 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    65,
+    66
+   ],
+   "models": [
+    "udp2_a25_03",
+    "udp2_a26_03"
+   ],
+   "edges": [
+    "65:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Office_Wood_SmRm1",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    84
+   ],
+   "models": [
+    "udp2_a21_04"
+   ],
+   "edges": [
+    "84:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Office_Wood_SmRm2",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    85
+   ],
+   "models": [
+    "udp2_a22_04"
+   ],
+   "edges": [
+    "85:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Office_Wood_MidRm1 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    86,
+    87
+   ],
+   "models": [
+    "udp2_a23_04",
+    "udp2_a24_04"
+   ],
+   "edges": [
+    "86:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Office_Wood_MidRm2 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    88,
+    89
+   ],
+   "models": [
+    "udp2_a25_04",
+    "udp2_a26_04"
+   ],
+   "edges": [
+    "88:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Office_Alum_SmRm1",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    107
+   ],
+   "models": [
+    "udp2_a21_05"
+   ],
+   "edges": [
+    "107:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Office_Alum_SmRm2",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    108
+   ],
+   "models": [
+    "udp2_a22_05"
+   ],
+   "edges": [
+    "108:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 100.0
+  },
+  {
+   "name": "Office_Alum_MidRm1 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    109,
+    110
+   ],
+   "models": [
+    "udp2_a23_05",
+    "udp2_a24_05"
+   ],
+   "edges": [
+    "109:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Office_Alum_MidRm2 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    111,
+    112
+   ],
+   "models": [
+    "udp2_a25_05",
+    "udp2_a26_05"
+   ],
+   "edges": [
+    "111:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 202.8
+  },
+  {
+   "name": "Hallway1_Entry 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    165,
+    164
+   ],
+   "models": [
+    "udp2_a25_08",
+    "udp2_a24_08"
+   ],
+   "edges": [
+    "164:Top=Hallway1"
+   ],
+   "doorHooks": 1,
+   "walkable": 102.4
+  },
+  {
+   "name": "Hallway2_Entry 2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    185,
+    184
+   ],
+   "models": [
+    "udp2_a25_09",
+    "udp2_a24_09"
+   ],
+   "edges": [
+    "184:Top=Hallway2"
+   ],
+   "doorHooks": 1,
+   "walkable": 102.4
+  },
+  {
+   "name": "Elevator1",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    222
+   ],
+   "models": [
+    "udp2_a35_01"
+   ],
+   "edges": [
+    "222:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 48.0
+  },
+  {
+   "name": "Elevator2",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    223
+   ],
+   "models": [
+    "udp2_a35_02"
+   ],
+   "edges": [
+    "223:Bottom=Door"
+   ],
+   "doorHooks": 1,
+   "walkable": 48.0
+  },
+  {
+   "name": "Stairwell_U",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    224
+   ],
+   "models": [
+    "udp2_a35_03"
+   ],
+   "edges": [
+    "224:Bottom=Door"
+   ],
+   "doorHooks": 2,
+   "walkable": 86.9
+  },
+  {
+   "name": "Stairwell_UD",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    225
+   ],
+   "models": [
+    "udp2_a35_04"
+   ],
+   "edges": [
+    "225:Bottom=Door"
+   ],
+   "doorHooks": 3,
+   "walkable": 59.3
+  },
+  {
+   "name": "Stairwell_D",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    226
+   ],
+   "models": [
+    "udp2_a35_05"
+   ],
+   "edges": [
+    "226:Bottom=Door"
+   ],
+   "doorHooks": 2,
+   "walkable": 47.1
+  },
+  {
+   "name": "Restrooms 1x1",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    227
+   ],
+   "models": [
+    "udp2_a36_02"
+   ],
+   "edges": [
+    "227:Bottom=Door"
+   ],
+   "doorHooks": 0,
+   "walkable": 89.6
+  },
+  {
+   "name": "Break_Room 1x1",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    228
+   ],
+   "models": [
+    "udp2_a36_03"
+   ],
+   "edges": [
+    "228:Bottom=Door"
+   ],
+   "doorHooks": 0,
+   "walkable": 95.8
+  },
+  {
+   "name": "(tile 147)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    147
+   ],
+   "models": [
+    "udp2_a03_08"
+   ],
+   "edges": [
+    "147:Left=Hallway1"
+   ],
+   "doorHooks": 0,
+   "walkable": 92.8
+  },
+  {
+   "name": "(tile 167)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    167
+   ],
+   "models": [
+    "udp2_a03_09"
+   ],
+   "edges": [
+    "167:Left=Hallway2"
+   ],
+   "doorHooks": 0,
+   "walkable": 92.8
+  }
+ ],
+ "tfb01": [
+  {
+   "name": "Livingroom",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    23
+   ],
+   "models": [
+    "tfb01_e01_01"
+   ],
+   "edges": [
+    "23:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 42.1
+  },
+  {
+   "name": "Livingroom01_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    25,
+    24
+   ],
+   "models": [
+    "tfb01_e04_01",
+    "tfb01_e03_01"
+   ],
+   "edges": [
+    "24:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 107.6
+  },
+  {
+   "name": "Livingroom02_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    27,
+    26
+   ],
+   "models": [
+    "tfb01_e07_01",
+    "tfb01_e06_01"
+   ],
+   "edges": [
+    "26:Left=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 107.2
+  },
+  {
+   "name": "KitchenRoom",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    41
+   ],
+   "models": [
+    "tfb01_g01_01"
+   ],
+   "edges": [
+    "41:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 47.4
+  },
+  {
+   "name": "KitchenRoom01_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    43,
+    42
+   ],
+   "models": [
+    "tfb01_g04_01",
+    "tfb01_g03_01"
+   ],
+   "edges": [
+    "42:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 89.9
+  },
+  {
+   "name": "KitchenRoom02_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    45,
+    44
+   ],
+   "models": [
+    "tfb01_g07_01",
+    "tfb01_g06_01"
+   ],
+   "edges": [
+    "44:Left=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 88.8
+  },
+  {
+   "name": "InnRoom",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    59
+   ],
+   "models": [
+    "tfb01_i01_01"
+   ],
+   "edges": [
+    "59:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 42.6
+  },
+  {
+   "name": "InnRoom01_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    61,
+    60
+   ],
+   "models": [
+    "tfb01_i04_01",
+    "tfb01_i03_01"
+   ],
+   "edges": [
+    "60:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 108.1
+  },
+  {
+   "name": "InnRoom02_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    63,
+    62
+   ],
+   "models": [
+    "tfb01_i07_01",
+    "tfb01_i06_01"
+   ],
+   "edges": [
+    "62:Left=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 107.8
+  },
+  {
+   "name": "ShopRoom",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    77
+   ],
+   "models": [
+    "tfb01_m01_01"
+   ],
+   "edges": [
+    "77:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 49.6
+  },
+  {
+   "name": "Shop01_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    281,
+    280
+   ],
+   "models": [
+    "tfb01_m04_02",
+    "tfb01_m03_02"
+   ],
+   "edges": [],
+   "doorHooks": 1,
+   "walkable": 94.8
+  },
+  {
+   "name": "ShopRoom02_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    81,
+    80
+   ],
+   "models": [
+    "tfb01_m07_01",
+    "tfb01_m06_01"
+   ],
+   "edges": [
+    "80:Left=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 118.2
+  },
+  {
+   "name": "StairsUp",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    99
+   ],
+   "models": [
+    "tfb01_o16_01"
+   ],
+   "edges": [
+    "99:Bottom=Corridor"
+   ],
+   "doorHooks": 1,
+   "walkable": 60.6
+  },
+  {
+   "name": "CorridorExitBig",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    104
+   ],
+   "models": [
+    "tfb01_a07_01"
+   ],
+   "edges": [
+    "104:Top=Corridor"
+   ],
+   "doorHooks": 1,
+   "walkable": 60.8
+  },
+  {
+   "name": "StairsDown",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    100
+   ],
+   "models": [
+    "tfb01_p16_01"
+   ],
+   "edges": [
+    "100:Bottom=Corridor"
+   ],
+   "doorHooks": 1,
+   "walkable": 64.0
+  },
+  {
+   "name": "CorridorExit",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    121
+   ],
+   "models": [
+    "tfb01_a07_02"
+   ],
+   "edges": [
+    "121:Top=Corridor"
+   ],
+   "doorHooks": 1,
+   "walkable": 36.4
+  },
+  {
+   "name": "HomeLower01_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    175,
+    176,
+    177,
+    178
+   ],
+   "models": [
+    "tfb01_q02_01",
+    "tfb01_r02_01",
+    "tfb01_q01_01",
+    "tfb01_r01_01"
+   ],
+   "edges": [],
+   "doorHooks": 2,
+   "walkable": 200.1
+  },
+  {
+   "name": "HomeUpper01_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    182,
+    180,
+    181,
+    179
+   ],
+   "models": [
+    "tfb01_q04_01",
+    "tfb01_r04_01",
+    "tfb01_q03_01",
+    "tfb01_r03_01"
+   ],
+   "edges": [],
+   "doorHooks": 3,
+   "walkable": 182.4
+  },
+  {
+   "name": "HomeUpper02_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    184,
+    190,
+    185,
+    189
+   ],
+   "models": [
+    "tfb01_s04_01",
+    "tfb01_t04_01",
+    "tfb01_s03_01",
+    "tfb01_t03_01"
+   ],
+   "edges": [],
+   "doorHooks": 4,
+   "walkable": 173.6
+  },
+  {
+   "name": "HomeLower02_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    186,
+    188,
+    183,
+    187
+   ],
+   "models": [
+    "tfb01_s02_01",
+    "tfb01_t02_01",
+    "tfb01_s01_01",
+    "tfb01_t01_01"
+   ],
+   "edges": [],
+   "doorHooks": 2,
+   "walkable": 196.6
+  },
+  {
+   "name": "HomeLower03_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    175,
+    176,
+    177,
+    187
+   ],
+   "models": [
+    "tfb01_q02_01",
+    "tfb01_r02_01",
+    "tfb01_q01_01",
+    "tfb01_t01_01"
+   ],
+   "edges": [],
+   "doorHooks": 2,
+   "walkable": 195.5
+  },
+  {
+   "name": "HomeLower04_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    186,
+    176,
+    183,
+    178
+   ],
+   "models": [
+    "tfb01_s02_01",
+    "tfb01_r02_01",
+    "tfb01_s01_01",
+    "tfb01_r01_01"
+   ],
+   "edges": [],
+   "doorHooks": 2,
+   "walkable": 200.2
+  },
+  {
+   "name": "HomeLower05_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    186,
+    188,
+    183,
+    187
+   ],
+   "models": [
+    "tfb01_s02_01",
+    "tfb01_t02_01",
+    "tfb01_s01_01",
+    "tfb01_t01_01"
+   ],
+   "edges": [],
+   "doorHooks": 2,
+   "walkable": 196.6
+  },
+  {
+   "name": "HomeUpper03_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    182,
+    180,
+    185,
+    189
+   ],
+   "models": [
+    "tfb01_q04_01",
+    "tfb01_r04_01",
+    "tfb01_s03_01",
+    "tfb01_t03_01"
+   ],
+   "edges": [],
+   "doorHooks": 3,
+   "walkable": 173.1
+  },
+  {
+   "name": "DoorTrans",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    204
+   ],
+   "models": [
+    "tfb01_z20_01"
+   ],
+   "edges": [
+    "204:Right=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 3.9
+  },
+  {
+   "name": "Tent",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    206,
+    207,
+    205,
+    208
+   ],
+   "models": [
+    "tfb01_q18_01",
+    "tfb01_r18_01",
+    "tfb01_q17_01",
+    "tfb01_r17_01"
+   ],
+   "edges": [],
+   "doorHooks": 2,
+   "walkable": 143.1
+  },
+  {
+   "name": "Baracks",
+   "rows": 2,
+   "columns": 3,
+   "tiles": [
+    211,
+    210,
+    209,
+    212,
+    213,
+    214
+   ],
+   "models": [
+    "tfb01_w15_01",
+    "tfb01_x15_01",
+    "tfb01_y15_01",
+    "tfb01_w14_01",
+    "tfb01_x14_01",
+    "tfb01_y14_01"
+   ],
+   "edges": [],
+   "doorHooks": 8,
+   "walkable": 289.6
+  },
+  {
+   "name": "Temple Evil",
+   "rows": 4,
+   "columns": 3,
+   "tiles": [
+    219,
+    223,
+    227,
+    218,
+    222,
+    226,
+    217,
+    221,
+    225,
+    216,
+    220,
+    224
+   ],
+   "models": [
+    "tfb01_q08_01",
+    "tfb01_r08_01",
+    "tfb01_s08_01",
+    "tfb01_q07_01",
+    "tfb01_r07_01",
+    "tfb01_s07_01",
+    "tfb01_q06_01",
+    "tfb01_r06_01",
+    "tfb01_s06_01",
+    "tfb01_q05_01",
+    "tfb01_r05_01",
+    "tfb01_s05_01"
+   ],
+   "edges": [],
+   "doorHooks": 2,
+   "walkable": 599.6
+  },
+  {
+   "name": "Temple Good",
+   "rows": 4,
+   "columns": 4,
+   "tiles": [
+    231,
+    235,
+    239,
+    243,
+    230,
+    234,
+    238,
+    242,
+    229,
+    233,
+    237,
+    241,
+    228,
+    232,
+    236,
+    240
+   ],
+   "models": [
+    "tfb01_q12_01",
+    "tfb01_r12_01",
+    "tfb01_s12_01",
+    "tfb01_t12_01",
+    "tfb01_q11_01",
+    "tfb01_r11_01",
+    "tfb01_s11_01",
+    "tfb01_t11_01",
+    "tfb01_q10_01",
+    "tfb01_r10_01",
+    "tfb01_s10_01",
+    "tfb01_t10_01",
+    "tfb01_q09_01",
+    "tfb01_r09_01",
+    "tfb01_s09_01",
+    "tfb01_t09_01"
+   ],
+   "edges": [],
+   "doorHooks": 6,
+   "walkable": 975.8
+  },
+  {
+   "name": "Temple Neutral",
+   "rows": 3,
+   "columns": 3,
+   "tiles": [
+    246,
+    249,
+    252,
+    245,
+    248,
+    251,
+    244,
+    247,
+    250
+   ],
+   "models": [
+    "tfb01_u18_01",
+    "tfb01_v18_01",
+    "tfb01_w18_01",
+    "tfb01_u17_01",
+    "tfb01_v17_01",
+    "tfb01_w17_01",
+    "tfb01_u16_01",
+    "tfb01_v16_01",
+    "tfb01_w16_01"
+   ],
+   "edges": [],
+   "doorHooks": 1,
+   "walkable": 620.9
+  },
+  {
+   "name": "Wizards Den",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    255,
+    254,
+    256,
+    253
+   ],
+   "models": [
+    "tfb01_s18_01",
+    "tfb01_t18_01",
+    "tfb01_s17_01",
+    "tfb01_t17_01"
+   ],
+   "edges": [],
+   "doorHooks": 2,
+   "walkable": 147.0
+  },
+  {
+   "name": "Smithy",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    258,
+    257
+   ],
+   "models": [
+    "tfb01_v15_01",
+    "tfb01_v14_01"
+   ],
+   "edges": [],
+   "doorHooks": 1,
+   "walkable": 75.5
+  },
+  {
+   "name": "Barn",
+   "rows": 3,
+   "columns": 2,
+   "tiles": [
+    261,
+    264,
+    260,
+    263,
+    259,
+    262
+   ],
+   "models": [
+    "tfb01_q16_01",
+    "tfb01_r16_01",
+    "tfb01_q15_01",
+    "tfb01_r15_01",
+    "tfb01_q14_01",
+    "tfb01_r14_01"
+   ],
+   "edges": [],
+   "doorHooks": 6,
+   "walkable": 344.6
+  },
+  {
+   "name": "Bordello",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    266,
+    267,
+    265,
+    268
+   ],
+   "models": [
+    "tfb01_s16_01",
+    "tfb01_t16_01",
+    "tfb01_s15_01",
+    "tfb01_t15_01"
+   ],
+   "edges": [
+    "267:Right=Doorway",
+    "268:Right=Doorway"
+   ],
+   "doorHooks": 2,
+   "walkable": 185.4
+  },
+  {
+   "name": "SlumHome01",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    273,
+    274,
+    271,
+    272
+   ],
+   "models": [
+    "tfb01_u02_01",
+    "tfb01_v02_01",
+    "tfb01_u01_01",
+    "tfb01_v01_01"
+   ],
+   "edges": [],
+   "doorHooks": 1,
+   "walkable": 193.6
+  },
+  {
+   "name": "SlumHome02",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    276,
+    278,
+    275,
+    277
+   ],
+   "models": [
+    "tfb01_u04_01",
+    "tfb01_v04_01",
+    "tfb01_u03_01",
+    "tfb01_v03_01"
+   ],
+   "edges": [],
+   "doorHooks": 1,
+   "walkable": 186.9
+  },
+  {
+   "name": "ShopRoom01_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    79,
+    78
+   ],
+   "models": [
+    "tfb01_m04_01",
+    "tfb01_m03_01"
+   ],
+   "edges": [
+    "78:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 116.1
+  },
+  {
+   "name": "Shop02_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    283,
+    282
+   ],
+   "models": [
+    "tfb01_m07_02",
+    "tfb01_m06_02"
+   ],
+   "edges": [],
+   "doorHooks": 1,
+   "walkable": 103.0
+  },
+  {
+   "name": "Livingroom Blank",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    295
+   ],
+   "models": [
+    "tfb01_e01_02"
+   ],
+   "edges": [
+    "295:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 53.5
+  },
+  {
+   "name": "Livingroom03_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    296,
+    24
+   ],
+   "models": [
+    "tfb01_e04_02",
+    "tfb01_e03_01"
+   ],
+   "edges": [
+    "24:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 121.3
+  },
+  {
+   "name": "Livingroom04_1x2",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    297,
+    26
+   ],
+   "models": [
+    "tfb01_e07_02",
+    "tfb01_e06_01"
+   ],
+   "edges": [
+    "26:Left=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 122.0
+  },
+  {
+   "name": "HomeUpper04_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    302,
+    180,
+    181,
+    298
+   ],
+   "models": [
+    "tfb01_q04_03",
+    "tfb01_r04_01",
+    "tfb01_q03_01",
+    "tfb01_r03_02"
+   ],
+   "edges": [],
+   "doorHooks": 3,
+   "walkable": 199.7
+  },
+  {
+   "name": "HomeUpper05_2x2",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    303,
+    190,
+    299,
+    300
+   ],
+   "models": [
+    "tfb01_s04_02",
+    "tfb01_t04_01",
+    "tfb01_s03_02",
+    "tfb01_t03_02"
+   ],
+   "edges": [],
+   "doorHooks": 4,
+   "walkable": 207.6
+  },
+  {
+   "name": "Bordello Blank",
+   "rows": 2,
+   "columns": 2,
+   "tiles": [
+    304,
+    267,
+    301,
+    268
+   ],
+   "models": [
+    "tfb01_s16_02",
+    "tfb01_t16_01",
+    "tfb01_s15_02",
+    "tfb01_t15_01"
+   ],
+   "edges": [
+    "267:Right=Doorway",
+    "268:Right=Doorway"
+   ],
+   "doorHooks": 2,
+   "walkable": 192.5
+  },
+  {
+   "name": "Subway",
+   "rows": 3,
+   "columns": 4,
+   "tiles": [
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    313,
+    314,
+    315,
+    316
+   ],
+   "models": [
+    "tfb01_n01_01",
+    "tfb01_n01_02",
+    "tfb01_n01_03",
+    "tfb01_n01_04",
+    "tfb01_n01_05",
+    "tfb01_n01_06",
+    "tfb01_n01_07",
+    "tfb01_n01_08",
+    "tfb01_n01_09",
+    "tfb01_n01_10",
+    "tfb01_n01_11",
+    "tfb01_n01_12"
+   ],
+   "edges": [
+    "305:Left=Subway",
+    "308:Right=Subway"
+   ],
+   "doorHooks": 4,
+   "walkable": 1099.5
+  },
+  {
+   "name": "(tile 4)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    4
+   ],
+   "models": [
+    "tfb01_a05_01"
+   ],
+   "edges": [
+    "4:Top=Corridor"
+   ],
+   "doorHooks": 0,
+   "walkable": 69.9
+  },
+  {
+   "name": "(tile 118)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    118
+   ],
+   "models": [
+    "tfb01_a05_02"
+   ],
+   "edges": [
+    "118:Top=Corridor"
+   ],
+   "doorHooks": 0,
+   "walkable": 70.2
+  },
+  {
+   "name": "(tile 191)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    191
+   ],
+   "models": [
+    "tfb01_a09_01"
+   ],
+   "edges": [
+    "191:Top=Doorway"
+   ],
+   "doorHooks": 1,
+   "walkable": 62.9
+  },
+  {
+   "name": "(tile 318)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    318
+   ],
+   "models": [
+    "tfb01_n01_14"
+   ],
+   "edges": [
+    "318:Left=Subway"
+   ],
+   "doorHooks": 0,
+   "walkable": 96.2
+  }
+ ],
+ "tbx78": [
+  {
+   "name": "ladder_up",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    27
+   ],
+   "models": [
+    "tbx78_a12_01"
+   ],
+   "edges": [
+    "27:Bottom=doorway1"
+   ],
+   "doorHooks": 1,
+   "walkable": 36.8
+  },
+  {
+   "name": "ladder_dwn",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    32
+   ],
+   "models": [
+    "tbx78_a12_02"
+   ],
+   "edges": [
+    "32:Bottom=doorway1"
+   ],
+   "doorHooks": 1,
+   "walkable": 34.1
+  },
+  {
+   "name": "removed_panel",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    34
+   ],
+   "models": [
+    "tbx78_a01_04"
+   ],
+   "edges": [
+    "34:Right=corridor",
+    "34:Left=corridor"
+   ],
+   "doorHooks": 0,
+   "walkable": 53.4
+  },
+  {
+   "name": "room2x1",
+   "rows": 1,
+   "columns": 2,
+   "tiles": [
+    51,
+    52
+   ],
+   "models": [
+    "tbx78_f01_01",
+    "tbx78_f02_01"
+   ],
+   "edges": [
+    "51:Left=doorway2"
+   ],
+   "doorHooks": 1,
+   "walkable": 149.2
+  },
+  {
+   "name": "stairs_up",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    54
+   ],
+   "models": [
+    "tbx78_f04_01"
+   ],
+   "edges": [
+    "54:Left=doorway2"
+   ],
+   "doorHooks": 2,
+   "walkable": 11.1
+  },
+  {
+   "name": "room",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    55
+   ],
+   "models": [
+    "tbx78_f03_02"
+   ],
+   "edges": [
+    "55:Left=doorway2"
+   ],
+   "doorHooks": 1,
+   "walkable": 67.2
+  },
+  {
+   "name": "stairs_dwn",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    56
+   ],
+   "models": [
+    "tbx78_f05_01"
+   ],
+   "edges": [
+    "56:Left=doorway2"
+   ],
+   "doorHooks": 2,
+   "walkable": 12.2
+  },
+  {
+   "name": "room2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    69,
+    70
+   ],
+   "models": [
+    "tbx78_f01_02",
+    "tbx78_f02_02"
+   ],
+   "edges": [
+    "69:Left=doorway2"
+   ],
+   "doorHooks": 1,
+   "walkable": 149.2
+  },
+  {
+   "name": "room2x1",
+   "rows": 2,
+   "columns": 1,
+   "tiles": [
+    72,
+    71
+   ],
+   "models": [
+    "tbx78_f02_03",
+    "tbx78_f01_03"
+   ],
+   "edges": [
+    "71:Left=doorway2"
+   ],
+   "doorHooks": 1,
+   "walkable": 149.4
+  },
+  {
+   "name": "room3x1",
+   "rows": 3,
+   "columns": 1,
+   "tiles": [
+    73,
+    74,
+    75
+   ],
+   "models": [
+    "tbx78_f01_04",
+    "tbx78_f08_01",
+    "tbx78_f01_05"
+   ],
+   "edges": [
+    "73:Left=doorway2",
+    "75:Left=doorway2"
+   ],
+   "doorHooks": 2,
+   "walkable": 234.6
+  },
+  {
+   "name": "door_transition",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    76
+   ],
+   "models": [
+    "tbx78_e21_01"
+   ],
+   "edges": [
+    "76:Left=doorway2"
+   ],
+   "doorHooks": 1,
+   "walkable": 2.9
+  },
+  {
+   "name": "(tile 1)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    1
+   ],
+   "models": [
+    "tbx78_a02_01"
+   ],
+   "edges": [
+    "1:Bottom=doorway1"
+   ],
+   "doorHooks": 1,
+   "walkable": 57.4
+  },
+  {
+   "name": "(tile 9)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    9
+   ],
+   "models": [
+    "tbx78_a02_02"
+   ],
+   "edges": [
+    "9:Bottom=doorway1"
+   ],
+   "doorHooks": 1,
+   "walkable": 49.0
+  },
+  {
+   "name": "(tile 53)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    53
+   ],
+   "models": [
+    "tbx78_f03_01"
+   ],
+   "edges": [
+    "53:Left=doorway2"
+   ],
+   "doorHooks": 1,
+   "walkable": 67.2
+  }
+ ],
+ "nac01": [
+  {
+   "name": "(tile 9)",
+   "rows": 1,
+   "columns": 1,
+   "tiles": [
+    9
+   ],
+   "models": [
+    "nac01_d01_01"
+   ],
+   "edges": [
+    "9:Bottom=Duct"
+   ],
+   "doorHooks": 0,
+   "walkable": 57.0
+  }
+ ]
+}

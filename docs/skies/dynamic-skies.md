@@ -88,6 +88,7 @@ python -m tools.skykit build              # panoramas, DDS (vendored NWN Crunch)
 python -m unittest tools.skykit.test_skykit
 python -m tools.skykit.client_fixture --nwn-root <game install>               # fixed views
 python -m tools.skykit.client_fixture --nwn-root <game install> --transition  # time runs through dusk and dawn
+python -m tools.skykit.client_fixture --nwn-root <game install> --live 8       # the game's clock at 8 min/hour; chat /sky, /time, /rain, /clear
 ```
 
 A panorama without detail tiles is upscaled 2x with RealESRGAN (`RealESRGAN_x2plus.pth`) on the shared ComfyUI before keying

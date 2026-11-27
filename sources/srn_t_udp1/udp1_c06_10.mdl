@@ -12,6 +12,9 @@ beginmodelgeom udp1_c06_10
 node dummy udp1_c06_10
   parent NULL
 endnode
+node dummy udp1_c06_10a
+  parent udp1_c06_10
+endnode
 node trimesh garage_column36
   parent udp1_c06_10
   position 3.575 3.34914 1.8
@@ -3954,7 +3957,7 @@ node trimesh gutter95
     0.857473 0.478132 0.538234
 endnode
 node dummy udp1_c04_10a
-  parent udp1_c06_10
+  parent udp1_c06_10a
   position 0 0 0
   orientation 0 0 0 0
   wirecolor 0.652344 0.652344 0.652344
@@ -24091,8 +24094,11 @@ endnode
 node trimesh gutter95
   parent udp1_c06_10
 endnode
+  node dummy udp1_c06_10a
+    parent udp1_c06_10
+  endnode
 node dummy udp1_c04_10a
-  parent udp1_c06_10
+  parent udp1_c06_10a
 endnode
 node dummy light_on27
   parent udp1_c04_10a
@@ -24217,8 +24223,11 @@ endnode
 node trimesh gutter95
   parent udp1_c06_10
 endnode
+  node dummy udp1_c06_10a
+    parent udp1_c06_10
+  endnode
 node dummy udp1_c04_10a
-  parent udp1_c06_10
+  parent udp1_c06_10a
 endnode
 node dummy light_on27
   parent udp1_c04_10a
@@ -24269,8 +24278,11 @@ newanim day udp1_c06_10
   node dummy udp1_c06_10
     parent NULL
   endnode
-  node dummy udp1_c04_10a
+  node dummy udp1_c06_10a
     parent udp1_c06_10
+  endnode
+  node dummy udp1_c04_10a
+    parent udp1_c06_10a
   endnode
   node dummy light_on27
     parent udp1_c04_10a
@@ -24290,8 +24302,11 @@ newanim day2night udp1_c06_10
   node dummy udp1_c06_10
     parent NULL
   endnode
-  node dummy udp1_c04_10a
+  node dummy udp1_c06_10a
     parent udp1_c06_10
+  endnode
+  node dummy udp1_c04_10a
+    parent udp1_c06_10a
   endnode
   node dummy light_on27
     parent udp1_c04_10a
@@ -24311,8 +24326,11 @@ newanim night udp1_c06_10
   node dummy udp1_c06_10
     parent NULL
   endnode
-  node dummy udp1_c04_10a
+  node dummy udp1_c06_10a
     parent udp1_c06_10
+  endnode
+  node dummy udp1_c04_10a
+    parent udp1_c06_10a
   endnode
   node dummy light_on27
     parent udp1_c04_10a
@@ -24332,8 +24350,11 @@ newanim night2day udp1_c06_10
   node dummy udp1_c06_10
     parent NULL
   endnode
-  node dummy udp1_c04_10a
+  node dummy udp1_c06_10a
     parent udp1_c06_10
+  endnode
+  node dummy udp1_c04_10a
+    parent udp1_c06_10a
   endnode
   node dummy light_on27
     parent udp1_c04_10a

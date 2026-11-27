@@ -1,0 +1,125 @@
+{
+ "tileset": "dgt04",
+ "haks": [
+  "srn_t_dgt04",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "shared": {
+  "lights": [
+   "day"
+  ],
+  "placeables": {
+   "lights": [
+    "day"
+   ],
+   "groups": [
+    {
+     "name": "screens",
+     "models": [
+      "p_computer01",
+      "p_computer02",
+      "p_computer05",
+      "p_misc1",
+      "p_misc3",
+      "dataterm1",
+      "dataterm2",
+      "fireflydataterm1",
+      "jr_dataterm1",
+      "dataterm3",
+      "serverrack",
+      "udp-p-32",
+      "clonetank",
+      "bigtv",
+      "aidisplay",
+      "udp2-p-79",
+      "udp2-p-15",
+      "udp2-p-101"
+     ],
+     "lights": [
+      "day"
+     ],
+     "across": 6,
+     "spacing": 2.6,
+     "apart": 5.0,
+     "distance": 9.0,
+     "pitch": 65.0
+    },
+    {
+     "name": "seethrough",
+     "models": [
+      "jhb_tree01",
+      "jz_trefles00",
+      "jz_marg01",
+      "fence",
+      "pkt_tat37",
+      "jhb_elev01",
+      "udp-p-140",
+      "jz_sfp105",
+      "pkt_starmap1",
+      "snackbar",
+      "firefly7up",
+      "phod_screen05",
+      "jvb_armc01",
+      "pkt_tat02",
+      "p_blbrd01a",
+      "grafitti8h",
+      "jz_yelv04",
+      "sgp_trml08"
+     ],
+     "lights": [
+      "day"
+     ],
+     "across": 5,
+     "spacing": 4.0,
+     "apart": 7.0,
+     "distance": 14.0,
+     "pitch": 65.0
+    },
+    {
+     "name": "large",
+     "models": [
+      "firefly",
+      "impshuttleplc",
+      "ffcargo2",
+      "jr_kc_firetruck",
+      "plc_freighter"
+     ],
+     "lights": [
+      "day"
+     ],
+     "across": 3,
+     "spacing": 22.0,
+     "apart": 26.0,
+     "distance": 45.0,
+     "pitch": 55.0
+    },
+    {
+     "name": "on",
+     "models": [
+      "bigtv",
+      "aidisplay",
+      "almonitor",
+      "tv",
+      "moviescreen",
+      "powerc",
+      "serverrack",
+      "jz_hvrsld01"
+     ],
+     "lights": [
+      "day"
+     ],
+     "across": 4,
+     "spacing": 4.0,
+     "apart": 8.0,
+     "distance": 9.0,
+     "pitch": 75.0,
+     "state": 4
+    }
+   ]
+  }
+ }
+}

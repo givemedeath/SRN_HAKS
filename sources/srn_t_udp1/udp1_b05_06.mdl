@@ -3728,6 +3728,69 @@ node trimesh gunstore_sign04
     0.518516 0.836578 0.398769
     0.675379 0.982386 0.398769
 endnode
+node trimesh day03_0
+  parent udp1_b05_06a
+  position 5 3.47145 -13.6306
+  orientation 0 0 0 0
+  wirecolor 0.605469 0.605469 0.605469
+  ambient 0.588235 0.588235 0.588235
+  diffuse 0.588235 0.588235 0.588235
+  specular 0 0 0
+  shininess 10
+  selfillumcolor 0 0 0
+  bitmap udp1-logos-z
+  render 1
+  Shadow 0
+  beaming 0
+  transparencyhint 1
+  tilefade 0
+  rotatetexture 0
+  verts 10
+    5.99999 0 -1.23936
+    3.33335 0 -1.23936
+    0 0 -1.23936
+    -3.33331 0 -1.23936
+    -5.99999 0 -1.23936
+    5.99999 0 1.23936
+    3.33335 0 1.23936
+    0 0 1.23936
+    -3.33331 0 1.23936
+    -5.99999 0 1.23936
+  faces 8
+    0 1 6  0  10 11 12  4
+    6 5 0  0  13 5 0  4
+    1 2 7  0  14 15 16  4
+    7 6 1  0  17 6 1  4
+    2 3 8  0  18 19 20  4
+    8 7 2  0  21 7 2  4
+    3 4 9  0  22 4 23  4
+    9 8 3  0  9 8 3  4
+  tverts 24
+    -0.0305022 0.836578 0.398769
+    0.126359 0.836578 0.398769
+    0.322437 0.836578 0.398769
+    0.518516 0.836578 0.398769
+    0.675379 0.836578 0.398769
+    -0.0305022 0.982386 0.398769
+    0.126359 0.982386 0.398769
+    0.322437 0.982386 0.398769
+    0.518516 0.982386 0.398769
+    0.675379 0.982386 0.398769
+    -0.0305022 0.836578 0.398769
+    0.126359 0.836578 0.398769
+    0.126359 0.982386 0.398769
+    0.126359 0.982386 0.398769
+    0.126359 0.836578 0.398769
+    0.322437 0.836578 0.398769
+    0.322437 0.982386 0.398769
+    0.322437 0.982386 0.398769
+    0.322437 0.836578 0.398769
+    0.518516 0.836578 0.398769
+    0.518516 0.982386 0.398769
+    0.518516 0.982386 0.398769
+    0.518516 0.836578 0.398769
+    0.675379 0.982386 0.398769
+endnode
 node trimesh light_base35
   parent udp1_b05_06
   position 7.5433 2.30384 5.0849
@@ -4257,6 +4320,17 @@ node trimesh gunstore_sign04
       0.0333333  0 0 0 0
     endlist
 endnode
+node trimesh day03_0
+  parent udp1_b05_06a
+    positionkey
+      0  5 3.47145 -13.6306
+      0.0333333  5 3.47145 -13.6306
+    endlist
+    orientationkey
+      0  0 0 0 0
+      0.0333333  0 0 0 0
+    endlist
+endnode
 node trimesh light_base35
   parent udp1_b05_06
 endnode
@@ -4498,6 +4572,17 @@ node trimesh gunstore_sign04
       0.0333333  0 0 0 0
     endlist
 endnode
+node trimesh day03_0
+  parent udp1_b05_06a
+    positionkey
+      0  5 3.47145 6.36936
+      0.0333333  5 3.47145 6.36936
+    endlist
+    orientationkey
+      0  0 0 0 0
+      0.0333333  0 0 0 0
+    endlist
+endnode
 node trimesh light_base35
   parent udp1_b05_06
 endnode
@@ -4543,6 +4628,20 @@ newanim day udp1_b05_06
       0.03333 1
     endlist
   endnode
+  node trimesh gunstore_sign04
+    parent udp1_b05_06a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent udp1_b05_06a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
 doneanim day udp1_b05_06
 newanim day2night udp1_b05_06
   length 0.56667
@@ -4577,6 +4676,20 @@ newanim day2night udp1_b05_06
   endnode
   node trimesh day02_0
     parent mall-light-on15
+    alphakey 2
+      0.00000 1
+      0.56667 0
+    endlist
+  endnode
+  node trimesh gunstore_sign04
+    parent udp1_b05_06a
+    alphakey 2
+      0.00000 0
+      0.56667 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent udp1_b05_06a
     alphakey 2
       0.00000 1
       0.56667 0
@@ -4621,6 +4734,20 @@ newanim night udp1_b05_06
       0.03333 0
     endlist
   endnode
+  node trimesh gunstore_sign04
+    parent udp1_b05_06a
+    alphakey 2
+      0.00000 1
+      0.03333 1
+    endlist
+  endnode
+  node trimesh day03_0
+    parent udp1_b05_06a
+    alphakey 2
+      0.00000 0
+      0.03333 0
+    endlist
+  endnode
 doneanim night udp1_b05_06
 newanim night2day udp1_b05_06
   length 0.60000
@@ -4655,6 +4782,20 @@ newanim night2day udp1_b05_06
   endnode
   node trimesh day02_0
     parent mall-light-on15
+    alphakey 2
+      0.00000 0
+      0.60000 1
+    endlist
+  endnode
+  node trimesh gunstore_sign04
+    parent udp1_b05_06a
+    alphakey 2
+      0.00000 1
+      0.60000 0
+    endlist
+  endnode
+  node trimesh day03_0
+    parent udp1_b05_06a
     alphakey 2
       0.00000 0
       0.60000 1

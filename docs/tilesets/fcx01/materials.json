@@ -264,7 +264,18 @@
    "relief": 1.0,
    "roughness": 0.5,
    "redrawn": true,
-   "stem": "impmodulesid5"
+   "stem": "impmodulesid5",
+   "glow": {
+    "gain": 1.3,
+    "boxes": [
+     {"box": [0.636, 0.407, 0.983, 0.5], "above": 120},
+     {"box": [0.483, 0.441, 0.607, 0.478], "above": 120},
+     {"box": [0.846, 0.579, 0.967, 0.615], "above": 120},
+     {"box": [0.474, 0.682, 0.511, 0.728], "above": 120},
+     {"box": [0.515, 0.64, 0.545, 0.691], "above": 100},
+     {"box": [0.484, 0.74, 0.53, 0.754], "above": 100}
+    ]
+   }
   },
   "bespin_monument2": {
    "route": "upscale",

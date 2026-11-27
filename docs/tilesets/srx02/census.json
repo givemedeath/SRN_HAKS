@@ -1,0 +1,176 @@
+{
+ "udp2": {
+  "declared": [
+   "Service",
+   "Wall",
+   "Tiled",
+   "Office_Vinyl",
+   "Office_Wood",
+   "Office_Alum",
+   "Foyer_L",
+   "Foyer_U"
+  ],
+  "undeclared": {},
+  "crossers": [
+   "Door",
+   "Hallway1",
+   "Hallway2",
+   "Door_Garage_Sm",
+   "Door_Garage_Lg"
+  ],
+  "crosserUse": {
+   "Door": 121,
+   "Hallway1": 33,
+   "Hallway2": 33,
+   "Door_Garage_Lg": 6,
+   "Door_Garage_Sm": 6
+  },
+  "pairs": {
+   "Foyer_L|Wall": 15,
+   "Foyer_U|Wall": 15,
+   "Office_Alum|Wall": 20,
+   "Office_Vinyl|Wall": 20,
+   "Office_Wood|Wall": 20,
+   "Service|Wall": 20,
+   "Tiled|Wall": 20
+  },
+  "groups": 93,
+  "tiles": 229,
+  "edgeRows": 25,
+  "default": "Wall",
+  "floor": "Office_Vinyl",
+  "border": "Wall",
+  "envMap": "tdc01__ref01",
+  "transition": "3",
+  "heightTransition": "0",
+  "rules": 0,
+  "unused": [],
+  "raisedTiles": 0,
+  "doorHooks": 169,
+  "doorTypes": {
+   "0": 169
+  }
+ },
+ "tfb01": {
+  "declared": [
+   "Wall",
+   "Livingroom",
+   "Kitchen",
+   "Inn",
+   "Shop"
+  ],
+  "undeclared": {},
+  "crossers": [
+   "Corridor",
+   "Doorway",
+   "Subway"
+  ],
+  "crosserUse": {
+   "Corridor": 96,
+   "Doorway": 100,
+   "Subway": 5
+  },
+  "pairs": {
+   "Inn|Wall": 37,
+   "Kitchen|Wall": 37,
+   "Livingroom|Wall": 36,
+   "Shop|Wall": 34
+  },
+  "groups": 61,
+  "tiles": 338,
+  "edgeRows": 0,
+  "default": "Wall",
+  "floor": "Inn",
+  "border": "Wall",
+  "envMap": "tfb01__ref01",
+  "transition": "3",
+  "heightTransition": "1",
+  "rules": 25,
+  "unused": [],
+  "raisedTiles": 0,
+  "doorHooks": 166,
+  "doorTypes": {
+   "0": 159,
+   "24": 1,
+   "43": 4,
+   "42": 2
+  }
+ },
+ "tbx78": {
+  "declared": [
+   "wall",
+   "facility"
+  ],
+  "undeclared": {},
+  "crossers": [
+   "corridor",
+   "doorway1",
+   "cell",
+   "raised",
+   "doorway2",
+   "doorway3"
+  ],
+  "crosserUse": {
+   "corridor": 43,
+   "doorway1": 40,
+   "cell": 8,
+   "raised": 20,
+   "doorway2": 19,
+   "doorway3": 6
+  },
+  "pairs": {
+   "facility|wall": 36
+  },
+  "groups": 14,
+  "tiles": 84,
+  "edgeRows": 11,
+  "default": "Wall",
+  "floor": "facility",
+  "border": "Wall",
+  "envMap": "tdc01__ref01",
+  "transition": "3",
+  "heightTransition": "0",
+  "rules": 0,
+  "unused": [],
+  "raisedTiles": 0,
+  "doorHooks": 73,
+  "doorTypes": {
+   "146": 38,
+   "0": 33,
+   "54": 2
+  }
+ },
+ "nac01": {
+  "declared": [
+   "Wall",
+   "Service"
+  ],
+  "undeclared": {},
+  "crossers": [
+   "Duct"
+  ],
+  "crosserUse": {
+   "Duct": 15,
+   "duct": 2
+  },
+  "pairs": {
+   "Service|Wall": 9
+  },
+  "groups": 0,
+  "tiles": 17,
+  "edgeRows": 0,
+  "default": "Wall",
+  "floor": "Service",
+  "border": "Wall",
+  "envMap": "env_tti",
+  "transition": "0",
+  "heightTransition": "0",
+  "rules": 4,
+  "unused": [],
+  "raisedTiles": 0,
+  "doorHooks": 5,
+  "doorTypes": {
+   "0": 5
+  }
+ }
+}

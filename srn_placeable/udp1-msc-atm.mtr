@@ -1,0 +1,6 @@
+// screens move: tools/tilekit/motion.py
+customshaderVS vslit
+customshaderFS srn_screen_fs
+texture0 udp1-msc-atm
+parameter float ScreenBox0 0.0620 0.7500 0.3180 0.9400
+parameter float ScreenHow0 7.0 1.00 55.0 0.85
