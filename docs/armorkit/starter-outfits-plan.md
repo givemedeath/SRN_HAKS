@@ -524,6 +524,33 @@ name. Superseding it:
   `clip-m-realistic`, `clip-m-hips2`, `clip-f-realistic`, `clip-f-hips` (the first male hips run lost 18 of
   24 shots to a stalled client).
 
+### 2026-11-26 (late): the other 18 bodies
+
+User: "Start the bodies now." `bodies` from `typed-10-kept` (male) and `female-14-refit` (`--female-from`;
+the female has no chest of her own), `--only` the 18 race bodies, three at a time, each about 6 minutes.
+
+* `bake --kept` with no tier now takes the tier and as-drawn joints its kept folder lists (`cut_at`): `bodies`
+  passes none, and at the default tier 2 every body of an outfit cut at tier 3, shoulders and waist at 1,
+  ankles and knees as drawn, would have been refused.
+* First run (`bodies-1`): 12 of 18. Fixed in `refit`, all bodies built again each time:
+  * `seated` drew the sleeve's shoulder cap into the chest along the chest's surface, which at the armpit
+    runs across the joint: the Large Dwarf male's (pmd2) end stood 2.4 cm out of the tier 1 envelope, three
+    more bodies 2 to 5 mm. A seated point is now never carried wider of the joint's axis.
+  * `over_skin` read the cloth once and the check after it read it again as pushed: a hem wall the push
+    tilted became cloth, and the Dwarf female (pfd0) was left 3 mm through it. Each pass reads it afresh.
+  * The Troll Large male's (pmg2) arm, 1.86 times a Human's, needed his hem 3.3 cm wider, over the 3 cm a
+    push may move. The limit now grows with the body's width (`across`), in the refit's push and the skin
+    bake's.
+* Second run (`bodies-2`): 16 of 18; the skin bake's push still had the Human limit (pmg2), and the
+  pelvis's dome at the Troll Large female's (pfg2) waist stood 5 mm out of her chest at rest: `hidden_at_rest`
+  now holds what the split added past an under end inside the part carried over it.
+* Third run (`bodies-3`): **all 18 pass every gate.** Belts fitted on each over its own bake
+  (`bodies-3/<body>-belt`): all pass; pouches hang as drawn, 1.6 to 8 cm into the trousers at rest.
+* Client views, outfit and belt (`bodies-3/<body>-worn`), of the hardest: both Troll Large bodies, the
+  Large Dwarf male and the Dwarf female, `shoulders` in contrasting colours and `body` in realistic ones. No
+  holes, skin where cloth belongs or open seams; sleeves, waist and boots hold in all six poses. The pmd2
+  shoulders run lost shots 22 and 23 to a stalled client; its realistic body sheet covers the same poses.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid
