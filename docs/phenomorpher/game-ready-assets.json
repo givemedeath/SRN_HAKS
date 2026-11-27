@@ -1,8 +1,8 @@
 {
  "schemaVersion": 1,
  "kind": "PhenoMorpher-game-ready-bodies",
- "version": "1.5.0",
- "accepted": "2026-11-07",
+ "version": "1.6.0",
+ "accepted": "2026-11-26",
  "packs": [
   "srn_body",
   "srn_body_tex",
@@ -298,7 +298,7 @@
    "modelPrefix": "pfh0",
    "bodyPartNumber": 1,
    "headPartNumber": 1,
-   "statureMeters": 1.8380404908080061,
+   "statureMeters": 1.8030404908080062,
    "shapeAndRigUnchanged": false,
    "parts": [
     "pfh0_neck001.mdl",
@@ -326,7 +326,7 @@
    "modelPrefix": "pfh2",
    "bodyPartNumber": 1,
    "headPartNumber": 1,
-   "statureMeters": 1.8380404908080061,
+   "statureMeters": 1.8030404908080062,
    "shapeAndRigUnchanged": false,
    "parts": [
     "pfh2_neck001.mdl",
@@ -355,7 +355,7 @@
    "bodyPartNumber": 1,
    "headPartNumber": 1,
    "statureMeters": 1.9339278815538408,
-   "shapeAndRigUnchanged": true,
+   "shapeAndRigUnchanged": false,
    "parts": [
     "pmh0_neck001.mdl",
     "pmh0_chest001.mdl",
@@ -7350,13 +7350,17 @@
   },
   {
    "path": "srn_body/pfh0.mdl",
-   "sha256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+   "sha256": "d22207455c149efabd9e27dd697a224c51777b76cde5a8a6ae2ff562686c9c30",
    "bytes": 11448,
    "role": "fitted-rig",
    "sourceResource": "pfh0.mdl",
    "sourceArchive": "sr_pm17.hak",
    "sourceSHA256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
-   "nameOnlyChanges": []
+   "nameOnlyChanges": [],
+   "release160": {
+    "fromSHA256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+    "change": "c8-female-rig-head-drop"
+   }
   },
   {
    "path": "srn_body/srn_fa_h0.mdl",
@@ -7554,8 +7558,8 @@
   },
   {
    "path": "srn_body/pfh0_neck001.mdl",
-   "sha256": "81ec2ccaa6e8e3e65ad3ebdc40b12e7dee3a819c29698dec507e043eafd816a2",
-   "bytes": 2380,
+   "sha256": "f8e4420ac1df03d90f8f581118f4b3ed8fcda20085c3bfcaf86072e092f04b15",
+   "bytes": 55548,
    "role": "body-part",
    "sourceResource": "pfh0_neck237.mdl",
    "sourceArchive": "pm25fulltonea.hak",
@@ -7579,7 +7583,11 @@
      "old": "pfh0_neck237g",
      "new": "pfh0_neck001g"
     }
-   ]
+   ],
+   "release160": {
+    "fromSHA256": "81ec2ccaa6e8e3e65ad3ebdc40b12e7dee3a819c29698dec507e043eafd816a2",
+    "change": "c8-neck"
+   }
   },
   {
    "path": "srn_body/pfh0_neck001.plt",
@@ -7593,7 +7601,7 @@
   },
   {
    "path": "srn_body/pfh0_chest001.mdl",
-   "sha256": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+   "sha256": "bbcc8f58d4f9015610529978898a267864d235664bc4df4fc6c13eea62d52f22",
    "bytes": 442588,
    "role": "body-part",
    "sourceResource": "pfh0_chest237.mdl",
@@ -7628,6 +7636,10 @@
    "release130": {
     "fromSHA256": "7856d0d5f8c12712eac57cface9aba95bbe5e13bc484a65cd2bd6554b572a3d4",
     "change": "c6-human-lock"
+   },
+   "release160": {
+    "fromSHA256": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+    "change": "c8-female-collar"
    }
   },
   {
@@ -8375,7 +8387,7 @@
   },
   {
    "path": "srn_body/pfh2.mdl",
-   "sha256": "a226331a13ec3056fe4ac1712a6e9eb0b3b462eaeb971866b4e62df711910452",
+   "sha256": "b2a9b5cdbb6c5d82a75f6480cf8a54f0a0555c64dd18089dc54492f6c76e9080",
    "bytes": 11448,
    "role": "fitted-rig",
    "sourceResource": "pfh2.mdl",
@@ -8386,17 +8398,25 @@
    "supermodel": {
     "from": "p25l04_07",
     "to": "srn_fa_h0"
+   },
+   "release160": {
+    "fromSHA256": "a226331a13ec3056fe4ac1712a6e9eb0b3b462eaeb971866b4e62df711910452",
+    "change": "c8-female-rig-head-drop"
    }
   },
   {
    "path": "srn_body/pfh2_neck001.mdl",
-   "sha256": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
-   "bytes": 2488,
+   "sha256": "8992284650d6f28b1188d59f9d843b7a03c25fa38baaa473940ce473516a8643",
+   "bytes": 63644,
    "role": "body-part",
    "sourceResource": "pfh2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
    "sourceSHA256": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
-   "nameOnlyChanges": []
+   "nameOnlyChanges": [],
+   "release160": {
+    "fromSHA256": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
+    "change": "c8-neck"
+   }
   },
   {
    "path": "srn_body/pfh2_neck001.plt",
@@ -8420,7 +8440,7 @@
   },
   {
    "path": "srn_body/pfh2_chest001.mdl",
-   "sha256": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+   "sha256": "6d0d6ac5091a61468b2857016ea947e3757b3f1bcd7af087b3089bcd613798b6",
    "bytes": 364120,
    "role": "body-part",
    "sourceResource": "pfh2_chest001.mdl",
@@ -8430,6 +8450,10 @@
    "release130": {
     "fromSHA256": "a2b1a4a8186f6f9412dc4bc0693d96e892ec21a0f19d5a0f4e82eaa2652e6aa8",
     "change": "c6-human-lock"
+   },
+   "release160": {
+    "fromSHA256": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+    "change": "c8-female-collar"
    }
   },
   {
@@ -8954,8 +8978,8 @@
   },
   {
    "path": "srn_body/pmh0_neck001.mdl",
-   "sha256": "0e1097860f3f5751e65e7f3c9533abef0982dce60d16db0fb06e602f11642520",
-   "bytes": 2596,
+   "sha256": "4271dea0838b7e756b3ae7b30fa09e52abd13c6f9f042d13c9a6cd3eca58ab3e",
+   "bytes": 50364,
    "role": "body-part",
    "sourceResource": "pmh0_neck237.mdl",
    "sourceArchive": "pm25fulltonea.hak",
@@ -8979,7 +9003,11 @@
      "old": "pmh0_neck237g",
      "new": "pmh0_neck001g"
     }
-   ]
+   ],
+   "release160": {
+    "fromSHA256": "0e1097860f3f5751e65e7f3c9533abef0982dce60d16db0fb06e602f11642520",
+    "change": "c8-neck"
+   }
   },
   {
    "path": "srn_body/pmh0_neck001.plt",
@@ -9740,8 +9768,8 @@
   },
   {
    "path": "srn_body/pmh2_neck001.mdl",
-   "sha256": "56e59273ae4d7412a95a2752cbe27ae26e70a88c20a00ca51e4e16f27fcfeafd",
-   "bytes": 2428,
+   "sha256": "f0b73156ff600de7a74094987e92bfe25e667c039966993c6f172c63779cdafe",
+   "bytes": 57692,
    "role": "body-part",
    "sourceResource": "pmh2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -9750,6 +9778,10 @@
    "release130": {
     "fromSHA256": "2f35f2716bc9a6412440cb857685697197cc10a5024361fbd8270c20e3d652c8",
     "change": "c7-human-lock-pmh2"
+   },
+   "release160": {
+    "fromSHA256": "56e59273ae4d7412a95a2752cbe27ae26e70a88c20a00ca51e4e16f27fcfeafd",
+    "change": "c8-neck"
    }
   },
   {
@@ -20177,7 +20209,8 @@
   "1.3.0 (user-approved 2026-10-27; docs/phenomorpher/race-sizing/plan.md, human-bodies-lock-c7.md): race bodies at their lore rest heights with Fit = Large, Large-male joint heights at Fit, lore build, the b13/c6 female joins ported to the race females, idle soles on the floor; the c7 Human lock (c6 female joins, torso polish and rebuilt skin, and pmh2 at Fit joint heights). Rigs, libraries and pmh2 compile with Blender 5.2.1 + Neverblender 4.5.1 against the stock a_ba/a_fa. Per-resource release130 records the 1.2.0 hash and change class.",
   "1.3.0 foot fix (user request 2026-10-27): in every race library clip where a race body went further below the floor than in 1.2.0, rootdummy position keys are lifted by that extra depth at every key time (plus refinement points); nothing is lowered and clips that never sink are byte-for-byte the same animation. docs/phenomorpher/race-sizing/release-1.3.0.json (footFix).",
   "1.4.0 (user request 2026-11-07, docs/phenomorpher/animation-chain-probe.md): srn_body/a_ba_custom.mdl overrides the installed ASCII a_ba_custom with its stock clips unchanged and 175 added firearm clips named <action>_<weapon>_<slot>. installedAnimationChain still records the stock file the override is built from. Bodies, rigs and the 2DA tables are unchanged.",
-  "1.5.0 (user request 2026-11-07, docs/items/firearm-fx-pilot.md): srn_body/a_ba_custom.mdl adds 30 automatic rifle clips (fire_rfla, fire_rflb), shifts the rifle and shotgun fire clips' recoil 0.37 s later to the engine's 0.5 s shot, fixes the pistol support elbow, and adds ready_pst and ready_smg stance copies of the pistol and SMG fire clips so stances never fire gun effects. srn_body/a_ba_non_combat.mdl overrides the installed binary with a decompiled ASCII copy whose xbowr carry overlay keeps its nodes but has no keys, so crossbow-class firearms stay aimed outside combat; every other clip is unchanged. installedAnimationChain still records the stock files these are built from."
+  "1.5.0 (user request 2026-11-07, docs/items/firearm-fx-pilot.md): srn_body/a_ba_custom.mdl adds 30 automatic rifle clips (fire_rfla, fire_rflb), shifts the rifle and shotgun fire clips' recoil 0.37 s later to the engine's 0.5 s shot, fixes the pistol support elbow, and adds ready_pst and ready_smg stance copies of the pistol and SMG fire clips so stances never fire gun effects. srn_body/a_ba_non_combat.mdl overrides the installed binary with a decompiled ASCII copy whose xbowr carry overlay keeps its nodes but has no keys, so crossbow-class firearms stay aimed outside combat; every other clip is unchanged. installedAnimationChain still records the stock files these are built from.",
+  "1.6.0 (user-approved 2026-11-26; docs/phenomorpher/human-bodies-lock-c8.md): the c8 Human lock. New anatomical neck001 for pfh0, pfh2, pmh0 and pmh2 (24-sided, sternocleidomastoid ridges, throat hollow, nape groove; male Adam's apple). Female rigs lower head_g 3.5 cm (neck 11.1 -> 7.6 cm joint to joint; rest stature -0.035 m) and the female chests rise into a trapezius slope at the collar. neck_g, every other part, the male rigs and chests are unchanged. The published Human male library heads (srn_head pmh0_head086-092) are scaled x1.06 about head_g; they are not in this contract."
  ],
  "raceSelection": {
   "rows": {

@@ -1,7 +1,7 @@
 {
  "schemaVersion": 1,
  "kind": "srn-armorkit-seam-contract",
- "version": 4,
+ "version": 5,
  "units": "metres",
  "directions": 16,
  "tierOffsets": {
@@ -37,24 +37,24 @@
         1.0
        ],
        "bodyRing": [
-        0.0815,
-        0.0717,
-        0.0577,
-        0.0618,
-        0.0704,
-        0.0619,
-        0.0577,
-        0.0721,
-        0.0819,
-        0.0625,
-        0.0514,
-        0.0572,
-        0.0663,
-        0.0571,
-        0.051,
-        0.062
+        0.0676,
+        0.0662,
+        0.0634,
+        0.0603,
+        0.0545,
+        0.0602,
+        0.0631,
+        0.0662,
+        0.0676,
+        0.0685,
+        0.0696,
+        0.0705,
+        0.0677,
+        0.0705,
+        0.0696,
+        0.0685
        ],
-       "underPastPlane": 0.0708
+       "underPastPlane": 0.073
       }
      },
      "bend": {
@@ -66,24 +66,24 @@
      },
      "tiers": {
       "0": {
-       "envelopeRadius": 0.0859,
-       "meanRadius": 0.068,
-       "minimumOverlap": 0.0228
+       "envelopeRadius": 0.0745,
+       "meanRadius": 0.0699,
+       "minimumOverlap": 0.0234
       },
       "1": {
-       "envelopeRadius": 0.0939,
-       "meanRadius": 0.076,
-       "minimumOverlap": 0.0254
+       "envelopeRadius": 0.0825,
+       "meanRadius": 0.0779,
+       "minimumOverlap": 0.0261
       },
       "2": {
-       "envelopeRadius": 0.1069,
-       "meanRadius": 0.089,
-       "minimumOverlap": 0.0298
+       "envelopeRadius": 0.0955,
+       "meanRadius": 0.0909,
+       "minimumOverlap": 0.0304
       },
       "3": {
-       "envelopeRadius": 0.1319,
-       "meanRadius": 0.114,
-       "minimumOverlap": 0.0381
+       "envelopeRadius": 0.1205,
+       "meanRadius": 0.1159,
+       "minimumOverlap": 0.0388
       }
      }
     },
@@ -101,24 +101,24 @@
         1.0
        ],
        "bodyRing": [
-        0.0815,
-        0.0717,
-        0.0577,
-        0.0618,
-        0.0704,
-        0.0619,
-        0.0577,
-        0.0721,
-        0.0819,
-        0.0625,
-        0.0514,
-        0.0572,
-        0.0663,
-        0.0571,
-        0.051,
-        0.062
+        0.0676,
+        0.0662,
+        0.0634,
+        0.0603,
+        0.0545,
+        0.0602,
+        0.0631,
+        0.0662,
+        0.0676,
+        0.0685,
+        0.0697,
+        0.0705,
+        0.0683,
+        0.0705,
+        0.0696,
+        0.0685
        ],
-       "underPastPlane": 0.0708
+       "underPastPlane": 0.073
       }
      },
      "bend": {
@@ -130,24 +130,24 @@
      },
      "tiers": {
       "0": {
-       "envelopeRadius": 0.0859,
-       "meanRadius": 0.068,
-       "minimumOverlap": 0.0228
+       "envelopeRadius": 0.0745,
+       "meanRadius": 0.0699,
+       "minimumOverlap": 0.0234
       },
       "1": {
-       "envelopeRadius": 0.0939,
-       "meanRadius": 0.076,
-       "minimumOverlap": 0.0254
+       "envelopeRadius": 0.0825,
+       "meanRadius": 0.0779,
+       "minimumOverlap": 0.0261
       },
       "2": {
-       "envelopeRadius": 0.1069,
-       "meanRadius": 0.089,
-       "minimumOverlap": 0.0298
+       "envelopeRadius": 0.0955,
+       "meanRadius": 0.0909,
+       "minimumOverlap": 0.0304
       },
       "3": {
-       "envelopeRadius": 0.1319,
-       "meanRadius": 0.114,
-       "minimumOverlap": 0.0381
+       "envelopeRadius": 0.1205,
+       "meanRadius": 0.1159,
+       "minimumOverlap": 0.0388
       }
      }
     },
@@ -677,24 +677,24 @@
         1.0
        ],
        "bodyRing": [
-        0.0575,
-        0.0463,
-        0.0401,
-        0.0475,
-        0.0564,
-        0.0475,
-        0.0401,
-        0.0463,
-        0.0575,
-        0.0503,
-        0.042,
-        0.0488,
-        0.0587,
-        0.0488,
-        0.042,
-        0.0503
+        0.0578,
+        0.0554,
+        0.0523,
+        0.0483,
+        0.0433,
+        0.0486,
+        0.0521,
+        0.0552,
+        0.0577,
+        0.0599,
+        0.062,
+        0.0632,
+        0.0621,
+        0.0632,
+        0.0619,
+        0.0598
        ],
-       "underPastPlane": 0.0534
+       "underPastPlane": 0.063
       }
      },
      "bend": {
@@ -706,24 +706,24 @@
      },
      "tiers": {
       "0": {
-       "envelopeRadius": 0.0627,
-       "meanRadius": 0.0528,
-       "minimumOverlap": 0.0178
+       "envelopeRadius": 0.0672,
+       "meanRadius": 0.0604,
+       "minimumOverlap": 0.0203
       },
       "1": {
-       "envelopeRadius": 0.0707,
-       "meanRadius": 0.0608,
-       "minimumOverlap": 0.0204
+       "envelopeRadius": 0.0752,
+       "meanRadius": 0.0684,
+       "minimumOverlap": 0.023
       },
       "2": {
-       "envelopeRadius": 0.0837,
-       "meanRadius": 0.0738,
-       "minimumOverlap": 0.0248
+       "envelopeRadius": 0.0882,
+       "meanRadius": 0.0814,
+       "minimumOverlap": 0.0274
       },
       "3": {
-       "envelopeRadius": 0.1087,
-       "meanRadius": 0.0988,
-       "minimumOverlap": 0.0332
+       "envelopeRadius": 0.1132,
+       "meanRadius": 0.1064,
+       "minimumOverlap": 0.0358
       }
      }
     },
@@ -741,24 +741,24 @@
         1.0
        ],
        "bodyRing": [
-        0.0575,
-        0.0463,
-        0.0401,
-        0.0475,
-        0.0564,
-        0.0475,
-        0.0401,
-        0.0463,
-        0.0575,
-        0.0503,
-        0.042,
-        0.0488,
-        0.0587,
-        0.0488,
-        0.042,
-        0.0503
+        0.0578,
+        0.0554,
+        0.0523,
+        0.0483,
+        0.0433,
+        0.0486,
+        0.0521,
+        0.0552,
+        0.0577,
+        0.0599,
+        0.062,
+        0.0632,
+        0.0621,
+        0.0632,
+        0.0619,
+        0.0598
        ],
-       "underPastPlane": 0.0534
+       "underPastPlane": 0.063
       }
      },
      "bend": {
@@ -770,24 +770,24 @@
      },
      "tiers": {
       "0": {
-       "envelopeRadius": 0.0627,
-       "meanRadius": 0.0528,
-       "minimumOverlap": 0.0178
+       "envelopeRadius": 0.0672,
+       "meanRadius": 0.0604,
+       "minimumOverlap": 0.0203
       },
       "1": {
-       "envelopeRadius": 0.0707,
-       "meanRadius": 0.0608,
-       "minimumOverlap": 0.0204
+       "envelopeRadius": 0.0752,
+       "meanRadius": 0.0684,
+       "minimumOverlap": 0.023
       },
       "2": {
-       "envelopeRadius": 0.0837,
-       "meanRadius": 0.0738,
-       "minimumOverlap": 0.0248
+       "envelopeRadius": 0.0882,
+       "meanRadius": 0.0814,
+       "minimumOverlap": 0.0274
       },
       "3": {
-       "envelopeRadius": 0.1087,
-       "meanRadius": 0.0988,
-       "minimumOverlap": 0.0332
+       "envelopeRadius": 0.1132,
+       "meanRadius": 0.1064,
+       "minimumOverlap": 0.0358
       }
      }
     },
@@ -14223,7 +14223,7 @@
     "pmh0_handr001.mdl": "1373b78c7c6bf739b627fde3e8052516ef08c80c7d48c7429a7c5aebe57db434",
     "pmh0_legl001.mdl": "0909edd9218867502084b41f7e7ed7950be29e2673501df9d87f68a3afcd0bd7",
     "pmh0_legr001.mdl": "9da28da610ad19428c9df5b7c1ce7a69a85100b3be7229bda82c65f042dd7c33",
-    "pmh0_neck001.mdl": "0e1097860f3f5751e65e7f3c9533abef0982dce60d16db0fb06e602f11642520",
+    "pmh0_neck001.mdl": "4271dea0838b7e756b3ae7b30fa09e52abd13c6f9f042d13c9a6cd3eca58ab3e",
     "pmh0_pelvis001.mdl": "012ccaf2c7c55e71da070e4b5b0b37acfc43ae327d874c1a124d6e835e678007",
     "pmh0_shinl001.mdl": "77f88c0c9372e780c7aff79bfbefe701b34e6ce7e76fe4cfea0a26d4ec9336e1",
     "pmh0_shinr001.mdl": "cfc6f848c980477adaa039197b5ff395c9b3f9ffcfbcc32b55ed29629ab2def3"
@@ -14241,7 +14241,7 @@
     "pmh2_handr001.mdl": "d2dafb16b54ff41fe3d8c0073273ffae65c55cecd1dde52e8f7ef1d591330a2a",
     "pmh2_legl001.mdl": "83fd51a973be194b9a75a40357b09f27e4fea918f3802200f1db13f96e1ae264",
     "pmh2_legr001.mdl": "28bd48865e0c71f2414db229aa4971b989506dd4cc5465af7ec979e0b38659be",
-    "pmh2_neck001.mdl": "56e59273ae4d7412a95a2752cbe27ae26e70a88c20a00ca51e4e16f27fcfeafd",
+    "pmh2_neck001.mdl": "f0b73156ff600de7a74094987e92bfe25e667c039966993c6f172c63779cdafe",
     "pmh2_pelvis001.mdl": "988d56355e4bb3a98884b668d261cd96dab4d1908425dfd4221bf157498e2075",
     "pmh2_shinl001.mdl": "a57b84b44deb6aaa9cd1e489cb1986d0caf275d7e8a2b60a4edbe45485844e1a",
     "pmh2_shinr001.mdl": "5d93b9cc514344faa2d0adf5a883c3cc9e8c2db770ca22eac3290c8633c5157e"
@@ -14391,10 +14391,10 @@
     "pmg2_shinr001.mdl": "9b3e6f0957cb7dd5d0071d706ed362723c5b382471e4fef875c1c78c6997bafa"
    },
    "pfh0": {
-    "pfh0.mdl": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+    "pfh0.mdl": "d22207455c149efabd9e27dd697a224c51777b76cde5a8a6ae2ff562686c9c30",
     "pfh0_bicepl001.mdl": "c01bf39e7969d910f5e054c0902bb72da6ec4608cb8a1731dae6f85b787b050e",
     "pfh0_bicepr001.mdl": "38af2257ac41b02f45f7741971dc2e40cd79222ad0e9d8af98df6081ae20774b",
-    "pfh0_chest001.mdl": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+    "pfh0_chest001.mdl": "bbcc8f58d4f9015610529978898a267864d235664bc4df4fc6c13eea62d52f22",
     "pfh0_footl001.mdl": "6066ba224d7f63e32460512aa83c8c4db967e003cbb2f3bb2b9c79f1bbd3eeaf",
     "pfh0_footr001.mdl": "b2c32ea2996f8e55f0c9c0b955873ae580c17852d5a100e794c4815de541d1b1",
     "pfh0_forel001.mdl": "6187b6bf75c84eda2ecafbdd2d38e2e28a45ed7f3b20ba609f5c988babbf9df5",
@@ -14403,16 +14403,16 @@
     "pfh0_handr001.mdl": "2a6a52997c2f4b247acf897151b2505e93f22cddac9962e354a377562598364b",
     "pfh0_legl001.mdl": "1e54d39b4dab500704b7cfc9218bcae8c17ea46f2305855e970dcd78436ca29b",
     "pfh0_legr001.mdl": "4f5150192b0313e7627e6db123e78b7fcb6e7c49abc30e27bcb1d33204faf24e",
-    "pfh0_neck001.mdl": "81ec2ccaa6e8e3e65ad3ebdc40b12e7dee3a819c29698dec507e043eafd816a2",
+    "pfh0_neck001.mdl": "f8e4420ac1df03d90f8f581118f4b3ed8fcda20085c3bfcaf86072e092f04b15",
     "pfh0_pelvis001.mdl": "5eb411adb929a806705981cd67c4c586876f2bfdf140549e924bb9d42752b8ac",
     "pfh0_shinl001.mdl": "621cbd1344c25e6099aea270c7331c1971ca88f299c9514899a5212b9d3a951d",
     "pfh0_shinr001.mdl": "3e18e25c58dade7798c1251a2ce55da59eb3ba0668f5b2113ccc2c5e55238e52"
    },
    "pfh2": {
-    "pfh2.mdl": "a226331a13ec3056fe4ac1712a6e9eb0b3b462eaeb971866b4e62df711910452",
+    "pfh2.mdl": "b2a9b5cdbb6c5d82a75f6480cf8a54f0a0555c64dd18089dc54492f6c76e9080",
     "pfh2_bicepl001.mdl": "597a1df106e2789a24aa68e1309c322844b17d916d677af90f3c773c9d3d0fd9",
     "pfh2_bicepr001.mdl": "b3794b40eb41926cf7a27c4afde7af09fff05352b2e230e143f0784d0e87e2c3",
-    "pfh2_chest001.mdl": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+    "pfh2_chest001.mdl": "6d0d6ac5091a61468b2857016ea947e3757b3f1bcd7af087b3089bcd613798b6",
     "pfh2_footl001.mdl": "88275dec6893b412c1bd6a9d49931afa7fdf5b3d98f56581f18a7567805af4ec",
     "pfh2_footr001.mdl": "8ab7019843a8b93c7a6c012acb64a65a6f6036c6794afc83883c0d8b58966591",
     "pfh2_forel001.mdl": "7f0b1ba2e8cb87f99e2fdbc95ccdbf8aa25ce82cc430a97976f917335435e69b",
@@ -14421,7 +14421,7 @@
     "pfh2_handr001.mdl": "5cf231a64f903f346d88cfb916914339838a61884d18260e5b156530c57066d3",
     "pfh2_legl001.mdl": "45e72304bb9f29987c73472077c485dcab8e283bee30bc2d420f3ef4fa94cda9",
     "pfh2_legr001.mdl": "700eaba05f6142e7c8072f0d54c66c163188623e950bae50a64a5d3f3e77c6cd",
-    "pfh2_neck001.mdl": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
+    "pfh2_neck001.mdl": "8992284650d6f28b1188d59f9d843b7a03c25fa38baaa473940ce473516a8643",
     "pfh2_pelvis001.mdl": "eb315ea583f4bc305f4d9489e0137e9272fd6cfabcc342e0f8970a3806f245a1",
     "pfh2_shinl001.mdl": "aa9eec3dd69681af82e4955a40c94d3fce073a2083709031facad7527eb10e89",
     "pfh2_shinr001.mdl": "68bbf2aaeab4168b9b7b9a682bf509b9e997f9233cc17f4945a4accc47b1fc05"

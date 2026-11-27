@@ -1,0 +1,196 @@
+{
+ "schemaVersion": 1,
+ "kind": "human-bodies-lock",
+ "lock": "human-bodies-c8",
+ "date": "2026-11-26",
+ "basedOn": {
+  "lock": "human-bodies-c7",
+  "manifest": "docs/phenomorpher/human-bodies-lock-c7.json",
+  "sha256": "0b62220ac5fdfec4e70f55098b273c8840dc4445d83d6a86ddc292757c857438",
+  "sha256Of": "the committed LF bytes (.gitattributes: *.json eol=lf)",
+  "note": "Every c7 pack file not listed below is byte-identical in c8; the c7 record stays as written."
+ },
+ "userApproval": {
+  "c8-candidate": "2026-11-26: \"Approve c8\" (offline review, female head 2 cm lower)",
+  "female-drop": "2026-11-26 after the in-game check: \"female neck still looks a bit long to mee\"; picked \"3.5 cm\" from 2.0/3.0/3.5/4.0 renders"
+ },
+ "scope": "New anatomical neck001 for pfh0, pfh2, pmh0, pmh2; female rigs lower head_g 3.5 cm; female chests rise into a trapezius slope at the collar; Human male library heads pmh0_head086-092 scaled x1.06 about head_g. neck_g, male rigs and chests, textures and animation libraries unchanged.",
+ "status": "locked and published in contract 1.6.0 (docs/phenomorpher/game-ready-assets.json; receipt docs/phenomorpher/neck-c8/release-1.6.0.json).",
+ "contract": {
+  "path": "docs/phenomorpher/game-ready-assets.json",
+  "version": "1.6.0",
+  "sha256": "175f327e51434f3f8ba79b0880c639fcf7f6f556428ba5b9b9ad9e615c813fdb"
+ },
+ "changedPackFilesVsC7": [
+  {
+   "path": "srn_body/pfh0.mdl",
+   "sha256": "d22207455c149efabd9e27dd697a224c51777b76cde5a8a6ae2ff562686c9c30",
+   "c7Sha256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+   "change": "c8-female-rig-head-drop"
+  },
+  {
+   "path": "srn_body/pfh0_neck001.mdl",
+   "sha256": "f8e4420ac1df03d90f8f581118f4b3ed8fcda20085c3bfcaf86072e092f04b15",
+   "c7Sha256": "81ec2ccaa6e8e3e65ad3ebdc40b12e7dee3a819c29698dec507e043eafd816a2",
+   "change": "c8-neck"
+  },
+  {
+   "path": "srn_body/pfh0_chest001.mdl",
+   "sha256": "bbcc8f58d4f9015610529978898a267864d235664bc4df4fc6c13eea62d52f22",
+   "c7Sha256": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+   "change": "c8-female-collar"
+  },
+  {
+   "path": "srn_body/pfh2.mdl",
+   "sha256": "b2a9b5cdbb6c5d82a75f6480cf8a54f0a0555c64dd18089dc54492f6c76e9080",
+   "c7Sha256": "a226331a13ec3056fe4ac1712a6e9eb0b3b462eaeb971866b4e62df711910452",
+   "change": "c8-female-rig-head-drop"
+  },
+  {
+   "path": "srn_body/pfh2_neck001.mdl",
+   "sha256": "8992284650d6f28b1188d59f9d843b7a03c25fa38baaa473940ce473516a8643",
+   "c7Sha256": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
+   "change": "c8-neck"
+  },
+  {
+   "path": "srn_body/pfh2_chest001.mdl",
+   "sha256": "6d0d6ac5091a61468b2857016ea947e3757b3f1bcd7af087b3089bcd613798b6",
+   "c7Sha256": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+   "change": "c8-female-collar"
+  },
+  {
+   "path": "srn_body/pmh0_neck001.mdl",
+   "sha256": "4271dea0838b7e756b3ae7b30fa09e52abd13c6f9f042d13c9a6cd3eca58ab3e",
+   "c7Sha256": "0e1097860f3f5751e65e7f3c9533abef0982dce60d16db0fb06e602f11642520",
+   "change": "c8-neck"
+  },
+  {
+   "path": "srn_body/pmh2_neck001.mdl",
+   "sha256": "f0b73156ff600de7a74094987e92bfe25e667c039966993c6f172c63779cdafe",
+   "c7Sha256": "56e59273ae4d7412a95a2752cbe27ae26e70a88c20a00ca51e4e16f27fcfeafd",
+   "change": "c8-neck"
+  }
+ ],
+ "changedHeadsVsC7": [
+  {
+   "path": "srn_head/pmh0_head086.mdl",
+   "sha256": "b3cf428e412582a41a7c61a7189af60d1e36f1631cb0cfa94c61a46d751ee86b",
+   "c7Sha256": "a9179b58a15d03275d1951d6e7a294b1dac40dbcd95085adf8c3a760c612f6e4",
+   "scale": 1.06
+  },
+  {
+   "path": "srn_head/pmh0_head087.mdl",
+   "sha256": "adcf9aed4b40e9e524b0d0c31d097a884a694b76e64e0c47cd62371db4d648eb",
+   "c7Sha256": "b83379fbe35f53e732f65523c48e2c2dea75bdeb94be1d41de4a7bad1730fc45",
+   "scale": 1.06
+  },
+  {
+   "path": "srn_head/pmh0_head088.mdl",
+   "sha256": "5108fc4a12dcd246eab1de609543e50f3461929d8c18a0c6709e08a91ef99f51",
+   "c7Sha256": "eb7277c2d206f4d53cdcfc0ff0a8568c6d44224345cfd6cb02c36cf6b2dbfc7a",
+   "scale": 1.06
+  },
+  {
+   "path": "srn_head/pmh0_head089.mdl",
+   "sha256": "e58ade8f2990d9fb9d34ce9ec869df0f87589fd4728ce8ddfa121f023658a3b8",
+   "c7Sha256": "4fab0f5fc93b63a31a74574727aeecc32f8e72460f1c78bb77c3518d64c465c6",
+   "scale": 1.06
+  },
+  {
+   "path": "srn_head/pmh0_head090.mdl",
+   "sha256": "cd53f494467ea27251a9b4427877984ca49904d0379646c9401b2ed5ff4123b6",
+   "c7Sha256": "0ae86d20fb94bbfc6055522477bbba39b45281ffca0ddf5a781e538fe26dce3c",
+   "scale": 1.06
+  },
+  {
+   "path": "srn_head/pmh0_head091.mdl",
+   "sha256": "6fc024d830dcee4dcf630deb22166f6342a2eb8396073de7bce2d8d81d3f00fb",
+   "c7Sha256": "14dd8d2d88cf3be02b29ae5f9e2d5927ff8d2a476c3f5a8b98c3c963ef83db61",
+   "scale": 1.06
+  },
+  {
+   "path": "srn_head/pmh0_head092.mdl",
+   "sha256": "a51147ce6c42df600aa1ce7048ab7dfa303a306e53385d9d965a7e2410906eda",
+   "c7Sha256": "34da00cf8da6b7f5bdcc03c716497d282b0e67f02ec85c442963bed623871228",
+   "scale": 1.06
+  }
+ ],
+ "asciiSources": {
+  "output/phenomorpher/neck-c8/c8d/ascii/pfh0.mdl": "d1537348b2fc329eff124a296f81a0f1afb674378b72dbed7f91fc4c21c6af7a",
+  "output/phenomorpher/neck-c8/c8d/ascii/pfh0_neck001.mdl": "d934c0e37da37dccafd33bd1b13e509999a2f02f94c867e9328e4c948c5af8d4",
+  "output/phenomorpher/neck-c8/c8d/ascii/pfh2.mdl": "720351a77d0be8849c4406a3acf11ab915f8adfd8e2eb1bfb20d18b134818039",
+  "output/phenomorpher/neck-c8/c8d/ascii/pfh2_neck001.mdl": "85606ee489fee0a84130475eed073ee6af2f47dd831bd1790e00b6923951094d",
+  "output/phenomorpher/neck-c8/c8c/ascii/pfh0_chest001.mdl": "a28d70a52d1959b0b2956b7d79a551dc97e6af73230265646a1466f96a520f68",
+  "output/phenomorpher/neck-c8/c8c/ascii/pfh2_chest001.mdl": "decdcd0817579f0d42a78b803e7a8f11ec7305c176d2753f272982cd7f836d17",
+  "output/phenomorpher/neck-c8/c8c/ascii/pmh0_neck001.mdl": "77d48865fe1132cd058280d8993dc0b13f66ea226961ce9cd6c63f68d7fff481",
+  "output/phenomorpher/neck-c8/c8c/ascii/pmh2_neck001.mdl": "2d7eaab8bc0606653e92c2542e44c430c97cb342ab85f373dbf6a714f64ab316",
+  "output/phenomorpher/neck-c8/c8a-heads/ascii/pmh0_head086.mdl": "ac574bbef9468052de9962f4e9adaafe66d8938fb98a48bceeaef26980dba488",
+  "output/phenomorpher/neck-c8/c8a-heads/ascii/pmh0_head087.mdl": "d842db452cec22907be877d7e51f3cfcf7eae726db97286620f0231cf5378106",
+  "output/phenomorpher/neck-c8/c8a-heads/ascii/pmh0_head088.mdl": "feddeb279d1a5f248242d4fe5dc5b22df42e04f2c407dd8de4870a8473fa032d",
+  "output/phenomorpher/neck-c8/c8a-heads/ascii/pmh0_head089.mdl": "870e65122ba482c26ef9e0b122e03dc39a334b5ef9812bb0dc66c7dae129eb14",
+  "output/phenomorpher/neck-c8/c8a-heads/ascii/pmh0_head090.mdl": "9fe88f81e59bbf356a3164bd50cdbfd65fba4333432c357d085e52e8cc6c09a9",
+  "output/phenomorpher/neck-c8/c8a-heads/ascii/pmh0_head091.mdl": "7970b8f4fdd4eaa8fdaf4edbc7fbbf64fbbd6e9843dce1f9014466056fb3cd54",
+  "output/phenomorpher/neck-c8/c8a-heads/ascii/pmh0_head092.mdl": "bfe7ba72d07ee5f0ecae17230a4bcc108d0327cd46a7962666f5af8c9f2c8f7c"
+ },
+ "compile": {
+  "receipts": {
+   "output/phenomorpher/neck-c8/c8c/native-compile.json": "546ee69e2aaa6b0380cdcd920f07549c827294c4259b5b2cf7221b7f31278f17",
+   "output/phenomorpher/neck-c8/c8d/native-compile.json": "d1f288aa722aece2029718ac2b6d9fd8d220020c65a0087f0312f192924a21d1",
+   "output/phenomorpher/neck-c8/c8a-heads/native-compile.json": "43b8ca77917fbb92c368886e3fa7ac854b0b16b0a5d1c8e99b45f8197c5f7941"
+  },
+  "compilerSha256": "d2c6aaf4620db0415417ee88fb251e18b0b4204b06190a228267e9e115665214",
+  "blenderVersion": "5.2.1 LTS",
+  "neverblender": "4.5.1",
+  "note": "c8d recompiles only the four female rig and neck models of c8c at the 3.5 cm drop; rebuilt from the same tools, every other c8c source is byte-identical."
+ },
+ "variant": {
+  "female": "{'fit2':1,'drop':0.035,'large_trap':{'cap':0.012},'large_bulk':{'phi':[0,180],'r':[0.0,0.0]}}",
+  "male": "{'male':1}",
+  "maleHeadScale": 1.06
+ },
+ "tools": {
+  "output/phenomorpher/neck-c8/tools/build.py": "154722602111034b4ff501bb2354d0587a1911b5c5daf0af2f7591754fb0607a",
+  "output/phenomorpher/neck-c8/tools/cand.py": "9a3baaa39d9a5cc68cbf30cee8e0e43732849bf3dea4bab584680ba6e07ba45a",
+  "output/phenomorpher/neck-c8/tools/collar.py": "daebed7ad050ff9823d85ff054b04af1132c4790459213625e572aec719b4a88",
+  "output/phenomorpher/neck-c8/tools/drops.py": "ec5409a8eac03d0c93aa705050598d8749c97fac698e79900e0ad6a0391914c9",
+  "output/phenomorpher/neck-c8/tools/headmeas.py": "1e32179bdf000e66167aa3b08eaa7a688b7e6f896e16dd2990f25d2fd4353d25",
+  "output/phenomorpher/neck-c8/tools/headpose.py": "2ce10deb9e3af9ed0c54f385a78bbb28f95ac329351bba0ad026e497009bffd5",
+  "output/phenomorpher/neck-c8/tools/headrev.py": "3641ad6db71a0698fff8f372d6c1256eb2dc77226b2d71d736a597ac5c2234ff",
+  "output/phenomorpher/neck-c8/tools/lock_c8.py": "a28f4b4fcde92a9617b3bd2c0466c8d5337461a9a1159d2911f7695c5b1eee95",
+  "output/phenomorpher/neck-c8/tools/motion.py": "e2720c019688b00752e1b6bd626fb34206459d18ad5ecd1775dbfdba8b6790e6",
+  "output/phenomorpher/neck-c8/tools/neck3.py": "b1ecab5c2d40ea30f602c36815062b38e8155c9e935ece40a6af9c40fc7d356e",
+  "output/phenomorpher/neck-c8/tools/prop.py": "8ce6aa48126b53179d6213bfa6002503bbb7b834cb56e68fe80aa0c9774d7ee0",
+  "output/phenomorpher/neck-c8/tools/publish16.py": "3571ff7589c13639a13a4869b788a48e86f599ea80bf4edaf5613cd571a59baf",
+  "output/phenomorpher/neck-c8/tools/r5.py": "8c7118894fd86158f21a44cda246b14d42899f0935bcee1c887d9c23a7f10568",
+  "output/phenomorpher/neck-c8/tools/scene.py": "33f94e5d0eee4e3faeb54efe225d3895e83ada050eb8fbeea952d231e8fb6a20",
+  "output/phenomorpher/neck-c8/tools/seat3.py": "d2d7681fc11bca41eff8c3215c7d9a870f5ee2d44e8b107aa66402e2d392a105",
+  "output/phenomorpher/neck-c8/tools/slice.py": "85ddd8c322e21f9c70e0d2ccf90a396a743a42f36d0af7d30a0996d5325694e5",
+  "output/phenomorpher/neck-c8/tools/stagescene.py": "5783ed30b53ad5a79d8474cf4a31b68ab09cd12f5a696e851c4f5c22af19a60d"
+ },
+ "evidence": {
+  "docs/phenomorpher/neck-c8/evidence/c7-c8-standing.jpg": "5cab3f57f2614296b09e2798297cfbde91aaadfa10ac9e7317eb665205939145",
+  "docs/phenomorpher/neck-c8/evidence/client-c7-vs-c8.jpg": "67d7b3d2b67602576743614a9efa6e0569616cdd7e47b8169674d571a807c331",
+  "docs/phenomorpher/neck-c8/evidence/female-drop-choices.jpg": "55d53a462f1b245dc3c5135b8522e646fd6779761e10bcb46ad1c433cd416a37",
+  "docs/phenomorpher/neck-c8/evidence/female-heads-worst-poses.jpg": "960ae4ce45c902d141544666b82b2ef4a94aea342eeeeb82e1ed338989c2c5d8",
+  "docs/phenomorpher/neck-c8/evidence/male-heads-worst-poses.jpg": "bd211808fd9b4f65da3f18ff3a1c5121f3542d7bce34e5312ee9fc7fbc573e51",
+  "docs/phenomorpher/neck-c8/evidence/male-heads-x106.jpg": "efa1ae74b7063900e3335cdfe93884b67d8e1f11e9e6852c04410f10f8ccd477",
+  "docs/phenomorpher/neck-c8/evidence/motion-pfh0.jpg": "9ae04e526c360089ccb0cd4696a758a47b55a742133dde7ac2048b8913c07efa",
+  "docs/phenomorpher/neck-c8/evidence/motion-pfh2.jpg": "4c9a0f9ea6a55cc8c3e4aeda0049c741d537d7c7aa6ac348a626a069e403f819",
+  "docs/phenomorpher/neck-c8/evidence/motion-pmh0.jpg": "f4be5514de91d52e67d324e8f00aa710bc23593c29cf15a944dd62e97d56d565"
+ },
+ "clientEvidence": {
+  "fixtures": [
+   "output/phenomorpher/neck-c8/client",
+   "output/phenomorpher/neck-c8/client2",
+   "output/phenomorpher/neck-c8/client-c7"
+  ],
+  "note": "client = first tour (2 cm); client2 = 3.5 cm recheck; client-c7 = c7 comparison. Captures stay in output/ (ignored)."
+ },
+ "gates": {
+  "verifyAssets": "passed (937 resources, 20 targets)",
+  "verifyRuntime": "output/phenomorpher/neck-c8/verify-runtime-1.6.0.json",
+  "verifyRuntimeSha256": "161fed36829a7e473ba8701c639a5b90a1ec5bab7483661e56bc36eb23c21020",
+  "motionHoles": "0 for every body in pause1, whirlwind, plslashr, kdfntdmg, 2wslasho, worship, victoryfr and sit, except one pixel in pfh2 plslashr that comes from the head mesh itself (0 without the head)",
+  "armorkitMeasure": "tools/armorkit/seam-contract.json version 5 and head-envelopes.json re-measured on the published packs; armorkit tests pass"
+ }
+}

@@ -2044,6 +2044,19 @@ and per-resource hashes are in `docs/phenomorpher/race-sizing/` (`plan.md`, `rel
 `docs/phenomorpher/human-bodies-lock-c7.json`. Generated stages, client fixtures and captures stay outside the
 production source packs.
 
+## PhenoMorpher release 1.6.0: the c8 Human necks (2026-11-26)
+
+Derived from the project's own published Human bodies and heads (contract 1.5.0, `srn_head`), with no new external
+source. The new `neck001` meshes for `pfh0`, `pfh2`, `pmh0` and `pmh2` are generated procedurally from measured
+profiles (rings of 24 points with anatomical offsets) and keep the published neck textures (plain skin PLTs). The female
+rigs lower `head_g` by 3.5 cm, and the female chests are edited in place (a trapezius lift and, for `pfh0`, a bulk behind
+the neck), keeping their UVs, materials and textures. The Human male library heads `pmh0_head086` to `092` are scaled
+uniformly by 1.06 about `head_g`; their PLTs are unchanged.
+
+Models are compiled with Blender 5.2.1 and Neverblender 4.5.1 (cleanmodels v4.10.0) against the stock `a_ba`/`a_fa`
+supermodels; every audit passes with no warnings. The user approved the c8 candidate on 2026-11-26. Per-resource
+hashes: `docs/phenomorpher/neck-c8/release-1.6.0.json` and `docs/phenomorpher/human-bodies-lock-c8.json`.
+
 ## Approved Waves 1 and 2 private weapon review (2026-11-03)
 
 The source-accurate SR4 catalog references and generated itemkit weapon assets in
