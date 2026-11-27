@@ -30,7 +30,7 @@ PROUD = 0.003  # metres the badge stands off the band
 GRID = 4  # the badge's faces along each side: it is curved to the band
 SURFACE = 0.003
 TEXELS = 64
-BUDGET = 4000
+BUDGET = 8000  # doubled with every budget (user decision 2026-11-25)
 ARM = {'l': ('lbicep_g', 'lforearm_g', 'bicepl', 'shol'), 'r': ('rbicep_g', 'rforearm_g', 'bicepr', 'shor')}
 
 

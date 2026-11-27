@@ -223,7 +223,10 @@ def tone(colours):
     return np.stack([0.25 * value[:, 0], 100 * value[:, 1] / light, 100 * value[:, 2] / light], axis=1)
 
 
-def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sample=200000):
+FAINT = 0.1  # of `materials`' least share: the smallest peak taken for a material where larger ones do not make up the count
+
+
+def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sample=200000, faint=False):
     """The materials of an outfit, from the colours of all its texels: {`tones`, `colours`, `light`}, each one per material.
 
     A source drawn in flat tones has one peak per material in the histogram of its colours (in `tone` space,
@@ -231,7 +234,8 @@ def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sampl
     it, the weights smoothed over the cells around; the `count` heaviest peaks start a k-means, each from the
     middle of what climbs to it. `tones` are the k-means' centres, `colours` the middle colour of each material
     and `light` its middle lightness, the material most of the colours belong to first. A peak with less than
-    `least` of the colours is not a material, and
+    `least` of the colours is not a material (with `faint` a smaller one is, down to `FAINT` of that, where
+    there are not `count` without it), and
     fewer than `count` peaks is an error: the source does not show that many materials."""
     colours = np.asarray(colours, float).reshape(-1, 3)
     require(len(colours), 'No texel has a colour')
@@ -246,7 +250,14 @@ def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sampl
     while not np.array_equal(peak, peak[peak]):
         peak = peak[peak]
     share = np.bincount(peak, weights=counts, minlength=len(cells)) / len(some)
-    heaviest = [number for number in np.argsort(-share, kind='stable')[:count] if share[number] >= least]
+    # An accent is small: a boot's laces and straps were 1% of Street Casual's texels and no material at `least`
+    # (2026-11-25). Where the colours do not show `count` materials that large, smaller peaks are taken, down to
+    # `FAINT` of `least` and no further than it takes, where the brief says a material is small (`faint`): without
+    # its word a tone on a hundredth of the texels is a mark, not a material.
+    for floor in ((least, least / 3, least * FAINT) if faint else (least,)):
+        heaviest = [number for number in np.argsort(-share, kind='stable')[:count] if share[number] >= floor]
+        if len(heaviest) == count:
+            break
     require(len(heaviest) == count, f'The colours show {len(heaviest)} materials, not {count}')
     mine = peak[inverse.reshape(-1)]
     centres = np.array([some[mine == number].mean(axis=0) for number in heaviest])
@@ -265,7 +276,7 @@ def materials(colours, count, cell=4.0, apart=14.0, least=0.03, rounds=25, sampl
     return {'tones': centres, 'colours': middle, 'light': np.array([float(np.median(colours[which == k] @ LIGHT)) for k in range(count)])}
 
 
-def labels(colours, tones):
+def labels(colours, tones, among=None):
     """The material of each colour: the one whose `tones` it is nearest, or whose highlight.
 
     A generated colour is lit: where a plate catches the light it is paler, lighter and less coloured at
@@ -279,16 +290,21 @@ def labels(colours, tones):
     highlight, and a pale plate kept only what was lighter than its tone. It is told by its tone, shaded
     halfway down to the darker one's lightness, lying within `SAME_LINE` of the line; a pale grey is not a
     blue plate's rival, though every line ends near it. A colour the darker of two such materials would
-    get goes to the one of them whose tone it is nearer."""
+    get goes to the one of them whose tone it is nearer.
+
+    `among` flags the materials a colour may be (all of them without): the ones worn where the colours were
+    read (`tint_maps`)."""
     value, tones = tone(colours), np.asarray(tones, float)
+    among = np.ones(len(tones), bool) if among is None else np.asarray(among, bool)
+    require(among.shape == (len(tones),) and among.any(), 'A flag per material, one of them set, is required')
     toward = WHITE - tones
     length = np.maximum((toward ** 2).sum(axis=1), 1e-12)
     along = np.clip(np.einsum('nmk,mk->nm', value[:, None] - tones[None], toward) / length, 0.0, PALE)
-    found = np.argmin(np.linalg.norm(value[:, None] - (tones[None] + along[:, :, None] * toward[None]), axis=2), axis=1)
+    found = np.argmin(np.where(among[None], np.linalg.norm(value[:, None] - (tones[None] + along[:, :, None] * toward[None]), axis=2), np.inf), axis=1)
     shaded = np.repeat(tones[:, None], len(tones), axis=1)  # [j, m]: tone j, shaded halfway down to m's lightness
     shaded[:, :, 0] = (tones[:, None, 0] + tones[None, :, 0]) / 2
     share = np.clip(np.einsum('jmk,mk->jm', shaded - tones[None], toward) / length, 0.0, 1.0)
-    lighter = (tones[:, None, 0] > tones[None, :, 0]) & (np.linalg.norm(shaded - (tones[None] + share[:, :, None] * toward[None]), axis=2) < SAME_LINE)
+    lighter = among[:, None] & among[None] & (tones[:, None, 0] > tones[None, :, 0]) & (np.linalg.norm(shaded - (tones[None] + share[:, :, None] * toward[None]), axis=2) < SAME_LINE)
     if lighter.any():
         rival = lighter[:, found].T | (np.arange(len(tones))[None] == found[:, None])  # [colour, material]: its own, and those on its line
         found = np.argmin(np.where(rival, np.linalg.norm(value[:, None] - tones[None], axis=2), np.inf), axis=1)
@@ -312,7 +328,7 @@ def face_materials(uvs, faces, colour, covered, found, size):
     return np.where(tally.sum(axis=1) > 0, tally.argmax(axis=1), -1)
 
 
-def mesh_materials(positions, faces, read, count):
+def mesh_materials(positions, faces, read, count, faint=False):
     """(material per face, materials) for an outfit's mesh before it is laid out: what `split.troughs` tells a
     shoulder pad from the sleeve by.
 
@@ -323,7 +339,7 @@ def mesh_materials(positions, faces, read, count):
     points = [corners.mean(axis=1)] + [0.6 * corners[:, i] + 0.2 * corners[:, (i + 1) % 3] + 0.2 * corners[:, (i + 2) % 3] for i in range(3)]
     values, missed = read(np.concatenate(points))
     colours, seen = np.asarray(values, float)[:, :3], ~np.asarray(missed, bool)
-    found = materials(colours[seen], count)
+    found = materials(colours[seen], count, faint=faint)  # an accent the brief says is small is found here too
     tally = np.zeros((len(corners), count), int)
     np.add.at(tally, (np.tile(np.arange(len(corners)), 4)[seen], labels(colours[seen], found['tones'])), 1)
     return tally.argmax(axis=1), found
@@ -612,8 +628,17 @@ def wear_fields(uvs, faces, positions, size, span):
     return mottle, scuff
 
 
-def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, wear=None, sharpen=None):
+def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=None, bend=BEND, slope=SLOPE, closing=None, second=None, cap=None, padded=None, lit=None, speck=SPECK, trim=None, shadow=None, wear=None, sharpen=None, among=None, edged=False, highlights=None):
     """(shades, layers) of one part's tint texture, for `export.tint`.
+
+    `edged`: the part's closings take the material most of their own texels were read as, their edge's, not the
+    part's commonest. A shin's one closing is across its opening at the ankle, inside a boot's shaft: as the
+    trousers the shin mostly is, it showed as a line of trousers across the boot's instep (Street Casual, 2026-11-25).
+
+    `highlights[k]` is the share material k keeps of how much lighter a texel is than its lit shade (`lit`), 1 or
+    None for all of it. A reference draws polished leather with its highlights, the game lights the part itself, and
+    drawn twice a black boot came out wet (Street Casual in the client, 2026-11-25): no material file's roughness
+    changed it, the highlights being the texture's own shades.
 
     `found` is the outfit's `materials`; `channels[k]` names the colour channel of material k, or its two
     (`channels`), the second of which a texel takes where `second` flags it for its material: (size, size,
@@ -690,13 +715,22 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     of each material, and the part's `wear_fields`. The part's own surface is then mottled, made lighter on
     its raised edges where they are scuffed and darker in its creases, each by `amount` of what `WEAR` gives
     the texel's material; the edges and creases are the relief's (`relief_shade`). What the split made is
-    left even: a cap or a closing has no surface of its own to wear."""
+    left even: a cap or a closing has no surface of its own to wear.
+
+    `among` flags the materials the part wears (all without; a brief's `slots`, `bake.tints`). A texel is
+    read as one of those and no other, and a closing, or a cap beside a pad, takes the first of them. A
+    colour says what a texel is only among the materials that can be there: a boot's dark leather has the
+    tone of a pocket flap in shadow, and two thirds of each of Street Casual's boots were tinted on the
+    flaps' channel, as was a tab the image drew on each sleeve (2026-11-25)."""
     colour, covered = np.asarray(colour, float), np.asarray(covered, bool)
     pairs = [(name, name) if isinstance(name, str) else tuple(name) for name in channels]
     require(len(pairs) == len(found['tones']) and all(len(pair) == 2 and all(name in export.LAYERS for name in pair) for pair in pairs),
             'A colour channel is needed per material')
     material, shade = np.zeros(covered.shape, int), np.full(covered.shape, float(MIDDLE))
-    material[covered] = labels(colour[covered], found['tones'])
+    among = np.ones(len(pairs), bool) if among is None else np.asarray(among, bool)
+    require(among.shape == (len(pairs),) and among.any(), 'A flag per material, one of them set, is required')
+    base = int(np.flatnonzero(among)[0])  # the commonest material the part wears
+    material[covered] = labels(colour[covered], found['tones'], among)
     ratio = (colour[covered] @ LIGHT) / np.maximum(found['light'][material[covered]], 1e-6)
     turned = None if relief is None else relief_shade(relief, charts, bend, slope)
     if relief is not None:
@@ -705,11 +739,20 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
         factor = turned[covered]
         ratio = np.maximum(factor, 1.0) * np.minimum(ratio, np.minimum(factor, 1.0) * np.maximum(ratio, 1.0))
     shade[covered] = np.clip(MIDDLE * ratio, *SHADES)
+    if highlights is not None:
+        require(len(highlights) == len(pairs), 'A share of its highlights per material is required')
+        for k, share in enumerate(highlights):
+            mine = covered & (material == k)
+            if share is None or share >= 1 or not mine.any():
+                continue
+            top = float(lit[k]) if lit is not None else float(np.percentile(shade[mine], LIT))
+            over = mine & (shade > top)
+            shade[over] = top + (shade[over] - top) * share
     if trim is not None:
         trim = np.asarray(trim, int)
         require(trim.shape == covered.shape and trim.max() < len(pairs), 'A material per texel, or -1, is required')
         metal = np.array([pair[0].startswith('metal') for pair in pairs])
-        swap = covered & (trim >= 0) & metal[material]
+        swap = covered & (trim >= 0) & metal[material] & among[np.maximum(trim, 0)]
         material[swap] = trim[swap]
     for name, flags in (('shadow', shadow), ('padded', padded)):
         require(flags is None or np.shape(flags) == covered.shape, f'`{name}` is one flag per texel')
@@ -752,13 +795,14 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     if plain.any():  # as dark as the edge it grew from, evened out, and no lighter than the cloth's open surface
         reach = max(1, covered.shape[0] // CAP_STREAK)
         local = smooth(np.where(plain, shade, 0.0), reach) / np.maximum(smooth(plain, reach), 1e-9)
-        material[plain], shade[plain] = 0, np.minimum(local, even(0))[plain]
+        edge = int(np.bincount(material[plain], minlength=len(pairs)).argmax()) if edged else base  # a cap beside a pad keeps `base`
+        material[plain], shade[plain] = edge, np.minimum(local, even(edge))[plain]
         if shadow is not None:
             dark = plain & np.asarray(shadow, bool)
             shade[dark] = np.maximum(shade[dark] * ARMHOLE_SHADE, SHADES[0])
     if padded is not None and (dome & np.asarray(padded, bool)).any():
         beside = dome & ~np.asarray(padded, bool)
-        material[beside], shade[beside] = 0, even(0)
+        material[beside], shade[beside] = base, even(base)
         dome = dome & ~beside
     if dome.any():
         reach = max(1, covered.shape[0] // CAP_STREAK)
@@ -842,6 +886,7 @@ def read_field(field, levels, points):
 TURN = 75.0  # degrees the fine surface may turn from the simplified one; past that the reading is of another surface nearby
 MADE = 0.2  # a face this much smaller on the generated mesh than its part's faces are on average was made by the split
 FLAT = (0.5, 0.5, 1.0)  # the colour of a texel with no relief
+EVEN = 4  # texels a side of a roughness map that is one roughness all over (`write_relief`)
 ROUGHNESS = 0.8  # of an outfit's own surface, as a constant in its material file or as the texels of a roughness map
 MATERIAL = 'renderhint NormalTangents\ntexture1 {}\nparameter float Roughness {:g}\nparameter float Specularity 0.04\nparameter float Metallicness 0.001\n'
 # with a roughness map: the constant is 0, or it overrides the map (docs/phenotype-body-material-process.md)
@@ -959,13 +1004,13 @@ def write_relief(folder, model, image, roughness=ROUGHNESS, rough=None):
     require(len(name) <= 16 and name == name.lower(), 'A normal map name is a lowercase resref: ' + name)
     folder = Path(folder)
     (folder / (name + '.tga')).write_bytes(tga(image))
-    if rough is None:
-        (folder / (model + '.mtr')).write_text(MATERIAL.format(name, roughness), encoding='ascii', newline='\n')
-    else:
-        rough = np.asarray(rough, float)
-        require(rough.ndim == 2 and rough.size, 'A roughness map is rows of texels')
-        (folder / (model + 'r.tga')).write_bytes(tga(np.repeat(rough[:, :, None], 3, axis=2)))
-        (folder / (model + '.mtr')).write_text(MAPPED.format(name, model + 'r'), encoding='ascii', newline='\n')
+    # Without a map, the one roughness is written as a map of `EVEN` texels a side, all the same: the game draws a
+    # tinted part by its roughness map and not by the material file's number. With the number at 1 and at 0.8
+    # Street Casual's black boots came out alike and wet in the client; with a map they were leather (2026-11-25).
+    rough = np.full((EVEN, EVEN), float(roughness)) if rough is None else np.asarray(rough, float)
+    require(rough.ndim == 2 and rough.size, 'A roughness map is rows of texels')
+    (folder / (model + 'r.tga')).write_bytes(tga(np.repeat(rough[:, :, None], 3, axis=2)))
+    (folder / (model + '.mtr')).write_text(MAPPED.format(name, model + 'r'), encoding='ascii', newline='\n')
     return name
 
 

@@ -114,6 +114,24 @@ class BodySkinTests(unittest.TestCase):
         under = bodyskin.shown(own['v'], own['f'], *wide, start, end, band=0.04)
         self.assertTrue(under[(top > 1.29) | (low < 1.23)].all() and not under[(top < 1.28 - 1e-6) & (low > 1.24 + 1e-6)].any())
         self.assertTrue(bodyskin.shown(own['v'], own['f'], np.zeros((0, 3)), np.zeros((0, 3), int), start, end).all())  # no sleeve: the whole arm
+        # an end at the shoulder that is all the split's, drawn in near the bone, and the sleeve beginning 9 cm down: the
+        # skin between them lies in the armhole, under the chest, and is hidden as if the two were one piece
+        end_piece = tube(start, (0, 0, 1.49), 0.01, around=24, along=2)[:2]
+        lower = tube((0, 0, 1.41), (0, 0, 1.3), 0.07, around=24, along=6)[:2]
+        pair = np.concatenate([end_piece[0], lower[0]]), np.concatenate([end_piece[1], lower[1] + len(end_piece[0])])
+        added = np.arange(len(pair[1])) < len(end_piece[1])
+        parted = bodyskin.shown(own['v'], own['f'], *pair, start, end, band=0.04)
+        joined = bodyskin.shown(own['v'], own['f'], *pair, start, end, band=0.04, made=added)
+        between = (top < 1.47) & (low > 1.36)
+        self.assertTrue(parted[between].all() and not joined[between].any())
+        self.assertTrue(joined[top < 1.34 - 1e-6].all())  # below the hem's band the arm is seen as ever
+        # a sleeve cut on the armhole begins 9 cm down on the side toward the torso: the arm above it there lies in the
+        # armhole and is hidden, the piece running on from the sleeve in the directions beside it
+        cut = sleeve[1][~((sleeve[0][sleeve[1]][:, :, 0].max(axis=1) < -0.02) & (sleeve[0][sleeve[1]][:, :, 2].max(axis=1) > 1.41 + 1e-9))]
+        self.assertLess(len(cut), len(sleeve[1]))
+        self.assertTrue(np.array_equal(bodyskin.shown(own['v'], own['f'], sleeve[0], cut, start, end, band=0.04), kept))
+        # the same top piece as the outfit's own surface is a sleeve above bare skin: two pieces
+        self.assertTrue(np.array_equal(bodyskin.shown(own['v'], own['f'], *pair, start, end, band=0.04, made=~added), parted))
 
     def test_a_texture_is_made_smaller_by_its_kind_and_larger_by_repeating(self):
         grey = np.arange(16.0).reshape(4, 4)

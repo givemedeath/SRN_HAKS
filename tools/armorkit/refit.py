@@ -70,9 +70,15 @@ UNDER_SKIN = 0.002  # a cap under the body's own skin (a glove's under a bare fo
 OVER_SKIN = 0.003  # a sleeve beside the body's own skin in its slot stands at least this far outside the other body's arm
 OVER_ROUNDS = 6  # rings of neighbours a sleeve's push out over the arm is spread to
 OVER_PASSES = 4  # times a sleeve is pushed out and read against the arm again
-OVER_MOST = 0.03  # metres: a sleeve is pushed out over the arm no farther; a farther push fails the refit
+OVER_MOST = 0.03  # metres: a sleeve is pushed out over a Human arm no farther, over a wider body as much more (`run`); a farther push fails the refit
 OVER_NECK = 0.001  # a chest lifted over a patch of the other body's neck that came through it stands this far outside the patch
 TAPERED = {'chest': ('shoulder', 'waist')}  # a part scaled across by a slope: the joints its width is read at, down its axis
+COLLAR_EASE = 0.005  # metres above a tapered part's top joint over which heights come to be carried as they are (`risen`); over 2 cm a collar 1.2 cm tall behind the neck lost half its height and left a notch there (client, 2026-11-26)
+YOKE_CELL = 0.005  # metres: the grid a body's shoulders are read on from above (`shoulders`)
+YOKE_EVEN = 12  # times that reading is evened with its neighbours: the cloth rides the shoulders' run, not each muscle
+YOKE_EASE = 0.03  # metres under the shoulder line over which a tapered part comes to ride the shoulders from above (`tapered`)
+YOKE_STEEP = (0.5, 1.0)  # a shoulder's fall per metre across from which, and by which, cloth over it no longer rides it (`tapered`)
+YOKE_WITH = ('bicepl', 'bicepr')  # the body's own parts read with a tapered part's as its shoulders: the upper arms' tops
 TAPER_EASE = 0.2  # a slope sets in over this share of its run from its first station: no crease on the line where it starts
 STANDOFF_WAYS = 48  # directions round a tapered part's middle line its body's own part is read in at each level
 STANDOFF_LEVELS = 0.01  # metres from one level it is read at to the next
@@ -209,6 +215,66 @@ def _around(heights, table, height, angle):
     return (1 - t) * ((1 - s) * table[low, left] + s * table[low, right]) + t * ((1 - s) * table[high, left] + s * table[high, right])
 
 
+def shoulders(meshes, frame, low):
+    """(corner, table): how high the body's own surfaces `meshes` ((vertices, faces) each) stand seen from
+    above, on a grid of `YOKE_CELL` in the level ways of `frame` (one of `taper`'s): per cell the least height
+    down the frame's first axis of what lies over it, of the faces reaching above `low`; a cell nothing lies
+    over reads as the nearest that has something; evened `YOKE_EVEN` times. `corner` is the grid's first
+    cell's place along the two level ways. None where nothing of them is seen from above."""
+    found = []
+    for vertices, faces in meshes:
+        reach = (np.asarray(vertices, float) - frame['origin']) @ frame['axes'].T
+        corners = reach[np.asarray(faces, int)]
+        found.append(corners[corners[:, :, 0].min(axis=1) < low])
+    corners = np.concatenate(found)
+    require(len(corners), "A body's own part does not reach above its shoulder line")
+    corner = corners[:, :, 1:].reshape(-1, 2).min(axis=0) - YOKE_CELL
+    size = np.ceil((corners[:, :, 1:].reshape(-1, 2).max(axis=0) + YOKE_CELL - corner) / YOKE_CELL).astype(int) + 1
+    table = np.full(size, np.inf)
+    for a, b, c in corners:
+        first = np.floor((np.minimum(np.minimum(a, b), c)[1:] - corner) / YOKE_CELL).astype(int)
+        last = np.ceil((np.maximum(np.maximum(a, b), c)[1:] - corner) / YOKE_CELL).astype(int)
+        u, w = np.meshgrid(np.arange(first[0], last[0] + 1), np.arange(first[1], last[1] + 1), indexing='ij')
+        at = np.stack([u, w], axis=-1) * YOKE_CELL + corner
+        edge, other = b[1:] - a[1:], c[1:] - a[1:]
+        area = edge[0] * other[1] - edge[1] * other[0]
+        if abs(area) < 1e-14:
+            continue
+        s = ((at[..., 0] - a[1]) * other[1] - (at[..., 1] - a[2]) * other[0]) / area
+        t = (edge[0] * (at[..., 1] - a[2]) - edge[1] * (at[..., 0] - a[1])) / area
+        over = (s >= -1e-9) & (t >= -1e-9) & (s + t <= 1 + 1e-9)
+        height = a[0] + s * (b[0] - a[0]) + t * (c[0] - a[0])
+        table[u[over], w[over]] = np.minimum(table[u[over], w[over]], height[over])
+    read = np.isfinite(table)
+    if not read.any():
+        return None  # nothing of it seen from above: an open tube
+    filled, empty = np.argwhere(read), np.argwhere(~read)
+    for start in range(0, len(empty), 64):  # 64 at a time: a wide body's grid holds tens of thousands of cells. Nothing over a cell, past the arms or behind the back: as the nearest cell that has something
+        some = empty[start:start + 64]
+        nearest = filled[((some[:, None, :] - filled[None, :, :]) ** 2).sum(axis=2).argmin(axis=1)]
+        table[some[:, 0], some[:, 1]] = table[nearest[:, 0], nearest[:, 1]]
+    for _ in range(YOKE_EVEN):
+        wide = np.pad(table, 1, mode='edge')
+        table = (wide[:-2, 1:-1] + wide[2:, 1:-1] + wide[1:-1, :-2] + wide[1:-1, 2:] + 4 * table) / 8
+    return corner, table
+
+
+def _fall(table):
+    """How steeply `shoulders`' reading falls at each cell: metres down per metre across."""
+    down = np.gradient(table, YOKE_CELL)
+    return np.hypot(down[0], down[1])
+
+
+def _above(corner, table, places):
+    """`shoulders` read at each of `places` (along the two level ways): straight between its cells, its edge's
+    beyond them."""
+    x = np.clip((np.asarray(places, float) - corner) / YOKE_CELL, 0.0, np.array(table.shape) - 1.0)
+    low = np.minimum(np.floor(x).astype(int), np.maximum(np.array(table.shape) - 2, 0))
+    high, t = np.minimum(low + 1, np.array(table.shape) - 1), x - low
+    return ((1 - t[:, 0]) * ((1 - t[:, 1]) * table[low[:, 0], low[:, 1]] + t[:, 1] * table[low[:, 0], high[:, 1]])
+            + t[:, 0] * ((1 - t[:, 1]) * table[high[:, 0], low[:, 1]] + t[:, 1] * table[high[:, 0], high[:, 1]]))
+
+
 def taper(token, source, target, contract=None, names=None):
     """The slope part `token` is carried by from body `source` to body `target` (`TAPERED`; None for any other
     part, or without a contract), as `tapered` takes it.
@@ -262,23 +328,60 @@ def taper(token, source, target, contract=None, names=None):
     rise = np.polyval(np.polyder(np.polyfit(frames[0]['line'][:, 0], frames[1]['line'][:, 0], 2)), frames[0]['line'][[0, 2], 0])
     require((rise > 0).all(), f'The joints of {token} are spaced too unlike on the two bodies to carry it by one slope: its slices would fold over')
     armhole = max(max(contract['joints'][first]['bodies'][names[0]]['sides'][found[k][1]]['bodyRing']) for k in pair)
+    yoke = [shoulders([body[1][name][:2] for name in (token, *YOKE_WITH) if name in body[1]], frame, frame['line'][1, 0] + YOKE_EASE)
+            for body, frame in zip((source, target), frames)]
     return {'frames': frames, 'top': [frames[1]['span'] / frames[0]['span'], deep[1] / deep[0]],
             'hem': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=last),
-            'radii': radii(source[1][token][:2], frames[0]), 'clear': float(frames[0]['line'][1, 0] + armhole)}
+            'radii': radii(source[1][token][:2], frames[0]), 'clear': float(frames[0]['line'][1, 0] + armhole),
+            'collar': across(token, contract, *names, frames[0]['axes'][1:], source[0], only=met[head]), 'yoke': None if any(read is None for read in yoke) else yoke}
+
+
+def risen(height, source, target):
+    """The heights on the target body's middle line that `height`, on the source's, are carried to (`tapered`):
+    by one curve through the three stations (`source`, `target`: the neck at 0, the shoulders, the waist), and
+    above the neck, where that curve rises slower than the heights themselves, by a rise that comes to theirs
+    over the first `COLLAR_EASE` (no corner at the neck). A collar stands on the neck, which is no part of
+    what the stations measure: the Human female's shoulders lie 4 cm under her neck's plane where the male's
+    lie 12 cm, the curve rose 0.16 there, and Street Casual's collar, 4.3 cm up his neck, came to 0.7 cm up
+    hers and left her neck bare to the shoulders (user, 2026-11-26)."""
+    curve = np.polyfit(source, target, 2)
+    height = np.asarray(height, float)
+    out, slow = np.polyval(curve, height), float(np.polyval(np.polyder(curve), 0.0))
+    above = height < 0
+    if slow < 1 and above.any():
+        up = -height[above]
+        eased = np.where(up < COLLAR_EASE, up ** 2 / (2 * COLLAR_EASE), up - COLLAR_EASE / 2)
+        out[above] = np.polyval(curve, 0.0) - (slow * up + (1 - slow) * eased)
+    return out
 
 
 def tapered(vertices, slope):
     """`vertices` of a tapered part, on the source body, carried to the target by its slope (`taper`): each to
     the height its own maps to, set as far from the target's middle line as it stood from the source's, times
     the scales across at its height: the slope's `top` down to the shoulders, its `hem` from the waist on, and
-    between them evenly, the slope setting in over the first `TAPER_EASE` of the way.
+    between them evenly, the slope setting in over the first `TAPER_EASE` of the way. From the shoulder line up
+    they come to the neck's own at its plane (the slope's `collar`: the contract's body ring there) and stay
+    that above it: a collar goes round the neck, which is not as much narrower as the shoulders are. The Human
+    female's chest is 0.54 as deep as the male's on the shoulder line and her neck 0.80: by the shoulders'
+    scale the collar came 1.3 cm inside her neck in front, and where the two crossed its rim showed in saw
+    teeth (client, 2026-11-26).
 
     Those scales carry the body under the part, the slope's `radii`. What of a vertex stands outside them, its
     standoff, is not scaled: it is set as far outside the scaled body, the way its own direction from the
     middle line is carried, from the slope's `clear` height down, and from the shoulder line to there by a
     growing share of it (no step either end). A vertex inside the radii, a lid across the hem or cloth turned
     in, is scaled whole, as is everything above the shoulder line. A plate or a pouch on the vest so stays as
-    deep as it was made and lies on the other body's belly, wider and taller or shorter as the body is."""
+    deep as it was made and lies on the other body's belly, wider and taller or shorter as the body is. On a
+    body narrower at that height than the source's, the standoff is scaled with the rest: carried whole, the
+    7.5 cm Street Casual's shirt blouses out over the male's belt stood as far out round the Human female's
+    waist, 0.69 as wide, and her belly read bagged out (user, 2026-11-26).
+
+    Above the shoulder line a vertex is set as high over the other body's shoulders, read from above
+    (`shoulders`, the slope's `yoke`), as it stood over the source's, coming to that over `YOKE_EASE` under
+    the line, where both bodies' shoulders face up (`YOKE_STEEP`): the cloth of a yoke lies on the shoulders,
+    and how far those stand over the joints is the body's own. By the stations alone, the Human female's shoulder joints 4 cm under her neck's plane where the
+    male's are 12 cm, the shirt's yoke came to her a third as tall and 0.69 as wide: its slope out to the
+    shoulder went flat and its edge stood out square as a shelf (user, 2026-11-26)."""
     a, b = slope['frames']
     reach = (np.asarray(vertices, float) - a['origin']) @ a['axes'].T  # height, and the two level ways
     height = reach[:, 0]
@@ -288,17 +391,30 @@ def tapered(vertices, slope):
     top, hem = np.asarray(slope['top'], float), np.asarray(slope['hem'], float)
     off = np.stack([reach[:, k] - through(a['line'][:, k]) for k in (1, 2)], axis=1)  # from the middle line, level
     scale = top + share[:, None] * (hem - top)
+    if slope.get('collar') is not None:  # from the shoulder line up to the neck's plane, and above it, toward the neck's own
+        up = np.clip(1 - height / a['line'][1, 0], 0.0, 1.0)
+        scale = scale + (up * up * (3 - 2 * up))[:, None] * (np.asarray(slope['collar'], float) - top)
     carried = scale * off
     if slope.get('radii') is not None:
         far = np.linalg.norm(off, axis=1)
         stand = np.maximum(far - _around(*slope['radii'], height, np.arctan2(off[:, 1], off[:, 0])), 0.0)
         held = np.clip((height - a['line'][1, 0]) / max(slope['clear'] - a['line'][1, 0], 1e-9), 0.0, 1.0)
         grown = scale * off / np.maximum(far, 1e-12)[:, None]  # the vertex's unit way from the line, as the scales carry it
-        carried = carried - (stand * held * held * (3 - 2 * held) * (1 - 1 / np.maximum(np.linalg.norm(grown, axis=1), 1e-12)))[:, None] * grown
-    out = b['origin'] + through(b['line'][:, 0])[:, None] * b['axes'][0]
-    for k in (1, 2):
-        out = out + (through(b['line'][:, k]) + carried[:, k - 1])[:, None] * b['axes'][k]
-    return out
+        wider = np.maximum(np.linalg.norm(grown, axis=1), 1.0)  # narrower there than the source: all of it scaled, the standoff too
+        carried = carried - (stand * held * held * (3 - 2 * held) * (1 - 1 / wider))[:, None] * grown
+    level = np.stack([through(b['line'][:, k]) + carried[:, k - 1] for k in (1, 2)], axis=1)
+    high = risen(height, a['line'][:, 0], b['line'][:, 0])
+    if slope.get('yoke') is not None:
+        ridden = _above(*slope['yoke'][1], level) + min(1.0, float(top[0])) * (height - _above(*slope['yoke'][0], reach[:, 1:]))  # on narrower shoulders, less far over them
+        rides = np.clip((a['line'][1, 0] + YOKE_EASE - height) / YOKE_EASE, 0.0, 1.0)
+        rides = rides * rides * (3 - 2 * rides)
+        # only where both bodies' shoulders face up: over a chest's front or a back that falls away, how high a
+        # vertex stands over what lies under it turns on a millimetre across, and a collar's rim behind the neck,
+        # read against the male's back, came to the Human female in saw teeth (client, 2026-11-26)
+        steep = np.maximum(_above(slope['yoke'][0][0], _fall(slope['yoke'][0][1]), reach[:, 1:]), _above(slope['yoke'][1][0], _fall(slope['yoke'][1][1]), level))
+        flat = np.clip((YOKE_STEEP[1] - steep) / (YOKE_STEEP[1] - YOKE_STEEP[0]), 0.0, 1.0)
+        high = high + rides * flat * flat * (3 - 2 * flat) * (ridden - high)
+    return b['origin'] + high[:, None] * b['axes'][0] + level @ b['axes'][1:]
 
 
 def placement(token, source, target, contract=None, names=None, slope=False):
@@ -335,6 +451,8 @@ def placement(token, source, target, contract=None, names=None, slope=False):
         linear = stretched(rotation, [unit, *ways], [along, *round_])
         return linear, goal.mean(axis=0) - linear @ start.mean(axis=0), {'along': round(along, 4), 'across': [round(value, 4) for value in round_]}
     (_, _, other), = met
+    if token in registry.SLOTS['foot']['tokens']:  # on the ground, whichever way the shin turns
+        return grounded(token, source, target)
     require(len(joints_of(other)) > 1, f'{token} and {other} each meet one joint: nothing turns them')
     start, goal = anchors(other, source[0]), anchors(other, target[0])
     rotation = repose.turn(*(seams.unit(axis_of(points)) for points in (start, goal)))
@@ -344,6 +462,58 @@ def placement(token, source, target, contract=None, names=None, slope=False):
     linear = axes.T @ np.diag(scales) @ axes @ rotation
     joint, aim = anchors(token, source[0])[0], anchors(token, target[0])[0]
     return linear, aim - linear @ joint, {'axes': [round(float(value), 4) for value in scales]}
+
+
+def limbed(token, vertices, source, target, contract, names):
+    """(vertices, report): a limb's part, one between two joints, carried by its `placement` (`vertices`, on
+    the other body), with its width set joint by joint: at each of its two joints as much wider as the other
+    body is there (`across`, that joint `only`), and between them evenly, where the placement set all of it by
+    the mean of the two. Past either joint it stays as wide as at the joint. `report` holds the scales across
+    at its two `ends`.
+
+    Two parts that meet at a joint so come to it by the same scale. By its mean, a thigh came to the Human
+    female 0.85 as wide and a shin 0.73, where her knee is 0.77 of the male's: the trouser leg stood out
+    round the knee as a second hem, a centimetre proud of the shin (client, 2026-11-26; no shelves)."""
+    met = joints_of(token)
+    points = anchors(token, target[0])
+    run = points[1] - points[0]
+    length = float(np.linalg.norm(run))
+    unit = run / length
+    was = seams.unit(axis_of(anchors(token, source[0])))
+    ways = np.array(seams.frame(was))  # the directions the placement scaled across in, on the source
+    there = ways @ repose.turn(was, unit).T  # and where it turned them to
+    mean = np.array(across(token, contract, *names, ways, source[0]))
+    ends_ = [np.array(across(token, contract, *names, ways, source[0], only=joint)) for joint, _, _ in met]
+    reach = np.asarray(vertices, float) - points[0]
+    share = np.clip(reach @ unit / length, 0.0, 1.0)[:, None]
+    more = ((1 - share) * ends_[0] + share * ends_[1]) / mean - 1
+    out = np.asarray(vertices, float) + ((reach @ there.T) * more) @ there
+    return out, {'ends': [[round(float(value), 4) for value in end] for end in ends_]}
+
+
+def grounded(token, source, target):
+    """(linear map, offset, report) carrying a foot from body `source` to body `target` (`placement`) in the
+    ground's own frame: turned about the upright only, until it points where the other body's foot does;
+    scaled along that foot's length on the ground and across it as that foot spreads against the source's
+    (`spreads`); and upright as the ankle stands over the ground on the one body against the other, so that a
+    sole on the ground stays on it and flat.
+
+    Scaled along the body foot's own axes (`principal`), which run from the heel's top to the toe, 20 degrees
+    and more off the ground, by 0.88 along and 0.78 across, Street Casual's boots came to the Human female
+    sheared, the toe a wedge, and 4.2 cm off the ground: her ankle stands 1.4 cm higher than the male's, and
+    the body foot's spread upright, which counts the male's longer stub of shin, said 0.77 (user, 2026-11-26)."""
+    up = np.array([0.0, 0.0, 1.0])
+    level = lambda way: seams.unit(way - (way @ up) * up)
+    ahead, was = (level(principal(*body[1][token][:2])[0]) for body in (target, source))
+    was = was if was @ ahead > 0 else -was
+    yaw = repose.turn(was, ahead)
+    axes = np.array([ahead, np.cross(up, ahead), up])
+    joint, aim = anchors(token, source[0])[0], anchors(token, target[0])[0]
+    require(joint[2] > 1e-6 and aim[2] > 1e-6, f'The ankle of {token} stands on the ground: nothing to scale a foot upright by')
+    flat = spreads(*target[1][token][:2], axes[:2]) / spreads(np.asarray(source[1][token][0], float) @ yaw.T, source[1][token][1], axes[:2])
+    scales = np.array([*flat, aim[2] / joint[2]])
+    linear = axes.T @ np.diag(scales) @ axes @ yaw
+    return linear, aim - linear @ joint, {'axes': [round(float(value), 4) for value in scales], 'grounded': True}
 
 
 def capped(before, after, faces, measured, part_ends):
@@ -447,6 +617,26 @@ def tucked(part, vertices, point, normal, limit, turns, over, most):
     room = np.sqrt(np.maximum((reach - TUCK) ** 2 - height ** 2, 0.0))
     out[which] = point + height[:, None] * normal + across * (room / np.maximum(np.linalg.norm(across, axis=1), 1e-12))[:, None]
     return out
+
+
+def hidden_at_rest(part, vertices, here, over, gap=split.SEAT_GAP):
+    """`vertices` of `part` with what the split added past an under end (`added`, the points no face of its own
+    uses, of those `here` flags) that still stands outside the part carried over it, `over` (vertices, faces of
+    its outfit), held `gap` inside it (`under_skin`), as the bake's gate reads that end as the body stands
+    (`bake.hidden`, `rest`). Seated and drawn under it for the design bend, the pelvis's dome at the waist of
+    the Troll Large female still stood 5 mm out of her chest at rest (Street Casual, 2026-11-26)."""
+    from . import bake
+    v, f = np.asarray(vertices, float), np.asarray(part['f'], int)
+    added = np.asarray(part['added'], bool) & ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
+    cap = bake._used(v, f, added) & ~bake._used(v, f, ~np.asarray(part['added'], bool)) & np.asarray(here, bool)
+    if not cap.any() or not len(over[0]):
+        return v
+    outside = ~bake._inside(v[cap], [over])
+    if not outside.any():
+        return v
+    which = np.zeros(len(v), bool)
+    which[np.flatnonzero(cap)[outside]] = True
+    return under_skin(v, v.mean(axis=0), np.array([0.0, 0.0, 1.0]), over, gap, which=which)
 
 
 def bent_under(part, vertices, joint, side, centre, normal, over, bones, contract, body):
@@ -571,14 +761,22 @@ def _spread(need, free, rings, rounds):
     return push
 
 
-def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
+def _cloth(part, v, f, skin, axis):
+    """The faces drawn over the body's own skin in a part that a ray from its bone reads: all but the skin and
+    the walls across the limb that are the drawn outfit's own (`measure.round_limb`)."""
+    made = np.asarray(part['added'], bool)[~skin] if 'added' in part else None
+    cloth = f[~skin]
+    return cloth[measure.round_limb(v, cloth, axis, made)]
+
+
+def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None, most=OVER_MOST):
     """`part`, holding the other body's own skin beside the outfit's (`bake.skinned`), with everything drawn
     over that skin (the sleeve's cloth, and the dome closing it at the armpit) held `gap` outside it. Each
     vertex of the skin is read along the ray square out from the part's bone (`start` to `end`) through it
     (`measure.beyond`): where it stands less than `gap` inside, the corners of the last face the ray crosses
     that faces out (the client draws no face from behind) are pushed out from the bone by the difference, the push spread over `rounds` rings of their
     neighbours, never less than a point needs, so the cloth moves as one and creases nowhere, and read again
-    until it settles. The skin and a pad are not moved; a push past `OVER_MOST` in all, over every pass, fails, rather than ship a
+    until it settles. The skin and a pad are not moved, nor a vertex `fixed` flags; a push past `most` in all, over every pass, fails, rather than ship a
     spike where a fold is read as the outside. After the last pass the cloth is read once more
     (`short_of_skin`), and a sleeve the skin still stands out through by more than a bake lets it
     (`bake.THROUGH`) fails here: the passes used to end without a word, whatever they left
@@ -597,11 +795,20 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
     free = np.zeros(count, bool)
     free[ids[f[~skin & ~pad].ravel()]] = True
     free[ids[f[skin].ravel()]] = False
-    cloth, points = f[~skin], np.unique(f[skin])
+    if fixed is not None:  # per vertex: what stays where it is, an end the seam contract measures
+        free[ids[np.asarray(fixed, bool)]] = False
+    points = np.unique(f[skin])
     start, axis = np.asarray(start, float), seams.unit(np.asarray(end, float) - np.asarray(start, float))
+    cloth = _cloth(part, v, f, skin, axis)
+    if not len(cloth):
+        return part
     rings = _rings(f, ids, count)
     moved, pushed = v.copy(), np.zeros(count)
-    for _ in range(OVER_PASSES):  # the cloth pushed out may still lie inside the arm between its points
+    for again in range(OVER_PASSES):  # the cloth pushed out may still lie inside the arm between its points
+        if again:  # read as it now lies, as `short_of_skin` reads it after: a wall across the sleeve tilted by a push is cloth
+            cloth = _cloth(part, moved, f, skin, axis)  # (a Dwarf female's hem, 3 mm through it after the passes, 2026-11-26)
+            if not len(cloth):
+                break
         outside, face, _ = measure.beyond(moved[points], start, axis, moved, cloth, facing=True)
         short = np.flatnonzero(face >= 0)
         short = short[outside[short] > -gap]
@@ -611,8 +818,25 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS):
         np.maximum.at(need, ids[cloth[face[short]]].ravel(), np.repeat(outside[short] + gap, 3))
         push = _spread(need, free, rings, rounds)
         pushed += push
-        require(pushed.max() <= OVER_MOST, f'Held outside the body\'s own skin, the outfit would move {pushed.max() * 100:.1f} cm, '
-                                           f'past {OVER_MOST * 100:.0f} cm: a fold read as its outside, or a body too far from this one')
+        if pushed.max() > most:  # said with where: found by hand three times in a day (2026-11-25)
+            worst = short[int(np.argmax(outside[short]))]
+            corners = moved[cloth[face[worst]]]
+            normal = seams.unit(np.cross(corners[1] - corners[0], corners[2] - corners[0]))
+            whose = ''
+            if 'added' in part:
+                rows = np.flatnonzero(~skin)[measure.round_limb(moved, f[~skin], axis, np.asarray(part['added'], bool)[~skin])]  # as `cloth` was read this pass
+                whose = ", the split's own" if np.asarray(part['added'], bool)[rows[face[worst]]] else ", the outfit's own"
+            where = (f' The skin stands farthest out, {outside[worst] * 100:.1f} cm, {float((moved[points[worst]] - start) @ axis) * 100:.1f} cm along the bone of '
+                     f'{float(np.linalg.norm(np.asarray(end, float) - start)) * 100:.1f}, through a face{whose} that looks {float(normal @ axis):+.2f} along the bone '
+                     f'(0 is cloth round the limb, 1 a wall across it facing its end); {len(short)} points of the skin are short in this pass.')
+            import os
+            if os.environ.get('ARMORKIT_DUMP'):  # the part as given, to try a change on in seconds and not in a bake (`over_skin(**dict(np.load(...)))` after `part=`)
+                np.savez(Path(os.environ['ARMORKIT_DUMP']) / 'over-skin-refused.npz', v=v, f=f, skin=skin, n=np.asarray(part['n'], float),
+                         added=np.asarray(part.get('added', np.zeros(len(f), bool)), bool), pad=pad, start=start, end=np.asarray(end, float),
+                         fixed=np.zeros(len(v), bool) if fixed is None else np.asarray(fixed, bool))
+                where += f' The part is kept in {os.environ["ARMORKIT_DUMP"]}.'
+            require(False, f'Held outside the body\'s own skin, the outfit would move {pushed.max() * 100:.1f} cm, '
+                           f'past {most * 100:.0f} cm: a fold read as its outside, or a body too far from this one.' + where)
         radial = moved - start - ((moved - start) @ axis)[:, None] * axis
         moved = moved + push[ids][:, None] * radial / np.maximum(np.linalg.norm(radial, axis=1, keepdims=True), 1e-12)
     from . import bake
@@ -704,7 +928,11 @@ def short_of_skin(part, start, end, gap=OVER_SKIN):
     if not skin.any() or skin.all():
         return 0.0
     start = np.asarray(start, float)
-    outside, face, _ = measure.beyond(v[np.unique(f[skin])], start, seams.unit(np.asarray(end, float) - start), v, f[~skin], facing=True)
+    axis = seams.unit(np.asarray(end, float) - start)
+    cloth = _cloth(part, v, f, skin, axis)
+    if not len(cloth):
+        return 0.0
+    outside, face, _ = measure.beyond(v[np.unique(f[skin])], start, axis, v, cloth, facing=True)
     return max(float((outside[face >= 0] + gap).max()) if (face >= 0).any() else 0.0, 0.0)
 
 
@@ -741,7 +969,16 @@ def seated(part, point, normal, over, gap=split.SEAT_GAP, others=()):
     if deepest > depth > 0:
         drawn = cap & (height < 0)
         out[drawn] -= (height[drawn] * (1 - depth / deepest))[:, None] * normal
-    out = under_skin(out, point, normal, over, gap, which=cap)
+    held = under_skin(out, point, normal, over, gap, which=cap)
+    # held inside the part over it, a point is moved in along that part's surface, which at an armpit runs
+    # across the joint: it keeps what draws it toward the joint's axis or deeper, and not what carries it
+    # wider. Moved whole, a Large Dwarf male's sleeve end stood 2.4 cm outside the shoulder's envelope at
+    # the plane (Street Casual, 2026-11-26)
+    was = np.linalg.norm((out - point) - ((out - point) @ normal)[:, None] * normal, axis=1)
+    along = (held - point) @ normal
+    radial = (held - point) - along[:, None] * normal
+    now = np.linalg.norm(radial, axis=1)
+    out = point + along[:, None] * normal + radial * np.minimum(1.0, was / np.maximum(now, 1e-12))[:, None]
     inside = np.abs(measure.winding(out[cap], np.asarray(over[0], float), np.asarray(over[1], int))) >= 0.5
     left = np.flatnonzero(cap)[~inside]
     if len(left) and inside.any():
@@ -755,7 +992,7 @@ def seated(part, point, normal, over, gap=split.SEAT_GAP, others=()):
     return out
 
 
-def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2, bare=()):
+def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2, bare=(), drawn=()):
     """(parts, report): baked parts (`bake.stored`) carried from the body `source` to the body `target`, each a
     (rig, parts by token) pair as `measure.body` gives them. `names` limits the parts carried; the rest are
     left out. Each part's vertices and normals are carried by its `placement`; with `contract` and `bodies`,
@@ -773,7 +1010,10 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
     body's skin is carried without it (`bodyskin.unworn`). Nothing else about a part changes. `report` maps a
     part to its turn in degrees and its scales along and across; a shoulder pad's names the part it is carried
     with (`with`) and holds that part's scales. A part's faces the client would show a hole at are turned out
-    (`bake.faced_out`), and the report holds how many (`turnedOut`)."""
+    (`bake.faced_out`), and the report holds how many (`turnedOut`). At the joints `drawn` names the outfit was
+    cut as drawn, to no envelope (`bake`), and no end is shaped to the other body's: its two parts fit each
+    other as drawn, carried by their scales. Shaped all the same, a boot's shaft came to the Human female drawn
+    in to a peak under the trouser cuff (2026-11-26)."""
     names = list(parts) if names is None else list(names)
     require(set(names) <= set(parts), f'No such part to refit: {", ".join(sorted(set(names) - set(parts)))}')
     from . import bake
@@ -789,15 +1029,18 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
         if slope is not None:  # by its slope instead, its normals turned on from the one map's as the faces round each turned
             sloped = tapered(before, slope)
             n, v = renormal(n, f, v, sloped), sloped
+        elif contract is not None and len(joints_of(name)) == 2 and len({joint for joint, _, _ in joints_of(name)}) == 2:
+            evened, ends_ = limbed(name, v, source, target, contract, bodies)
+            n, v, scales = renormal(n, f, v, evened), evened, {**scales, **ends_}
         if contract is not None:
-            part_ends = ends.ends_of(name, target[0], contract, bodies[1], tier, bare=bare)
-            drawn = [end for end in ends.ends_of(name, target[0], contract, bodies[1], tier, joints=DRAWN_IN, bare=bare) if end[4]]
-            if part_ends or drawn:
+            part_ends = ends.ends_of(name, target[0], contract, bodies[1], tier, joints=tuple(joint for joint in ends.TUBES if joint not in drawn), bare=bare)
+            drawn_in = [end for end in ends.ends_of(name, target[0], contract, bodies[1], tier, joints=DRAWN_IN, bare=bare) if end[4]]
+            if part_ends or drawn_in:
                 measured = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool)
                 shaped = ends.shaped(v, f, measured, part_ends)
-                if drawn:  # a sleeve's end at the shoulder, scaled as its two joints' rings: inside the envelope, or drawn in to it
-                    shaped = ends.shaped(shaped, f, measured, drawn, inward=True)
-                shaped = capped(v, shaped, f, measured, part_ends + drawn)
+                if drawn_in:  # a sleeve's end at the shoulder, scaled as its two joints' rings: inside the envelope, or drawn in to it
+                    shaped = ends.shaped(shaped, f, measured, drawn_in, inward=True)
+                shaped = capped(v, shaped, f, measured, part_ends + drawn_in)
                 for joint, side in bare:  # under the body's own skin: its part across the joint on the other body
                     letter = 'l' if side == 'c' else side
                     over = split.token(seams.JOINTS[joint]['over'], letter)
@@ -816,7 +1059,7 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                 if split.token(seams.JOINTS[joint]['under'], letter) != name:
                     moved = flattened(part, moved, centres[k], normal, nearest == k, contract.get('ends', seams.ENDS)['domeMost'])
                     continue
-                least = seams.overlap(contract, joint, bodies[1], tier)
+                least = seams.overlap(contract, joint, bodies[1], seams.at(tier, joint))
                 depth = least + ends.DEEPER
                 if joint in measure.TORSO_OPENINGS:
                     if other not in out:
@@ -824,14 +1067,18 @@ def refit(parts, source, target, names=None, contract=None, bodies=None, tier=2,
                     room = split.room(*bake._outfit(out[other])[:2], centres[k], normal)
                     if room is not None:  # as the bake's gate asks it (`bake.ends`)
                         least, depth = min(least, room - split.SEAT_GAP - bake.ROOM_SLACK), min(depth, room - split.SEAT_GAP)
-                deeper = deepened(moved, centres[k], normal, least, depth)
+                # cut as drawn, the end past the plane is the outfit's own leftover, as long as it was drawn: stretched to
+                # the overlap all the same, a boot's top rose 3.4 cm into a peak on the Human female (2026-11-26)
+                deeper = moved if joint in drawn else deepened(moved, centres[k], normal, least, depth)
                 if (joint, side) in bare and other in target[1] and not np.array_equal(deeper, moved):
                     deeper = under_skin(deeper, centres[k], normal, target[1][other][:2])
                 if other in out:  # under a part carried too: seated in a torso, and nothing of it showing in the design bend
                     over = bake._outfit(out[other])[:2]
-                    if joint in measure.TORSO_OPENINGS:
+                    if joint in measure.TORSO_OPENINGS or joint in drawn:  # as drawn: the two parts' scales across differ, a boot's end stood 0.9 cm out of the cuff
                         deeper = seated({**part, 'v': deeper}, centres[k], normal, over, others=np.delete(centres, k, axis=0))
                     deeper = bent_under(part, deeper, joint, side, centres[k], normal, out[other], target[0], contract, bodies[1])
+                    if joint not in drawn:
+                        deeper = hidden_at_rest(part, deeper, nearest == k, over)
                 moved = deeper
             grown = max([1.0, float(np.linalg.svd(linear, compute_uv=False).max())] + (list(slope['hem']) if slope is not None else []))
             moved = healed(part, moved, [(centres[k], seams.unit(seams.plane(target[0], met[k][0], 'l' if met[k][1] == 'c' else met[k][1])[1])) for k in cut], grown)
@@ -861,7 +1108,7 @@ def whole(part):
     return {**part, **{key: np.asarray(part[key])[keep] for key in FACE_KEYS if key in part}}, int((~keep).sum())
 
 
-def run(kept, output, body_pack, source, target, names=None, tier=2, body_textures=None, seat_in=None):
+def run(kept, output, body_pack, source, target, names=None, tier=None, body_textures=None, seat_in=None, drawn=None):
     """Refit the parts kept in the folder `kept` (`bake.store`) from body `source` to body `target`, both read
     from `body_pack`, their ends shaped to the target's seam contract at tier `tier`, and keep them in the
     folder `output` with the slots the brief they were baked from left to the body and shared with its skin,
@@ -881,6 +1128,9 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
     from . import bake, measure
     require(Path(output).resolve() != Path(kept).resolve(), 'Refit parts are kept in another folder than the parts they came from')
     listed = bake.listing(kept)
+    require(tier is None or listed.get('tier') in (None, tier), f"{kept} holds parts cut at tier {listed.get('tier')}, not {tier}")
+    require(drawn is None or listed.get('drawn') in (None, sorted(drawn)), f"{kept} holds parts cut as drawn at {listed.get('drawn')}, not {sorted(drawn or ())}")
+    tier, drawn = tier if tier is not None else listed.get('tier', 2), tuple(drawn if drawn is not None else listed.get('drawn', ()))
     left = [token for slot in listed['bare'] for token in registry.SLOTS[slot]['tokens']]
     goal = measure.body(body_pack, target)
     stored, contract = bake.stored(kept), seams.load_contract()
@@ -889,7 +1139,7 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
         require(body_textures is not None, f'{", ".join(sorted(shared))} share their slots with the body\'s '
                                            'skin: give the body\'s textures to lay the other body\'s beside them')
         bodyskin.material_folder(body_textures)
-    parts, report = refit(stored, measure.body(body_pack, source), goal, names, contract, (source, target), tier, bake.bare_joints({'left': left}))
+    parts, report = refit(stored, measure.body(body_pack, source), goal, names, contract, (source, target), tier, bake.bare_joints({'left': left}), drawn)
     beside = bake.stored(seat_in) if seat_in is not None else {}
     for name in parts:
         met = joints_of(name)
@@ -924,14 +1174,17 @@ def run(kept, output, body_pack, source, target, names=None, tier=2, body_textur
                 report[name]['reduced'] = lost
                 if dropped:  # slivers the cut left, with those the carrying left (`refit`)
                     report[name]['dropped'] = report[name].get('dropped', 0) + dropped
-        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0], own_part=own.get)
+        # as far again as the body is wider than the one the outfit was made on: the Troll Large male's hem was pushed
+        # 3.3 cm wider round an arm 1.86 times a Human's (Street Casual, 2026-11-26)
+        wider = lambda name: OVER_MOST * max([1.0, *report[name].get('across', [])])
+        parts = bake.skinned(parts, listed, body_pack, body_textures, target, goal[0], own_part=own.get, most=wider)
         for name in shared:
-            held = over_skin(parts[name], *split.bone_line(goal[0], name))
+            held = over_skin(parts[name], *split.bone_line(goal[0], name), most=wider(name))
             if held is not parts[name]:
                 report[name]['overSkin'] = round(float(np.linalg.norm(held['v'] - parts[name]['v'], axis=1).max()), 4)
                 parts[name] = held
             report[name]['shortOfSkin'] = round(short_of_skin(parts[name], *split.bone_line(goal[0], name)), 4)
-    bake.store(parts, output, {key: value for key, value in listed.items() if key != 'parts'})
+    bake.store(parts, output, {key: value for key, value in listed.items() if key not in ('parts', 'tier', 'drawn')}, tier, drawn)
     faced, failures = bake.facing(parts, goal[0])
     for name, area in faced.items():
         if area:

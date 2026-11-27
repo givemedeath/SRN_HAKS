@@ -4,6 +4,63 @@
  "parts": [
   {
    "slot": "belt",
+   "number": 3010,
+   "set": "street-casual",
+   "group": "street",
+   "families": [
+    "civilian"
+   ],
+   "badge": null,
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "genderedCut": false,
+   "tiers": {
+    "waist": 1
+   },
+   "coverage": {
+    "skin": false,
+    "headgear": false
+   },
+   "channels": [
+    "leather1",
+    "metal2"
+   ],
+   "colours": {
+    "leather1": [
+     46,
+     40,
+     34
+    ],
+    "metal2": [
+     120,
+     120,
+     124
+    ]
+   }
+  },
+  {
+   "slot": "belt",
    "number": 6020,
    "set": "facility-security",
    "group": "corpsec",
@@ -61,6 +118,52 @@
   },
   {
    "slot": "bicep",
+   "number": 3010,
+   "set": "street-casual",
+   "group": "street",
+   "families": [
+    "civilian"
+   ],
+   "badge": null,
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "genderedCut": false,
+   "tiers": {
+    "shoulder": 1,
+    "elbow": 3
+   },
+   "coverage": {
+    "skin": true,
+    "headgear": false
+   },
+   "channels": [
+    "cloth1",
+    "skin"
+   ]
+  },
+  {
+   "slot": "bicep",
    "number": 6020,
    "set": "facility-security",
    "group": "corpsec",
@@ -111,6 +214,52 @@
      72
     ]
    }
+  },
+  {
+   "slot": "chest",
+   "number": 3010,
+   "set": "street-casual",
+   "group": "street",
+   "families": [
+    "civilian"
+   ],
+   "badge": null,
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "genderedCut": true,
+   "tiers": {
+    "neck": 3,
+    "shoulder": 1,
+    "waist": 1
+   },
+   "coverage": {
+    "skin": false,
+    "headgear": false
+   },
+   "channels": [
+    "cloth1"
+   ]
   },
   {
    "slot": "chest",
@@ -174,6 +323,63 @@
      46,
      42,
      38
+    ]
+   }
+  },
+  {
+   "slot": "foot",
+   "number": 3010,
+   "set": "street-casual",
+   "group": "street",
+   "families": [
+    "civilian"
+   ],
+   "badge": null,
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "genderedCut": false,
+   "tiers": {
+    "ankle": 3
+   },
+   "coverage": {
+    "skin": false,
+    "headgear": false
+   },
+   "channels": [
+    "leather1",
+    "leather2"
+   ],
+   "colours": {
+    "leather1": [
+     58,
+     54,
+     50
+    ],
+    "leather2": [
+     40,
+     36,
+     32
     ]
    }
   },
@@ -287,6 +493,59 @@
   },
   {
    "slot": "pelvis",
+   "number": 3010,
+   "set": "street-casual",
+   "group": "street",
+   "families": [
+    "civilian"
+   ],
+   "badge": null,
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "genderedCut": false,
+   "tiers": {
+    "waist": 1,
+    "hip": 3
+   },
+   "coverage": {
+    "skin": false,
+    "headgear": false
+   },
+   "channels": [
+    "cloth1",
+    "cloth2"
+   ],
+   "colours": {
+    "cloth2": [
+     140,
+     36,
+     32
+    ]
+   }
+  },
+  {
+   "slot": "pelvis",
    "number": 6020,
    "set": "facility-security",
    "group": "corpsec",
@@ -346,6 +605,65 @@
      46,
      42,
      38
+    ]
+   }
+  },
+  {
+   "slot": "shin",
+   "number": 3010,
+   "set": "street-casual",
+   "group": "street",
+   "families": [
+    "civilian"
+   ],
+   "badge": null,
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "genderedCut": false,
+   "tiers": {
+    "knee": 3,
+    "ankle": 3
+   },
+   "coverage": {
+    "skin": false,
+    "headgear": false
+   },
+   "channels": [
+    "cloth1",
+    "leather1",
+    "leather2"
+   ],
+   "colours": {
+    "leather1": [
+     58,
+     54,
+     50
+    ],
+    "leather2": [
+     40,
+     36,
+     32
     ]
    }
   },
@@ -459,6 +777,59 @@
     "pfg2"
    ],
    "mesh": "rigid"
+  },
+  {
+   "slot": "thigh",
+   "number": 3010,
+   "set": "street-casual",
+   "group": "street",
+   "families": [
+    "civilian"
+   ],
+   "badge": null,
+   "bodies": [
+    "pmh0",
+    "pmh2",
+    "pmd0",
+    "pmd2",
+    "pme0",
+    "pme2",
+    "pmo0",
+    "pmo2",
+    "pmg0",
+    "pmg2",
+    "pfh0",
+    "pfh2",
+    "pfd0",
+    "pfd2",
+    "pfe0",
+    "pfe2",
+    "pfo0",
+    "pfo2",
+    "pfg0",
+    "pfg2"
+   ],
+   "mesh": "rigid",
+   "genderedCut": false,
+   "tiers": {
+    "hip": 3,
+    "knee": 3
+   },
+   "coverage": {
+    "skin": false,
+    "headgear": false
+   },
+   "channels": [
+    "cloth1",
+    "cloth2"
+   ],
+   "colours": {
+    "cloth2": [
+     140,
+     36,
+     32
+    ]
+   }
   },
   {
    "slot": "thigh",

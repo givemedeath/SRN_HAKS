@@ -9,7 +9,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     __package__ = 'tools.armorkit'
 
-from . import registry, tables
+from . import registry, seams, tables
 
 
 def listed(text):
@@ -80,6 +80,13 @@ def command_brief(args):
                       'pads': document.get('pads', []), 'sealed': args.seal or args.adopt}))
 
 
+# The faces an outfit's mesh is exported with. An outfit is worn at 40,000 triangles at most, and the bake brings each part to its
+# budget by taking out the vertices whose loss changes its surface least (`reduce`): cut from a mesh of 200,000 faces a part keeps
+# its pockets, straps and seams where the generator's own reduction to 17,000 over the whole figure had flattened them (Facility
+# Security's male, 2026-11-13; the default by the user's word, 2026-11-24)
+EXPORT_FACES = 200000
+
+
 def command_image(args):
     from . import reference
     images = reference.generate(args.brief, args.folder, args.seed, args.batch, args.reference, args.url, args.profile, args.deadline)
@@ -124,15 +131,42 @@ def layout_library(folder):
     return importlib.import_module('xatlas')
 
 
+def tiers(tier, at):
+    """The tier a bake is cut at: `tier`, or with `at` (JOINT=TIER, each) a mapping of those joints and `default`."""
+    if not at:
+        return tier
+    found = {'default': tier}
+    for entry in at:
+        joint, _, value = entry.partition('=')
+        registry.require(joint in seams.JOINTS and value.isdigit() and int(value) in registry.TIERS,
+                         f'--tier-at takes JOINT=TIER, a joint of {sorted(seams.JOINTS)} and a tier of {list(registry.TIERS)}: {entry}')
+        found[joint] = int(value)
+    return found
+
+
+def cut_at(args, kept_only):
+    """(tier, drawn joints) a bake is cut at: as asked, or, for a tint of kept parts asked for neither, as the
+    kept folder lists them. `bodies` bakes every body that way, and at the default tier it refused an outfit
+    cut at tier 3 with its shoulders and waist at 1 and its ankles and knees as drawn (Street Casual, 2026-11-26)."""
+    from . import bake
+    if kept_only and args.tier is None and not args.tier_at and not args.as_drawn and (Path(args.kept) / bake.KEPT).is_file():
+        listed = bake.listing(args.kept)
+        if 'tier' in listed:
+            return listed['tier'], tuple(listed['drawn'])
+    return tiers(2 if args.tier is None else args.tier, args.tier_at), tuple(args.as_drawn)
+
+
 def command_bake(args):
     from . import bake, brief
-    sources = (args.mesh, args.colours, args.raw, args.xatlas)
-    registry.require(all(sources) or (args.kept and not any(sources)),
-                     'bake needs --mesh, --colours, --raw and --xatlas together, or --kept alone to tint stored parts again')
+    sources = (args.colours, args.raw, args.xatlas) if args.resume else (args.mesh, args.colours, args.raw, args.xatlas)
+    registry.require(all(sources) or (args.kept and not args.resume and not any(sources)),
+                     'bake needs --mesh, --colours, --raw and --xatlas together (--resume in place of --mesh), or --kept alone to tint stored parts again')
+    tier, drawn = cut_at(args, not any(sources))
     record = bake.run(brief.load(args.brief), args.output, args.body_pack, args.number, mesh=args.mesh, colours=args.colours, raw=args.raw,
-                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=args.tier, tint_cache=args.tint_cache,
+                      xatlas=layout_library(args.xatlas) if args.xatlas else None, kept=args.kept, body=args.body, tier=tier, tint_cache=args.tint_cache,
                       packs=args.pack, game=args.nwn_root, resources=args.resources, body_textures=args.body_textures,
-                      capture=args.capture, say=lambda *words: print(*words, file=sys.stderr, flush=True))
+                      capture=args.capture, workers=args.workers, cache=args.cache, resume=args.resume, drawn=drawn,
+                      say=lambda *words: print(*words, file=sys.stderr, flush=True))
     print(json.dumps({key: record.get(key) for key in ('model', 'body', 'number', 'models', 'gates', 'compiled')}))
     if not record['gates']['passed']:
         sys.exit(1)
@@ -194,7 +228,10 @@ def command_split(args):
 def command_refit(args):
     from . import refit
     names = listed(args.parts) if args.parts else None
-    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names, body_textures=args.body_textures, seat_in=args.seat_in)))
+    asked = args.tier is not None or bool(args.tier_at)  # a tier stated for parts kept before it was listed: --tier, --tier-at or both (default 2)
+    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names,
+                               tier=tiers(2 if args.tier is None else args.tier, args.tier_at) if asked else None, body_textures=args.body_textures, seat_in=args.seat_in,
+                               drawn=tuple(args.as_drawn) if args.as_drawn or asked else None)))
 
 
 def command_combine(args):
@@ -323,7 +360,9 @@ def main(argv=None):
     p.add_argument('model'); p.add_argument('source', help='the image, or for export the generated mesh')
     p.add_argument('--models', help="the engine's models folder (from the local runtime binding)")
     p.add_argument('--fov', type=float); p.add_argument('--shape', help='the saved shape of a geometry attempt')
-    p.add_argument('--faces', type=int); p.add_argument('--fill', type=float, help='export a solid with its outside surface only')
+    p.add_argument('--faces', type=int, default=EXPORT_FACES, help='faces of the exported mesh: far more than an outfit is worn at, the bake reduces each part to its budget')
+    p.add_argument('--fill', type=float, help='export a solid with its outside surface only: the price of closing an opening, '
+                                              'lower closes larger ones (20 where 40 leaves the outfit hollow)')
     p.add_argument('--url', default='http://127.0.0.1:8188')
     p.set_defaults(handler=command_generate)
     p = commands.add_parser('register', help='record images as made from a sealed reference folder (another image route, a derived image)')
@@ -335,7 +374,9 @@ def main(argv=None):
     p = commands.add_parser('bake', help='bake a generated outfit into the parts a body wears, and check what was written')
     p.add_argument('brief'); p.add_argument('output'); p.add_argument('--number', type=int, required=True, help='the part number the models are written as')
     p.add_argument('--body-pack', required=True, help="folder holding the body's models"); p.add_argument('--body', default='pmh0')
-    p.add_argument('--tier', type=int, default=2, choices=registry.TIERS, help='the seam tier the outfit is cut at')
+    p.add_argument('--tier', type=int, choices=registry.TIERS,
+                   help='the seam tier the outfit is cut at (default 2; a tint of kept parts given no --tier, --tier-at or --as-drawn takes the tier and joints they list)')
+    p.add_argument('--tier-at', action='append', default=[], metavar='JOINT=TIER', help='a joint the outfit is cut at another tier at (shoulder=1); may be repeated')
     p.add_argument('--body-textures', help="folder holding the body's material files and maps, for an outfit that shows the body's skin")
     p.add_argument('--mesh', help='the exported mesh'); p.add_argument('--colours', help='the saved colour field of the appearance job')
     p.add_argument('--raw', help="the generator's own high-detail mesh, for the normal maps")
@@ -345,6 +386,11 @@ def main(argv=None):
     p.add_argument('--nwn-root', help='game install folder: with it the models are compiled')
     p.add_argument('--resources', action='append', default=[], help='folder the compiler looks animations up in')
     p.add_argument('--capture', help='file to keep what the split is given in, for `split` to run it again')
+    p.add_argument('--as-drawn', action='append', default=[], choices=['elbow', 'wrist', 'waist', 'knee', 'ankle'], metavar='JOINT',
+                   help='a joint the outfit is cut at as it is drawn, its ends brought to no envelope (ankle, for heavy boots); may be repeated')
+    p.add_argument('--resume', help='a file an earlier bake of this mesh kept with --capture: go on from the split, without --mesh')
+    p.add_argument('--workers', type=int, default=4, help='processes the parts are reduced, laid out and tinted in side by side')
+    p.add_argument('--cache', help="folder that keeps each part's reduction, maps and texture, read again while nothing they are made from has changed")
     p.add_argument('--tint-cache', help='folder that keeps each part\'s tint texture, read again while nothing it is drawn from has changed')
     p.set_defaults(handler=command_bake)
     p = commands.add_parser('accessory', help='prepare a generated accessory piece once, then fit it on a body over an outfit')
@@ -385,6 +431,10 @@ def main(argv=None):
     p.add_argument('--from', dest='source', default='pmh0'); p.add_argument('--to', dest='target', required=True)
     p.add_argument('--parts', help='comma-separated parts to carry (default all)')
     p.add_argument('--body-textures', help="folder of the body's material files and maps: a part sharing its slot with the body's skin gets the other body's")
+    p.add_argument('--tier', type=int, choices=registry.TIERS, help='the seam tier the parts were cut at, for parts kept before their tier was listed with them (default: the listed tier, else 2)')
+    p.add_argument('--tier-at', action='append', default=[], metavar='JOINT=TIER', help='a joint they were cut at another tier at (shoulder=1); may be repeated')
+    p.add_argument('--as-drawn', action='append', default=[], choices=['elbow', 'wrist', 'waist', 'knee', 'ankle'], metavar='JOINT',
+                   help='a joint they were cut at as drawn, to no envelope, for parts kept before that was listed with them; may be repeated')
     p.add_argument('--seat-in', help="folder of parts baked on the other body: an end carried under one of them is seated in it")
     p.set_defaults(handler=command_refit)
     p = commands.add_parser('combine', help='keep the parts of one outfit, kept apart in several folders, together for `bake --kept`')
@@ -410,7 +460,7 @@ def main(argv=None):
     p.add_argument('--stock', required=True, help='folder of the stock parts tables the outfit is added to')
     p.add_argument('--hak', action='append', default=[], required=True, help='built pack the fixture loads, highest priority first')
     p.add_argument('--tlk', help='talk table the fixture loads')
-    p.add_argument('--preset', default='body', choices=('body', 'shoulders', 'waist', 'head'), help='where the camera looks')
+    p.add_argument('--preset', default='body', choices=('body', 'shoulders', 'waist', 'hips', 'head'), help='where the camera looks')
     p.add_argument('--without', action='append', default=[], help='also pose a second actor without the part in this slot (shoulder: no pads)')
     p.add_argument('--body-pack', help="folder of the bodies' models: the camera is then set for the body's height")
     p.add_argument('--cells', help='comma-separated logo cells the actors are set to in turn, for a part with a badge')

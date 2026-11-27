@@ -63,9 +63,11 @@ class CommandLineTests(unittest.TestCase):
     def test_refit_carries_kept_parts_to_another_body(self):
         with mock.patch.object(refit, 'run', return_value={'handl': {'degrees': 1.5}}) as call:  # the module itself: the suite also imports it as armorkit
             self.assertEqual(run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--parts', 'handl, footl'), {'handl': {'degrees': 1.5}})
-            run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--body-textures', 'maps', '--seat-in', 'beside')
-        self.assertEqual(call.call_args_list[0], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'], body_textures=None, seat_in=None))
-        self.assertEqual(call.call_args_list[1], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', None, body_textures='maps', seat_in='beside'))
+            run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--body-textures', 'maps', '--seat-in', 'beside', '--tier', '3', '--tier-at', 'waist=1', '--as-drawn', 'ankle')
+            run('refit', 'kept', 'out', '--body-pack', 'bodies', '--to', 'pfh0', '--tier-at', 'shoulder=1')  # a joint's tier alone: the rest at 2
+        self.assertEqual(call.call_args_list[0], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', ['handl', 'footl'], tier=None, body_textures=None, seat_in=None, drawn=None))
+        self.assertEqual(call.call_args_list[1], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', None, tier={'default': 3, 'waist': 1}, body_textures='maps', seat_in='beside', drawn=('ankle',)))
+        self.assertEqual(call.call_args_list[2], mock.call('kept', 'out', 'bodies', 'pmh0', 'pfh0', None, tier={'default': 2, 'shoulder': 1}, body_textures=None, seat_in=None, drawn=()))
 
     def test_combine_takes_each_folders_named_parts(self):
         from . import bake, brief
@@ -121,15 +123,18 @@ class CommandLineTests(unittest.TestCase):
             run('generate', 'geometry', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5)
             run('generate', 'appearance', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5, '--shape', 'shape.npz')
             run('generate', 'export', 'work', 'outfit', 'mesh.glb', '--faces', 12000, '--fill', 0.5)
+            run('generate', 'export', 'work', 'outfit', 'mesh.glb')  # no count: far more faces than are worn, for the bake to reduce part by part
+            self.assertEqual([given[3] for name, given in calls if name == 'export'], [12000, 200000])
             for missing in (('geometry', 'work', 'outfit', 'image.png', '--models', 'models'),  # no field of view
-                            ('calibrate', 'work', 'outfit', 'image.png'), ('export', 'work', 'outfit', 'mesh.glb'),
+                            ('calibrate', 'work', 'outfit', 'image.png'),
                             ('appearance', 'work', 'outfit', 'image.png', '--models', 'models', '--fov', 36.5)):
                 with self.assertRaises(ValueError):
                     run('generate', *missing)
         self.assertEqual(calls, [('calibrate', ('work', 'outfit', 'image.png', 'models', url)),
                                  ('geometry', ('work', 'outfit', 'image.png', 36.5, 'models', url)),
                                  ('appearance', ('work', 'outfit', 'image.png', 36.5, 'shape.npz', 'models', url)),
-                                 ('export', ('work', 'outfit', 'mesh.glb', 12000, 0.5, url))])
+                                 ('export', ('work', 'outfit', 'mesh.glb', 12000, 0.5, url)),
+                                 ('export', ('work', 'outfit', 'mesh.glb', 200000, None, url))])
 
     def test_bake_routes_a_fresh_bake_and_a_second_tint_and_fails_on_a_gate(self):
         from . import bake
@@ -153,6 +158,14 @@ class CommandLineTests(unittest.TestCase):
         with mock.patch.object(bake, 'run', report(False)), self.assertRaises(SystemExit) as stopped:
             run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--kept', 'kept')
         self.assertEqual(stopped.exception.code, 1)
+        self.assertEqual((calls[-1][4]['tier'], calls[-1][4]['drawn']), (2, ()))  # no kept list to read: the default
+        # a tint of kept parts asked for no tier is cut as they were (`bodies` asks for none); one asked for a tier is not
+        listed = {'tier': {'default': 3, 'shoulder': 1}, 'drawn': ['ankle', 'knee'], 'parts': ['chest']}
+        with tempfile.TemporaryDirectory() as folder, mock.patch.object(bake, 'run', report(True)), mock.patch.object(bake, 'listing', lambda kept: listed):
+            (Path(folder) / bake.KEPT).write_text('{}', encoding='utf-8')
+            run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--kept', folder)
+            run('bake', brief_file, 'out', '--number', 332, '--body-pack', 'bodies', '--kept', folder, '--tier', 1)
+        self.assertEqual([(call[4]['tier'], call[4]['drawn']) for call in calls[-2:]], [({'default': 3, 'shoulder': 1}, ('ankle', 'knee')), (1, ())])
 
     def fixture_run(self, *flags):
         """Run the fixture command with the builder and the client replaced; return what each was called with."""

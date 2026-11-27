@@ -26,12 +26,23 @@ from . import brief, export, measure, registry, repose, seams, texture
 from .registry import require
 
 KIND = 'srn-armorkit-accessory'
-BUDGET = {'triangles': 4000, 'texture': 1024}  # docs/armorkit/plan.md, Budgets: an accessory (user decision 2026-11-17, from 2,000)
+STRAP_ROUNDS = 8  # times a hoop is levelled again by its strap alone (`level`)
+AXIS_ROUNDS = 5  # times a hoop is then stood by the way its strap's inner faces look (`level`)
+INWARD = 0.7  # a face looks at the hoop's axis when its normal lies this much along the way there
+AXIS_DEPTH = 1.15  # and is the strap's when it lies within this many times the least radius of such faces in its direction
+STRAP_DEPTH = 1.08  # the strap: what lies within this many times the hoop's least radius in its direction
+BODY_SIDE = 0.2  # of a belt's face normal toward the hoop's axis: past this the face lies against the body and is no metal's
+BUDGET = {'triangles': 8000, 'texture': 1024}  # docs/armorkit/plan.md, Budgets: an accessory (user decision 2026-11-25, from 4,000)
+STRAP_MARGIN = 0.1  # of the strap's height: how far below it, down from the hoop's top, a piece hangs (`hanging`)
+HANGING_LEAST = 50  # vertices: a smaller piece below the strap is a crease of it, and goes with it
+WELD = 1e-5  # metres: vertices this near are one point of the surface (`_joined`)
+ANCHORS = 12  # a piece that shares no face with the strap hangs from this many of its nearest vertices
 DIRECTIONS = 96  # a belt is fitted in this many directions round the body's axis
 LEVELS = 0.01  # metres: and in bands this tall along it
 CLEARANCE = 0.004  # metres a belt's inner face stands outside what is worn under it
 INSIDE = 0.002  # metres a point of a fitted belt may still stand inside what is worn under it (`gates`)
-WORN_UNDER = ('pelvis', 'chest', 'legl', 'legr')  # the parts a belt lies on: the arms hang beside it and are not
+WORN_UNDER = ('pelvis', 'legl', 'legr')  # the parts a belt lies on: the trousers. A shirt's hem hangs over its top edge and is not gone
+# round (put round Street Casual's blousing hem the strap stood 4 cm off the trousers a side; user, 2026-11-25: "still too large"); the arms hang beside it
 DROP = 0.03  # metres below the waist joint a belt's band is centred by default: the trousers' waistband
 SURFACE = 0.004  # metres: what is worn under a belt is sampled this densely
 SPAN = {'belt': 0.42, 'neck': 0.26}  # metres across, about, as a Human wears the piece: what its texture is sized for
@@ -42,6 +53,10 @@ GRID = 4  # a face of the hoop is read at the points of a grid this many steps a
 EVEN = 2.0  # directions: the fit is evened over this many each way, so that a pouch is not bent to a fold of cloth
 CALM = {'neck': (8.0, 20.0)}  # degrees: on a hard shell, relief tilted less than the first is laid flat, and from the second on kept whole
 KEYS = ('v', 'f', 'uv', 'n', 'rgb', 'covered', 'relief', 'src')  # what `store` keeps of a prepared piece
+
+
+def _unit(vector):
+    return vector / np.linalg.norm(vector)
 
 
 def level(vertices, faces, rounds=30):
@@ -62,8 +77,55 @@ def level(vertices, faces, rounds=30):
         normal = np.linalg.eigh(spread)[1][:, 0]
         weight = area / np.maximum(np.abs((middle - centre) @ normal), 1e-3)
     normal = normal if normal[2] > 0 else -normal
-    turn = repose.turn(normal, np.array([0.0, 0.0, 1.0]))
-    return (points - centre) @ turn.T, turn
+    up = np.array([0.0, 0.0, 1.0])
+    turn = repose.turn(normal, up)
+    # Then by its strap alone: in each direction round the axis the hoop's innermost surface, which is the strap's
+    # inner face whatever hangs off it. Two pouches at the front of Street Casual's belt, most of its surface, tipped
+    # the fit above 18 degrees: its buckle sat 14 cm higher than its back and it was wrapped wide round the shirt's
+    # hem (2026-11-25).
+    for _ in range(STRAP_ROUNDS):
+        stood = (points - centre) @ turn.T
+        radius = np.hypot(stood[:, 0], stood[:, 1])
+        way = np.floor((np.arctan2(stood[:, 1], stood[:, 0]) + np.pi) / (2 * np.pi) * DIRECTIONS).astype(int) % DIRECTIONS
+        least = np.full(DIRECTIONS, np.inf)
+        np.minimum.at(least, way, radius)
+        strap = radius <= STRAP_DEPTH * least[way]
+        count = np.bincount(way[strap], minlength=DIRECTIONS)
+        if (count > 0).sum() < DIRECTIONS // 2:
+            break  # no hoop to speak of: left as its surface lies
+        mean = np.stack([np.bincount(way[strap], weights=stood[strap][:, k], minlength=DIRECTIONS) for k in range(3)], axis=1)[count > 0] / count[count > 0, None]
+        slope = np.linalg.lstsq(np.c_[mean[:, :2], np.ones(len(mean))], mean[:, 2], rcond=None)[0]
+        centre = centre + turn.T @ np.append(mean[:, :2].mean(axis=0), mean[:, 2].mean())  # the strap's own middle, not the pouches'
+        turn = repose.turn(_unit(np.array([-slope[0], -slope[1], 1.0])), up) @ turn
+    # And last by the way the strap's inner faces look: each looks at the hoop's axis, so the axis is the direction
+    # most nearly square to them all. The strap's height where it is innermost says less: by it Street Casual's belt
+    # still leaned back 9 degrees, its back edge 3 cm lower than its front, the buckle and the pouches' backs being
+    # innermost and taller at the front (user, 2026-11-25: "still looks a little tilted backwards").
+    square = np.cross(b - a, c - a)
+    square = square / np.maximum(np.linalg.norm(square, axis=1, keepdims=True), 1e-12)
+    for _ in range(AXIS_ROUNDS):
+        stood, looks = (middle - centre) @ turn.T, square @ turn.T
+        radius = np.maximum(np.hypot(stood[:, 0], stood[:, 1]), 1e-9)
+        inward = np.abs((looks[:, :2] * stood[:, :2]).sum(axis=1)) / radius > INWARD  # either way round: a generated mesh is wound both
+        way = np.floor((np.arctan2(stood[:, 1], stood[:, 0]) + np.pi) / (2 * np.pi) * DIRECTIONS).astype(int) % DIRECTIONS
+        least = np.full(DIRECTIONS, np.inf)
+        np.minimum.at(least, way[inward], radius[inward])
+        strap = inward & (radius <= AXIS_DEPTH * least[way])
+        if len(np.unique(way[strap])) < DIRECTIONS // 2:
+            break
+        axis = np.linalg.eigh((looks[strap] * area[strap, None]).T @ looks[strap])[1][:, 0]
+        turn = repose.turn(axis if axis[2] > 0 else -axis, up) @ turn
+    # Its middle is the middle of its band: where the hoop spans least from top to bottom, pouches apart (`wrap`).
+    # Set by its surface, Street Casual's band stood 2.5 cm above where the fit put the hoop, round the shirt's hem.
+    stood = (points - centre) @ turn.T
+    way = np.floor((np.arctan2(stood[:, 1], stood[:, 0]) + np.pi) / (2 * np.pi) * DIRECTIONS).astype(int) % DIRECTIONS
+    low, high = np.full(DIRECTIONS, np.inf), np.full(DIRECTIONS, -np.inf)
+    np.minimum.at(low, way, stood[:, 2])
+    np.maximum.at(high, way, stood[:, 2])
+    span = np.where(np.isfinite(low), high - low, np.nan)
+    band = _band(span)
+    stood[:, 2] -= float(np.median((low[band] + high[band]) / 2))
+    return stood, turn
 
 
 def _cells(points, directions=DIRECTIONS, levels=LEVELS):
@@ -92,6 +154,90 @@ def _filled(values):
     return np.interp(index, np.concatenate([index[known] - len(values), index[known], index[known] + len(values)]), np.tile(values[known], 3))
 
 
+SLIVER = 0.5  # of the median span: a direction a hoop spans less than this holds an edge of it only (`_band`)
+
+
+def _band(span):
+    """Of the directions round a hoop, given how far it spans in each (NaN where it has no surface), the fifth in
+    which it spans least, leaving out those it spans less than `SLIVER` of the median: there a direction holds
+    the vertices of one edge alone, a ring's few points that fell over a bin's line, and spans nothing. Taken
+    for the band, a tube's top ring read as its middle and stood it 2 mm low (CI, Linux, 2026-11-27)."""
+    held = np.isfinite(span)
+    full = held & (span >= SLIVER * np.median(span[held]))
+    full = full if full.any() else held
+    return full & (span <= np.percentile(span[full], 20))
+
+
+def strap(points):
+    """(low, high): the heights a hoop's strap lies between, pouches apart: the middle of where its surface begins and
+    ends in the fifth of the directions round its axis in which it spans least."""
+    way = _cells(points)[0]
+    low_at, high_at = np.full(DIRECTIONS, np.inf), np.full(DIRECTIONS, -np.inf)
+    np.minimum.at(low_at, way, points[:, 2])
+    np.maximum.at(high_at, way, points[:, 2])
+    least = _band(np.where(np.isfinite(low_at), high_at - low_at, np.nan))
+    return float(np.median(low_at[least])), float(np.median(high_at[least]))
+
+
+def _joined(points, faces, near=WELD):
+    """Per vertex, the number of the piece it is joined to through `faces` (union of their edges), vertices
+    within `near` of each other being one: a seam of the texture splits a vertex, and does not part the surface."""
+    count = len(points)
+    parent = np.unique(np.round(np.asarray(points, float) / near).astype(np.int64), axis=0, return_inverse=True)[1].reshape(-1)
+    first = np.full(int(parent.max()) + 1 if count else 0, -1)
+    for i, key in enumerate(parent.tolist()):
+        if first[key] < 0:
+            first[key] = i
+    parent = first[parent]
+
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for a, b in np.concatenate([faces[:, [0, 1]], faces[:, [1, 2]]]).tolist():
+        ra, rb = root(a), root(b)
+        if ra != rb:
+            parent[max(ra, rb)] = min(ra, rb)
+    return np.array([root(i) for i in range(count)])
+
+
+def hanging(points, faces, margin=STRAP_MARGIN, least=None):
+    """[(vertices, anchors)]: each piece that hangs below a level hoop's strap (`level`), a pouch or a holster, with
+    the vertices of the strap it hangs from. In each direction round the hoop's axis the strap runs down from the
+    hoop's top there as far as the strap is tall (`strap`), and `margin` of that more: a strap drawn round a body
+    sags at the front. A piece is what below it its faces join, vertices at one place being one (`_joined`);
+    pieces of fewer than `least` vertices, a crease or a rivet, are left to the strap. Its anchors are the vertices
+    above that line of the faces that join it; a piece that has none hangs from the `ANCHORS` nearest."""
+    points, faces = np.asarray(points, float), np.asarray(faces, int)
+    least = HANGING_LEAST if least is None else least
+    low, high = strap(points)
+    way = _cells(points)[0]
+    top = np.full(DIRECTIONS, -np.inf)
+    np.maximum.at(top, way, points[:, 2])
+    top = _filled(np.where(np.isfinite(top), top, np.nan))
+    below = points[:, 2] < top[way] - (high - low) * (1 + margin)
+    if not below.any():
+        return []
+    place = np.unique(np.round(points / WELD).astype(np.int64), axis=0, return_inverse=True)[1].reshape(-1)
+    piece = _joined(points, faces[below[faces].all(axis=1)])
+    out = []
+    for key in np.unique(piece[below]):
+        which = np.flatnonzero((piece == key) & below)
+        if len(which) < least:
+            continue
+        mine = np.zeros(int(place.max()) + 1, bool)
+        mine[place[which]] = True
+        touching = faces[mine[place[faces]].any(axis=1)]
+        anchors = np.unique(touching[~below[touching]])
+        if not len(anchors):
+            above = np.flatnonzero(~below)
+            anchors = above[np.argsort(np.linalg.norm(points[above] - points[which].mean(axis=0), axis=1))[:ANCHORS]]
+        out.append((which, anchors))
+    return out
+
+
 def wrap(points, faces, under, centre, clearance=CLEARANCE):
     """(points, record): a level hoop put round what is worn under it.
 
@@ -100,8 +246,20 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     The hoop is first scaled as a whole, so that its inner outline is as long round as the outline of what is
     worn under it at the band's height: its band and pouches keep their proportions. Then each direction round
     the axis is moved in or out as one column, by as much as brings the hoop's inner face there `clearance`
-    outside the widest of what lies under it at any height the hoop has surface in that direction, a holster
-    down the thigh too. The move is evened round the circle and never less than a direction asks. Before it, a
+    outside the widest of what lies under it at the heights of its strap (`strap`). The move is evened round the
+    circle and never less than a direction asks. Then each piece that is not the strap (`hanging`), a pouch or a
+    holster, is put back as it was drawn: scaled as a whole by the hoop's scale and how much taller it was made,
+    turned about the body's axis and moved with the strap's vertices it hangs from, and nothing else. It is
+    not pushed, leaned or swung clear of what is worn under it: a belt's and a neck piece's accessories clip
+    into the outfit, at rest and more in motion, and that is expected (user, 2026-11-25, 2026-11-26 and again
+    2026-11-26: "clipping is fine for belt and neck slot accessories and is expected"). Leaned out whole until
+    no more than 2 cm inside, Street Casual's pouches stood 18 degrees off the Human male's thighs and 34 off the
+    female's; before, the columns moved each direction of a pouch on its own, the taller and deeper hoop
+    stretched it, and on the Human female, a hoop of 0.36 made 1.38 taller, the pouches came out flared and
+    sheared ("i don't like that the pouch is getting deformed on the belt"); pushed out level by level they
+    stood 10 cm wider than the belt was drawn. Moved as one column by the widest under any of it, a belt over
+    baggy trousers stood off the waistband by as much as their thigh pockets bulge (Street Casual in the client,
+    user, 2026-11-25: "belt still seems too large"). Before it, a
     hoop whose band is less than `BAND` tall is made taller to it (`TALLER` at most) and deeper (`DEEPER` at most):
     heights and how far each point stands off the inner face grow, lengths round the hoop do not."""
     points, centre = np.asarray(points, float), np.asarray(centre, float)
@@ -111,8 +269,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     hoop_way, _, hoop_radius = _cells(points)
     np.minimum.at(inner, hoop_way, hoop_radius)
     inner = _filled(np.where(np.isfinite(inner), inner, np.nan))
-    # the band is where most of the hoop's surface is: the levels within the middle half of its points
-    low, high = np.percentile(points[:, 2], [25, 75])
+    low, high = strap(points)  # the band: the strap's own heights, not where most of the hoop's surface is, which its pouches pull down
     scale = 1.0
     for _ in range(2):  # the band's height depends on the scale, and the scale on what lies at the band's height
         band = (height >= np.floor(low * scale / LEVELS)) & (height <= np.floor(high * scale / LEVELS))
@@ -142,6 +299,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
     grid = np.array([(i, j, GRID - i - j) for i in range(GRID + 1) for j in range(GRID + 1 - i)], float) / GRID  # points over each face
     faces = np.asarray(faces, int)
     moved = np.zeros(DIRECTIONS)
+    band_low, band_high = strap(placed)
     for again in range(3):  # a move changes which level a slanting face lies over what: read again until nothing is left inside
         over = np.einsum('gk,fkc->fgc', grid, placed[faces]).reshape(-1, 3)  # the hoop's surface, not its corners alone
         hoop_way, hoop_level, hoop_radius = _cells(over)
@@ -151,7 +309,7 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
                 least[key] = value
         move = np.full(DIRECTIONS, -np.inf)
         for (direction, band_level), value in least.items():
-            if (direction, band_level) in table:
+            if (band_level + 1) * LEVELS > band_low and (direction, band_level) in table:  # the strap's: what hangs below it moves nothing
                 move[direction] = max(move[direction], table[(direction, band_level)] + clearance - value)
         move = _filled(np.where(np.isfinite(move), move, np.nan))
         move = _evened(np.maximum(move, 0.0) if again else move)  # after the first, only outward
@@ -160,8 +318,16 @@ def wrap(points, faces, under, centre, clearance=CLEARANCE):
         grown = np.maximum(radius + shift, 1e-6) / np.maximum(radius, 1e-6)
         placed = np.stack([placed[:, 0] * grown, placed[:, 1] * grown, placed[:, 2]], axis=1)
         moved = moved + move
+    drawn = scale * taller  # one scale for what hangs: the hoop's, and as much taller as its band was made
+    pieces = hanging(points, faces)
+    for which, anchors in pieces:
+        before, after = points[anchors].mean(axis=0) * scale, placed[anchors].mean(axis=0)
+        turn = np.arctan2(after[1], after[0]) - np.arctan2(before[1], before[0])
+        spin = np.array([[np.cos(turn), -np.sin(turn), 0.0], [np.sin(turn), np.cos(turn), 0.0], [0.0, 0.0, 1.0]])
+        placed[which] = after + (drawn / scale) * ((points[which] * scale - before) @ spin.T)
     move, placed = moved, placed + centre
-    return placed, {'scale': round(scale, 4), 'taller': round(taller, 3), 'moved': [round(float(move.min()), 4), round(float(move.max()), 4)]}
+    return placed, {'pieces': len(pieces), 'scale': round(scale, 4), 'taller': round(taller, 3), 'moved': [round(float(move.min()), 4), round(float(move.max()), 4)],
+                    'strap': [round(band_low + float(centre[2]), 4), round(band_high + float(centre[2]), 4)]}
 
 
 def calm(relief, least, whole):
@@ -228,18 +394,42 @@ def stored(folder):
         return {key: held[key] for key in KEYS}, record.get('surface')
 
 
+def body_side(piece, document, tinted_on, size):
+    """Per texel, the material a belt's faces turned toward the body are drawn in where their colours show a
+    metal, and -1 elsewhere (`texture.tint_maps`' `trim`); None for a piece that has no such faces or no
+    material to give them.
+
+    A belt is drawn in one view, from the front and a little above. What that view never shows, the strap's
+    inner face and the backs of its pouches, the generator paints near-black, and so it paints the buckle
+    and the studs: Street Casual's belt showed two materials, and a fifth of it, leather lying against the
+    body, was tinted on the buckle's metal channel (2026-11-25; the metal channels are for metal, and draw
+    shiny). No metal lies between a belt and its wearer: a face whose normal points more than `BODY_SIDE`
+    toward the hoop's axis takes the commonest material tinted on no metal."""
+    plain = [k for k, kind in enumerate(tinted_on) if kind != 'metal']
+    if document.get('accessory') != 'belt' or not plain or len(plain) == len(tinted_on):
+        return None
+    v, f = np.asarray(piece['v'], float), np.asarray(piece['f'], int)
+    corners = v[f]
+    normal = np.cross(corners[:, 1] - corners[:, 0], corners[:, 2] - corners[:, 0])
+    out = (corners.mean(axis=1) - (v.min(axis=0) + v.max(axis=0)) / 2) * [1.0, 1.0, 0.0]
+    toward = -(normal * out).sum(axis=1) / np.maximum(np.linalg.norm(normal, axis=1) * np.linalg.norm(out, axis=1), 1e-12)
+    return np.where(texture.face_texels(piece['uv'], f, toward > BODY_SIDE, size), plain[0], -1)
+
+
 def tints(piece, document):
-    """((shades, layers), record): a prepared piece's tint texture, each material on the channel its brief names."""
+    """((shades, layers), record): a prepared piece's tint texture, each material on the channel its brief names.
+    A belt's faces turned toward the body are no metal's (`body_side`)."""
     count = len(document['materials'])
-    found = texture.materials(piece['rgb'][piece['covered']], count)
+    found = texture.materials(piece['rgb'][piece['covered']], count, faint=brief.faint(document))
     worn = brief.worn(document, found)
     kinds = [material['kind'] for material in worn]
-    channel = [material['kind'] + str(material.get('channel', 1)) for material in worn]
+    channel = [brief.tinted(material) + str(material.get('channel', 1)) for material in worn]
     size, amount = len(piece['rgb']), float(document.get('wear', 0))
+    hidden = body_side(piece, document, [brief.tinted(material) for material in worn], size)
     lit = texture.lit_shades(piece['rgb'][piece['covered']], found)
     span = float(np.ptp(piece['src'], axis=0).max())
     tinted = texture.tint_maps(
-        piece['rgb'], piece['covered'], found, channel, relief=piece['relief'], charts=texture.chart_map(piece['uv'], piece['f'], size), lit=lit,
+        piece['rgb'], piece['covered'], found, channel, relief=piece['relief'], charts=texture.chart_map(piece['uv'], piece['f'], size), lit=lit, trim=hidden,
         sharpen=texture.SHARPEN, wear=(amount, kinds, *texture.wear_fields(piece['uv'], piece['f'], piece['src'], size, span)) if amount else None)
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': [channel[k]],
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1),
@@ -273,12 +463,14 @@ def surface_failures(whole):
             + [f'the generated piece: a piece of {loose * 1e4:.1f} cm² standing apart from the rest' for loose in whole['debris']])
 
 
-def gates(part, under, model, resources, packs=(), whole=None):
+def gates(part, under, model, resources, packs=(), whole=None, hangs=None):
     """The automatic gates of one fitted accessory: a report as `bake.gates` writes one.
 
     Budgets (`BUDGET`), no triangle the model compiler drops, no name a pack holds, texture closure, the
     generated piece whole (`whole`, what `bake.surface` found), and clearance: no point of the piece more than
-    `INSIDE` inside what is worn under it at rest, which is what would show cloth or skin through it."""
+    `INSIDE` inside what is worn under it at rest, which is what would show cloth or skin through the part that
+    holds it on. Below the height `hangs` (the lower edge of a belt's strap) how deep it stands inside is
+    reported and gates nothing: what hangs from a belt or a neck piece clips by design (`wrap`)."""
     resources, failures = Path(resources), []
     faces = int(len(part['f']))
     if faces > BUDGET['triangles']:
@@ -302,7 +494,8 @@ def gates(part, under, model, resources, packs=(), whole=None):
         failures += [f'{model}: its material file names {image}, which is not there' for image in named if not (resources / (image + '.tga')).is_file()]
     failures += surface_failures(whole)
     points = measure.surface_points(np.asarray(part['v'], float), np.asarray(part['f'], int), SURFACE)
-    deepest, where = 0.0, None
+    deepest, where, sunk = 0.0, None, 0.0
+    low = np.zeros(len(points), bool) if hangs is None else points[:, 2] < hangs
     for name, (v, f) in under.items():
         v, f = np.asarray(v, float), np.asarray(f, int)
         # only a point no farther from the part's own axis than its surface reaches at that height and direction
@@ -319,6 +512,9 @@ def gates(part, under, model, resources, packs=(), whole=None):
         inside = np.zeros(len(points), bool)
         if near.any():
             inside[near] = np.abs(measure.winding(points[near], v, f)) >= 0.5
+        if (inside & low).any():
+            sunk = max(sunk, float(baking._off(points[inside & low], [(v, f)], near=0.08).max()))
+        inside &= ~low
         if inside.any():
             depth = float(baking._off(points[inside], [(v, f)], near=0.08).max())
             if depth > deepest:
@@ -326,7 +522,7 @@ def gates(part, under, model, resources, packs=(), whole=None):
     if deepest > INSIDE:
         failures.append(f'{model}: up to {deepest * 100:.1f} cm inside the {where} worn under it')
     return {'passed': not failures, 'failures': failures, 'triangles': faces, 'texels': int(len(part['rgb'])),
-            'inside': {'deepest': round(deepest, 4), 'part': where}, **({} if whole is None else {'surface': whole})}
+            'inside': {'deepest': round(deepest, 4), 'part': where, 'hanging': round(sunk, 4)}, **({} if whole is None else {'surface': whole})}
 
 
 def fit(document, kept, output, body_pack, number, *, body='pmh0', outfit=None, drop=DROP, turn=0.0, tier=2, packs=(), game=None, resources=(),
@@ -359,7 +555,7 @@ def fit(document, kept, output, body_pack, number, *, body='pmh0', outfit=None, 
     shutil.copyfile(ascii_dir / (model + '.plt'), written / (model + '.plt'))
     record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': {'belt': model}, **colours, 'fit': record,
               'over': None if outfit is None else {'pack': Path(outfit[0]).name, 'number': outfit[1]},
-              'gates': gates(part, under, model, written, packs, whole)}
+              'gates': gates(part, under, model, written, packs, whole, hangs=record['strap'][0])}
     if game is not None:
         compiled = export.compile_models([ascii_dir / (model + '.mdl')], written, game=game, resources=list(resources))
         record['compiled'] = len(compiled)

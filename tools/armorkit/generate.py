@@ -229,7 +229,14 @@ def appearance(work, model, image, fov, shape, models, url=reference.URL):
 
 def export(work, model, mesh, faces, fill=None, url=reference.URL):
     """Remesh a generated mesh at 768 and reduce it to `faces` faces; with `fill`, as a solid with its outside
-    surface only. The mesh is one of the model's own, from a geometry attempt. Not counted."""
+    surface only. The mesh is one of the model's own, from a geometry attempt. Not counted.
+
+    `fill` is a price, not a size: the engine closes an opening (a collar, a hem) where its area times 1 + `fill`
+    is less than the area of the wall inside the outfit, and leaves the outfit hollow, with both walls, where it
+    is more. A lower `fill` closes larger openings; a very low one bridges gaps that are the outfit's own, as
+    between two trouser legs. At 40 Street Casual's first outfit came out solid and its second, a little wider
+    at the collar, hollow at 40, 80 and 160 alike and solid at 20 and at 10 (2026-11-25). The record holds how
+    solid the export is (`repose.solidity`), and an export asked for as a solid that is not one is refused."""
     work, mesh = Path(work).resolve(), Path(mesh).resolve()
     require(mesh.is_file() and mesh.is_relative_to(work / model), f'{mesh} is not a mesh of {model}')
     require(isinstance(faces, int) and faces > 0, 'The number of faces is a whole number')
@@ -244,4 +251,12 @@ def export(work, model, mesh, faces, fill=None, url=reference.URL):
         graph = export_settings(comfy.compile_graph('export', PROFILE, {}, prefix, source=pin), settings)
         record = {'stage': 'export', 'model': model, 'token': token, 'route': 'direct, unguarded', 'settings': settings, 'source': pin}
         (folder / 'graph.json').write_text(json.dumps(graph, indent=1), encoding='utf-8')
-        return finished(folder, record, run(client, url, graph, token, folder, lease, proof))
+        done = finished(folder, record, run(client, url, graph, token, folder, lease, proof))
+    made = [folder / name for name in done.get('files') or [] if name.endswith('.glb')]
+    if fill is not None and made:
+        from . import repose
+        held = float(repose.solidity(*repose.load(made[0])))
+        done = finished(folder, {**{key: value for key, value in done.items() if key != 'folder'}, 'solidity': round(held, 4)})
+        require(held >= repose.SOLID, f'{made[0]} is a hollow shell, not a solid ({held:.3f}, a solid outfit about 0.25): '
+                                      'export again with a lower --fill, which closes larger openings')
+    return done

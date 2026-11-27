@@ -59,6 +59,60 @@ class BriefTests(unittest.TestCase):
                          [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('leather1', 'leather2')])
         with self.assertRaises(ValueError):
             brief.validate(document(('a', 'cloth', GREY), ('b', 'cloth', BLUE), ('c', 'cloth', TAN)))
+        # a third cloth tinted on a kind the outfit has no use for: it stays cloth, and takes that kind's channels
+        three = document(('jacket', 'cloth', GREY), ('trousers', 'cloth', BLUE), ('shirt', 'cloth', TAN))
+        three['materials'][2]['tint'] = 'leather'
+        self.assertEqual([brief.tinted(material) for material in brief.validate(three)['materials']], ['cloth', 'cloth', 'leather'])
+        self.assertEqual(texture.channels([brief.tinted(material) for material in three['materials']]),
+                         [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('leather1', 'leather2')])
+        self.assertEqual(brief.composed(three), brief.composed({**three, 'materials': [{k: v for k, v in m.items() if k != 'tint'} for m in three['materials']]}))
+        for wrong in ('cloth', 'silk', 1):  # its own kind, no kind
+            with self.assertRaises(ValueError):
+                brief.validate({**three, 'materials': three['materials'][:2] + [{**three['materials'][2], 'tint': wrong}]})
+        self.assertEqual(brief.channels(three['materials']), [('cloth1', 'cloth1'), ('cloth2', 'cloth2'), ('leather1', 'leather2')])
+        # named channels: the reference image's colours say what is tinted where, the same on every outfit of a convention
+        named = [{**m, 'channel': n} for m, n in zip(three['materials'], (2, 1, 2))]
+        self.assertEqual(brief.channels(brief.validate({**three, 'materials': named})['materials']),
+                         [('cloth2', 'cloth2'), ('cloth1', 'cloth1'), ('leather2', 'leather2')])
+        for channels in ((1, 1, 2), (1, None, 2), (3, 1, 2)):  # two on one channel, one of a kind unnamed, no such channel
+            with self.assertRaises(ValueError):
+                brief.validate({**three, 'materials': [{**m, **({} if n is None else {'channel': n})} for m, n in zip(three['materials'], channels)]})
+        crowded = document(('a', 'cloth', GREY), ('b', 'leather', BLUE), ('c', 'leather', TAN), ('d', 'cloth', [200, 90, 90]))
+        crowded['materials'][3]['tint'] = 'leather'
+        with self.assertRaises(ValueError):  # three tinted on leather
+            brief.validate(crowded)
+        crowded['materials'][2]['unworn'] = True  # gloves cut off with the bare hands take no channel
+        brief.validate(crowded)
+        for key, value in (('channel', 1), ('tint', 'cloth')):
+            with self.assertRaisesRegex(ValueError, 'names no channel, tint or slots'):
+                brief.validate({**crowded, 'materials': crowded['materials'][:2] + [{**crowded['materials'][2], key: value}] + crowded['materials'][3:]})
+
+    def test_a_material_may_list_the_slots_it_is_worn_on(self):
+        given = document(('shirt', 'cloth', GREY), ('boots', 'leather', TAN))
+        self.assertTrue(all(brief.on(given['materials'][1], slot) for slot in brief.SLOTS))  # anywhere, unless it says
+        boots = lambda slots: {**given, 'materials': [given['materials'][0], {**given['materials'][1], 'slots': slots}]}
+        worn = brief.validate(boots(['shin', 'foot']))['materials'][1]
+        self.assertEqual([slot for slot in brief.SLOTS if brief.on(worn, slot)], ['shin', 'foot'])
+        for wrong in ([], ['foot', 'foot'], ['toe'], 'foot'):
+            with self.assertRaisesRegex(ValueError, 'slots lists the slots'):
+                brief.validate(boots(wrong))
+        from . import bake
+        self.assertEqual(brief.SLOTS, bake.SLOTS)
+
+    def test_the_metal_channels_are_for_metal_and_for_what_is_marked_shiny(self):
+        given = document(('shirt', 'cloth', GREY), ('coat', 'leather', BLUE), ('plates', 'metal', TAN))
+        brief.validate(given)
+        with_coat = lambda **how: {**given, 'materials': [given['materials'][0], {**given['materials'][1], **how}, given['materials'][2]]}
+        with self.assertRaisesRegex(ValueError, 'for metal and for what is shiny'):  # a T-shirt on metal 1 came out glossy in the client
+            brief.validate(with_coat(tint='metal'))
+        shiny = brief.validate(with_coat(tint='metal', shiny=True))  # patent leather says so itself
+        self.assertEqual(brief.channels(shiny['materials']), [('cloth1', 'cloth2'), ('metal1', 'metal1'), ('metal2', 'metal2')])
+        for wrong in (with_coat(shiny=True), with_coat(tint='cloth', shiny=True), with_coat(tint='metal', shiny=False)):
+            with self.assertRaises(ValueError):
+                brief.validate(wrong)
+        for path in sorted(SITEGUARD.parent.glob('*.json')):  # no brief of the kit's own tints a dull material on metal
+            for material in brief.load(path)['materials']:
+                self.assertTrue(brief.tinted(material) != 'metal' or material['kind'] == 'metal' or material.get('shiny'), path.name)
         with self.assertRaises(ValueError):  # seven materials: the game has six channels
             brief.validate(document(*[(str(k), texture.KINDS[k % 3], [30 * k, 200 - 20 * k, 90]) for k in range(7)]))
 
@@ -126,7 +180,12 @@ class BriefTests(unittest.TestCase):
         given = {**document(), 'bare': ['forearm'], 'skin': ['bicep']}
         self.assertEqual(brief.validate(given), given)
         self.assertEqual(brief.composed(given), brief.composed(document()))  # a fact for the bake: the prompt's words are the prompt's
-        for wrong in ({'bare': ['bicep']}, {'skin': ['forearm']}, {'bare': 'forearm'}, {'bare': ['forearm', 'forearm']}, {'skin': [1]}, {'skin': ['chest']}):
+        self.assertEqual(set(brief.BARE), {'chest', 'pelvis', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot'})  # any slot an outfit fills
+        for bare in (['hand'], ['forearm', 'hand'], ['shin', 'foot'], ['chest', 'bicep', 'forearm', 'hand'], ['pelvis', 'thigh'], ['thigh']):
+            self.assertEqual(brief.validate({**document(), 'bare': bare})['bare'], bare)
+        for wrong in ({'skin': ['forearm']}, {'bare': 'forearm'}, {'bare': ['forearm', 'forearm']}, {'skin': [1]}, {'skin': ['chest']},
+                      {'bare': ['shoulder']}, {'skin': ['hand']}, {'bare': ['bicep'], 'skin': ['bicep']},
+                      {'bare': ['chest']}, {'bare': ['pelvis', 'shin']}):  # a torso slot left with its limb kept
             with self.assertRaises(ValueError):
                 brief.validate({**document(), **wrong})
 
@@ -182,6 +241,20 @@ class BriefTests(unittest.TestCase):
                          [(material['name'], material['kind']) for material in first['materials']])
         self.assertEqual(second['pads'], first['pads'])
         self.assertIn('BRIGHT LIGHT SKY BLUE hard plastic', brief.prompt(second))  # written: no two materials are drawn too alike
+
+    def test_a_material_drawn_but_cut_off_with_a_bare_slot_is_not_among_the_baked_outfits(self):
+        given = document(('fabric', 'cloth', GREY), ('gloves', 'leather', TAN), ('plates', 'metal', BLUE))
+        given['materials'][1]['unworn'] = True
+        brief.validate(given)
+        self.assertEqual([material['name'] for material in brief.baked(given)], ['fabric', 'plates'])
+        names = lambda found, **how: [material['name'] for material in brief.worn(given, found, **how)]
+        self.assertEqual(names(shown(TAN, BLUE, GREY)), ['gloves', 'plates', 'fabric'])  # the whole mesh shows the gloves
+        self.assertEqual(names(shown(BLUE, GREY), cut=True), ['plates', 'fabric'])  # the parts cut from it do not
+        with self.assertRaisesRegex(ValueError, 'shows 2 materials and its brief lists 3'):
+            brief.worn(given, shown(BLUE, GREY))
+        given['materials'][1]['unworn'] = False
+        with self.assertRaisesRegex(ValueError, 'unworn is true or left out'):
+            brief.validate(given)
 
     def test_a_brief_may_say_how_worn_it_is_drawn_and_what_colours_its_concept_wears(self):
         given = document()

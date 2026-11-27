@@ -13,10 +13,14 @@ gives the split (`keep_split`), so that the split alone runs again on it in seco
 """
 import functools
 import hashlib
+import importlib
+import inspect
 import json
 import shutil
+import sys
 import time
 import zipfile
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
@@ -28,15 +32,23 @@ from . import bodyskin, brief, export, measure, reduce, registry, repose, seams,
 from . import ends as shaping  # `ends` here is the seam gate
 from .registry import require
 
-ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED)  # what the split made: it has no surface of its own on the generated outfit
-DOMED = (split.CAP, split.PADDED)  # of those, what rounds a surface on past its edge and is not creased there (`export.added_normals`)
+LEFTOVER = split.LEFT_JOINTS  # the joints an under part's end is the leftover of the cut at: all of them (user, 2026-11-25)
+ADDED = (split.CLOSING, split.CAP, split.WALL, split.PADDED, split.KEPT)  # what the split made: it has no surface of its own on the generated outfit
+DOMED = (split.CAP, split.PADDED, split.KEPT)  # of those, what rounds a surface on past its edge and is not creased there (`export.added_normals`)
 UNDER = {'legl': (split.CAP, split.WALL), 'legr': (split.CAP, split.WALL), 'pelvis': (split.CLOSING,),
          'chest': (split.CLOSING,), 'handl': (split.CAP,), 'handr': (split.CAP,)}  # shaded as the cloth round them (`texture.under`)
 ARMHOLE = ('bicepl', 'bicepr')  # the parts closed at a shoulder: their closings lie in the armhole's shadow
 SLOTS = ('chest', 'pelvis', 'shoulder', 'bicep', 'forearm', 'hand', 'thigh', 'shin', 'foot')  # the slots a generated outfit fills
-BUDGET = {'chest': 8000, 'slot': 2900, 'outfit': 40000, 'texture': 1024}  # triangles a chest, another part and a whole outfit may have; texels a side
+TUCKED = ('shoulder',)  # the joints whose closings are brought in under the part beside them (`tucked`): where a sleeve is cut from the torso
+TUCK = 0.002  # metres under that part's surface
+WORKERS = 4  # processes at most that a bake's parts are reduced, laid out and tinted in side by side (`worked`): the machine is shared
+ANKLE_TUCK = 0.25  # a foot's cap starts this share inside its rim: as wide as a boot's shaft, it came out through the front of the trousers above it
+ELSEWHERE = 0.01  # of a part's own surface in the colour of a material its slot does not wear: reported from here
+BUDGET = {'chest': 16000, 'slot': 5800, 'outfit': 80000, 'texture': 1024}  # doubled 2026-11-25 (user); triangles a chest, another part and a whole outfit may have; texels a side
 # (user decision 2026-11-13: the outfit raised from 30,000 to 40,000 for rounded ends; a chest and eleven parts at
 # their budgets come to 39,900)
+EDGED = ('shin', 'forearm')  # slots whose one closing lies inside what is worn at its end (a boot, a glove) and is drawn as that (`texture.tint_maps`)
+HIGHLIGHTS = {'leather': 0.3}  # by kind: the share of its drawn highlights a material keeps (`texture.tint_maps`)
 END_BAND = 0.02  # metres: a part over its budget keeps every vertex this near a joint's plane, where its end is measured
 SKIN_ROUNDS = 3  # a part sharing its slot with the body's skin is reduced again at most this often, as the skin beside it is counted anew
 WHOLE = 'no holes or detached pieces'  # the gate `surface` answers, on the generated outfit as the bake is given it
@@ -44,6 +56,11 @@ SEAM = 'seam contract: each end against its tier\'s overlap and envelope'  # the
 HIDDEN = 'seam contract: every end closed and domed, what closes it hidden at rest and in the design bend'  # the gate `hidden` answers
 NOT_BUILT = (SEAM, HIDDEN, 'clearance: no body surface showing at rest',
              WHOLE)  # gates of docs/armorkit/plan.md that `gates` does not check: WHOLE but on a fresh bake, SEAM and HIDDEN but on a measured body
+LID_SUNK = 0.05  # metres under the neck's plane the faces that close a collar's rim run down to (`collared`)
+COLLAR_GRAIN = 0.003  # metres: a face of the chest is read at points this far apart to tell whether it enters the neck (`collared`)
+COLLAR_STEPS = 48  # and at no more than this many along its longest edge
+COLLAR_HUG = 0.01  # metres: a face of a collar with its three corners over the neck's plane and nearer the neck than this is cut (`collared`)
+COLLAR_TEETH = 8  # times at most the rim left round the neck is read for teeth, and they are taken
 UNCUT = {('neck', 'c')}  # the joints the bake leaves whole (`cut`): the neck stays on the chest as its collar
 ON_PLANE = 1e-4  # metres: a point this near a joint's plane lies on it, wherever the reduction moved it along the plane
 OPEN_LEAST = 0.01  # metres: a part is open on a plane when this much edge or more lies there on one face only. Less is a
@@ -187,7 +204,7 @@ def swept(vertices, faces, scale=1.0):
     return vertices[used], kept.reshape(-1, 3), areas
 
 
-def ends(parts, bones, body, tier, contract=None):
+def ends(parts, bones, body, tier, contract=None, drawn=()):
     """How each end of a baked outfit meets the seam contract (docs/armorkit/seam-contract.md) at tier `tier` on
     body `body`: (report, failures), or None when the contract has no rings of that body.
 
@@ -214,11 +231,14 @@ def ends(parts, bones, body, tier, contract=None):
     report, failures = {}, []
     for joint, spec in seams.JOINTS.items():
         report[joint] = {}
+        if joint in drawn:  # cut as the outfit is drawn there, to no envelope: nothing of the contract's to meet (`bake`'s `drawn`)
+            continue
         for side in seams.sides(joint):
             letter, paired = ('l', None) if side == 'c' else (side, side)
             point, normal = seams.plane(bones, joint, letter)
             envelope = {t: np.array(seams.envelope(contract, joint, body, t, paired)) for t in registry.TIERS}
             offset = {t: contract['tierOffsets'][str(t)] for t in registry.TIERS}
+            here = seams.at(tier, joint)
             ring = envelope[0] - offset[0]
             overlap = {t: seams.overlap(contract, joint, body, t) for t in registry.TIERS}
             limit = REACH * envelope[registry.TIERS[-1]].max()
@@ -230,19 +250,27 @@ def ends(parts, bones, body, tier, contract=None):
             if under in parts:
                 vertices, faces, shared = _outfit(parts[under])
                 widest = seams.standoff(seams.section(vertices, faces, point, normal), ring, limit=limit)[0]
+                # the end is what the part is open on at the plane before the split closed it, not what else of it the plane
+                # passes through: a heavy boot's toe box, 11.7 cm outside the envelope before its shaft (`shaping.opening`)
+                skin_of = np.asarray(parts[under].get('skin', np.zeros(len(parts[under]['f']), bool)), bool)  # nor the body's skin beside it
+                own = np.asarray(parts[under]['f'])[~_added(parts[under]) & ~skin_of] if 'added' in parts[under] or 'made' in parts[under] else None
+                opened = None if own is None else shaping.opening(vertices, own, mesh_ops.weld_ids(vertices, split.WELD), point, normal)
+                if opened is not None:
+                    turns = np.arange(len(ring)) * 2 * np.pi / len(ring)
+                    widest = np.minimum(widest, shaping._around(opened, turns) - ring)
                 found = ~np.isnan(widest)
                 if found.any():
                     past = _past(*_outfit(parts[under], pads=True)[:2], point, normal, limit)[found]  # a pad's cap runs past the plane too
                     fits = [t for t in registry.TIERS if (widest[found] <= offset[t]).all() and (past >= overlap[t]).all()]
-                    outside = widest[found] - offset[tier]
+                    outside = widest[found] - offset[here]
                     row['under'] = {'part': under, 'tier': fits[0] if fits else None, 'outside': round(float(outside.max()), 4),
-                                    'past': round(float(past.min()), 4), 'overlap': round(float(overlap[tier]), 4)}
+                                    'past': round(float(past.min()), 4), 'overlap': round(float(overlap[here]), 4)}
                     if (outside > 0).any():
-                        failures.append(f'{under} at the {joint}: up to {outside.max() * 100:.1f} cm outside the tier {tier} envelope, '
+                        failures.append(f'{under} at the {joint}: up to {outside.max() * 100:.1f} cm outside the tier {here} envelope, '
                                         f'in {int((outside > 0).sum())} of {seams.DIRECTIONS} directions')
-                    if (past < overlap[tier]).any():
-                        failures.append(f'{under} at the {joint}: {past.min() * 100:.1f} cm past the plane, short of the tier {tier} '
-                                        f'overlap of {overlap[tier] * 100:.1f} cm')
+                    if (past < overlap[here]).any():
+                        failures.append(f'{under} at the {joint}: {past.min() * 100:.1f} cm past the plane, short of the tier {here} '
+                                        f'overlap of {overlap[here] * 100:.1f} cm')
                 elif not shared:
                     row['under'] = {'part': under, 'tier': None}
                     failures.append(f'{under} does not reach the {joint} plane')
@@ -252,10 +280,10 @@ def ends(parts, bones, body, tier, contract=None):
                 found = ~np.isnan(nearest)
                 if found.any():
                     opens = [t for t in registry.TIERS if (nearest[found] >= offset[t]).all()]
-                    inside = offset[tier] - nearest[found]
+                    inside = offset[here] - nearest[found]
                     row['over'] = {'part': over, 'tier': opens[-1] if opens else None, 'inside': round(float(inside.max()), 4)}
                     if (inside > 0).any():
-                        failures.append(f'{over} at the {joint}: up to {inside.max() * 100:.1f} cm inside the tier {tier} envelope, '
+                        failures.append(f'{over} at the {joint}: up to {inside.max() * 100:.1f} cm inside the tier {here} envelope, '
                                         f'in {int((inside > 0).sum())} of {seams.DIRECTIONS} directions')
                 elif not shared:
                     row['over'] = {'part': over, 'tier': None}
@@ -460,12 +488,23 @@ def through(parts, bones):
             continue
         start, end = split.bone_line(bones, name)
         skin, axis = v[np.unique(f[kept])], seams.unit(end - start)
+        drawn = cloth
+        cloth = cloth[measure.round_limb(v, cloth, axis, np.asarray(part['added'], bool)[~kept] if 'added' in part else None)]  # no wall across the limb
+        if not len(cloth):  # nothing drawn round the limb: nothing for the skin to stand out through
+            report[name] = 0.0
+            continue
         outside, _, crossed = measure.beyond(skin, start, axis, v, cloth, facing=True)
         most = max(float(np.nanmax(outside)) if np.isfinite(outside).any() else 0.0, 0.0)
         report[name] = round(most, 4)
         if most > THROUGH:
             failures.append(f'{name}: the body\'s own skin beside it stands up to {most * 100:.1f} cm out through the outfit over it')
-        hidden = int((np.isnan(outside) & (crossed >= 0)).sum())
+        behind = np.flatnonzero(np.isnan(outside) & (crossed >= 0))
+        if len(behind) and len(drawn) > len(cloth):
+            # Skin whose ray leaves the outfit by a wall across the limb last stands below a hem, in the open, and
+            # is covered by nothing: the arm under the hems of Street Casual's second sleeves (2026-11-25).
+            last = measure.beyond(skin[behind], start, axis, v, drawn, facing=True)[2]
+            behind = behind[measure.round_limb(v, drawn[last], axis)]
+        hidden = len(behind)
         if hidden:
             failures.append(f'{name}: {hidden} points of the body\'s own skin beside it are covered only by faces turned in, which the client does not draw')
     return report, failures
@@ -490,6 +529,108 @@ def within(bones, name, vertices, faces):
     axis = end - start
     share = np.clip((vertices[faces].mean(axis=1) - start) @ axis / max(float(axis @ axis), 1e-12), 0.0, 1.0)
     return start + share[:, None] * axis
+
+
+def _enters(vertices, faces, solid, grain):
+    """Of `faces`, which enter the closed surface `solid` ((vertices, faces)): a point of the face inside it, of
+    points `grain` apart at the most over the face and along its edges. Only faces whose box reaches the
+    solid's are read."""
+    v, f = np.asarray(vertices, float), np.asarray(faces, int)
+    out = np.zeros(len(f), bool)
+    if not len(f):
+        return out
+    corners = v[f]
+    near = np.flatnonzero((corners.max(axis=1) >= solid[0].min(axis=0)).all(axis=1) & (corners.min(axis=1) <= solid[0].max(axis=0)).all(axis=1))
+    longest = np.linalg.norm(corners[near] - np.roll(corners[near], 1, axis=1), axis=2).max(axis=1) if len(near) else np.zeros(0)
+    steps = np.clip(np.ceil(longest / grain).astype(int), 1, COLLAR_STEPS)
+    for count in np.unique(steps):
+        which = near[steps == count]
+        i, j = np.meshgrid(np.arange(count + 1), np.arange(count + 1), indexing='ij')
+        keep = i + j <= count
+        a, b = i[keep] / count, j[keep] / count
+        weights = np.stack([1 - a - b, a, b], axis=1)  # every point of the grid, the corners and the edges with it
+        points = np.einsum('pk,fkx->fpx', weights, v[f[which]])
+        inside = np.abs(measure.winding(points.reshape(-1, 3), *solid)) >= 0.5
+        out[which] = inside.reshape(len(which), -1).any(axis=1)
+    return out
+
+
+def collared(part, neck, point, normal, sunk=LID_SUNK, grain=COLLAR_GRAIN, hug=COLLAR_HUG):
+    """(part, how many faces were taken): the chest `part` without those of its own faces that enter the body's
+    own `neck` ((vertices, faces)) anywhere (`_enters`, at points `grain` apart) or lie along it, their three
+    corners over the neck's plane and nearer than `hug` outside it, and with a face in their
+    place from each edge they left open, the rim they closed, down to a new vertex on the neck's axis `sunk`
+    under its plane (`point`, unit `normal` toward the head), or half or a quarter as deep where the neck
+    holds no more. An edge is read by where its ends lie, so that a seam of the texture through what is
+    taken opens none. The new vertex has the middle of the edge's two places on the texture, of their
+    normals and of their places on the generated mesh, and the face is flagged as the one that held the
+    edge was. A pad's faces and the body's skin beside the cloth are left. A chest nothing of which enters
+    the neck comes back as it is.
+
+    A generated outfit is a solid, and what closes its collar is a lid of a few faces as long as the neck is
+    wide, corner to corner of the rim (Street Casual on the Human male, the typed trial: 34 faces up to
+    12.6 cm long). A first form made each three round its sunk middle: 68 faces more, the chest 67 over its
+    budget of triangles; a fan takes about as many faces as the lid had. But the lid was not all that showed.
+    A neck leans forward as it rises, the collar drawn for no neck is a roll of cloth in folds one over
+    another, and the front of the neck stood through the folds: each fold met the leaning skin on a line of
+    its own, a step in from the one under it, and the client showed a flat flap with a notched edge before
+    the neck, the same with the lid taken by its faces' middles (typed-6 against typed-8, client,
+    2026-11-26), and the same again with the faces that have a corner in the neck taken, or with every
+    vertex moved out of it: a face with its three corners outside the neck still crosses the corner of one
+    that is a diamond. So every face that enters the neck is taken. Before the neck, too, the collar rose
+    2.5 cm up the neck within 7 mm of it, a band of cloth on the skin, plain and flat, whose top met the
+    leaning skin in a ragged line (typed-9, client, 2026-11-26). The user chose to cut it back to the
+    ribbing: what lies over the neck's plane and along the neck goes with the lid, and the collar ends
+    where its roll stands away from the neck. With them, `COLLAR_TEETH` times at
+    the most, each face left with two of its edges on the rim: folds cut where they met the neck leave a
+    rim in teeth, and the teeth stood before the neck as the flap had. What is left stands clear of the
+    neck, the fan falls from that rim into it all round, and the skin meets the fan alone, on one line."""
+    v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+    own = ~np.asarray(part.get('pad', np.zeros(len(f), bool)), bool) & ~np.asarray(part.get('skin', np.zeros(len(f), bool)), bool)
+    point, normal = np.asarray(point, float), seams.unit(np.asarray(normal, float))
+    neck = (np.asarray(neck[0], float), np.asarray(neck[1], int))
+    from .publish import outside
+    lid = np.zeros(len(f), bool)
+    used = np.unique(f[own])
+    along = np.zeros(len(v), bool)
+    along[used] = ((v[used] - point) @ normal > 0) & (outside(v[used], neck, near=2 * hug) < hug)
+    lid[own] = _enters(v, f[own], neck, grain) | along[f[own]].all(axis=1)
+    if not lid.any():
+        return part, 0
+    for depth in (sunk, sunk / 2, sunk / 4):
+        pole = point - depth * normal
+        if abs(float(measure.winding(pole[None], *neck)[0])) >= 0.5:
+            break
+    else:
+        return part, 0  # nothing of the neck under its plane to run a face down into
+    place = np.unique(np.round(v / split.POINT).astype(np.int64), axis=0, return_inverse=True)[1].reshape(-1)
+    sides = np.unique(np.sort(place[np.stack([f, np.roll(f, -1, axis=1)], axis=2)], axis=2).reshape(-1, 2), axis=0, return_inverse=True)[1].reshape(-1, 3)
+    for _ in range(COLLAR_TEETH):  # a face left with two of its three edges on the rim is a tooth of it
+        open_ = np.zeros(int(sides.max()) + 1, bool)
+        open_[sides[lid].ravel()] = True
+        teeth = own & ~lid & (open_[sides].sum(axis=1) >= 2)
+        if not teeth.any():
+            break
+        lid |= teeth
+    held = np.flatnonzero(lid)
+    ends_ = np.stack([f[held][:, [0, 1, 2]], f[held][:, [1, 2, 0]]], axis=2).reshape(-1, 2)  # each face's three edges, in its winding
+    of = np.repeat(held, 3)
+    _, first, count = np.unique(np.sort(place[ends_], axis=1), axis=0, return_inverse=True, return_counts=True)
+    rim = (count[first.reshape(-1)] == 1) & (place[ends_[:, 0]] != place[ends_[:, 1]])
+    ends_, of = ends_[rim], of[rim]
+    fresh = len(v) + np.arange(len(ends_))
+    out = dict(part)
+    out['v'] = np.concatenate([v, np.repeat(pole[None], len(ends_), axis=0)]).astype(np.asarray(part['v']).dtype)
+    for key in ('uv', 'src'):
+        out[key] = np.concatenate([np.asarray(part[key], float), np.asarray(part[key], float)[ends_].mean(axis=1)])
+    mean = np.asarray(part['n'], float)[ends_].sum(axis=1) + 1e-9 * normal
+    out['n'] = np.concatenate([np.asarray(part['n'], float), mean / np.linalg.norm(mean, axis=1, keepdims=True)])
+    out['f'] = np.concatenate([f[~lid], np.stack([ends_[:, 0], ends_[:, 1], fresh], axis=1)])
+    for key in ('added', 'domed', 'trimmed', 'pad', 'skin'):
+        if key in part:
+            flags = np.asarray(part[key])
+            out[key] = np.concatenate([flags[~lid], flags[of]])
+    return out, int(lid.sum())
 
 
 def faced_out(name, vertices, faces, normals, bones):
@@ -635,8 +776,133 @@ def stages(say, clock=time.perf_counter):
     return mark, seconds
 
 
+def worked(jobs, work, workers=1, cache=None, keys=None):
+    """(results, fresh): `work(job)` of each of `jobs`, in their order, and the numbers of those worked now.
+
+    `work` is a function of this module and a job what it takes, both of them what a process can be handed:
+    with more than one of `workers`, the jobs are worked side by side in that many processes at most, one
+    part of an outfit each. A bake of Street Casual took 21 minutes, 16 of them reducing, laying out and
+    tinting its ten parts one after another on one core (2026-11-25). A result is a dictionary of arrays.
+    With `cache`, a folder, and a key per job (`digest` of all the job is worked from), a result is kept
+    there under its key and read instead of worked when it is met again: a change to the cut at the ankles
+    leaves most parts of an outfit as they were. A file is written under another name and renamed, and one
+    that cannot be read is worked again (`drawn`)."""
+    jobs = list(jobs)
+    results, todo = [None] * len(jobs), []
+    for number in range(len(jobs)):
+        path = None if cache is None else Path(cache) / (keys[number] + '.npz')
+        if path is not None and path.is_file():
+            try:
+                with np.load(path) as kept:
+                    results[number] = {key: kept[key] for key in kept.files}
+                continue
+            except (OSError, ValueError, KeyError, EOFError, zipfile.BadZipFile):
+                pass
+        todo.append(number)
+    if workers > 1 and len(todo) > 1:
+        with ProcessPoolExecutor(max_workers=min(workers, len(todo))) as pool:
+            fresh = list(pool.map(work, [jobs[number] for number in todo]))
+    else:
+        fresh = [work(jobs[number]) for number in todo]
+    for number, result in zip(todo, fresh):
+        results[number] = result
+        if cache is not None:
+            path = Path(cache) / (keys[number] + '.npz')
+            path.parent.mkdir(parents=True, exist_ok=True)
+            scratch = path.with_name(f'{keys[number]}.{time.time_ns()}.part')
+            with open(scratch, 'wb') as handle:
+                np.savez_compressed(handle, **result)
+            try:
+                scratch.replace(path)
+            except OSError:
+                scratch.unlink(missing_ok=True)
+                if not path.is_file():
+                    raise
+    return results, set(todo)
+
+
+def _written(*sources):
+    """One name for how something is worked: the text of the modules and functions it is worked by. A cache
+    keyed with it finds nothing once any of them has changed."""
+    return hashlib.sha256(''.join(Path(source.__file__).read_text(encoding='utf-8') if inspect.ismodule(source) else inspect.getsource(source)
+                                  for source in sources).encode()).hexdigest()
+
+
+def _file(path):
+    """A file as a cache's key names it: where it is, how long and when written."""
+    found = Path(path).resolve()
+    return [str(found), found.stat().st_size, found.stat().st_mtime_ns]
+
+
+_READERS = {}  # per process: the colour and fine-surface readers of the files a bake reads, opened once
+
+
+def _colours(path):
+    """`read(points)` of a saved colour field (`texture.open_field`), opened once a process."""
+    if ('colours', str(path)) not in _READERS:
+        field, levels = texture.open_field(path)
+        _READERS[('colours', str(path))] = lambda points: texture.read_field(field, levels, points)
+    return _READERS[('colours', str(path))]
+
+
+def _fine(path):
+    """`read(points)` of the directions of a generator's high-detail mesh (`texture.normal_field`), read once a process."""
+    if ('fine', str(path)) not in _READERS:
+        raw_v, raw_f = gltf.positions(path)
+        field, levels = texture.normal_field(np.asarray(raw_v), np.asarray(raw_f))
+        _READERS[('fine', str(path))] = lambda points: texture.read_field(field, levels, points)
+    return _READERS[('fine', str(path))]
+
+
+def _library(xatlas):
+    """The layout library: itself, or loaded from the folder a job names it by (a process is handed no library)."""
+    if not isinstance(xatlas, str):
+        return xatlas
+    if xatlas not in sys.path:
+        sys.path.insert(0, xatlas)
+    return importlib.import_module('xatlas')
+
+
+def _laid(job):
+    """One part laid out and its maps read (`bake`), as `worked` works it: the layout (`mapping`, `f`, `uv`,
+    `size`), its colours and relief per texel and the texels of what the split made."""
+    read, read_fine = _colours(job['colours']), _fine(job['raw'])
+    pv, pc = job['v'], job['c']
+    unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
+    mapping, pf, uv, size = texture.laid_out(_library(job['xatlas']), pv, job['f'], int(job['limit']))
+    pv, pc = pv[mapping], pc[mapping]
+    rgb, covered, missed = texture.colour_map(uv, pf, pc[:, 3:6], read, size)
+    if job['under'].any():
+        mine = texture.face_texels(uv, pf, job['under'], size) & covered
+        rgb[mine] = texture.soft_map(uv, pf, pc[:, 3:6], read, size)[mine]
+    relief, _, lost = texture.normal_map(uv, pf, pc[:, 3:6], unit(pc[:, 6:9]), pv, read_fine, size, added=job['added'])
+    return {'mapping': np.asarray(mapping), 'f': np.asarray(pf), 'uv': np.asarray(uv), 'size': np.array(size), 'rgb': rgb, 'covered': covered,
+            'relief': relief, 'missed': np.array(missed), 'lost': np.array(lost),
+            **{key: texture.face_texels(uv, pf, job[key], size) for key in ('closing', 'cap', 'padded')}}
+
+
+def _tinted(job):
+    """One part's tint texture (`tints`), as `worked` works it: `shades` and `layers`."""
+    part, size = job['part'], len(job['part']['rgb'])
+    wear = (job['amount'], job['kinds'], *texture.wear_fields(part['uv'], part['f'], part['src'], size, job['span'])) if job['amount'] else None
+    shades, layers = texture.tint_maps(
+        part['rgb'], part['covered'], job['found'], job['channel'], relief=part['relief'],
+        charts=texture.chart_map(part['uv'], part['f'], size), closing=part['closing'], second=job['twice'],
+        cap=part['cap'], padded=part['padded'], lit=job['lit'], trim=job['trim'],
+        shadow=part['closing'] if job['armhole'] else None, speck=job['speck'], sharpen=texture.SHARPEN, among=job['among'], wear=wear,
+        edged=job['edged'], highlights=job['highlights'])
+    return {'shades': shades, 'layers': layers}
+
+
+def _reduced_job(job):
+    """One part brought under its budget (`within_budget`), as `worked` works it: no skin of the body's beside it."""
+    pv, faces, pc, made, origins, before = _reduced(job['name'], job['v'], job['f'], job['c'], job['made'], job['origins'], job['joints'],
+                                                    {tuple(key.split('|')): radius for key, radius in job['radii'].items()}, int(job['budget']), None)
+    return {'v': pv, 'f': faces, 'c': pc, 'made': made, 'origins': origins, 'before': np.array(before)}
+
+
 def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, say=lambda *_: None, body_textures=None, capture=None,
-         mark=None):
+         mark=None, workers=1, cache=None, resume=None, drawn=()):
     """(parts, bones, whole): a generated outfit as the parts body `body` wears, each with its maps, and what
     it holds of holes and detached pieces (`surface`, at the body's size).
 
@@ -654,74 +920,102 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
     (`skin`) the part also holds the body's own part where the outfit shows it, with its textures
     (`bodyskin.worn`); `body_textures` is the folder of the body's material files and maps. With `capture`, a file
     path, what the split is given is kept there too (`keep_split`). `mark` is the caller's count of its stages
-    (`stages`): given, this bake's stages are added to it, and are in the record `run` writes."""
+    (`stages`): given, this bake's stages are added to it, and are in the record `run` writes.
+
+    The parts are reduced and laid out side by side in `workers` processes, and with `cache`, a folder, each
+    part's reduction and maps are kept there and read again while nothing they are made from has changed
+    (`worked`). With `resume`, the file an earlier bake of this mesh on this body at this tier kept what it
+    gave the split in (`capture`), the mesh is not read, fitted or measured again and `mesh` may be None:
+    the bake goes on from the split, as the code now cuts it. What was measured for the split then is not
+    measured again: a bake after a change to the fit or to what is measured takes the mesh.
+
+    At the joints `drawn` names, the outfit is cut on the plane and its two ends are left as it is drawn
+    there, brought to no envelope. A heavy boot is as long again before the ankle as the envelope is wide:
+    brought to it at any tier, Street Casual's boots were moved by 9 cm and more at the plane, a collar round
+    the ankle with the closing's colour showing under it (user, 2026-11-25: cut where it fits the rig). The
+    two parts fit each other as they were drawn, and no other set's part at that joint."""
     count = len(document['materials'])
     require(not document.get('skin') or body_textures is not None, "An outfit that shows the body's skin on a part needs the folder of the body's textures")
     mark = stages(say)[0] if mark is None else mark
-    bones, skin = measure.body(body_pack, body)
-    source, faces = repose.load(mesh)
-    source, faces, crumbs = swept(source, faces, repose.outfit_joints(source, faces, repose.body_joints(bones, skin))[1]['scale'])
-    if crumbs:
-        say('debris dropped, cm²:', [round(area * 1e4, 2) for area in crumbs])
-    field, levels = texture.open_field(colours)
-    read = lambda points: texture.read_field(field, levels, points)
-    as_read, shown = texture.mesh_materials(to_field(source), faces, read, count)
-    as_read, on_mesh = np.asarray(as_read), brief.worn(document, shown)
-    metals = [k for k, material in enumerate(on_mesh) if material['kind'] == 'metal']
-    kinds = np.asarray(texture.trimmed(source, faces, as_read, metals))  # a line of metal too narrow for a plate goes to what it lies on
-    say('trims', int((kinds != as_read).sum()), 'faces')
-    mark('read the mesh and its materials')
-    listed = [material['name'] for material in document['materials']]
-    brief_of = np.array([listed.index(material['name']) for material in on_mesh] + [-1])
-    carried = repose.onto_body(source, faces, bones, skin, materials=kinds, padded=''.join(document.get('pads', [])))
-    whole = {**surface(source * carried['scale'], faces), 'dropped': crumbs}
-    say('surface', whole)
-    mark('fit to the body')
-    v, f, source = carried['vertices'], carried['faces'], carried['source']
-    raw_v, raw_f = gltf.positions(raw)
-    fine, fine_levels = texture.normal_field(np.asarray(raw_v), np.asarray(raw_f))
-    read_fine = lambda points: texture.read_field(fine, fine_levels, points)
-    mark('read the fine surface')
-    in_field = to_field(source)
-    contract = seams.load_contract()
-    joints = {name: matrix[:3, 3] for name, matrix in bones.items()}
-    keys = [(joint, side) for joint in seams.JOINTS for side in seams.sides(joint)]
-    radii = {key: float(np.max(seams.envelope(contract, key[0], body, tier, None if key[1] == 'c' else key[1]))) for key in keys}
-    # the seat stays on the pelvis, cut where the body's own pelvis ends, and each thigh ends just inside its envelope
-    seat = {('hip', side): {'reach': measure.seat(skin, *seams.plane(bones, 'hip', side), side),
-                            'ring': np.asarray(seams.envelope(contract, 'hip', body, tier, side), float) - shaping.MARGIN,
-                            'bend': float(contract['joints']['hip']['bodies'][body]['bend'][contract['designBend']])} for side in 'lr'}
-    # the upper arm leaves the chest where the body's own does, and ends just inside its envelope
-    arms = {('shoulder', side): {'line': measure.armhole(skin, *seams.plane(bones, 'shoulder', side), side),
-                                 'ring': np.asarray(seams.envelope(contract, 'shoulder', body, tier, side), float) - shaping.MARGIN,
-                                 'bend': float(contract['joints']['shoulder']['bodies'][body]['bend'][contract['designBend']])} for side in 'lr'}
-    overlaps = {key: float(seams.overlap(contract, key[0], body, tier)) + (shaping.DEEPER if key[0] in shaping.TUBES or key in seat or key in arms else 0.0)
-                for key in keys}
-    # the posed normals, and the positions and normals on the generated mesh, ride through the cut
-    columns = np.concatenate([export.vertex_normals(v, f), in_field, export.vertex_normals(in_field, f)], axis=1)
-    mats, read_as = kinds[carried['origin']], as_read[carried['origin']]
-    guards = {(joint, side): flags for joint in split.GUARDS for side in 'lr'
-              for flags in [split.guard(v, f, mats, joints, joint, side, read=read_as)] if flags is not None}
-    say('pads', {key: int(flags.sum()) for key, flags in guards.items()})
-    given = {'vertices': v, 'faces': f, 'columns': columns, 'joints': joints, 'radii': radii, 'overlaps': overlaps,
-             'reaches': split.reaches(v, f, joints, radii, sleeves=carried['sleeves']), 'sleeves': carried['sleeves'], 'guards': guards,
-             'seat': seat, 'arms': arms, 'bones': bones, 'body': body, 'tier': tier, 'left': sorted(left_to_body(document)),
-             'shared': sorted(shared_with_body(document))}
-    if capture is not None:
-        keep_split(given, capture)
-        say('split inputs kept in', capture)
-    mark('measure the split')
+    if resume is not None:
+        given = kept_split(resume)
+        require('bake' in given, f'{resume} was kept by a bake that could not be gone on from: bake the mesh once more with --capture')
+        require(given['body'] == body and given['tier'] == tier,
+                f"{resume} was kept for {given['body']} at tier {given['tier']}, not {body} at tier {tier}")
+        kept = given.pop('bake')
+        mats, metals, brief_of, whole = np.asarray(kept['mats']), list(kept['metals']), np.asarray(kept['brief_of']), kept['whole']
+        tones = np.asarray(kept['tones'])
+        bones, guards, contract = given['bones'], given['guards'], seams.load_contract()
+        v, f, columns = given['vertices'], given['faces'], given['columns']
+        read = _colours(colours)
+        mark('read the kept split inputs')
+    else:
+        bones, skin = measure.body(body_pack, body)
+        source, faces = repose.load(mesh)
+        held = repose.solidity(source, faces)
+        require(held >= repose.SOLID, f'{mesh} is a hollow shell, not a solid (it holds {held:.3f} of a ball with its surface, a solid outfit about 0.25): '
+                'export it again with a lower --fill, which closes larger openings')
+        source, faces, crumbs = swept(source, faces, repose.outfit_joints(source, faces, repose.body_joints(bones, skin))[1]['scale'])
+        if crumbs:
+            say('debris dropped, cm²:', [round(area * 1e4, 2) for area in crumbs])
+        read = _colours(colours)
+        as_read, shown = texture.mesh_materials(to_field(source), faces, read, count, faint=brief.faint(document))
+        as_read, on_mesh = np.asarray(as_read), brief.worn(document, shown)
+        metals = [k for k, material in enumerate(on_mesh) if material['kind'] == 'metal']
+        kinds = np.asarray(texture.trimmed(source, faces, as_read, metals))  # a line of metal too narrow for a plate goes to what it lies on
+        say('trims', int((kinds != as_read).sum()), 'faces')
+        tones = shown['tones']
+        mark('read the mesh and its materials')
+        listed = [material['name'] for material in document['materials']]
+        brief_of = np.array([listed.index(material['name']) for material in on_mesh] + [-1])
+        carried = repose.onto_body(source, faces, bones, skin, materials=kinds, padded=''.join(document.get('pads', [])))
+        whole = {**surface(source * carried['scale'], faces), 'dropped': crumbs}
+        say('surface', whole)
+        mark('fit to the body')
+        v, f, source = carried['vertices'], carried['faces'], carried['source']
+        in_field = to_field(source)
+        contract = seams.load_contract()
+        joints = {name: matrix[:3, 3] for name, matrix in bones.items()}
+        keys = [(joint, side) for joint in seams.JOINTS for side in seams.sides(joint)]
+        radii = {key: float(np.max(seams.envelope(contract, key[0], body, tier, None if key[1] == 'c' else key[1]))) for key in keys}
+        # the seat stays on the pelvis, cut where the body's own pelvis ends, and each thigh ends just inside its envelope
+        seat = {('hip', side): {'reach': measure.seat(skin, *seams.plane(bones, 'hip', side), side), 'briefs': True,
+                                'ring': np.asarray(seams.envelope(contract, 'hip', body, tier, side), float) - shaping.MARGIN,
+                                'bend': float(contract['joints']['hip']['bodies'][body]['bend'][contract['designBend']])} for side in 'lr'}
+        # the upper arm leaves the chest where the body's own does, and ends just inside its envelope
+        arms = {('shoulder', side): {'line': measure.armhole(skin, *seams.plane(bones, 'shoulder', side), side),
+                                     'ring': np.asarray(seams.envelope(contract, 'shoulder', body, tier, side), float) - shaping.MARGIN,
+                                     'bend': float(contract['joints']['shoulder']['bodies'][body]['bend'][contract['designBend']])} for side in 'lr'}
+        overlaps = {key: float(seams.overlap(contract, key[0], body, tier)) + (shaping.DEEPER if key[0] in shaping.TUBES or key in seat or key in arms else 0.0)
+                    for key in keys}
+        # the posed normals, and the positions and normals on the generated mesh, ride through the cut
+        columns = np.concatenate([export.vertex_normals(v, f), in_field, export.vertex_normals(in_field, f)], axis=1)
+        mats, read_as = kinds[carried['origin']], as_read[carried['origin']]
+        guards = {(joint, side): flags for joint in split.GUARDS for side in 'lr'
+                  for flags in [split.guard(v, f, mats, joints, joint, side, read=read_as)] if flags is not None}
+        say('pads', {key: int(flags.sum()) for key, flags in guards.items()})
+        given = {'vertices': v, 'faces': f, 'columns': columns, 'joints': joints, 'radii': radii, 'overlaps': overlaps,
+                 'reaches': split.reaches(v, f, joints, radii, sleeves=carried['sleeves']), 'sleeves': carried['sleeves'], 'guards': guards,
+                 'seat': seat, 'arms': arms, 'bones': bones, 'body': body, 'tier': tier, 'left': sorted(left_to_body(document)),
+                 'shared': sorted(shared_with_body(document))}
+        if capture is not None:  # with what the bake itself goes on from past the split (`resume`)
+            keep_split({**given, 'bake': {'mats': mats, 'metals': metals, 'brief_of': brief_of, 'whole': whole, 'tones': np.asarray(tones)}}, capture)
+            say('split inputs kept in', capture)
+        mark('measure the split')
+    given['drawn'] = sorted(drawn)
     result, made, origins = cut(given, contract)
     mark('split')
     own_part = functools.lru_cache(maxsize=None)(lambda name: bodyskin.body_part(body_pack, body_textures, body, name, bones))  # read once a bake
     beside = {name: lambda pv, pf, slot=slot, name=name: skin_beside(own_part(name), bones, slot, name, pv, pf)
               for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens'] if name in result}
-    result = within_budget(result, made, origins, given['joints'], given['radii'], beside, left_to_body(document), say)
+    result = within_budget(result, made, origins, given['joints'], given['radii'], beside, left_to_body(document), say, workers, cache)
     mark('reduce')
     unit = lambda rows: rows / np.maximum(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12)
     seen_at = None  # the material the outfit shows at each of its vertices, read once
-    parts = {}
+    parts, jobs, rest = {}, [], {}
     left = left_to_body(document)
+    # a process is handed the folder the layout library is in, not the library: one that names none is worked here
+    where = str(Path(xatlas.__file__).parent) if workers > 1 and getattr(xatlas, '__file__', None) else None
     for name, (pv, pf, pc) in result.items():
         if name in left:  # the body's: what the outfit has there is cut off on the joint's plane, and no map is made of it
             say(f'{name}: left to the body, {len(pf)} faces of the outfit cut off')
@@ -737,7 +1031,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
         bare = (of_face >= 0) & ~np.isin(of_face, metals)  # a face that is no plate's shows no plate
         if role['under'].any():  # the cloth of the part's commonest material, where the outfit shows that colour
             if seen_at is None:
-                seen_at = texture.labels(np.asarray(read(columns[:, 3:6])[0], float)[:, :3], shown['tones'])
+                seen_at = texture.labels(np.asarray(read(columns[:, 3:6])[0], float)[:, :3], tones)
             main = np.bincount(of_face[of_face >= 0]).argmax()
             cloth = np.zeros(len(v), bool)
             cloth[f[mats == main]] = True
@@ -745,21 +1039,28 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
             pc = pc.copy()
             pc[only, 3:9] = columns[near, 3:9]
         # a part that shares its texture with the body's skin gets a quarter of it (`bodyskin.worn`): laid out larger, its maps would be halved again
-        mapping, pf, uv, size = texture.laid_out(xatlas, pv, pf, BUDGET['texture'] // (2 if name in shared_with_body(document) else 1))
-        pv, pc = pv[mapping], pc[mapping]
-        rgb, covered, missed = texture.colour_map(uv, pf, pc[:, 3:6], read, size)
-        if role['under'].any():
-            mine = texture.face_texels(uv, pf, role['under'], size) & covered
-            rgb[mine] = texture.soft_map(uv, pf, pc[:, 3:6], read, size)[mine]
-        relief, _, lost = texture.normal_map(uv, pf, pc[:, 3:6], unit(pc[:, 6:9]), pv, read_fine, size, added=role['added'])
-        parts[name] = {'v': pv, 'f': pf, 'uv': uv, 'n': unit(pc[:, :3]), 'rgb': rgb, 'covered': covered, 'relief': relief,
-                       **{key: texture.face_texels(uv, pf, role[key], size) for key in ('closing', 'cap', 'padded')},
+        jobs.append({'v': pv, 'f': pf, 'c': pc, 'limit': BUDGET['texture'] // (2 if name in shared_with_body(document) else 1),
+                     **{key: role[key] for key in ('under', 'added', 'closing', 'cap', 'padded')}})
+        rest[name] = (role, pad, bare, of_face)
+    how = _written(texture, gltf, _laid, _colours, _fine, _library) if cache is not None and jobs else None
+    library = Path(xatlas.__file__).parent.name if getattr(xatlas, '__file__', None) else getattr(xatlas, '__name__', type(xatlas).__name__)
+    keys = [digest(how, job, _file(colours), _file(raw), library) for job in jobs] if cache is not None else None
+    laid, fresh = worked([{**job, 'colours': str(colours), 'raw': str(raw), 'xatlas': where or xatlas} for job in jobs], _laid, workers if where else 1,
+                         None if cache is None else Path(cache) / 'layout', keys)
+    for number, (name, (role, pad, bare, of_face)) in enumerate(rest.items()):
+        job, got = jobs[number], laid[number]
+        mapping, size = got['mapping'], int(got['size'])
+        pv, pc = job['v'][mapping], job['c'][mapping]
+        parts[name] = {'v': pv, 'f': got['f'], 'uv': got['uv'], 'n': unit(pc[:, :3]), 'rgb': got['rgb'], 'covered': got['covered'], 'relief': got['relief'],
+                       **{key: got[key] for key in ('closing', 'cap', 'padded')},
                        'added': role['added'], 'domed': role['domed'], 'src': pc[:, 3:6], 'trimmed': np.where(bare, brief_of[of_face], -1), 'pad': pad}
-        say(f'{name}: {size} px, {len(pf)} faces, covered {covered.mean():.0%}, no colour {missed}, no normal {lost}')
+        say(f"{name}: {size} px, {len(got['f'])} faces, covered {got['covered'].mean():.0%}, no colour {int(got['missed'])}, no normal {int(got['lost'])}"
+            + ('' if cache is None else ', laid out now' if number in fresh else ', read from the cache'))
     mark('lay out, colour and relief')
     # what the torso wears over a sleeve is drawn as the sleeve's cloth, with the sleeve's closings
     if 'chest' in parts:
-        first = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
+        first = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), len(brief.baked(document)),
+                                  faint=brief.faint(document))
         chest = parts['chest']
         seen = np.where(chest['covered'], texture.labels(chest['rgb'].reshape(-1, 3), first['tones']).reshape(chest['covered'].shape), -1)
         others = texture.edge_materials(seen, texture.face_texels(chest['uv'], chest['f'], made['chest'] == split.CLOSING, len(chest['rgb'])))
@@ -770,6 +1071,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                 over = texture.overlaid(part['v'], part['f'], shows, made[name] == split.CLOSING, others)
                 part['closing'] = texture.face_texels(part['uv'], part['f'], (made[name] == split.CLOSING) | over, size)
     parts = skinned(parts, document, body_pack, body_textures, body, bones, say, own_part)
+    parts = tucked(parts, bones, say=say)
     mark("sleeve closings and the body's skin")
     return parts, bones, whole
 
@@ -785,8 +1087,9 @@ def cut(given, contract=None):
     bare = bare_joints(given)
     result = split.split(given['vertices'], given['faces'], given['columns'], given['joints'], given['radii'], given['overlaps'],
                          reaches=given['reaches'], whole=UNCUT, made=made, sleeves=given['sleeves'], guards=given['guards'],
-                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'], bare=bare),
-                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={key: shaping.TUCK for key in bare},
+                         origins=origins, shape=shaping.shaper(given['bones'], contract, given['body'], given['tier'], given['guards'],
+                                               joints=tuple(joint for joint in shaping.TUBES if joint not in given.get('drawn', ())), bare=bare),
+                         deep=shaping.TUBES, seat=given['seat'], arms=given['arms'], tucks={**{('ankle', side): ANKLE_TUCK for side in 'lr'}, **{key: shaping.TUCK for key in bare}}, kept=tuple(given.get('kept', LEFTOVER)),
                          ends=contract.get('ends'))
     return result, made, origins
 
@@ -817,7 +1120,7 @@ def welded(points, faces, which):
     return faces[whole], np.asarray(which)[whole]
 
 
-def within_budget(result, made, origins, joints, radii, beside=None, left=(), say=lambda *_: None):
+def within_budget(result, made, origins, joints, radii, beside=None, left=(), say=lambda *_: None, workers=1, cache=None):
     """The split's parts (`cut`), each part over its triangle budget (`BUDGET`) brought under it (`reduce`).
 
     `made` and `origins` are the split's flags per face of each part and are cut down to the faces kept.
@@ -836,56 +1139,79 @@ def within_budget(result, made, origins, joints, radii, beside=None, left=(), sa
     The ring of an under end on its plane loses no point in any pass, a cap's included: where the ring is
     dented, a chord left by a point taken out stands outside the curve, and the end's section, which the seam
     contract measures there, stood up to a millimetre outside the envelope (Facility Security with domes,
-    2026-11-13). A reduced part keeps no triangle with two corners at one point."""
-    beside, out, planes = beside or {}, {}, None
+    2026-11-13). A reduced part keeps no triangle with two corners at one point.
+
+    The parts with none of the body's skin beside them are reduced side by side in `workers` processes, and with
+    `cache`, a folder, kept there and read again while nothing they are reduced from has changed (`worked`)."""
+    beside, out = beside or {}, {}
+    budget_of = lambda name: BUDGET['chest'] if name == 'chest' else BUDGET['slot']
+    alone = [name for name, (pv, pf, pc) in result.items() if name not in left and name not in beside and len(pf) > budget_of(name)]
+    jobs = [{'name': name, 'v': result[name][0], 'f': result[name][1], 'c': result[name][2], 'made': made[name], 'origins': origins[name],
+             'joints': joints, 'radii': {'|'.join(key): radius for key, radius in radii.items()}, 'budget': budget_of(name)} for name in alone]
+    how = _written(reduce, split, seams, _reduced, _reduced_job, welded) if cache is not None and jobs else None
+    done, _ = worked(jobs, _reduced_job, workers, None if cache is None else Path(cache) / 'reduce',
+                     [digest(how, job) for job in jobs] if cache is not None else None)
+    done = dict(zip(alone, done))
     for name, (pv, pf, pc) in result.items():
-        budget = BUDGET['chest'] if name == 'chest' else BUDGET['slot']
-        count = beside.get(name, lambda *_: 0)
-        held = 0 if name in left else count(pv, pf)  # the body's faces beside the part as it stands, counted anew as it is cut down
-        if name in left or len(pf) + held <= budget:
+        count = beside.get(name)
+        held = 0 if name in left or count is None else count(pv, pf)  # the body's faces beside the part as it stands, counted anew as it is cut down
+        if name in left or len(pf) + held <= budget_of(name):
             out[name] = (pv, pf, pc)
             continue
-        own = np.zeros(len(pv), bool)
-        own[pf[made[name] == split.OWN].ravel()] = True
-        added = np.zeros(len(pv), bool)
-        added[pf[made[name] != split.OWN].ravel()] = True
-        capped = np.zeros(len(pv), bool)
-        capped[pf[made[name] == split.CAP].ravel()] = True
-        capped &= ~own & ~np.isin(np.arange(len(pv)), pf[(made[name] != split.CAP) & (made[name] != split.OWN)].ravel())
-        planes = split.planes(joints) if planes is None else planes
-        near, lines, ring = np.zeros(len(pv), bool), np.zeros(len(pv), np.int64), np.zeros(len(pv), bool)
-        for bit, (key, (point, normal)) in enumerate(planes.items()):
-            unit = seams.unit(normal)
-            along = (pv - point) @ unit
-            inside = np.linalg.norm((pv - point) - along[:, None] * unit, axis=1) < 2 * radii[key]
-            near |= (np.abs(along) < END_BAND) & inside
-            on_plane = (np.abs(along) < split.WELD) & inside
-            # an under end's ring on its plane stays whole: where the ring is dented, a point taken out along it left a
-            # chord standing outside the curve, and the end's section up to a millimetre outside the seam contract's
-            # envelope (Facility Security with domes, 2026-11-13); an over end is measured inside its plane
-            if split.token(seams.JOINTS[key[0]]['under'], 'l' if key[1] == 'c' else key[1]) == name:
-                ring |= on_plane
-            else:
-                lines |= np.where(on_plane, np.int64(1) << bit, np.int64(0))
-        before, kept, faces, which = len(pf), np.arange(len(pv)), pf, np.arange(len(pf))
-        for locked, on in ((added | near, None), ((added & ~capped) | (near & own) | ring, None), (ring, lines)):
-            if on is not None:  # the split builds one vertex per point of a line where its closings meet: made one, they reduce
-                faces, which = welded(pv[kept], faces, which)
-            for _ in range(SKIN_ROUNDS):
-                if len(faces) + held <= budget:
-                    break
-                again, faces, inner = reduce.reduce(pv[kept], faces, budget - held, locked[kept], None if on is None else on[kept])
-                kept, which = kept[again], which[inner]
-                held = count(pv[kept], faces)
+        if name in done:
+            kept, faces, columns, made[name], origins[name], before = (done[name][key] for key in ('v', 'f', 'c', 'made', 'origins', 'before'))
+            before = int(before)
+        else:
+            kept, faces, columns, made[name], origins[name], before = _reduced(name, pv, pf, pc, made[name], origins[name], joints, radii, budget_of(name), count)
+        out[name] = (kept, faces, columns)
+        say(f'{name}: reduced from {before} to {len(faces)} faces for its budget of {budget_of(name)}')
+    return out
+
+
+def _reduced(name, pv, pf, pc, made, origins, joints, radii, budget, count):
+    """One part over its triangle budget brought under it (`within_budget`): (vertices, faces, columns, made,
+    origins, the faces it had). `count(vertices, faces)` counts the body's own faces beside it, or is None."""
+    count = count or (lambda *_: 0)
+    held = count(pv, pf)
+    own = np.zeros(len(pv), bool)
+    own[pf[made == split.OWN].ravel()] = True
+    added = np.zeros(len(pv), bool)
+    added[pf[made != split.OWN].ravel()] = True
+    capped = np.zeros(len(pv), bool)
+    ended = np.isin(made, (split.CAP, split.KEPT))  # a cap, or the leftover an end is made of (`split.kept_end`)
+    capped[pf[ended].ravel()] = True
+    capped &= ~own & ~np.isin(np.arange(len(pv)), pf[~ended & (made != split.OWN)].ravel())
+    planes = split.planes(joints)
+    near, lines, ring = np.zeros(len(pv), bool), np.zeros(len(pv), np.int64), np.zeros(len(pv), bool)
+    for bit, (key, (point, normal)) in enumerate(planes.items()):
+        unit = seams.unit(normal)
+        along = (pv - point) @ unit
+        inside = np.linalg.norm((pv - point) - along[:, None] * unit, axis=1) < 2 * radii[key]
+        near |= (np.abs(along) < END_BAND) & inside
+        on_plane = (np.abs(along) < split.WELD) & inside
+        # an under end's ring on its plane stays whole: where the ring is dented, a point taken out along it left a
+        # chord standing outside the curve, and the end's section up to a millimetre outside the seam contract's
+        # envelope (Facility Security with domes, 2026-11-13); an over end is measured inside its plane
+        if split.token(seams.JOINTS[key[0]]['under'], 'l' if key[1] == 'c' else key[1]) == name:
+            ring |= on_plane
+        else:
+            lines |= np.where(on_plane, np.int64(1) << bit, np.int64(0))
+    before, kept, faces, which = len(pf), np.arange(len(pv)), pf, np.arange(len(pf))
+    for locked, on in (((added & ~capped) | (near & ~capped) | ring, None), ((added & ~capped) | (near & own) | ring, None), (ring, lines)):
+        if on is not None:  # the split builds one vertex per point of a line where its closings meet: made one, they reduce
+            faces, which = welded(pv[kept], faces, which)
+        for _ in range(SKIN_ROUNDS):
             if len(faces) + held <= budget:
                 break
-        corners = pv[kept][faces]
-        whole = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2).min(axis=1) >= POINT  # no area: the compiler drops it
-        faces, which = faces[whole], which[whole]
-        made[name], origins[name] = made[name][which], origins[name][which]
-        out[name] = (pv[kept], faces, pc[kept])
-        say(f'{name}: reduced from {before} to {len(faces)} faces for its budget of {budget}')
-    return out
+            again, faces, inner = reduce.reduce(pv[kept], faces, budget - held, locked[kept], None if on is None else on[kept])
+            kept, which = kept[again], which[inner]
+            held = count(pv[kept], faces)
+        if len(faces) + held <= budget:
+            break
+    corners = pv[kept][faces]
+    whole = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2).min(axis=1) >= POINT  # no area: the compiler drops it
+    faces, which = faces[whole], which[whole]
+    return pv[kept], faces, pc[kept], made[which], origins[which], before
 
 
 def pad_flags(made, origins, guards):
@@ -913,7 +1239,7 @@ def kept_split(path):
         return _unflat(json.loads(str(data['skeleton'])), data)
 
 
-def resplit(capture, contract=None, body_pack=None):
+def resplit(capture, contract=None, body_pack=None, workers=1, cache=None):
     """The split run again with the code as it stands on what a bake kept (`keep_split`), in seconds where the bake
     takes minutes: (parts, report). `parts` maps each part a bake would bake (none the brief leaves to the body)
     to its `v`, `f`, `made` (what made each face: `split.OWN`, `split.CLOSING` and so on) and `pad` (`pad_flags`).
@@ -923,10 +1249,11 @@ def resplit(capture, contract=None, body_pack=None):
     models, what an end next to a slot left to the body added is measured against the body's skin too. Nothing
     is laid out, coloured or written: the gates of a written outfit are `run`'s."""
     given = kept_split(capture)
+    given.pop('bake', None)  # what a bake goes on from past the split (`bake`'s `resume`)
     began = time.monotonic()
     result, made, origins = cut(given, contract)
     left, shared = set(given.get('left', ())), set(given.get('shared', ()))
-    result = within_budget(result, made, origins, given.get('joints'), given.get('radii'), left=left)  # the body's skin beside a part is not counted here
+    result = within_budget(result, made, origins, given.get('joints'), given.get('radii'), left=left, workers=workers, cache=cache)  # the body's skin beside a part is not counted here
     seconds = time.monotonic() - began
     parts = {name: {'v': pv, 'f': faced_out(name, pv, pf, np.zeros((len(pv), 3)), given['bones'])[0], 'made': made[name],
                     'pad': pad_flags(made[name], origins[name], given['guards'])}
@@ -935,7 +1262,7 @@ def resplit(capture, contract=None, body_pack=None):
         parts[name]['skin'] = np.zeros(len(parts[name]['f']), bool)
     collapsed = {name: _collapsed(part['v'], part['f']) for name, part in parts.items()}
     failures = [f'{name}: {count} triangles with two corners at one point, which the model compiler drops' for name, count in collapsed.items() if count]
-    joined = ends(parts, given['bones'], given['body'], given['tier'], contract)
+    joined = ends(parts, given['bones'], given['body'], given['tier'], contract, given.get('drawn', ()))
     began = time.monotonic()
     skin = None if body_pack is None else measure.body(body_pack, given['body'])[1]
     covered = hidden(parts, given['bones'], given['body'], contract, skin, left)
@@ -995,21 +1322,118 @@ def shared_with_body(document):
     return {name for slot in document.get('skin', []) for name in registry.SLOTS[slot]['tokens']}
 
 
-def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None, own_part=None):
+def over_own_skin(part, name, bones, most=None):
+    """(part, moved): `part`, holding the body's own skin beside the outfit's (`bodyskin.worn`), with the outfit
+    pushed out over that skin where the skin stands out through it by more than the gate lets it (`through`,
+    `THROUGH`), as a refit pushes a sleeve out over another body's arm (`refit.over_skin`), and how far it
+    moved at most, in metres: 0 for a part that passes as it is, which is left as it is. Nothing within
+    `END_BAND` of either end of the part's bone moves, where the seam contract measures its ends: pushed out
+    whole, the sleeves stood up to 4 mm outside the shoulder's envelope. Faces the push bared from behind are
+    turned out (`faced_out`). A loose short sleeve hangs off the arm on its outside and lies against it on
+    the side toward the torso, where the cut from the torso leaves it: the arm kept beside Street Casual's
+    sleeves stood 1.7 and 2.4 cm out through them under the armpit (2026-11-24)."""
+    if not through({name: part}, bones)[1]:
+        return part, 0.0
+    from . import refit  # refit reads this module
+    start, end = split.bone_line(bones, name)
+    v, axis = np.asarray(part['v'], float), seams.unit(end - start)
+    along = (v - start) @ axis
+    held = refit.over_skin(part, start, end, fixed=(along < END_BAND) | (along > float((end - start) @ axis) - END_BAND), most=refit.OVER_MOST if most is None else most)
+    cloth = ~np.asarray(held['skin'], bool)
+    faces, normals = np.asarray(held['f'], int).copy(), held['n']
+    faces[cloth], normals, _ = faced_out(name, held['v'], faces[cloth], normals, bones)
+    return {**held, 'f': faces.astype(np.asarray(part['f']).dtype), 'n': normals}, float(np.linalg.norm(np.asarray(held['v'], float) - v, axis=1).max())
+
+
+def tucked(parts, bones, contract=None, joints=TUCKED, say=lambda *_: None):
+    """`parts` with the closings at `joints` brought in under the part beside them, where they stood out past it
+    as the body stands; a part with none that did is the one given.
+
+    A closing is a fan across a cut, from the cut's line to its middle, rounded out toward the joint. Round
+    a close sleeve the line is all but flat and the fan lies inside the two parts it parts. A loose sleeve's
+    cut runs through the folds the shirt hangs in before the armpit, the fan bridges them, and the chest's
+    lid over its armhole stood 2.1 cm out in front of Street Casual's left sleeve, in plain sight; the
+    sleeve's own, toward the torso, 1.1 cm off the chest's side, which failed `hidden` (2026-11-25).
+
+    At each of the joints, a vertex only what the split added uses (not a pad's, not the body's skin) that
+    lies outside every other part and more than half the contract's `rest` from the nearest of them is set
+    `TUCK` under that nearest surface, read as `hidden` reads it. In the part under the joint that is every
+    such vertex, the ones `hidden` measures as the body stands; in the part over it only those of its flat
+    closings, since its dome stands out over the under part by contract. The line itself, the outfit's own
+    edge, stays. What closes a part keeps closing it: its faces now run from the edge in under the other
+    part, as cloth that is sewn to it would."""
+    rule = (seams.load_contract() if contract is None else contract).get('ends', seams.ENDS)
+    parts = dict(parts)
+    planes = {(joint, side): np.asarray(seams.plane(bones, joint, 'l' if side == 'c' else side)[0], float)
+              for joint in seams.JOINTS for side in seams.sides(joint) if (joint, side) not in UNCUT}
+    slots = {key: tuple(split.token(seams.JOINTS[key[0]][end], 'l' if key[1] == 'c' else key[1]) for end in ('over', 'under')) for key in planes}
+    for key in (key for key in planes if key[0] in joints and all(name in parts for name in slots[key])):
+        for under, name in enumerate(slots[key]):
+            part = parts[name]
+            v, f = np.asarray(part['v'], float), np.asarray(part['f'], int)
+            flag = lambda field: np.asarray(part.get(field, np.zeros(len(f), bool)), bool)
+            flat = _added(part) & ~flag('pad') & ~flag('skin') & (~flag('domed') | bool(under))
+            mine = [other for other in planes if name in slots[other]]
+            here = np.linalg.norm(v[:, None] - np.array([planes[other] for other in mine])[None], axis=2).argmin(axis=1) == mine.index(key)
+            which = np.flatnonzero(_used(v, f, flat) & ~_used(v, f, ~flat) & here)
+            others = [(np.asarray(parts[other]['v'], float), np.asarray(parts[other]['f'], int)) for other in parts if other != name]
+            if not len(which) or not others:
+                continue
+            which = which[~_inside(v[which], others)]
+            if not len(which):
+                continue
+            low, high = v[which].min(axis=0) - HIDDEN_NEAR, v[which].max(axis=0) + HIDDEN_NEAR
+            samples = []
+            for vertices, faces in others:
+                corners = vertices[faces]
+                close = (corners.max(axis=1) >= low).all(axis=1) & (corners.min(axis=1) <= high).all(axis=1)
+                if close.any():
+                    used, inside = np.unique(faces[close], return_inverse=True)
+                    samples.append(measure.surface_points(vertices[used], inside.reshape(-1, 3), HIDDEN_STEP))
+            if not samples:
+                continue
+            samples = np.concatenate(samples)
+            index, far = texture.nearest(v[which], samples)
+            out = (far > rule['rest'] / 2) & (far < HIDDEN_NEAR)  # farther than that from every part, nothing is near to go under
+            if not out.any():
+                continue
+            to = samples[index[out]]
+            before, v = v, v.copy()
+            v[which[out]] = to + TUCK * (to - v[which[out]]) / far[out, None]
+            # Two points brought to one place leave a triangle with two corners at one point, which the model compiler
+            # drops (three of an upper arm's, 2026-11-25): the corners of such a triangle go a share of the way back to
+            # where they were, a larger one until none is left, and all of it at the last.
+            for share in (0.05, 0.1, 0.2, 0.4, 1.0):
+                corners = v[f]
+                thin = np.linalg.norm(corners - np.roll(corners, 1, axis=1), axis=2).min(axis=1) < 2 * POINT
+                back = np.intersect1d(np.unique(f[thin]), which[out])
+                if not len(back):
+                    break
+                v[back] = v[back] + share * (before[back] - v[back])
+            parts[name] = {**part, 'v': v.astype(np.asarray(part['v']).dtype)}
+            say(f'{name} at the {key[0]}: {int(out.sum())} points of what closes it brought in under the outfit beside it, from up to {far[out].max() * 100:.1f} cm outside')
+    return parts
+
+
+def skinned(parts, document, body_pack, body_textures, body, bones, say=lambda *_: None, own_part=None, most=None):
     """The baked parts with the body's own part beside the outfit's in each slot the brief shares with the
-    body's skin (`skin`, `bodyskin.worn`). `own_part(name)`, if given, is the body's part as already read."""
+    body's skin (`skin`, `bodyskin.worn`). `own_part(name)`, if given, is the body's part as already read;
+    `most(name)`, if given, how far its outfit may be pushed out over that skin (`over_own_skin`): a refit's
+    to a wider body, more than a Human's."""
     parts = dict(parts)
     for slot in document.get('skin', []):
         for name in registry.SLOTS[slot]['tokens']:
             if name in parts:
                 own = own_part(name) if own_part else bodyskin.body_part(body_pack, body_textures, body, name, bones)
                 start, end = split.bone_line(bones, name)
-                parts[name] = bodyskin.worn(parts[name], own, start, end, BUDGET['texture'])
+                parts[name], moved = over_own_skin(bodyskin.worn(parts[name], own, start, end, BUDGET['texture']), name, bones, most(name) if most else None)
+                if moved:
+                    say(f'{name}: pushed out up to {moved * 100:.1f} cm over the body\'s own skin beside it')
                 say(f'{name}: {int(parts[name]["skin"].sum())} of the body\'s {len(own["f"])} faces beside the outfit\'s, {len(parts[name]["rgb"])} px')
     return parts
 
 
-def store(parts, folder, document=None):
+def store(parts, folder, document=None, tier=None, drawn=None):
     """Keep `bake`'s parts in `folder`, a file per part, for `stored`.
 
     The parts are listed in `baked.json`, written last: a folder used again for an outfit with fewer parts
@@ -1017,14 +1441,20 @@ def store(parts, folder, document=None):
     the new outfit the old one's shoulder pads. The list is taken away first, so a store that stops halfway
     leaves nothing `stored` would read. With it are the slots `document`, the brief the parts were baked
     from, leaves to the body and shares with its skin (`declared`): the parts alone do not show a slot left
-    to the body that the brief no longer leaves, since that slot has no part either way."""
+    to the body that the brief no longer leaves, since that slot has no part either way. `tier` is the tier the
+    parts' ends were cut at, one or a mapping by joint (`seams.at`), and is listed with them: a refit shapes the
+    ends for another body at that tier. Left unsaid it was tier 2 for every refit, and Street Casual, cut at
+    tier 3 with its shoulders and waist at 1, came to the Human female 1.2 cm outside the envelope all round
+    the waist (2026-11-25). `drawn` names the joints the outfit was cut at as drawn, to no envelope (`bake`), and
+    is listed likewise where a tier is: a refit shaped those ends to the other body's envelope all the same, and
+    Street Casual's boots came to the Human female with their shafts drawn in to a peak (user, 2026-11-26)."""
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     (folder / KEPT).unlink(missing_ok=True)
     for name, part in parts.items():
         np.savez(folder / (name + '.npz'), **{key: part[key] for key in KEYS + tuple(key for key in OPTIONAL + bodyskin.KEYS if key in part)})
     slots = {key: sorted((document or {}).get(key, [])) for key in ('bare', 'skin')}
-    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts), **slots}, indent=1) + '\n',
+    (folder / KEPT).write_text(json.dumps({'schemaVersion': 1, 'kind': KEPT_KIND, 'parts': list(parts), **slots, **({} if tier is None else {'tier': tier, 'drawn': sorted(drawn or ())})}, indent=1) + '\n',
                                encoding='utf-8', newline='\n')
 
 
@@ -1038,7 +1468,13 @@ def listing(folder):
     require(isinstance(listed, dict) and listed.get('kind') == KEPT_KIND and listed.get('schemaVersion') == 1
             and named(listed.get('parts')) and listed['parts'] and all(named(listed.get(key, [])) for key in ('bare', 'skin')),
             f'{folder / KEPT} is no list of baked parts')
-    return {'parts': listed['parts'], **{key: listed.get(key, []) for key in ('bare', 'skin')}}
+    tier = listed.get('tier')
+    require(tier is None or tier in registry.TIERS or (isinstance(tier, dict) and 'default' in tier and set(tier) <= {'default', *seams.JOINTS}
+                                                       and all(value in registry.TIERS for value in tier.values())),
+            f'{folder / KEPT} names no tier the parts were cut at: {tier}')
+    require(named(listed.get('drawn', [])) and set(listed.get('drawn', [])) <= set(seams.JOINTS), f'{folder / KEPT} names joints cut as drawn that are none')
+    return {'parts': listed['parts'], **{key: listed.get(key, []) for key in ('bare', 'skin')},
+            **({} if tier is None else {'tier': tier, 'drawn': sorted(listed.get('drawn', []))})}
 
 
 def declared(folder):
@@ -1089,7 +1525,9 @@ def combine(sources, folder, document):
             origin[name] = str(Path(source))
         parts.update(stored(source, names))
     require(_fits(parts, document), "The parts named are baked for other slots left to the body or shared with its skin than the brief's")
-    store(parts, folder, document)
+    cut = [(found['tier'], found['drawn']) for found in (listing(source) for source, _ in sources) if 'tier' in found]  # none listed: kept before tiers were
+    require(all(tier == cut[0] for tier in cut), f'The folders hold parts cut at different tiers or drawn joints ({cut}): refit them at one (`refit --tier`, `--tier-at`, `--as-drawn`)')
+    store(parts, folder, document, *(cut[0] if cut else ()))
     return origin
 
 
@@ -1146,7 +1584,7 @@ def drawn(cache, key, draw):
     return shades, layers
 
 
-def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None):
+def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None, workers=1):
     """({part: (shades, layers)}, record): the tint texture of every part of a baked outfit, for `export.tint`.
 
     The materials are found over the whole outfit and told which of the brief's each is (`brief.worn`); a
@@ -1158,6 +1596,12 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     (`texture.wear_fields`, `texture.tint_maps`), in patches read on the generated outfit, so they run on from
     part to part of one generation and are the same on every body the outfit is carried to.
 
+    A part is tinted in the materials its slot wears and no other, where the brief's materials list their
+    `slots` (`brief.on`, `texture.tint_maps`' `among`). Where `ELSEWHERE` or more of a part's own surface has the
+    colour of a material its slot leaves out, the part is named with that share in the material's record
+    (`elsewhere`) and said: a tab the image added, or a slot missing from the list (the flaps of Street
+    Casual's hip pockets were drawn as shirt until the pelvis was listed, 2026-11-25).
+
     The parts are taken in the order of their names, whatever order they are given in: the materials are
     found on a sample of the texels as they come, and a fresh bake and its stored parts tinted again would
     else differ by a shade here and there.
@@ -1167,13 +1611,15 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     and the texture module's own text, so a change to how textures are drawn finds nothing). A part met again with all of
     that the same is read instead of drawn. An outfit carried to another body (`refit`) keeps its maps, so
     of Facility Security's 12 parts 10 are the same textures on all the bodies of a gender, and drawing
-    them is most of what a bake of kept parts takes (155 of 221 s, 2026-11-15)."""
-    count, parts = len(document['materials']), {name: parts[name] for name in sorted(parts)}
+    them is most of what a bake of kept parts takes (155 of 221 s, 2026-11-15). The parts the cache does not
+    hold are drawn side by side in `workers` processes (`worked`)."""
+    count, parts = len(brief.baked(document)), {name: parts[name] for name in sorted(parts)}
     size = lambda part: len(part['rgb'])
-    found = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count)
-    worn = brief.worn(document, found)  # the brief's material for each the colours show: its kind is the brief's to say
-    kinds = [material['kind'] for material in worn]
-    channel = texture.channels(kinds)  # two channels per material: its garments are told apart by where they are worn
+    found = texture.materials(np.concatenate([part['rgb'][part['covered']] for part in parts.values()]), count, faint=brief.faint(document))
+    worn = brief.worn(document, found, cut=True)  # the brief's material for each the colours show: its kind is the brief's to say
+    kinds = [material['kind'] for material in worn]  # what each is: how it wears
+    tints = [brief.tinted(material) for material in worn]  # and the kind whose channels it is tinted on, another's where the brief says so
+    channel = brief.channels(worn)  # two channels per material: its garments are told apart by where they are worn, or the one it names
     slot_of = {token: slot for slot in SLOTS for token in registry.SLOTS[slot]['tokens']}
     own = {name: ~part['added'] & ~part.get('skin', np.zeros(len(part['f']), bool)) for name, part in parts.items()}  # the outfit's own surface: not the split's, not the body's
     start = np.cumsum([0] + [len(part['src']) for part in parts.values()])
@@ -1181,7 +1627,7 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     second = texture.worn_second(np.concatenate([part['src'] for part in parts.values()]),
                                  np.concatenate([part['f'][own[name]] + start[i] for i, (name, part) in enumerate(parts.items())]),
                                  np.concatenate([seen[name][own[name]] for name in parts]),
-                                 np.concatenate([[slot_of[name]] * int(own[name].sum()) for name in parts]), kinds)
+                                 np.concatenate([[slot_of[name]] * int(own[name].sum()) for name in parts]), tints)
     at = np.cumsum([0] + [int(own[name].sum()) for name in parts])
     listed = [material['name'] for material in document['materials']]
     here = {listed.index(material['name']): k for k, material in enumerate(worn)}  # the brief's material, as the texels number it
@@ -1189,34 +1635,46 @@ def tints(parts, document, speck=texture.SPECK, cache=None, say=lambda *_: None)
     written = hashlib.sha256(Path(texture.__file__).read_bytes()).hexdigest() if cache is not None else None  # how textures are drawn
     amount = float(document.get('wear', 0))
     span = float(np.ptp(np.concatenate([part['src'] for part in parts.values()]), axis=0).max()) if amount else None  # the outfit's height, as generated
-    tinted = {}
+    tinted, elsewhere, jobs, keys = {}, {}, {}, {}
     for i, (name, part) in enumerate(parts.items()):
         rows = np.zeros((len(part['f']), count), bool)
         rows[own[name]] = second[at[i]:at[i + 1]]
         twice = texture.face_texels(part['uv'], part['f'], texture.added_second(part['v'], part['f'], part['added'], rows), size(part))
         trim = np.full(part['covered'].shape, -1)
-        for material in np.unique(part['trimmed'][part['trimmed'] >= 0]):
+        for material in (material for material in np.unique(part['trimmed'][part['trimmed'] >= 0]) if int(material) in here):  # none of an unworn material's
             trim[texture.face_texels(part['uv'], part['f'], part['trimmed'] == material, size(part))] = here[int(material)]
-        draw = lambda part=part, twice=twice, trim=trim, name=name: texture.tint_maps(
-            part['rgb'], part['covered'], found, channel, relief=part['relief'],
-            charts=texture.chart_map(part['uv'], part['f'], size(part)), closing=part['closing'], second=twice,
-            cap=part['cap'], padded=part['padded'], lit=lit, trim=trim,
-            shadow=part['closing'] if name in ARMHOLE else None, speck=speck, sharpen=texture.SHARPEN,
-            wear=(amount, kinds, *texture.wear_fields(part['uv'], part['f'], part['src'], size(part), span)) if amount else None)
-        key = None if cache is None else digest(
+        among = np.array([brief.on(material, slot_of[name]) for material in worn])  # the materials worn on this part's slot
+        require(among.any(), f'{name}: no material of the brief is worn on the {slot_of[name]}; the slots of its materials leave it out')
+        if not among.all():  # what the colours alone would have read there: a slot left out of a list by mistake shows here
+            surface = part['covered'] & ~part['closing'] & ~part['cap']
+            read = np.bincount(texture.labels(part['rgb'][surface], found['tones']), minlength=count) / max(int(surface.sum()), 1)
+            for k in np.flatnonzero(~among & (read >= ELSEWHERE)):
+                elsewhere.setdefault(worn[k]['name'], {})[name] = round(float(read[k]), 3)
+                say(f'{name}: {read[k]:.0%} of it has the colour of {worn[k]["name"]}, which is not worn on the {slot_of[name]} and is drawn as what is')
+        jobs[name] = {'part': {key: part[key] for key in ('rgb', 'covered', 'relief', 'uv', 'f', 'src', 'closing', 'cap', 'padded')}, 'found': found,
+                      'channel': channel, 'twice': twice, 'lit': lit, 'trim': trim, 'armhole': name in ARMHOLE, 'speck': speck, 'among': among,
+                      'amount': amount, 'kinds': kinds, 'span': span, 'edged': slot_of[name] in EDGED,
+                      'highlights': [HIGHLIGHTS.get(material['kind']) for material in worn]}
+        keys[name] = None if cache is None else digest(
             written, export.LAYERS, part['rgb'], part['covered'], found, channel, part['relief'], part['uv'], part['f'], part['closing'], twice,
-            part['cap'], part['padded'], lit, trim, name in ARMHOLE, speck, texture.SHARPEN, amount, kinds, part['src'] if amount else None, span)
+            part['cap'], part['padded'], lit, trim, name in ARMHOLE, speck, texture.SHARPEN, amount, kinds, part['src'] if amount else None, span, among, jobs[name]['edged'], jobs[name]['highlights'])
+    missing = [name for name in parts if cache is None or not (Path(cache) / (keys[name] + '.npz')).is_file()]
+    ahead = dict(zip(missing, worked([jobs[name] for name in missing], _tinted, workers)[0])) if workers > 1 and len(missing) > 1 else {}
+    for name, part in parts.items():
         fresh = []  # whether it was drawn: `drawn` reads it where the cache holds it whole
 
-        def drawing(draw=draw, fresh=fresh):
+        def drawing(name=name, fresh=fresh):
             fresh.append(True)
-            return draw()
-        tinted[name] = drawn(cache, key, drawing)
+            made = ahead[name] if name in ahead else _tinted(jobs[name])
+            return made['shades'], made['layers']
+        tinted[name] = drawn(cache, keys[name], drawing)
         if cache is not None:
             say(f'{name}: texture {"kept in" if fresh else "read from"} the cache')
         tinted[name] = bodyskin.tinted(part, tinted[name])  # the body's skin keeps its own shade and layer
     record = {'materials': [{'name': material['name'], 'kind': material['kind'], 'channels': list(channel[k]),
                              'colour': np.round(found['colours'][k] * 255).astype(int).tolist(), 'lit': round(float(lit[k]), 1),
+                             **({'tint': material['tint']} if 'tint' in material else {}),
+                             **({'elsewhere': elsewhere[material['name']]} if material['name'] in elsewhere else {}),
                              **({'suggested': material['suggested']} if 'suggested' in material else {})}
                             for k, material in enumerate(worn)], **({'wear': amount} if amount else {})}
     return tinted, record
@@ -1306,7 +1764,8 @@ def gates(parts, models, resources, packs=(), whole=None, joined=None, covered=N
 
 
 def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=None, xatlas=None, kept=None, body='pmh0', tier=2,
-        packs=(), game=None, resources=(), say=lambda *_: None, body_textures=None, capture=None, tint_cache=None):
+        packs=(), game=None, resources=(), say=lambda *_: None, body_textures=None, capture=None, tint_cache=None, workers=1, cache=None,
+        resume=None, drawn=()):
     """Bake one outfit into `output` and check it: the record, also written as `<output>/bake.json`.
 
     With `mesh`, `colours`, `raw` and `xatlas` the outfit is baked (`bake`) and, where `kept` names a folder,
@@ -1319,32 +1778,61 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     under another number or for parts the outfit no longer has, and they are neither in the record nor gated.
     `capture`, with a fresh bake, is the file what the split is given is kept in (`keep_split`, `resplit`).
     `tint_cache` is a folder `tints` keeps each part's texture in and reads it from when nothing it is drawn
-    from has changed."""
-    fresh = [mesh, colours, raw, xatlas]
+    from has changed. `workers` are the processes the parts are worked in side by side and `cache` the folder a
+    part's reduction, maps and, with no `tint_cache`, texture are kept in between bakes (`worked`). With
+    `resume`, a file an earlier bake kept with `capture`, the bake goes on from the split and takes no `mesh`
+    (`bake`)."""
+    fresh = [colours, raw, xatlas] if resume is not None else [mesh, colours, raw, xatlas]
+    require(resume is None or mesh is None, 'A bake that goes on from kept split inputs reads no mesh: give one or the other')
     require(capture is None or mesh is not None, 'Split inputs are kept from a fresh bake: parts tinted again are split already')
-    require(all(given is not None for given in fresh) or (kept is not None and all(given is None for given in fresh)),
+    require(all(given is not None for given in fresh) or (kept is not None and resume is None and all(given is None for given in fresh)),
             'Bake an outfit from its mesh, colour field, raw mesh and the layout library, or tint the parts kept in a folder again')
+    tint_cache = tint_cache if tint_cache is not None or cache is None else Path(cache) / 'tint'
     mark, seconds = stages(say)
     own = None
-    if mesh is not None:
-        parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture, mark=mark)
+    if mesh is not None or resume is not None:
+        parts, bones, whole = bake(document, mesh, colours, raw, body_pack, xatlas, body, tier, say, body_textures, capture, mark=mark,
+                                   workers=workers, cache=cache, resume=resume, drawn=drawn)
         if kept is not None:
-            store(parts, kept, document)
+            store(parts, kept, document, tier, drawn)
             mark('keep the parts')
     else:
         parts, whole = stored(kept), None
+        require(listing(kept).get('tier') in (None, tier), f"{kept} holds parts cut at tier {listing(kept).get('tier')}: the gates were asked for tier {tier}")
+        require(listing(kept).get('drawn') in (None, sorted(drawn)), f"{kept} holds parts cut as drawn at {listing(kept).get('drawn')}: the gates were asked for {sorted(drawn)}")
         require(declared(kept) == {key: set(document.get(key, [])) for key in ('bare', 'skin')} and _fits(parts, document),
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)
         mark('read the kept parts')
-    tinted, record = tints(parts, document, cache=tint_cache, say=say)
+    if own is None and 'chest' in parts:  # read once: the gates read it again below
+        own = measure.body(body_pack, body)[1]
+    neck = own.get('neck') if 'chest' in parts else None
+    collar = None
+    if neck is not None:  # on the parts as they are written, not as they are kept: a chest carried to another body meets another neck
+        parts = dict(parts)
+        before = len(parts['chest']['f'])
+        parts['chest'], taken = collared(parts['chest'], neck[:2], *seams.plane(bones, 'neck', 'c'))
+        if taken:
+            collar = {'taken': taken, 'fan': len(parts['chest']['f']) - before + taken}
+            say(f"chest: {taken} faces that entered the neck taken, {collar['fan']} from their rim down into it")
+        # and lifted over what of the neck comes through it below the collar, as the publication reads it: a refit lifts
+        # a carried chest so, and the cut after it bared the Troll Large male's neck 2 mm through his shirt (2026-11-26)
+        from . import refit  # refit reads this module
+        lifted = refit.over_neck(parts['chest'], neck[:2], *seams.plane(bones, 'neck', 'c'))
+        if lifted is not parts['chest']:
+            moved = round(float(np.linalg.norm(np.asarray(lifted['v'], float) - np.asarray(parts['chest']['v'], float), axis=1).max()), 4)
+            collar = {**(collar or {}), 'lifted': moved}
+            say(f'chest: lifted up to {moved * 100:.1f} cm over the neck that came through it below the collar')
+            parts['chest'] = lifted
+        mark('collar')
+    tinted, record = tints(parts, document, cache=tint_cache, say=say, workers=workers)
     mark('tint')
     models = write(output, parts, tinted, bones, body, number)
     mark('write')
     own = measure.body(body_pack, body)[1] if own is None else own
     covered = hidden(parts, bones, body, skin=own, left=left_to_body(document))
-    record = {'model': document['model'], 'body': body, 'tier': tier, 'number': number, 'models': models, **record,
-              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier), covered, through(parts, bones),
+    record = {'model': document['model'], 'body': body, 'tier': tier, **({'asDrawn': sorted(drawn)} if drawn else {}), 'number': number, 'models': models, **record,
+              'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier, drawn=drawn), covered, through(parts, bones),
                              facing(parts, bones))}
     mark('gates')
     if game is not None:
@@ -1352,6 +1840,10 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
                                          Path(output) / 'resources', game=game, resources=list(resources))
         record['compiled'] = len(compiled)
         mark('compile')
+    if collar is not None:
+        record['collar'] = collar
     record['seconds'] = seconds
+    if resume is not None:
+        record['resumed'] = str(resume)
     (Path(output) / 'bake.json').write_text(json.dumps(record, indent=1) + '\n', encoding='utf-8', newline='\n')
     return record

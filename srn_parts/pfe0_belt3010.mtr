@@ -1,0 +1,6 @@
+renderhint NormalTangents
+texture1 belt3010n_dd47
+parameter float Roughness 0
+parameter float Specularity 0.04
+parameter float Metallicness 0.001
+texture3 belt3010r_7bb8

@@ -1,11 +1,12 @@
 """Accessories: a brief for one piece, a belt wrapped over what is worn, a logo badge that reads right, headgear on a head envelope."""
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import numpy as np
 
-from . import accessory, brassard, brief, headgear, logo
+from . import accessory, brassard, brief, export, headgear, logo
 from .test_brief import BLUE, GREY, TAN, document
 
 
@@ -72,14 +73,17 @@ class AccessoryBriefTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 brief.validate(made)
         outfit = document()
-        outfit['materials'][0]['channel'] = 2  # an outfit's channels are sorted by where its materials are worn
-        with self.assertRaises(ValueError):
-            brief.validate(outfit)
+        outfit['materials'][0]['channel'] = 2  # an outfit's material may name its channel too (2026-11-24): it has it wherever it is worn
+        self.assertEqual(brief.channels(brief.validate(outfit)['materials'])[0], ('cloth2', 'cloth2'))
 
 
 class BeltTests(unittest.TestCase):
     def test_a_tilted_hoop_is_stood_level(self):
         v, f = tube(0.2, -0.02, 0.02)
+        # turned a third of a direction off the 96 the fit reads in: on their lines, which ring of a column fell in
+        # which direction was the platform's rounding, and Linux read the band 2 mm off (CI, 2026-11-27)
+        spin = 2 * np.pi / accessory.DIRECTIONS / 3
+        v = v @ np.array([[np.cos(spin), -np.sin(spin), 0], [np.sin(spin), np.cos(spin), 0], [0, 0, 1]]).T
         lean = np.radians(20)
         turn = np.array([[1, 0, 0], [0, np.cos(lean), -np.sin(lean)], [0, np.sin(lean), np.cos(lean)]])
         levelled, _ = accessory.level(v @ turn.T + [0.3, 0.1, 0.5], f)
@@ -120,6 +124,72 @@ class BeltTests(unittest.TestCase):
         self.assertLess(off.max(), 0.03)
         self.assertAlmostEqual(float(placed[:, 2].mean()), 1.0, places=2)
         self.assertLess(record['scale'], 0.5)
+
+    def test_a_pouch_keeps_the_shape_it_was_drawn_in_and_clips_into_what_it_hangs_over(self):
+        # a strap 5 cm tall round a hoop 1 m across, drawn at twice its size, and a box hanging below it at the front
+        v, f = tube(0.5, -0.025, 0.025, around=192)  # a vertex in every direction, as a generated strap has
+        box = np.array([(x, y, z) for x in (-0.08, 0.08) for y in (0.5, 0.58) for z in (-0.2, -0.04)])
+        sides = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+        points, faces = np.concatenate([v, box]), np.concatenate([f, sides + len(v)])
+        pieces = accessory.hanging(points, faces, least=4)
+        self.assertEqual([sorted(which.tolist()) for which, _ in pieces], [list(range(len(v), len(v) + 8))])
+        self.assertTrue((pieces[0][1] < len(v)).all())  # it hangs from the strap
+        self.assertEqual(accessory.hanging(points, faces), [])  # eight vertices are a crease of the strap, not a pouch
+        apart = lambda q: np.linalg.norm(q[:, None] - q[None], axis=2)
+        with unittest.mock.patch.object(accessory, 'HANGING_LEAST', 4):
+            body, body_faces = tube(0.12, 0.6, 1.2, rings=40)
+            placed, record = accessory.wrap(points, faces, [(body * [1.0, 0.7, 1.0], body_faces)], np.array([0.0, 0.0, 1.0]))
+            self.assertEqual(record['pieces'], 1)
+            ratio = apart(placed[len(v):])[np.triu_indices(8, 1)] / apart(box)[np.triu_indices(8, 1)]
+            self.assertLess(np.ptp(ratio), 1e-9)  # one scale every way: nothing flared or sheared
+            self.assertAlmostEqual(float(ratio[0]), record['scale'] * record['taller'], places=3)  # the hoop's, made as much taller
+            # a thigh bulging under it, below the strap: the box clips into it and is neither pushed, leaned nor bent
+            # (user, 2026-11-26: "clipping is fine for belt and neck slot accessories and is expected")
+            thigh, thigh_faces = tube(0.1, 0.6, 0.95, rings=40)
+            thigh = thigh + [0.0, 0.12, 0.0]  # its front at y 0.22, the box's back at about 0.25 * scale * taller + 0.12
+            clipped, again = accessory.wrap(points, faces, [(body * [1.0, 0.7, 1.0], body_faces), (thigh, thigh_faces)], np.array([0.0, 0.0, 1.0]))
+            self.assertEqual(again['scale'], record['scale'])
+            np.testing.assert_allclose(clipped[len(v):], placed[len(v):], atol=1e-9)
+            self.assertGreater((np.abs(accessory.measure.winding(clipped[len(v):], thigh, thigh_faces)) >= 0.5).sum(), 0)  # it is inside
+
+    def test_what_hangs_from_an_accessory_may_clip_deep_and_the_part_that_holds_it_on_may_not(self):
+        thigh, thigh_faces = tube(0.1, 0.0, 1.0, rings=40)
+        box = lambda z: np.array([(x, y, z + dz) for x in (-0.02, 0.02) for y in (0.05, 0.09) for dz in (0.0, 0.04)])  # 5 cm into the thigh
+        sides = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+        with tempfile.TemporaryDirectory() as folder:
+            (Path(folder) / 'belt.plt').write_bytes(b'')
+            (Path(folder) / 'belt.mtr').write_text('shader x\n', encoding='ascii')
+            for z, passed in ((0.3, True), (0.7, False)):
+                part = {'v': box(z), 'f': sides, 'rgb': np.zeros((4, 4, 3))}
+                report = accessory.gates(part, {'legl': (thigh, thigh_faces)}, 'belt', folder, hangs=0.5)
+                self.assertEqual(report['passed'], passed, report['failures'])
+                self.assertGreater(report['inside']['hanging' if passed else 'deepest'], 0.03)
+
+    def test_a_belts_faces_turned_toward_the_body_are_no_metals(self):
+        # four walls of a hoop, each on a quarter of the texture: outside and inside at the front, outside and inside at the back
+        def wall(x, out, u, v):  # a square across the x axis at `x`, its normal along +x if `out`
+            corners = np.array([(x, -0.1, 0.0), (x, 0.1, 0.0), (x, 0.1, 0.1), (x, -0.1, 0.1)])
+            uv = np.array([(u, v), (u + 0.5, v), (u + 0.5, v + 0.5), (u, v + 0.5)]) * 0.98 + 0.01
+            return corners, uv, np.array([(0, 1, 2), (0, 2, 3)] if out else [(0, 2, 1), (0, 3, 2)])
+        walls = [wall(0.5, True, 0.0, 0.0), wall(0.45, False, 0.5, 0.0), wall(-0.5, False, 0.0, 0.5), wall(-0.45, True, 0.5, 0.5)]
+        v, uv = np.concatenate([w[0] for w in walls]), np.concatenate([w[1] for w in walls])
+        f = np.concatenate([w[2] + 4 * k for k, w in enumerate(walls)])
+        size, tan, black = 64, np.array(TAN) / 255, np.array([34, 34, 32]) / 255
+        rgb = np.tile(tan, (size, size, 1))
+        rgb[:32, 16:32] = black  # the buckle, on the outside at the front
+        rgb[:32, 32:] = black  # the strap's inner face there, which the one view never showed
+        piece = {'v': v, 'f': f, 'uv': uv, 'n': np.zeros_like(v), 'rgb': rgb, 'covered': np.ones((size, size), bool),
+                 'relief': np.tile([0.5, 0.5, 1.0], (size, size, 1)), 'src': v}
+        given = accessory_brief('belt', ('gear', 'leather', TAN), ('buckles', 'metal', [40, 40, 40]))
+        given['materials'][1]['channel'] = 2
+        (shades, layers), record = accessory.tints(piece, given)
+        leather, metal = export.LAYERS['leather1'], export.LAYERS['metal2']
+        self.assertTrue((layers[4:28, 20:28] == metal).all())  # the buckle stays metal
+        self.assertTrue((layers[4:28, 36:60] == leather).all())  # the inner face is the strap's leather
+        self.assertTrue((layers[36:60, :] == leather).all())
+        self.assertGreater(float(shades[4:28, 36:60].mean()), float(shades[4:28, 20:28].mean()) - 40)  # at a shade of its own, not black
+        self.assertIsNone(accessory.body_side(piece, {**given, 'accessory': 'head'}, ['leather', 'metal'], size))  # a belt's rule
+        self.assertIsNone(accessory.body_side(piece, given, ['leather', 'leather'], size))  # no metal, nothing to move
 
     def test_slight_relief_is_laid_flat_and_a_rim_kept(self):
         tilt = lambda degrees: [(np.sin(np.radians(degrees)) + 1) / 2, 0.5, (np.cos(np.radians(degrees)) + 1) / 2]

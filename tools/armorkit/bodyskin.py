@@ -96,7 +96,7 @@ def body_part(pack, textures, body, token, bones, number=1):
             'relief': relief, 'rough': rough}
 
 
-def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS):
+def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS, made=None):
     """Per face of a body part, whether it is kept beside the outfit's: False where the outfit hides it.
 
     `cover` and `own` are the vertices and faces of the outfit on the part, what the split made included:
@@ -105,11 +105,21 @@ def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS):
     pieces: a stretch ends where more than `APART` of the bone has none of the outfit. A piece hides the
     body under it but for `band` at each end, which is what is seen up a sleeve that stands a centimetre
     off the arm. A piece that begins within `TOP` of the bone hides all above it too: it is the sleeve, come
-    down from the shoulder under the outfit's other parts. Taken from the outfit's own faces only, the sleeve
+    down from the shoulder under the outfit's other parts, and so is a piece that runs on from the sleeve in the
+    direction beside it. Taken from the outfit's own faces only, the sleeve
     was parted near the shoulder and the bound had to be half the bone, so a band in the upper half was taken
     for the sleeve. A band or a pad below the hem is another piece, and the skin between the two is seen:
     the first build took the farthest point of the outfit for the hem and hid it. A vertex of the body is hidden where the outfit hides it in its own
-    direction and the two beside it, and a face where all three of its vertices are."""
+    direction and the two beside it, and a face where all three of its vertices are.
+
+    `made` flags, per face of `own`, what the split added. A piece that comes down from the shoulder and is all
+    of that, with none of the outfit's own surface in it, is the part's end under the part over it, and the
+    body between it and the next piece lies in the armhole, under the chest: the two are one piece. An upper
+    arm's end seated under the Human female's chest was drawn in to 1.3 cm along the bone and near its axis; the
+    sleeve, cut on the armhole, begins 8.7 cm along it on the side toward the torso, and her arm's skin between
+    the two was kept and stood 5 cm out of that end, inside the chest: the sleeve was to be pushed out over
+    skin no one sees, and the refit refused it (Street Casual, 2026-11-25). A sleeve's own surface above a gap
+    is a sleeve above bare skin, and stays two pieces with what is below it."""
     start, axis = np.asarray(start, float), np.asarray(end, float) - np.asarray(start, float)
     length = float(np.linalg.norm(axis))
     axis = seams.unit(axis)
@@ -120,7 +130,12 @@ def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS):
         turn = np.arctan2(relative @ w, relative @ u)
         return relative @ axis, np.floor((turn + np.pi) / (2 * np.pi) * sectors).astype(int) % sectors
 
-    used, own = np.unique(np.asarray(own, int).reshape(-1, 3), return_inverse=True)
+    own = np.asarray(own, int).reshape(-1, 3)
+    drawn = None  # the outfit's own surface alone, where `made` tells it from what the split added
+    if made is not None and np.asarray(made, bool).any() and not np.asarray(made, bool).all():
+        mine, local = np.unique(own[~np.asarray(made, bool)], return_inverse=True)
+        drawn = round_bone(measure.surface_points(np.asarray(cover, float).reshape(-1, 3)[mine], local.reshape(-1, 3), APART / 3))
+    used, own = np.unique(own, return_inverse=True)
     along, sector = round_bone(measure.surface_points(np.asarray(cover, float).reshape(-1, 3)[used], own.reshape(-1, 3), APART / 3))
     pieces = [[] for _ in range(sectors)]  # per direction, the stretches of the bone the outfit covers: (from, to)
     for k in range(sectors):
@@ -128,12 +143,32 @@ def shown(vertices, faces, cover, own, start, end, band=BAND, sectors=SECTORS):
         if len(mine):
             parted = np.flatnonzero(np.diff(mine) > APART)
             pieces[k] = list(zip(mine[np.concatenate([[0], parted + 1])], mine[np.concatenate([parted, [len(mine) - 1]])]))
+            if drawn is not None and len(pieces[k]) > 1 and pieces[k][0][0] <= TOP * length:
+                first = drawn[0][drawn[1] == k]
+                if not ((first >= pieces[k][0][0]) & (first <= pieces[k][0][1])).any():  # the end alone: one piece with the next
+                    pieces[k] = [(pieces[k][0][0], pieces[k][1][1])] + pieces[k][2:]
+
+    # The sleeve: every piece that comes down from the shoulder, and every piece that runs on from one of those in
+    # the direction beside it, their stretches of the bone overlapping. On the side toward the torso a sleeve cut
+    # on the armhole begins a hand down the arm, and nothing of it lies above that: the Human female's own
+    # sleeves began 14 to 15 cm along the bone there, her arm above them, in the armhole and under the chest, was
+    # kept, and stood 2.9 cm out of the sleeve's end at the shoulder (2026-11-25). A band or a pad below the hem
+    # overlaps no piece of the sleeve in any direction and stays its own.
+    sleeve = [[top <= TOP * length for top, _ in pieces[k]] for k in range(sectors)]
+    grew = True
+    while grew:
+        grew = False
+        for k in range(sectors):
+            for i, (top, bottom) in enumerate(pieces[k]):
+                if not sleeve[k][i] and any(sleeve[j][n] and top <= low and high <= bottom
+                                            for j in ((k - 1) % sectors, (k + 1) % sectors) for n, (high, low) in enumerate(pieces[j])):
+                    sleeve[k][i] = grew = True
 
     def under(k, at):
         """Whether the outfit hides the body in direction `k`, per place `at` along the bone."""
         hidden = np.zeros(len(at), bool)
-        for top, bottom in pieces[k % sectors]:
-            top = -np.inf if top <= TOP * length else top + band
+        for (top, bottom), whole in zip(pieces[k % sectors], sleeve[k % sectors]):
+            top = -np.inf if whole else top + band
             hidden |= (at > top) & (at < bottom - band)
         return hidden
 
@@ -203,7 +238,7 @@ def worn(part, skin, start, end, limit=1024):
     size = len(part['rgb'])
     side = min(max(2 * size, len(skin['tint'])), limit)
     half = side // 2
-    kept = shown(skin['v'], skin['f'], part['v'], part['f'], start, end)
+    kept = shown(skin['v'], skin['f'], part['v'], part['f'], start, end, made=part.get('added'))
     require(kept.any(), 'The outfit hides all of the body part: it needs no skin')
     used, faces = np.unique(skin['f'][kept], return_inverse=True)
     faces = faces.reshape(-1, 3) + len(part['v'])

@@ -42,6 +42,16 @@ def sleeved():
     return bodyskin.worn(sleeve, body_arm(), (0, 0, 1.5), (0, 0, 1.2))
 
 
+def foot(length, width, height, lean=0.0, lift=0.0):
+    """A body's own left foot: a box `length` long toward -y from its heel, `width` wide and `height` tall, its
+    sole `lift` over the ground and its top leant `lean` back over the heel, as a stub of shin leans a foot's."""
+    corners = np.array([(x, y, z) for x in (-width / 2, width / 2) for y in (0.0, -length) for z in (0.0, height)])
+    corners[:, 1] += lean * corners[:, 2]
+    corners[:, 2] += lift
+    faces = np.array([(0, 1, 3), (0, 3, 2), (4, 6, 7), (4, 7, 5), (0, 4, 5), (0, 5, 1), (2, 3, 7), (2, 7, 6), (0, 2, 6), (0, 6, 4), (1, 5, 7), (1, 7, 3)])
+    return corners, faces
+
+
 def hand(scale=1.0, round_=None):
     """The body's own left hand: a short tube past the wrist plane (x = 0.55), `scale` times as long and
     `round_` (or `scale`) times as wide."""
@@ -109,6 +119,59 @@ class PlacementTests(unittest.TestCase):
         self.assertTrue(np.allclose(np.linalg.norm(carried[:, 1:], axis=1), 0.7 * 0.03, atol=1e-4))
 
 
+class LimbTests(unittest.TestCase):
+    def test_a_limbs_part_is_as_wide_at_each_joint_as_the_other_body_is_there(self):
+        # a thigh carried 0.8 as wide by the mean of its joints, where the other body's hip is as wide and its knee 0.6:
+        # it comes to each joint by that joint's own scale, as the shin comes to the knee, and no hem stands out there
+        wide = {None: [0.8, 0.8], 'hip': [1.0, 1.0], 'knee': [0.6, 0.6]}
+        ends = np.array([(0.0, 0.0, 1.0), (0.0, 0.0, 0.5)])
+        angle = np.linspace(0, 2 * np.pi, 24, endpoint=False)
+        ring = lambda z: np.c_[0.08 * np.cos(angle), 0.08 * np.sin(angle), np.full(24, z)]
+        with mock.patch.object(refit, 'joints_of', return_value=[('hip', 'l', 'pelvis'), ('knee', 'l', 'shinl')]),                 mock.patch.object(refit, 'anchors', return_value=ends),                 mock.patch.object(refit, 'across', side_effect=lambda *given, only=None: wide[only]):
+            out, report = refit.limbed('legl', np.concatenate([ring(z) for z in (1.1, 1.0, 0.75, 0.5, 0.4)]), ({}, {}), ({}, {}), {}, ('a', 'b'))
+        radius = np.linalg.norm(out[:, :2], axis=1).reshape(5, 24)
+        self.assertTrue(np.allclose(radius, np.array([0.10, 0.10, 0.08, 0.06, 0.06])[:, None]))  # past a joint, as at it
+        self.assertTrue(np.allclose(out[:, 2].reshape(5, 24), np.array([1.1, 1.0, 0.75, 0.5, 0.4])[:, None]))
+        self.assertEqual(report, {'ends': [[1.0, 1.0], [0.6, 0.6]]})
+
+
+class FootTests(unittest.TestCase):
+    def test_a_foot_is_carried_in_the_grounds_frame_with_its_sole_on_the_ground(self):
+        # the other body's foot is shorter, narrower, lower, leant more, lifted off the ground and toed out, and its
+        # ankle stands higher: the boot's sole stays flat on the ground, nothing of it sheared
+        ankles = {'a': np.array((0.0, -0.05, 0.14)), 'b': np.array((0.02, -0.04, 0.15))}
+        mine, hers = foot(0.30, 0.12, 0.20, lean=0.4), foot(0.27, 0.09, 0.15, lean=0.6, lift=0.015)
+        hers = (hers[0] @ about_z(10).T, hers[1])
+        source, target = ('a', {'footl': mine}), ('b', {'footl': hers})
+        with mock.patch.object(refit, 'anchors', side_effect=lambda token, bones: ankles[bones][None]):
+            linear, offset, report = refit.grounded('footl', source, target)
+        boot = foot(0.32, 0.14, 0.22)[0]  # the boot drawn round the source's foot, its sole on the ground
+        carried = boot @ linear.T + offset
+        sole = boot[:, 2] == 0
+        self.assertTrue(np.allclose(carried[sole, 2], 0.0, atol=1e-9))  # on the ground, and flat
+        self.assertTrue(np.allclose(linear @ ankles['a'] + offset, ankles['b']))  # its ankle where the other body's is
+        self.assertTrue(np.allclose(linear[2], (0, 0, 0.15 / 0.14)) and np.allclose(linear[:2, 2], 0))  # upright stays upright: no shear
+        self.assertTrue(np.allclose(report['axes'][:2], [0.9, 0.75], atol=0.02) and report['grounded'])
+        toe = linear @ np.array((0.0, -1.0, 0.0))
+        self.assertAlmostEqual(float(np.degrees(np.arctan2(toe[0], -toe[1]))), 10.0, delta=0.5)  # it points where her foot does
+        with mock.patch.object(refit, 'anchors', side_effect=lambda token, bones: ankles[bones][None]), \
+                mock.patch.object(refit, 'joints_of', return_value=[('ankle', 'l', 'shinl')]), \
+                mock.patch.object(refit, 'axis_of', return_value=np.array((0.0, 0.0, 1.0))):
+            again = refit.placement('footl', source, target)
+        self.assertTrue(np.allclose(again[0], linear))  # what `placement` carries a foot by
+
+
+    def test_no_end_is_shaped_at_a_joint_cut_as_drawn_on_any_part(self):
+        # every part carried, not the first alone: the list of ends drawn in took the joints' name, and from the
+        # second part on every end was shaped again; the boots came out peaked all the same (2026-11-26)
+        parts = {'forel': part(faces=1), 'handl': part(faces=1)}
+        identity = (np.eye(3), np.zeros(3), {})
+        with mock.patch.object(refit, 'placement', return_value=identity), mock.patch.object(refit, 'taper', return_value=None),                 mock.patch.object(refit, 'joints_of', return_value=[]), mock.patch.object(refit, 'anchors', return_value=np.zeros((0, 3))),                 mock.patch.object(refit.ends, 'ends_of', return_value=[]) as asked:
+            refit.refit(parts, (rig(), {}), (rig(), {}), None, two_bodies(), ('a', 'b'), 2, (), ('wrist',))
+        tubes = [call.kwargs['joints'] for call in asked.call_args_list if call.kwargs['joints'] != refit.DRAWN_IN]
+        self.assertEqual(tubes, [tuple(joint for joint in refit.ends.TUBES if joint != 'wrist')] * 2)
+
+
 def torso(span=0.4, lean=0.0):
     """The test rig with a torso stood up in it: the neck over the waist, `lean` in front of it, and the
     shoulders `span` apart, each arm straight out to its side."""
@@ -129,6 +192,18 @@ def waisted(ring):
 
 
 class TaperTests(unittest.TestCase):
+    def test_a_collar_keeps_its_height_over_a_neck_whose_shoulders_lie_close_under_it(self):
+        mine, hers = np.array([0.0, 0.119, 0.469]), np.array([0.0, 0.041, 0.347])  # neck, shoulders, waist: the Human pair
+        heights = np.array([-0.043, -0.02, -1e-6, 0.0, 0.119, 0.469])
+        out = refit.risen(heights, mine, hers)
+        self.assertTrue(np.allclose(out[3:], hers, atol=1e-9))  # the stations, each on the other body's
+        self.assertAlmostEqual(float(out[0]), -0.0410, places=3)  # 4.3 cm of collar: 4.1 cm, not the curve's 0.7
+        self.assertAlmostEqual(float(out[2]), 0.0, places=5)  # no step at the neck
+        self.assertTrue((np.diff(out) > 0).all())
+        # where the curve rises faster than the heights themselves, it carries the collar too
+        wide = refit.risen(heights, hers, mine)
+        self.assertTrue(np.allclose(wide, np.polyval(np.polyfit(hers, mine, 2), heights)))
+
     def setUp(self):
         # the other body's shoulders 1.5 times as far apart, its own chest 1.3 times as deep and its waist twice as wide
         self.source = (torso(0.4), {'chest': upright(0.10, 1.0, 1.7)})
@@ -150,11 +225,19 @@ class TaperTests(unittest.TestCase):
         vest = np.concatenate([vest[:64] * (1, 1, 0) + (0, 0, z) for z in np.linspace(1.05, 1.65, 61)])  # a ring each centimetre
         carried = refit.tapered(vest, slope)
         self.assertTrue(np.allclose(carried[:, 2], vest[:, 2]))  # each slice level where it was
-        top = vest[:, 2] >= 1.5  # down to the shoulder line the part's one map carries it as the slope does
+        top = np.isclose(vest[:, 2], 1.5)  # on the shoulder line the part's one map carries it as the slope does
         self.assertTrue(np.allclose(carried[top], vest[top] @ linear.T + offset))
         wide = lambda low, high, axis: float(np.ptp(carried[(vest[:, 2] > low) & (vest[:, 2] < high)][:, axis])) / 0.18
-        self.assertAlmostEqual(wide(1.495, 1.66, 0), 1.5, places=3)  # from the shoulder line up, the shoulders' scales
-        self.assertAlmostEqual(wide(1.495, 1.66, 1), 1.3, places=3)
+        self.assertAlmostEqual(wide(1.495, 1.505, 0), 1.5, places=3)  # on the shoulder line, the shoulders' scales
+        self.assertAlmostEqual(wide(1.495, 1.505, 1), 1.3, places=3)
+        # from there up they come to the neck's own, here as wide on both bodies, and stay that above it: a collar
+        # goes round the neck, not the shoulders
+        self.assertEqual(slope['collar'], [1.0, 1.0])
+        neck = float(slope['frames'][0]['origin'][2])
+        collar = refit.tapered(np.concatenate([vest[:64] * (1, 1, 0) + (0, 0, z) for z in (neck, neck + 0.03)]), slope)
+        self.assertTrue(np.allclose(np.linalg.norm(collar[:, :2], axis=1), 0.09, atol=1e-9))
+        between = wide(1.5 + (neck - 1.5) / 2 - 0.006, 1.5 + (neck - 1.5) / 2 + 0.006, 0)
+        self.assertTrue(1.0 < between < 1.5)
         self.assertAlmostEqual(wide(1.045, 1.105, 0), 2.0, places=3)  # from the waist down, the waist's
         self.assertAlmostEqual(wide(1.045, 1.105, 1), 2.0, places=3)
         rings = [wide(z - 0.005, z + 0.005, 0) for z in np.linspace(1.1, 1.5, 41)]
@@ -189,6 +272,36 @@ class TaperTests(unittest.TestCase):
         lid = refit.tapered(np.array([(0.0, 0.0, 1.1), (0.05, 0.0, 1.1)]), slope)
         self.assertTrue(np.allclose(lid, [(0.0, 0.0, 1.1), (0.10, 0.0, 1.1)]))
 
+    def test_on_a_narrower_body_the_standoff_is_scaled_with_the_rest(self):
+        # carried the other way, to a waist half as wide: cloth 5 cm outside the body's own chest comes to stand half
+        # as far outside it, not the 5 cm that read as a bagged-out belly on the Human female (user, 2026-11-26)
+        slope = refit.taper('chest', self.target, self.source, waisted(0.5), ('a', 'b'))
+        angle = np.linspace(0, 2 * np.pi, 96, endpoint=False)
+        hem = refit.tapered(np.c_[0.18 * np.cos(angle), 0.18 * np.sin(angle), np.full(96, 1.1)], slope)
+        self.assertTrue(np.allclose(np.linalg.norm(hem[:, :2], axis=1), 0.09, atol=1e-6))
+
+    def test_a_yoke_rides_the_other_bodys_shoulders_as_it_rode_the_sources(self):
+        # the shoulders read from above: a slab's top, and beyond its edge the nearest of it
+        frame = {'origin': np.array((0.0, 0.0, 1.0)), 'axes': np.array([(0.0, 0.0, -1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)])}
+        slab = foot(0.2, 0.2, 0.9)  # 0.9 tall from the ground: its top 0.1 under the frame's origin
+        corner, table = refit.shoulders([slab], frame, 0.5)
+        self.assertTrue(np.allclose(refit._above(corner, table, np.array([(0.0, -0.1), (0.05, -0.15), (0.5, 0.5)])), 0.1, atol=1e-6))
+        self.assertIsNone(refit.shoulders([upright(0.1, 0.0, 0.9)], frame, 0.5))  # an open tube: nothing seen from above
+        # a vertex 2 cm over the source's shoulders stands 2 cm over the other body's, wherever the stations put its height;
+        # under the shoulder line the stations alone carry it
+        slope = refit.taper('chest', self.source, self.target, self.terms, ('a', 'b'))
+        self.assertIsNone(slope['yoke'])  # the rig's chests are open tubes
+        flat = lambda height: (np.array((-5.0, -5.0)), np.full((2001, 2001), height))
+        ridden = {**slope, 'yoke': [flat(-0.02), flat(-0.05)]}
+        a, b = slope['frames']
+        over = (a['origin'] - 0.04 * a['axes'][0] + 0.05 * a['axes'][1])[None]
+        self.assertAlmostEqual(float((refit.tapered(over, ridden)[0] - b['origin']) @ b['axes'][0]), -0.07, places=6)
+        under = (a['origin'] + (a['line'][1, 0] + 0.1) * a['axes'][0] + 0.05 * a['axes'][1])[None]
+        self.assertTrue(np.allclose(refit.tapered(under, ridden), refit.tapered(under, slope)))
+        # on narrower shoulders it stands less far over them, by as much as they are narrower
+        narrow = {**ridden, 'top': [0.5, 0.5]}
+        self.assertAlmostEqual(float((refit.tapered(over, narrow)[0] - b['origin']) @ b['axes'][0]), -0.06, places=6)
+
     def test_a_leaning_vest_is_set_on_the_other_bodys_neck_shoulders_and_waist(self):
         # the source's neck 8 cm in front of its waist; the other body upright, 0.7 as long from neck to waist,
         # its shoulders 5 cm farther forward
@@ -216,7 +329,7 @@ class TaperTests(unittest.TestCase):
         self.assertTrue(np.allclose(source[0]['neck_g'][:3, 3] @ linear.T + offset, bones['neck_g'][:3, 3]))
         # between the stations the middle line is one curve: no step in its lean from slice to slice
         line = refit.tapered(np.c_[np.zeros(61), np.linspace(0.08, 0.0, 61), np.linspace(1.6, 1.1, 61)], slope)
-        self.assertLess(np.abs(np.diff(line[:, 1], 3)).max(), 2e-4)
+        self.assertLess(np.abs(np.diff(line[:, 1], 3)).max(), 6e-4)  # the scales across come to the neck's own above the shoulder line
 
     def test_a_body_whose_joints_are_spaced_too_unlike_for_one_slope_is_refused(self):
         # the source's shoulders 10 cm under its neck and 40 cm over its waist; the other body's 45 cm under and 5 cm
@@ -495,6 +608,17 @@ class RefitTests(unittest.TestCase):
         self.assertLess(past.max(), 0.03 - refit.UNDER_SKIN + 1e-3)
         self.assertGreater(past.min(), 0.02)  # moved in to the skin, not onto the axis
 
+    def test_a_wall_across_the_limb_is_no_cover_over_its_skin(self):
+        # two faces: one round the limb, looking out from the bone along +X, and one across it, looking down the bone
+        v = np.array([[0.1, 0, 0], [0.1, 0, 0.1], [0.1, 0.1, 0], [0, 0, 0.2], [0.1, 0, 0.2], [0, 0.1, 0.2]], float)
+        f = np.array([[0, 2, 1], [3, 4, 5]])
+        axis = np.array([0, 0, 1.0])
+        self.assertEqual(refit.measure.round_limb(v, f, axis).tolist(), [True, False])
+        self.assertEqual(refit.measure.round_limb(v, f, axis, made=[False, True]).tolist(), [True, True])  # the split's own dome counts
+        v[4, 2] = 0.35  # tipped 56 degrees and looking down the limb it is still what closes a sleeve's mouth
+        self.assertEqual(refit.measure.round_limb(v, f, axis).tolist(), [True, False])
+        self.assertEqual(refit.measure.round_limb(v, f[:, ::-1], axis).tolist(), [True, True])  # looking up it, the cloth of a flare
+
     def test_a_sleeve_is_held_outside_the_other_bodys_arm(self):
         # a sleeve to x = 0.3, its end capped 3 cm back past x = 0.05, with the other body's arm 4 cm round kept beside it
         # from x = 0.18 (the left arm runs along +X from the origin)
@@ -524,10 +648,33 @@ class RefitTests(unittest.TestCase):
                 refit.over_skin(near, start, end)
         clear = worn(0.05)
         self.assertIs(refit.over_skin(clear, start, end), clear)  # a sleeve clear of the arm is not touched
+        # what is flagged stays where it is: an end the seam contract measures
+        near = worn(0.035)
+        fixed = near['v'][:, 0] < 0.1
+        out = refit.over_skin(near, start, end, fixed=fixed)
+        self.assertTrue(fixed.any() and np.array_equal(out['v'][fixed], near['v'][fixed]))
+        self.assertEqual(bake.through({'bicepl': out}, bones), ({'bicepl': 0.0}, []))
+        # a bake holds its own sleeve so where its skin gate would fail, and leaves one that passes as it is
+        with mock.patch.object(bake, 'END_BAND', 0.0):
+            out, moved = bake.over_own_skin(near, 'bicepl', bones)
+        self.assertEqual(bake.through({'bicepl': out}, bones), ({'bicepl': 0.0}, []))
+        self.assertGreater(moved, 0.005)
+        self.assertEqual(bake.facing({'bicepl': out}, bones)[1], [])
+        kept, moved = bake.over_own_skin(clear, 'bicepl', bones)
+        self.assertIs(kept, clear)
+        self.assertEqual(moved, 0.0)
         bare = closed(0.05, 0.3, 0.035, near=None, far=None)
         self.assertIs(refit.over_skin(bare, start, end), bare)  # nor a part with no skin beside it
         with self.assertRaisesRegex(Exception, 'would move 4.8 cm, past 3 cm'):  # an arm far fuller than the sleeve fails
             refit.over_skin(worn(0.035, fuller=0.08), start, end)
+        self.assertEqual(refit.short_of_skin(refit.over_skin(worn(0.035, fuller=0.08), start, end, most=0.06), start, end), 0.0)  # a body that much wider may
+        # each pass reads the cloth as the last one left it, as the check after them does: a wall a push tilts is cloth
+        calls = []
+        real = refit._cloth
+        with mock.patch.object(refit, '_cloth', lambda part, v, *rest: calls.append(np.array(v)) or real(part, v, *rest)):
+            refit.over_skin(worn(0.035), start, end)
+        self.assertGreater(len(calls), 2)
+        self.assertFalse(np.array_equal(calls[0], calls[1]))
 
     def test_a_part_with_no_skin_beside_it_is_short_of_none(self):
         bones = rig()
@@ -567,6 +714,28 @@ class RefitTests(unittest.TestCase):
         self.assertTrue(np.array_equal(refit.seated(shallow, point, normal, (chest['v'], chest['f'])), shallow['v']))
         pole = np.argmin(sleeve['v'][:, 0])  # what lies nearer another joint of the part is that end's, and stays
         self.assertTrue(np.array_equal(refit.seated(sleeve, point, normal, (chest['v'], chest['f']), others=[sleeve['v'][pole]])[pole], sleeve['v'][pole]))
+        # held inside along the chest's surface, which at an armpit runs across the joint: a cap is drawn toward the
+        # joint's axis or deeper, never wider (a Large Dwarf male's sleeve end, 2.4 cm out of its envelope, 2026-11-26)
+        rel = lambda q: np.linalg.norm((q - point) - ((q - point) @ normal)[:, None] * normal, axis=1)
+        with mock.patch.object(refit, 'under_skin', lambda vertices, *_, **__: np.array(vertices, float) + [-0.01, 0.0, 0.02]):
+            pushed = refit.seated(sleeve, point, normal, (chest['v'], chest['f']))
+        cap = np.setdiff1d(np.unique(sleeve['f'][sleeve['added']]), own)
+        near = ((sleeve['v'][cap] - point) @ normal) > -0.02  # the cap where the plane's section reads it, not its pole deep in the chest
+        self.assertTrue((rel(pushed[cap][near]) <= rel(sleeve['v'][cap][near]) + 1e-9).all())
+        self.assertLessEqual(float(rel(pushed[cap]).max()), float(rel(sleeve['v'][cap]).max()) + 1e-9)
+        self.assertLess(float(pushed[cap, 0].max()), float(sleeve['v'][cap, 0].max()))  # deeper all the same
+
+    def test_what_the_split_added_past_an_under_end_is_held_inside_the_part_over_it_at_rest(self):
+        # a cap 10 cm back past the plane at x = 0.05, under a part over the joint that reaches back only to x = -0.03
+        sleeve, over = closed(0.05, 0.3, 0.04, near='cap', far=None, depth=0.1), closed(-0.03, 0.05, 0.06)
+        everywhere = np.ones(len(sleeve['v']), bool)
+        own = np.unique(sleeve['f'][~sleeve['added']])
+        cap = np.setdiff1d(np.unique(sleeve['f'][sleeve['added']]), own)
+        self.assertFalse(bake._inside(sleeve['v'][cap], [(over['v'], over['f'])]).all())
+        held = refit.hidden_at_rest(sleeve, sleeve['v'], everywhere, (over['v'], over['f']))
+        self.assertTrue(bake._inside(held[cap], [(over['v'], over['f'])]).all())
+        self.assertTrue(np.array_equal(held[own], sleeve['v'][own]))  # the part itself is not moved
+        self.assertTrue(np.array_equal(refit.hidden_at_rest(sleeve, sleeve['v'], ~everywhere, (over['v'], over['f'])), sleeve['v']))  # nor another end
 
     def test_the_command_keeps_the_refit_parts_with_the_slots_the_brief_gave(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -578,6 +747,24 @@ class RefitTests(unittest.TestCase):
                     mock.patch.object(seams, 'load_contract', return_value=None):
                 report = refit.run(kept, out, 'pack', 'pmh0', 'pfh0')
             self.assertTrue(np.allclose(report['handl']['axes'], 0.8, atol=1e-3))
+            # the ends are shaped at the tier the parts were cut at, listed with them, and the refit parts say it on:
+            # at tier 2 whatever the bake's, a tier 1 waist came to the other body outside its envelope all round
+            cut = {'default': 3, 'waist': 1}
+            bake.store({'handl': glove}, Path(folder) / 'cut', {'bare': ['forearm'], 'skin': ['bicep']}, cut)
+            with mock.patch.object(measure, 'body', side_effect=lambda pack, name: bodies[name]), \
+                    mock.patch.object(seams, 'load_contract', return_value=None), \
+                    mock.patch.object(refit, 'refit', wraps=refit.refit) as carried:
+                refit.run(Path(folder) / 'cut', Path(folder) / 'cut-out', 'pack', 'pmh0', 'pfh0')
+                refit.run(kept, Path(folder) / 'said', 'pack', 'pmh0', 'pfh0', tier=cut)  # kept before tiers were listed
+                refit.run(kept, Path(folder) / 'unsaid', 'pack', 'pmh0', 'pfh0')
+                refit.run(kept, Path(folder) / 'drawn', 'pack', 'pmh0', 'pfh0', tier=cut, drawn=('ankle',))
+                with self.assertRaisesRegex(ValueError, 'cut at tier'):
+                    refit.run(Path(folder) / 'cut', Path(folder) / 'other', 'pack', 'pmh0', 'pfh0', tier=2)
+            self.assertEqual([call.args[6] for call in carried.call_args_list], [cut, cut, 2, cut])
+            # and so are the joints it was cut at as drawn: no end there is shaped to the other body's envelope
+            self.assertEqual([call.args[8] for call in carried.call_args_list], [(), (), (), ('ankle',)])
+            self.assertEqual(bake.listing(Path(folder) / 'drawn')['drawn'], ['ankle'])
+            self.assertEqual((bake.listing(Path(folder) / 'cut-out')['tier'], bake.listing(Path(folder) / 'said')['tier']), (cut, cut))
             # under a forearm baked on the other body (`seat_in`) the glove's end is seated in it and drawn in under it
             # in the bend, as under one carried with it, and the report says which was done
             bake.store({'forel': part(faces=1)}, Path(folder) / 'upper', {})

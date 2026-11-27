@@ -143,6 +143,16 @@ class MaterialTests(unittest.TestCase):
         again, _ = texture.mesh_materials(np.concatenate([positions, across]), np.concatenate([faces, [[82, 83, 84]]]), read, 3)
         self.assertEqual(again[-1], fabric)
 
+    def test_the_mesh_read_finds_a_small_accent_where_the_brief_says_one_is_small(self):
+        # laces on 1% of a boot are no material by the colours alone, and one where the brief marks them small
+        rng = np.random.default_rng(0)
+        colours = np.concatenate([np.tile((200, 40, 40), (600, 1)), np.tile((40, 40, 200), (385, 1)), np.tile((40, 200, 40), (15, 1))]).astype(float) + rng.normal(0, 2, (1000, 3))
+        read = lambda points: (colours[np.arange(len(points)) % 1000], np.zeros(len(points), bool))
+        positions, faces = rng.random((3000, 3)), np.arange(3000).reshape(-1, 3)
+        with self.assertRaisesRegex(ValueError, 'show 2 materials'):
+            texture.mesh_materials(positions, faces, read, 3)
+        self.assertEqual(len(texture.mesh_materials(positions, faces, read, 3, faint=True)[1]['tones']), 3)
+
     def test_a_tint_texture_is_filled_to_its_last_texel_from_the_nearest_chart(self):
         which = texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'])
         channels = [None] * 3
@@ -156,6 +166,47 @@ class MaterialTests(unittest.TestCase):
         self.assertTrue((shades[:, 4:16] == shades[:, 3:4]).all() and (shades[:, 16:28] == shades[:, 28:29]).all())
         filled, value = texture.spread(np.zeros((4, 4), bool), np.ones((4, 4)), passes=None)
         self.assertFalse(filled.any())  # nothing to spread from: it stops
+
+    def test_a_part_is_tinted_in_the_materials_its_slot_wears_and_no_other(self):
+        which = texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'])
+        channels = [None] * 3
+        for k, name in zip(which, ('cloth1', 'leather1', 'metal1')):
+            channels[k] = name
+        fabric, tan, plate = which.tolist()
+        among = np.ones(3, bool)
+        among[tan] = False  # a boot: no tan flap is worn there, though its dark leather has a flap's tone
+        self.assertEqual(texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'], among)[1] in (fabric, plate), True)
+        colour, covered = np.zeros((16, 16, 3)), np.ones((16, 16), bool)
+        colour[:, :8], colour[:, 8:] = TAN, FABRIC
+        layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, among=among)[1]
+        self.assertFalse((layers == export.LAYERS['leather1']).any())
+        self.assertTrue((layers[:, 8:] == export.LAYERS['cloth1']).all())
+        only = np.zeros(3, bool)
+        only[tan] = True  # a closing takes the first material the part wears, not the outfit's commonest
+        closing = np.zeros((16, 16), bool)
+        closing[4:8, 10:14] = True
+        layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, closing=closing, among=only)[1]
+        self.assertTrue((layers == export.LAYERS['leather1']).all())
+        # edged, a closing is what its own texels were read as: a shin's, inside the boot it ends in
+        closing[4:8, 2:6] = True
+        right = closing.copy()
+        right[:, :8] = False
+        layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, closing=right, edged=True)[1]
+        self.assertTrue((layers[:, 8:] == export.LAYERS['cloth1']).all())
+        left = closing.copy()
+        left[:, 8:] = False
+        layers = texture.tint_maps(colour, covered, self.found, channels, speck=0, closing=left, edged=True)[1]
+        self.assertTrue((layers[4:8, 2:6] == export.LAYERS['leather1']).all())
+        # a material keeps a share of its drawn highlights: what is lighter than its lit shade
+        shiny = colour.copy()
+        shiny[2:4, 2:4] = np.minimum(np.asarray(TAN, float) * 1.3, 255 if np.max(TAN) > 1 else 1.0)
+        full = texture.tint_maps(shiny, covered, self.found, channels, speck=0)[0]
+        dulled = texture.tint_maps(shiny, covered, self.found, channels, speck=0, highlights=[0.3] * 3)[0]
+        self.assertTrue((dulled[2:4, 2:4] < full[2:4, 2:4]).all())
+        self.assertTrue((dulled[8:, :8] == full[8:, :8]).all() and (dulled <= full).all())
+        for wrong in (np.zeros(3, bool), np.ones(2, bool)):
+            with self.assertRaises(ValueError):
+                texture.tint_maps(colour, covered, self.found, channels, among=wrong)
 
     def test_a_source_with_fewer_materials_than_asked_for_is_refused(self):
         with self.assertRaises(ValueError):

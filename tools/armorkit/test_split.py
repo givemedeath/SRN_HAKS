@@ -1069,6 +1069,30 @@ class SleeveTests(unittest.TestCase):
         self.assertAlmostEqual(found['bicepl'][0] - given['bicepl'][0], size, places=5)  # told only where it lies, it went with the arm
         self.assertAlmostEqual(given['chest'][0] - found['chest'][0], size, places=5)
 
+    def test_a_wide_sleeve_round_a_line_near_its_outer_side_is_free_below_the_armpit(self):
+        # the arm's line 3 cm outside the sleeve's middle, as an estimated joint in a wide short sleeve lies: below the
+        # armpit the sleeve reaches 7.5 cm toward the torso and 1.5 cm away, and is still no part of the torso
+        seam = split.sleeve(self.v, self.f, JOINTS, 'l')
+        off = {**JOINTS, **{name: tuple(np.array(JOINTS[name], float) - (0.03, 0, 0)) for name in ('lbicep_g', 'lforearm_g')}}
+        out = split.sleeve(self.v, self.f, off, 'l')
+        self.assertAlmostEqual(out['depth'], seam['depth'] + split.SLEEVE_WEB * split.SLEEVE_STEP, delta=0.021)  # found a few sections lower
+        self.assertTrue(np.allclose(out['point'] @ out['normal'], seam['point'] @ seam['normal'], atol=0.01))  # the seam where it was
+        with mock.patch.object(split, 'SLEEVE_WEB', 10 ** 6), self.assertRaisesRegex(ValueError, 'one surface with the torso down to the elbow'):
+            split.sleeve(self.v, self.f, off, 'l')  # read by how far it reaches each way alone, it was the torso's all the way down
+
+    def test_a_few_sections_with_no_curve_round_the_arm_do_not_end_it(self):
+        seam, real, count = split.sleeve(self.v, self.f, JOINTS, 'l'), seams.section, [0]
+
+        def holed(*given):  # the fifth to the eighth section close on no curve, as in the armpit of a wide sleeve
+            count[0] += 1
+            return np.zeros((0, 2, 2)) if 5 <= count[0] <= 8 else real(*given)
+        with mock.patch.object(seams, 'section', holed):
+            out = split.sleeve(self.v, self.f, JOINTS, 'l')
+        self.assertAlmostEqual(out['depth'], seam['depth'], delta=1e-9)
+        count[0] = 0
+        with mock.patch.object(seams, 'section', holed), mock.patch.object(split, 'SLEEVE_LOST', 0), self.assertRaises(ValueError):
+            split.sleeve(self.v, self.f, JOINTS, 'l')  # taken for the arm's end, they left the sleeve on the torso
+
     def test_a_sleeve_fused_down_to_the_elbow_is_refused(self):
         v, f, _ = fused(armpit=1.10)
         with self.assertRaises(ValueError):

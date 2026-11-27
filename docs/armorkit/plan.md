@@ -30,7 +30,10 @@ response, matrix/rigger, FRFZ catalog).
 2. Pieces that hang below the waist (hems, tabards, skirts, holsters) go on the **belt** slot. Robes are only
    for garments that truly need them.
 3. Seams use deliberate overlap and clipping to stay cross-compatible, not exact ring matching.
-4. Accessories may clip heavily in motion. They are judged standing and idle.
+4. Accessories may clip heavily in motion. They are judged standing and idle. (User, 2026-11-25 and twice on
+   2026-11-26: on the belt and neck slots clipping is expected, at rest too. What hangs from them keeps the
+   shape and place it was drawn in: it is never pushed, leaned or bent clear, and its clipping gates nothing.
+   Only the part that holds the piece on, a belt's strap on the waistband, is fitted.)
 5. Full helmets use the helmet slot, which replaces the head. Open headgear goes on the neck slot.
 6. Headgear avoids showing faces, keeps exposed skin generic, and is built to fit across heads.
 7. Logos live only on shoulders/pauldrons and neck-slot lanyards. Headgear and logos are part of this kit.
@@ -128,8 +131,11 @@ the registry into `srn_2da`: stock rows unchanged, padded with no gaps, live row
 SR_NWN swaps it per wearer. Logo textures are plain (not tintable) and their names are at most 16 characters.
 This is the accepted exception to "one PLT per part" (decision 13).
 
-**Budgets (starting values, tuned in the pilot).** Chest up to 8,000 triangles, other body slots up to 2,900,
-accessories up to 2,000, a whole worn outfit up to 40,000 (user decision 2026-11-13, raised from 30,000 so that
+**Budgets.** Chest up to 16,000 triangles, other body slots up to 5,800, a whole worn outfit up to 80,000
+(user decision 2026-11-25: "increase our poly counts further ... Double them", after Street Casual's pockets,
+seat and boot tops came out coarse in the client); accessories up to 8,000 (same day, from the 4,000 of 2026-11-17). Before
+that: chest 8,000, other body slots 2,900, accessories 2,000, a whole worn outfit 40,000 (user decision
+2026-11-13, raised from 30,000 so that
 the rounded ends at every joint fit; a chest and eleven parts at their budgets come to 39,900). Before that
 the chest had 6,000, the other slots 2,250 and the outfit 30,000 (user decision 2026-11-11, raised from the robe
 trial's 20,000 with the body slots in proportion, to make the needed quality easier to reach on the next
@@ -856,7 +862,7 @@ the hak did not. The user chose plain git, no LFS, and to make those copies at b
 Made for corporate security and looked at in the client on the Human pair, worn with Facility Security 6020.
 Nothing here is published; the other 18 bodies, the registry entries and the packs are separate steps.
 
-* **Budget (user decision).** An accessory has up to 4,000 triangles and a texture of up to 1,024 texels
+* **Budget (user decision; 8,000 since 2026-11-25, Budgets above).** An accessory has up to 4,000 triangles and a texture of up to 1,024 texels
   (`accessory.BUDGET`), twice the 2,000 of the part rules. A whole worn outfit's 40,000 is unchanged.
 * **Numbers (user decision).** The duty belt takes its outfit's number, 6020, on the belt slot. The brassard is
   shoulder 1000 and the respirator neck 1000, the first of the standalone numbers.
