@@ -713,6 +713,12 @@ caverns with no need to create a lot of ceilings", the SWLOR haks included.
   room. Open at release D's start: the CEP extension `zib01` (340 more models in SWLOR_Haks `sw_t_beholder`: Lava,
   Blood, Magic, Sewer, Urine and Water rooms over `zdc04_*` and `zlc_cfw_water_*` textures) only if the base rooms
   are too few; the tunnels source (`fifi` proposed, not yet confirmed).
+- **Decision (user, 2026-11-27): release D also takes Steamworks `tsw01` as the sewers** ("brick sewer rooms with
+  round outfall pipes, metal grating, tanks and tall pipes ... the stronger Shadowrun fit, for maintenance and
+  sewer runs"). Base set: 179 tiles; of its `tsw01_*` models, 194 name 30 textures (walls `wall01`-`09b`, floor,
+  pillars, pipes `npipe1-3`, grates, blast marks, sludge, wood, metal). Open overhead (`review-tsw01.json`), so it is
+  lidded too; its textures pass through the release C look rules (scans or redraws where weak, own names). The
+  family is joined to tbx78 and to the caverns.
 
 ## Work order
 
