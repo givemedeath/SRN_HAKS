@@ -699,6 +699,11 @@ caverns with no need to create a lot of ceilings", the SWLOR haks included.
   CEP extension (zdm01, zib01), an exterior (Underdark `ttu01`, Planetscape `vmp01`), or the D20 Bunker `fifi`
   already in this repository. Candidates captured eye level, tilted up: `tdt01`, `tib01`, `tbw01`, `tii01`, `fifi`
   (`review-<set>.json`).
+- Captured 2026-11-27: `tdt01`, `tib01`, `tbw01` and `tii01` are open to the sky like every NWN interior; only the
+  D20 Bunker `fifi` is closed overhead (its rooms and tube tunnels have modelled ceilings). Beholder Caves `tib01`
+  has the best sculpted rock tunnels (walls lean in) but needs lids; its wall tops are irregular, so a lid at the
+  walls' top leaves gaps where a wall dips. Proposal put to the user: tunnels from `fifi` (closed, tech, sits with
+  tbx78) and caverns from `tib01` lidded by `tilekit ceilings` in rock.
 
 ## Work order
 
