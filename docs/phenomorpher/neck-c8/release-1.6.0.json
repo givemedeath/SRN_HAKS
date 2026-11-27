@@ -1,0 +1,140 @@
+{
+ "schemaVersion": 1,
+ "kind": "PhenoMorpher-release-1.6.0",
+ "contract": "docs/phenomorpher/game-ready-assets.json",
+ "contractSHA256": "175f327e51434f3f8ba79b0880c639fcf7f6f556428ba5b9b9ad9e615c813fdb",
+ "fromContractSHA256": "1c68c847e56bcb226bdc9d05954cf8d0ff66f260e81e2c0e650f3c078b7722e1",
+ "lock": "docs/phenomorpher/human-bodies-lock-c8.json",
+ "resources": 937,
+ "changed": [
+  {
+   "path": "srn_body/pfh0.mdl",
+   "sha256": "d22207455c149efabd9e27dd697a224c51777b76cde5a8a6ae2ff562686c9c30",
+   "bytes": 11448,
+   "fromSHA256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+   "fromBytes": 11448,
+   "change": "c8-female-rig-head-drop"
+  },
+  {
+   "path": "srn_body/pfh0_neck001.mdl",
+   "sha256": "f8e4420ac1df03d90f8f581118f4b3ed8fcda20085c3bfcaf86072e092f04b15",
+   "bytes": 55548,
+   "fromSHA256": "81ec2ccaa6e8e3e65ad3ebdc40b12e7dee3a819c29698dec507e043eafd816a2",
+   "fromBytes": 2380,
+   "change": "c8-neck"
+  },
+  {
+   "path": "srn_body/pfh0_chest001.mdl",
+   "sha256": "bbcc8f58d4f9015610529978898a267864d235664bc4df4fc6c13eea62d52f22",
+   "bytes": 442588,
+   "fromSHA256": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+   "fromBytes": 442588,
+   "change": "c8-female-collar"
+  },
+  {
+   "path": "srn_body/pfh2.mdl",
+   "sha256": "b2a9b5cdbb6c5d82a75f6480cf8a54f0a0555c64dd18089dc54492f6c76e9080",
+   "bytes": 11448,
+   "fromSHA256": "a226331a13ec3056fe4ac1712a6e9eb0b3b462eaeb971866b4e62df711910452",
+   "fromBytes": 11448,
+   "change": "c8-female-rig-head-drop"
+  },
+  {
+   "path": "srn_body/pfh2_neck001.mdl",
+   "sha256": "8992284650d6f28b1188d59f9d843b7a03c25fa38baaa473940ce473516a8643",
+   "bytes": 63644,
+   "fromSHA256": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
+   "fromBytes": 2488,
+   "change": "c8-neck"
+  },
+  {
+   "path": "srn_body/pfh2_chest001.mdl",
+   "sha256": "6d0d6ac5091a61468b2857016ea947e3757b3f1bcd7af087b3089bcd613798b6",
+   "bytes": 364120,
+   "fromSHA256": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+   "fromBytes": 364120,
+   "change": "c8-female-collar"
+  },
+  {
+   "path": "srn_body/pmh0_neck001.mdl",
+   "sha256": "4271dea0838b7e756b3ae7b30fa09e52abd13c6f9f042d13c9a6cd3eca58ab3e",
+   "bytes": 50364,
+   "fromSHA256": "0e1097860f3f5751e65e7f3c9533abef0982dce60d16db0fb06e602f11642520",
+   "fromBytes": 2596,
+   "change": "c8-neck"
+  },
+  {
+   "path": "srn_body/pmh2_neck001.mdl",
+   "sha256": "f0b73156ff600de7a74094987e92bfe25e667c039966993c6f172c63779cdafe",
+   "bytes": 57692,
+   "fromSHA256": "56e59273ae4d7412a95a2752cbe27ae26e70a88c20a00ca51e4e16f27fcfeafd",
+   "fromBytes": 2428,
+   "change": "c8-neck"
+  }
+ ],
+ "statureChangeMeters": {
+  "pfh0": -0.035,
+  "pfh2": -0.035
+ },
+ "maleHeads": {
+  "rule": "uniform x1.06 about the head_g origin, decompiled and recompiled with Blender 5.2.1 + NeverBlender 4.5.1; PLTs, UVs and materials unchanged",
+  "heads": [
+   {
+    "path": "srn_head/pmh0_head086.mdl",
+    "sha256": "b3cf428e412582a41a7c61a7189af60d1e36f1631cb0cfa94c61a46d751ee86b",
+    "bytes": 1328668,
+    "fromSHA256": "a9179b58a15d03275d1951d6e7a294b1dac40dbcd95085adf8c3a760c612f6e4",
+    "fromBytes": 1328668,
+    "scale": 1.06
+   },
+   {
+    "path": "srn_head/pmh0_head087.mdl",
+    "sha256": "adcf9aed4b40e9e524b0d0c31d097a884a694b76e64e0c47cd62371db4d648eb",
+    "bytes": 1380732,
+    "fromSHA256": "b83379fbe35f53e732f65523c48e2c2dea75bdeb94be1d41de4a7bad1730fc45",
+    "fromBytes": 1380732,
+    "scale": 1.06
+   },
+   {
+    "path": "srn_head/pmh0_head088.mdl",
+    "sha256": "5108fc4a12dcd246eab1de609543e50f3461929d8c18a0c6709e08a91ef99f51",
+    "bytes": 1155996,
+    "fromSHA256": "eb7277c2d206f4d53cdcfc0ff0a8568c6d44224345cfd6cb02c36cf6b2dbfc7a",
+    "fromBytes": 1155996,
+    "scale": 1.06
+   },
+   {
+    "path": "srn_head/pmh0_head089.mdl",
+    "sha256": "e58ade8f2990d9fb9d34ce9ec869df0f87589fd4728ce8ddfa121f023658a3b8",
+    "bytes": 1280604,
+    "fromSHA256": "4fab0f5fc93b63a31a74574727aeecc32f8e72460f1c78bb77c3518d64c465c6",
+    "fromBytes": 1280604,
+    "scale": 1.06
+   },
+   {
+    "path": "srn_head/pmh0_head090.mdl",
+    "sha256": "cd53f494467ea27251a9b4427877984ca49904d0379646c9401b2ed5ff4123b6",
+    "bytes": 1273980,
+    "fromSHA256": "0ae86d20fb94bbfc6055522477bbba39b45281ffca0ddf5a781e538fe26dce3c",
+    "fromBytes": 1273980,
+    "scale": 1.06
+   },
+   {
+    "path": "srn_head/pmh0_head091.mdl",
+    "sha256": "6fc024d830dcee4dcf630deb22166f6342a2eb8396073de7bce2d8d81d3f00fb",
+    "bytes": 1679452,
+    "fromSHA256": "14dd8d2d88cf3be02b29ae5f9e2d5927ff8d2a476c3f5a8b98c3c963ef83db61",
+    "fromBytes": 1679452,
+    "scale": 1.06
+   },
+   {
+    "path": "srn_head/pmh0_head092.mdl",
+    "sha256": "a51147ce6c42df600aa1ce7048ab7dfa303a306e53385d9d965a7e2410906eda",
+    "bytes": 1187900,
+    "fromSHA256": "34da00cf8da6b7f5bdcc03c716497d282b0e67f02ec85c442963bed623871228",
+    "fromBytes": 1187900,
+    "scale": 1.06
+   }
+  ]
+ }
+}

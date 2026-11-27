@@ -1,6 +1,7 @@
-# Seam contract and head envelopes (version 4, 2026-11-14)
+# Seam contract and head envelopes (version 5, 2026-11-26)
 
-Measured in Phase 0 of [the plan](plan.md) on the locked c7 Human Fit bodies in `srn_body` (`pmh0`, `pfh0`) and
+Measured in Phase 0 of [the plan](plan.md) on the locked Human Fit bodies in `srn_body` (`pmh0`, `pfh0`; c7 through
+version 4, the c8 necks since version 5) and
 the published heads in `srn_head`; since version 4 the seam contract holds all 20 bodies of `srn_body`, each
 measured on its own models (**Version 4** below). The tables on this page are the two Human Fit bodies'. The numbers live in `tools/armorkit/seam-contract.json` and
 `tools/armorkit/head-envelopes.json`; this page says what they mean and how they were taken. They are
@@ -132,14 +133,17 @@ Re-measured 2026-11-20 with the 10 head-library troll heads (docs/heads/head-lib
 Only the two Troll rows change. Troll male now reaches 18.4 cm below the head bone and
 27.0 cm in front, and Troll female is 55.2 cm wide.
 
+Re-measured 2026-11-26 with the c8 Human necks (contract 1.6.0, [human-bodies-lock-c8](../phenomorpher/human-bodies-lock-c8.md)):
+the Human male heads are 6% larger, and the Human female head bone is 3.5 cm lower. Only the two Human rows change.
+
 | Body | Heads | Width (cm) | Depth back / front (cm) | Below / above head bone (cm) | Largest radius (cm) | Head bone height (m) |
 |---|---|---|---|---|---|---|
-| Human male | 7 | 28.4 | 13.1 / 13.9 | 12.0 / 20.1 | 14.6 | 1.753 |
+| Human male | 7 | 30.2 | 13.9 / 14.7 | 12.8 / 21.3 | 15.4 | 1.753 |
 | Dwarf male | 9 | 32.5 | 17.3 / 14.0 | 14.1 / 19.8 | 17.0 | 1.167 |
 | Elf male | 9 | 24.2 | 11.6 / 11.4 | 10.8 / 20.4 | 12.2 | 1.902 |
 | Orc male | 7 | 34.7 | 22.2 / 14.3 | 6.9 / 27.1 | 18.6 | 1.900 |
 | Troll male | 25 | 62.0 | 22.5 / 27.0 | 18.4 / 36.1 | 32.9 | 2.501 |
-| Human female | 9 | 30.1 | 12.9 / 12.1 | 13.3 / 23.8 | 15.3 | 1.665 |
+| Human female | 9 | 30.1 | 12.9 / 12.1 | 13.3 / 23.8 | 15.3 | 1.630 |
 | Dwarf female | 9 | 29.8 | 15.6 / 15.1 | 12.8 / 20.3 | 15.7 | 1.115 |
 | Elf female | 9 | 27.1 | 12.8 / 12.4 | 11.8 / 18.0 | 13.7 | 1.770 |
 | Orc female | 9 | 40.1 | 22.0 / 15.0 | 17.5 / 29.7 | 20.1 | 1.800 |
@@ -247,3 +251,17 @@ plane lies up to 8.8 cm from the Fit body's, and the mean radius of the waist ri
 every body's planes and rings to the models in `srn_body`, and its animation models to the ones the bends were
 sampled from, as they did for the Human pair: a changed body model of any of the 20 now asks for a new
 measurement.
+
+## Version 5 (2026-11-26)
+
+Re-measured on the c8 Human bodies (contract 1.6.0, [human-bodies-lock-c8](../phenomorpher/human-bodies-lock-c8.md)).
+Only the neck joint of the four Human bodies changes, with the source hashes of their changed models; every other
+joint, body and rule is the version 4 number. The new necks are round and fuller than the stock diamond:
+
+| Body | Neck body ring, mean (cm) | Neck under end past the plane (cm) |
+|---|---:|---:|
+| `pfh0`, `pfh2` | 4.9 -> 5.6 | 5.3 -> 6.3 |
+| `pmh0`, `pmh2` | 6.4 -> 6.6 | 7.1 -> 7.3 |
+
+Outfits baked on version 4 are not refitted here; whether a neck piece needs a rebake is armorkit's call (body work
+does not rebake outfits, user 2026-11-26).
