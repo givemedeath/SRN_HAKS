@@ -557,6 +557,17 @@ class PublishTests(Workspace):
         self.assertIn('--record facility-test=FILE', reasons['pfg2 facility-test'])
         self.assertTrue(any('no brief of facility-test' in one['reason'] for one in report['failures']))
 
+    def test_a_brief_material_the_bake_did_not_find_is_one_drawn_only_on_a_slot_the_brief_leaves_bare(self):
+        # Street Casual's brief draws gloves, cut off with the bare hands: its bakes find no gloves (2026-11-26)
+        gloved = self.root / 'gloved.json'
+        for bare, failed in (([], 20), (['hand'], 0)):
+            gloved.write_text(json.dumps({**BRIEF, 'materials': BRIEF['materials'] + [{'name': 'gloves'}], **({'bare': bare} if bare else {})}), encoding='utf-8')
+            report = self.publish(shared(), briefs=[('facility-test', gloved)], dry_run=True)
+            self.assertEqual(report['failuresByGate'].get('records', 0), failed)
+        gloved.write_text(json.dumps({**BRIEF, 'materials': BRIEF['materials'][:1], 'bare': ['hand']}), encoding='utf-8')
+        report = self.publish(shared(), briefs=[('facility-test', gloved)], dry_run=True)  # a material baked that the brief does not list
+        self.assertEqual(report['failuresByGate'].get('records', 0), 20)
+
     def test_provenance_is_a_gate_for_the_repository_and_set_aside_in_a_trial(self):
         (self.repo / 'PROVENANCE.md').write_text('nothing yet\n', encoding='utf-8')
         report = self.publish(shared(), dry_run=True)

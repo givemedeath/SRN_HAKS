@@ -938,13 +938,17 @@ def publish(registry_path, bakes, stock, *, records=(), briefs=(), root=None, tr
             found_briefs.setdefault(record['model'], (None, None))
         if record['model'] not in found_briefs:
             path = brief_of(record['model'], given_briefs)
-            found_briefs[record['model']] = (path, None if path is None else {material['name'] for material in json.loads(path.read_text(encoding='utf-8')).get('materials', [])})
+            written = None if path is None else json.loads(path.read_text(encoding='utf-8'))
+            found_briefs[record['model']] = (path, None if written is None else ({material['name'] for material in written.get('materials', [])}, bool(written.get('bare'))))
         brief, materials = found_briefs[record['model']]
+        baked = {material['name'] for material in record.get('materials', [])}
         if bake['drawn']:
             pass  # drawn by the kit, from no brief: its history record is what drew it
         elif brief is None:
             failures.append(failure('records', label, f'no brief of {record["model"]} in {BRIEFS.name}: name it (--brief {record["model"]}=FILE)'))
-        elif materials != {material['name'] for material in record.get('materials', [])}:
+        # a material the bake did not find is one the brief drew only on slots it leaves to the body: Street Casual's
+        # gloves, cut off with the bare hands they were drawn on (2026-11-26); without a bare slot every one is baked
+        elif not baked <= materials[0] or (materials[0] - baked and not materials[1]):
             failures.append(failure('records', label, f'{brief.name} lists other materials than the bake found: it is not the brief the outfit was baked from'))
         history = given_records.get(record['model'], [])
         if not history:

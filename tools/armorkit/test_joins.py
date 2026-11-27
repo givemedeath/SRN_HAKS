@@ -261,7 +261,7 @@ class KeptEndTests(unittest.TestCase):
 
 
 class HangingTests(unittest.TestCase):
-    def test_a_belt_is_fitted_by_its_strap_and_what_hangs_from_it_swings_out_over_the_thighs(self):
+    def test_a_belt_is_fitted_by_its_strap_and_what_hangs_from_it_is_not_pushed_out_over_the_thighs(self):
         strap, faces = rings(0.5, (-0.025, 0.025), 96)
         turn = np.arange(9) * 2 * np.pi / 96  # a pouch: a sheet hanging from the strap over a twelfth of the way round
         sheet, sheet_faces = strip(np.array([(0.5 * np.cos(a), 0.5 * np.sin(a), -0.025) for a in turn]),
@@ -275,7 +275,8 @@ class HangingTests(unittest.TestCase):
         self.assertLess(np.hypot(band[:, 0], band[:, 1]).max(), 0.17)  # the strap on the waistband, not out where the thighs are
         self.assertGreater(np.hypot(band[:, 0], band[:, 1]).min(), 0.15)
         low = placed[:, 2] < 0.96
-        self.assertTrue(low.any() and (radius[low] > 0.20).all())  # and the pouch outside the thighs it hangs over
+        # and the pouch hangs as drawn, into the thighs it hangs over: what hangs from a belt clips by design (user, 2026-11-26)
+        self.assertTrue(low.any() and (radius[low] < 0.20).any())
         self.assertAlmostEqual(accessory.strap(hoop)[0], -0.025)
         self.assertAlmostEqual(accessory.strap(hoop)[1], 0.025)
 

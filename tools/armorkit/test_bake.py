@@ -11,7 +11,7 @@ from unittest import mock
 
 import numpy as np
 
-from . import bake, bodyskin, export, measure, registry, seams, split, texture
+from . import bake, bodyskin, export, measure, refit, registry, seams, split, texture
 from .test_split import tube
 
 
@@ -559,6 +559,30 @@ class BakeTests(unittest.TestCase):
             self.assertEqual((record['compiled'], record['models'], record['gates']['passed'], record['gates']['seams']),
                              (2, {'chest': 'pmh0_chest332', 'pelvis': 'pmh0_pelvis332'}, True, {'waist': {}}))
             self.assertEqual(json.loads((output / 'bake.json').read_text(encoding='utf-8')), record)
+
+    def test_a_chest_cut_at_its_collar_is_lifted_over_the_neck_that_comes_through_it(self):
+        # the cut runs on the parts as written, after a refit lifted the chest: the publication's neck gate refused the
+        # Troll Large male's shirt for 2 mm of neck bared below the collar (2026-11-26)
+        with tempfile.TemporaryDirectory() as folder:
+            parts, asked = {'chest': part()}, []
+            bake.store(parts, Path(folder) / 'kept')
+            tinted = {'chest': (np.full((4, 4), 170), np.full((4, 4), export.LAYERS['cloth1']))}
+            neck = (np.zeros((3, 3)), np.array([(0, 1, 2)]))
+
+            def lift(chest, given, point, normal):
+                asked.append(given)
+                return {**chest, 'v': np.asarray(chest['v'], float) + [0.0, 0.0, 0.003]}
+            with mock.patch.object(bake, 'tints', lambda parts, document, **given: (tinted, {'materials': []})), \
+                    mock.patch.object(measure, 'body', lambda pack, body: ({'torso_g': np.eye(4), 'neck_g': np.eye(4), 'head_g': np.eye(4)}, {'neck': neck})), \
+                    mock.patch.object(bake, 'collared', lambda chest, *given, **more: (chest, 0)), \
+                    mock.patch.object(bake.seams, 'plane', lambda bones, joint, side: (np.zeros(3), np.array([0.0, 0.0, 1.0]))), \
+                    mock.patch.object(refit, 'over_neck', lift), \
+                    mock.patch.object(bake, 'ends', lambda parts, bones, body, tier, **more: ({}, [])), \
+                    mock.patch.object(bake, 'hidden', lambda parts, bones, body, skin, left: ({}, [])):
+                record = bake.run({'model': 'outfit', 'materials': []}, Path(folder) / 'out', 'bodies', 332, kept=Path(folder) / 'kept')
+        self.assertEqual(len(asked), 1)
+        self.assertTrue(asked[0][0] is neck[0])
+        self.assertEqual(record['collar'], {'lifted': 0.003})
 
     def test_a_fresh_bakes_stages_are_in_its_record(self):
         # the bake's own stages were said in the log and left out of the record: `run` gives the bake its count

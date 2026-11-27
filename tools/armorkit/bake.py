@@ -1811,6 +1811,15 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
         if taken:
             collar = {'taken': taken, 'fan': len(parts['chest']['f']) - before + taken}
             say(f"chest: {taken} faces that entered the neck taken, {collar['fan']} from their rim down into it")
+        # and lifted over what of the neck comes through it below the collar, as the publication reads it: a refit lifts
+        # a carried chest so, and the cut after it bared the Troll Large male's neck 2 mm through his shirt (2026-11-26)
+        from . import refit  # refit reads this module
+        lifted = refit.over_neck(parts['chest'], neck[:2], *seams.plane(bones, 'neck', 'c'))
+        if lifted is not parts['chest']:
+            moved = round(float(np.linalg.norm(np.asarray(lifted['v'], float) - np.asarray(parts['chest']['v'], float), axis=1).max()), 4)
+            collar = {**(collar or {}), 'lifted': moved}
+            say(f'chest: lifted up to {moved * 100:.1f} cm over the neck that came through it below the collar')
+            parts['chest'] = lifted
         mark('collar')
     tinted, record = tints(parts, document, cache=tint_cache, say=say, workers=workers)
     mark('tint')
