@@ -160,10 +160,8 @@ def write(folder, crunch):
 # rooms that are missing them"). Modern Interior (tfb01) was drawn without any.
 COVERED = 0.95  # a tile whose walked floor is this much under something above `HEADROOM` has its ceiling already
 HEADROOM = 2.4  # metres: what is higher over the floor than this is overhead
-LOWEST = 2.8  # metres: walls lower than this are furniture or a counter; the tile takes `STOREY` instead
 STOREY = 3.0  # metres: the walls' top of most of tfb01's rooms
 CLEAR = 2.6  # metres a ceiling stays above any floor walked under it: a male troll is 2.5 m (contract 1.3.0)
-SNAP = 0.25  # metres: walls' tops this near `STOREY` are taken for it, so a room's tiles meet with no slit between ceilings
 UPPER = 0.8  # share of a tile's floor walked high that makes it an upper storey, not a stair
 
 
@@ -219,8 +217,8 @@ def _area(corners):
 
 def capped(text, root, texture, repeat=2.0):
     """(the model with a ceiling over its cell, its height) or (None, why not). Seen from below only: a camera over the
-    room looks through it. The height is the walls' top most of its upright faces reach, `STOREY` where they stop
-    short of `LOWEST` or are within `SNAP` of it, so that rooms of a storey meet with no slit between their ceilings.
+    room looks through it. Every tile of a storey takes `STOREY`, so that neighbours open to each other meet with no
+    step between their ceilings (a tile ceiled at its tallest walls' top left sky between it and the next, 2026-11-27).
     Over a stair, the part of the floor walked higher than `CLEAR` under it rises into a closed well; a floor walked
     higher all over (an upper storey) takes the lowest walls' top `CLEAR` above it, else a `STOREY` over it."""
     _, _, nodes = geometry.parse(text); walk = geometry.walkable(nodes, step=0.5)
@@ -233,8 +231,7 @@ def capped(text, root, texture, repeat=2.0):
             spot = geometry.cell(point, 0.5); over[spot] = max(over.get(spot, bottom), bottom)
     if sum(over.get(spot, -1e9) >= min(heights) + HEADROOM for spot, heights in walk.items()) >= COVERED * len(walk):
         return None, 'ceiled already'
-    tops = _tops(nodes); high = tops.most_common(1)[0][0] if tops else STOREY
-    high = STOREY if high < LOWEST or abs(high - STOREY) <= SNAP else high
+    tops = _tops(nodes); high = STOREY  # one height for a storey: a tile's tall parts (a chimney, columns, an arch) run on above it
     up = [spot for spot, heights in walk.items() if max(heights) + CLEAR > high + 0.01]
     well = None
     if len(up) >= UPPER * len(walk):  # an upper storey: the lowest walls' top clear of its floor, else a storey over it
