@@ -29,6 +29,21 @@ class Capping(unittest.TestCase):
         made, high = ceilings.capped(open_room(floor=3.0), 'tst', 'plaster')  # its walls stop at the floor: no top clear of it
         self.assertEqual(high, 6.0); self.assertGreaterEqual(high - 3.0, ceilings.CLEAR)
 
+    def test_a_stair_rises_into_a_closed_well_and_every_face_looks_into_the_room(self):
+        import numpy as np
+        verts, _, faces = ceilings.lid(3.0, ([1.0, -1.0, 3.0, 2.0], 4.6))
+        points = np.asarray(verts)
+        self.assertEqual(sorted({round(z, 2) for z in points[:, 2]}), [3.0, 4.6])
+        middle = np.array([2.0, 0.5, 3.8])  # inside the well, under its lid
+        for a, b, c, *_ in faces:
+            normal = np.cross(points[b] - points[a], points[c] - points[a]); centre = (points[a] + points[b] + points[c]) / 3
+            if abs(normal[2]) > 1e-9:
+                self.assertLess(normal[2], 0)  # level faces look down
+            else:
+                self.assertGreater(np.dot(normal, middle - centre), 0)  # the well's sides look into it
+        covered = sum(abs(np.cross(points[b] - points[a], points[c] - points[a])[2]) / 2 for a, b, c, *_ in faces)
+        self.assertAlmostEqual(covered, 100.0, places=3)  # the cell is closed overhead: frame and well lid together
+
 
 if __name__ == '__main__':
     unittest.main()

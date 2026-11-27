@@ -163,6 +163,8 @@ HEADROOM = 2.4  # metres: what is higher over the floor than this is overhead
 LOWEST = 2.8  # metres: walls lower than this are furniture or a counter; the tile takes `STOREY` instead
 STOREY = 3.0  # metres: the walls' top of most of tfb01's rooms
 CLEAR = 2.6  # metres a ceiling stays above any floor walked under it: a male troll is 2.5 m (contract 1.3.0)
+SNAP = 0.25  # metres: walls' tops this near `STOREY` are taken for it, so a room's tiles meet with no slit between ceilings
+UPPER = 0.8  # share of a tile's floor walked high that makes it an upper storey, not a stair
 
 
 def _tops(nodes):
@@ -176,12 +178,51 @@ def _tops(nodes):
     return told
 
 
+def _faced(quads, repeat):
+    """(verts, tverts, faces) of quads [(four corners, the way they face)], each turned to face that way, the picture
+    laid flat on level ones and along the wall on upright ones, one picture to `repeat` metres."""
+    verts, uvs, faces = [], [], []
+    for corners, toward in quads:
+        corners = [tuple(map(float, corner)) for corner in corners]
+        if np.dot(np.cross(np.subtract(corners[1], corners[0]), np.subtract(corners[2], corners[0])), toward) < 0:
+            corners = corners[::-1]
+        at = len(verts); verts += corners
+        level = abs(toward[2]) > 0.5
+        uvs += [((x / repeat, y / repeat) if level else ((x + y) / repeat, z / repeat)) for x, y, z in corners]
+        faces += [(at, at + 1, at + 2, 1, at, at + 1, at + 2, 0), (at, at + 2, at + 3, 1, at, at + 2, at + 3, 0)]
+    return verts, uvs, faces
+
+
+def _rect(x0, y0, x1, y1, z):
+    return [(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)]
+
+
+def lid(high, well=None, repeat=2.0):
+    """(verts, tverts, faces) of a ceiling over a whole cell at `high`, facing down; with a `well` ([x0, y0, x1, y1],
+    top) it is open over that rectangle, and a shaft with four sides and its own lid at `top` closes it (a stair rises
+    into it)."""
+    half = geometry.HALF; down = (0, 0, -1)
+    if well is None:
+        return _faced([(_rect(-half, -half, half, half, high), down)], repeat)
+    (x0, y0, x1, y1), top = well
+    quads = [(_rect(-half, -half, half, y0, high), down), (_rect(-half, y1, half, half, high), down),
+             (_rect(-half, y0, x0, y1, high), down), (_rect(x1, y0, half, y1, high), down), (_rect(x0, y0, x1, y1, top), down)]
+    for (ax, ay), (bx, by), inward in (((x0, y0), (x1, y0), (0, 1, 0)), ((x1, y0), (x1, y1), (-1, 0, 0)), ((x1, y1), (x0, y1), (0, -1, 0)), ((x0, y1), (x0, y0), (1, 0, 0))):
+        quads.append(([(ax, ay, high), (bx, by, high), (bx, by, top), (ax, ay, top)], inward))
+    return _faced([quad for quad in quads if _area(quad[0]) > 1e-6], repeat)
+
+
+def _area(corners):
+    a, b, c, _ = (np.asarray(corner, float) for corner in corners)
+    return np.linalg.norm(np.cross(b - a, c - a))
+
+
 def capped(text, root, texture, repeat=2.0):
     """(the model with a ceiling over its cell, its height) or (None, why not). Seen from below only: a camera over the
     room looks through it. The height is the walls' top most of its upright faces reach, `STOREY` where they stop
-    short of `LOWEST`; over a floor walked higher (a stair, an upper storey) it is the lowest walls' top `CLEAR` above
-    that floor, else a `STOREY` over it."""
-    from .rooms import ceiled
+    short of `LOWEST` or are within `SNAP` of it, so that rooms of a storey meet with no slit between their ceilings.
+    Over a stair, the part of the floor walked higher than `CLEAR` under it rises into a closed well; a floor walked
+    higher all over (an upper storey) takes the lowest walls' top `CLEAR` above it, else a `STOREY` over it."""
     _, _, nodes = geometry.parse(text); walk = geometry.walkable(nodes, step=0.5)
     if not walk:
         return None, 'no floor walked'
@@ -193,12 +234,22 @@ def capped(text, root, texture, repeat=2.0):
     if sum(over.get(spot, -1e9) >= min(heights) + HEADROOM for spot, heights in walk.items()) >= COVERED * len(walk):
         return None, 'ceiled already'
     tops = _tops(nodes); high = tops.most_common(1)[0][0] if tops else STOREY
-    high = high if high >= LOWEST else STOREY
-    walked = max(max(heights) for heights in walk.values())
-    if walked + CLEAR > high + 0.01:  # a stair or an upper storey: the lowest walls' top clear of its floor, else a storey over it
+    high = STOREY if high < LOWEST or abs(high - STOREY) <= SNAP else high
+    up = [spot for spot, heights in walk.items() if max(heights) + CLEAR > high + 0.01]
+    well = None
+    if len(up) >= UPPER * len(walk):  # an upper storey: the lowest walls' top clear of its floor, else a storey over it
+        walked = max(max(heights) for heights in walk.values())
         high = min((top for top, count in tops.items() if count >= 4 and top >= walked + CLEAR - 0.01), default=round(walked + STOREY, 1))
+    elif up:  # a stair: a well over the part walked high, as high as its highest step needs
+        step = 0.5; xs = [spot[0] * step for spot in up]; ys = [spot[1] * step for spot in up]; half = geometry.HALF
+        rect = [max(-half, min(xs) - 0.25), max(-half, min(ys) - 0.25), min(half, max(xs) + step + 0.25), min(half, max(ys) + step + 0.25)]
+        top = math.ceil((max(max(walk[spot]) for spot in up) + CLEAR) * 10) / 10
+        well = (rect, max(top, high + 0.5))
     require(not any(node.name.lower() == f'{root}_ceil'.lower() for node in nodes), f'{root} has a node {root}_ceil already')
-    return ceiled(text, root, tuple(line.format(texture) for line in PLAIN), high, repeat), high
+    from .rooms import _into
+    verts, uvs, faces = lid(high, well, repeat)
+    made = _into(text, geometry.mesh_text(f'{root}_ceil', root, tuple(line.format(texture) for line in PLAIN), verts, uvs, faces))
+    return made, (high if well is None else [high, well[1]])
 
 
 def cap(repo, tileset, folder, looks, *, shared=(), skip=()):
