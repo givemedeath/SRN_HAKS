@@ -143,6 +143,16 @@ class MaterialTests(unittest.TestCase):
         again, _ = texture.mesh_materials(np.concatenate([positions, across]), np.concatenate([faces, [[82, 83, 84]]]), read, 3)
         self.assertEqual(again[-1], fabric)
 
+    def test_the_mesh_read_finds_a_small_accent_where_the_brief_says_one_is_small(self):
+        # laces on 1% of a boot are no material by the colours alone, and one where the brief marks them small
+        rng = np.random.default_rng(0)
+        colours = np.concatenate([np.tile((200, 40, 40), (600, 1)), np.tile((40, 40, 200), (385, 1)), np.tile((40, 200, 40), (15, 1))]).astype(float) + rng.normal(0, 2, (1000, 3))
+        read = lambda points: (colours[np.arange(len(points)) % 1000], np.zeros(len(points), bool))
+        positions, faces = rng.random((3000, 3)), np.arange(3000).reshape(-1, 3)
+        with self.assertRaisesRegex(ValueError, 'show 2 materials'):
+            texture.mesh_materials(positions, faces, read, 3)
+        self.assertEqual(len(texture.mesh_materials(positions, faces, read, 3, faint=True)[1]['tones']), 3)
+
     def test_a_tint_texture_is_filled_to_its_last_texel_from_the_nearest_chart(self):
         which = texture.labels(np.array([FABRIC, TAN, PLATE]), self.found['tones'])
         channels = [None] * 3

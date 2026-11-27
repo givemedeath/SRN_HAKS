@@ -408,7 +408,7 @@ def tints(piece, document):
     """((shades, layers), record): a prepared piece's tint texture, each material on the channel its brief names.
     A belt's faces turned toward the body are no metal's (`body_side`)."""
     count = len(document['materials'])
-    found = texture.materials(piece['rgb'][piece['covered']], count)
+    found = texture.materials(piece['rgb'][piece['covered']], count, faint=brief.faint(document))
     worn = brief.worn(document, found)
     kinds = [material['kind'] for material in worn]
     channel = [brief.tinted(material) + str(material.get('channel', 1)) for material in worn]

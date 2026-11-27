@@ -959,7 +959,7 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
         if crumbs:
             say('debris dropped, cm²:', [round(area * 1e4, 2) for area in crumbs])
         read = _colours(colours)
-        as_read, shown = texture.mesh_materials(to_field(source), faces, read, count)
+        as_read, shown = texture.mesh_materials(to_field(source), faces, read, count, faint=brief.faint(document))
         as_read, on_mesh = np.asarray(as_read), brief.worn(document, shown)
         metals = [k for k, material in enumerate(on_mesh) if material['kind'] == 'metal']
         kinds = np.asarray(texture.trimmed(source, faces, as_read, metals))  # a line of metal too narrow for a plate goes to what it lies on

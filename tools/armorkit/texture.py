@@ -328,7 +328,7 @@ def face_materials(uvs, faces, colour, covered, found, size):
     return np.where(tally.sum(axis=1) > 0, tally.argmax(axis=1), -1)
 
 
-def mesh_materials(positions, faces, read, count):
+def mesh_materials(positions, faces, read, count, faint=False):
     """(material per face, materials) for an outfit's mesh before it is laid out: what `split.troughs` tells a
     shoulder pad from the sleeve by.
 
@@ -339,7 +339,7 @@ def mesh_materials(positions, faces, read, count):
     points = [corners.mean(axis=1)] + [0.6 * corners[:, i] + 0.2 * corners[:, (i + 1) % 3] + 0.2 * corners[:, (i + 2) % 3] for i in range(3)]
     values, missed = read(np.concatenate(points))
     colours, seen = np.asarray(values, float)[:, :3], ~np.asarray(missed, bool)
-    found = materials(colours[seen], count)
+    found = materials(colours[seen], count, faint=faint)  # an accent the brief says is small is found here too
     tally = np.zeros((len(corners), count), int)
     np.add.at(tally, (np.tile(np.arange(len(corners)), 4)[seen], labels(colours[seen], found['tones'])), 1)
     return tally.argmax(axis=1), found
