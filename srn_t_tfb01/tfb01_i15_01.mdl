@@ -1801,6 +1801,29 @@ node trimesh Object907
   position 4.19000006 -3.25 1.5
   orientation 0 0 0 0
 endnode
+node trimesh tfb01_i15_01_ceil
+  parent tfb01_i15_01
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  ambient 0.588 0.588 0.588
+  diffuse 0.588 0.588 0.588
+  specular 0.0 0.0 0.0
+  shininess 10
+  bitmap tfb01_ceilpl
+  verts 4
+    -5.00000 5.00000 3.00000
+    5.00000 5.00000 3.00000
+    5.00000 -5.00000 3.00000
+    -5.00000 -5.00000 3.00000
+  tverts 4
+    -2.50000 2.50000 0
+    2.50000 2.50000 0
+    2.50000 -2.50000 0
+    -2.50000 -2.50000 0
+  faces 2
+    0 1 2 1 0 1 2 0
+    0 2 3 1 0 2 3 0
+endnode
 endmodelgeom tfb01_I15_01
 
 donemodel tfb01_I15_01

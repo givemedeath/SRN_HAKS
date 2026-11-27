@@ -687,6 +687,10 @@ new look too.
   - SR_NWN switches a room with `SetTileAnimationLoops(tile, ..., bAnimLoop3)` over the room's tiles, together with
     `SetTileMainLightColor` (off: black) and one `RecomputeStaticLighting(area)` after; instructions for SR_NWN in
     a doc beside the tileset's, as armorkit's `sr-nwn-instructions.md`.
+- **Applied (2026-11-27, user: "Yes, apply").** `tilekit apply` of `materials-c.json` over `c-overlay` (616 files put
+  in seven packs, 35 old copies deleted, 55 expected overrides) and of the `c-ceil` ceilings (329 tfb01 models);
+  srx02's compiled tiles recompiled for the new materials. Walkmeshes as their baselines; the passage joins and the
+  prefab rooms cut from tfb01 tiles built again (`joins`, `rooms`, `merge`, `compile`); packs rebuilt.
 
 ## Release D: caves and tunnels (user, 2026-11-27)
 

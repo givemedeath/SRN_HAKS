@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 tfb_subwayw3
+texture1 tfb_subwayw3_n
+texture2 tfb_subwayw3_s
+texture3 tfb_subwayw3_r
+texture4 null
+texture5 null

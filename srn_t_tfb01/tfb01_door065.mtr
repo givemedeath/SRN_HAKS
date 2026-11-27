@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 tfb01_door065
+texture1 tfb01_door065_n
+texture2 tfb01_door065_s
+texture3 tfb01_door065_r
+texture4 null
+texture5 null

@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 nac_sheet4
+texture1 nac_sheet4_n
+texture2 nac_sheet4_s
+texture3 nac_sheet4_r
+texture4 null
+texture5 null

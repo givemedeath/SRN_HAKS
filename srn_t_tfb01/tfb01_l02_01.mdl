@@ -1686,6 +1686,29 @@ node light tfb01_L02_01ml2
   multiplier 1
   color 0.00392156979 0.00392156979 0.00392156979
 endnode
+node trimesh tfb01_l02_01_ceil
+  parent tfb01_l02_01
+  position 0.0 0.0 0.0
+  orientation 0.0 0.0 0.0 0.0
+  ambient 0.588 0.588 0.588
+  diffuse 0.588 0.588 0.588
+  specular 0.0 0.0 0.0
+  shininess 10
+  bitmap tfb01_ceilti
+  verts 4
+    -5.00000 5.00000 3.00000
+    5.00000 5.00000 3.00000
+    5.00000 -5.00000 3.00000
+    -5.00000 -5.00000 3.00000
+  tverts 4
+    -2.50000 2.50000 0
+    2.50000 2.50000 0
+    2.50000 -2.50000 0
+    -2.50000 -2.50000 0
+  faces 2
+    0 1 2 1 0 1 2 0
+    0 2 3 1 0 2 3 0
+endnode
 endmodelgeom tfb01_L02_01
 
 donemodel tfb01_L02_01

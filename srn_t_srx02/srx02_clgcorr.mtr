@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 srx02_clgcorr
+texture1 srx02_clgcorr_n
+texture2 srx02_clgcorr_s
+texture3 srx02_clgcorr_r
+texture4 null
+texture5 null
