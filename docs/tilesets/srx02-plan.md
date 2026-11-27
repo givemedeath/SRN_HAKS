@@ -719,6 +719,8 @@ caverns with no need to create a lot of ceilings", the SWLOR haks included.
   pillars, pipes `npipe1-3`, grates, blast marks, sludge, wood, metal). Open overhead (`review-tsw01.json`), so it is
   lidded too; its textures pass through the release C look rules (scans or redraws where weak, own names). The
   family is joined to tbx78 and to the caverns.
+- **Decision (user, 2026-11-27: "No, caves + sewers"):** release D is `tib01` caverns and `tsw01` sewers only; the
+  D20 Bunker `fifi` tunnels are not taken.
 
 ## Work order
 
