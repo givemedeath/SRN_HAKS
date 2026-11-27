@@ -249,8 +249,8 @@ def shoulders(meshes, frame, low):
     if not read.any():
         return None  # nothing of it seen from above: an open tube
     filled, empty = np.argwhere(read), np.argwhere(~read)
-    for start in range(0, len(empty), 512):  # nothing over a cell, past the arms or behind the back: as the nearest cell that has something
-        some = empty[start:start + 512]
+    for start in range(0, len(empty), 64):  # 64 at a time: a wide body's grid holds tens of thousands of cells. Nothing over a cell, past the arms or behind the back: as the nearest cell that has something
+        some = empty[start:start + 64]
         nearest = filled[((some[:, None, :] - filled[None, :, :]) ** 2).sum(axis=2).argmin(axis=1)]
         table[some[:, 0], some[:, 1]] = table[nearest[:, 0], nearest[:, 1]]
     for _ in range(YOKE_EVEN):

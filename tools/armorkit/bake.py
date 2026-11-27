@@ -1831,7 +1831,7 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
     mark('write')
     own = measure.body(body_pack, body)[1] if own is None else own
     covered = hidden(parts, bones, body, skin=own, left=left_to_body(document))
-    record = {'model': document['model'], 'body': body, 'tier': tier, **({'drawn': sorted(drawn)} if drawn else {}), 'number': number, 'models': models, **record,
+    record = {'model': document['model'], 'body': body, 'tier': tier, **({'asDrawn': sorted(drawn)} if drawn else {}), 'number': number, 'models': models, **record,
               'gates': gates(parts, models, Path(output) / 'resources', packs, whole, ends(parts, bones, body, tier, drawn=drawn), covered, through(parts, bones),
                              facing(parts, bones))}
     mark('gates')
