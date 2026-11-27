@@ -824,7 +824,7 @@ def over_skin(part, start, end, gap=OVER_SKIN, rounds=OVER_ROUNDS, fixed=None, m
             normal = seams.unit(np.cross(corners[1] - corners[0], corners[2] - corners[0]))
             whose = ''
             if 'added' in part:
-                rows = np.flatnonzero(~skin)[measure.round_limb(v, f[~skin], axis, np.asarray(part['added'], bool)[~skin])]
+                rows = np.flatnonzero(~skin)[measure.round_limb(moved, f[~skin], axis, np.asarray(part['added'], bool)[~skin])]  # as `cloth` was read this pass
                 whose = ", the split's own" if np.asarray(part['added'], bool)[rows[face[worst]]] else ", the outfit's own"
             where = (f' The skin stands farthest out, {outside[worst] * 100:.1f} cm, {float((moved[points[worst]] - start) @ axis) * 100:.1f} cm along the bone of '
                      f'{float(np.linalg.norm(np.asarray(end, float) - start)) * 100:.1f}, through a face{whose} that looks {float(normal @ axis):+.2f} along the bone '

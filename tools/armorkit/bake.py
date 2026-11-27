@@ -1042,7 +1042,8 @@ def bake(document, mesh, colours, raw, body_pack, xatlas, body='pmh0', tier=2, s
                      **{key: role[key] for key in ('under', 'added', 'closing', 'cap', 'padded')}})
         rest[name] = (role, pad, bare, of_face)
     how = _written(texture, _laid) if cache is not None and jobs else None
-    keys = [digest(how, job, _file(colours), _file(raw), Path(xatlas.__file__).parent.name) for job in jobs] if cache is not None else None
+    library = Path(xatlas.__file__).parent.name if getattr(xatlas, '__file__', None) else getattr(xatlas, '__name__', type(xatlas).__name__)
+    keys = [digest(how, job, _file(colours), _file(raw), library) for job in jobs] if cache is not None else None
     laid, fresh = worked([{**job, 'colours': str(colours), 'raw': str(raw), 'xatlas': where or xatlas} for job in jobs], _laid, workers if where else 1,
                          None if cache is None else Path(cache) / 'layout', keys)
     for number, (name, (role, pad, bare, of_face)) in enumerate(rest.items()):
@@ -1468,7 +1469,8 @@ def listing(folder):
             and named(listed.get('parts')) and listed['parts'] and all(named(listed.get(key, [])) for key in ('bare', 'skin')),
             f'{folder / KEPT} is no list of baked parts')
     tier = listed.get('tier')
-    require(tier is None or tier in registry.TIERS or (isinstance(tier, dict) and 'default' in tier and all(value in registry.TIERS for value in tier.values())),
+    require(tier is None or tier in registry.TIERS or (isinstance(tier, dict) and 'default' in tier and set(tier) <= {'default', *seams.JOINTS}
+                                                       and all(value in registry.TIERS for value in tier.values())),
             f'{folder / KEPT} names no tier the parts were cut at: {tier}')
     require(named(listed.get('drawn', [])) and set(listed.get('drawn', [])) <= set(seams.JOINTS), f'{folder / KEPT} names joints cut as drawn that are none')
     return {'parts': listed['parts'], **{key: listed.get(key, []) for key in ('bare', 'skin')},
@@ -1802,7 +1804,9 @@ def run(document, output, body_pack, number, *, mesh=None, colours=None, raw=Non
                 f"{kept} holds parts baked for other slots left to the body or shared with its skin than the brief's: bake the outfit again")
         bones, own = measure.body(body_pack, body)
         mark('read the kept parts')
-    neck = (measure.body(body_pack, body)[1] if own is None else own).get('neck') if 'chest' in parts else None
+    if own is None and 'chest' in parts:  # read once: the gates read it again below
+        own = measure.body(body_pack, body)[1]
+    neck = own.get('neck') if 'chest' in parts else None
     collar = None
     if neck is not None:  # on the parts as they are written, not as they are kept: a chest carried to another body meets another neck
         parts = dict(parts)

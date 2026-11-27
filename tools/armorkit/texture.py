@@ -795,9 +795,8 @@ def tint_maps(colour, covered, found, channels, pad=None, relief=None, charts=No
     if plain.any():  # as dark as the edge it grew from, evened out, and no lighter than the cloth's open surface
         reach = max(1, covered.shape[0] // CAP_STREAK)
         local = smooth(np.where(plain, shade, 0.0), reach) / np.maximum(smooth(plain, reach), 1e-9)
-        if edged:
-            base = int(np.bincount(material[plain], minlength=len(pairs)).argmax())
-        material[plain], shade[plain] = base, np.minimum(local, even(base))[plain]
+        edge = int(np.bincount(material[plain], minlength=len(pairs)).argmax()) if edged else base  # a cap beside a pad keeps `base`
+        material[plain], shade[plain] = edge, np.minimum(local, even(edge))[plain]
         if shadow is not None:
             dark = plain & np.asarray(shadow, bool)
             shade[dark] = np.maximum(shade[dark] * ARMHOLE_SHADE, SHADES[0])

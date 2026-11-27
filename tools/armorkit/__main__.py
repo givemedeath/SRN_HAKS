@@ -228,8 +228,10 @@ def command_split(args):
 def command_refit(args):
     from . import refit
     names = listed(args.parts) if args.parts else None
-    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names, tier=tiers(args.tier, args.tier_at) if args.tier is not None else None, body_textures=args.body_textures, seat_in=args.seat_in,
-                               drawn=tuple(args.as_drawn) if args.as_drawn or args.tier is not None else None)))
+    asked = args.tier is not None or bool(args.tier_at)  # a tier stated for parts kept before it was listed: --tier, --tier-at or both (default 2)
+    print(json.dumps(refit.run(args.kept, args.output, args.body_pack, args.source, args.target, names,
+                               tier=tiers(2 if args.tier is None else args.tier, args.tier_at) if asked else None, body_textures=args.body_textures, seat_in=args.seat_in,
+                               drawn=tuple(args.as_drawn) if args.as_drawn or asked else None)))
 
 
 def command_combine(args):
