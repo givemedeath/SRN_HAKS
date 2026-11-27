@@ -1,0 +1,186 @@
+{
+ "id": "c05",
+ "category": "Retail",
+ "name": "Commercial Kitchen",
+ "note": "Floorplan C05: a cook line, a prep island, a wash line, dry stores and a cold room.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 3.0,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "udp2_flr_til3",
+    "wall": "udp2_flr_til2",
+    "ceiling": "srx02_clgtile",
+    "base": "udp2_w_sid3",
+    "trim": "udp2_w_sid3",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      6.4,
+      6.4
+     ],
+     "to": [
+      10,
+      6.4
+     ],
+     "doors": [
+      {
+       "at": 1.8,
+       "width": 2.0
+      }
+     ]
+    },
+    {
+     "from": [
+      6.4,
+      6.3
+     ],
+     "to": [
+      6.4,
+      10
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      6.4,
+      6.4,
+      10,
+      10
+     ],
+     "floor": "tbx78_floor01",
+     "wall": "tbx78_ceiling",
+     "repeat": {
+      "floor": 3.0,
+      "wall": [
+       2.0,
+       2.0
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "panel",
+   "at": [
+    1.8,
+    2.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    1.8,
+    4.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    1.8,
+    7.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    4.0,
+    2.0
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    4.0,
+    4.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    4.0,
+    7.6
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    8.2,
+    2.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    8.2,
+    4.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    8.2,
+    8.2
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "udp2-p-09", "at": [0.633, 1.0, 0.0], "faces": "e"},
+  {"piece": "udp2-p-09", "at": [0.633, 1.75, 0.0], "faces": "e"},
+  {"piece": "sgp_spt02", "at": [0.58, 2.8, 0.0], "faces": "e"},
+  {"piece": "udp2-p-09", "at": [0.633, 3.75, 0.0], "faces": "e"},
+  {"piece": "lab_cntrr", "at": [0.921, 5.213, 0.0], "faces": "e"},
+  {"piece": "lab_sink", "at": [1.006, 9.267, 0.0], "faces": "s"},
+  {"piece": "lab_sink", "at": [2.356, 9.267, 0.0], "faces": "s"},
+  {"piece": "udp2-p-13", "at": [3.4, 9.395, 0.0], "faces": "s"},
+  {"piece": "jvb_cabint02", "at": [4.4, 9.404, 0.0], "faces": "s"},
+  {"piece": "jvb_cabint02", "at": [5.5, 9.404, 0.0], "faces": "s"},
+  {"piece": "pkt_medbench", "at": [3.6, 4.402, 0.0], "turn": 0},
+  {"piece": "pkt_medbench", "at": [3.6, 5.502, 0.0], "turn": 0},
+  {"piece": "pkt_shelf02", "at": [9.134, 2.889, 0.0], "faces": "w", "scale": 0.9},
+  {"piece": "udp2-p-24", "at": [9.263, 5.3, 0.0], "faces": "w"},
+  {"piece": "udp2-p-98", "at": [2.4, 0.5, 0.0], "turn": 0},
+  {"piece": "jz_fridgebig01", "at": [7.098, 9.24, 0.0], "faces": "s"},
+  {"piece": "p_fridgeclosed01", "at": [8.13, 9.415, 0.0], "faces": "s"},
+  {"piece": "jz_fridgebig01", "at": [9.158, 9.24, 0.0], "faces": "s"},
+  {"piece": "ek_pt_cases", "at": [9.294, 7.401, 0.0], "faces": "w"},
+  {"piece": "ek_ad_crate", "at": [6.96, 8.0, 0.0], "faces": "e"}
+ ],
+ "placeLater": [{"what": "a door in the opening and the cold room's door"}, {"what": "cookers and fridges as things to use; stores as containers"}]
+}

@@ -14,7 +14,12 @@ other family's alone: the Toolset lays a road one tile edge at a time, and has n
 
 The walkmesh is the two sides' own, clipped the same way and made to share every vertex along the cut (a face whose
 edge another face's corner lies on is split there: the game joins faces only by shared corners). Ground that is flat
-and of one surface is two faces."""
+and of one surface is two faces.
+
+A passage join (`passages`, shape `x`; srx02 plan, stage 3) is the tile on which one family's passage becomes
+another's, between walls: the north half of one family's straight passage tile and the south half of the other's, and
+across the seam a bulkhead whose opening is what both passages leave open there (`hole`). A side whose walked
+floor is not level at the seam (a duct's round floor) is walked level over the last `RAMP` metres; what is drawn stays."""
 import hashlib
 import json
 import math
@@ -57,8 +62,10 @@ def flat_area(triangle):
     return ((bx - ax) * (cy - ay) - (by - ay) * (cx - ax)) / 2
 
 
-def _half(triangles, start, end, left=True):
-    """The parts of `triangles` (each a 3 by n array, x and y first) on the left of the line start→end, or on its right."""
+def _half(triangles, start, end, left=True, solid=False):
+    """The parts of `triangles` (each a 3 by n array, x and y first) on the left of the line start→end, or on its right.
+    A part with no area seen from above is left out, as ground has none; solid: kept where it has area in space (a
+    passage's upright walls)."""
     start, end = np.asarray(start, float), np.asarray(end, float); along = end - start; kept = []
     for triangle in triangles:
         side = along[0] * (triangle[:, 1] - start[1]) - along[1] * (triangle[:, 0] - start[0])
@@ -71,14 +78,14 @@ def _half(triangles, start, end, left=True):
                 cut.append(here + (there - here) * (a / (a - b)))
         for index in range(1, len(cut) - 1):
             piece = np.array([cut[0], cut[index], cut[index + 1]])
-            if abs(flat_area(piece)) > 5e-10:
+            if (np.linalg.norm(np.cross(piece[1, :3] - piece[0, :3], piece[2, :3] - piece[0, :3])) > 1e-9) if solid else abs(flat_area(piece)) > 5e-10:
                 kept.append(piece)
     return kept
 
 
-def inside(triangles, polygon):
+def inside(triangles, polygon, solid=False):
     for index, start in enumerate(polygon):
-        triangles = _half(triangles, start, polygon[(index + 1) % len(polygon)])
+        triangles = _half(triangles, start, polygon[(index + 1) % len(polygon)], solid=solid)
     return triangles
 
 
@@ -124,6 +131,202 @@ def ramp(triangles):
     return made
 
 
+PASSAGE = 'x'
+BULKHEAD = 0.2  # the thickness of the wall across a passage join
+BAND = 0.05  # metres each side of the seam in which a passage's opening is measured
+HEAD = 1.2  # what is drawn above this over the middle of a passage is its ceiling
+PATH = ('L', 0)  # the path node of a straight passage, north to south
+SPOKES = 72  # rays the bulkhead's opening is traced with
+OFF = 0.0137  # metres from the seam at which a passage's section is taken
+
+
+def walked(surface):
+    return surface not in (2, 7)  # obscuring and non-walk faces are not walked
+
+
+def _band(triangles, solid=False):
+    return _half(_half(triangles, (-HALF, -BAND), (HALF, -BAND), solid=solid), (-HALF, BAND), (HALF, BAND), False, solid=solid)
+
+
+def opening(side):
+    """(west, east, clear height or None where nothing is overhead, top) of a baked passage tile where the seam cuts it."""
+    drawn, walk = side; floor = _band([triangle for triangle in walk if walked(int(round(triangle[0, 3])))])
+    require(floor, 'A passage tile is not walked across its middle')
+    xs = np.concatenate([triangle[:, 0] for triangle in floor]); west, east = float(xs.min()), float(xs.max())
+    cut = _band([triangle for triangles in drawn.values() for triangle in triangles], solid=True); points = np.vstack(cut) if cut else np.zeros((0, 5))
+    over = points[(np.abs(points[:, 0] - (west + east) / 2) < (east - west) / 4) & (points[:, 2] > HEAD)]
+    return west, east, (float(over[:, 2].min()) if len(over) else None), float(points[:, 2].max()) if len(points) else 0.0
+
+
+def frame(north, south):
+    """(west, east, height, top) of a passage join's opening and bulkhead, from its two sides' openings."""
+    a, b = opening(north), opening(south); west, east = max(a[0], b[0]), min(a[1], b[1]); top = max(a[3], b[3])
+    require(east - west > 1.0, 'The two passages do not meet: their walked floors overlap by less than a metre')
+    clear = [height for height in (a[2], b[2]) if height is not None]
+    return west, east, min(clear) if clear else top, top
+
+
+def _space(triangle):
+    return float(np.linalg.norm(np.cross(triangle[1, :3] - triangle[0, :3], triangle[2, :3] - triangle[0, :3])) / 2)
+
+
+def section(drawn):
+    """[(start, end, look)] in x and z: where a baked tile's drawn surface is cut by an upright plane at the seam. The
+    plane stands `OFF` from y = 0: a passage tile is often modelled with a ring of corners exactly there, and a plane
+    through corners cuts no triangle cleanly (the Facility tunnel showed gaps, 2026-11-24)."""
+    found = []
+    for look, triangles in drawn.items():
+        for triangle in triangles:
+            y = triangle[:, 1] - OFF; cut = []
+            for index in range(3):
+                here, there = triangle[index], triangle[(index + 1) % 3]; a, b = y[index], y[(index + 1) % 3]
+                if (a < 0) != (b < 0):
+                    at = here + (there - here) * (a / (a - b)); cut.append((float(at[0]), float(at[2])))
+            if len(cut) == 2 and math.dist(*cut) > 1e-6:
+                found.append((cut[0], cut[1], look))
+    return found
+
+
+def rays(cut, centre, angles):
+    """[(distance, look) or None] of what each ray from `centre`, in the seam's plane, first meets of a section."""
+    seen = []
+    for angle in angles:
+        dx, dz = math.cos(angle), math.sin(angle); best = None
+        for (px, pz), (qx, qz), look in cut:
+            ex, ez = qx - px, qz - pz; under = dx * ez - dz * ex
+            if abs(under) < 1e-12:
+                continue
+            along = ((px - centre[0]) * ez - (pz - centre[1]) * ex) / under; on = ((px - centre[0]) * dz - (pz - centre[1]) * dx) / under
+            if along > 1e-6 and -1e-9 <= on <= 1 + 1e-9 and (best is None or along < best[0]):
+                best = (along, look)
+        seen.append(best)
+    return seen
+
+
+def _edge(centre, angle, top):
+    """How far a ray from `centre` goes before it leaves the tile's upright rectangle, the floor to `top`."""
+    dx, dz = math.cos(angle), math.sin(angle); reaches = []
+    if abs(dx) > 1e-12:
+        reaches.append(((HALF if dx > 0 else -HALF) - centre[0]) / dx)
+    if abs(dz) > 1e-12:
+        reaches.append(((top if dz > 0 else 0.0) - centre[1]) / dz)
+    return min(reach for reach in reaches if reach > 0)
+
+
+def wall_look(drawn, seen=()):
+    """(look, texture widths per metre) of a baked tile's walls: the look most of the level rays of `seen` (`rays`)
+    meet, which is what stands beside one who walks the passage; without any, the look with the most upright surface
+    (a trim or a pillar may have more of it than the wall: the Facility's does)."""
+    votes = {}
+    for hit in seen:
+        if hit is not None:
+            votes[hit[1]] = votes.get(hit[1], 0) + 1
+    best = None
+    for look, triangles in drawn.items():
+        upright = [triangle for triangle in triangles if _space(triangle) > 1e-6 and (look in votes or abs(flat_area(triangle)) < 0.3 * _space(triangle))]
+        area = sum(_space(triangle) for triangle in upright); rank = (votes.get(look, 0), area)  # a look the rays met counts whole: a tunnel's walls lean
+        if upright and (best is None or rank > best[0]):
+            mapped = sum(abs(flat_area(triangle[:, 3:5])) for triangle in upright)
+            best = (rank, look, math.sqrt(mapped / area) if mapped > 1e-9 else 0.5)
+    require(best is not None, 'A passage tile has no upright surface to take a wall look from')
+    return best[1], best[2]
+
+
+def hole(north, south):
+    """(centre, angles, how far the opening reaches along each, how far the wall does, [north's look, south's]) of a
+    passage join's bulkhead. The opening is what both passages leave open where the seam cuts them: a ray from the
+    middle of the walked floor, a metre up, goes as far as the nearer of the two passages' surfaces, so a round duct
+    gives a round opening and nothing shows behind either passage's wall. A ray that meets nothing (a passage open
+    above) goes to the wall's edge."""
+    west, east, _, top = frame(north, south); centre = ((west + east) / 2, 1.0)
+    corners = [math.atan2(z - centre[1], x - centre[0]) % math.tau for x in (-HALF, HALF) for z in (0.0, top)]
+    angles = sorted({round(index * math.tau / SPOKES, 9) for index in range(SPOKES)} | {round(angle, 9) for angle in corners})
+    seen = [rays(section(side[0]), centre, angles) for side in (north, south)]; edge = [_edge(centre, angle, top) for angle in angles]
+    reach = [min([hit[0] for hit in (first, second) if hit is not None] + [limit]) for first, second, limit in zip(*seen, edge)]
+    level = [index for index, angle in enumerate(angles) if abs(math.sin(angle)) < 0.5]
+    return centre, angles, reach, edge, [wall_look(side[0], [found[index] for index in level]) for side, found in zip((north, south), seen)]
+
+
+def bulkhead(north, south):
+    """{look: [triangle]} of the wall across the seam, open where both passages are (`hole`): each face in the wall
+    look of the family it faces (`wall_look`), its picture laid by the metre; the opening's rim in the north family's."""
+    centre, angles, reach, edge, looks = hole(north, south); near, far = -BULKHEAD / 2, BULKHEAD / 2; made = {}
+    at = lambda index, far_out: (centre[0] + math.cos(angles[index]) * far_out[index], centre[1] + math.sin(angles[index]) * far_out[index])
+
+    def face(points, out, side, flat):
+        look, scale = looks[side]; points = [np.array(point, float) for point in points]
+        normal = np.cross(points[1] - points[0], points[2] - points[0]) + np.cross(points[2] - points[0], points[3] - points[0])
+        if np.linalg.norm(normal) < 1e-9:
+            return
+        if np.dot(normal, out) < 0:
+            points = points[::-1]
+        rows = [[*point, *((point[0] * scale, point[2] * scale) if flat else ((point[0] + point[2]) * scale, point[1] * scale))] for point in points]
+        made.setdefault(look, []).extend(triangle for triangle in (np.array([rows[0], rows[1], rows[2]], float), np.array([rows[0], rows[2], rows[3]], float)) if _space(triangle) > 1e-9)
+    for index in range(len(angles)):
+        after = (index + 1) % len(angles); (ax, az), (bx, bz), (cx, cz), (dx, dz) = at(index, reach), at(after, reach), at(after, edge), at(index, edge)
+        face([(ax, near, az), (bx, near, bz), (cx, near, cz), (dx, near, dz)], (0, -1, 0), 1, True)
+        face([(ax, far, az), (bx, far, bz), (cx, far, cz), (dx, far, dz)], (0, 1, 0), 0, True)
+        if min(edge[index] - reach[index], edge[after] - reach[after]) > 1e-6:  # the opening's rim, where a wall stands behind both its ends (not along the floor)
+            middle = ((ax + bx) / 2, 0.0, (az + bz) / 2)
+            face([(ax, near, az), (bx, near, bz), (bx, far, bz), (ax, far, az)], np.subtract((centre[0], 0.0, centre[1]), middle), 0, False)
+    top = max(at(index, edge)[1] for index in range(len(angles)))
+    face([(-HALF, near, top), (HALF, near, top), (HALF, far, top), (-HALF, far, top)], (0, 0, 1), 0, False)
+    return made
+
+
+LIGHT = ('  orientation 1.0 0.0 0.0 0.0', '  radius 14.0', '  multiplier 1.0', '  color 0.0 0.0 0.0', '  ambientonly 0', '  ndynamictype 0', '  affectdynamic 1',
+         '  shadow 0', '  lightpriority 5', '  fadinglight 1')  # a tile's main light, as the source sets' passages carry it
+
+
+def lights(name, north, south):
+    """The join's two main lights' nodes, one over the middle of each half, under that half's ceiling."""
+    lines = []
+    for number, (side, y) in enumerate(((north, HALF / 2), (south, -HALF / 2)), 1):
+        _, _, clear, top = opening(side); height = max(2.0, (clear if clear is not None else top) - 0.3)
+        lines += [f'node light {name}ml{number}', f'  parent {name}', f'  position 0.0 {y} {round(height, 3)}', *LIGHT, 'endnode']
+    return lines
+
+
+def level(triangles, half):
+    """A passage side's walk triangles with its walked floor falling to nothing over the last `RAMP` metres before the
+    seam at y = 0, for a floor that is not level there. Only what is walked is kept, and the ground either side of it
+    is plain and not walked: a duct's walkmesh folds back under its own wall, and laid flat its faces would overlap.
+    half: the side's half of the tile (`NORTH` or `SOUTH`)."""
+    floor = [triangle for triangle in triangles if walked(int(round(triangle[0, 3]))) and abs(flat_area(triangle)) > 1e-4]
+    for line in (-RAMP, -RAMP / 2, RAMP / 2, RAMP):
+        floor = _half(floor, (-HALF, line), (HALF, line)) + _half(floor, (-HALF, line), (HALF, line), False)
+    made = []
+    for triangle in floor:
+        triangle = triangle.copy(); triangle[:, 2] *= np.clip(np.abs(triangle[:, 1]) / RAMP, 0.0, 1.0); made.append(triangle)
+    xs = np.concatenate([triangle[:, 0] for triangle in made]); west, east = float(xs.min()), float(xs.max()); south, north = half[0][1], half[2][1]
+    ground = [np.array([[*half[at], 0.0, 7.0, 0.0] for at in corners], float) for corners in ((0, 1, 2), (0, 2, 3))]  # surface 7: not walked
+    return made + outside(ground, [(west, south), (east, south), (east, north), (west, north)])
+
+
+def passage_model(name, north, south):
+    """(a passage join's uncompiled model, its walkmesh file) from the two families' baked passage tiles (`bake`), each
+    running north to south."""
+    from tools.envkit import tile
+    require(len(name) <= 16 and name == name.lower(), 'A tile model name is a lowercase resref: ' + name)
+    lines = ['#MAXMODEL ASCII', f'newmodel {name}', f'setsupermodel {name} null', 'classification TILE', 'setanimationscale 1.0',
+             f'beginmodelgeom {name}', f'node dummy {name}', '  parent null', 'endnode']
+    walk, count = [], 0
+    for letter, (drawn, floor), half in (('n', north, NORTH), ('s', south, SOUTH)):
+        for look, triangles in drawn.items():
+            cut = inside(triangles, half, solid=True)
+            if cut:
+                lines += _node(f'{name}_{letter}{count}', name, look, cut); count += 1
+        cut = inside(floor, half); seam = _band([triangle for triangle in cut if walked(int(round(triangle[0, 3])))])
+        walk += level(cut, half) if seam and max(abs(triangle[:, 2]).max() for triangle in seam) > 1e-3 else cut
+    for index, (look, triangles) in enumerate(bulkhead(north, south).items()):
+        lines += _node(f'{name}_b{index}', name, look, triangles)
+    lines += lights(name, north, south)
+    solid = lambda corners: np.linalg.norm(np.cross(corners[1] - corners[0], corners[2] - corners[0])) > 1e-7  # a sliver a cut left has no side to split
+    walk = conformed([triangle for triangle in walk if solid(np.round(triangle[:, :3], 4))])
+    lines += tile._walk_node(name, name, *walk) + [f'endmodelgeom {name}', f'donemodel {name}']
+    return '\n'.join(lines) + '\n', tile.walk_text(name, walk)
+
+
 def bake(text, turn=0):
     """({look: [triangle]}, [walk triangle]) of a tile's uncompiled model, turned `turn` quarters counter-clockwise. A
     triangle is a 3 by 5 array of x, y, z, u, v; a walk triangle's u is its surface."""
@@ -154,12 +357,16 @@ def conformed(triangles):
     points = np.unique(np.vstack([corners for corners, _ in faces]), axis=0); done = []
     while faces:
         corners, surface = faces.pop()
+        if np.linalg.norm(np.cross(corners[1] - corners[0], corners[2] - corners[0])) <= 1e-7:
+            continue  # no area: left out below in any case, and a sliver split at its own corners never ends (2026-11-26)
         for index in range(3):
             start, end = corners[index], corners[(index + 1) % 3]; along = end - start; length = np.linalg.norm(along)
             reach = (points - start) @ along / length ** 2; off = np.linalg.norm(points - start - reach[:, None] * along, axis=1)
-            on = np.flatnonzero((off < 1e-4) & (reach > 1e-6 / length + 1e-5) & (reach < 1 - 1e-5))
-            if len(on):
-                middle = points[on[0]]; apex = corners[(index + 2) % 3]
+            on = np.flatnonzero((off < 1e-4) & (reach > 1e-6 / length + 1e-5) & (reach < 1 - 1e-5)); apex = corners[(index + 2) % 3]
+            area = lambda a, b: np.linalg.norm(np.cross(b - a, apex - a))
+            on = [one for one in on if area(start, points[one]) > 1e-7 and area(points[one], end) > 1e-7]  # a point a millimetre from a corner split two faces back and forth for ever (2026-11-26)
+            if on:
+                middle = points[on[0]]
                 faces += [(np.array([start, middle, apex]), surface), (np.array([middle, end, apex]), surface)]
                 break
         else:
@@ -248,7 +455,11 @@ def tiles(spec):
     order a merge numbers those new to it. One the merged set's numbers record holds keeps its number wherever it
     stands here (`merge.numbered`)."""
     made = []
-    for pair in spec['pairs']:
+    for passage in spec.get('passages', ()):  # between walls, one family's passage at the top and the other's at the bottom
+        name = name_of(spec, passage, PASSAGE)
+        made.append({'model': name, 'corners': dict.fromkeys(CORNERS, passage['wall']), 'minimap': 'mi_' + name, 'path': list(PATH), 'lights': 1,
+                     'crossers': {**dict.fromkeys(SIDES, ''), 'Top': passage['north']['crosser'], 'Bottom': passage['south']['crosser']}})
+    for pair in spec.get('pairs', ()):
         for shape in ('1', '2', '3', '4', 'r', 's', 't'):
             if not _cut(pair, shape):
                 continue
@@ -265,7 +476,7 @@ def tiles(spec):
 
 def edges(spec):
     """[(corner 1, corner 2, model)]: the border rows of the join pairs, each way about."""
-    return [row for pair in spec['pairs'] for row in ((pair['city']['terrain'], pair['other']['terrain'], name_of(spec, pair, '2')),
+    return [row for pair in spec.get('pairs', ()) for row in ((pair['city']['terrain'], pair['other']['terrain'], name_of(spec, pair, '2')),
                                                       (pair['other']['terrain'], pair['city']['terrain'], name_of(spec, pair, 'z')))]
 
 
@@ -276,10 +487,20 @@ def _find(repo, name, suffix):
     return found[0]
 
 
+def _picture(repo, name):
+    """A tile's area-map picture: its TGA, or the DDS of a tile that has no other."""
+    found = [path for suffix in ('.tga', '.dds') for path in sorted(Path(repo).glob(f'srn_t_*/{name}{suffix}'))]
+    require(found, f'No tile pack holds the picture {name}')
+    return found[0]
+
+
 def inputs(repo, spec):
     """{what: path} of every file the joins are cut from."""
     found = {}
-    for pair in spec['pairs']:
+    for passage in spec.get('passages', ()):
+        for side in ('north', 'south'):
+            found[f'model:{passage[side]["model"]}'] = _find(repo, passage[side]['model'], '.mdl'); found[f'minimap:{passage[side]["minimap"]}'] = _picture(repo, passage[side]['minimap'])
+    for pair in spec.get('pairs', ()):
         for side in ('city', 'other'):
             for kind in ('ground', 'road'):
                 source = pair[side].get(kind)
@@ -291,13 +512,20 @@ def inputs(repo, spec):
 def work(repo, spec):
     """{file path in the repository: its bytes} of everything a build writes."""
     repo = Path(repo); made = {}; baked = {}; from PIL import Image; import io
+    from . import pictures
 
     def source(side, kind):
         key = (side[kind]['model'], side[kind].get('turn', 0))
         if key not in baked:
             baked[key] = bake(_find(repo, key[0], '.mdl').read_bytes().decode('cp1252'), key[1])
-        return baked[key], Image.open(_find(repo, side[kind]['minimap'], '.tga')).rotate(90 * key[1])
-    for pair in spec['pairs']:
+        picture = _picture(repo, side[kind]['minimap'])  # a BioWare DDS is read here, the image library does not know it
+        return baked[key], (pictures.read(picture) if picture.suffix.lower() == '.dds' else Image.open(picture)).rotate(90 * key[1])
+    for passage in spec.get('passages', ()):
+        name = name_of(spec, passage, PASSAGE); (north, north_map), (south, south_map) = source(passage, 'north'), source(passage, 'south')
+        text, walk = passage_model(name, north, south)
+        made[f'sources/{spec["pack"]}/{name}.mdl'] = text.encode('ascii'); made[f'{spec["pack"]}/{name}.wok'] = walk.encode('ascii')
+        held = io.BytesIO(); minimap('2', north_map, south_map).save(held, format='TGA'); made[f'{spec["pack"]}/mi_{name}.tga'] = held.getvalue()
+    for pair in spec.get('pairs', ()):
         for shape in ('1', '2', '3', '4', 'r', 's', 't', 'z'):
             kinds = ROADS.get(shape, ('ground', 'ground'))
             if not _cut(pair, shape):

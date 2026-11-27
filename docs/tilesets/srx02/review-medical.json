@@ -1,0 +1,336 @@
+{
+ "tileset": "srx02",
+ "haks": [
+  "srn_t_srx02",
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 13,
+  "height": 4,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "m01_f",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "m02_f",
+    "at": [
+     3,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "m03_f",
+    "at": [
+     5,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "m03_u",
+    "at": [
+     8,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "m01_u",
+    "at": [
+     11,
+     1
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    1,
+    1
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    5,
+    1
+   ],
+   [
+    8,
+    1
+   ],
+   [
+    11,
+    1
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "bird-m01f",
+     "at": [
+      1.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-m02f",
+     "at": [
+      3.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-m03f",
+     "at": [
+      6.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 26,
+     "height": 1.0,
+     "pitches": [
+      8,
+      40
+     ]
+    },
+    {
+     "name": "bird-m03u",
+     "at": [
+      9.0,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 26,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "bird-m01u",
+     "at": [
+      11.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      8
+     ]
+    },
+    {
+     "name": "m01-in",
+     "at": [
+      1.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "m01-desk",
+     "at": [
+      1.24,
+      1.2
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "m01-exam",
+     "at": [
+      1.5,
+      1.64
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "m01-gurney",
+     "at": [
+      1.46,
+      1.72
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "m02-in",
+     "at": [
+      3.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "m02-scrub",
+     "at": [
+      3.6,
+      1.24
+     ],
+     "turns": [
+      180
+     ]
+    },
+    {
+     "name": "m02-table",
+     "at": [
+      3.5,
+      1.54
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "m02-side",
+     "at": [
+      3.24,
+      1.6
+     ],
+     "turns": [
+      0
+     ]
+    },
+    {
+     "name": "m03-in",
+     "at": [
+      5.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "m03-beds",
+     "at": [
+      6.0,
+      1.48
+     ],
+     "turns": [
+      90
+     ]
+    },
+    {
+     "name": "m03-station",
+     "at": [
+      6.3,
+      1.56
+     ],
+     "turns": [
+      270
+     ]
+    },
+    {
+     "name": "m03-end",
+     "at": [
+      6.86,
+      1.46
+     ],
+     "turns": [
+      135
+     ]
+    },
+    {
+     "name": "m01-up",
+     "at": [
+      1.5,
+      1.1
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    },
+    {
+     "name": "m03-up",
+     "at": [
+      6.0,
+      1.1
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      110
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

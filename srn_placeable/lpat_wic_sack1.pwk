@@ -1,0 +1,28 @@
+# Exported from blender Sunday, 2018-08-12
+filedependancy wicc_sack.blend
+node trimesh pwk_plane
+  parent lpat_wic_sack1_pwk
+  position -0.02025  0.00000  0.00000
+  orientation  1.00000  0.00000  0.00000  0.00000
+  wirecolor 1.00 1.00 1.00
+  ambient 1.00 1.00 1.00
+  diffuse 1.00 1.00 1.00
+  specular 0.00 0.00 0.00
+  bitmap null
+  verts 8
+     0.00000  1.00000  0.00000
+    -0.70711  0.70711  0.00000
+    -1.00000 -0.00000  0.00000
+    -0.70711 -0.70711  0.00000
+     0.00000 -1.00000  0.00000
+     0.70711 -0.70711  0.00000
+     1.00000  0.00000  0.00000
+     0.70711  0.70711  0.00000
+  faces 6
+    0 2 4  1  0 0 0  0
+    0 1 2  1  0 0 0  0
+    2 3 4  1  0 0 0  0
+    4 5 6  1  0 0 0  0
+    6 7 4  1  0 0 0  0
+    7 0 4  1  0 0 0  0
+endnode

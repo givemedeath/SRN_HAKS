@@ -1,0 +1,1280 @@
+{
+  "schemaVersion": 1,
+  "tileset": "tbx78",
+  "set": {
+    "terrains": 2,
+    "crossers": 6,
+    "tiles": 84,
+    "models": 84,
+    "groups": 14
+  },
+  "edge": {
+    "rows": 11,
+    "models": 8,
+    "notInSet": 8
+  },
+  "forms": {
+    "uncompiled": 90,
+    "compiled": 0,
+    "absent": 2
+  },
+  "surface": 27680.31,
+  "coverage": {
+    "50": 3,
+    "80": 5,
+    "90": 7,
+    "95": 8,
+    "99": 11
+  },
+  "textures": [
+    {
+      "name": "tbx78_wall01",
+      "surface": 6432.83,
+      "share": 23.24,
+      "cumulative": 23.24,
+      "models": 56,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_metal2",
+      "surface": 5168.69,
+      "share": 18.673,
+      "cumulative": 41.913,
+      "models": 38,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_floor01",
+      "surface": 4632.73,
+      "share": 16.737,
+      "cumulative": 58.649,
+      "models": 63,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_ceiling",
+      "surface": 3561.9,
+      "share": 12.868,
+      "cumulative": 71.517,
+      "models": 59,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tdm01_black",
+      "surface": 3255.49,
+      "share": 11.761,
+      "cumulative": 83.278,
+      "models": 85,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_floor02",
+      "surface": 1601.25,
+      "share": 5.785,
+      "cumulative": 89.063,
+      "models": 34,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_metal4",
+      "surface": 1563.87,
+      "share": 5.65,
+      "cumulative": 94.713,
+      "models": 50,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_metal1",
+      "surface": 432.24,
+      "share": 1.562,
+      "cumulative": 96.274,
+      "models": 13,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_door01",
+      "surface": 394.28,
+      "share": 1.424,
+      "cumulative": 97.699,
+      "models": 26,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_door",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_door",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {
+        "srn_door": 1
+      }
+    },
+    {
+      "name": "tbx78_lights",
+      "surface": 280.81,
+      "share": 1.014,
+      "cumulative": 98.713,
+      "models": 86,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 128,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 128,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_door02",
+      "surface": 166.88,
+      "share": 0.603,
+      "cumulative": 99.316,
+      "models": 20,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_lstrip",
+      "surface": 63.71,
+      "share": 0.23,
+      "cumulative": 99.546,
+      "models": 29,
+      "terrains": [
+        "wall"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 256,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 64
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_mtlwrst",
+      "surface": 42.54,
+      "share": 0.154,
+      "cumulative": 99.7,
+      "models": 15,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "plc_creats",
+      "surface": 35.39,
+      "share": 0.128,
+      "cumulative": 99.828,
+      "models": 1,
+      "terrains": [
+        "wall"
+      ],
+      "largest": null,
+      "copies": [],
+      "otherSets": [],
+      "otherPacks": {
+        "srn_placeable": 4
+      }
+    },
+    {
+      "name": "tbx78_metal3",
+      "surface": 23.52,
+      "share": 0.085,
+      "cumulative": 99.913,
+      "models": 1,
+      "terrains": [
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_grad",
+      "surface": 12.6,
+      "share": 0.046,
+      "cumulative": 99.958,
+      "models": 1,
+      "terrains": [
+        "wall"
+      ],
+      "largest": 64,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 64,
+          "height": 64
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_wall02",
+      "surface": 7.56,
+      "share": 0.027,
+      "cumulative": 99.985,
+      "models": 1,
+      "terrains": [
+        "wall"
+      ],
+      "largest": 512,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 512,
+          "height": 512
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 128
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_chain",
+      "surface": 2.28,
+      "share": 0.008,
+      "cumulative": 99.994,
+      "models": 5,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 256,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 64
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_vent1",
+      "surface": 1.06,
+      "share": 0.004,
+      "cumulative": 99.998,
+      "models": 1,
+      "terrains": [
+        "wall"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 256,
+          "height": 128
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 128,
+          "height": 64
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    },
+    {
+      "name": "tbx78_cntrl1",
+      "surface": 0.69,
+      "share": 0.002,
+      "cumulative": 100.0,
+      "models": 2,
+      "terrains": [
+        "facility",
+        "wall"
+      ],
+      "largest": 256,
+      "copies": [
+        {
+          "pack": "srn_t_tbx78",
+          "type": "dds",
+          "width": 256,
+          "height": 256
+        },
+        {
+          "pack": "srn_t_tbx78",
+          "type": "tga",
+          "width": 64,
+          "height": 64
+        }
+      ],
+      "otherSets": [],
+      "otherPacks": {}
+    }
+  ],
+  "models": {
+    "tbx78_a01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        0
+      ],
+      "edge": false
+    },
+    "tbx78_a01_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        7
+      ],
+      "edge": false
+    },
+    "tbx78_a01_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        26
+      ],
+      "edge": false
+    },
+    "tbx78_a01_04": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        34
+      ],
+      "edge": false
+    },
+    "tbx78_a02_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        1
+      ],
+      "edge": false
+    },
+    "tbx78_a02_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        9
+      ],
+      "edge": false
+    },
+    "tbx78_a03_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        2
+      ],
+      "edge": false
+    },
+    "tbx78_a04_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        3
+      ],
+      "edge": false
+    },
+    "tbx78_a05_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        4
+      ],
+      "edge": false
+    },
+    "tbx78_a10_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        6
+      ],
+      "edge": false
+    },
+    "tbx78_a10_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        11
+      ],
+      "edge": false
+    },
+    "tbx78_a11_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        8
+      ],
+      "edge": false
+    },
+    "tbx78_a12_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        27
+      ],
+      "edge": false
+    },
+    "tbx78_a12_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        32
+      ],
+      "edge": false
+    },
+    "tbx78_b03_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        23
+      ],
+      "edge": false
+    },
+    "tbx78_b03_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        24
+      ],
+      "edge": false
+    },
+    "tbx78_b03_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        25
+      ],
+      "edge": false
+    },
+    "tbx78_b04_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        5
+      ],
+      "edge": false
+    },
+    "tbx78_b04_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        17
+      ],
+      "edge": false
+    },
+    "tbx78_b04_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        18
+      ],
+      "edge": false
+    },
+    "tbx78_b04_04": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        19
+      ],
+      "edge": false
+    },
+    "tbx78_b04_05": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        20
+      ],
+      "edge": false
+    },
+    "tbx78_b04_06": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        21
+      ],
+      "edge": false
+    },
+    "tbx78_b04_07": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        22
+      ],
+      "edge": false
+    },
+    "tbx78_b05_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        12
+      ],
+      "edge": false
+    },
+    "tbx78_b05_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        13
+      ],
+      "edge": false
+    },
+    "tbx78_b05_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        14
+      ],
+      "edge": false
+    },
+    "tbx78_b05_04": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        15
+      ],
+      "edge": false
+    },
+    "tbx78_b05_05": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        16
+      ],
+      "edge": false
+    },
+    "tbx78_c01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        28
+      ],
+      "edge": false
+    },
+    "tbx78_c02_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        29
+      ],
+      "edge": false
+    },
+    "tbx78_c02_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        57
+      ],
+      "edge": false
+    },
+    "tbx78_c02_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        58
+      ],
+      "edge": false
+    },
+    "tbx78_c02_04": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        59
+      ],
+      "edge": false
+    },
+    "tbx78_c02_05": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        60
+      ],
+      "edge": false
+    },
+    "tbx78_c02_06": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        61
+      ],
+      "edge": false
+    },
+    "tbx78_c03_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        30
+      ],
+      "edge": false
+    },
+    "tbx78_c03_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        35
+      ],
+      "edge": false
+    },
+    "tbx78_c03_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        49
+      ],
+      "edge": false
+    },
+    "tbx78_c04_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        31
+      ],
+      "edge": false
+    },
+    "tbx78_c05_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        33
+      ],
+      "edge": false
+    },
+    "tbx78_d01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        36
+      ],
+      "edge": false
+    },
+    "tbx78_d02_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        37
+      ],
+      "edge": false
+    },
+    "tbx78_d03_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        38
+      ],
+      "edge": false
+    },
+    "tbx78_d04_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        39
+      ],
+      "edge": false
+    },
+    "tbx78_d05_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        40
+      ],
+      "edge": false
+    },
+    "tbx78_e01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        41
+      ],
+      "edge": false
+    },
+    "tbx78_e02_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        42
+      ],
+      "edge": false
+    },
+    "tbx78_e02_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        44
+      ],
+      "edge": false
+    },
+    "tbx78_e03_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        43
+      ],
+      "edge": false
+    },
+    "tbx78_e03_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        68
+      ],
+      "edge": false
+    },
+    "tbx78_e04_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        45
+      ],
+      "edge": false
+    },
+    "tbx78_e05_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        46
+      ],
+      "edge": false
+    },
+    "tbx78_e06_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        47
+      ],
+      "edge": false
+    },
+    "tbx78_e20_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        48
+      ],
+      "edge": false
+    },
+    "tbx78_e21_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        76
+      ],
+      "edge": false
+    },
+    "tbx78_e30_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        50
+      ],
+      "edge": false
+    },
+    "tbx78_e31_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        62
+      ],
+      "edge": false
+    },
+    "tbx78_e32_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        63
+      ],
+      "edge": false
+    },
+    "tbx78_e32_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        64
+      ],
+      "edge": false
+    },
+    "tbx78_e32_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        65
+      ],
+      "edge": false
+    },
+    "tbx78_f01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        51
+      ],
+      "edge": false
+    },
+    "tbx78_f01_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        69
+      ],
+      "edge": false
+    },
+    "tbx78_f01_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        71
+      ],
+      "edge": false
+    },
+    "tbx78_f01_04": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        73
+      ],
+      "edge": false
+    },
+    "tbx78_f01_05": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        75
+      ],
+      "edge": false
+    },
+    "tbx78_f02_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        52
+      ],
+      "edge": false
+    },
+    "tbx78_f02_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        70
+      ],
+      "edge": false
+    },
+    "tbx78_f02_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        72
+      ],
+      "edge": false
+    },
+    "tbx78_f03_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        53
+      ],
+      "edge": false
+    },
+    "tbx78_f03_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        55
+      ],
+      "edge": false
+    },
+    "tbx78_f04_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        54
+      ],
+      "edge": false
+    },
+    "tbx78_f05_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        56
+      ],
+      "edge": false
+    },
+    "tbx78_f06_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        66
+      ],
+      "edge": false
+    },
+    "tbx78_f07_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        67
+      ],
+      "edge": false
+    },
+    "tbx78_f08_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        74
+      ],
+      "edge": false
+    },
+    "tbx78_z01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "tbx78_z02_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "tbx78_z03_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "tbx78_z04_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "tbx78_z05_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "tbx78_z06_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "tbx78_z07_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [],
+      "edge": true
+    },
+    "tbx79_a01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        77
+      ],
+      "edge": false
+    },
+    "tbx79_a01_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        78
+      ],
+      "edge": false
+    },
+    "tbx79_a01_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        79
+      ],
+      "edge": false
+    },
+    "tbx79_b01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        80
+      ],
+      "edge": false
+    },
+    "tbx79_b01_02": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        81
+      ],
+      "edge": false
+    },
+    "tbx79_b01_03": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        82
+      ],
+      "edge": false
+    },
+    "tbx79_c01_01": {
+      "pack": "srn_t_tbx78",
+      "form": "uncompiled",
+      "tiles": [
+        83
+      ],
+      "edge": false
+    },
+    "tin01_o20_01": {
+      "pack": null,
+      "form": "absent",
+      "tiles": [
+        10
+      ],
+      "edge": false
+    },
+    "tin01_z10_01": {
+      "pack": null,
+      "form": "absent",
+      "tiles": [],
+      "edge": true
+    }
+  },
+  "unnamedModels": []
+}

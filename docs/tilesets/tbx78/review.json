@@ -1,0 +1,87 @@
+{
+ "tileset": "tbx78",
+ "haks": [
+  "srn_t_tbx78",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 19,
+  "height": 10,
+  "lights": [
+   "day"
+  ],
+  "patches": [
+   {
+    "terrain": "facility",
+    "at": [
+     2,
+     2
+    ],
+    "size": [
+     3,
+     3
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "corridor",
+    "cells": [
+     [
+      0,
+      8
+     ],
+     [
+      18,
+      8
+     ]
+    ]
+   }
+  ],
+  "crossings": [
+   [
+    2,
+    2
+   ],
+   [
+    9,
+    8
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 32.0,
+   "pitch": 52.0,
+   "views": [
+    "x02y02-ne",
+    "x09y08-ne",
+    "x09y08-sw"
+   ]
+  },
+  "eye": {
+   "turns": [
+    0,
+    135,
+    225
+   ],
+   "pitches": [
+    100
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

@@ -14,6 +14,8 @@ a player would walk through it. A piece marked `blocks` is cover instead: it sta
 footprint is raised out of the roof's walkmesh to the piece's top (`cuts`), so nothing walks through it or sees past it.
 A piece marked `obstacle` is street furniture (a bollard, a bin): it stands on the street, and its footprint is cut
 out of the street's walkmesh flat, as NonWalk, so nothing walks through it and the street is seen past it.
+A piece marked `rests` lies on a room's floor (a rug) or stands on its furniture, the tile's own or an obstacle placed
+before it (a vase on a table): it is fixed to no wall, and no player walks where its obstacle stands.
 The walkmesh is hashed before and after. Changed models are written into a review's
 overlay, with `models-from.json`, as the lamps and shadows are, and a model there already (the lamps') is the one
 changed; a tile's earlier pieces there are replaced, so the spec can be run again as it changes. The kit's atlas
@@ -224,21 +226,22 @@ def with_walkmesh_of(text, pack_text):
     return _ending(text).join(lines[:mine[0].start] + theirs[pack[0].start:pack[0].end + 1] + lines[mine[0].end + 1:])
 
 
-def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None):
+def place(text, name, placements, kit, cache=None, *, pack_text=None, wok=None, lay=None):
     """(new text, {pieces, faces, nodes, cuts}, new .wok text or None, footprints [(polygon, roof, top)]) of a tile model with its placements added,
     refused where a piece leaves the cell or stands where a player walks. A piece that `blocks` stands on a walkable
     roof instead, and its footprint is cut out of the roof's walkmesh (`cuts`): `wok`, the tile's .wok, is cut with it.
-    A refusal of one placement is a `Refused` with its number."""
+    A refusal of one placement is a `Refused` with its number. lay: what makes the walkmesh in place of the cut, from
+    (the new text, the footprints) to (the text, the .wok)."""
     at = [None]  # the placement being worked on
     try:
-        return _place(text, name, placements, kit, cache, pack_text, wok, at)
+        return _place(text, name, placements, kit, cache, pack_text, wok, lay, at)
     except ValueError as error:
         if at[0] is None or not str(error).startswith(f'{name} #{at[0]}'):  # a fault of the kit's is no refusal of a placement
             raise
         raise Refused(at[0], str(error)) from error
 
 
-def _place(text, name, placements, kit, cache, pack_text, wok, progress):
+def _place(text, name, placements, kit, cache, pack_text, wok, lay, progress):
     from .kit import SWEEPS
     cache = {} if cache is None else cache; text = effects.without_fx(without_kit(text)); turning = []
     if pack_text is not None:  # an applied batch: its walkmesh is cut already, and cut again it refuses its own roof clutter
@@ -269,6 +272,7 @@ def _place(text, name, placements, kit, cache, pack_text, wok, progress):
                 f'{name} #{number}: `scale` is a positive number, or three: [across, out, up]')
         blocks = placement.get('blocks', False); require(isinstance(blocks, bool), f'{name} #{number}: `blocks` is true or false')
         obstacle = placement.get('obstacle', False); require(isinstance(obstacle, bool) and not (blocks and obstacle), f'{name} #{number}: `obstacle` is true or false, and not with `blocks`')
+        rests = placement.get('rests', False); require(isinstance(rests, bool) and not (rests and (blocks or obstacle)), f'{name} #{number}: `rests` is true or false, and not with `blocks` or `obstacle`')
         mine = geometry.baked(piece_parts(kit, piece, cache), turned(at, placement.get('turn', 0.0), scale))
         require(mine, f'{piece} draws nothing'); faces = geometry.faces_of(mine)
         out = geometry.overhanging(faces); require(not out, f'{name} #{number} ({piece}) leaves the cell, other than flush to its side or over the street above {geometry.OVER} m, at ' + ', '.join(map(str, out[:3])))
@@ -290,12 +294,16 @@ def _place(text, name, placements, kit, cache, pack_text, wok, progress):
                        if not cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP)}
             require(not outside, f'{name} #{number} ({piece}) reaches past its cover where a player walks; raise that part above head height or widen `cover`')
             if obstacle:  # street furniture keeps clear of what the tile stands on its street (a lamp post, a traffic light's pole)
-                low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(2)]
+                low = [min(point[axis] for face in faces for point in face) - 0.02 for axis in range(3)]
                 high = [max(point[axis] for face in faces for point in face) + 0.02 for axis in range(3)]
                 hit = sorted({node for node, point in drawn() if all(low[axis] <= point[axis] <= high[axis] for axis in range(2))
-                              and roof + 0.05 < point[2] <= high[2]})
+                              and max(roof + 0.05, low[2]) < point[2] <= high[2]})  # a skirting board runs under what hangs on its wall
                 require(not hit, f'{name} #{number} ({piece}) runs into what the tile already has there ({", ".join(hit)}); move it clear')
             against = ()
+        elif rests:
+            against = ()
+            _clear(name, number, piece, faces, fixtures, {key: heights for key, heights in walk.items() if not any(
+                top is None and cuts.covers(polygon, ((key[0] + 0.5) * geometry.STEP, (key[1] + 0.5) * geometry.STEP), geometry.STEP) for polygon, _, top in footprints)})
         else:
             facing = math.radians(placement.get('turn', 0.0)); out = (-math.sin(facing), math.cos(facing))
             against = ((out, at[0] * out[0] + at[1] * out[1]), drawn()) if piece not in CLIMBERS else ()  # the wall it is fixed to, for its head's sweep too
@@ -317,7 +325,7 @@ def _place(text, name, placements, kit, cache, pack_text, wok, progress):
     require(not taken & {one.lower() for one in named}, f'{name} already has a node named like its turning heads')
     new, loop = heads(new, root, [(node, *head) for node, head in zip(named, turning)]); count += len(turning)
     if footprints:
-        require(wok is not None, f'{name} has no .wok to cut'); new, cut = cuts.cut_walkmesh(new, wok, footprints)
+        require(wok is not None, f'{name} has no .wok to cut'); new, cut = lay(new, footprints) if lay else cuts.cut_walkmesh(new, wok, footprints)
     else:
         require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
     return new, {'pieces': len(placements) - emitters, 'faces': sum(len(part[3]) for part in parts), 'nodes': count, 'effects': emitters, 'cuts': len(footprints), **({'loop': loop} if loop else {})}, cut, footprints

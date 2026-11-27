@@ -1,0 +1,21 @@
+texture,surface_m2,share_pct,cumulative_pct,models,largest_px,copies,other_sets,other_packs,terrains
+tbx78_wall01,6432.83,23.24,23.24,56,256,srn_t_tbx78:dds:256x256 srn_t_tbx78:tga:128x128,,,facility wall
+tbx78_metal2,5168.69,18.673,41.913,38,512,srn_t_tbx78:dds:512x512 srn_t_tbx78:tga:128x128,,,facility wall
+tbx78_floor01,4632.73,16.737,58.649,63,256,srn_t_tbx78:dds:256x256 srn_t_tbx78:tga:128x128,,,facility wall
+tbx78_ceiling,3561.9,12.868,71.517,59,512,srn_t_tbx78:dds:512x512 srn_t_tbx78:tga:128x128,,,facility wall
+tdm01_black,3255.49,11.761,83.278,85,,,,,facility wall
+tbx78_floor02,1601.25,5.785,89.063,34,512,srn_t_tbx78:dds:512x512 srn_t_tbx78:tga:128x128,,,facility wall
+tbx78_metal4,1563.87,5.65,94.713,50,512,srn_t_tbx78:dds:512x512 srn_t_tbx78:tga:128x128,,,facility wall
+tbx78_metal1,432.24,1.562,96.274,13,512,srn_t_tbx78:dds:512x512 srn_t_tbx78:tga:128x128,,,facility wall
+tbx78_door01,394.28,1.424,97.699,26,512,srn_door:dds:512x512 srn_door:tga:128x128,,srn_door:1,facility wall
+tbx78_lights,280.81,1.014,98.713,86,128,srn_t_tbx78:dds:128x128 srn_t_tbx78:tga:128x128,,,facility wall
+tbx78_door02,166.88,0.603,99.316,20,256,srn_t_tbx78:dds:256x256 srn_t_tbx78:tga:128x128,,,facility wall
+tbx78_lstrip,63.71,0.23,99.546,29,256,srn_t_tbx78:dds:256x128 srn_t_tbx78:tga:128x64,,,wall
+tbx78_mtlwrst,42.54,0.154,99.7,15,512,srn_t_tbx78:dds:512x512 srn_t_tbx78:tga:128x128,,,facility wall
+plc_creats,35.39,0.128,99.828,1,,,,srn_placeable:4,wall
+tbx78_metal3,23.52,0.085,99.913,1,512,srn_t_tbx78:dds:512x512 srn_t_tbx78:tga:128x128,,,wall
+tbx78_grad,12.6,0.046,99.958,1,64,srn_t_tbx78:tga:64x64,,,wall
+tbx78_wall02,7.56,0.027,99.985,1,512,srn_t_tbx78:dds:512x512 srn_t_tbx78:tga:128x128,,,wall
+tbx78_chain,2.28,0.008,99.994,5,256,srn_t_tbx78:dds:256x128 srn_t_tbx78:tga:128x64,,,facility wall
+tbx78_vent1,1.06,0.004,99.998,1,256,srn_t_tbx78:dds:256x128 srn_t_tbx78:tga:128x64,,,wall
+tbx78_cntrl1,0.69,0.002,100.0,2,256,srn_t_tbx78:dds:256x256 srn_t_tbx78:tga:64x64,,,facility wall

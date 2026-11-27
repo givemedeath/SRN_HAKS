@@ -2564,6 +2564,606 @@
    "added": "2026-11-24",
    "blueprint": "ek_hs_antenna",
    "category": 215
+  },
+  {
+   "row": 22918,
+   "model": "lpat_alcbottles1",
+   "label": "[lpat]Alchemy, Bottles",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22919,
+   "model": "lpat_flsks1",
+   "label": "[lpat]Alchemy, Flasks 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22920,
+   "model": "lpat_flsks2",
+   "label": "[lpat]Alchemy, Flasks 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22921,
+   "model": "lpat_alctable_01",
+   "label": "[lpat]Alchemy, Table with Books",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22922,
+   "model": "lpat_alctable_2",
+   "label": "[lpat]Alchemy, Table with Glassware",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22923,
+   "model": "lpat_alchemy1",
+   "label": "[lpat]Alchemy, Glassware 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22924,
+   "model": "lpat_alchemy2",
+   "label": "[lpat]Alchemy, Glassware 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22925,
+   "model": "lpat_tubes1",
+   "label": "[lpat]Alchemy, Test Tubes 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22926,
+   "model": "lpat_tubes2",
+   "label": "[lpat]Alchemy, Test Tubes 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22927,
+   "model": "lpat_retort_lrg",
+   "label": "[lpat]Alchemy, Retort, Large",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22928,
+   "model": "lpat_alc_brw",
+   "label": "[lpat]Alchemy, Brewing Still",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22929,
+   "model": "lpat_table_a1",
+   "label": "[lpat]Alchemy, Work Table",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22930,
+   "model": "lpat_wic_botls1",
+   "label": "[lpat]Occult, Bottles 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22931,
+   "model": "lpat_wic_botls2",
+   "label": "[lpat]Occult, Bottles 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22932,
+   "model": "lpat_wic_botls3",
+   "label": "[lpat]Occult, Bottles 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22933,
+   "model": "lpat_wic_bflask1",
+   "label": "[lpat]Occult, Flask 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22934,
+   "model": "lpat_wic_bflask2",
+   "label": "[lpat]Occult, Flask 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22935,
+   "model": "lpat_wic_bflask3",
+   "label": "[lpat]Occult, Flask 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22936,
+   "model": "lpat_wic_bflask4",
+   "label": "[lpat]Occult, Flask 4",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22937,
+   "model": "lpat_wic_jars1",
+   "label": "[lpat]Occult, Specimen Jars 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22938,
+   "model": "lpat_wic_jars2",
+   "label": "[lpat]Occult, Specimen Jars 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22939,
+   "model": "lpat_wic_jars3",
+   "label": "[lpat]Occult, Specimen Jars 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22940,
+   "model": "lpat_wic_shelf1",
+   "label": "[lpat]Occult, Shelf 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22941,
+   "model": "lpat_wic_shelf2",
+   "label": "[lpat]Occult, Shelf 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22942,
+   "model": "lpat_wic_shelf3",
+   "label": "[lpat]Occult, Shelf 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22943,
+   "model": "lpat_wic_herbs1",
+   "label": "[lpat]Occult, Hanging Herbs 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22944,
+   "model": "lpat_wic_herbs2",
+   "label": "[lpat]Occult, Hanging Herbs 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22945,
+   "model": "lpat_wic_herbs3",
+   "label": "[lpat]Occult, Hanging Herbs 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22946,
+   "model": "lpat_wic_herbs4",
+   "label": "[lpat]Occult, Hanging Herbs 4",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22947,
+   "model": "lpat_wic_hbones1",
+   "label": "[lpat]Occult, Hanging Bones 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22948,
+   "model": "lpat_wic_hbones2",
+   "label": "[lpat]Occult, Hanging Bones 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22949,
+   "model": "lpat_wic_hflask1",
+   "label": "[lpat]Occult, Hanging Flask 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22950,
+   "model": "lpat_wic_hflask2",
+   "label": "[lpat]Occult, Hanging Flask 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22951,
+   "model": "lpat_wic_hflask3",
+   "label": "[lpat]Occult, Hanging Flask 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22952,
+   "model": "lpat_wic_hflask4",
+   "label": "[lpat]Occult, Hanging Flask 4",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22953,
+   "model": "lpat_wic_hpot1",
+   "label": "[lpat]Occult, Hanging Pot 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22954,
+   "model": "lpat_wic_hpot2",
+   "label": "[lpat]Occult, Hanging Pot 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22955,
+   "model": "lpat_wic_hpot3",
+   "label": "[lpat]Occult, Hanging Pot 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22956,
+   "model": "lpat_wic_hpot4",
+   "label": "[lpat]Occult, Hanging Pot 4",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22957,
+   "model": "lpat_wic_hpots1",
+   "label": "[lpat]Occult, Hanging Pots 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22958,
+   "model": "lpat_wic_hpots2",
+   "label": "[lpat]Occult, Hanging Pots 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22959,
+   "model": "lpat_wic_bowls1",
+   "label": "[lpat]Occult, Bowls 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22960,
+   "model": "lpat_wic_bowls2",
+   "label": "[lpat]Occult, Bowls 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22961,
+   "model": "lpat_wic_bowls3",
+   "label": "[lpat]Occult, Bowls 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22962,
+   "model": "lpat_wic_sack1",
+   "label": "[lpat]Occult, Herb Sack 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22963,
+   "model": "lpat_wic_sack2",
+   "label": "[lpat]Occult, Herb Sack 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22964,
+   "model": "lpat_wic_sack3",
+   "label": "[lpat]Occult, Herb Sack 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22965,
+   "model": "lpat_wic_sack4",
+   "label": "[lpat]Occult, Herb Sack 4",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22966,
+   "model": "lpat_wic_urn1",
+   "label": "[lpat]Occult, Urn 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22967,
+   "model": "lpat_wic_urn2",
+   "label": "[lpat]Occult, Urn 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22968,
+   "model": "lpat_wic_urn3",
+   "label": "[lpat]Occult, Urn 3",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22969,
+   "model": "lpat_wic_urn4",
+   "label": "[lpat]Occult, Urn 4",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22970,
+   "model": "lpat_wic_urn5",
+   "label": "[lpat]Occult, Urn 5",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22971,
+   "model": "lpat_wic_urn6",
+   "label": "[lpat]Occult, Urn 6",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22972,
+   "model": "lpat_wic_urns1",
+   "label": "[lpat]Occult, Urns 1",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22973,
+   "model": "lpat_wic_urns2",
+   "label": "[lpat]Occult, Urns 2",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22974,
+   "model": "lpat_wic_pot1",
+   "label": "[lpat]Occult, Cauldron",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22975,
+   "model": "lpat_wic_potlrg",
+   "label": "[lpat]Occult, Cauldron, Hanging",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22976,
+   "model": "lpat_wic_rstones",
+   "label": "[lpat]Occult, Rune Stones",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
+  },
+  {
+   "row": 22977,
+   "model": "lpat_wic_wbasket",
+   "label": "[lpat]Occult, Wicker Basket",
+   "pack": "srn_placeable",
+   "madeBy": "hand",
+   "source": "output/_lpatimport.py; docs/placeables/lpat-import.json",
+   "provenance": "Lady Patricia's alchemy and wicca placeables (`srn_placeable`, `srn_2da`; 2026-11-26)",
+   "added": "2026-11-26"
   }
  ],
  "tileGroups": [

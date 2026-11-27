@@ -7,7 +7,7 @@ from pathlib import Path
 from tools.tilekit import inventory
 
 REPO = Path(__file__).resolve().parents[2]
-PACKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_fcx01', 'srn_t_common', 'srn_2da')  # what the baselines read: named so the test selector runs this when one changes
+PACKS = ('srn_t_dgt04', 'srn_t_udp1', 'srn_t_fcx01', 'srn_t_udp2', 'srn_t_tfb01', 'srn_t_tbx78', 'srn_t_nac01', 'srn_t_common', 'srn_2da')  # what the baselines read: named so the test selector runs this when one changes
 
 
 class Baselines(unittest.TestCase):

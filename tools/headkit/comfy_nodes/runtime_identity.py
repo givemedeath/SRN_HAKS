@@ -43,6 +43,12 @@ RUNTIME_EXTENSIONS={'.py','.pyw','.pyi','.pyx','.pxd','.pxi','.pth','.pyd','.dll
                     '.jinja','.jinja2','.j2','.cmake','.lds'}
 
 
+def _manager_cache(directory,name):
+    """ComfyUI-Manager's `user/__manager/cache`: node lists it downloads and rewrites on every start, read as data and
+    never imported. Counting it made each restart of Comfy Desktop a new snapshot (user, 2026-11-25)."""
+    return name.casefold()=='cache' and directory.name.casefold()=='__manager' and directory.parent.name.casefold()=='user'
+
+
 def runtime_members(roots):
     """Fresh membership census of active runtime roots, without inactive site trees."""
     roots=set(roots);files=set()
@@ -50,6 +56,7 @@ def runtime_members(roots):
         with os.scandir(directory) as entries:
             for entry in entries:
                 if entry.name in {'__pycache__','.git','.hg','.svn'}:continue
+                if _manager_cache(directory,entry.name):continue
                 path=directory/entry.name
                 if entry.is_dir(follow_symlinks=False):
                     # The base interpreter's bundled site-packages is not used

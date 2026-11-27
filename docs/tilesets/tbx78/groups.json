@@ -1,0 +1,258 @@
+{
+ "tileset": "tbx78",
+ "haks": [
+  "srn_t_tbx78",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 26,
+  "height": 7,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "ladder_up",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "ladder_dwn",
+    "at": [
+     3,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "removed_panel",
+    "at": [
+     5,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "giant_cage",
+    "at": [
+     7,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "pillar",
+    "at": [
+     9,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "room2x1",
+    "at": [
+     11,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "stairs_up",
+    "at": [
+     14,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "room",
+    "at": [
+     16,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "stairs_dwn",
+    "at": [
+     18,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "elevator",
+    "at": [
+     20,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "room3x1",
+    "at": [
+     23,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "door_transition",
+    "at": [
+     1,
+     5
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    1,
+    1
+   ],
+   [
+    3,
+    1
+   ],
+   [
+    5,
+    1
+   ],
+   [
+    7,
+    1
+   ],
+   [
+    9,
+    1
+   ],
+   [
+    11,
+    1
+   ],
+   [
+    14,
+    1
+   ],
+   [
+    16,
+    1
+   ],
+   [
+    18,
+    1
+   ],
+   [
+    20,
+    1
+   ],
+   [
+    23,
+    2
+   ],
+   [
+    1,
+    5
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 24.0,
+   "pitch": 64.0,
+   "views": [
+    "x01y01-ne",
+    "x03y01-ne",
+    "x05y01-ne",
+    "x07y01-ne",
+    "x09y01-ne",
+    "x11y01-ne",
+    "x14y01-ne",
+    "x16y01-ne",
+    "x18y01-ne",
+    "x20y01-ne",
+    "x23y02-ne",
+    "x01y05-ne"
+   ]
+  },
+  "eye": {
+   "crossings": [
+    [
+     1,
+     1
+    ],
+    [
+     3,
+     1
+    ],
+    [
+     5,
+     1
+    ],
+    [
+     11,
+     1
+    ],
+    [
+     14,
+     1
+    ],
+    [
+     16,
+     1
+    ],
+    [
+     18,
+     1
+    ],
+    [
+     23,
+     2
+    ],
+    [
+     1,
+     5
+    ]
+   ],
+   "turns": [
+    45,
+    225
+   ],
+   "pitches": [
+    100
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ },
+ "labels": {
+  "x01y01-ne": "ladder_up",
+  "x03y01-ne": "ladder_dwn",
+  "x05y01-ne": "removed_panel",
+  "x07y01-ne": "giant_cage",
+  "x09y01-ne": "pillar",
+  "x11y01-ne": "room2x1",
+  "x14y01-ne": "stairs_up",
+  "x16y01-ne": "room",
+  "x18y01-ne": "stairs_dwn",
+  "x20y01-ne": "elevator",
+  "x23y02-ne": "room3x1",
+  "x01y05-ne": "door_transition"
+ }
+}

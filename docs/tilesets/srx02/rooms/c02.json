@@ -1,0 +1,179 @@
+{
+ "id": "c02",
+ "category": "Retail",
+ "name": "Small Shop",
+ "note": "Floorplan C02: an open sales floor of shelves, rails and cases, a service counter, and stock behind.",
+ "shell": {
+  "set": "udp2",
+  "box": {
+   "rows": 1,
+   "columns": 1,
+   "like": [
+    61
+   ],
+   "height": 3.4,
+   "repeat": {
+    "floor": 2.5,
+    "wall": [
+     2.0,
+     2.0
+    ],
+    "ceiling": 2.4
+   },
+   "look": {
+    "floor": "tfb01_shpflr1",
+    "wall": "udp2_w_vyn1",
+    "ceiling": "srx02_clgtile",
+    "base": "udp2_w_sid3",
+    "trim": "udp2_w_sid3",
+    "top": "gg_black"
+   },
+   "openings": [
+    {
+     "side": "s",
+     "at": 5.0,
+     "width": 4.0,
+     "high": 3.0
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0,
+      7.6
+     ],
+     "to": [
+      10,
+      7.6
+     ],
+     "doors": [
+      {
+       "at": 8.7,
+       "width": 2.0
+      }
+     ]
+    }
+   ],
+   "zones": [
+    {
+     "rect": [
+      0,
+      7.6,
+      10,
+      10
+     ],
+     "floor": "udp2_flr_vct2",
+     "wall": "udp1-blck-gr2",
+     "ceiling": "srx02_clgconc"
+    }
+   ]
+  }
+ },
+ "inRoom": true,
+ "lamps": [
+  {
+   "kind": "spot",
+   "at": [
+    2.5,
+    1.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    2.5,
+    4.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    2.5,
+    6.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.0,
+    1.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.0,
+    4.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    5.0,
+    6.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    7.5,
+    1.8
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    7.5,
+    4.2
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "spot",
+   "at": [
+    7.5,
+    6.4
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    2.5,
+    8.7
+   ],
+   "under": 3.4
+  },
+  {
+   "kind": "panel",
+   "at": [
+    6.5,
+    8.7
+   ],
+   "under": 3.4
+  }
+ ],
+ "props": [
+  {"piece": "pkt_shelf02", "at": [0.866, 2.011, 0.0], "faces": "e", "scale": 0.9},
+  {"piece": "pkt_shelf02", "at": [0.866, 5.661, 0.0], "faces": "e", "scale": 0.9},
+  {"piece": "p_mannequin05", "at": [8.4, 1.0, 0.0], "turn": 0},
+  {"piece": "pkt_shelf02", "at": [4.412, 5.365, 0.0], "faces": "s"},
+  {"piece": "ek_csc_case", "at": [5.8, 3.2, 0.0], "faces": "s"},
+  {"piece": "ek_csc_case", "at": [9.319, 2.399, 0.0], "faces": "w"},
+  {"piece": "ek_pt_counter", "at": [7.599, 4.8, 0.0], "faces": "w"},
+  {"piece": "udp2-p-41", "at": [9.729, 4.8, 0.0], "faces": "w"},
+  {"piece": "jz_shelves01", "at": [9.516, 6.301, 0.0], "faces": "w"},
+  {"piece": "udp2-p-98", "at": [6.9, 6.95, 0.0], "turn": 0},
+  {"piece": "pkt_shelf02", "at": [2.011, 9.134, 0.0], "faces": "s", "scale": 0.9},
+  {"piece": "ek_pt_cases", "at": [5.0, 9.294, 0.0], "faces": "s"},
+  {"piece": "ek_ad_crate", "at": [6.6, 9.34, 0.0], "faces": "s"}
+ ],
+ "placeLater": [{"what": "a shop door in the opening and a door to the stock room"}, {"what": "the counter as the shop's store; the cases as containers"}, {"what": "a camera over the counter"}]
+}

@@ -1,0 +1,343 @@
+{
+ "schemaVersion": 1,
+ "kind": "srn-placeable-categories",
+ "branches": [
+  {
+   "branch": "Shadowrun City",
+   "categories": [
+    {
+     "id": 208,
+     "name": "Signs and Screens"
+    },
+    {
+     "id": 219,
+     "name": "Billboards and Adverts"
+    },
+    {
+     "id": 220,
+     "name": "Road Signs and Markings"
+    },
+    {
+     "id": 209,
+     "name": "Lights"
+    },
+    {
+     "id": 221,
+     "name": "Street Furniture"
+    },
+    {
+     "id": 211,
+     "name": "Barriers, Fences and Gates"
+    },
+    {
+     "id": 210,
+     "name": "Security"
+    },
+    {
+     "id": 222,
+     "name": "Market and Street Food"
+    },
+    {
+     "id": 223,
+     "name": "Playground and Sport"
+    },
+    {
+     "id": 213,
+     "name": "Rubble and Trash"
+    },
+    {
+     "id": 224,
+     "name": "Ground Stains and Litter"
+    },
+    {
+     "id": 225,
+     "name": "Graffiti and Bullet Holes"
+    },
+    {
+     "id": 214,
+     "name": "Machines and Vending"
+    },
+    {
+     "id": 215,
+     "name": "Utilities and Power"
+    },
+    {
+     "id": 216,
+     "name": "Storage and Cargo"
+    },
+    {
+     "id": 217,
+     "name": "Building Parts"
+    },
+    {
+     "id": 226,
+     "name": "Buildings and Ruins"
+    },
+    {
+     "id": 218,
+     "name": "Shop and Workshop Fittings"
+    },
+    {
+     "id": 212,
+     "name": "Vehicles and Rail"
+    }
+   ]
+  },
+  {
+   "branch": "Shadowrun Furniture",
+   "categories": [
+    {
+     "id": 174,
+     "name": "Chairs and Stools"
+    },
+    {
+     "id": 192,
+     "name": "Sofas and Benches"
+    },
+    {
+     "id": 227,
+     "name": "Tables"
+    },
+    {
+     "id": 228,
+     "name": "Desks and Office"
+    },
+    {
+     "id": 229,
+     "name": "Beds"
+    },
+    {
+     "id": 230,
+     "name": "Wardrobes, Cabinets and Drawers"
+    },
+    {
+     "id": 231,
+     "name": "Shelves and Bookcases"
+    },
+    {
+     "id": 232,
+     "name": "Counters and Bars"
+    },
+    {
+     "id": 233,
+     "name": "Cubicles and Partitions"
+    }
+   ]
+  },
+  {
+   "branch": "Shadowrun Interior",
+   "categories": [
+    {
+     "id": 175,
+     "name": "Kitchen"
+    },
+    {
+     "id": 195,
+     "name": "Food and Drink"
+    },
+    {
+     "id": 169,
+     "name": "Bathroom and Cleaning"
+    },
+    {
+     "id": 167,
+     "name": "Rugs and Carpets"
+    },
+    {
+     "id": 207,
+     "name": "Lamps"
+    },
+    {
+     "id": 168,
+     "name": "Posters"
+    },
+    {
+     "id": 189,
+     "name": "Paintings, Notices and Mirrors"
+    },
+    {
+     "id": 160,
+     "name": "Statues and Ornaments"
+    },
+    {
+     "id": 196,
+     "name": "Books and Papers"
+    },
+    {
+     "id": 194,
+     "name": "Table and Personal Items"
+    },
+    {
+     "id": 237,
+     "name": "Games, Music and Toys"
+    },
+    {
+     "id": 202,
+     "name": "Planters and House Plants"
+    }
+   ]
+  },
+  {
+   "branch": "Shadowrun Technology",
+   "categories": [
+    {
+     "id": 166,
+     "name": "Computers and Office Machines"
+    },
+    {
+     "id": 238,
+     "name": "Televisions and Screens"
+    },
+    {
+     "id": 165,
+     "name": "Consoles and Controls"
+    },
+    {
+     "id": 186,
+     "name": "Terminals and Phones"
+    },
+    {
+     "id": 187,
+     "name": "Medical and Laboratory"
+    },
+    {
+     "id": 239,
+     "name": "Industrial Machines and Tools"
+    },
+    {
+     "id": 240,
+     "name": "Robots and Droids"
+    },
+    {
+     "id": 241,
+     "name": "Parts and Components"
+    },
+    {
+     "id": 242,
+     "name": "Holograms and Force Fields"
+    }
+   ]
+  },
+  {
+   "branch": "Shadowrun Containers",
+   "categories": [
+    {
+     "id": 164,
+     "name": "Lockers and Safes"
+    },
+    {
+     "id": 185,
+     "name": "Crates and Chests"
+    },
+    {
+     "id": 243,
+     "name": "Boxes and Cartons"
+    },
+    {
+     "id": 244,
+     "name": "Drums, Barrels and Tanks"
+    },
+    {
+     "id": 245,
+     "name": "Bags and Small Containers"
+    }
+   ]
+  },
+  {
+   "branch": "Shadowrun Structure",
+   "categories": [
+    {
+     "id": 159,
+     "name": "Walls and Panels"
+    },
+    {
+     "id": 188,
+     "name": "Floors and Platforms"
+    },
+    {
+     "id": 163,
+     "name": "Ceilings, Canopies and Awnings"
+    },
+    {
+     "id": 161,
+     "name": "Pillars, Towers and Supports"
+    },
+    {
+     "id": 173,
+     "name": "Doors, Hatches and Windows"
+    },
+    {
+     "id": 191,
+     "name": "Stairs, Ladders and Lifts"
+    },
+    {
+     "id": 248,
+     "name": "Pipes, Ducts and Vents"
+    }
+   ]
+  },
+  {
+   "branch": "Shadowrun Vehicles",
+   "categories": [
+    {
+     "id": 157,
+     "name": "Cars and Vans"
+    },
+    {
+     "id": 178,
+     "name": "Trucks, Buses and Work Vehicles"
+    },
+    {
+     "id": 251,
+     "name": "Bikes and Hover Vehicles"
+    },
+    {
+     "id": 252,
+     "name": "Military Vehicles and Mechs"
+    },
+    {
+     "id": 253,
+     "name": "Aircraft and Boats"
+    },
+    {
+     "id": 171,
+     "name": "Starships and Shuttles"
+    },
+    {
+     "id": 170,
+     "name": "Planets and Stations"
+    }
+   ]
+  },
+  {
+   "branch": "Shadowrun Weapons and Bodies",
+   "categories": [
+    {
+     "id": 204,
+     "name": "Weapons and Ammunition"
+    },
+    {
+     "id": 199,
+     "name": "Turrets and Explosives"
+    },
+    {
+     "id": 203,
+     "name": "Bodies and Remains"
+    }
+   ]
+  },
+  {
+   "branch": "Shadowrun Nature",
+   "categories": [
+    {
+     "id": 254,
+     "name": "Trees and Plants"
+    },
+    {
+     "id": 162,
+     "name": "Rocks, Fire and Smoke"
+    }
+   ]
+  }
+ ]
+}

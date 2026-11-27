@@ -627,43 +627,855 @@
     },
     {
       "id": 156,
-      "text": "Street Door, Single"
+      "text": "Security: Street Door, Single"
     },
     {
       "id": 157,
-      "text": "Shop Door, Glass"
+      "text": "Shop: Shop Door, Glass"
     },
     {
       "id": 158,
-      "text": "Double Door"
+      "text": "Security: Double Door"
     },
     {
       "id": 159,
-      "text": "Security Door, Steel"
+      "text": "Security: Security Door, Steel"
     },
     {
       "id": 160,
-      "text": "Roller Shutter, 2 m"
+      "text": "Shop: Roller Shutter, 2 m"
     },
     {
       "id": 161,
-      "text": "Roller Shutter, 4 m"
+      "text": "Shop: Roller Shutter, 4 m"
     },
     {
       "id": 162,
-      "text": "Loading Shutter, 6 m"
+      "text": "Industrial: Loading Shutter, 6 m"
     },
     {
       "id": 163,
-      "text": "Vehicle Gate, Mesh"
+      "text": "Gate: Vehicle Gate, Mesh"
     },
     {
       "id": 164,
-      "text": "Interior Door"
+      "text": "Home: Interior Door"
     },
     {
       "id": 165,
-      "text": "Strip Curtain"
+      "text": "Curtain: Strip Curtain"
+    },
+    {
+      "id": 166,
+      "text": "Billboards and Adverts"
+    },
+    {
+      "id": 167,
+      "text": "Road Signs and Markings"
+    },
+    {
+      "id": 168,
+      "text": "Street Furniture"
+    },
+    {
+      "id": 169,
+      "text": "Market and Street Food"
+    },
+    {
+      "id": 170,
+      "text": "Playground and Sport"
+    },
+    {
+      "id": 171,
+      "text": "Ground Stains and Litter"
+    },
+    {
+      "id": 172,
+      "text": "Graffiti and Bullet Holes"
+    },
+    {
+      "id": 173,
+      "text": "Buildings and Ruins"
+    },
+    {
+      "id": 174,
+      "text": "Shadowrun Furniture"
+    },
+    {
+      "id": 175,
+      "text": "Chairs and Stools"
+    },
+    {
+      "id": 176,
+      "text": "Sofas and Benches"
+    },
+    {
+      "id": 177,
+      "text": "Tables"
+    },
+    {
+      "id": 178,
+      "text": "Desks and Office"
+    },
+    {
+      "id": 179,
+      "text": "Beds"
+    },
+    {
+      "id": 180,
+      "text": "Wardrobes, Cabinets and Drawers"
+    },
+    {
+      "id": 181,
+      "text": "Shelves and Bookcases"
+    },
+    {
+      "id": 182,
+      "text": "Counters and Bars"
+    },
+    {
+      "id": 183,
+      "text": "Cubicles and Partitions"
+    },
+    {
+      "id": 184,
+      "text": "Shadowrun Interior"
+    },
+    {
+      "id": 185,
+      "text": "Kitchen"
+    },
+    {
+      "id": 186,
+      "text": "Food and Drink"
+    },
+    {
+      "id": 187,
+      "text": "Bathroom and Cleaning"
+    },
+    {
+      "id": 188,
+      "text": "Rugs and Carpets"
+    },
+    {
+      "id": 189,
+      "text": "Lamps"
+    },
+    {
+      "id": 190,
+      "text": "Posters"
+    },
+    {
+      "id": 191,
+      "text": "Paintings, Notices and Mirrors"
+    },
+    {
+      "id": 192,
+      "text": "Statues and Ornaments"
+    },
+    {
+      "id": 193,
+      "text": "Books and Papers"
+    },
+    {
+      "id": 194,
+      "text": "Table and Personal Items"
+    },
+    {
+      "id": 195,
+      "text": "Games, Music and Toys"
+    },
+    {
+      "id": 196,
+      "text": "Planters and House Plants"
+    },
+    {
+      "id": 197,
+      "text": "Shadowrun Technology"
+    },
+    {
+      "id": 198,
+      "text": "Computers and Office Machines"
+    },
+    {
+      "id": 199,
+      "text": "Televisions and Screens"
+    },
+    {
+      "id": 200,
+      "text": "Consoles and Controls"
+    },
+    {
+      "id": 201,
+      "text": "Terminals and Phones"
+    },
+    {
+      "id": 202,
+      "text": "Medical and Laboratory"
+    },
+    {
+      "id": 203,
+      "text": "Industrial Machines and Tools"
+    },
+    {
+      "id": 204,
+      "text": "Robots and Droids"
+    },
+    {
+      "id": 205,
+      "text": "Parts and Components"
+    },
+    {
+      "id": 206,
+      "text": "Holograms and Force Fields"
+    },
+    {
+      "id": 207,
+      "text": "Shadowrun Containers"
+    },
+    {
+      "id": 208,
+      "text": "Lockers and Safes"
+    },
+    {
+      "id": 209,
+      "text": "Crates and Chests"
+    },
+    {
+      "id": 210,
+      "text": "Boxes and Cartons"
+    },
+    {
+      "id": 211,
+      "text": "Drums, Barrels and Tanks"
+    },
+    {
+      "id": 212,
+      "text": "Bags and Small Containers"
+    },
+    {
+      "id": 213,
+      "text": "Shadowrun Structure"
+    },
+    {
+      "id": 214,
+      "text": "Walls and Panels"
+    },
+    {
+      "id": 215,
+      "text": "Floors and Platforms"
+    },
+    {
+      "id": 216,
+      "text": "Ceilings, Canopies and Awnings"
+    },
+    {
+      "id": 217,
+      "text": "Pillars, Towers and Supports"
+    },
+    {
+      "id": 218,
+      "text": "Doors, Hatches and Windows"
+    },
+    {
+      "id": 219,
+      "text": "Stairs, Ladders and Lifts"
+    },
+    {
+      "id": 220,
+      "text": "Pipes, Ducts and Vents"
+    },
+    {
+      "id": 221,
+      "text": "Shadowrun Vehicles"
+    },
+    {
+      "id": 222,
+      "text": "Cars and Vans"
+    },
+    {
+      "id": 223,
+      "text": "Trucks, Buses and Work Vehicles"
+    },
+    {
+      "id": 224,
+      "text": "Bikes and Hover Vehicles"
+    },
+    {
+      "id": 225,
+      "text": "Military Vehicles and Mechs"
+    },
+    {
+      "id": 226,
+      "text": "Aircraft and Boats"
+    },
+    {
+      "id": 227,
+      "text": "Starships and Shuttles"
+    },
+    {
+      "id": 228,
+      "text": "Planets and Stations"
+    },
+    {
+      "id": 229,
+      "text": "Shadowrun Weapons and Bodies"
+    },
+    {
+      "id": 230,
+      "text": "Weapons and Ammunition"
+    },
+    {
+      "id": 231,
+      "text": "Turrets and Explosives"
+    },
+    {
+      "id": 232,
+      "text": "Bodies and Remains"
+    },
+    {
+      "id": 233,
+      "text": "Shadowrun Nature"
+    },
+    {
+      "id": 234,
+      "text": "Trees and Plants"
+    },
+    {
+      "id": 235,
+      "text": "Rocks, Fire and Smoke"
+    },
+    {
+      "id": 236,
+      "text": "Fantasy: Wooden Door, Strong"
+    },
+    {
+      "id": 237,
+      "text": "Fantasy: Wooden Door, Fancy"
+    },
+    {
+      "id": 238,
+      "text": "Fantasy: Portcullis"
+    },
+    {
+      "id": 239,
+      "text": "Fantasy: Portcullis, Raised"
+    },
+    {
+      "id": 240,
+      "text": "Fantasy: Iron Door, Rusted"
+    },
+    {
+      "id": 241,
+      "text": "Fantasy: Iron Door, Studded"
+    },
+    {
+      "id": 242,
+      "text": "Fantasy: Stone Door, Evil"
+    },
+    {
+      "id": 243,
+      "text": "Fantasy: Stone Door"
+    },
+    {
+      "id": 244,
+      "text": "Fantasy: Jewelled Door"
+    },
+    {
+      "id": 245,
+      "text": "Fantasy: Wooden Door, Weak"
+    },
+    {
+      "id": 246,
+      "text": "Sci-Fi: Force Field"
+    },
+    {
+      "id": 247,
+      "text": "Fantasy: Wooden Door, Plank"
+    },
+    {
+      "id": 248,
+      "text": "Fantasy: Wooden Door, Banded"
+    },
+    {
+      "id": 249,
+      "text": "Fantasy: Wooden Door, Heavy"
+    },
+    {
+      "id": 250,
+      "text": "Fantasy: Iron Grille Door"
+    },
+    {
+      "id": 251,
+      "text": "Fantasy: Stone Grille Door"
+    },
+    {
+      "id": 252,
+      "text": "Fantasy: Stone Door, Sliding"
+    },
+    {
+      "id": 253,
+      "text": "Fantasy: Iron Door, Barred"
+    },
+    {
+      "id": 254,
+      "text": "Utility: Transition, Invisible"
+    },
+    {
+      "id": 255,
+      "text": "Fantasy: Wooden Door, Iron Bands"
+    },
+    {
+      "id": 256,
+      "text": "Fantasy: Wooden Door, Window"
+    },
+    {
+      "id": 257,
+      "text": "Fantasy: Wooden Door, Skull"
+    },
+    {
+      "id": 258,
+      "text": "Fantasy: Wooden Door, Arched"
+    },
+    {
+      "id": 259,
+      "text": "Fantasy: Wooden Door, Carved"
+    },
+    {
+      "id": 260,
+      "text": "Fantasy: Mossy Stone Door"
+    },
+    {
+      "id": 261,
+      "text": "Curtain: Cloth, Hanging"
+    },
+    {
+      "id": 262,
+      "text": "Sci-Fi: Force Field 2"
+    },
+    {
+      "id": 263,
+      "text": "Utility: Transition, Invisible 2"
+    },
+    {
+      "id": 264,
+      "text": "Sci-Fi: Ship Door 1"
+    },
+    {
+      "id": 265,
+      "text": "Sci-Fi: Ship Door 2"
+    },
+    {
+      "id": 266,
+      "text": "Sci-Fi: Ship Door 3"
+    },
+    {
+      "id": 267,
+      "text": "Sci-Fi: Ship Door 4"
+    },
+    {
+      "id": 268,
+      "text": "Sci-Fi: Ship Door 5"
+    },
+    {
+      "id": 269,
+      "text": "Garage: Bay Door, Roll-Up"
+    },
+    {
+      "id": 270,
+      "text": "Shop: Sliding Glass Doors"
+    },
+    {
+      "id": 271,
+      "text": "Industrial: Elevator Doors, Steel"
+    },
+    {
+      "id": 272,
+      "text": "Shop: Wood and Glass Double Door"
+    },
+    {
+      "id": 273,
+      "text": "Utility: Manhole Cover"
+    },
+    {
+      "id": 274,
+      "text": "Utility: Glass Window"
+    },
+    {
+      "id": 275,
+      "text": "Gate: Bar Pull Gate"
+    },
+    {
+      "id": 276,
+      "text": "Fantasy: Wooden Double Door"
+    },
+    {
+      "id": 277,
+      "text": "Fantasy: Stone Mechanism Door"
+    },
+    {
+      "id": 278,
+      "text": "Fantasy: Mimosa Vine Door"
+    },
+    {
+      "id": 279,
+      "text": "Fantasy: Folding Lattice Door"
+    },
+    {
+      "id": 280,
+      "text": "Fantasy: Drow Crystal Door"
+    },
+    {
+      "id": 281,
+      "text": "Fantasy: Beholder Eye Door"
+    },
+    {
+      "id": 282,
+      "text": "Fantasy: Barrel Door"
+    },
+    {
+      "id": 283,
+      "text": "Sci-Fi: Laboratory Door"
+    },
+    {
+      "id": 284,
+      "text": "Fantasy: Lantern Door"
+    },
+    {
+      "id": 285,
+      "text": "Industrial: Grated Steel Door"
+    },
+    {
+      "id": 286,
+      "text": "Sci-Fi: Lit Panel Door"
+    },
+    {
+      "id": 287,
+      "text": "Sci-Fi: Steel Pod Door"
+    },
+    {
+      "id": 288,
+      "text": "Sci-Fi: White Panel Door"
+    },
+    {
+      "id": 289,
+      "text": "Sci-Fi: Laboratory Door, Amber Glass"
+    },
+    {
+      "id": 290,
+      "text": "Industrial: Elevator Doors, Facility"
+    },
+    {
+      "id": 291,
+      "text": "Home: Front Door, Green"
+    },
+    {
+      "id": 292,
+      "text": "Home: Front Door, Red"
+    },
+    {
+      "id": 293,
+      "text": "Home: Double Front Door, Green"
+    },
+    {
+      "id": 294,
+      "text": "Home: Double Front Door, Red"
+    },
+    {
+      "id": 295,
+      "text": "Home: Screen Door"
+    },
+    {
+      "id": 296,
+      "text": "Shop: Glass Door, White Frame"
+    },
+    {
+      "id": 297,
+      "text": "Shop: Glass Double Door, White Frame"
+    },
+    {
+      "id": 298,
+      "text": "Shop: Glass Door, Dark Frame"
+    },
+    {
+      "id": 299,
+      "text": "Shop: Glass Double Door, Dark Frame"
+    },
+    {
+      "id": 300,
+      "text": "Shop: Sliding Glass Door, Mullioned"
+    },
+    {
+      "id": 301,
+      "text": "Utility: Manhole Cover, Street"
+    },
+    {
+      "id": 302,
+      "text": "Gate: Fence Gate"
+    },
+    {
+      "id": 303,
+      "text": "Home: Front Door, Old"
+    },
+    {
+      "id": 304,
+      "text": "Home: Double Front Door, Old"
+    },
+    {
+      "id": 305,
+      "text": "Home: Front Door, White"
+    },
+    {
+      "id": 306,
+      "text": "Home: Double Front Door, White"
+    },
+    {
+      "id": 307,
+      "text": "Home: French Door, Wood"
+    },
+    {
+      "id": 308,
+      "text": "Home: French Double Door, Wood"
+    },
+    {
+      "id": 309,
+      "text": "Home: French Door, Dark Red"
+    },
+    {
+      "id": 310,
+      "text": "Home: French Double Door, Dark Red"
+    },
+    {
+      "id": 311,
+      "text": "Garage: Fire Station Door, Red"
+    },
+    {
+      "id": 312,
+      "text": "Garage: Double Garage Door, White"
+    },
+    {
+      "id": 313,
+      "text": "Garage: Garage Door, White"
+    },
+    {
+      "id": 314,
+      "text": "Garage: Double Garage Door, Old"
+    },
+    {
+      "id": 315,
+      "text": "Garage: Garage Door, Old"
+    },
+    {
+      "id": 316,
+      "text": "Garage: Double Garage Door, Green"
+    },
+    {
+      "id": 317,
+      "text": "Garage: Garage Door, Green"
+    },
+    {
+      "id": 318,
+      "text": "Garage: Double Garage Door, Cream"
+    },
+    {
+      "id": 319,
+      "text": "Garage: Garage Door, Cream"
+    },
+    {
+      "id": 320,
+      "text": "Industrial: Back Door, Grey"
+    },
+    {
+      "id": 321,
+      "text": "Industrial: Back Door, Green"
+    },
+    {
+      "id": 322,
+      "text": "Industrial: Back Door, Plain"
+    },
+    {
+      "id": 323,
+      "text": "Office: Panel Door, Green"
+    },
+    {
+      "id": 324,
+      "text": "Office: Panel Door, Grey"
+    },
+    {
+      "id": 325,
+      "text": "Home: House Door, Green with Window"
+    },
+    {
+      "id": 326,
+      "text": "Home: House Door, Grey with Window"
+    },
+    {
+      "id": 327,
+      "text": "Home: House Door, Cream with Window"
+    },
+    {
+      "id": 328,
+      "text": "Office: Panel Door, Brown"
+    },
+    {
+      "id": 329,
+      "text": "Office: Panel Door, White"
+    },
+    {
+      "id": 330,
+      "text": "Office: Panel Door, Red"
+    },
+    {
+      "id": 331,
+      "text": "Home: Panel Door, Old White"
+    },
+    {
+      "id": 332,
+      "text": "Home: Panel Door, Green"
+    },
+    {
+      "id": 333,
+      "text": "Gate: Spiked Iron Gate, Black"
+    },
+    {
+      "id": 334,
+      "text": "Office: Glass Door, Steel Frame"
+    },
+    {
+      "id": 335,
+      "text": "Office: Door, Dark Red"
+    },
+    {
+      "id": 336,
+      "text": "Office: Door, Dark Red, Double"
+    },
+    {
+      "id": 337,
+      "text": "Office: Door with Window, Wood"
+    },
+    {
+      "id": 338,
+      "text": "Office: Door, Wood"
+    },
+    {
+      "id": 339,
+      "text": "Office: Door with Window, Blue"
+    },
+    {
+      "id": 340,
+      "text": "Office: Door, Blue"
+    },
+    {
+      "id": 341,
+      "text": "Office: Door, Plain"
+    },
+    {
+      "id": 342,
+      "text": "Office: Door, Plain, Double"
+    },
+    {
+      "id": 343,
+      "text": "Industrial: Elevator Doors, Office"
+    },
+    {
+      "id": 344,
+      "text": "Industrial: Iron Door, Rusted"
+    },
+    {
+      "id": 345,
+      "text": "Curtain: Cloth Curtain 1"
+    },
+    {
+      "id": 346,
+      "text": "Curtain: Cloth Curtain 2"
+    },
+    {
+      "id": 347,
+      "text": "Curtain: Cloth Curtain 3"
+    },
+    {
+      "id": 348,
+      "text": "Curtain: Cloth Curtain 4"
+    },
+    {
+      "id": 349,
+      "text": "Curtain: Cloth Curtain 5"
+    },
+    {
+      "id": 350,
+      "text": "Curtain: Cloth Curtain 6"
+    },
+    {
+      "id": 351,
+      "text": "Office: Double Door, Frosted Glass"
+    },
+    {
+      "id": 352,
+      "text": "Office: Double Door, Red Glass"
+    },
+    {
+      "id": 353,
+      "text": "Gate: Wooden Fence Gate"
+    },
+    {
+      "id": 354,
+      "text": "Sci-Fi: Alien Door 1"
+    },
+    {
+      "id": 355,
+      "text": "Sci-Fi: Alien Door 2"
+    },
+    {
+      "id": 356,
+      "text": "Sci-Fi: Alien Door 3"
+    },
+    {
+      "id": 357,
+      "text": ""
+    },
+    {
+      "id": 358,
+      "text": ""
+    },
+    {
+      "id": 359,
+      "text": ""
+    },
+    {
+      "id": 360,
+      "text": ""
+    },
+    {
+      "id": 361,
+      "text": ""
+    },
+    {
+      "id": 362,
+      "text": ""
+    },
+    {
+      "id": 363,
+      "text": ""
+    },
+    {
+      "id": 364,
+      "text": ""
+    },
+    {
+      "id": 365,
+      "text": ""
+    },
+    {
+      "id": 366,
+      "text": ""
+    },
+    {
+      "id": 367,
+      "text": "Fantasy: Temple Door, Dark"
+    },
+    {
+      "id": 368,
+      "text": "Fantasy: Temple Door, Light"
     }
   ]
 }

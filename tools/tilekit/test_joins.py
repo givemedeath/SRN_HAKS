@@ -45,6 +45,18 @@ class Cutting(unittest.TestCase):
         for triangle in joins.ramp(high):
             np.testing.assert_allclose(triangle[:, 2], np.clip(-triangle[:, 1] / joins.RAMP, 0, 1), atol=1e-9)
 
+    def test_a_sliver_with_no_area_is_left_out_and_ends(self):
+        whole = np.array([[0, 0, 0, 4, 0], [2, 0, 0, 4, 0], [0, 2, 0, 4, 0]], float)
+        sliver = np.array([[0, 0, 0, 4, 0], [2, 0, 0, 4, 0], [1, 0, 0, 4, 0]], float)  # three corners on one line, one of them on its own other edges
+        vertices, faces = joins.conformed([whole, sliver, np.array([[1, 0, 0, 4, 0], [2, 0, 0, 4, 0], [1, -1, 0, 4, 0]], float)])
+        self.assertEqual(len(faces), 3)  # the whole face split at (1, 0), and the face below it; the sliver gone
+
+    def test_two_corners_a_millimetre_apart_split_once(self):
+        far = np.array([[4.9, 5.0, 5, 4, 0], [-2.001, 4.8, 5, 4, 0], [-4.8, 4.8, 5, 4, 0]], float)
+        near = np.array([[-4.8, 4.8, 5, 4, 0], [-2.0, 4.8, 5, 4, 0], [-2.001, 4.8, 5, 4, 0]], float)
+        vertices, faces = joins.conformed([far, np.array([[-2.0, 4.8, 5, 4, 0], [4.9, 4.8, 5, 4, 0], [4.9, 5.0, 5, 4, 0]], float), near])
+        self.assertLessEqual(len(faces), 4)
+
     def test_walk_faces_share_every_corner_along_a_cut(self):
         split = joins._half(SQUARE, (0, -5), (0, 5)) + joins._half(joins._half(SQUARE, (0, -5), (0, 5), False), (-5, 2), (5, 2)) \
             + joins._half(joins._half(SQUARE, (0, -5), (0, 5), False), (-5, 2), (5, 2), False)
