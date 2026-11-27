@@ -80,6 +80,10 @@ class AccessoryBriefTests(unittest.TestCase):
 class BeltTests(unittest.TestCase):
     def test_a_tilted_hoop_is_stood_level(self):
         v, f = tube(0.2, -0.02, 0.02)
+        # turned a third of a direction off the 96 the fit reads in: on their lines, which ring of a column fell in
+        # which direction was the platform's rounding, and Linux read the band 2 mm off (CI, 2026-11-27)
+        spin = 2 * np.pi / accessory.DIRECTIONS / 3
+        v = v @ np.array([[np.cos(spin), -np.sin(spin), 0], [np.sin(spin), np.cos(spin), 0], [0, 0, 1]]).T
         lean = np.radians(20)
         turn = np.array([[1, 0, 0], [0, np.cos(lean), -np.sin(lean)], [0, np.sin(lean), np.cos(lean)]])
         levelled, _ = accessory.level(v @ turn.T + [0.3, 0.1, 0.5], f)

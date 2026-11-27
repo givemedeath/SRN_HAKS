@@ -122,9 +122,9 @@ def level(vertices, faces, rounds=30):
     low, high = np.full(DIRECTIONS, np.inf), np.full(DIRECTIONS, -np.inf)
     np.minimum.at(low, way, stood[:, 2])
     np.maximum.at(high, way, stood[:, 2])
-    held = np.isfinite(low)
-    band = held & (high - low <= np.percentile((high - low)[held], 20))
-    stood[:, 2] -= float(np.median(((low + high) / 2)[band]))
+    span = np.where(np.isfinite(low), high - low, np.nan)
+    band = _band(span)
+    stood[:, 2] -= float(np.median((low[band] + high[band]) / 2))
     return stood, turn
 
 
@@ -154,6 +154,20 @@ def _filled(values):
     return np.interp(index, np.concatenate([index[known] - len(values), index[known], index[known] + len(values)]), np.tile(values[known], 3))
 
 
+SLIVER = 0.5  # of the median span: a direction a hoop spans less than this holds an edge of it only (`_band`)
+
+
+def _band(span):
+    """Of the directions round a hoop, given how far it spans in each (NaN where it has no surface), the fifth in
+    which it spans least, leaving out those it spans less than `SLIVER` of the median: there a direction holds
+    the vertices of one edge alone, a ring's few points that fell over a bin's line, and spans nothing. Taken
+    for the band, a tube's top ring read as its middle and stood it 2 mm low (CI, Linux, 2026-11-27)."""
+    held = np.isfinite(span)
+    full = held & (span >= SLIVER * np.median(span[held]))
+    full = full if full.any() else held
+    return full & (span <= np.percentile(span[full], 20))
+
+
 def strap(points):
     """(low, high): the heights a hoop's strap lies between, pouches apart: the middle of where its surface begins and
     ends in the fifth of the directions round its axis in which it spans least."""
@@ -161,9 +175,7 @@ def strap(points):
     low_at, high_at = np.full(DIRECTIONS, np.inf), np.full(DIRECTIONS, -np.inf)
     np.minimum.at(low_at, way, points[:, 2])
     np.maximum.at(high_at, way, points[:, 2])
-    known = np.isfinite(low_at)
-    span = np.where(known, high_at - low_at, np.inf)
-    least = known & (span <= np.percentile(span[known], 20))
+    least = _band(np.where(np.isfinite(low_at), high_at - low_at, np.nan))
     return float(np.median(low_at[least])), float(np.median(high_at[least]))
 
 
