@@ -1,6 +1,6 @@
 {
  "tileset": "srx02",
- "status": "release C pilot pass 2 (2026-11-26, user: scan replaces the picture): review overlay only",
+ "status": "release C rollout (2026-11-26, user: \"Yes, fix and roll out\"): review overlay",
  "before": "ea45bc809",
  "packs": [
   "srn_t_udp2",
@@ -41,6 +41,16 @@
     0.98,
     0.99,
     1.01
+   ]
+  },
+  "ceiling": {
+   "saturation": 0.25,
+   "contrast": 1.0,
+   "gain": 1.0,
+   "tint": [
+    1.0,
+    1.0,
+    1.0
    ]
   }
  },
@@ -371,15 +381,14 @@
    "grain": 2.5
   },
   "nac_sheet": {
-   "route": "master",
-   "master": "MetalPlates013",
-   "repeat": 1,
-   "tone": 1.0,
+   "route": "upscale",
    "grade": "duct",
    "size": [
     512,
     512
-   ]
+   ],
+   "relief": 1.5,
+   "roughness": 0.6
   },
   "flexpipe": {
    "route": "layout",
@@ -406,15 +415,14 @@
    "grain": 2.0
   },
   "nac_sheet5": {
-   "route": "master",
-   "master": "MetalPlates013",
-   "repeat": 1,
-   "tone": 1.0,
+   "route": "upscale",
    "grade": "duct",
    "size": [
     512,
     512
-   ]
+   ],
+   "relief": 1.5,
+   "roughness": 0.6
   },
   "srx02_clgconc": {
    "route": "master",
@@ -431,9 +439,9 @@
   "srx02_clgplas": {
    "route": "master",
    "master": "PaintedPlaster017",
-   "repeat": 1,
+   "repeat": 3,
    "tone": 1.0,
-   "grade": "interior",
+   "grade": "ceiling",
    "size": [
     1024,
     1024
@@ -443,9 +451,9 @@
   "srx02_clgplst": {
    "route": "master",
    "master": "PaintedPlaster017",
-   "repeat": 1,
+   "repeat": 3,
    "tone": 1.0,
-   "grade": "interior",
+   "grade": "ceiling",
    "size": [
     1024,
     1024
@@ -487,6 +495,710 @@
     1024
    ],
    "over": true
+  },
+  "udp2_w_vent": {
+   "route": "layout",
+   "master": "PaintedPlaster017",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_w_sid2": {
+   "route": "master",
+   "master": "CorrugatedSteel007A",
+   "repeat": 2,
+   "tone": 1.0,
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ],
+   "turn": true
+  },
+  "udp2_flr_til3": {
+   "route": "layout",
+   "master": "Tiles107",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_cnc_str": {
+   "route": "layout",
+   "master": "Concrete034",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "udp2_cnc_pl": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "udp2-elev1": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "stem": "udp2_elev1"
+  },
+  "udp2-marble2": {
+   "route": "master",
+   "master": "Marble012",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true,
+   "stem": "udp2_marble2"
+  },
+  "udp2_p_cab1": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_w_sid1": {
+   "route": "master",
+   "master": "CorrugatedSteel007A",
+   "repeat": 2,
+   "tone": 1.0,
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ],
+   "turn": true
+  },
+  "udp2_p_for3": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "udp2_p_gry": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "udp2_p_garbage": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_p_sstl2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_p_appl": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_p_cfem": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "udp2_p_trash": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "udp2_p_cfep": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tfb_subwayf1": {
+   "route": "master",
+   "master": "Concrete034",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_door2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb_subwayw1": {
+   "route": "layout",
+   "master": "Tiles107",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_wallbrick": {
+   "route": "layout",
+   "master": "PaintedPlaster017",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true,
+   "stem": "tfb01_wallbrk"
+  },
+  "tfb_subwayw2": {
+   "route": "layout",
+   "master": "Tiles107",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ],
+   "over": true
+  },
+  "tfb01_innrug": {
+   "route": "layout",
+   "master": "Carpet012",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 1.5,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_rock1": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_door065": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01__metal01": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_floortran4": {
+   "route": "layout",
+   "master": "Concrete034",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true,
+   "stem": "tfb01_flrtran4"
+  },
+  "tfb01_post": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb_subwayf2": {
+   "route": "layout",
+   "master": "Concrete048",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ],
+   "over": true
+  },
+  "tfb01_creats": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_irony": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_seat": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb_subwayw4": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_shp": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_shpflr2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_cloack": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_sac": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb_subwayw3": {
+   "route": "master",
+   "master": "Concrete047A",
+   "repeat": 1,
+   "tone": 1.0,
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ],
+   "over": true
+  },
+  "tfb01_shelf2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_velvet": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_dirt": {
+   "route": "layout",
+   "master": "Concrete048",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_deco": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_metaldoor": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true,
+   "stem": "tfb01_mtldoor"
+  },
+  "tfb01_floor01": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_bed02": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_books": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_hey2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ],
+   "over": true
+  },
+  "tfb01_floortran2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true,
+   "stem": "tfb01_flrtran2"
+  },
+  "tfb01_transp": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ],
+   "over": true
+  },
+  "tfb01_flower2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    512,
+    512
+   ],
+   "over": true
+  },
+  "tfb01_fire": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb_rust1": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_bark01": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb_stone01": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_paint04": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_book2": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tfb01_plates": {
+   "route": "upscale",
+   "grade": "interior",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tbx78_metal1": {
+   "route": "layout",
+   "master": "Rust009",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "tbx78_door01": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "tbx78_lights": {
+   "route": "upscale",
+   "grade": "facility",
+   "size": [
+    1024,
+    1024
+   ],
+   "over": true
+  },
+  "tbx78_door02": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "tbx78_lstrip": {
+   "route": "upscale",
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "tbx78_mtlwrst": {
+   "route": "layout",
+   "master": "MetalPlates013",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "tbx78_metal3": {
+   "route": "layout",
+   "master": "DiamondPlate008A",
+   "repeat": 1,
+   "keep": 8,
+   "grain": 2.0,
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "tbx78_wall02": {
+   "route": "upscale",
+   "grade": "facility",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "tbx78_vent1": {
+   "route": "upscale",
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "tbx78_cntrl1": {
+   "route": "upscale",
+   "grade": "facility",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "vents": {
+   "route": "upscale",
+   "grade": "duct",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "grillarray": {
+   "route": "upscale",
+   "grade": "duct",
+   "size": [
+    1024,
+    1024
+   ]
+  },
+  "nac_sheet2": {
+   "route": "upscale",
+   "grade": "duct",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "service_plate": {
+   "route": "upscale",
+   "grade": "duct",
+   "size": [
+    512,
+    512
+   ]
+  },
+  "ac_fan": {
+   "route": "upscale",
+   "grade": "duct",
+   "size": [
+    1024,
+    1024
+   ]
   }
  }
 }
