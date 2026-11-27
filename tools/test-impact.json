@@ -6725,9 +6725,13 @@
       "srn_t_common",
       "srn_t_dgt04",
       "srn_t_fcx01",
+      "srn_t_nac01",
       "srn_t_srx01",
       "srn_t_srx02",
-      "srn_t_udp1"
+      "srn_t_tbx78",
+      "srn_t_tfb01",
+      "srn_t_udp1",
+      "srn_t_udp2"
     ],
     "tools/tilekit/test_crown.py": [
       "srn_t_common"

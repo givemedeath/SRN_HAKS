@@ -698,6 +698,12 @@ new look too.
   their own loop flags (`Tile_AnimLoopN`), copied from the set file when painted. **Mistake, guarded:** a `sed` copy
   of srx02.set lost its CRLF line ends and the client fell over loading the area, which looked like a loop crash;
   `review` now refuses an overlay set file with bare LF lines.
+- **Adoption (2026-11-27, user: "Yes").** `compile --adopt` for `srn_t_nac01` (17), `srn_t_tbx78` (90), `srn_t_udp2`
+  and `srn_t_tfb01`: the four packs ship compiled, ASCII in `sources/`. Refused at first: 24 office tiles with
+  repeated node names (`beam`, `crown`), fixed by `tilekit unique --pack srn_t_udp2` (4,201 nodes renamed); 35
+  home tiles whose modeller loops (`animloop01`) carry plain material lines the compiler leaves out, stripped from
+  21 sources (constants that animate nothing). Walkmeshes as their baselines, all 446 switched tiles still
+  switched, rooms and joins rebuilt; the client shows the rooms lit and switched off as before.
 - **Applied (2026-11-27, user: "Yes, apply").** `tilekit apply` of `materials-c.json` over `c-overlay` (616 files put
   in seven packs, 35 old copies deleted, 55 expected overrides) and of the `c-ceil` ceilings (329 tfb01 models);
   srx02's compiled tiles recompiled for the new materials. Walkmeshes as their baselines; the passage joins and the
