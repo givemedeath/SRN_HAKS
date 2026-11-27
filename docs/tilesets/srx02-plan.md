@@ -688,6 +688,18 @@ new look too.
     `SetTileMainLightColor` (off: black) and one `RecomputeStaticLighting(area)` after; instructions for SR_NWN in
     a doc beside the tileset's, as armorkit's `sr-nwn-instructions.md`.
 
+## Release D: caves and tunnels (user, 2026-11-27)
+
+After release C (user: "release D after C"). A cave and tunnel family appended to srx02 (tile numbers after
+nac01's), joined to tbx78's facility corridor. The user asked for a set that "already has sculpted tunnels and/or
+caverns with no need to create a lot of ceilings", the SWLOR haks included.
+- Seen and set aside: base Mines and Caverns `tdm01` and Steamworks `tsw01` (both open overhead; review specs
+  `review-tdm01.json`, `review-tsw01.json`).
+- Surveyed in SWLOR_Haks: every SWLOR cave set is a base-game set (tdm01, tds01, tib01, tii01, tdt01, tbw01) or its
+  CEP extension (zdm01, zib01), an exterior (Underdark `ttu01`, Planetscape `vmp01`), or the D20 Bunker `fifi`
+  already in this repository. Candidates captured eye level, tilted up: `tdt01`, `tib01`, `tbw01`, `tii01`, `fifi`
+  (`review-<set>.json`).
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record

@@ -1,0 +1,156 @@
+{
+ "tileset": "tib01",
+ "base": [
+  "tib01"
+ ],
+ "note": "release D: closed cave candidates (user, 2026-11-27: sculpted tunnels/caverns, few ceilings to add)",
+ "haks": [
+  "srn_2da"
+ ],
+ "block": {
+  "width": 13,
+  "height": 9,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "runs": [
+   {
+    "crosser": "Corridor",
+    "cells": [
+     [
+      0,
+      6
+     ],
+     [
+      12,
+      6
+     ]
+    ]
+   },
+   {
+    "crosser": "Corridor",
+    "cells": [
+     [
+      3,
+      0
+     ],
+     [
+      3,
+      8
+     ]
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "Pit Room",
+    "at": [
+     6,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Pillar Room",
+    "at": [
+     9,
+     1
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "eye-room",
+     "at": [
+      7.5,
+      2.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-pillars",
+     "at": [
+      10.5,
+      2.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-tunnel",
+     "at": [
+      1.5,
+      6.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-cross",
+     "at": [
+      3.5,
+      6.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird",
+     "at": [
+      6.5,
+      4.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 34,
+     "height": 1.0,
+     "pitches": [
+      50
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": []
+ }
+}

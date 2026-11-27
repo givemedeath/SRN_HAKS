@@ -1,0 +1,160 @@
+{
+ "tileset": "fifi",
+ "note": "release D: closed cave candidates (user, 2026-11-27: sculpted tunnels/caverns, few ceilings to add)",
+ "haks": [
+  "srn_2da",
+  "srn_t_fifi"
+ ],
+ "block": {
+  "width": 13,
+  "height": 9,
+  "lights": [
+   "day"
+  ],
+  "patches": [
+   {
+    "terrain": "Bunker1",
+    "at": [
+     1,
+     1
+    ],
+    "size": [
+     3,
+     3
+    ]
+   },
+   {
+    "terrain": "Bunker2",
+    "at": [
+     6,
+     1
+    ],
+    "size": [
+     3,
+     3
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "Tunnel1",
+    "cells": [
+     [
+      0,
+      6
+     ],
+     [
+      12,
+      6
+     ]
+    ]
+   },
+   {
+    "crosser": "Tunnel2",
+    "cells": [
+     [
+      11,
+      0
+     ],
+     [
+      11,
+      8
+     ]
+    ]
+   }
+  ],
+  "groups": [],
+  "crossings": [],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "eye-bunker",
+     "at": [
+      2.5,
+      2.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-bunker2",
+     "at": [
+      7.5,
+      2.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-tunnel",
+     "at": [
+      5.5,
+      6.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-tunnel2",
+     "at": [
+      11.5,
+      3.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird",
+     "at": [
+      6.5,
+      4.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 34,
+     "height": 1.0,
+     "pitches": [
+      50
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": []
+ }
+}
