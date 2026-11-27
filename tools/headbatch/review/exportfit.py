@@ -7,7 +7,7 @@ import numpy as np
 from headbatch.head_files import fit_matrix, read
 from headkit.common import require, sha
 from headkit.native import troll_build_allowance
-from headkit.race_sizing import config, factor, standard
+from headkit.race_sizing import config, factor, fit_align, standard
 
 
 def pinned(head, manifest, role):
@@ -37,7 +37,7 @@ def check(head, attempt):
         require(isinstance(race, dict) and race['policy']['sha256'] == manifest['inputs']['raceHeadStandard']['sha256'],
                 'Export used a different race head standard')
         _, row = standard(policy, model)
-        scale, _ = factor(row, config(manifest['raceSizing']), manifest['fit'].get('align', 'profile'),
+        scale, _ = factor(row, config(manifest['raceSizing']), fit_align(manifest['fit']),
                           pinned(head, manifest, 'fitReference'), model[:4])
         pivot = np.asarray(race['pivot'], float)
         require(race['scale'] == scale and race['pivotRule'] == row['pivot'] and pivot[0] == pivot[1] == 0

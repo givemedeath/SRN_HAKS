@@ -100,9 +100,9 @@ def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inpu
     race=None
     if race_inputs is not None:
         # After the Troll allowance: the race standard's factor was measured on heads that already carried it.
-        from .race_sizing import apply
+        from .race_sizing import apply,fit_align
         policy,override,reference=race_inputs
-        points,matrix,race=apply(policy,override,model,fit.get('align','profile'),reference,points,matrix,uv,layers)
+        points,matrix,race=apply(policy,override,model,fit_align(fit),reference,points,matrix,uv,layers)
     # One PLT covers all surfaces, including independently reviewed accessory channels.
     payload=head_export.plt_bytes(shades,layers)
     material = material_binding(material_policy, model, np.unique(layers))

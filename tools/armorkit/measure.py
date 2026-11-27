@@ -406,7 +406,7 @@ def sha(path):
 def seam_contract(body_folder, supermodel_folders, bodies=registry.BODIES, design_bend='p95'):
     """The seam contract document, measured from the body pack and the animation models the bodies inherit: every
     one of the 20 bodies, each on its own models and the clips it plays (version 4; the two Human Fit bodies
-    alone through version 3; version 5 re-measures the c8 Human necks)."""
+    alone through version 3; version 5 re-measures the c8 Human necks, version 6 the c8 necks of the other races)."""
     body_folder = Path(body_folder)
     document = {'schemaVersion': 1, 'kind': seams.KIND, 'version': 6, 'units': 'metres', 'directions': seams.DIRECTIONS,
                 'tierOffsets': {str(tier): offset for tier, offset in seams.TIER_OFFSETS.items()},

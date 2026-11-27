@@ -36,7 +36,10 @@ scales: [race-necks/release-1.7.0.json](race-necks/release-1.7.0.json).
 
 Rollback is contract 1.6.0: restore the 28 body files and 56 head models from 1.6.0 (hashes in the receipt), this
 contract, the two armorkit measurement files and the seam contract version (5) in `tools/armorkit/measure.py` and
-`test_seams.py`.
+`test_seams.py`. Verify the rolled-back `srn_head.hak` without the 1.7.0 receipt (`publish_library.py verify` requires the
+latest bytes of every `--revision` it is given). `docs/heads/race-head-standard-v1.json` was measured on the 1.7.0
+library: retire it (or remove `raceSizing` from new manifests) with the rollback, or new heads are sized to heads no
+longer published.
 
 ## Release 1.6.0: the c8 Human necks
 

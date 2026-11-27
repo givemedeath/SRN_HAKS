@@ -93,7 +93,8 @@ shows through a head. The pale patch at the nape of Troll male 009 and the dark 
 020 are those heads' own textures. Sheets: [client-1.jpg](race-necks/evidence/client-1.jpg),
 [client-2.jpg](race-necks/evidence/client-2.jpg).
 
-These are the in-game checks run here; the heads still need the user's look in game.
+The user confirmed the heads after these checks (2026-11-27, "Yes, update headkit"); headkit now applies the same
+corrections to new heads ([race-head-standard-v1](../heads/race-head-standard-v1.md)).
 
 ## Known limits
 

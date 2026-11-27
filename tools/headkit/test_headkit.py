@@ -5071,6 +5071,14 @@ class RaceSizingTests(unittest.TestCase):
         *_,record=self.apply('pfh0_head040','inputs/fit-reference-pfh0_head024.mdl')
         self.assertEqual((record['scale'],record['faceCheck']),(1.0,'within the library band'))
 
+    def test_landmark_solved_fits_keep_their_scale(self):
+        from headkit.race_sizing import fit_align
+        self.assertEqual(fit_align({'landmarks':[{'sourceNwnBasis':[0,0,0],'targetNwnLocal':[0,0,0]}]}),'landmarks')
+        self.assertEqual(fit_align({'align':'nose','landmarks':{'base':'pfe0'}}),'landmarks')
+        self.assertEqual((fit_align({'align':'nose'}),fit_align({'matrix':[]})),('nose','profile'))
+        *_,record=self.apply('pfe0_head030','inputs/fit-reference-pfe0_head021.mdl',align=fit_align({'landmarks':[]}))
+        self.assertEqual(record['scale'],1.0)
+
     def test_manifest_setting_is_validated(self):
         from headkit.race_sizing import config
         for bad in ('troll-build-allowance-r3',{'policy':'race-head-standard-v1','factor':1.1},{'policy':'race-head-standard-v1','factor':2,'reason':'x'},

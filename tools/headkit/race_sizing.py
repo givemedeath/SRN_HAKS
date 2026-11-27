@@ -86,6 +86,12 @@ def face(points, uv, layers):
     return result
 
 
+def fit_align(fit):
+    """The alignment a fit used: a fit solved from landmarks (fit.landmarks, as a reviewed landmark config or as measured
+    source/target rows) is a landmark fit whatever fit.align says, and keeps its scale."""
+    return 'landmarks' if fit.get('landmarks') is not None or fit.get('align') == 'landmarks' else fit.get('align', 'profile')
+
+
 def factor(row, override, align, reference, prefix):
     if 'factor' in override:
         return float(override['factor']), 'reviewed override: '+override['reason']
