@@ -551,6 +551,29 @@ the female has no chest of her own), `--only` the 18 race bodies, three at a tim
   holes, skin where cloth belongs or open seams; sleeves, waist and boots hold in all six poses. The pmd2
   shoulders run lost shots 22 and 23 to a stalled client; its realistic body sheet covers the same poses.
 
+### 2026-11-27: Street Casual published at 3010
+
+User: "Yes, publish." The outfit and its belt at 3010, set `street-casual`, group `street`, civilian family
+(set and group names are mine; the user gave none).
+
+* Baked again at 3010 (`publish-3010`). The female side comes from `female-14-refit`, the female the user
+  saw (`publish-3010-f`): refit from the male again with today's code, the Troll Fit female's sleeve cap
+  stood 5 mm out at the shoulder, a route not taken further. Belts fitted on each, all pass.
+* Publication gates found three things, fixed: a brief's material drawn only on a bare slot (the gloves, cut
+  off with the hands) is no longer read as a wrong brief; the registry's channels per part as the textures
+  have them; the Troll Large male's neck 2 mm through his shirt below the collar, cut after the refit had
+  lifted the chest: the bake now lifts its cut collar over the neck as the publication reads it (pmg2 baked
+  again, `publish-3010-g`). The old hanging test still expected pouches pushed out over the thighs and now
+  holds them as drawn.
+* Trial publication (`output/armorkit/street-casual-trial-1`) passed; its packs worn in the client
+  (`wear-trial-1`, six bodies in contrasting colours; `wear-trial-1-real`, both Humans in realistic ones):
+  outfit, belt and boots from the packs, nothing missing. The item's examine window is black, as known.
+* Published with `--build`: 7 new parts, 503 files in `srn_parts` (379 MB), row 3010 in seven tables,
+  registry, handoff and copies; `PROVENANCE.md` entry. `Test-Repository.ps1 -ChangedSince main` passed.
+  `srn_parts.hak` is 968 MB, under the 1.5 GB split line.
+* c8 bodies (PR 206, the female neck) are not in this branch; when they land the outfit's neck and
+  shoulders need a fit check on them.
+
 ## Revision 2026-11-24: jackets are separate, fully skinned robe-slot parts (user decision)
 
 The user decided that jackets are made as their own parts on the robe slot, and, offered sleeves on the rigid

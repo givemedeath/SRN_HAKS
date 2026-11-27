@@ -2257,6 +2257,40 @@ pinned generation records and the logo's material, parameter and cells are in
 publication; both files have changed since. Raw references, generation outputs, fits and
 trial packs stay in ignored `output/armorkit/` and are not redistributed.
 
+## Street Casual outfit and belt (`srn_parts`, `srn_2da`; 2026-11-26)
+
+Street Casual joins `srn_parts` at part number 3010 (set `street-casual`, group
+`street`, civilian family): T-shirt, cargo trousers and boots as chest, upper arms,
+pelvis, thighs, shins and feet, and a leather belt with two hip pouches on the belt
+slot, each on all 20 SRN bodies. Forearms and hands are left to the body, and the
+upper-arm parts share their slot with the body's own skin, copied from `srn_body` and
+`srn_body_tex` (see "PhenoMorpher reviewed body phenotypes").
+
+The outfit's brief is `tools/armorkit/briefs/street-casual-typed.json` (model
+`street-casual-typed`) and the belt's `tools/armorkit/briefs/street-casual-belt.json`
+(model `street-casual-belt`). Each reference image was generated locally from its
+brief's prompt with the Flux.2 image model in the shared ComfyUI (profile
+`flux2-turbo-v1`); geometry and appearance were generated locally from those images
+with Pixal3D (`pixal3d_int8_convrot`, Trellis 2 shape VAE, DINOv3 image encoder) in
+the same ComfyUI, one geometry submission per model. No third-party generation service
+was used.
+
+Local processing cut the outfit into the parts a body wears, fitted them to the seam
+contract, reduced them, baked tint, normal and roughness textures and compiled the
+models for NWN:EE; light wear is drawn into the tint textures by the bake. The Human
+male wears the outfit as generated. The Human female and the 18 other bodies wear it
+carried to them by `armorkit refit`; nothing was generated per body. The belt was
+prepared once and fitted over the outfit on each body (`armorkit accessory fit`); its
+pouches keep the shape they were drawn in and may clip the trousers. Each part carries
+the colours its brief suggests as a starting point for an item's colours.
+
+`srn_2da` gains live row 3010 in seven `parts_*.2da` tables (chest, bicep, pelvis,
+legs, shin, foot, belt), installed-game derivatives as before. Per-file hashes, the
+pinned generation records and the refit reports are in
+`docs/armorkit/parts-handoff.json`; the registry is `docs/armorkit/parts-registry.json`.
+Raw references, generation outputs, kept parts, bakes and trial packs stay in ignored
+`output/armorkit/` and are not redistributed.
+
 ## Firearm wave 1: Fichetti Security 600, Yamaha Pulsar, HK MP-5 TX, AK-97, Defiance T-250 (srn_weapon, srn_2da; 2026-11-17)
 
 Same origin and pipeline as the Ares Predator IV above: SR4 catalog references, then
