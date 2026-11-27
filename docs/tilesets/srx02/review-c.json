@@ -324,24 +324,23 @@
      "turns": [
       90
      ],
-     "distance": 16,
+     "distance": 24,
      "height": 1.0,
      "pitches": [
-      40
+      60
      ]
     },
     {
      "name": "eye-kitchenr",
      "at": [
-      16.5,
-      1.2
+      16.15,
+      1.15
      ],
      "turns": [
-      90
+      45
      ],
      "pitches": [
-      95,
-      125
+      95
      ]
     },
     {
@@ -353,24 +352,23 @@
      "turns": [
       90
      ],
-     "distance": 16,
+     "distance": 24,
      "height": 1.0,
      "pitches": [
-      40
+      60
      ]
     },
     {
      "name": "eye-shoproom",
      "at": [
-      18.5,
-      1.2
+      18.15,
+      1.15
      ],
      "turns": [
-      90
+      45
      ],
      "pitches": [
-      95,
-      125
+      95
      ]
     },
     {
@@ -403,17 +401,19 @@
      ]
     },
     {
-     "name": "duct",
+     "name": "bird-duct",
      "at": [
-      2.0,
-      6.0
+      4.0,
+      6.5
      ],
      "turns": [
       90
      ],
      "pitches": [
-      95
-     ]
+      50
+     ],
+     "distance": 14,
+     "height": 1.0
     }
    ],
    "pitches": [
