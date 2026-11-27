@@ -392,7 +392,7 @@ def revisions(paths):
     found = {}
     def walk(node, rows):
         if isinstance(node, dict):
-            if {'path', 'fromSHA256', 'sha256', 'bytes'} <= set(node):
+            if {'path', 'fromSHA256', 'sha256', 'bytes'} <= set(node) and node['fromSHA256'] != node['sha256']:  # unchanged: no revision
                 key, value = (Path(node['path']).name, node['fromSHA256']), (node['sha256'], node['bytes'])
                 require(found.get(key, value) == value, f'Revision records disagree on {key[0]} from {key[1]}')
                 found[key] = value; rows.append(key)
@@ -419,8 +419,9 @@ def verify(args):
                 want = (meta['sha256'], meta['bytes']); seen = {want[0]}
                 # a revision replaces the pin and may itself be revised again: the HAK must hold the latest bytes
                 while (meta['name'], want[0]) in revised:
-                    want = revised[(meta['name'], want[0])]; replaced += 1
+                    want = revised[(meta['name'], want[0])]
                     require(want[0] not in seen, f"{path}: the revision records for {meta['name']} form a cycle"); seen.add(want[0])
+                replaced += len(seen) > 1  # resources whose bytes come from a revision
                 require((sha256(data), len(data)) == want, f"{path}: {meta['name']} differs from its manifest and revisions")
                 checked += 1
     print(json.dumps({'hak': Path(args.hak).name, 'resources': checked, 'revised': replaced, 'passed': True}))
