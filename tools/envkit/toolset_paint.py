@@ -71,7 +71,30 @@ def plan(set_text, palette, only=None):
         groups.append({'number': number, 'name': shown, 'ground': choices[0], 'tiles': held, 'doors': sorted(door for one in held for door in keyed.get(one, []))})
     names = Counter(group['name'] for group in groups)
     require(all(count == 1 for count in names.values()), 'The palette shows one name twice')
-    return {'grounds': [[terrain, fills[terrain]] for terrain in dict.fromkeys(group['ground'] for group in groups)], 'groups': groups}
+    grounds = list(dict.fromkeys(group['ground'] for group in groups))
+    general = next((held for name, held in inventory.sections(set_text) if name.upper() == 'GENERAL'), {})
+    start = None
+    if str(general.get('Interior', '0')).strip() == '1':  # an interior's ground is its walls, where no start point stands
+        floors = [terrain for terrain in read['terrains'] if terrain in fills and terrain not in grounds]
+        require(floors, 'No plain floor tile for the start point of an interior')
+        start = fills[floors[0]]
+    return {'grounds': [[terrain, fills[terrain]] for terrain in grounds], 'groups': groups, 'start': start}
+
+
+def packs(repo, set_text, own):
+    """The tile packs holding the models of a set's tiles other than its own pack: a merged set's families (srx02's
+    tiles are in srn_t_udp2, srn_t_tfb01, srn_t_tbx78 and srn_t_nac01). Without them the Toolset falls over on the
+    first group armed, with an access violation (2026-11-28)."""
+    from tools.tilekit import inventory
+    models = {tile['model'].lower() for tile in inventory.read_set(set_text)['tiles']}
+    found = []
+    for folder in sorted(Path(repo).glob('srn_t_*')):
+        if folder.name == own or not folder.is_dir():
+            continue
+        held = {one.stem.lower() for place in (folder, Path(repo) / 'sources' / folder.name) if place.is_dir() for one in place.glob('*.mdl')}
+        if models & held:
+            found.append(folder.name)
+    return found
 
 
 def area_name(planned, ground):
@@ -102,8 +125,9 @@ def prepare(repo, tileset, user, haks, *, game=None, only=None, size=16):
     folder = repo / f'srn_t_{tileset}'
     document = _gff(folder / f'{tileset}palstd.itp')
     palette = {one['RESREF']['value'].lower(): one['NAME']['value'] for part in document['MAIN']['value'][:2] for one in part['LIST']['value']}
-    haks = tuple(dict.fromkeys((folder.name, *haks)))  # srx01's pack is none of the usual ones
-    planned = plan((folder / f'{tileset}.set').read_bytes().decode('cp1252'), palette, only)
+    text = (folder / f'{tileset}.set').read_bytes().decode('cp1252')
+    haks = tuple(dict.fromkeys((folder.name, *packs(repo, text, folder.name), *haks)))  # srx01's pack is none of the usual ones
+    planned = plan(text, palette, only)
     made, before = None, dict(toolset.AREAS)
     try:
         for ground, fill in planned['grounds']:
@@ -118,6 +142,9 @@ def prepare(repo, tileset, user, haks, *, game=None, only=None, size=16):
     finally:
         toolset.AREAS.clear()
         toolset.AREAS.update(before)
+    if planned.get('start') is not None:  # the start point is on the first area's south-west corner tile (toolset.START)
+        first = area_name(planned, planned['grounds'][0][0]) + '_a.are'
+        made[first]['Tile_List']['value'][0]['Tile_ID']['value'] = planned['start']
     told = toolset.prepare(user, repo / 'output', haks=haks, game=game, made=made)
     (user / 'paint.json').write_text(json.dumps(planned), encoding='utf-8')
     return {**told, 'groups': len(planned['groups']), 'areas': len(planned['grounds'])}

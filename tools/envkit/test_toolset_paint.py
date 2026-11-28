@@ -67,6 +67,37 @@ class Paint(unittest.TestCase):
         self.assertIn('ekt00_a.are', given['made'])
         self.assertNotIn('t', toolset_paint.toolset.AREAS)
 
+    def test_an_interior_starts_on_a_floor_tile_and_lists_its_families_packs(self):
+        # the Toolset fell over on srx02's groups without the families' packs, and will not save a start point on the
+        # walls an interior's ground is (2026-11-28)
+        inside = SET.replace('Border=Deck\n', 'Border=Deck\nInterior=1\n').replace(
+            'Count=1\n\n[TERRAIN0]\nName=Deck\n', 'Count=2\n\n[TERRAIN0]\nName=Deck\n\n[TERRAIN1]\nName=Floor\n')
+        inside = inside.replace('[TILES]\nCount=4', '[TILES]\nCount=5').replace('[GROUPS]', tile(4, 'b_floor', 'Floor') + '[GROUPS]')
+        self.assertIsNone(toolset_paint.plan(SET, PALETTE)['start'])
+        self.assertEqual(toolset_paint.plan(inside, PALETTE)['start'], 4)
+        with self.assertRaisesRegex(ValueError, 'floor tile'):
+            toolset_paint.plan(SET.replace('Border=Deck\n', 'Border=Deck\nInterior=1\n'), PALETTE)
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = Path(temporary)
+            for folder, model in (('srn_t_t', None), ('srn_t_b', 'b_floor'), ('srn_t_c', 'c_other')):
+                (repo / folder).mkdir()
+            (repo / 'sources' / 'srn_t_a').mkdir(parents=True)
+            (repo / 'srn_t_a').mkdir()
+            (repo / 'sources' / 'srn_t_a' / 'A_Hall.mdl').write_text('x')
+            (repo / 'srn_t_b' / 'b_floor.mdl').write_text('x')
+            (repo / 'srn_t_c' / 'c_other.mdl').write_text('x')
+            (repo / 'srn_t_t' / 'a_tower.mdl').write_text('x')
+            (repo / 'srn_t_t' / 't.set').write_text(inside, encoding='cp1252')
+            self.assertEqual(toolset_paint.packs(repo, inside, 'srn_t_t'), ['srn_t_a', 'srn_t_b'])
+            (repo / 'user').mkdir()
+            entries = [{'RESREF': {'value': name}, 'NAME': {'value': shown}} for name, shown in PALETTE.items()]
+            given = {}
+            with mock.patch.object(toolset_paint, '_gff', return_value={'MAIN': {'value': [{'LIST': {'value': entries}}]}}), mock.patch.object(toolset_paint.toolset, 'prepare', side_effect=lambda *_, **more: given.update(more) or {}):
+                toolset_paint.prepare(repo, 't', repo / 'user', ('srn_x',))
+        self.assertEqual(given['haks'], ('srn_t_t', 'srn_t_a', 'srn_t_b', 'srn_x'))
+        laid = [one['Tile_ID']['value'] for one in given['made']['ekt00_a.are']['Tile_List']['value']]
+        self.assertEqual((laid[0], set(laid[1:])), (4, {2}))
+
     def test_a_group_given_up_on_is_undone(self):
         # a click at each try to arm painted it, and no undo was sent (review of PR 199)
         planned = toolset_paint.plan(SET, PALETTE, {1})

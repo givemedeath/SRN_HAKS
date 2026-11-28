@@ -713,6 +713,19 @@ new look too.
   in seven packs, 35 old copies deleted, 55 expected overrides) and of the `c-ceil` ceilings (329 tfb01 models);
   srx02's compiled tiles recompiled for the new materials. Walkmeshes as their baselines; the passage joins and the
   prefab rooms cut from tfb01 tiles built again (`joins`, `rooms`, `merge`, `compile`); packs rebuilt.
+- **Final checks (2026-11-28, user: "Finish Release C").**
+  - Frame rate, furnished block: 176–178 fps over 12 s (release B 146–176) and 114–163 over 48 s (B 93–157).
+    Unfurnished: 174–176 over 12 s. No loss.
+  - The family capture is whole, the walkmeshes match their baselines and the 446 tiles are still switched.
+  - Toolset, on an isolated user folder (`toolset_paint`): Office Cream Small Room A (udp2, switched), Home Lower
+    Floor 2x2 A (tfb01), Facility Room 2x1 A (tbx78, switched), the furnished Conference Room and Single-Family House.
+    Each was laid, saved and read back whole.
+  - Two faults of the check module were found and fixed, both guarded in `test_toolset_paint.py`:
+    - `prepare` listed only `srn_t_srx02` of the tile packs. The Toolset hit an access violation on the first group
+      it armed, because the families' models were not in the module. `prepare` now lists every pack that holds a
+      model of the set.
+    - An interior's ground is Wall, and the Toolset will not save a start point there. `prepare` now lays the first
+      plain floor tile under the start point.
 
 ## Release D: caves and tunnels (user, 2026-11-27)
 
