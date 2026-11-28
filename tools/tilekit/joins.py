@@ -27,7 +27,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import geometry, kit, require
+from . import geometry, kit, require, roomlights
 
 HALF = 5.0
 ARC = 8  # segments of a corner's quarter circle
@@ -517,7 +517,7 @@ def work(repo, spec):
     def source(side, kind):
         key = (side[kind]['model'], side[kind].get('turn', 0))
         if key not in baked:
-            baked[key] = bake(_find(repo, key[0], '.mdl').read_bytes().decode('cp1252'), key[1])
+            baked[key] = bake(roomlights.unswitch(_find(repo, key[0], '.mdl').read_bytes().decode('cp1252')), key[1])  # lit as drawn: a join's lights are not switched
         picture = _picture(repo, side[kind]['minimap'])  # a BioWare DDS is read here, the image library does not know it
         return baked[key], (pictures.read(picture) if picture.suffix.lower() == '.dds' else Image.open(picture)).rotate(90 * key[1])
     for passage in spec.get('passages', ()):

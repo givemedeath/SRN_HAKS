@@ -127,6 +127,10 @@ class ReviewTests(unittest.TestCase):
             review.area_documents('tkbd', 'Block', 'tst01', 2, 4, laid, 'day')
         with self.assertRaisesRegex(ValueError, 'lit by'):
             review.area_documents('tkbd', 'Block', 'tst01', 2, 3, laid, 'dusk')
+        off = review.area_documents('tkbo', 'Block', 'tst01', 2, 3, laid, 'day', {'loops': [1, 1, 0]})['tkbo.are']['Tile_List']['value'][0]
+        self.assertEqual([off[f'Tile_AnimLoop{which}']['value'] for which in (1, 2, 3)], [1, 1, 0])
+        with self.assertRaisesRegex(ValueError, 'three animation loops'):  # review of PR 209
+            review.area_documents('tkbo', 'Block', 'tst01', 2, 3, laid, 'day', {'loops': [1, 1, 0, 0]})
 
     def test_a_generic_door_stands_where_asked_its_row_past_255_in_the_new_field(self):
         laid = {(0, 0): (0, 0)}
@@ -216,6 +220,9 @@ class ReviewTests(unittest.TestCase):
             self.assertEqual(run({'tileset': 'tst01', 'grid': {}}), (2, "tilekit: The review spec lacks 'lights'\n"))
             self.assertEqual(run({'tileset': 'nope', 'grid': {}})[0], 2)  # no such set file: said, not thrown
             self.assertEqual(run(spec, '--overlay', str(root / 'over')), (2, 'tilekit: Overlay files are lowercase resref files: Brick.tga\n'))
+            (root / 'over' / 'Brick.tga').unlink(); (root / 'over' / 'tst02.set').write_bytes(b'[GENERAL]\nName=TST02\n')  # bare LF: the client fell over on it
+            self.assertEqual(run(spec, '--overlay', str(root / 'over')), (2, 'tilekit: tst02.set: a set file has bare LF line ends, which the client falls over on: write it with CRLF\n'))
+            (root / 'over' / 'tst02.set').unlink()
             self.assertIn('add srn_t_tst01 to the spec\'s haks', run({**spec, 'haks': list(review.HAKS)})[1])  # a tileset whose pack the module would not load
             self.assertIn('The fill tile 99 is no tile of tst01', run({**spec, 'fill': 99})[1])
             self.assertEqual(run(spec, '--views', ','), (2, 'tilekit: No view named in --views\n'))  # a stray comma is no view, not every one

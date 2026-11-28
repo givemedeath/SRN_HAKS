@@ -2691,3 +2691,30 @@ the shadows of one-plane meshes turned off (`tilekit shadows`). Walkmeshes are u
   (`tcn01_*`, `plc_*`, `ttf01_*` and others, taken from the game's own files) and ones the packs ship under names other
   packs also use (`alchemy`, `st_*`, `pdag_hdec`), is copied under a new `lpx_` name so that no texture of the game or
   another hak is overridden. `docs/placeables/lpat-import.json` maps each new name to its source.
+
+## Interior restyle, release C (`srn_t_udp2`, `srn_t_tfb01`, `srn_t_tbx78`, `srn_t_nac01`, `srn_t_srx02`, `srn_door`, `srn_placeable`; 2026-11-27)
+
+The textures of the four interior families were made again by `tools/tilekit/material.py` from
+`docs/tilesets/srx02/materials-c.json` (112 textures) and moved into the packs by `tilekit apply`; the old TGA and DDS
+copies are deleted, and a name another pack also holds is written there too (`hakbuilder.json` expected overrides).
+
+- Master (25 textures): CC0 scans from [ambientCG](https://ambientcg.com/) (1K JPG), tinted, graded and stained:
+  Carpet012, Concrete034, Concrete047A, Concrete048, CorrugatedSteel007A, Fabric026, Marble012, OfficeCeiling001,
+  PaintedPlaster017, Rust009, Tiles040, Tiles107 and WoodFloor051. The fetched archives and their hashes are recorded
+  in `tilekit/masters/fetched.json` of the shared tool root.
+- Layout (31): the original picture's own layout kept, with the grain of one of those scans laid over it.
+- Upscale (56): the original picture (or, where the pack shipped a standard DDS, that picture: the Modern Interior
+  redraws of release B and a few source pictures) enlarged in code, with relief and maps derived from it.
+- `tfb01_flood` (the hanging banners, a small device face, wood and cork) is drawn in code by `tools/tilekit/drawn.py`
+  from the CC0 scans Fabric026 and WoodFloor051; the banner's emblem is invented.
+- `tfb01_ceilpl` and `tfb01_ceilti` are copies of srx02's own ceiling textures (`srx02_clgplas`, `srx02_clgtile`).
+- `udp2_msc_clg` has a glow map over its light panels; `udp2_msc_clgo` is its material without the glow map (the
+  panels switched off), written by `tilekit roomlights --materials`.
+- `srn_t_srx02/srx02__ref01.tga`, the set's reflection picture, is drawn in code (`drawn.reflection`).
+
+Models: the Modern Interior tiles open to the sky have ceilings made in code (`tilekit ceilings`,
+`docs/tilesets/tfb01/ceilings.json`); the room light fittings of the four families and of the prefab rooms are
+switched by the third tile loop (`tilekit roomlights`, `docs/tilesets/srx02/lights.json`): each lit mesh keeps its
+geometry and gains an unlit copy. The four family packs now ship compiled by NeverBlender, their ASCII models kept in
+`sources/<pack>/` (`compile --adopt`); in `udp2` node names were made unique (`tilekit unique`) and in 21 `tfb01`
+sources plain material lines inside animations, which the compiler leaves out, were removed. No walkmesh changed.

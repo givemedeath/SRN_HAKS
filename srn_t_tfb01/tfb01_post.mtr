@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 tfb01_post
+texture1 tfb01_post_n
+texture2 tfb01_post_s
+texture3 tfb01_post_r
+texture4 null
+texture5 null

@@ -23,10 +23,12 @@
   }
  ],
  "general": "udp2",
+ "envMap": "srx02__ref01",
  "grass": "udp2",
  "joins": [],
  "joinTiles": "docs/tilesets/srx02/joins.json",
  "rooms": "docs/tilesets/srx02/rooms",
+ "lights": "docs/tilesets/srx02/lights.json",
  "numbers": "docs/tilesets/srx02/numbers.json",
  "doors": {
   "24": 269,

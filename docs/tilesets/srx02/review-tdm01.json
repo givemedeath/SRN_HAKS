@@ -1,0 +1,211 @@
+{
+ "tileset": "tdm01",
+ "base": [
+  "tdm01"
+ ],
+ "note": "release C: cave and tunnel candidates (user, 2026-11-27: tdm01 + tsw01)",
+ "haks": [
+  "srn_2da"
+ ],
+ "block": {
+  "width": 19,
+  "height": 13,
+  "lights": [
+   "day"
+  ],
+  "patches": [
+   {
+    "terrain": "Floor",
+    "at": [
+     1,
+     1
+    ],
+    "size": [
+     5,
+     4
+    ]
+   },
+   {
+    "terrain": "Water",
+    "at": [
+     8,
+     1
+    ],
+    "size": [
+     4,
+     4
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "Corridor",
+    "cells": [
+     [
+      0,
+      7
+     ],
+     [
+      18,
+      7
+     ]
+    ]
+   },
+   {
+    "crosser": "Tracks",
+    "cells": [
+     [
+      0,
+      10
+     ],
+     [
+      18,
+      10
+     ]
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "Mineshaft",
+    "at": [
+     14,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Docks_1x2",
+    "at": [
+     16,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Platform01_2x2",
+    "at": [
+     14,
+     3
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    2,
+    2
+   ],
+   [
+    9,
+    2
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "eye-cave",
+     "at": [
+      3.0,
+      3.0
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-lake",
+     "at": [
+      9.8,
+      3.0
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-tunnel",
+     "at": [
+      6.5,
+      7.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-tracks",
+     "at": [
+      6.5,
+      10.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-shaft",
+     "at": [
+      14.5,
+      1.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird",
+     "at": [
+      9.5,
+      6.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 40,
+     "height": 1.0,
+     "pitches": [
+      50
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": []
+ }
+}

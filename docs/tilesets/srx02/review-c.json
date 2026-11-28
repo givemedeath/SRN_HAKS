@@ -1,0 +1,450 @@
+{
+ "tileset": "srx02",
+ "haks": [
+  "srn_t_srx02",
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 21,
+  "height": 8,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "r04_f",
+    "at": [
+     3,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "o04_f",
+    "at": [
+     6,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s01_f",
+    "at": [
+     8,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "s03_f",
+    "at": [
+     10,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "c01_f",
+    "at": [
+     12,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "liv01_f",
+    "at": [
+     14,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "KitchenRoom",
+    "at": [
+     16,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "ShopRoom",
+    "at": [
+     18,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "room2x1",
+    "at": [
+     15,
+     4
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    3,
+    1
+   ],
+   [
+    6,
+    1
+   ],
+   [
+    8,
+    1
+   ],
+   [
+    10,
+    1
+   ],
+   [
+    12,
+    1
+   ],
+   [
+    14,
+    1
+   ],
+   [
+    16,
+    1
+   ],
+   [
+    18,
+    1
+   ],
+   [
+    15,
+    4
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "bird-r04f",
+     "at": [
+      4.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      40
+     ]
+    },
+    {
+     "name": "eye-r04f",
+     "at": [
+      3.86,
+      1.15
+     ],
+     "turns": [
+      145
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-o04f",
+     "at": [
+      6.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      40
+     ]
+    },
+    {
+     "name": "eye-o04f",
+     "at": [
+      6.36,
+      1.13
+     ],
+     "turns": [
+      75
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-s01f",
+     "at": [
+      8.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      40
+     ]
+    },
+    {
+     "name": "eye-s01f",
+     "at": [
+      8.5,
+      1.12
+     ],
+     "turns": [
+      70
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-s03f",
+     "at": [
+      10.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      40
+     ]
+    },
+    {
+     "name": "eye-s03f",
+     "at": [
+      10.22,
+      1.5
+     ],
+     "turns": [
+      40
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-c01f",
+     "at": [
+      12.5,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      40
+     ]
+    },
+    {
+     "name": "eye-c01f",
+     "at": [
+      12.66,
+      1.12
+     ],
+     "turns": [
+      60
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-liv01f",
+     "at": [
+      14.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 16,
+     "height": 1.0,
+     "pitches": [
+      40
+     ]
+    },
+    {
+     "name": "eye-liv01f",
+     "at": [
+      14.5,
+      1.2
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-kitchenr",
+     "at": [
+      16.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 24,
+     "height": 1.0,
+     "pitches": [
+      60
+     ]
+    },
+    {
+     "name": "eye-kitchenr",
+     "at": [
+      16.15,
+      1.15
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95
+     ]
+    },
+    {
+     "name": "bird-shoproom",
+     "at": [
+      18.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 24,
+     "height": 1.0,
+     "pitches": [
+      60
+     ]
+    },
+    {
+     "name": "eye-shoproom",
+     "at": [
+      18.15,
+      1.15
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95
+     ]
+    },
+    {
+     "name": "bird-room2x1",
+     "at": [
+      16.0,
+      4.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      40
+     ]
+    },
+    {
+     "name": "eye-room2x1",
+     "at": [
+      16.0,
+      4.2
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-duct",
+     "at": [
+      4.0,
+      6.5
+     ],
+     "turns": [
+      90
+     ],
+     "pitches": [
+      50
+     ],
+     "distance": 14,
+     "height": 1.0
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "Duct",
+    "cells": [
+     [
+      1,
+      6
+     ],
+     [
+      12,
+      6
+     ]
+    ]
+   }
+  ]
+ },
+ "note": "release C pilot look check: the same block with and without the material overlay"
+}

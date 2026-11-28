@@ -47,7 +47,9 @@ def review_command(chosen):
         shots = [shot for shot in shots if shot['label'].startswith(views)]
         require(shots, 'No view begins with ' + ' or '.join(views))
     shots = shots[::max(1, chosen.every)]; kept = {shot['area'] for shot in shots}; areas = [area for area in areas if area['tag'] in kept]
-    lacking = sorted({f'srn_t_{area["tileset"]}' for area in areas} - set(haks))  # each tileset laid is one of this project's packs (its set file is read there)
+    base = {name.lower() for name in spec.get('base', ())}  # base-game tilesets: in the game's own files, their set file given in the overlay
+    require(not base or chosen.overlay, 'A review of a base-game tileset reads its set file from --overlay')
+    lacking = sorted({f'srn_t_{area["tileset"]}' for area in areas if area['tileset'].lower() not in base} - set(haks))  # each tileset laid is one of this project's packs (its set file is read there)
     require(not lacking, 'The module would not load the pack of every tileset it lays: add ' + ', '.join(lacking) + ' to the spec\'s haks')
     record = review.build(chosen.name, areas, shots, chosen.out, chosen.game, chosen.built, overlay=chosen.overlay, haks=haks)
     told = {'module': record['module'], 'areas': [area['tag'] for area in areas], 'views': len(shots), 'overlay': record['overlay']}
@@ -391,6 +393,16 @@ def main(arguments=None):
     lit.add_argument('--again', action='store_true', help='make the day and night of models that have them anew from the list, and write those it changes')
     lit.add_argument('--materials', action='store_true', help='instead: write the day materials of the list (`dayMaterials`): the material of a lit texture without its glow map, beside it in the packs')
     lit.add_argument('--lights-on', action='store_true', help='instead: turn each of AnimLoop1 to 3 on in the set file for the tiles whose lit panes, or the list\'s `switched` signs, it raises (then: merge)')
+    capping = commands.add_parser('ceilings', help='give the tiles of a tileset that are open to the sky over their floor a ceiling at the top of their walls, in model copies')
+    capping.add_argument('--tileset', required=True); capping.add_argument('--spec', required=True, type=Path, help='{looks: {default, <terrain>: texture}, skip: [models]} (docs/tilesets/<set>/ceilings.json)')
+    capping.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review overlay'); capping.add_argument('--repo', type=Path, default=REPO)
+    capping.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
+    switching = commands.add_parser('roomlights', help='switch the room light fittings of a tileset by its third tile loop: each lit mesh parked under the tile with an unlit copy in its place, in model copies (roomlights.py)')
+    switching.add_argument('--tileset', required=True); switching.add_argument('--spec', required=True, type=Path, help='the list of lights (docs/tilesets/<set>/lights.json)')
+    switching.add_argument('--out', required=True, type=Path, help='the folder the changed models are written to: a review overlay, read first by --loops-on'); switching.add_argument('--repo', type=Path, default=REPO)
+    switching.add_argument('--shared', action='append', default=[], help='a tileset that draws these tiles too and takes the change with them (the merged set)')
+    switching.add_argument('--materials', action='store_true', help='instead: write the unlit materials (`offMaterials`) beside the lit ones in the packs')
+    switching.add_argument('--loops-on', type=Path, metavar='SET', help='instead: turn AnimLoop3 on in this set file for every tile whose model (read from --out, then the packs) is switched')
     named = commands.add_parser('unique', help='give the nodes of an adopted tile pack\'s ASCII sources names of one word that no other node has, in place (then: compile)')
     named.add_argument('--pack', required=True); named.add_argument('--repo', type=Path, default=REPO)
     nine = commands.add_parser('apply', help='move a review overlay whose look the user passed into the packs: materials, maps and changed models')
@@ -475,6 +487,25 @@ def main(arguments=None):
             return shadows_command(chosen)
         if chosen.command == 'retexture':
             return retexture_command(chosen)
+        if chosen.command == 'ceilings':
+            spec = json.loads(chosen.spec.read_text(encoding='utf-8'))
+            from . import ceilings
+            told = ceilings.cap(chosen.repo, chosen.tileset, chosen.out, spec['looks'], shared=chosen.shared, skip=set(spec.get('skip', ())))
+            print(json.dumps(told, indent=1)); return 0
+        if chosen.command == 'roomlights':
+            from . import roomlights
+            spec = roomlights.load(chosen.spec); packs = [pack['Name'] for pack in json.loads((chosen.repo / 'hakbuilder.json').read_text(encoding='utf-8-sig'))['HakList'] if pack['Name'].startswith('srn_t_')]
+            if chosen.materials:
+                print(json.dumps(roomlights.off_materials(chosen.repo, spec, packs), indent=1)); return 0
+            if chosen.loops_on:
+                def text_of(name):
+                    for folder in [chosen.out] + [chosen.repo / kept / pack for pack in packs for kept in ('sources', '')]:
+                        path = Path(folder) / f'{name}.mdl'
+                        if path.is_file() and not inventory.compiled(path.read_bytes()):
+                            return path.read_bytes().decode('cp1252')
+                    return ''
+                print(json.dumps(roomlights.loops_on(chosen.loops_on, text_of), indent=1)); return 0
+            print(json.dumps(roomlights.write(chosen.repo, chosen.tileset, chosen.out, spec, shared=chosen.shared), indent=1)); return 0
         if chosen.command == 'lamps':
             return lamps_command(chosen)
         if chosen.command == 'screens':

@@ -1,0 +1,151 @@
+{
+ "tileset": "tdt01",
+ "base": [
+  "tdt01"
+ ],
+ "note": "release D: closed cave candidates (user, 2026-11-27: sculpted tunnels/caverns, few ceilings to add)",
+ "haks": [
+  "srn_2da"
+ ],
+ "block": {
+  "width": 13,
+  "height": 9,
+  "lights": [
+   "day"
+  ],
+  "patches": [
+   {
+    "terrain": "floor",
+    "at": [
+     1,
+     1
+    ],
+    "size": [
+     4,
+     3
+    ]
+   },
+   {
+    "terrain": "water",
+    "at": [
+     6,
+     1
+    ],
+    "size": [
+     3,
+     3
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "corridor",
+    "cells": [
+     [
+      0,
+      6
+     ],
+     [
+      12,
+      6
+     ]
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "Hot_Springs",
+    "at": [
+     10,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Platform02_2x2",
+    "at": [
+     10,
+     3
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "eye-cave",
+     "at": [
+      2.5,
+      2.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-water",
+     "at": [
+      7.5,
+      2.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-tunnel",
+     "at": [
+      5.5,
+      6.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird",
+     "at": [
+      6.5,
+      4.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 34,
+     "height": 1.0,
+     "pitches": [
+      50
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": []
+ }
+}

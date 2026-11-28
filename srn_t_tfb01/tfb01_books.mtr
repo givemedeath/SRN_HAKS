@@ -1,0 +1,8 @@
+renderhint NormalAndSpecMapped
+
+texture0 tfb01_books
+texture1 tfb01_books_n
+texture2 tfb01_books_s
+texture3 tfb01_books_r
+texture4 null
+texture5 null

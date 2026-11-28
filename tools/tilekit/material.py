@@ -136,12 +136,15 @@ def _routed(old, how, route, size, scan):
         flat = np.full(size[::-1], float(how.get('roughness', 0.8)))
         return {'colour': large, 'normal': pictures.relief(pictures.height_of(large), float(how.get('relief', 2.0))), 'roughness': flat, 'metal': np.zeros(size[::-1])}
     repeat = int(how.get('repeat', 1)); keep = int(how.get('keep', 12)); grain = float(how.get('grain', 1.0))
-    fine = _sized(scan['colour'], size, repeat=repeat).astype(np.float64)
-    broad = np.dstack([pictures._wrapped_blur(large[..., channel], keep) for channel in range(3)])
-    detail = fine - np.dstack([pictures._wrapped_blur(fine[..., channel], keep) for channel in range(3)])
+    require(keep >= 0, 'A layout keeps the old picture broader than `keep` pixels, or all of it at 0')
+    # keep 0: the old picture whole, its grid and bands exactly where they were, with the scan's grain over it. A wider
+    # keep blurs the old lines away and the scan's own grid takes their place out of line (office ceiling, 2026-11-26).
+    fine = _sized(scan['colour'], size, repeat=repeat).astype(np.float64); scale = keep or int(how.get('fine', 6))  # the scan's grain finer than this
+    broad = large.astype(np.float64) if keep == 0 else np.dstack([pictures._wrapped_blur(large[..., channel], keep) for channel in range(3)])
+    detail = fine - np.dstack([pictures._wrapped_blur(fine[..., channel], scale) for channel in range(3)])
     colour = np.uint8(np.clip(broad + detail * grain, 0, 255) + 0.5)
     # The layout's own edges (a kerb, a joint) are relief too: guessed from the kept picture and laid over the scan's.
-    edges = pictures.relief(pictures.height_of(broad, detail=2, broad=keep * 2), float(how.get('relief', 2.0))).astype(np.float64) - np.array([127.5, 127.5, 255.0])
+    edges = pictures.relief(pictures.height_of(broad, detail=2, broad=max(keep, 3) * 2), float(how.get('relief', 2.0))).astype(np.float64) - np.array([127.5, 127.5, 255.0])
     normal = _renormal(np.clip(_sized(scan['normal'], size, repeat=repeat).astype(np.float64) + edges, 0, 255))
     return {'colour': colour, 'normal': normal, 'roughness': _sized(scan['roughness'], size, repeat=repeat), 'metal': _sized(scan['metal'], size, repeat=repeat)}
 
@@ -209,13 +212,22 @@ def _tree(repo, before, pack):
     return {name.lower(): name for name in (line.rsplit('/', 1)[-1] for line in listed.stdout.splitlines())}
 
 
-def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None, before=None):
+def _upright(picture, data):
+    """A pack's picture as the game shows it: the game takes a standard DDS's first row for the bottom (see `write`),
+    so one read top row first is turned over. A redraw restyled over came out upside down without this (shop wall,
+    2026-11-26)."""
+    from PIL import ImageOps
+    return ImageOps.flip(picture) if data[:4] == b'DDS ' else picture
+
+
+def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_placeable'), stock=None, before=None, over=False):
     """The picture of a texture as the tileset had it before its restyle: its DDS copy before its TGA, in the first of
     `packs` to hold one, else in `stock`, a folder of the base game's own pictures read out of the install (a base-game
     texture). before: the commit whose packs hold the originals (a spec's `before`); once a restyle is in the packs
     their files are its own maps, so a restyled name is refused there: one with a material file, or a standard DDS (the
     D20 originals are all BioWare DDS; a plain restyle such as the water has no material). A texture added to a pack
-    after `before` is read from the pack as it is."""
+    after `before` is read from the pack as it is. over: the standard DDS is the picture to start from (an approved plain
+    restyle such as a redraw, or a source pack that shipped standard DDS); a material file is refused still."""
     repo = Path(repo)
     for pack in packs if before is not None else ():
         tree = _tree(str(repo), before, pack); late = f'{name} is restyled already at {before} ({pack}): a spec\'s `before` is a commit whose packs hold the originals'
@@ -225,16 +237,16 @@ def current(repo, name, packs=('srn_t_common', 'srn_t_dgt04', 'srn_door', 'srn_p
             if file:
                 shown = subprocess.run(['git', '-C', str(repo), 'show', f'{before}:{pack}/{file}'], capture_output=True)
                 require(shown.returncode == 0, f'git cannot read {pack}/{file} at {before}')
-                require(kind != 'dds' or shown.stdout[:4] != b'DDS ', late)
-                return pictures.read(file, shown.stdout)
+                require(over or kind != 'dds' or shown.stdout[:4] != b'DDS ', late)
+                return _upright(pictures.read(file, shown.stdout), shown.stdout)
     restyled = [pack for pack in packs if (repo / pack / f'{name}.mtr').is_file()]
     for pack in packs if not restyled else ():
         for kind in ('dds', 'tga'):
             path = repo / pack / f'{name}.{kind}'
             if path.is_file():
-                if kind == 'dds' and path.read_bytes()[:4] == b'DDS ':
+                if kind == 'dds' and not over and path.read_bytes()[:4] == b'DDS ':
                     restyled.append(pack); continue
-                return pictures.read(path)
+                return _upright(pictures.read(path), path.read_bytes()[:4])
     for kind in ('dds', 'tga'):  # a base-game texture: its original is the game's own, whatever restyle a pack holds
         if stock and (Path(stock) / f'{name}.{kind}').is_file():
             return pictures.read(Path(stock) / f'{name}.{kind}')
@@ -287,7 +299,7 @@ def build(spec, repo, masters, folder, crunch, *, only=None, compress=None, enla
             scan = scans[how['master']]
         picture = (enlarge.picture_of(redrawn, name, 'redrawn', 'redraw') if how.get('redrawn') else
                    enlarge.picture_of(enlarged, name) if how.get('doubled') else None)
-        old = np.asarray(current(repo, how.get('copy', name), stock=stock, **of_spec(spec)))  # a copy starts from its source's picture
+        old = np.asarray(current(repo, how.get('copy', name), stock=stock, over=bool(how.get('over')), **of_spec(spec)))  # a copy starts from its source's picture
         if picture is not None:  # made from that picture, as its record says
             _derived(redrawn if how.get('redrawn') else enlarged, name, old, doubled=None if how.get('redrawn') else how['doubled'])
         if picture is not None and how.get('recolour'):  # the generator moved its colours: the old picture's broad ones come back

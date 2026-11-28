@@ -550,13 +550,6 @@
       ]
     },
     {
-      "Resource": "udp2-elev1.dds",
-      "Packs": [
-        "srn_door",
-        "srn_placeable"
-      ]
-    },
-    {
       "Resource": "udp2-elev2.dds",
       "Packs": [
         "srn_door",
@@ -2045,6 +2038,321 @@
       "Packs": [
         "srn_placeable",
         "srn_t_zsf01"
+      ]
+    },
+    {
+      "Resource": "udp2-elev1.mtr",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp2_elev1.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp2_elev1_n.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp2_elev1_r.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp2_elev1_s.dds",
+      "Packs": [
+        "srn_door",
+        "srn_placeable"
+      ]
+    },
+    {
+      "Resource": "udp2_p_appl.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_appl_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_appl_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_appl_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cab1.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cab1_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cab1_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cab1_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cfem.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cfem_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cfem_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cfem_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cfep.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cfep_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cfep_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_cfep_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_for3.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_for3_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_for3_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_for3_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_garbage.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_garbage_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_garbage_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_garbage_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_gry.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_gry_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_gry_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_gry_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_sstl2.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_sstl2_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_sstl2_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_sstl2_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_trash.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_trash_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_trash_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_p_trash_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_w_sid2.mtr",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_w_sid2_n.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_w_sid2_r.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
+      ]
+    },
+    {
+      "Resource": "udp2_w_sid2_s.dds",
+      "Packs": [
+        "srn_placeable",
+        "srn_t_udp2"
       ]
     }
   ]

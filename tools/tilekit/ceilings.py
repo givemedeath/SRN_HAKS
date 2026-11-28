@@ -154,3 +154,121 @@ def write(folder, crunch):
     """Write the pictures into a pack's folder as plain DDS. [file names]."""
     from . import material
     return [file for name, picture in pictures().items() for file in material.write(name, {'colour': picture, 'normal': picture, **dict.fromkeys(('metal', 'roughness'), np.zeros(picture.shape[:2]))}, folder, crunch, plain=True)]
+
+
+# A tile open to the sky over its floor gets a ceiling at its walls' top (user, 2026-11-26: "appropriate ceilings on the
+# rooms that are missing them"). Modern Interior (tfb01) was drawn without any.
+COVERED = 0.95  # a tile whose walked floor is this much under something above `HEADROOM` has its ceiling already
+HEADROOM = 2.4  # metres: what is higher over the floor than this is overhead
+STOREY = 3.0  # metres: the walls' top of most of tfb01's rooms
+CLEAR = 2.6  # metres a ceiling stays above any floor walked under it: a male troll is 2.5 m (contract 1.3.0)
+UPPER = 0.8  # share of a tile's floor walked high that makes it an upper storey, not a stair
+
+
+def _tops(nodes):
+    """{height of a wall's top, to 0.1 m: faces}: the near-upright faces higher than two metres, by their top."""
+    import collections
+    told = collections.Counter()
+    for a, b, c in geometry.triangles(nodes):
+        across = np.cross(np.subtract(b, a), np.subtract(c, a)); length = np.linalg.norm(across)
+        if length > 1e-9 and abs(across[2]) / length < 0.2 and max(a[2], b[2], c[2]) > 2:
+            told[round(max(a[2], b[2], c[2]), 1)] += 1
+    return told
+
+
+def _faced(quads, repeat):
+    """(verts, tverts, faces) of quads [(four corners, the way they face)], each turned to face that way, the picture
+    laid flat on level ones and along the wall on upright ones, one picture to `repeat` metres."""
+    verts, uvs, faces = [], [], []
+    for corners, toward in quads:
+        corners = [tuple(map(float, corner)) for corner in corners]
+        if np.dot(np.cross(np.subtract(corners[1], corners[0]), np.subtract(corners[2], corners[0])), toward) < 0:
+            corners = corners[::-1]
+        at = len(verts); verts += corners
+        level = abs(toward[2]) > 0.5
+        uvs += [((x / repeat, y / repeat) if level else ((x + y) / repeat, z / repeat)) for x, y, z in corners]
+        faces += [(at, at + 1, at + 2, 1, at, at + 1, at + 2, 0), (at, at + 2, at + 3, 1, at, at + 2, at + 3, 0)]
+    return verts, uvs, faces
+
+
+def _rect(x0, y0, x1, y1, z):
+    return [(x0, y0, z), (x1, y0, z), (x1, y1, z), (x0, y1, z)]
+
+
+def lid(high, well=None, repeat=2.0):
+    """(verts, tverts, faces) of a ceiling over a whole cell at `high`, facing down; with a `well` ([x0, y0, x1, y1],
+    top) it is open over that rectangle, and a shaft with four sides and its own lid at `top` closes it (a stair rises
+    into it)."""
+    half = geometry.HALF; down = (0, 0, -1)
+    if well is None:
+        return _faced([(_rect(-half, -half, half, half, high), down)], repeat)
+    (x0, y0, x1, y1), top = well
+    quads = [(_rect(-half, -half, half, y0, high), down), (_rect(-half, y1, half, half, high), down),
+             (_rect(-half, y0, x0, y1, high), down), (_rect(x1, y0, half, y1, high), down), (_rect(x0, y0, x1, y1, top), down)]
+    for (ax, ay), (bx, by), inward in (((x0, y0), (x1, y0), (0, 1, 0)), ((x1, y0), (x1, y1), (-1, 0, 0)), ((x1, y1), (x0, y1), (0, -1, 0)), ((x0, y1), (x0, y0), (1, 0, 0))):
+        quads.append(([(ax, ay, high), (bx, by, high), (bx, by, top), (ax, ay, top)], inward))
+    return _faced([quad for quad in quads if _area(quad[0]) > 1e-6], repeat)
+
+
+def _area(corners):
+    a, b, c, _ = (np.asarray(corner, float) for corner in corners)
+    return np.linalg.norm(np.cross(b - a, c - a))
+
+
+def capped(text, root, texture, repeat=2.0):
+    """(the model with a ceiling over its cell, its height) or (None, why not). Seen from below only: a camera over the
+    room looks through it. Every tile of a storey takes `STOREY`, so that neighbours open to each other meet with no
+    step between their ceilings (a tile ceiled at its tallest walls' top left sky between it and the next, 2026-11-27).
+    Over a stair, the part of the floor walked higher than `CLEAR` under it rises into a closed well; a floor walked
+    higher all over (an upper storey) takes the lowest walls' top `CLEAR` above it, else a `STOREY` over it."""
+    _, _, nodes = geometry.parse(text); walk = geometry.walkable(nodes, step=0.5)
+    if not walk:
+        return None, 'no floor walked'
+    over = {}  # {cell: the highest bottom of what passes over it}
+    for triangle in geometry.triangles(nodes):
+        bottom = min(point[2] for point in triangle)
+        for point in geometry.samples(triangle, 0.25):
+            spot = geometry.cell(point, 0.5); over[spot] = max(over.get(spot, bottom), bottom)
+    if sum(over.get(spot, -1e9) >= min(heights) + HEADROOM for spot, heights in walk.items()) >= COVERED * len(walk):
+        return None, 'ceiled already'
+    tops = _tops(nodes); high = STOREY  # one height for a storey: a tile's tall parts (a chimney, columns, an arch) run on above it
+    up = [spot for spot, heights in walk.items() if max(heights) + CLEAR > high + 0.01]
+    well = None
+    if len(up) >= UPPER * len(walk):  # an upper storey: the lowest walls' top clear of its floor, else a storey over it
+        walked = max(max(heights) for heights in walk.values())
+        high = min((top for top, count in tops.items() if count >= 4 and top >= walked + CLEAR - 0.01), default=round(walked + STOREY, 1))
+    elif up:  # a stair: a well over the part walked high, as high as its highest step needs
+        step = 0.5; xs = [spot[0] * step for spot in up]; ys = [spot[1] * step for spot in up]; half = geometry.HALF
+        rect = [max(-half, min(xs) - 0.25), max(-half, min(ys) - 0.25), min(half, max(xs) + step + 0.25), min(half, max(ys) + step + 0.25)]
+        top = math.ceil((max(max(walk[spot]) for spot in up) + CLEAR) * 10) / 10
+        well = (rect, max(top, high + 0.5))
+    require(not any(node.name.lower() == f'{root}_ceil'.lower() for node in nodes), f'{root} has a node {root}_ceil already')
+    from .rooms import _into
+    verts, uvs, faces = lid(high, well, repeat)
+    made = _into(text, geometry.mesh_text(f'{root}_ceil', root, tuple(line.format(texture) for line in PLAIN), verts, uvs, faces))
+    return made, (high if well is None else [high, well[1]])
+
+
+def cap(repo, tileset, folder, looks, *, shared=(), skip=()):
+    """Write the ceiled models of a tileset's open tiles into `folder` (a review's overlay; a copy already there is the one
+    changed) and tell {model: height or why not}. looks: {'default': texture, terrain: texture} by the tile's corners
+    that are not the hub (`Wall`); skip: models left open on purpose (a stairwell shaft, a black filler)."""
+    from pathlib import Path
+    from . import inventory
+    from .apply import noted
+    from .lamps import PACKS
+    folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
+    corners = {tile['model'].lower(): tile['corners'] for tile in inventory.read_set((Path(repo) / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252'))['tiles']}
+    for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, PACKS):
+        if name in skip:
+            told[name] = 'left open'; continue
+        if set(others) - {one.lower() for one in shared}:
+            told[name] = 'shared with ' + ', '.join(others); continue
+        terrains = sorted({corner for corner in corners.get(name, ()) if corner.lower() != 'wall'})
+        texture = next((looks[terrain] for terrain in terrains if terrain in looks), looks['default'])
+        new, said = capped(text, name, texture)
+        if new is not None:
+            require(inventory.walk_hash(new) == inventory.walk_hash(text), f'{name}: the walkmesh would change')
+            noted(folder, file, source); (folder / file).write_bytes(new.encode('cp1252'))
+        told[name] = said
+    return told

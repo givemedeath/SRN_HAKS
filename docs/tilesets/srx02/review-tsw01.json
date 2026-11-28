@@ -1,0 +1,183 @@
+{
+ "tileset": "tsw01",
+ "base": [
+  "tsw01"
+ ],
+ "note": "release C: cave and tunnel candidates (user, 2026-11-27: tdm01 + tsw01)",
+ "haks": [
+  "srn_2da"
+ ],
+ "block": {
+  "width": 19,
+  "height": 10,
+  "lights": [
+   "day"
+  ],
+  "patches": [
+   {
+    "terrain": "floor",
+    "at": [
+     1,
+     1
+    ],
+    "size": [
+     5,
+     4
+    ]
+   },
+   {
+    "terrain": "pit",
+    "at": [
+     8,
+     1
+    ],
+    "size": [
+     4,
+     4
+    ]
+   }
+  ],
+  "runs": [
+   {
+    "crosser": "corridor",
+    "cells": [
+     [
+      0,
+      7
+     ],
+     [
+      18,
+      7
+     ]
+    ]
+   }
+  ],
+  "groups": [
+   {
+    "name": "Camp",
+    "at": [
+     14,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Platform01_2x2",
+    "at": [
+     14,
+     3
+    ],
+    "loose": true
+   },
+   {
+    "name": "Pillar01",
+    "at": [
+     17,
+     1
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    2,
+    2
+   ],
+   [
+    9,
+    2
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "eye-room",
+     "at": [
+      3.0,
+      3.0
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-pit",
+     "at": [
+      9.8,
+      3.0
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-tunnel",
+     "at": [
+      6.5,
+      7.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "eye-camp",
+     "at": [
+      14.5,
+      1.5
+     ],
+     "turns": [
+      45,
+      225
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird",
+     "at": [
+      9.5,
+      6.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 40,
+     "height": 1.0,
+     "pitches": [
+      50
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": []
+ }
+}

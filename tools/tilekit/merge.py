@@ -8,7 +8,7 @@ writes the same bytes: nothing else writes the merged files. `lock` pins what a 
 says what has changed since, so a source set changed later (an envkit sheet's new tiles, say) is seen and merged again.
 
 spec: {set (the merged set's resref), display, names (the names file), families: [{set, label}] in the order their
-tiles are numbered (edge: false for a set with no edge table), general (the family whose GENERAL section is kept), grass (the family whose [GRASS] is kept),
+tiles are numbered (edge: false for a set with no edge table), general (the family whose GENERAL section is kept; envMap, where given, its EnvMap), grass (the family whose [GRASS] is kept),
 joins: [[terrain key, terrain key]] the ground pairs join tiles are built for, raised: [terrain key] grounds with
 raised tiles, numbers (the record of tile numbers, `numbered`), joinTiles (the joins spec), rooms (the folder of room
 specs, `rooms`: each adds two groups of tiles of its own), doors}.
@@ -213,6 +213,8 @@ def merged_set(sets, names, spec, joined=(), numbers=(), roomed=()):
             found = re.fullmatch(r'TILE(\d+)(DOOR\d+)?', section); source = int(found.group(1)) if found else None
             for model, path in ((model, path) for member, model, path in members if member == source):  # a room drawn here may take several tiles from one
                 at = number[(ROOM, model)]; raw = re.sub(r'(?m)^Model=[^\r\n]*', lambda _: f'Model={model}', said)
+                if model.lower() in room.get('switched', ()) and not found.group(2):  # its lights switched (roomlights): lit when painted
+                    raw = re.sub(r'(?m)^AnimLoop3=\d+', 'AnimLoop3=1', raw)
                 if path and not found.group(2):  # and it is open where its own walls say
                     for key, value in (('PathNode', path[0]), ('VisibilityNode', path[0]), ('Orientation', path[1]), ('VisibilityOrientation', path[1])):
                         raw = re.sub(rf'(?m)^{key}=[^\r\n]*', f'{key}={value}', raw)
@@ -279,6 +281,8 @@ def merged_set(sets, names, spec, joined=(), numbers=(), roomed=()):
     # head
     general = dict(next(keys for section, keys in read[spec['general']] if section == 'GENERAL'))
     general.update({'Name': spec['set'].upper(), 'UnlocalizedName': spec['display'], 'DisplayName': '-1'})
+    if spec.get('envMap'):  # the set's one reflection picture, its own rather than the general family's (srx02, 2026-11-27)
+        general['EnvMap'] = spec['envMap']
     for key in ('Border', 'Default', 'Floor'):
         require(general.get(key, '').lower() in terrains.get(spec['general'], {}), f'{spec["general"]}: GENERAL has {key}={general.get(key)!r}, which has no name')
         general[key] = terrains[spec['general']][general[key].lower()]
@@ -363,6 +367,8 @@ def paths(repo, spec):
         inputs.update({f'room:{path.stem}': path for path in sorted((repo / spec['rooms']).glob('*.json'))})
     if spec.get('joinTiles'):
         inputs['joins'] = repo / spec['joinTiles']
+    if spec.get('lights'):  # which room tiles are switched, so lit when painted (AnimLoop3), follows the list of lights
+        inputs['lights'] = repo / spec['lights']
     outputs = {'set': pack / f'{name}.set', 'palette': pack / f'{name}palstd.itp', 'edge': repo / 'srn_2da' / f'{name}_edge.2da'}
     if spec.get('numbers'):  # read and written: the merge before this one wrote what this one keeps
         outputs['numbers'] = repo / spec['numbers']
@@ -376,6 +382,12 @@ def work(repo, spec):
     order = [family['set'] for family in spec['families']]; cut = json.loads(inputs['joins'].read_text(encoding='utf-8')) if 'joins' in inputs else None
     sets = {name: inputs[f'set:{name}'].read_bytes().decode('cp1252') for name in order}; joined = joins.tiles(cut) if cut else (); record = None
     roomed = rooms.records(rooms.specs(Path(repo) / spec['rooms']), sets, spec['set']) if spec.get('rooms') else ()
+    if spec.get('lights'):  # a room tile whose lights are switched (roomlights) is lit while its third loop is on
+        from .compiled import SOURCES
+        from .roomlights import switched
+        source = lambda model: Path(repo) / SOURCES / f'srn_t_{spec["set"]}' / f'{model}.mdl'
+        for room in roomed:
+            room['switched'] = {one[1].lower() for one in room['tiles'] if one and source(one[1]).is_file() and switched(source(one[1]).read_bytes().decode('cp1252'))}
     if 'numbers' in outputs:
         kept = json.loads(outputs['numbers'].read_text(encoding='utf-8')) if outputs['numbers'].is_file() else {'tiles': []}
         require(isinstance(kept, dict) and isinstance(kept.get('tiles'), list), f'{outputs["numbers"].name} is no numbers record: it has no list of tiles')

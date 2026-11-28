@@ -6,6 +6,7 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
+from PIL.ImageOps import flip
 
 from . import material, pictures
 
@@ -132,6 +133,10 @@ class MaterialTests(unittest.TestCase):
         made = material.make(old, {'route': 'layout', 'size': [64, 64], 'keep': 2}, found)
         self.assertGreater(made['colour'][:, 8:24].mean(), 150); self.assertLess(made['colour'][:, 40:56].mean(), 50)
         self.assertGreater(made['colour'][:, 8:24].std(), 3)  # with the scan's grain on it
+        lined = np.full((16, 16, 3), 200, np.uint8); lined[:, 7] = 20  # a one-pixel grid line: kept where it was at keep 0
+        whole = material.make(lined, {'route': 'layout', 'size': [64, 64], 'keep': 0, 'grain': 1.0}, found)['colour'].astype(float)
+        self.assertLess(whole[:, 28:32].mean(), whole[:, 8:24].mean() - 60)  # still dark and narrow, not blurred away
+        self.assertGreater(whole[:, 8:24].std(), 3)  # the scan's grain over the rest
         large = material.make(old, {'route': 'upscale', 'size': [64, 128], 'roughness': 0.4})
         self.assertEqual((large['colour'].shape, float(large['roughness'][0, 0]), float(large['metal'].max())), ((128, 64, 3), 0.4, 0.0))
         self.assertGreater(large['colour'][:, 4:24].mean(), 180)
@@ -195,6 +200,15 @@ class MaterialTests(unittest.TestCase):
         for name in ('wall', 'water'):
             with self.assertRaisesRegex(ValueError, f'{name} is restyled already at {late}'):
                 material.current(repo, name, before=late)
+        upright = Image.new('RGB', (8, 8), (30, 60, 90)); upright.putpixel((0, 7), (1, 2, 3))  # bottom-left as the game shows it
+        flip(upright).save(pack / 'water.dds')  # an approved plain restyle a new one builds over, its first row the bottom
+        git('add', '-A'); git('commit', '-q', '-m', 'redrawn'); redrawn = git('rev-parse', 'HEAD')
+        self.assertEqual(material.current(repo, 'water', before=redrawn, over=True).getpixel((0, 0))[:3], (30, 60, 90))
+        self.assertEqual(material.current(repo, 'water', over=True).getpixel((0, 0))[:3], (30, 60, 90))
+        self.assertEqual(material.current(repo, 'water', before=redrawn, over=True).getpixel((0, 7))[:3], (1, 2, 3))  # turned upright
+        self.assertEqual(material.current(repo, 'water', over=True).getpixel((0, 7))[:3], (1, 2, 3))
+        with self.assertRaisesRegex(ValueError, 'wall is restyled already'):  # over never takes a material's maps
+            material.current(repo, 'wall', before=redrawn, over=True)
 
     def test_a_redrawn_or_enlarged_picture_is_taken_only_as_its_record_says_it_was_made(self):
         import hashlib, json

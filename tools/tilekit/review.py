@@ -320,6 +320,10 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
             for kind, key in (('main', 'Tile_MainLight'), ('source', 'Tile_SrcLight')):
                 for which in (1, 2):
                     cell[f'{key}{which}'] = field('byte', int((lamps or {}).get(kind, 0)))
+            loops = (lamps or {}).get('loops') or ()
+            require(len(loops) <= 3, f'A tile has three animation loops, not {len(loops)}')
+            for which, on in enumerate(loops, 1):  # a tile's animation loops as the area sets them (all on unless a lamp set says)
+                cell[f'Tile_AnimLoop{which}'] = field('byte', int(bool(on)))
             cells.append(cell)
     are.update({'Tileset': field('resref', tileset), 'Width': field('int', width), 'Height': field('int', height), 'Tile_List': field('list', cells),
                 'Name': field('cexolocstring', {'0': title}), 'Tag': field('cexostring', tag), 'ResRef': field('resref', tag),
@@ -370,6 +374,8 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     laid_over = sorted(path for path in Path(overlay).iterdir() if path.name not in (MADE_FROM, MODELS_FROM, WALK_CUTS, KIT_FILES)) if overlay else []  # refused before anything is made: the folder stays fresh
     for path in laid_over:
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Overlay files are lowercase resref files: ' + path.name)
+        # a set file of bare LF lines crashed the client as the area loaded (a sed copy of srx02.set, 2026-11-27)
+        require(path.suffix.lower() != '.set' or b'\n' not in path.read_bytes().replace(b'\r\n', b''), f'{path.name}: a set file has bare LF line ends, which the client falls over on: write it with CRLF')
     user, staged, documents, binary = (output / part for part in ('userdir', 'hak-resources', 'json', 'module'))
     for folder in (user / 'hak', user / 'modules', user / 'tlk', staged, documents, binary):
         folder.mkdir(parents=True)
@@ -464,7 +470,7 @@ def plan(set_text, spec, *, parts=PARTS, built_area=None, sets=None, table=None)
             shots += eyes(tag, f'eye-{light}')
         for lamps in block.get('lamps', ()):  # the block's own lights switched on: what a builder gets from a tile's light settings
             for light in lamps['lights']:
-                tag = f'tkl{lamps["name"][0]}{light[0]}'; add(tag, f'Block, {light}, {lamps["name"]} lights', block['width'], block['height'], cells, light, {'main': lamps.get('main', 0), 'source': lamps.get('source', 0)})
+                tag = f'tkl{lamps["name"][0]}{light[0]}'; add(tag, f'Block, {light}, {lamps["name"]} lights', block['width'], block['height'], cells, light, {'main': lamps.get('main', 0), 'source': lamps.get('source', 0), **({'loops': lamps['loops']} if 'loops' in lamps else {})})
                 shots += chosen(corner_shots(tag, f'lamp-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']]), block.get('views'))
                 if 'near' in block:
                     shots += chosen(corner_shots(tag, f'lampnear-{lamps["name"]}-{light}', [tuple(cell) for cell in block['crossings']], distance=block['near']['distance'], pitch=block['near']['pitch']), block['near'].get('views'))

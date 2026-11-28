@@ -5759,12 +5759,14 @@
     ],
     "tools/tilekit/__init__.py": [],
     "tools/tilekit/__main__.py": [
+      "hakbuilder.json",
       "tools/armorkit/__init__.py",
       "tools/armorkit/client.py",
       "tools/headkit/comfy.py",
       "tools/shared_tools.py",
       "tools/tilekit/apply.py",
       "tools/tilekit/blink.py",
+      "tools/tilekit/ceilings.py",
       "tools/tilekit/client_settings.py",
       "tools/tilekit/commands.py",
       "tools/tilekit/compiled.py",
@@ -5785,6 +5787,7 @@
       "tools/tilekit/remesh.py",
       "tools/tilekit/retexture.py",
       "tools/tilekit/review.py",
+      "tools/tilekit/roomlights.py",
       "tools/tilekit/screens.py",
       "tools/tilekit/shadows.py",
       "tools/tilekit/sheets.py",
@@ -5816,8 +5819,12 @@
       "tools/tilekit/lamps.py"
     ],
     "tools/tilekit/ceilings.py": [
+      "tools/tilekit/apply.py",
       "tools/tilekit/geometry.py",
-      "tools/tilekit/material.py"
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py",
+      "tools/tilekit/material.py",
+      "tools/tilekit/rooms.py"
     ],
     "tools/tilekit/client_settings.py": [],
     "tools/tilekit/commands.py": [
@@ -5885,6 +5892,9 @@
       "tools/tilekit/kit.py",
       "tools/tilekit/material.py"
     ],
+    "tools/tilekit/drawn.py": [
+      "tools/tilekit/material.py"
+    ],
     "tools/tilekit/effects.py": [
       "tools/tilekit/geometry.py"
     ],
@@ -5928,7 +5938,8 @@
       "tools/envkit/tile.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/kit.py",
-      "tools/tilekit/pictures.py"
+      "tools/tilekit/pictures.py",
+      "tools/tilekit/roomlights.py"
     ],
     "tools/tilekit/kit.py": [
       "tools/tilekit/material.py"
@@ -5945,8 +5956,10 @@
       "tools/tilekit/pictures.py"
     ],
     "tools/tilekit/merge.py": [
+      "tools/tilekit/compiled.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
+      "tools/tilekit/roomlights.py",
       "tools/tilekit/rooms.py",
       "tools/tilekit/terrain.py",
       "tools/tilekit/walls.py"
@@ -6016,6 +6029,12 @@
       "tools/tilekit/client_settings.py",
       "tools/tilekit/inventory.py"
     ],
+    "tools/tilekit/roomlights.py": [
+      "tools/tilekit/apply.py",
+      "tools/tilekit/daylight.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/lamps.py"
+    ],
     "tools/tilekit/rooms.py": [
       "tools/envkit/__init__.py",
       "tools/envkit/tile.py",
@@ -6028,6 +6047,7 @@
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
       "tools/tilekit/reduce_blender.py",
+      "tools/tilekit/roomlights.py",
       "tools/tilekit/strip.py",
       "tools/tilekit/terrain.py",
       "tools/tilekit/unique.py",
@@ -6092,6 +6112,13 @@
       "tools/tilekit/material.py",
       "tools/tilekit/pictures.py"
     ],
+    "tools/tilekit/test_ceilings.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/ceilings.py",
+      "tools/tilekit/geometry.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/test_strip.py"
+    ],
     "tools/tilekit/test_compiled.py": [
       "tools/test_impact.py",
       "tools/tilekit/__init__.py",
@@ -6136,6 +6163,11 @@
       "tools/tilekit/doorset.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/material.py"
+    ],
+    "tools/tilekit/test_drawn.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/drawn.py",
+      "tools/tilekit/test_material.py"
     ],
     "tools/tilekit/test_effects.py": [
       "tools/tilekit/__init__.py",
@@ -6262,6 +6294,13 @@
       "tools/tilekit/__main__.py",
       "tools/tilekit/review.py"
     ],
+    "tools/tilekit/test_roomlights.py": [
+      "tools/tilekit/__init__.py",
+      "tools/tilekit/daylight.py",
+      "tools/tilekit/inventory.py",
+      "tools/tilekit/roomlights.py",
+      "tools/tilekit/test_strip.py"
+    ],
     "tools/tilekit/test_rooms.py": [
       "tools/envkit/__init__.py",
       "tools/envkit/tile.py",
@@ -6299,6 +6338,7 @@
       "tools/envkit/__init__.py",
       "tools/envkit/tile.py",
       "tools/tilekit/__init__.py",
+      "tools/tilekit/compiled.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
@@ -6335,7 +6375,8 @@
     ],
     "tools/tilekit/texels.py": [
       "tools/tilekit/geometry.py",
-      "tools/tilekit/pictures.py"
+      "tools/tilekit/pictures.py",
+      "tools/tilekit/roomlights.py"
     ],
     "tools/tilekit/unique.py": [
       "tools/tilekit/compiled.py",
@@ -6440,6 +6481,12 @@
       "srn_t_dgt04",
       "srn_t_fcx01",
       "srn_t_udp1"
+    ],
+    "tools/envkit/toolset_paint.py": [
+      "srn_t_nac01",
+      "srn_t_tbx78",
+      "srn_t_tfb01",
+      "srn_t_udp2"
     ],
     "tools/headbatch/publish_library.py": [
       "srn_body",
@@ -6623,6 +6670,9 @@
       "srn_2da",
       "srn_door"
     ],
+    "tools/tilekit/drawn.py": [
+      "srn_t_srx02"
+    ],
     "tools/tilekit/inventory.py": [
       "srn_2da",
       "srn_t_common"
@@ -6687,6 +6737,9 @@
       "srn_t_common",
       "srn_t_fcx01"
     ],
+    "tools/tilekit/test_ceilings.py": [
+      "srn_t_tfb01"
+    ],
     "tools/tilekit/test_compiled.py": [
       "srn_door",
       "srn_envprop",
@@ -6694,9 +6747,13 @@
       "srn_t_common",
       "srn_t_dgt04",
       "srn_t_fcx01",
+      "srn_t_nac01",
       "srn_t_srx01",
       "srn_t_srx02",
-      "srn_t_udp1"
+      "srn_t_tbx78",
+      "srn_t_tfb01",
+      "srn_t_udp1",
+      "srn_t_udp2"
     ],
     "tools/tilekit/test_crown.py": [
       "srn_t_common"
@@ -6719,6 +6776,10 @@
     "tools/tilekit/test_doors.py": [
       "srn_2da",
       "srn_door"
+    ],
+    "tools/tilekit/test_drawn.py": [
+      "srn_t_srx02",
+      "srn_t_tfb01"
     ],
     "tools/tilekit/test_enlarge.py": [
       "srn_t_common"
@@ -7174,6 +7235,7 @@
     "tools/tilekit/test_audit.py",
     "tools/tilekit/test_baselines.py",
     "tools/tilekit/test_blink.py",
+    "tools/tilekit/test_ceilings.py",
     "tools/tilekit/test_compiled.py",
     "tools/tilekit/test_crown.py",
     "tools/tilekit/test_cuts.py",
@@ -7182,6 +7244,7 @@
     "tools/tilekit/test_door_names.py",
     "tools/tilekit/test_doors.py",
     "tools/tilekit/test_doorset.py",
+    "tools/tilekit/test_drawn.py",
     "tools/tilekit/test_effects.py",
     "tools/tilekit/test_enlarge.py",
     "tools/tilekit/test_family.py",
@@ -7205,6 +7268,7 @@
     "tools/tilekit/test_repair.py",
     "tools/tilekit/test_retexture.py",
     "tools/tilekit/test_review.py",
+    "tools/tilekit/test_roomlights.py",
     "tools/tilekit/test_rooms.py",
     "tools/tilekit/test_screens.py",
     "tools/tilekit/test_shadows.py",

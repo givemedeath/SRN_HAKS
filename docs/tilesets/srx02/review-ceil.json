@@ -1,0 +1,381 @@
+{
+ "tileset": "srx02",
+ "note": "release C: tfb01 ceilings (user, 2026-11-26)",
+ "haks": [
+  "srn_t_srx02",
+  "srn_t_udp2",
+  "srn_t_tfb01",
+  "srn_t_tbx78",
+  "srn_t_nac01",
+  "srn_t_common",
+  "srn_door",
+  "srn_placeable",
+  "srn_envprop",
+  "srn_2da"
+ ],
+ "block": {
+  "width": 20,
+  "height": 6,
+  "lights": [
+   "day"
+  ],
+  "patches": [],
+  "groups": [
+   {
+    "name": "HomeLower01_2x2",
+    "at": [
+     1,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "HomeUpper01_2x2",
+    "at": [
+     4,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "InnRoom01_1x2",
+    "at": [
+     7,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "KitchenRoom01_1x2",
+    "at": [
+     9,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Shop01_1x2",
+    "at": [
+     11,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "Baracks",
+    "at": [
+     13,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "KitchenCornerStairsU",
+    "at": [
+     17,
+     1
+    ],
+    "loose": true
+   },
+   {
+    "name": "SlumHome01",
+    "at": [
+     17,
+     3
+    ],
+    "loose": true
+   }
+  ],
+  "crossings": [
+   [
+    1,
+    1
+   ],
+   [
+    4,
+    1
+   ],
+   [
+    7,
+    1
+   ],
+   [
+    9,
+    1
+   ],
+   [
+    11,
+    1
+   ],
+   [
+    13,
+    1
+   ],
+   [
+    17,
+    1
+   ],
+   [
+    17,
+    3
+   ]
+  ],
+  "views": [
+   "none"
+  ],
+  "near": {
+   "distance": 16.0,
+   "pitch": 35.0
+  },
+  "eye": {
+   "crossings": [],
+   "places": [
+    {
+     "name": "eye-homelower",
+     "at": [
+      1.5,
+      1.5
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-homelower",
+     "at": [
+      2.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      45
+     ]
+    },
+    {
+     "name": "eye-homeupper",
+     "at": [
+      4.5,
+      1.5
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-homeupper",
+     "at": [
+      5.0,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      45
+     ]
+    },
+    {
+     "name": "eye-innroom01",
+     "at": [
+      7.25,
+      1.5
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-innroom01",
+     "at": [
+      7.5,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      45
+     ]
+    },
+    {
+     "name": "eye-kitchenro",
+     "at": [
+      9.25,
+      1.5
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-kitchenro",
+     "at": [
+      9.5,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      45
+     ]
+    },
+    {
+     "name": "eye-shop011x2",
+     "at": [
+      11.25,
+      1.5
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-shop011x2",
+     "at": [
+      11.5,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      45
+     ]
+    },
+    {
+     "name": "eye-baracks",
+     "at": [
+      13.75,
+      1.5
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-baracks",
+     "at": [
+      14.5,
+      2.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      45
+     ]
+    },
+    {
+     "name": "eye-kitchenco",
+     "at": [
+      17.25,
+      1.25
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-kitchenco",
+     "at": [
+      17.5,
+      1.5
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 18,
+     "height": 1.0,
+     "pitches": [
+      45
+     ]
+    },
+    {
+     "name": "eye-slumhome0",
+     "at": [
+      17.5,
+      3.5
+     ],
+     "turns": [
+      45
+     ],
+     "pitches": [
+      95,
+      125
+     ]
+    },
+    {
+     "name": "bird-slumhome0",
+     "at": [
+      18.0,
+      4.0
+     ],
+     "turns": [
+      90
+     ],
+     "distance": 30,
+     "height": 1.0,
+     "pitches": [
+      45
+     ]
+    }
+   ],
+   "pitches": [
+    95
+   ]
+  },
+  "lamps": [
+   {
+    "name": "main",
+    "main": 3,
+    "source": 3,
+    "lights": [
+     "day"
+    ]
+   }
+  ]
+ }
+}

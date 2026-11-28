@@ -42,6 +42,14 @@ class TexelsTest(unittest.TestCase):
         self.assertEqual(told['small']['models'], ['t'])
         self.assertEqual(texels.measure({'t': TEXT.format(picture='other')}, {'small': (128, 128)}), {})
 
+    def test_a_switched_light_s_unlit_copy_is_not_counted_twice(self):
+        # the off copy of a lit fitting doubled lrk_lite06's area past SCRAP (CI of PR 209, 2026-11-28)
+        body = TEXT.split('node trimesh slab', 1)[1].split('endmodelgeom', 1)[0]
+        twice = TEXT.replace('endmodelgeom', 'node trimesh slab_off' + body + 'endmodelgeom', 1).format(picture='small')
+        self.assertAlmostEqual(texels.measure({'t': twice}, {'small': (128, 128)})['small']['area'], 4)
+        other = twice.replace('slab_off', 'shelf_off')
+        self.assertAlmostEqual(texels.measure({'t': other}, {'small': (128, 128)})['small']['area'], 8)
+
     def test_a_weak_picture_is_small_coarse_and_not_one_colour(self):
         files = {name: name for name in 'abcd'}
         measured = {name: {'density': density, 'area': area} for name, density, area in (('a', 90, 5), ('b', 90, 1), ('c', 90, 5), ('d', 90, 5))}

@@ -45,7 +45,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import ceilings, cuts, detail, effects, geometry, inventory, require, strip, terrain, walls
+from . import ceilings, cuts, detail, effects, geometry, inventory, require, strip, terrain, walls, roomlights
 from .unique import unique
 
 VARIANTS = (('u', ''), ('f', ', furnished'))
@@ -722,11 +722,14 @@ def work(repo, merge_spec, blender=None, addon=None):
     for room, spec in rooms.items():
         textured(repo, room, spec)
     pieces = pieces_of(repo, rooms, blender, addon); untextured(repo, pieces)
+    lights = roomlights.load(repo / merge_spec['lights']) if merge_spec.get('lights') else None
     for room, spec in rooms.items():
         require(spec['shell']['set'] in sets, f'{room}: {spec["shell"]["set"]} is no family of the set')
-        text_of = lambda name: _model(repo, name, spec['shell']['set']).read_bytes().decode('cp1252')
+        text_of = lambda name: roomlights.unswitch(_model(repo, name, spec['shell']['set']).read_bytes().decode('cp1252'))  # the shell as it was drawn: its lights switched again below
         tiles, told[room] = made(room, spec, sets[spec['shell']['set']].read_bytes().decode('cp1252'), text_of, pieces, merge_spec['set'])
         for name, (text, wok) in tiles.items():
+            if lights:  # the room's light fittings switched by the third loop, as the families' (roomlights)
+                text = roomlights.switch(text, lights['lit'], lights.get('mapped', ()))[0]
             files[f'sources/{pack}/{name}.mdl'] = text.replace('\r\n', '\n'); files[f'{pack}/{name}.wok'] = wok.replace('\r\n', '\n')
     return files, told
 
@@ -743,6 +746,8 @@ def inputs(repo, merge_spec):
         for model in filter(None, shell_of(spec, sets[name].read_bytes().decode('cp1252'))[3]):
             found[f'shell:{model}'] = _hash(_model(repo, model, name).read_bytes())
     found.update({f'piece:{piece}': _hash(path.read_bytes()) for piece, path in piece_paths(repo, rooms).items()})
+    if merge_spec.get('lights'):
+        found['lights'] = _hash((repo / merge_spec['lights']).read_bytes())
     return dict(sorted(found.items()))
 
 

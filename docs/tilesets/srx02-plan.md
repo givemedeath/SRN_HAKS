@@ -620,6 +620,147 @@ Release A was never cut on its own; release B carries it: the merged set with th
   doubled to 512 (`pkt_walhang2a`, the lodge banner; `grafitti1h`, the shack's tag).
 - **Not done:** palette blueprints for the `[lpat]` rows; the restyle (release C).
 
+## Release C plan (2026-11-26, user: "Start release C")
+
+Merged as PR 205; release C is on `claude/srx02-release-c` from main `ea45bc809`. **Props polishing pass (user,
+2026-11-26):** in about two weeks, when Meshy credits are back, the prefab rooms get better props (bar and magic props
+first). So release C restyles the tiles and leaves the room specs' prop choices alone; the rooms are rebuilt at the
+end only because they draw the family textures.
+
+**Where the four families stand** (`docs/tilesets/<set>/textures.csv`, drawn area of the set's own tiles):
+
+| | Textures | Drawn area | At 256 px or less | Restyled so far |
+|---|---|---|---|---|
+| Office `udp2` | 51 | 84,477 m² | 7, 7.6% of the area | none |
+| Modern Interior `tfb01` | 67 | 73,945 m² | 16, 12.8% | 43 redrawn with local Qwen at stage 4b (plain pictures, no maps) |
+| Facility `tbx78` | 20 | 27,680 m² | 9, 41.9% | none |
+| Ducts `nac01` | 9 | 5,168 m² | 4, 23.1% | none |
+
+The top textures: Office's ceiling tile (26%), carpet, vinyl and terrazzo floors, vinyl and block walls; Modern
+Interior's shop floor, plank and corded walls, floors and stone; Facility's wall, metal, floor and ceiling (its wall
+and floor are 256 px); the ducts' sheet metal and flex pipe. None of the four packs has a material (`.mtr`) yet, and
+all four ship ASCII models with no `sources/` copy.
+
+**Proposed order** (the srx01 release B method, `dgt04-upfit-plan.md`):
+1. **Pilot.** The top textures of each family (about 27, at least 70% of each family's area) through `tilekit
+   material`, under one interior grade, in a review overlay: eye-level and bird's-eye views of a block of each
+   family, a Hallway join between families, and one room per family. **User gate on the look.**
+2. **The rest, family by family**, with a contact sheet each; weak pictures (256 px or less over a scrap of area)
+   upscaled or redrawn (`tilekit enlarge`, `redraw` with local Qwen); old screens and logos redrawn for the 2070s.
+3. **Lights and shadows:** `lamps` (lamp halos to main lights where a set has them) and `shadows` (one-plane meshes
+   that cast wedges), as on dgt04 and udp1.
+4. **Adoption:** `unique`, then `compile --adopt` for `srn_t_udp2`, `srn_t_tfb01`, `srn_t_tbx78` and `srn_t_nac01`,
+   so they ship compiled with ASCII in `sources/`.
+5. **One EnvMap** for the set (open since stage 2).
+6. **Re-check:** rooms rebuilt (`tilekit rooms`), the passage joins viewed across each family boundary, Toolset
+   smoke, walks, and `perf` against release B's numbers. Release C is one pull request.
+
+Restyles go in place in the four source packs, so the old Office, Modern Interior, Facility and Ducts sets take the
+new look too.
+
+**Release C progress (2026-11-26).**
+- Pilot pass 1 (`layout` route over every texture) barely changed the look. Pass 2 (user: "scan replaces the picture")
+  puts the scans on plain surfaces (`master` route, the old mean colour kept by `tone`), keeps the layout of banded,
+  panelled and tiled pictures with stronger scan grain, and adds the prefab rooms' own `srx02_clg*` ceilings. The
+  user approved pass 2 and the rollout ("Yes, fix and roll out"). Spec: `docs/tilesets/srx02/materials-c.json`;
+  views: `review-c.json` (rooms) and `review.json` (family floors and corridors).
+- New `over` flag: a texture whose pack picture is already a standard DDS (the tfb01 Qwen redraws; a few source
+  pictures such as `tbx78_floor01`) builds over that picture. **Mistake, guarded:** `current` read such a DDS top
+  row first while the game shows its first row at the bottom, so 62 textures came out upside down (the shop wall's
+  blue band moved to the top). `current` now turns a standard DDS upright; `test_material` checks a bottom-left pixel.
+- Skipped on purpose: blank and gradient pictures, textures shared with sets already restyled (`udp1-*`, `gg*`),
+  cut-outs with alpha, and pictures of 64 px or less.
+- **Ceilings (user, 2026-11-26: "appropriate ceilings on the rooms that are missing them").** `tilekit ceilings`
+  (`ceilings.cap`) gives every tile open to the sky over its floor a ceiling at its walls' top, seen from below only:
+  329 of tfb01's tiles (plaster `tfb01_ceilpl`, shops acoustic tile `tfb01_ceilti`, tfb01 copies of the rooms'
+  ceilings). Over a stair or an upper storey it is the lowest walls' top 2.6 m clear of the floor, else a storey
+  over it. udp2's black filler tiles (`m01`) and up-stairwell shafts (`a35`) stay open; nac01's ducts are closed pipes.
+  Troll check: male trolls are 2.5 m; ceilings are 2.8 m or more, doorways 2.8 m or more, the lowest hanging lamps 2.6 m.
+- **Light panels (user: the office ceiling's lights lost their glow).** The light panel is painted into
+  `udp2_msc_clg`; the interior grade dimmed it and the material shades it. It now has a glow map over the panel.
+- **Room lights switched by script (user, 2026-11-26: "script driven switching is probably best for interiors").**
+  Every fitting is self-lit, day and night, today (room lamps, tbx78's yellow panels and red strips, udp2's panels),
+  and a fitting's glow lights nothing: a room's light is its tiles' main lights. Planned for the lights stage:
+  - each lit fitting gets an unlit look in place and its lit faces in a copy that a free loop raises into place
+    (`animloop03`: tbx78 and nac01 use no loop, udp2's `animloop01` is an empty stub on 172 models, tfb01 uses 01-02
+    and one 03), as `daylight` does with lit windows; the set file has `AnimLoop3=1` so a painted room is lit;
+  - SR_NWN switches a room with Anvil's `NwArea.SetTiles` (AnimationLoop3; NWScript has no tile loop call, found
+    2026-11-27) over the room's tiles, together with
+    `SetTileMainLightColor` (off: black) and one `RecomputeStaticLighting(area)` after; instructions for SR_NWN in
+    a doc beside the tileset's, as armorkit's `sr-nwn-instructions.md`.
+- **Lights stage (2026-11-27, user: "Yes, start lights").** `tilekit roomlights` (list `srx02/lights.json`): 310
+  family tiles (udp2 210, tfb01 14, tbx78 86; nac01 has none) and the 136 prefab-room tiles that have lamps (rooms
+  switch what they build; passage joins read their tiles unswitched and stay lit; the merge turns AnimLoop3 on for
+  switched room tiles). Office ceilings switch to `udp2_msc_clgo`, their material without the glow map. Client:
+  `review-lights.json` captures the rooms lit and switched off (a review lamp set may now give the area's tile
+  loops, `loops`); the fittings swap as meant. **Found:** NWScript has no tile loop call; SR_NWN needs Anvil's
+  `NwArea.SetTiles` for a live switch, not yet tried live (`srx02/sr-nwn-room-lights.md`). An area's tiles keep
+  their own loop flags (`Tile_AnimLoopN`), copied from the set file when painted. **Mistake, guarded:** a `sed` copy
+  of srx02.set lost its CRLF line ends and the client fell over loading the area, which looked like a loop crash;
+  `review` now refuses an overlay set file with bare LF lines.
+- **Adoption (2026-11-27, user: "Yes").** `compile --adopt` for `srn_t_nac01` (17), `srn_t_tbx78` (90), `srn_t_udp2`
+  and `srn_t_tfb01`: the four packs ship compiled, ASCII in `sources/`. Refused at first: 24 office tiles with
+  repeated node names (`beam`, `crown`), fixed by `tilekit unique --pack srn_t_udp2` (4,201 nodes renamed); 35
+  home tiles whose modeller loops (`animloop01`) carry plain material lines the compiler leaves out, stripped from
+  21 sources (constants that animate nothing). Walkmeshes as their baselines, all 446 switched tiles still
+  switched, rooms and joins rebuilt; the client shows the rooms lit and switched off as before.
+- **EnvMap (2026-11-28, user: "Do it").** The families came with `tdc01__ref01` (office, facility: the crypt's),
+  `tfb01__ref01` (home) and `env_tti` (ducts); the merged set had taken the office's. srx02 now has its own,
+  `srx02__ref01` (`drawn.reflection`: a lit modern room as a mirror ball sees it), named by `merge.json` `envMap`.
+  No texture of the families names a reflection of its own. Client: the rooms look as before; at these views the
+  reflection is too faint to see a difference.
+- **Applied (2026-11-27, user: "Yes, apply").** `tilekit apply` of `materials-c.json` over `c-overlay` (616 files put
+  in seven packs, 35 old copies deleted, 55 expected overrides) and of the `c-ceil` ceilings (329 tfb01 models);
+  srx02's compiled tiles recompiled for the new materials. Walkmeshes as their baselines; the passage joins and the
+  prefab rooms cut from tfb01 tiles built again (`joins`, `rooms`, `merge`, `compile`); packs rebuilt.
+- **Final checks (2026-11-28, user: "Finish Release C").**
+  - Frame rate, furnished block: 176–178 fps over 12 s (release B 146–176) and 114–163 over 48 s (B 93–157).
+    Unfurnished: 174–176 over 12 s. No loss.
+  - The family capture is whole, the walkmeshes match their baselines and the 446 tiles are still switched.
+  - Toolset, on an isolated user folder (`toolset_paint`): Office Cream Small Room A (udp2, switched), Home Lower
+    Floor 2x2 A (tfb01), Facility Room 2x1 A (tbx78, switched), the furnished Conference Room and Single-Family House.
+    Each was laid, saved and read back whole.
+  - Two faults of the check module were found and fixed, both guarded in `test_toolset_paint.py`:
+    - `prepare` listed only `srn_t_srx02` of the tile packs. The Toolset hit an access violation on the first group
+      it armed, because the families' models were not in the module. `prepare` now lists every pack that holds a
+      model of the set.
+    - An interior's ground is Wall, and the Toolset will not save a start point there. `prepare` now lays the first
+      plain floor tile under the start point.
+
+## Release D: caves and tunnels (user, 2026-11-27)
+
+After release C (user: "release D after C"). A cave and tunnel family appended to srx02 (tile numbers after
+nac01's), joined to tbx78's facility corridor. The user asked for a set that "already has sculpted tunnels and/or
+caverns with no need to create a lot of ceilings", the SWLOR haks included.
+- Seen and set aside: base Mines and Caverns `tdm01` and Steamworks `tsw01` (both open overhead; review specs
+  `review-tdm01.json`, `review-tsw01.json`).
+- Surveyed in SWLOR_Haks: every SWLOR cave set is a base-game set (tdm01, tds01, tib01, tii01, tdt01, tbw01) or its
+  CEP extension (zdm01, zib01), an exterior (Underdark `ttu01`, Planetscape `vmp01`), or the D20 Bunker `fifi`
+  already in this repository. Candidates captured eye level, tilted up: `tdt01`, `tib01`, `tbw01`, `tii01`, `fifi`
+  (`review-<set>.json`).
+- Captured 2026-11-27: `tdt01`, `tib01`, `tbw01` and `tii01` are open to the sky like every NWN interior; only the
+  D20 Bunker `fifi` is closed overhead (its rooms and tube tunnels have modelled ceilings). Beholder Caves `tib01`
+  has the best sculpted rock tunnels (walls lean in) but needs lids; its wall tops are irregular, so a lid at the
+  walls' top leaves gaps where a wall dips. Proposal put to the user: tunnels from `fifi` (closed, tech, sits with
+  tbx78) and caverns from `tib01` lidded by `tilekit ceilings` in rock.
+- **Decision (user, 2026-11-27): "Caverns: Beholder Caves and it will need scans or redraws to replace its
+  textures".** Base `tib01` is 69 tiles over 8 textures (models using each: `tib01_lava` 67, `tib01_wallbase` 65,
+  `tib_ground` 63, `tib01_border` 59, `tib01_drips` 51, `tib01_wallbasic` 3, `tib01_lavavein2` 1, `tib_door01` 1).
+  Every one is replaced by a scan (`material` master or layout route) or a redraw, under own names (`tilekit
+  retexture`; base-game textures are never changed in place); the lava becomes something a 2070s city has under it
+  (water, sludge or dark rock). Lids by `tilekit ceilings` in the new rock, the uneven wall tops proved on a pilot
+  room. Open at release D's start: the CEP extension `zib01` (340 more models in SWLOR_Haks `sw_t_beholder`: Lava,
+  Blood, Magic, Sewer, Urine and Water rooms over `zdc04_*` and `zlc_cfw_water_*` textures) only if the base rooms
+  are too few; the tunnels source (`fifi` proposed, not yet confirmed).
+- **Decision (user, 2026-11-27): release D also takes Steamworks `tsw01` as the sewers** ("brick sewer rooms with
+  round outfall pipes, metal grating, tanks and tall pipes ... the stronger Shadowrun fit, for maintenance and
+  sewer runs"). Base set: 179 tiles; of its `tsw01_*` models, 194 name 30 textures (walls `wall01`-`09b`, floor,
+  pillars, pipes `npipe1-3`, grates, blast marks, sludge, wood, metal). Open overhead (`review-tsw01.json`), so it is
+  lidded too; its textures pass through the release C look rules (scans or redraws where weak, own names). The
+  family is joined to tbx78 and to the caverns.
+- **Decision (user, 2026-11-27: "No, caves + sewers"):** release D is `tib01` caverns and `tsw01` sewers only; the
+  D20 Bunker `fifi` tunnels are not taken.
+
 ## Work order
 
 Each stage is one pull request into a `restyle/srx02` branch; `main` gets one merge per release. The running record
