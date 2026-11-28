@@ -6338,6 +6338,7 @@
       "tools/envkit/__init__.py",
       "tools/envkit/tile.py",
       "tools/tilekit/__init__.py",
+      "tools/tilekit/compiled.py",
       "tools/tilekit/geometry.py",
       "tools/tilekit/inventory.py",
       "tools/tilekit/joins.py",
@@ -6374,7 +6375,8 @@
     ],
     "tools/tilekit/texels.py": [
       "tools/tilekit/geometry.py",
-      "tools/tilekit/pictures.py"
+      "tools/tilekit/pictures.py",
+      "tools/tilekit/roomlights.py"
     ],
     "tools/tilekit/unique.py": [
       "tools/tilekit/compiled.py",

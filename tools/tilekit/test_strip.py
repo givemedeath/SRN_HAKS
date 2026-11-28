@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 
 from tools.envkit import tile
-from tools.tilekit import geometry, inventory, joins, strip
+from tools.tilekit import compiled, geometry, inventory, joins, strip
 
 REPO = Path(__file__).resolve().parents[2]
 PACKS = ('srn_t_tfb01',)  # what this reads: named so the test selector runs it when one changes
@@ -86,7 +86,7 @@ class Stripping(unittest.TestCase):
 
 class ModernInterior(unittest.TestCase):
     def test_the_living_room_tile_strips_to_an_empty_room(self):
-        text = (REPO / 'srn_t_tfb01' / 'tfb01_e01_01.mdl').read_bytes().decode('cp1252'); _, _, nodes = geometry.parse(text); found = strip.sort(nodes)
+        text = compiled.source(REPO, REPO / 'srn_t_tfb01' / 'tfb01_e01_01.mdl').read_bytes().decode('cp1252'); _, _, nodes = geometry.parse(text); found = strip.sort(nodes)
         looks = {node.name: node.material for node in nodes}
         self.assertEqual({looks[name] for name, (kind, _) in found.items() if kind == 'shell'}, {'tfb01_lwalls', 'tfb01_door2', 'tfb01_metaldoor'})
         self.assertEqual(sorted({looks[name] for name, (kind, _) in found.items() if kind == 'furniture'}), ['tfb01_bed02', 'tfb01_door2'])
@@ -98,7 +98,7 @@ class ModernInterior(unittest.TestCase):
     def test_every_tile_of_the_set_sorts(self):
         laid = inventory.read_set((REPO / 'srn_t_tfb01' / 'tfb01.set').read_bytes().decode('cp1252')); kinds = {}
         for model in sorted({one['model'].lower() for one in laid['tiles']}):
-            path = REPO / 'srn_t_tfb01' / f'{model}.mdl'
+            path = compiled.source(REPO, REPO / 'srn_t_tfb01' / f'{model}.mdl')
             if path.is_file():
                 _, _, nodes = geometry.parse(path.read_bytes().decode('cp1252'))
                 for kind, _ in strip.sort(nodes).values():

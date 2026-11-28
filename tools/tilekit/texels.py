@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from . import geometry, pictures
+from . import geometry, pictures, roomlights
 
 SMALL, TINY = 512, 128  # pixels of the longer side: above the first a picture is not weak, at the second it always is
 COARSE = 170  # pixels a metre: eye level in a room shows fewer as blur
@@ -42,8 +42,13 @@ def measure(models, sizes):
     them}); sizes: {picture: (width, height)}, and only those are measured."""
     drawn, where = collections.defaultdict(list), collections.defaultdict(set)
     for name, text in models.items():
-        for node in geometry.parse(text)[2] if isinstance(text, str) else text:
+        nodes = geometry.parse(text)[2] if isinstance(text, str) else text
+        lit = {(getattr(node, 'name', '') or '').lower() for node in nodes}
+        for node in nodes:
             picture = (node.material or '').lower()[:16]
+            called = (getattr(node, 'name', '') or '').lower()
+            if called.endswith(roomlights.SUFFIX) and called[:-len(roomlights.SUFFIX)] in lit:
+                continue  # a switched light's unlit copy: drawn in place of its lit mesh, never beside it
             if not node.rendered or picture not in sizes or not node.tverts:
                 continue
             points = np.array(node.verts, float); over = np.array([one[:2] for one in node.tverts], float) * sizes[picture]
