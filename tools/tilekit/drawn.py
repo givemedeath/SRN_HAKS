@@ -96,6 +96,21 @@ def reflection(size=256):
 
 
 PICTURES = {'tfb01_flood': flood}
+REFLECTIONS = {'srn_t_srx02/srx02__ref01.tga': reflection}  # pack files written as they ship (`reflections`)
+
+
+def reflections(repo, check=False):
+    """Write each drawn reflection picture to its pack file, or with `check` tell those whose file differs. [paths]."""
+    from io import BytesIO
+    from PIL import Image
+    told = []
+    for path, made in REFLECTIONS.items():
+        out = BytesIO(); Image.fromarray(made()).save(out, format='TGA'); target = Path(repo) / path
+        if not target.is_file() or target.read_bytes() != out.getvalue():
+            told.append(path)
+            if not check:
+                target.write_bytes(out.getvalue())
+    return told
 
 
 def write(masters, folder):

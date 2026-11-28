@@ -35,6 +35,18 @@ class Switching(unittest.TestCase):
         made, count = roomlights.switch(lit_room(), {'panel': 'panelx'}, mapped=('panel',)); self.assertEqual(count, 1)
         self.assertEqual(daylight._field(roomlights._block(made, 'panel_off').group(0), 'bitmap'), 'panelx')
 
+    def test_a_lit_mesh_named_off_is_switched_and_a_glow_mapped_light_needs_an_unlit_texture(self):
+        # review of PR 209: only the copies made here are passed over, and an unlit copy that kept its glow map stayed lit
+        made, count = roomlights.switch(lit_room().replace('lamp1', 'lamp_off'), {'lamp': None})
+        self.assertEqual(count, 1); self.assertIn('lamp_off_off', roomlights._rests(made))
+        with tempfile.TemporaryDirectory() as work:
+            path = Path(work) / 'lights.json'
+            path.write_text('{"lit": {"panel": null}, "mapped": ["panel"]}', encoding='utf-8')
+            with self.assertRaisesRegex(ValueError, 'texture of their own'):
+                roomlights.load(path)
+            path.write_text('{"lit": {"panel": "panelx"}, "mapped": ["panel"]}', encoding='utf-8')
+            self.assertEqual(roomlights.load(path)['lit'], {'panel': 'panelx'})
+
     def test_a_model_is_switched_once_and_unswitched_to_what_it_was(self):
         once, _ = roomlights.switch(lit_room(), {'lamp': None})
         self.assertEqual(roomlights.switch(once, {'lamp': None}), (once, 0))

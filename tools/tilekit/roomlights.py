@@ -34,6 +34,8 @@ def load(path):
     require(isinstance(spec.get('lit'), dict) and spec['lit'], f'{path}: a list of lights names its lit textures (`lit`)')
     mapped = {name.lower() for name in spec.get('mapped', ())}
     require(mapped <= {name.lower() for name in spec['lit']}, f'{path}: `mapped` names a texture `lit` does not')
+    dark = sorted(name for name, off in spec['lit'].items() if name.lower() in mapped and not off)
+    require(not dark, f'{path}: ' + ', '.join(dark) + ' glow through their materials\' glow maps: their unlit copies need a texture of their own in `lit`')
     for off, lit in spec.get('offMaterials', {}).items():
         require((spec['lit'].get(lit) or '').lower() == off.lower(), f'{path}: {off} is the unlit texture of {lit} in `lit`')
     return spec
@@ -128,7 +130,9 @@ def switch(text, lit, mapped=()):
     if at and not _moved(text):  # a modeller's loop that keys every node where it rests
         text = text[:at.start()] + text[at.end():]
     done = _pairs(text); switched = {one.lower() for pair in done for one in pair}
-    found = [one for one in daylight.lit_nodes(text, lit, mapped=mapped) if one[0].split()[0].lower() not in switched and not one[0].lower().endswith(SUFFIX)]
+    names = {node.split()[0].lower() for kind, node, body in daylight.NODE.findall(daylight._geometry(text))}
+    copies = {name for name in names if name.endswith(SUFFIX) and name[:-len(SUFFIX)] in names}  # unlit copies made here
+    found = [one for one in daylight.lit_nodes(text, lit, mapped=mapped) if one[0].split()[0].lower() not in switched | copies]
     if not found:
         return text, 0
     name = _name(text); original = text

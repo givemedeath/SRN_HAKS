@@ -6670,6 +6670,9 @@
       "srn_2da",
       "srn_door"
     ],
+    "tools/tilekit/drawn.py": [
+      "srn_t_srx02"
+    ],
     "tools/tilekit/inventory.py": [
       "srn_2da",
       "srn_t_common"
@@ -6775,6 +6778,7 @@
       "srn_door"
     ],
     "tools/tilekit/test_drawn.py": [
+      "srn_t_srx02",
       "srn_t_tfb01"
     ],
     "tools/tilekit/test_enlarge.py": [

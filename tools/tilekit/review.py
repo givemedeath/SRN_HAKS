@@ -320,7 +320,9 @@ def area_documents(tag, title, tileset, width, height, laid, light, lamps=None, 
             for kind, key in (('main', 'Tile_MainLight'), ('source', 'Tile_SrcLight')):
                 for which in (1, 2):
                     cell[f'{key}{which}'] = field('byte', int((lamps or {}).get(kind, 0)))
-            for which, on in enumerate((lamps or {}).get('loops') or (), 1):  # a tile's animation loops as the area sets them (all on unless a lamp set says)
+            loops = (lamps or {}).get('loops') or ()
+            require(len(loops) <= 3, f'A tile has three animation loops, not {len(loops)}')
+            for which, on in enumerate(loops, 1):  # a tile's animation loops as the area sets them (all on unless a lamp set says)
                 cell[f'Tile_AnimLoop{which}'] = field('byte', int(bool(on)))
             cells.append(cell)
     are.update({'Tileset': field('resref', tileset), 'Width': field('int', width), 'Height': field('int', height), 'Tile_List': field('list', cells),
@@ -373,7 +375,7 @@ def build(name, areas, shots, output, game, built, *, overlay=None, haks=HAKS, t
     for path in laid_over:
         require(path.is_file() and len(path.stem) <= client_fixture.RESREF and path.name == path.name.lower(), 'Overlay files are lowercase resref files: ' + path.name)
         # a set file of bare LF lines crashed the client as the area loaded (a sed copy of srx02.set, 2026-11-27)
-        require(path.suffix.lower() != '.set' or b'\n' not in path.read_bytes().replace(b'\r\n', b''), f'{path.name}: a set file has CRLF line ends; the client falls over on bare LF lines')
+        require(path.suffix.lower() != '.set' or b'\n' not in path.read_bytes().replace(b'\r\n', b''), f'{path.name}: a set file has bare LF line ends, which the client falls over on: write it with CRLF')
     user, staged, documents, binary = (output / part for part in ('userdir', 'hak-resources', 'json', 'module'))
     for folder in (user / 'hak', user / 'modules', user / 'tlk', staged, documents, binary):
         folder.mkdir(parents=True)

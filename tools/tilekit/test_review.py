@@ -127,6 +127,10 @@ class ReviewTests(unittest.TestCase):
             review.area_documents('tkbd', 'Block', 'tst01', 2, 4, laid, 'day')
         with self.assertRaisesRegex(ValueError, 'lit by'):
             review.area_documents('tkbd', 'Block', 'tst01', 2, 3, laid, 'dusk')
+        off = review.area_documents('tkbo', 'Block', 'tst01', 2, 3, laid, 'day', {'loops': [1, 1, 0]})['tkbo.are']['Tile_List']['value'][0]
+        self.assertEqual([off[f'Tile_AnimLoop{which}']['value'] for which in (1, 2, 3)], [1, 1, 0])
+        with self.assertRaisesRegex(ValueError, 'three animation loops'):  # review of PR 209
+            review.area_documents('tkbo', 'Block', 'tst01', 2, 3, laid, 'day', {'loops': [1, 1, 0, 0]})
 
     def test_a_generic_door_stands_where_asked_its_row_past_255_in_the_new_field(self):
         laid = {(0, 0): (0, 0)}

@@ -201,6 +201,8 @@ class Merged(unittest.TestCase):
 
     def test_the_pack_holds_what_a_merge_of_todays_sources_writes(self):
         self.assertEqual(merge.stale(REPO, SPEC, SPEC_PATH, SPEC_PATH.with_name('merged.json')), [])  # a source set, the names or the spec changed: merge again
+        if SPEC.get('lights'):  # which room tiles are lit when painted follows the list (review of PR 209)
+            self.assertIn('lights', merge.paths(REPO, SPEC)[0])
         self.assertEqual(self.text, self.made['set'])
         self.assertEqual(OUTPUTS['edge'].read_bytes().decode('cp1252'), self.made['edge'])
         self.assertEqual(self.made['set'], merge.work(REPO, SPEC)['set'])  # the same bytes each time

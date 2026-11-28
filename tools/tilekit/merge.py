@@ -367,6 +367,8 @@ def paths(repo, spec):
         inputs.update({f'room:{path.stem}': path for path in sorted((repo / spec['rooms']).glob('*.json'))})
     if spec.get('joinTiles'):
         inputs['joins'] = repo / spec['joinTiles']
+    if spec.get('lights'):  # which room tiles are switched, so lit when painted (AnimLoop3), follows the list of lights
+        inputs['lights'] = repo / spec['lights']
     outputs = {'set': pack / f'{name}.set', 'palette': pack / f'{name}palstd.itp', 'edge': repo / 'srn_2da' / f'{name}_edge.2da'}
     if spec.get('numbers'):  # read and written: the merge before this one wrote what this one keeps
         outputs['numbers'] = repo / spec['numbers']

@@ -8,7 +8,7 @@ import numpy as np
 from tools.tilekit import drawn
 from tools.tilekit.test_material import scan
 
-PACKS = ('srn_t_tfb01',)  # what this reads: named so the test selector runs it when one changes
+PACKS = ('srn_t_tfb01', 'srn_t_srx02')  # what this reads: named so the test selector runs it when one changes
 
 
 class Flood(unittest.TestCase):
@@ -30,6 +30,14 @@ class Reflection(unittest.TestCase):
         self.assertGreater(picture[:40].max(), 220)  # the light strips
         self.assertLess(picture[90:110, 40:88].mean(), picture[50:70, 40:88].mean())  # the floor under the walls
         self.assertLess(picture[0, 0], picture[64, 64])  # the rim, behind the viewer, is dim
+
+    def test_the_shipped_reflection_is_the_one_drawn_here(self):
+        # review of PR 209: srx02__ref01.tga had no writer in the tools
+        self.assertEqual(drawn.reflections(Path(__file__).resolve().parents[2], check=True), [])
+        with tempfile.TemporaryDirectory() as work:
+            (Path(work) / 'srn_t_srx02').mkdir()
+            self.assertEqual(drawn.reflections(work), ['srn_t_srx02/srx02__ref01.tga'])
+            self.assertEqual(drawn.reflections(work, check=True), [])
 
 if __name__ == '__main__':
     unittest.main()
