@@ -185,6 +185,8 @@ class Refresh(unittest.TestCase):
         text, first, groups = merge.merged_set({'a': small().decode(), 'b': source.replace('Model=m', 'Model=n')}, names, spec)
         self.assertEqual(first, {'a': 0, 'b': 2}); self.assertEqual([(group['tiles'], group['model']) for group in groups], [([1], 'm1'), ([-1, 3, 2], 'n1')])
         self.assertIn('Tile0=-1\r\nTile1=3\r\nTile2=2\r\n', text)
+        own, _, _ = merge.merged_set({'a': small().decode(), 'b': source.replace('Model=m', 'Model=n')}, names, {**spec, 'envMap': 'm__ref01'})
+        self.assertIn('EnvMap=m__ref01\r\n', own); self.assertEqual(own.count('EnvMap='), 1)  # the set's own reflection picture, in place of the general family's
         with self.assertRaisesRegex(ValueError, 'GENERAL has Floor=.Lost., which has no name'):
             merge.merged_set({'a': small().decode().replace('Floor=Old', 'Floor=Lost'), 'b': source}, names, {**spec, 'families': spec['families'][:1]})
 

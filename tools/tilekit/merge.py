@@ -8,7 +8,7 @@ writes the same bytes: nothing else writes the merged files. `lock` pins what a 
 says what has changed since, so a source set changed later (an envkit sheet's new tiles, say) is seen and merged again.
 
 spec: {set (the merged set's resref), display, names (the names file), families: [{set, label}] in the order their
-tiles are numbered (edge: false for a set with no edge table), general (the family whose GENERAL section is kept), grass (the family whose [GRASS] is kept),
+tiles are numbered (edge: false for a set with no edge table), general (the family whose GENERAL section is kept; envMap, where given, its EnvMap), grass (the family whose [GRASS] is kept),
 joins: [[terrain key, terrain key]] the ground pairs join tiles are built for, raised: [terrain key] grounds with
 raised tiles, numbers (the record of tile numbers, `numbered`), joinTiles (the joins spec), rooms (the folder of room
 specs, `rooms`: each adds two groups of tiles of its own), doors}.
@@ -281,6 +281,8 @@ def merged_set(sets, names, spec, joined=(), numbers=(), roomed=()):
     # head
     general = dict(next(keys for section, keys in read[spec['general']] if section == 'GENERAL'))
     general.update({'Name': spec['set'].upper(), 'UnlocalizedName': spec['display'], 'DisplayName': '-1'})
+    if spec.get('envMap'):  # the set's one reflection picture, its own rather than the general family's (srx02, 2026-11-27)
+        general['EnvMap'] = spec['envMap']
     for key in ('Border', 'Default', 'Floor'):
         require(general.get(key, '').lower() in terrains.get(spec['general'], {}), f'{spec["general"]}: GENERAL has {key}={general.get(key)!r}, which has no name')
         general[key] = terrains[spec['general']][general[key].lower()]

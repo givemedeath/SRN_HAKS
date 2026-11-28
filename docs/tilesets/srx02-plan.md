@@ -704,6 +704,11 @@ new look too.
   home tiles whose modeller loops (`animloop01`) carry plain material lines the compiler leaves out, stripped from
   21 sources (constants that animate nothing). Walkmeshes as their baselines, all 446 switched tiles still
   switched, rooms and joins rebuilt; the client shows the rooms lit and switched off as before.
+- **EnvMap (2026-11-28, user: "Do it").** The families came with `tdc01__ref01` (office, facility: the crypt's),
+  `tfb01__ref01` (home) and `env_tti` (ducts); the merged set had taken the office's. srx02 now has its own,
+  `srx02__ref01` (`drawn.reflection`: a lit modern room as a mirror ball sees it), named by `merge.json` `envMap`.
+  No texture of the families names a reflection of its own. Client: the rooms look as before; at these views the
+  reflection is too faint to see a difference.
 - **Applied (2026-11-27, user: "Yes, apply").** `tilekit apply` of `materials-c.json` over `c-overlay` (616 files put
   in seven packs, 35 old copies deleted, 55 expected overrides) and of the `c-ceil` ceilings (329 tfb01 models);
   srx02's compiled tiles recompiled for the new materials. Walkmeshes as their baselines; the passage joins and the

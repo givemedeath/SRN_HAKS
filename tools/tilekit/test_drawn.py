@@ -24,5 +24,12 @@ class Flood(unittest.TestCase):
         self.assertTrue(np.allclose(cork.reshape(-1, 3).mean(axis=0), (150, 112, 72), atol=12))  # cork, toned as the old one
 
 
+class Reflection(unittest.TestCase):
+    def test_a_lit_ceiling_above_a_darker_floor_with_a_dim_rim(self):
+        picture = drawn.reflection(128).astype(float).mean(axis=2)
+        self.assertGreater(picture[:40].max(), 220)  # the light strips
+        self.assertLess(picture[90:110, 40:88].mean(), picture[50:70, 40:88].mean())  # the floor under the walls
+        self.assertLess(picture[0, 0], picture[64, 64])  # the rim, behind the viewer, is dim
+
 if __name__ == '__main__':
     unittest.main()

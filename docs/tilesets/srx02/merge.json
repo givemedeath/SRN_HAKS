@@ -23,6 +23,7 @@
   }
  ],
  "general": "udp2",
+ "envMap": "srx02__ref01",
  "grass": "udp2",
  "joins": [],
  "joinTiles": "docs/tilesets/srx02/joins.json",

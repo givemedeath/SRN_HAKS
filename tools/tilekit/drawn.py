@@ -76,6 +76,25 @@ def flood(masters, size=512):
     return np.uint8(np.clip(picture, 0, 255) + 0.5)
 
 
+def reflection(size=256):
+    """srx02's one reflection picture (the set's EnvMap, user 2026-11-27: "Do it"): a lit modern room as a mirror ball
+    sees it, in place of the families' crypt, cloud and earth maps. Pale walls round the middle, a ceiling of bright
+    light strips above, a darker floor below, the rim dim (what lies behind), softened so no strip reads as a hard
+    shape on a polished floor. Upright, top row first."""
+    from PIL import Image, ImageFilter
+    y, x = (np.mgrid[0:size, 0:size] + 0.5) / size * 2 - 1  # -1..1, y down
+    picture = np.empty((size, size, 3)); picture[:] = (150, 148, 142)  # walls: warm pale grey
+    ceiling, floor = y < -0.25, y > 0.3
+    picture[ceiling] = (176, 176, 172); picture[floor] = (84, 78, 72)
+    for row in (-0.85, -0.62, -0.42):  # light strips across the ceiling, wider toward the middle
+        reach = 0.75 - abs(row + 0.62) * 0.4
+        picture[(abs(y - row) < 0.035) & (abs(x) < reach)] = (252, 250, 240)
+    rim = np.clip((np.hypot(x, y) - 0.75) / 0.35, 0, 1)[..., None]
+    picture = picture * (1 - 0.65 * rim)
+    made = Image.fromarray(np.uint8(np.clip(picture, 0, 255) + 0.5)).filter(ImageFilter.GaussianBlur(size / 96))
+    return np.asarray(made)
+
+
 PICTURES = {'tfb01_flood': flood}
 
 
