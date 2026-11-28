@@ -258,7 +258,7 @@ def cap(repo, tileset, folder, looks, *, shared=(), skip=()):
     from .apply import noted
     from .lamps import PACKS
     folder = Path(folder); folder.mkdir(parents=True, exist_ok=True); told = {}
-    corners = {tile['model']: tile['corners'] for tile in inventory.read_set((Path(repo) / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252'))['tiles']}
+    corners = {tile['model'].lower(): tile['corners'] for tile in inventory.read_set((Path(repo) / f'srn_t_{tileset}' / f'{tileset}.set').read_text(encoding='cp1252'))['tiles']}
     for name, file, text, others, source in inventory.drawn_copies(repo, tileset.lower(), folder, PACKS):
         if name in skip:
             told[name] = 'left open'; continue

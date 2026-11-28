@@ -75,6 +75,10 @@ class Paint(unittest.TestCase):
         inside = inside.replace('[TILES]\nCount=4', '[TILES]\nCount=5').replace('[GROUPS]', tile(4, 'b_floor', 'Floor') + '[GROUPS]')
         self.assertIsNone(toolset_paint.plan(SET, PALETTE)['start'])
         self.assertEqual(toolset_paint.plan(inside, PALETTE)['start'], 4)
+        pit = inside.replace('Count=2\n\n[TERRAIN0]', 'Count=3\n\n[TERRAIN2]\nName=Pit\n\n[TERRAIN0]').replace('[TILES]\nCount=5', '[TILES]\nCount=6')
+        pit = pit.replace('[GROUPS]', tile(5, 'c_pit', 'Pit') + '[GROUPS]')
+        self.assertEqual(toolset_paint.plan(pit, PALETTE)['start'], 5)  # no floor named: the first listed
+        self.assertEqual(toolset_paint.plan(pit.replace('Floor=Deck', 'Floor=Floor'), PALETTE)['start'], 4)  # the set's own floor (review of PR 209)
         with self.assertRaisesRegex(ValueError, 'floor tile'):
             toolset_paint.plan(SET.replace('Border=Deck\n', 'Border=Deck\nInterior=1\n'), PALETTE)
         with tempfile.TemporaryDirectory() as temporary:

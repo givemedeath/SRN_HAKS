@@ -75,7 +75,7 @@ def plan(set_text, palette, only=None):
     general = next((held for name, held in inventory.sections(set_text) if name.upper() == 'GENERAL'), {})
     start = None
     if str(general.get('Interior', '0')).strip() == '1':  # an interior's ground is its walls, where no start point stands
-        floors = [terrain for terrain in read['terrains'] if terrain in fills and terrain not in grounds]
+        floors = sorted((terrain for terrain in read['terrains'] if terrain in fills and terrain not in grounds), key=lambda terrain: terrain != general.get('Floor'))  # the set's own floor first
         require(floors, 'No plain floor tile for the start point of an interior')
         start = fills[floors[0]]
     return {'grounds': [[terrain, fills[terrain]] for terrain in grounds], 'groups': groups, 'start': start}
