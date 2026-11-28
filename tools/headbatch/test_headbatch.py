@@ -1820,6 +1820,27 @@ class SpoolTests(Base):
         self.receipt(head, 'export', 2, {'result': {'matrix': [], 'triangles': 100, 'plt': {'sha256': 'x'}}})
         self.finish(stage='export')
         self.assertEqual(self.started, [])
+        # a race face size flagged for review waits for that review (exportfit passes here)
+        flagged = {'faceCheck': 'review: compare the face size with the race library side by side', 'deviation': -.18}
+        self.receipt(head, 'export', 3, {'result': {'matrix': matrix, 'triangles': 100, 'plt': {'sha256': 'x'}, 'raceSizing': flagged}})
+        self.finish(stage='export')
+        self.assertEqual(self.started, [])
+        self.assertIn('-18% from the library median', self.spool.state['review']['elf-male-a/export']['text'])
+
+    def test_trial_sizing_arguments_take_the_race_standard_and_frozen_inputs(self):
+        sys.path.insert(0, str(HERE.parent))
+        import trial_sizing
+        base = ['n.json', 'p.json', 'c.json', 'b.json', 'out']
+        race = json.dumps({'policy': 'race-head-standard-v1', 'outsideBand': 'wide-set eyes'})
+        self.assertEqual(trial_sizing.arguments(base)[5:], (None, None, None))
+        self.assertEqual(trial_sizing.arguments(base+['frozen.json'])[5:], (None, None, 'frozen.json'))
+        self.assertEqual(trial_sizing.arguments(base+['s.json', race])[5:],
+                         (Path('s.json'), {'policy': 'race-head-standard-v1', 'outsideBand': 'wide-set eyes'}, None))
+        self.assertEqual(trial_sizing.arguments(base+['s.json', '"race-head-standard-v1"', 'frozen.json'])[5:],
+                         (Path('s.json'), 'race-head-standard-v1', 'frozen.json'))
+        for bad in (base[:4], base+['s.json', race, 'frozen.json', 'extra'], base+['s.json', '[1]']):
+            with self.assertRaises(ValueError):
+                trial_sizing.arguments(bad)
 
     def test_native_gate_needs_an_exact_read_back(self):
         head = self.head()

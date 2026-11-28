@@ -1,4 +1,8 @@
-"""Size a retained, reviewed compact-reference Troll export for a local trial."""
+"""Size a retained, reviewed compact-reference Troll export for a local trial: the Troll allowance and, when the manifest
+declares it, the race head standard (raceSizing), as export would.
+
+usage: trial_sizing.py NATIVE POLICY COMPILER BINDINGS OUTPUT [STANDARD RACE_JSON] [FROZEN_INPUTS]"""
+import json
 from pathlib import Path
 import sys
 
@@ -6,7 +10,7 @@ from headkit.common import pin, read, require, verify, write
 from headkit.native import prepare, compile_and_package, mdl_compiler, mdl_compiler_files
 
 
-def inputs(native_path, policy, compiler, bindings):
+def inputs(native_path, policy, compiler, bindings, standard=None):
     from headkit.common import stage_code_files
     native = read(native_path)
     export_pin = native['dependencies']['export']
@@ -27,30 +31,45 @@ def inputs(native_path, policy, compiler, bindings):
     verify(refs)
     require(old['plt']['sha256'] == native['result']['plt']['sha256'], 'Retained PLT lineage differs')
     files = [Path(__file__), native_path, export_pin['path'], fit_pin['path'], palette_pin['path'],
-             policy, bindings, *[p['path'] for p in refs], *[p['path'] for p in mdl_compiler_files(compiler)],
+             policy, bindings, *([standard] if standard else []), *[p['path'] for p in refs], *[p['path'] for p in mdl_compiler_files(compiler)],
              *stage_code_files('export'), *stage_code_files('native'),
              *[p['path'] for p in read(bindings)['pythonPackages']['files']]]
     return old, fit, maps, sorted({str(Path(p).resolve()) for p in files})
 
 
+def arguments(argv):
+    """(native, policy, compiler, bindings, output, standard, race, frozen) from NATIVE POLICY COMPILER BINDINGS OUTPUT,
+    then optionally STANDARD RACE_JSON (the race head standard and the manifest's raceSizing), then optionally FROZEN_INPUTS."""
+    require(len(argv) >= 5, 'usage: NATIVE POLICY COMPILER BINDINGS OUTPUT [STANDARD RACE_JSON] [FROZEN_INPUTS]')
+    paths, rest = [Path(a) for a in argv[:5]], list(argv[5:])
+    require(len(rest) in (0, 1, 2, 3), 'usage: NATIVE POLICY COMPILER BINDINGS OUTPUT [STANDARD RACE_JSON] [FROZEN_INPUTS]')
+    standard, race = (Path(rest[0]), json.loads(rest[1])) if len(rest) >= 2 else (None, None)
+    require(race is None or isinstance(race, (str, dict)), 'RACE_JSON is the manifest raceSizing value')
+    frozen = rest[-1] if len(rest) in (1, 3) else None
+    return (*paths, standard, race, frozen)
+
+
 def main():
     import numpy as np
-    native, policy, compiler, bindings, output = map(Path, sys.argv[1:6])
-    old, fit, maps, files = inputs(native, policy, compiler, bindings)
-    if len(sys.argv) == 7:
-        write(sys.argv[6], files, fresh=True)
+    native, policy, compiler, bindings, output, standard, race, frozen = arguments(sys.argv[1:])
+    old, fit, maps, files = inputs(native, policy, compiler, bindings, standard)
+    if frozen:
+        write(frozen, files, fresh=True)
         return
     result = prepare(old['source']['path'], maps['shades']['path'], maps['ownership']['path'],
-                     {'matrix': old['matrix'], 'reviewed': True, 'sourceSha256': old['source']['sha256']},
-                     old['model'], output/'prepared', sizing_inputs=(policy, fit['reference']['path']))
+                     {'matrix': old['matrix'], 'reviewed': True, 'sourceSha256': old['source']['sha256'], 'align': fit['align']},
+                     old['model'], output/'prepared', sizing_inputs=(policy, fit['reference']['path']),
+                     race_inputs=(standard, race, fit['reference']['path']) if standard else None)
     require(result['plt']['sha256'] == old['plt']['sha256'], 'Troll trial changed reviewed PLT bytes')
     scale = result['nativeSizing']['scale']
+    race = result.get('raceSizing') or {'scale': 1.0, 'pivot': [0.0, 0.0, 0.0]}
+    pivot = np.asarray(race['pivot'])
     with np.load(result['expected']['path']) as new, np.load(old['expected']['path']) as original:
         require(np.array_equal(new['uv'], original['uv']) and np.array_equal(new['normals'], original['normals'])
-                and np.allclose(new['positions'], original['positions']*scale, rtol=0, atol=1e-7),
-                'Troll trial must differ only by uniform vertex scale')
+                and np.allclose(new['positions'], pivot+(original['positions']*scale-pivot)*race['scale'], rtol=0, atol=1e-7),
+                'Troll trial must differ only by the uniform allowance and race scales')
     compiled = compile_and_package(output/'prepared', None, output/'native', mdl=mdl_compiler(compiler))
-    write(output/'trial-sizing.json', {'retainedNative':pin(native),'sizing':result['nativeSizing'],
+    write(output/'trial-sizing.json', {'retainedNative':pin(native),'sizing':result['nativeSizing'],'raceSizing':result.get('raceSizing'),
           'pltIdentical': True,'normalsAndUVIdentical':True,'native':compiled}, fresh=True)
 
 
