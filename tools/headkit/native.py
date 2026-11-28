@@ -80,7 +80,7 @@ def material_binding(policy, model, layers):
                {'reason':'Mixed accessory channels retain the legacy material; review their separate material response.'})}
 
 
-def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inputs=None, material_policy=None):
+def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inputs=None, material_policy=None, race_inputs=None):
     require(re.fullmatch(r'[a-z][a-z0-9_]{0,13}',model) is not None,'Safe NWN model resref required')
     with Image.open(shades_path) as image:
         require(image.mode=='L' and image.size==(1024,1024),'Runtime shades must be 1K eight-bit grayscale')
@@ -97,6 +97,12 @@ def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inpu
         sizing=troll_build_allowance(*sizing_inputs, model)
         points=np.asarray(points)*sizing['scale']
         matrix=matrix.copy();matrix[:3,:]*=sizing['scale']
+    race=None
+    if race_inputs is not None:
+        # After the Troll allowance: the race standard's factor was measured on heads that already carried it.
+        from .race_sizing import apply,fit_align
+        policy,override,reference=race_inputs
+        points,matrix,race=apply(policy,override,model,fit_align(fit),reference,points,matrix,uv,layers)
     # One PLT covers all surfaces, including independently reviewed accessory channels.
     payload=head_export.plt_bytes(shades,layers)
     material = material_binding(material_policy, model, np.unique(layers))
@@ -110,6 +116,7 @@ def prepare(source, shades_path, layers_path, fit, model, output, *, sizing_inpu
             'ascii':pin(output/'ascii'/f'{model}.mdl'),'plt':pin(output/'resources'/f'{model}.plt'),
             'expected':pin(output/'expected-native.npz'),'fitReviewRequired':True,'clientValidated':False}
     if sizing is not None:result['nativeSizing']=sizing
+    if race is not None:result['raceSizing']=race
     if material is not None:result['nativeMaterial']=material
     write(output/'prepared.json',result,fresh=True);return result
 

@@ -6,6 +6,8 @@ optimizes their runtime resources (see [Runtime optimization](#runtime-optimizat
 Version 1.3.0 reshapes the race bodies to canon lore and publishes the c7 Human lock
 (see [Release 1.3.0](#release-130-race-lore-sizing-and-the-c7-human-lock)).
 Version 1.5.0 adds firearm effects and fixes the crossbow carry (see [Release 1.5.0](#release-150-firearm-effects-and-crossbow-carry)).
+Version 1.6.0 publishes the c8 Human lock: new necks and a shorter female neck (see [Release 1.6.0](#release-160-the-c8-human-necks)).
+Version 1.7.0 puts the c8 neck on the other races and resizes 56 race library heads (see [Release 1.7.0](#release-170-the-c8-neck-on-every-race)).
 Use [game-ready-assets.json](game-ready-assets.json) as the current resource and
 target contract. Previous Human delivery manifests remain historical records.
 
@@ -13,6 +15,55 @@ The user approved these shapes and requested publication on 2026-10-13 after
 the final client and clothing checks. That release changed resource routing and
 skin/material defaults; it did not reshape any approved body or change its rig.
 The selected female posture is **hips level + original upper lean/breathing**.
+
+## Release 1.7.0: the c8 neck on every race
+
+The user asked for the c8 neck on the other races and a careful review of the race heads' size and position, and
+approved the proposal on 2026-11-27 ("Approve, elf drop 2 cm"). Record, gates and evidence:
+[race-necks-c8.md](race-necks-c8.md). Every changed resource and its 1.6.0 hash, the build numbers and the head
+scales: [race-necks/release-1.7.0.json](race-necks/release-1.7.0.json).
+
+* **Necks.** `neck001` of every Dwarf, Elf, Orc and Troll body is the c8 anatomical neck, built in a frame normalised
+  to the body's old neck. The Troll necks are fitted inside the four Troll heads that carry their own short neck.
+* **Head drops.** Elf female rigs lower `head_g` 2 cm and Orc female rigs 3.3 cm (rest stature lower by the same);
+  every other race rig is unchanged.
+* **Female collars.** The Dwarf, Elf, Orc and Troll female chests rise into the c8 trapezius slope.
+* **Heads.** 56 race library heads in `srn_head` are rescaled: Elf x1.15, the small Orc batch up, the large Dwarf
+  heads down, Troll male x1.12 with the chin kept at its height. The receipt lists each head.
+* `neck_g`, every other part, the Human bodies, textures and animation libraries are unchanged. Outfits and armour are
+  not refitted (armorkit owns them). `tools/armorkit/seam-contract.json` (version 6) and `head-envelopes.json` are
+  re-measured.
+
+Rollback is contract 1.6.0: restore the 28 body files and 56 head models from 1.6.0 (hashes in the receipt), this
+contract, the two armorkit measurement files and the seam contract version (5) in `tools/armorkit/measure.py` and
+`test_seams.py`. Verify the rolled-back `srn_head.hak` without the 1.7.0 receipt (`publish_library.py verify` requires the
+latest bytes of every `--revision` it is given). `docs/heads/race-head-standard-v1.json` was measured on the 1.7.0
+library: retire it (or remove `raceSizing` from new manifests) with the rollback, or new heads are sized to heads no
+longer published.
+
+## Release 1.6.0: the c8 Human necks
+
+The user asked for a more realistic female neck and fixes to the male neck, and approved the c8 candidate on
+2026-11-26. Record, gates and evidence: [human-bodies-lock-c8.md](human-bodies-lock-c8.md). Every changed resource and
+its 1.5.0 hash: [neck-c8/release-1.6.0.json](neck-c8/release-1.6.0.json).
+
+* **Necks.** `neck001` of `pfh0`, `pfh2`, `pmh0` and `pmh2` is a new 24-sided anatomical neck: rounder, with the
+  sternocleidomastoid ridges, a throat hollow and a nape groove; the male neck has a slight Adam's apple. It
+  replaces the stock 16-face diamond, whose male version stuck out as side points in several clips.
+* **Female height of neck.** The female rigs (`pfh0.mdl`, `pfh2.mdl`) lower `head_g` by 3.5 cm, so the neck runs
+  7.6 cm joint to joint instead of 11.1 cm. The rest stature drops by the same 3.5 cm (`statureMeters`). A first
+  candidate at 2 cm still looked long to the user in game (2026-11-26).
+* **Female collar.** `pfh0_chest001` and `pfh2_chest001` rise into a trapezius slope from the collarbones to the back of
+  the neck (`pfh2` already had one and rises up to 1.2 cm).
+* `neck_g`, every other part, the male rigs and chests, the textures and the animation libraries are unchanged.
+* **Heads.** The Human male library heads `pmh0_head086` to `092` in `srn_head` are scaled by 1.06 about `head_g`. They
+  were 8.4 heads to the body with faces the size of the female heads. No head was moved.
+* Outfits and armour are not refitted here (armorkit owns them). `tools/armorkit/seam-contract.json` and
+  `head-envelopes.json` are re-measured on the new packs (seam contract version 5).
+
+Rollback is contract 1.5.0: restore the eight body files and seven head models from 1.5.0 (hashes in the receipt), this
+contract, the two armorkit measurement files, and the seam contract version (4) in `tools/armorkit/measure.py` and
+`test_seams.py`. Verify the rolled-back `srn_head.hak` without the 1.6.0 receipt: `publish_library.py verify` requires the latest bytes of every `--revision` it is given.
 
 ## Release 1.5.0: firearm effects and crossbow carry
 

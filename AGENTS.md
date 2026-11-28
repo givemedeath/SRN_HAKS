@@ -47,15 +47,25 @@ native attachment placement and require visual hand-fit review for departures.
 
 ## Locked Human bodies
 
-The user locked c7 as the current Human bodies on 2026-10-27. It is the c6 lock (2026-10-26: b13 female hip
+The user approved c8 as the current Human bodies on 2026-11-26: c7 with new anatomical `neck001` meshes on all four
+Human bodies, the female `head_g` 3.5 cm lower with a trapezius slope on the female chests, and the Human male library
+heads scaled by 1.06. See `docs/phenomorpher/human-bodies-lock-c8.md` and its hash manifest. c8 is published in
+contract 1.6.0. Start further body work from c8; the c7 record below stays as written.
+
+The c8 necks reached the Dwarf, Elf, Orc and Troll bodies on 2026-11-27 (contract 1.7.0; user-approved, Elf female
+head 2 cm lower, Orc female 3.3 cm), with 56 race library heads rescaled. See
+`docs/phenomorpher/race-necks-c8.md`. Race body work starts from 1.7.0. New library heads are sized and placed by
+`docs/heads/race-head-standard-v1.md` (headkit export `raceSizing`).
+
+Historical: the user locked c7 as the Human bodies on 2026-10-27. It is the c6 lock (2026-10-26: b13 female hip
 and knee joins, c6 torso polish, rebuilt skin textures) plus the Large male `pmh2` with its joint heights
 back at Fit. See `docs/phenomorpher/human-bodies-lock-c7.md` and its hash manifest. The c6 record
-(`human-bodies-lock.md`) stays as written. Start further body work from c7. c7 is published in contract 1.3.0
+(`human-bodies-lock.md`) stays as written. c7 was published in contract 1.3.0
 (`srn_body/`, `srn_body_tex/`; user-approved 2026-10-27).
 
 ## Human female target authority (historical — superseded)
 
-Historical note: The earlier v24 pause on Human female body work (and its "hips level + original upper lean" posture experiment) was superseded on 2026-10-08 when Gate 4 and Gate 5 were approved and published as PR #42 (see `docs/phenotype-human-female-source-adoption-checkpoint.md`). Subsequent female hip and knee join refinements (`b13`) were integrated into `c6` (2026-10-26), and all Human bodies were formally locked at `c7` on 2026-10-27 (contract 1.3.0 in `srn_body/`, `srn_body_tex/`; user-approved 2026-10-27; see `docs/phenomorpher/human-bodies-lock-c7.md`). Further body work starts from `c7`.
+Historical note: The earlier v24 pause on Human female body work (and its "hips level + original upper lean" posture experiment) was superseded on 2026-10-08 when Gate 4 and Gate 5 were approved and published as PR #42 (see `docs/phenotype-human-female-source-adoption-checkpoint.md`). Subsequent female hip and knee join refinements (`b13`) were integrated into `c6` (2026-10-26), and all Human bodies were formally locked at `c7` on 2026-10-27 (contract 1.3.0 in `srn_body/`, `srn_body_tex/`; user-approved 2026-10-27; see `docs/phenomorpher/human-bodies-lock-c7.md`). The c8 necks followed on 2026-11-26 (contract 1.6.0; `docs/phenomorpher/human-bodies-lock-c8.md`). Further body work starts from `c8`.
 
 Shared-infrastructure adoption creates no anatomy, animation or asset approvals and does not resume a paused target goal. Historical receipts/checkpoints remain immutable. Human female PR publication still requires full target validation and explicit final user approval. Other active worktrees are read-only; do not reset, clean, purge or borrow their executable tools.
 
@@ -67,7 +77,7 @@ Review the actual geometry in matched front, side and rear views and in the affe
 
 Historical female infrastructure checkpoint: `docs/phenotype-human-female-infrastructure-adoption.md` (superseded by PR #42 and the c7 lock). Historical v24 checkpoint and receipts remain unchanged.
 
-Current additive source-adoption progress checkpoint: `docs/phenotype-human-female-source-adoption-checkpoint.md`. Read its explicit ledger bindings before continuation. Historical adoption checkpoints remain unchanged. Its completionV1 closure v1 section (top of that file) supersedes the earlier historical stop on further animation preparation and game-client work: Gate 4 and Gate 5 are complete (user approval 2026-10-08) and the Human bodies ship as PR #42, so that stop no longer holds follow-up work. All Human bodies are locked at c7 (2026-10-27).
+Current additive source-adoption progress checkpoint: `docs/phenotype-human-female-source-adoption-checkpoint.md`. Read its explicit ledger bindings before continuation. Historical adoption checkpoints remain unchanged. Its completionV1 closure v1 section (top of that file) supersedes the earlier historical stop on further animation preparation and game-client work: Gate 4 and Gate 5 are complete (user approval 2026-10-08) and the Human bodies ship as PR #42, so that stop no longer holds follow-up work. All Human bodies were locked at c7 (2026-10-27) and are now at c8 (2026-11-26).
 
 ## Archives of retired worktrees
 

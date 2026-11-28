@@ -1,4 +1,5 @@
 """Client trial specs and builds: both sexes of one race in one module, on the workspace's base HAKs."""
+import json
 from pathlib import Path
 import re
 import tomllib
@@ -60,6 +61,11 @@ def sized_trial_native(workspace, entry, version):
         raise guards.Refused('Trial sizing policy differs from the manifest')
     helper = Path(__file__).with_name('trial_sizing.py')
     args = [helper, native/'receipt.json', policy, head/'mdl-compiler.json', head/'bindings.json', folder]
+    if manifest.get('raceSizing'):  # the trial head gets the race head standard export would apply
+        standard = head/manifest['inputs']['raceHeadStandard']['path']
+        if sha(standard) != manifest['inputs']['raceHeadStandard']['sha256']:
+            raise guards.Refused('Race head standard differs from the manifest')
+        args += [standard, json.dumps(manifest['raceSizing'])]
     frozen = folder/'inputs.json'
     env = workspace.python_environment(packages=True, tools=True)
     with launcher.cpu_slot(workspace):

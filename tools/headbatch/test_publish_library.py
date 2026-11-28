@@ -5,6 +5,7 @@ import struct
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from PIL import Image
@@ -94,6 +95,39 @@ class Stage(unittest.TestCase):
         self.assertEqual(pl.main(['verify', '--hak', str(hak), '--manifest', str(self.repo/'docs/heads/head-library-test-v1.json')]), 0)
         hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-other'}))
         self.assertEqual(pl.main(['verify', '--hak', str(hak), '--manifest', str(self.repo/'docs/heads/head-library-test-v1.json')]), 1)
+        # a revision record names the new bytes of a pinned resource; other bytes still refuse
+        import hashlib
+        old = json.loads(text)['heads'][0]['resources']['plt']['sha256']
+        revision = Path(self.tmp.name)/'revision.json'
+        revision.write_text(json.dumps({'heads': [{'path': f'srn_head/{SLOT}.plt', 'fromSHA256': old,
+                                                   'sha256': hashlib.sha256(b'PLT-other').hexdigest(), 'bytes': 9}]}), encoding='utf-8')
+        args = ['verify', '--hak', str(hak), '--manifest', str(self.repo/'docs/heads/head-library-test-v1.json'), '--revision', str(revision)]
+        self.assertEqual(pl.main(args), 0)
+        hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-third'}))
+        self.assertEqual(pl.main(args), 1)
+        # the HAK must hold the latest revision: the original pin no longer passes once a revision names new bytes
+        hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-bytes'}))
+        self.assertEqual(pl.main(args), 1)
+        # a chained revision is followed to its end; a cycle and an empty or contradicting record refuse
+        h = lambda b: hashlib.sha256(b).hexdigest()
+        def record(name, rows):
+            path = Path(self.tmp.name)/name
+            path.write_text(json.dumps({'heads': [{'path': f'srn_head/{SLOT}.plt', 'fromSHA256': a, 'sha256': b, 'bytes': 9} for a, b in rows]}), encoding='utf-8')
+            return ['--revision', str(path)]
+        base = ['verify', '--hak', str(hak), '--manifest', str(self.repo/'docs/heads/head-library-test-v1.json')]
+        hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-third'}))
+        self.assertEqual(pl.main(base+['--revision', str(revision)]+record('second.json', [(h(b'PLT-other'), h(b'PLT-third'))])), 0)
+        self.assertEqual(pl.main(base+record('cycle.json', [(old, h(b'PLT-other')), (h(b'PLT-other'), old)])), 1)
+        self.assertEqual(pl.main(base+['--revision', str(revision)]+record('conflict.json', [(old, h(b'PLT-third'))])), 1)
+        empty = Path(self.tmp.name)/'empty.json'; empty.write_text('{"heads": []}', encoding='utf-8')
+        self.assertEqual(pl.main(base+['--revision', str(empty)]), 1)
+        # an unchanged row (from == to) is no revision, and a two-step chain counts its resource once
+        hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-bytes'}))
+        self.assertEqual(pl.main(base+record('same.json', [(old, old), (h(b'PLT-x'), h(b'PLT-y'))])), 0)
+        hak.write_bytes(erf({(SLOT, 2002): b'MDL-bytes', (SLOT, 6): b'PLT-third'}))
+        with patch('builtins.print') as shown:
+            self.assertEqual(pl.main(base+['--revision', str(revision)]+record('second.json', [(h(b'PLT-other'), h(b'PLT-third'))])), 0)
+        self.assertEqual(json.loads(shown.call_args[0][0])['revised'], 1)
 
     def test_dry_run_leaves_the_repository_alone(self):
         ws = Workspace(self.tmp.name); code, out = self.stage(ws, '--dry-run')

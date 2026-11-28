@@ -117,13 +117,17 @@ def asset(manifest_path, item):
 def manifest(path):
     data = read(path)
     allowed = {'schemaVersion', 'id', 'inputs', 'features', 'alignment', 'matte', 'camera', 'mesh',
-               'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile', 'faceMasks', 'quality', 'nativeSizing'}
+               'paint', 'ownership', 'tone', 'palette', 'fit', 'render', 'approval', 'profile', 'faceMasks', 'quality', 'nativeSizing', 'raceSizing'}
     require(set(data) <= allowed and data.get('schemaVersion') == 1, 'Unsupported manifest keys/version')
     require(re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}', data.get('id', '')) is not None, 'Safe asset ID required')
     require(data.get('profile', 'pixal-single-v1') in ('pixal-single-v1', 'pixal-multiview-v1'), 'Unsupported generation profile')
     require(isinstance(data.get('inputs'), dict), 'Named pinned inputs required')
     for item in data['inputs'].values():
         asset(path, item)
+    if 'raceSizing' in data:
+        from .race_sizing import config
+        config(data['raceSizing'])
+        require({'raceHeadStandard', 'fitReference'} <= set(data['inputs']), 'raceSizing needs the raceHeadStandard and fitReference inputs')
     # Face masks are opt-in and come as a set: masks, feature channels, the colour treatment and the quality gate.
     face = [isinstance(data.get('faceMasks'), dict), (data.get('ownership') or {}).get('featureChannels') is True,
             isinstance((data.get('tone') or {}).get('faceTreatment'), dict), isinstance(data.get('quality'), dict)]

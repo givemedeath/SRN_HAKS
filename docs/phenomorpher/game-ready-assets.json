@@ -1,8 +1,8 @@
 {
  "schemaVersion": 1,
  "kind": "PhenoMorpher-game-ready-bodies",
- "version": "1.5.0",
- "accepted": "2026-11-07",
+ "version": "1.7.0",
+ "accepted": "2026-11-27",
  "packs": [
   "srn_body",
   "srn_body_tex",
@@ -186,7 +186,7 @@
    "modelPrefix": "pfe0",
    "bodyPartNumber": 1,
    "headPartNumber": 1,
-   "statureMeters": 1.9560175919905305,
+   "statureMeters": 1.9360175919905305,
    "shapeAndRigUnchanged": false,
    "parts": [
     "pfe0_neck001.mdl",
@@ -214,7 +214,7 @@
    "modelPrefix": "pfe2",
    "bodyPartNumber": 1,
    "headPartNumber": 1,
-   "statureMeters": 1.9560174951329827,
+   "statureMeters": 1.9360174951329827,
    "shapeAndRigUnchanged": false,
    "parts": [
     "pfe2_neck001.mdl",
@@ -298,7 +298,7 @@
    "modelPrefix": "pfh0",
    "bodyPartNumber": 1,
    "headPartNumber": 1,
-   "statureMeters": 1.8380404908080061,
+   "statureMeters": 1.8030404908080062,
    "shapeAndRigUnchanged": false,
    "parts": [
     "pfh0_neck001.mdl",
@@ -326,7 +326,7 @@
    "modelPrefix": "pfh2",
    "bodyPartNumber": 1,
    "headPartNumber": 1,
-   "statureMeters": 1.8380404908080061,
+   "statureMeters": 1.8030404908080062,
    "shapeAndRigUnchanged": false,
    "parts": [
     "pfh2_neck001.mdl",
@@ -355,7 +355,7 @@
    "bodyPartNumber": 1,
    "headPartNumber": 1,
    "statureMeters": 1.9339278815538408,
-   "shapeAndRigUnchanged": true,
+   "shapeAndRigUnchanged": false,
    "parts": [
     "pmh0_neck001.mdl",
     "pmh0_chest001.mdl",
@@ -410,7 +410,7 @@
    "modelPrefix": "pfo0",
    "bodyPartNumber": 1,
    "headPartNumber": 1,
-   "statureMeters": 1.9891704637557268,
+   "statureMeters": 1.9562204637557268,
    "shapeAndRigUnchanged": false,
    "parts": [
     "pfo0_neck001.mdl",
@@ -438,7 +438,7 @@
    "modelPrefix": "pfo2",
    "bodyPartNumber": 1,
    "headPartNumber": 1,
-   "statureMeters": 1.989179383032024,
+   "statureMeters": 1.9562293830320239,
    "shapeAndRigUnchanged": false,
    "parts": [
     "pfo2_neck001.mdl",
@@ -683,8 +683,8 @@
   },
   {
    "path": "srn_body/pfd0_neck001.mdl",
-   "sha256": "ecb2b08c284ec0dcd5f54353d43bb1925c11dca4e9f2b73f860b90f40989ea5c",
-   "bytes": 2300,
+   "sha256": "f6fb6bbf2699f5805bce347cf25abc3d901e8ed3a7b90d2129a909a010d5f07f",
+   "bytes": 55548,
    "role": "body-part",
    "sourceResource": "pfd0_neck237.mdl",
    "sourceArchive": "pm25fittonea.hak",
@@ -706,6 +706,10 @@
    "release130": {
     "fromSHA256": "65ebc8492701d8ddda9df56d57f8bec924779368f44cad22a5ab6b884f17985a",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "ecb2b08c284ec0dcd5f54353d43bb1925c11dca4e9f2b73f860b90f40989ea5c",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -720,7 +724,7 @@
   },
   {
    "path": "srn_body/pfd0_chest001.mdl",
-   "sha256": "1566c0f2703949f1764f898c190cad72ed1fab247ce6e1fe16e838c23a927a5e",
+   "sha256": "a16cb6c1781d31d2c72c778fbe4eb012b54a895f2a3b2ba76570bb1ea1686ac8",
    "bytes": 442588,
    "role": "body-part",
    "sourceResource": "pfd0_chest237.mdl",
@@ -743,6 +747,10 @@
    "release130": {
     "fromSHA256": "ef3f28589a996d871ae4921aac45c9f4a9013f7ff1ba92100a901f764ce9b56a",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "1566c0f2703949f1764f898c190cad72ed1fab247ce6e1fe16e838c23a927a5e",
+    "change": "c8-race-female-collar"
    }
   },
   {
@@ -2141,8 +2149,8 @@
   },
   {
    "path": "srn_body/pfd2_neck001.mdl",
-   "sha256": "130a4243a1b5431e8f644a193971922b72c18d4a86731b1098f7faf302f1dd4f",
-   "bytes": 2140,
+   "sha256": "605569c97ead21af4dfe1611bd89751925535801746a8a8e41dbe4b3d5ca8998",
+   "bytes": 63644,
    "role": "body-part",
    "sourceResource": "pfd2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -2151,6 +2159,10 @@
    "release130": {
     "fromSHA256": "b7793e3ee21c904256b24b7f86083bbaf1a10d658e31d76ed51f81f57acc32f7",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "130a4243a1b5431e8f644a193971922b72c18d4a86731b1098f7faf302f1dd4f",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -2185,7 +2197,7 @@
   },
   {
    "path": "srn_body/pfd2_chest001.mdl",
-   "sha256": "71b2bc738a3a2550f6bb0b0951e2fbd045d7b17cab3f6453d80894d7d1c6fb10",
+   "sha256": "c679acbffa9b90990ca722401243eb7cbe75eab65506e1fa429795eb8a18986c",
    "bytes": 364120,
    "role": "body-part",
    "sourceResource": "pfd2_chest001.mdl",
@@ -2195,6 +2207,10 @@
    "release130": {
     "fromSHA256": "fd99cd0b71ff75741acb949dbec5d234d03a35395ae67b12fdeca24d8ee21c6b",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "71b2bc738a3a2550f6bb0b0951e2fbd045d7b17cab3f6453d80894d7d1c6fb10",
+    "change": "c8-race-female-collar"
    }
   },
   {
@@ -2772,8 +2788,8 @@
   },
   {
    "path": "srn_body/pmd0_neck001.mdl",
-   "sha256": "c72614f708b2e40275a9ec94a2a68f42b1c593a53874d04814fb2f46ed8901c0",
-   "bytes": 2492,
+   "sha256": "f7838f79aad2ab5eef927721184505865f9db1a793f9a9597ec87a15bbf4c17a",
+   "bytes": 50364,
    "role": "body-part",
    "sourceResource": "pmd0_neck237.mdl",
    "sourceArchive": "pm25fittonea.hak",
@@ -2795,6 +2811,10 @@
    "release130": {
     "fromSHA256": "5414969a454b77543dfd26bf2e6ce0b21b2ae1a69d2a665eedaba3c8f6cced70",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "c72614f708b2e40275a9ec94a2a68f42b1c593a53874d04814fb2f46ed8901c0",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -4218,8 +4238,8 @@
   },
   {
    "path": "srn_body/pmd2_neck001.mdl",
-   "sha256": "e655519355ef8b6a56c0357824d51cd7fa193b2a16ef06d987f0663bfcc7aa28",
-   "bytes": 2428,
+   "sha256": "b31a9c75583500efb55018a68f4b39305078c838ca911938730ef9101dfdd3cc",
+   "bytes": 57692,
    "role": "body-part",
    "sourceResource": "pmd2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -4228,6 +4248,10 @@
    "release130": {
     "fromSHA256": "97bd85588d00d1dde058a75075b9fd4de5f4541a8db7d0d04b98f44dc15045e8",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "e655519355ef8b6a56c0357824d51cd7fa193b2a16ef06d987f0663bfcc7aa28",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -4812,7 +4836,7 @@
   },
   {
    "path": "srn_body/pfe0.mdl",
-   "sha256": "b8fdd2a158c358275daa493f49dba81791713fda6880116b77cb0636dcf9635f",
+   "sha256": "addfa5519ba49c8108d9d3545f2d10da07396e2af50c4f4c269ec898c1dce9e4",
    "bytes": 11448,
    "role": "fitted-rig",
    "sourceResource": "pfe0.mdl",
@@ -4835,12 +4859,16 @@
    "release130": {
     "fromSHA256": "c7f8d7aa808059dcd5738d62628423c10f3d07770727a7c3f29194f84f15f8c0",
     "change": "race-rig"
+   },
+   "release170": {
+    "fromSHA256": "b8fdd2a158c358275daa493f49dba81791713fda6880116b77cb0636dcf9635f",
+    "change": "c8-race-female-rig-head-drop"
    }
   },
   {
    "path": "srn_body/pfe0_neck001.mdl",
-   "sha256": "069a213fbff0e05c853727c42d10545b05ae28264015d1c90e1ccc3c38689d2b",
-   "bytes": 1980,
+   "sha256": "c7ce6e6f9fcce66a8b153b31f535825a625759bff491ebde9a8662ac12fd6f63",
+   "bytes": 55548,
    "role": "body-part",
    "sourceResource": "pfe0_neck237.mdl",
    "sourceArchive": "pm25fittonea.hak",
@@ -4862,6 +4890,10 @@
    "release130": {
     "fromSHA256": "1ec4d83209d30ace24881fe83ce3ef8942d167cf375e2776cea2f2ac5470dd1c",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "069a213fbff0e05c853727c42d10545b05ae28264015d1c90e1ccc3c38689d2b",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -4876,7 +4908,7 @@
   },
   {
    "path": "srn_body/pfe0_chest001.mdl",
-   "sha256": "0869d5bf1e67b1b997513dcd542690fdf9a7235766582c71fd0a00c79da1e91b",
+   "sha256": "cf7b680537671b6a3a510d464c088b93537bbcc128ee251785bdfb77660dae5f",
    "bytes": 442588,
    "role": "body-part",
    "sourceResource": "pfe0_chest237.mdl",
@@ -4899,6 +4931,10 @@
    "release130": {
     "fromSHA256": "8d3a7feacd5dcfda3d85cdc91f5d3eb1909ceb21757b6d7459363719ec51aa1f",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "0869d5bf1e67b1b997513dcd542690fdf9a7235766582c71fd0a00c79da1e91b",
+    "change": "c8-race-female-collar"
    }
   },
   {
@@ -5466,7 +5502,7 @@
   },
   {
    "path": "srn_body/pfe2.mdl",
-   "sha256": "0731b23f8ec7bef1a5d780eaff0697f7fa419a0564a82555454167924eeb2cdd",
+   "sha256": "9e539e7b35a2e89144872fbf78118ac9fd8def1c4272a0086ec9c54e69916f21",
    "bytes": 11448,
    "role": "fitted-rig",
    "sourceResource": "pfe2.mdl",
@@ -5489,12 +5525,16 @@
    "release130": {
     "fromSHA256": "81fc9e869235b17db4a0ebbebb858b85a1d5822116d4f60cc930aeb10b7871cf",
     "change": "race-rig"
+   },
+   "release170": {
+    "fromSHA256": "0731b23f8ec7bef1a5d780eaff0697f7fa419a0564a82555454167924eeb2cdd",
+    "change": "c8-race-female-rig-head-drop"
    }
   },
   {
    "path": "srn_body/pfe2_neck001.mdl",
-   "sha256": "1c18394dbd804274e39189e9377cea93882ebe2374f82690534a9fd0302a092d",
-   "bytes": 2140,
+   "sha256": "f8ca59dfa15a4ab0a75ea0472dc258d4d3873cd46779148eab0563e38e407b33",
+   "bytes": 63644,
    "role": "body-part",
    "sourceResource": "pfe2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -5503,6 +5543,10 @@
    "release130": {
     "fromSHA256": "fa48b58d3fc42c47a361655889b2f39ef2fbed7980750553c3490fdd8f9a3b30",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "1c18394dbd804274e39189e9377cea93882ebe2374f82690534a9fd0302a092d",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -5527,7 +5571,7 @@
   },
   {
    "path": "srn_body/pfe2_chest001.mdl",
-   "sha256": "f26ce3a53275d1ddd42c08ddec1f2db4fb964a068861b4ce71e964eab74a421d",
+   "sha256": "398c1be8e63ac6c6a15585a3cbfd94a4724cf89ddbf22e556db03a7073a36fee",
    "bytes": 364120,
    "role": "body-part",
    "sourceResource": "pfe2_chest001.mdl",
@@ -5537,6 +5581,10 @@
    "release130": {
     "fromSHA256": "591e213655725f1345228b69830ae7af3e5bf1f5f36f3a32317e9e5e84c5379e",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "f26ce3a53275d1ddd42c08ddec1f2db4fb964a068861b4ce71e964eab74a421d",
+    "change": "c8-race-female-collar"
    }
   },
   {
@@ -6114,8 +6162,8 @@
   },
   {
    "path": "srn_body/pme0_neck001.mdl",
-   "sha256": "253895bc369b23cb27f7a37a4d504479f8929f033d8c88bb54c69c336e79c9ec",
-   "bytes": 2204,
+   "sha256": "8c4b7c7f02a9074c7cbad45cae2417dd54149c446e6d293d5cac0b27ffc3caff",
+   "bytes": 50364,
    "role": "body-part",
    "sourceResource": "pme0_neck237.mdl",
    "sourceArchive": "pm25fittonea.hak",
@@ -6137,6 +6185,10 @@
    "release130": {
     "fromSHA256": "9d304d281a4b37549211b70eb9c4331e1694e82d3e1a1fbd2310f3becae94c1e",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "253895bc369b23cb27f7a37a4d504479f8929f033d8c88bb54c69c336e79c9ec",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -6756,8 +6808,8 @@
   },
   {
    "path": "srn_body/pme2_neck001.mdl",
-   "sha256": "7de4ae5661ea1cd2ddf6f15272597a76ea330b892946ff5731df8b8ae7fb72bd",
-   "bytes": 2428,
+   "sha256": "7309514cbc6d0b111f7a72a02b391701fe4a2eb7427a18304b38018d70b84402",
+   "bytes": 57692,
    "role": "body-part",
    "sourceResource": "pme2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -6766,6 +6818,10 @@
    "release130": {
     "fromSHA256": "dca229a6316570fb519ebac9ae4b4e896ebedccd54dc06c724c82bd9d8fdd190",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "7de4ae5661ea1cd2ddf6f15272597a76ea330b892946ff5731df8b8ae7fb72bd",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -7350,13 +7406,17 @@
   },
   {
    "path": "srn_body/pfh0.mdl",
-   "sha256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+   "sha256": "d22207455c149efabd9e27dd697a224c51777b76cde5a8a6ae2ff562686c9c30",
    "bytes": 11448,
    "role": "fitted-rig",
    "sourceResource": "pfh0.mdl",
    "sourceArchive": "sr_pm17.hak",
    "sourceSHA256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
-   "nameOnlyChanges": []
+   "nameOnlyChanges": [],
+   "release160": {
+    "fromSHA256": "209ffd5900ac78935ac696dcc824f8fb8f808c2603c4be241e809ca2fa3e8c03",
+    "change": "c8-female-rig-head-drop"
+   }
   },
   {
    "path": "srn_body/srn_fa_h0.mdl",
@@ -7554,8 +7614,8 @@
   },
   {
    "path": "srn_body/pfh0_neck001.mdl",
-   "sha256": "81ec2ccaa6e8e3e65ad3ebdc40b12e7dee3a819c29698dec507e043eafd816a2",
-   "bytes": 2380,
+   "sha256": "f8e4420ac1df03d90f8f581118f4b3ed8fcda20085c3bfcaf86072e092f04b15",
+   "bytes": 55548,
    "role": "body-part",
    "sourceResource": "pfh0_neck237.mdl",
    "sourceArchive": "pm25fulltonea.hak",
@@ -7579,7 +7639,11 @@
      "old": "pfh0_neck237g",
      "new": "pfh0_neck001g"
     }
-   ]
+   ],
+   "release160": {
+    "fromSHA256": "81ec2ccaa6e8e3e65ad3ebdc40b12e7dee3a819c29698dec507e043eafd816a2",
+    "change": "c8-neck"
+   }
   },
   {
    "path": "srn_body/pfh0_neck001.plt",
@@ -7593,7 +7657,7 @@
   },
   {
    "path": "srn_body/pfh0_chest001.mdl",
-   "sha256": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+   "sha256": "bbcc8f58d4f9015610529978898a267864d235664bc4df4fc6c13eea62d52f22",
    "bytes": 442588,
    "role": "body-part",
    "sourceResource": "pfh0_chest237.mdl",
@@ -7628,6 +7692,10 @@
    "release130": {
     "fromSHA256": "7856d0d5f8c12712eac57cface9aba95bbe5e13bc484a65cd2bd6554b572a3d4",
     "change": "c6-human-lock"
+   },
+   "release160": {
+    "fromSHA256": "58fb404d9b09404283146abfc246020355337fe28de1ea0586ecd1cee153d65b",
+    "change": "c8-female-collar"
    }
   },
   {
@@ -8375,7 +8443,7 @@
   },
   {
    "path": "srn_body/pfh2.mdl",
-   "sha256": "a226331a13ec3056fe4ac1712a6e9eb0b3b462eaeb971866b4e62df711910452",
+   "sha256": "b2a9b5cdbb6c5d82a75f6480cf8a54f0a0555c64dd18089dc54492f6c76e9080",
    "bytes": 11448,
    "role": "fitted-rig",
    "sourceResource": "pfh2.mdl",
@@ -8386,17 +8454,25 @@
    "supermodel": {
     "from": "p25l04_07",
     "to": "srn_fa_h0"
+   },
+   "release160": {
+    "fromSHA256": "a226331a13ec3056fe4ac1712a6e9eb0b3b462eaeb971866b4e62df711910452",
+    "change": "c8-female-rig-head-drop"
    }
   },
   {
    "path": "srn_body/pfh2_neck001.mdl",
-   "sha256": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
-   "bytes": 2488,
+   "sha256": "8992284650d6f28b1188d59f9d843b7a03c25fa38baaa473940ce473516a8643",
+   "bytes": 63644,
    "role": "body-part",
    "sourceResource": "pfh2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
    "sourceSHA256": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
-   "nameOnlyChanges": []
+   "nameOnlyChanges": [],
+   "release160": {
+    "fromSHA256": "03dd70ace44f120fa601a46591595f6340958880b1329ea4e80c08b850494254",
+    "change": "c8-neck"
+   }
   },
   {
    "path": "srn_body/pfh2_neck001.plt",
@@ -8420,7 +8496,7 @@
   },
   {
    "path": "srn_body/pfh2_chest001.mdl",
-   "sha256": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+   "sha256": "6d0d6ac5091a61468b2857016ea947e3757b3f1bcd7af087b3089bcd613798b6",
    "bytes": 364120,
    "role": "body-part",
    "sourceResource": "pfh2_chest001.mdl",
@@ -8430,6 +8506,10 @@
    "release130": {
     "fromSHA256": "a2b1a4a8186f6f9412dc4bc0693d96e892ec21a0f19d5a0f4e82eaa2652e6aa8",
     "change": "c6-human-lock"
+   },
+   "release160": {
+    "fromSHA256": "bdb5019e19d622b81ab708929a317f8bc2e18c2298dee549bf61f1ecb880546a",
+    "change": "c8-female-collar"
    }
   },
   {
@@ -8954,8 +9034,8 @@
   },
   {
    "path": "srn_body/pmh0_neck001.mdl",
-   "sha256": "0e1097860f3f5751e65e7f3c9533abef0982dce60d16db0fb06e602f11642520",
-   "bytes": 2596,
+   "sha256": "4271dea0838b7e756b3ae7b30fa09e52abd13c6f9f042d13c9a6cd3eca58ab3e",
+   "bytes": 50364,
    "role": "body-part",
    "sourceResource": "pmh0_neck237.mdl",
    "sourceArchive": "pm25fulltonea.hak",
@@ -8979,7 +9059,11 @@
      "old": "pmh0_neck237g",
      "new": "pmh0_neck001g"
     }
-   ]
+   ],
+   "release160": {
+    "fromSHA256": "0e1097860f3f5751e65e7f3c9533abef0982dce60d16db0fb06e602f11642520",
+    "change": "c8-neck"
+   }
   },
   {
    "path": "srn_body/pmh0_neck001.plt",
@@ -9740,8 +9824,8 @@
   },
   {
    "path": "srn_body/pmh2_neck001.mdl",
-   "sha256": "56e59273ae4d7412a95a2752cbe27ae26e70a88c20a00ca51e4e16f27fcfeafd",
-   "bytes": 2428,
+   "sha256": "f0b73156ff600de7a74094987e92bfe25e667c039966993c6f172c63779cdafe",
+   "bytes": 57692,
    "role": "body-part",
    "sourceResource": "pmh2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -9750,6 +9834,10 @@
    "release130": {
     "fromSHA256": "2f35f2716bc9a6412440cb857685697197cc10a5024361fbd8270c20e3d652c8",
     "change": "c7-human-lock-pmh2"
+   },
+   "release160": {
+    "fromSHA256": "56e59273ae4d7412a95a2752cbe27ae26e70a88c20a00ca51e4e16f27fcfeafd",
+    "change": "c8-neck"
    }
   },
   {
@@ -10334,7 +10422,7 @@
   },
   {
    "path": "srn_body/pfo0.mdl",
-   "sha256": "1b716d0d32155b58603c2de1d93ca02e653a6facfd00cb53e16fb72593147674",
+   "sha256": "601a75f573eed6320df38bf0b5ac989ab0e662a685506a248e6dfe36fb8f5c19",
    "bytes": 11448,
    "role": "fitted-rig",
    "sourceResource": "pfo0.mdl",
@@ -10357,12 +10445,16 @@
    "release130": {
     "fromSHA256": "966b61bfc02805090a2fe210fa2edff057084c1a05c8937f05fadf580fd04b1c",
     "change": "race-rig"
+   },
+   "release170": {
+    "fromSHA256": "1b716d0d32155b58603c2de1d93ca02e653a6facfd00cb53e16fb72593147674",
+    "change": "c8-race-female-rig-head-drop"
    }
   },
   {
    "path": "srn_body/pfo0_neck001.mdl",
-   "sha256": "09c510840238dcbe1593595159fb09eb5fa84e6131ea1cd3d88922b221157e50",
-   "bytes": 1980,
+   "sha256": "439065926207a90e5a51ae2ff6cb9f2047123a23a2bdc077f7cc25c4429f4a11",
+   "bytes": 55548,
    "role": "body-part",
    "sourceResource": "pfo0_neck237.mdl",
    "sourceArchive": "pm25fittonea.hak",
@@ -10384,6 +10476,10 @@
    "release130": {
     "fromSHA256": "aa3d5eac2a347c87413a982c6d336dd2497ebd289d82ea436655065aea37218b",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "09c510840238dcbe1593595159fb09eb5fa84e6131ea1cd3d88922b221157e50",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -10398,7 +10494,7 @@
   },
   {
    "path": "srn_body/pfo0_chest001.mdl",
-   "sha256": "9e3e22fb14587815c1778f6327859a35a1439967da3d61d4f712d8d58f6d96bb",
+   "sha256": "dff6a4e6c223b0b41ed921e53290460507b4d31d4028626416386647616a11d6",
    "bytes": 442588,
    "role": "body-part",
    "sourceResource": "pfo0_chest237.mdl",
@@ -10421,6 +10517,10 @@
    "release130": {
     "fromSHA256": "0b2912350f843afcbd897ba92bb4e5f08480a80bd48a2e9b5c57636726ac2af7",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "9e3e22fb14587815c1778f6327859a35a1439967da3d61d4f712d8d58f6d96bb",
+    "change": "c8-race-female-collar"
    }
   },
   {
@@ -10988,7 +11088,7 @@
   },
   {
    "path": "srn_body/pfo2.mdl",
-   "sha256": "68733aa521af259cc9e5e5cfdc00f4a59ef3dd7aedb926f53a03c71db25ccaa6",
+   "sha256": "a7926bb8a455026efdc287e85d87f73712834cd56a614d5cd2682ff3b403ab9d",
    "bytes": 11448,
    "role": "fitted-rig",
    "sourceResource": "pfo2.mdl",
@@ -11011,12 +11111,16 @@
    "release130": {
     "fromSHA256": "015f3e51ed548f9e4c3f62c5f82ad920fa880cb578a091d797370a1bff505ebb",
     "change": "race-rig"
+   },
+   "release170": {
+    "fromSHA256": "68733aa521af259cc9e5e5cfdc00f4a59ef3dd7aedb926f53a03c71db25ccaa6",
+    "change": "c8-race-female-rig-head-drop"
    }
   },
   {
    "path": "srn_body/pfo2_neck001.mdl",
-   "sha256": "31d3df4bf8b418259e69530a45ba9cc6d75de2c33f078bd588ac6327844446d2",
-   "bytes": 2140,
+   "sha256": "cb0b63667f7bde86dd11c79b7b79c7ea1aedb23f581704ea9a1bf2bef0b9a338",
+   "bytes": 63644,
    "role": "body-part",
    "sourceResource": "pfo2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -11025,6 +11129,10 @@
    "release130": {
     "fromSHA256": "3599d82328cde6cf15d8b7c2d28085e6d401ee80e416e69f480616236fd3eb4a",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "31d3df4bf8b418259e69530a45ba9cc6d75de2c33f078bd588ac6327844446d2",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -11049,7 +11157,7 @@
   },
   {
    "path": "srn_body/pfo2_chest001.mdl",
-   "sha256": "a741ae93b9475671d59ec04b3cc3e625e9f0abc17a1502019135ca2865ffce8d",
+   "sha256": "db94959d3d55755f8347949995585ad8a0b205b98a5eb15700dfa882c3941a23",
    "bytes": 364120,
    "role": "body-part",
    "sourceResource": "pfo2_chest001.mdl",
@@ -11059,6 +11167,10 @@
    "release130": {
     "fromSHA256": "ac20662e2b0124cc8a9afc9ddc56c15b534fa9c022b1c3361ab16c439bcc8545",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "a741ae93b9475671d59ec04b3cc3e625e9f0abc17a1502019135ca2865ffce8d",
+    "change": "c8-race-female-collar"
    }
   },
   {
@@ -11636,8 +11748,8 @@
   },
   {
    "path": "srn_body/pmo0_neck001.mdl",
-   "sha256": "a46b69b62a9f70ea01e1f74d7b45d66d1f94dba1d92022ae06f1f7e0a75250af",
-   "bytes": 2236,
+   "sha256": "3b399620854a7ba615982eb5838a7ac5aa8de1d9daf3398869a7e2d3d82d0f14",
+   "bytes": 50364,
    "role": "body-part",
    "sourceResource": "pmo0_neck237.mdl",
    "sourceArchive": "pm25fittonea.hak",
@@ -11659,6 +11771,10 @@
    "release130": {
     "fromSHA256": "37f7b2ef80126af7349e150a3cc9bbf56ca955e2f46eeda712ae392ed82e3877",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "a46b69b62a9f70ea01e1f74d7b45d66d1f94dba1d92022ae06f1f7e0a75250af",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -12278,8 +12394,8 @@
   },
   {
    "path": "srn_body/pmo2_neck001.mdl",
-   "sha256": "5e126e2a1c6292b3b43fba93a9ef651d09d4ae44c8a0a2a6afdc7054fd2be331",
-   "bytes": 2428,
+   "sha256": "ded008b737a35ba9af32ff1c6f5d5d6b8d7ae46cf98d948a32a18240ce45cd22",
+   "bytes": 57692,
    "role": "body-part",
    "sourceResource": "pmo2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -12288,6 +12404,10 @@
    "release130": {
     "fromSHA256": "22fee6b1c1f50cbf8f27eee8155eb93fd14945fe085368cb216ef6c00a729c39",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "5e126e2a1c6292b3b43fba93a9ef651d09d4ae44c8a0a2a6afdc7054fd2be331",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -12899,8 +13019,8 @@
   },
   {
    "path": "srn_body/pfg0_neck001.mdl",
-   "sha256": "76aa0365114d8a301d870e30944584cacb79d9cc6f602f768ae90245e8ab0d47",
-   "bytes": 1980,
+   "sha256": "26c50130486a200100e024ead0b55b706551201451e2506bfec3a513dea92cf3",
+   "bytes": 55548,
    "role": "body-part",
    "sourceResource": "pfg0_neck237.mdl",
    "sourceArchive": "pm25fittonea.hak",
@@ -12922,6 +13042,10 @@
    "release130": {
     "fromSHA256": "d70104a19c464564fe248d527fbca9e80fac95ddaa87488c0cf62159af20f25a",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "76aa0365114d8a301d870e30944584cacb79d9cc6f602f768ae90245e8ab0d47",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -12936,7 +13060,7 @@
   },
   {
    "path": "srn_body/pfg0_chest001.mdl",
-   "sha256": "fa602c51d35c4cb2deabfbcb2047d703275aab1dc7f5a6ca07417e7f08f3f0a1",
+   "sha256": "134a5e0a53e66731304ab5114b0c10d831d5af27558a7d26e88666429eccf6bc",
    "bytes": 442588,
    "role": "body-part",
    "sourceResource": "pfg0_chest237.mdl",
@@ -12959,6 +13083,10 @@
    "release130": {
     "fromSHA256": "fada9f1f5cb339be721f507710f426148209331ae8750b9cf8b9deee7e940d9d",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "fa602c51d35c4cb2deabfbcb2047d703275aab1dc7f5a6ca07417e7f08f3f0a1",
+    "change": "c8-race-female-collar"
    }
   },
   {
@@ -13553,8 +13681,8 @@
   },
   {
    "path": "srn_body/pfg2_neck001.mdl",
-   "sha256": "56be4626c427afa55002d3fa963e6cf03c629a6d1460cca3e710180518fc3902",
-   "bytes": 2140,
+   "sha256": "d83aee7f02695cc112dcef3c5d054959ed6f7a4f54fdac7cec7aaafc7b3cb0bd",
+   "bytes": 63644,
    "role": "body-part",
    "sourceResource": "pfg2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -13563,6 +13691,10 @@
    "release130": {
     "fromSHA256": "b65e220abf60ce09616c7efe55509fd569d16aefedb1ee358485d41173cbfa55",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "56be4626c427afa55002d3fa963e6cf03c629a6d1460cca3e710180518fc3902",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -13587,7 +13719,7 @@
   },
   {
    "path": "srn_body/pfg2_chest001.mdl",
-   "sha256": "20e0ca4bca2466990ed359404bcad3ff20997d652fe2a6664e5df161c3681c66",
+   "sha256": "efb6ae0c9e704313d434f0469a568938616294340ed050db59acf3906945afd2",
    "bytes": 364120,
    "role": "body-part",
    "sourceResource": "pfg2_chest001.mdl",
@@ -13597,6 +13729,10 @@
    "release130": {
     "fromSHA256": "3dedc938da86f6939635379581b02a80f77c330fa2f682984b3c53983af84cc6",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "20e0ca4bca2466990ed359404bcad3ff20997d652fe2a6664e5df161c3681c66",
+    "change": "c8-race-female-collar"
    }
   },
   {
@@ -14174,8 +14310,8 @@
   },
   {
    "path": "srn_body/pmg0_neck001.mdl",
-   "sha256": "3eb38137cc714f2a8aaa786a164cc9b5259c987e3e705ccfe2992a1d94663eaf",
-   "bytes": 2268,
+   "sha256": "6c63baa1fb5510128434882af189c878224a01ccfdf5145c3fb1a1fed3bf4d14",
+   "bytes": 50364,
    "role": "body-part",
    "sourceResource": "pmg0_neck237.mdl",
    "sourceArchive": "pm25fittonea.hak",
@@ -14197,6 +14333,10 @@
    "release130": {
     "fromSHA256": "ebe1dbffc76bdb859ea135f0938aeb0d145ff809082c2a1999165e7afb472809",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "3eb38137cc714f2a8aaa786a164cc9b5259c987e3e705ccfe2992a1d94663eaf",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -14816,8 +14956,8 @@
   },
   {
    "path": "srn_body/pmg2_neck001.mdl",
-   "sha256": "1e42f6030f1a2015a02b29cfdea21e650e33c23367f59ac381546a5eca160e81",
-   "bytes": 2428,
+   "sha256": "4cedfaff53e06a5583614791535c899cd21aa218fef78981aee6f5db0a8949d5",
+   "bytes": 57692,
    "role": "body-part",
    "sourceResource": "pmg2_neck001.mdl",
    "sourceArchive": "pm25bodiesa.hak",
@@ -14826,6 +14966,10 @@
    "release130": {
     "fromSHA256": "167832052f899e85a211bc5141e2c53bf778f2a5a99781e25830456e5d8a820b",
     "change": "race-body-part"
+   },
+   "release170": {
+    "fromSHA256": "1e42f6030f1a2015a02b29cfdea21e650e33c23367f59ac381546a5eca160e81",
+    "change": "c8-race-neck"
    }
   },
   {
@@ -20177,7 +20321,9 @@
   "1.3.0 (user-approved 2026-10-27; docs/phenomorpher/race-sizing/plan.md, human-bodies-lock-c7.md): race bodies at their lore rest heights with Fit = Large, Large-male joint heights at Fit, lore build, the b13/c6 female joins ported to the race females, idle soles on the floor; the c7 Human lock (c6 female joins, torso polish and rebuilt skin, and pmh2 at Fit joint heights). Rigs, libraries and pmh2 compile with Blender 5.2.1 + Neverblender 4.5.1 against the stock a_ba/a_fa. Per-resource release130 records the 1.2.0 hash and change class.",
   "1.3.0 foot fix (user request 2026-10-27): in every race library clip where a race body went further below the floor than in 1.2.0, rootdummy position keys are lifted by that extra depth at every key time (plus refinement points); nothing is lowered and clips that never sink are byte-for-byte the same animation. docs/phenomorpher/race-sizing/release-1.3.0.json (footFix).",
   "1.4.0 (user request 2026-11-07, docs/phenomorpher/animation-chain-probe.md): srn_body/a_ba_custom.mdl overrides the installed ASCII a_ba_custom with its stock clips unchanged and 175 added firearm clips named <action>_<weapon>_<slot>. installedAnimationChain still records the stock file the override is built from. Bodies, rigs and the 2DA tables are unchanged.",
-  "1.5.0 (user request 2026-11-07, docs/items/firearm-fx-pilot.md): srn_body/a_ba_custom.mdl adds 30 automatic rifle clips (fire_rfla, fire_rflb), shifts the rifle and shotgun fire clips' recoil 0.37 s later to the engine's 0.5 s shot, fixes the pistol support elbow, and adds ready_pst and ready_smg stance copies of the pistol and SMG fire clips so stances never fire gun effects. srn_body/a_ba_non_combat.mdl overrides the installed binary with a decompiled ASCII copy whose xbowr carry overlay keeps its nodes but has no keys, so crossbow-class firearms stay aimed outside combat; every other clip is unchanged. installedAnimationChain still records the stock files these are built from."
+  "1.5.0 (user request 2026-11-07, docs/items/firearm-fx-pilot.md): srn_body/a_ba_custom.mdl adds 30 automatic rifle clips (fire_rfla, fire_rflb), shifts the rifle and shotgun fire clips' recoil 0.37 s later to the engine's 0.5 s shot, fixes the pistol support elbow, and adds ready_pst and ready_smg stance copies of the pistol and SMG fire clips so stances never fire gun effects. srn_body/a_ba_non_combat.mdl overrides the installed binary with a decompiled ASCII copy whose xbowr carry overlay keeps its nodes but has no keys, so crossbow-class firearms stay aimed outside combat; every other clip is unchanged. installedAnimationChain still records the stock files these are built from.",
+  "1.6.0 (user-approved 2026-11-26; docs/phenomorpher/human-bodies-lock-c8.md): the c8 Human lock. New anatomical neck001 for pfh0, pfh2, pmh0 and pmh2 (24-sided, sternocleidomastoid ridges, throat hollow, nape groove; male Adam's apple). Female rigs lower head_g 3.5 cm (neck 11.1 -> 7.6 cm joint to joint; rest stature -0.035 m) and the female chests rise into a trapezius slope at the collar. neck_g, every other part, the male rigs and chests are unchanged. The published Human male library heads (srn_head pmh0_head086-092) are scaled x1.06 about head_g; they are not in this contract.",
+  "1.7.0 (user-approved 2026-11-27, \"Approve, elf drop 2 cm\"; docs/phenomorpher/race-necks-c8.md): the c8 neck on every other race. New anatomical neck001 for the Dwarf, Elf, Orc and Troll bodies (both sexes, Fit and Large), built by the Human c8 builders in a frame normalised to each body's old neck; female chests rise into the same trapezius slope. Elf female rigs lower head_g 2 cm and Orc female rigs 3.3 cm (rest stature lower by the same); Dwarf and Troll females and all males keep their head height. neck_g and every other part are unchanged. 56 published race library heads in srn_head are rescaled (receipt lists each); they are not in this contract."
  ],
  "raceSelection": {
   "rows": {

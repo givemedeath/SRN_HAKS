@@ -5009,4 +5009,82 @@ class DesignTests(Temporary):
         write(self.bindings,self.bindings_data(**{**self.local,'comfyUrl':'http://192.168.1.5:8188'}))
         with patch('sys.argv',argv),patch('headkit.__main__.launched',return_value=None),self.assertRaisesRegex(ValueError,'bound local'):main()
 
+class RaceSizingTests(unittest.TestCase):
+    """docs/heads/race-head-standard-v1.json: per-race export scale, pivot and face check (user 2026-11-27)."""
+    STANDARD=Path(__file__).resolve().parents[2]/'docs/heads/race-head-standard-v1.json'
+
+    @staticmethod
+    def face(eye_x=.03):
+        """Triangles (n,3,3), NWN UVs (n,3,2) and 1K layers: two irises on tattoo1 (8), a skin midline down to the chin
+        at z -0.05, and a lower nape (z -0.08) at the back that must not count as the chin."""
+        layers=np.zeros((1024,1024),np.uint8);layers[:100,:100]=8
+        tri=lambda c,r=.004:np.array([c+[-r,0,-r],c+[r,0,-r],c+[0,0,r]])
+        iris=[tri(np.array([sx*eye_x,.09,.06])) for sx in (-1,1) for _ in range(3)]
+        skin=[tri(np.array([x,.1,z]),.003) for z in np.linspace(-.05,.1,16) for x in (-.004,0,.004)]
+        skin+=[tri(np.array([0,.11,.03]),.002),tri(np.array([0,-.1,-.08]),.003),tri(np.array([0,-.09,-.08]),.003)]
+        points=np.array(iris+skin);uv=np.full((len(points),3,2),.9)
+        uv[:len(iris)]=[.05,.95]  # top-left of the image (v up): the tattoo1 square
+        return points,uv,layers
+
+    def apply(self,model,reference,points=None,align='nose',override='race-head-standard-v1'):
+        from headkit.race_sizing import apply
+        points,uv,layers=self.face() if points is None else points
+        matrix=np.eye(4);matrix[:3,3]=[0,.01,.02]
+        return apply(self.STANDARD,override,model,align,reference,points,matrix,uv,layers)
+
+    def test_standard_covers_every_race_with_the_reviewed_factors(self):
+        data=json.loads(self.STANDARD.read_text());rows=data['prefixes']
+        races=json.loads((Path(__file__).resolve().parents[1]/'headbatch/races.json').read_text())['compactFitHead']
+        self.assertEqual(set(rows),{s+r+'0' for s in ('pm','pf') for r in 'hedog'})
+        self.assertEqual({p:r['exportScale'] for p,r in rows.items() if r['exportScale']!=1},{'pmh0':1.06,'pme0':1.15,'pfe0':1.15,'pmg0':1.12})
+        self.assertEqual([p for p,r in rows.items() if r['pivot']=='chin'],['pmg0'])
+        for prefix,number in races.items():self.assertEqual(rows[prefix]['fitFrame'],f'{prefix}_head{number:03d}')
+        self.assertTrue(all(rows[p]['fitFrame'] is None and rows[p]['interpupillary'] is None for p in ('pmg0','pfg0')))
+
+    def test_elf_scales_about_head_g_and_flags_a_wide_face_for_review(self):
+        points,uv,layers=self.face();out,matrix,record=self.apply('pfe0_head030','inputs/fit-reference-pfe0_head009.mdl',(points,uv,layers))
+        np.testing.assert_allclose(out,points*1.15,atol=1e-12)
+        np.testing.assert_allclose(matrix[:3],np.c_[np.eye(3)*1.15,[0,.0115,.023]],atol=1e-12)
+        self.assertEqual((record['scale'],record['pivot']),(1.15,[0,0,0]))
+        self.assertAlmostEqual(record['face']['interpupillary'],.069,places=4)
+        self.assertIn('review',record['faceCheck'])
+
+    def test_troll_male_scales_about_its_own_chin(self):
+        points,uv,layers=self.face();out,matrix,record=self.apply('pmg0_head030','inputs/fit-reference-pmg0_head014.mdl',(points,uv,layers))
+        self.assertEqual(record['pivotRule'],'chin');self.assertAlmostEqual(record['pivot'][2],-.053,places=3)  # not the nape at -0.083
+        self.assertAlmostEqual(out[:,:,2].reshape(-1)[out[:,:,1].reshape(-1)>.05].min(),-.053,places=9)
+        np.testing.assert_allclose(out-record['pivot'],(points-record['pivot'])*1.12,atol=1e-12)
+        self.assertIn('no band',record['faceCheck'])
+
+    def test_outlier_face_is_refused_until_reviewed(self):
+        wide=self.face(eye_x=.04)
+        with self.assertRaisesRegex(ValueError,'from the pfd0 library median'):self.apply('pfd0_head030','inputs/fit-reference-pfd0_head012.mdl',wide)
+        *_,record=self.apply('pfd0_head030','inputs/fit-reference-pfd0_head012.mdl',wide,override={'policy':'race-head-standard-v1','outsideBand':'design has wide-set eyes'})
+        self.assertIn('accepted on review',record['faceCheck']);self.assertLess(record['suggestedScale'],.7)
+        *_,record=self.apply('pfd0_head030','inputs/fit-reference-pfd0_head012.mdl',wide,override={'policy':'race-head-standard-v1','factor':.7,'reason':'matched to the batch'})
+        self.assertEqual(record['scale'],.7);self.assertEqual(record['faceCheck'],'within the library band')
+
+    def test_reference_frames_and_landmark_fits(self):
+        with self.assertRaisesRegex(ValueError,'is not the pfe0 frame'):self.apply('pfe0_head030','inputs/fit-reference-pfe0_head021.mdl')
+        *_,record=self.apply('pfe0_head030','inputs/fit-reference-pfe0_head021.mdl',align='landmarks')
+        self.assertEqual(record['scale'],1.0)
+        *_,record=self.apply('pfh0_head040','inputs/fit-reference-pfh0_head024.mdl')
+        self.assertEqual((record['scale'],record['faceCheck']),(1.0,'within the library band'))
+
+    def test_landmark_solved_fits_keep_their_scale(self):
+        from headkit.race_sizing import fit_align
+        self.assertEqual(fit_align({'landmarks':[{'sourceNwnBasis':[0,0,0],'targetNwnLocal':[0,0,0]}]}),'landmarks')
+        self.assertEqual(fit_align({'align':'nose','landmarks':{'base':'pfe0'}}),'landmarks')
+        self.assertEqual((fit_align({'align':'nose'}),fit_align({'matrix':[]})),('nose','profile'))
+        *_,record=self.apply('pfe0_head030','inputs/fit-reference-pfe0_head021.mdl',align=fit_align({'landmarks':[]}))
+        self.assertEqual(record['scale'],1.0)
+
+    def test_manifest_setting_is_validated(self):
+        from headkit.race_sizing import config
+        for bad in ('troll-build-allowance-r3',{'policy':'race-head-standard-v1','factor':1.1},{'policy':'race-head-standard-v1','factor':2,'reason':'x'},
+                    {'policy':'race-head-standard-v1','extra':1},{'policy':'race-head-standard-v1','reason':'x'}):
+            with self.assertRaises(ValueError):config(bad)
+        self.assertEqual(config('race-head-standard-v1'),{'policy':'race-head-standard-v1'})
+
+
 if __name__=='__main__':unittest.main()
